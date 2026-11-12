@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,26 +76,26 @@
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // lotElements は敷地の外構 prop を返す。街路側の footprint 縁に塀を並べ、入口の軸を門として開ける。前庭には</span>
 <span id="L16"><span class="lineNum">      16</span>              : // 店なら自販機、民家なら観葉を1つ置く。</span>
-<span id="L17"><span class="lineNum">      17</span>              : func lotElements(s Site, fac oapi.Facility) []Placed {</span>
+<span id="L17"><span class="lineNum">      17</span>              : func lotElements(t profileTable, s Site, fac oapi.Facility) []Placed {</span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 :         fside := frontSide(s)</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         lo, hi, edge := lotEdgeSpan(s.Footprint, fside)</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         doorAxis := edge.along(s.Door)</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         var out []Placed</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         // 塀で敷地を囲い、入口の軸を門として開ける。商店街は街路に面して開くので塀を張らない</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if s.Type != siteShopfront {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         // 塀で敷地を囲い、入口の軸を門として開ける</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if s.Fence {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 for a := lo; a &lt;= hi; a++ {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                         if abs(a-doorAxis) &lt;= 1 { // 門の隙間。街路から前庭へ入る</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L28"><span class="lineNum">      28</span>              :                         }</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                         out = append(out, Placed{Kind: oapi.Decor, Ref: &quot;fence&quot;, Pos: edge.at(a)})</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                         out = append(out, Placed{Kind: oapi.Decor, Ref: t.lot.Fence, Pos: edge.at(a)})</span></span>
 <span id="L30"><span class="lineNum">      30</span>              :                 }</span>
 <span id="L31"><span class="lineNum">      31</span>              :         }</span>
 <span id="L32"><span class="lineNum">      32</span>              :         // 前庭の外構。店は入口脇に自販機、民家は観葉。前庭のタイルにだけ置く</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if spot, ok := yardSpot(s, fside, doorAxis); ok {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 ref := &quot;plant&quot;</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 ref := t.lot.Plant</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 if fac.IsShop {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         ref = &quot;vending&quot;</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         ref = t.lot.Vending</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 out = append(out, Placed{Kind: oapi.Decor, Ref: ref, Pos: spot})</span></span>
 <span id="L39"><span class="lineNum">      39</span>              :         }</span>

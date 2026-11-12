@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -212,7 +212,7 @@
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L151"><span class="lineNum">     151</span>              : </span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         if gt.SeasonJustChanged() {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 name := query.T(world, gt.GetSeason().String())</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 name := query.SeasonName(world, gt.GetSeason())</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                         Markup(gamelog.Tag(&quot;system&quot;, query.T(world, &quot;The season changed to %s.&quot;, name))).</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                         Log()</span></span>

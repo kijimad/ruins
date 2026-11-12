@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -363,7 +363,7 @@
 <span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         // 屋外の日照が強いほど明るさを 1.0 超へ持ち上げ、乗算の天井を越えて晴天を明るく見せる</span></span>
 <span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :         boost := 1.0</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :         if query.IsOnOverworld(world) {</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 boost = 1 + dayOverbrightMax*smoothstep(dayOverbrightLow, dayOverbrightHigh, overworldDaylight(query.GetGameTime(world)))</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 boost = 1 + dayOverbrightMax*smoothstep(dayOverbrightLow, dayOverbrightHigh, overworldDaylight(world.Resources.CalendarDefs, query.GetGameTime(world)))</span></span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :         return func(g *gc.GridElement) ([3]float64, bool, bool) {</span></span>
 <span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                 s, drawable, visible := sampleOf(renderMap[*g])</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,10 +64,10 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L4"><span class="lineNum">       4</span>              : </span>
-<span id="L5"><span class="lineNum">       5</span>              : // WorldTemperatureAtDay は経過日 day の屋外世界温度のベース値を返す。components.SeasonalTemperatureForDay を</span>
+<span id="L5"><span class="lineNum">       5</span>              : // WorldTemperatureAtDay は経過日 day の屋外世界温度のベース値を返す。CalendarDefs.SeasonalTemperatureForDay を</span>
 <span id="L6"><span class="lineNum">       6</span>              : // 単一出典で参照する季節変動そのもので、生存の寒さ圧の上流入力になる。</span>
-<span id="L7"><span class="lineNum">       7</span>              : func WorldTemperatureAtDay(day int) int {</span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC tlaBgGNC">           1 :         return gc.SeasonalTemperatureForDay(day)</span></span>
+<span id="L7"><span class="lineNum">       7</span>              : func WorldTemperatureAtDay(calendar gc.CalendarDefs, day int) int {</span>
+<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC tlaBgGNC">           1 :         return calendar.SeasonalTemperatureForDay(day)</span></span>
 <span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>

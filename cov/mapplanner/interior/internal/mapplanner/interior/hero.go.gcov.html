@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,8 +72,8 @@
 <span id="L10"><span class="lineNum">      10</span>              : // 種類を引き、その種類の Ref から1つを一様に引く。報酬は宝箱、雰囲気は鳥居や蓄音機の landmark、</span>
 <span id="L11"><span class="lineNum">      11</span>              : // リスクリワードは檻の中の獲物、危険は毒樽。</span>
 <span id="L12"><span class="lineNum">      12</span>              : func heroCenterpiece(t profileTable, seed uint64) (string, bool) {</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 :         if childSeed(seed, 13_000_000)%12 != 0 {</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false // 12棟に1棟だけ見せ場を持つ。rare を孤立させる</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 :         if childSeed(seed, 13_000_000)%t.heroOneIn != 0 {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false // heroOneIn 棟に1棟だけ見せ場を持つ。rare を孤立させる</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         refs := pickChoice(childSeed(seed, 13_100_000), t.heroes)</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         return pickOne(childSeed(seed, 13_200_000), refs), true</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">97.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">97.1&nbsp;%</td>
+            <td class="headerCovTableEntry">104</td>
             <td class="headerCovTableEntry">101</td>
-            <td class="headerCovTableEntry">98</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -221,31 +221,35 @@
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 if name == &quot;&quot; &amp;&amp; world.Components.Name.Has(entity) {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                         name = world.Components.Name.Get(entity).Name</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L164"><span class="lineNum">     164</span>              :         }</span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         return name</span></span>
-<span id="L166"><span class="lineNum">     166</span>              : }</span>
-<span id="L167"><span class="lineNum">     167</span>              : </span>
-<span id="L168"><span class="lineNum">     168</span>              : // checksumOf は破損検知用にチェックサムを除いたenvelopeのSHA-256を計算する。</span>
-<span id="L169"><span class="lineNum">     169</span>              : // json.Marshal は json.RawMessage を compact するため、保存ファイルが</span>
-<span id="L170"><span class="lineNum">     170</span>              : // MarshalIndent で整形されていても検証時に同一バイト列へ正規化され、値が一致する。</span>
-<span id="L171"><span class="lineNum">     171</span>              : // envelopeは全てJSON互換型のためMarshalは失敗しないが、万一失敗した場合はpanicする</span>
-<span id="L172"><span class="lineNum">     172</span>              : func checksumOf(env *saveEnvelope) string {</span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         target := saveEnvelope{</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 Version:    env.Version,</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 Timestamp:  env.Timestamp,</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 PlayTime:   env.PlayTime,</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 PlayerName: env.PlayerName,</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 World:      env.World,</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         jsonBytes, err := json.Marshal(target)</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(fmt.Sprintf(&quot;failed to marshal for checksum: %v&quot;, err))</span></span>
-<span id="L183"><span class="lineNum">     183</span>              :         }</span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC tlaBgGNC">           1 :         hash := sha256.Sum256(jsonBytes)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:])</span></span>
-<span id="L186"><span class="lineNum">     186</span>              : }</span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                         n := world.Components.Name.Get(entity)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                         name = n.Custom</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                         if name == &quot;&quot; {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                                 name = string(n.Name)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L167"><span class="lineNum">     167</span>              :                 }</span>
+<span id="L168"><span class="lineNum">     168</span>              :         }</span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         return name</span></span>
+<span id="L170"><span class="lineNum">     170</span>              : }</span>
+<span id="L171"><span class="lineNum">     171</span>              : </span>
+<span id="L172"><span class="lineNum">     172</span>              : // checksumOf は破損検知用にチェックサムを除いたenvelopeのSHA-256を計算する。</span>
+<span id="L173"><span class="lineNum">     173</span>              : // json.Marshal は json.RawMessage を compact するため、保存ファイルが</span>
+<span id="L174"><span class="lineNum">     174</span>              : // MarshalIndent で整形されていても検証時に同一バイト列へ正規化され、値が一致する。</span>
+<span id="L175"><span class="lineNum">     175</span>              : // envelopeは全てJSON互換型のためMarshalは失敗しないが、万一失敗した場合はpanicする</span>
+<span id="L176"><span class="lineNum">     176</span>              : func checksumOf(env *saveEnvelope) string {</span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         target := saveEnvelope{</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 Version:    env.Version,</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 Timestamp:  env.Timestamp,</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 PlayTime:   env.PlayTime,</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 PlayerName: env.PlayerName,</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 World:      env.World,</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         jsonBytes, err := json.Marshal(target)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(fmt.Sprintf(&quot;failed to marshal for checksum: %v&quot;, err))</span></span>
+<span id="L187"><span class="lineNum">     187</span>              :         }</span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC tlaBgGNC">           1 :         hash := sha256.Sum256(jsonBytes)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:])</span></span>
+<span id="L190"><span class="lineNum">     190</span>              : }</span>
         </pre>
               </td>
             </tr>

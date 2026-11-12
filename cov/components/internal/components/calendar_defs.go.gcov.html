@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - components/internal/components/calendar_defs.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">components/internal/components</a> - calendar_defs.go<span style="font-size: 80%;"> (source / <a href="calendar_defs.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">11</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package components</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;math&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/i18n&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // TimeOfDayDef は時間帯1つの定義。raw の timesOfDay の1行から組み立てる</span>
+<span id="L10"><span class="lineNum">      10</span>              : type TimeOfDayDef struct {</span>
+<span id="L11"><span class="lineNum">      11</span>              :         Name         i18n.Msgid // 表示名</span>
+<span id="L12"><span class="lineNum">      12</span>              :         TempModifier int        // 世界温度への加算。℃</span>
+<span id="L13"><span class="lineNum">      13</span>              :         Daylight     float64    // 時間帯の中心での地上の日照の明るさ</span>
+<span id="L14"><span class="lineNum">      14</span>              :         AmbientColor [3]float64 // 時間帯の中心での地上の環境光の色。明るさは Daylight が持つ</span>
+<span id="L15"><span class="lineNum">      15</span>              : }</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // SeasonDef は季節1つの定義。raw の seasons の1行から組み立てる</span>
+<span id="L18"><span class="lineNum">      18</span>              : type SeasonDef struct {</span>
+<span id="L19"><span class="lineNum">      19</span>              :         Name i18n.Msgid // 表示名</span>
+<span id="L20"><span class="lineNum">      20</span>              :         Temp int        // 世界温度。℃。春と秋は年の前半と後半の中点、夏は頂、冬は底</span>
+<span id="L21"><span class="lineNum">      21</span>              : }</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // CalendarDefs は時間帯と季節ごとの表示名、気温、明るさの表。読み込み時に raw から1度だけ組み立て、以後は変えない</span>
+<span id="L24"><span class="lineNum">      24</span>              : type CalendarDefs struct {</span>
+<span id="L25"><span class="lineNum">      25</span>              :         TimesOfDay [NumTimeOfDay]TimeOfDayDef</span>
+<span id="L26"><span class="lineNum">      26</span>              :         Seasons    [NumSeason]SeasonDef</span>
+<span id="L27"><span class="lineNum">      27</span>              : }</span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : // SeasonalTemperatureForDay は経過日 day の季節による世界温度のベース値を返す。</span>
+<span id="L30"><span class="lineNum">      30</span>              : // 春開始の区分正弦波で、春と秋が肩、夏がピーク、冬が底になる。四半期ごとに肩とピークを</span>
+<span id="L31"><span class="lineNum">      31</span>              : // 結ぶため肩の高さを春と秋で変えられ、振幅も暖側と寒側で非対称になる。季節は保存せず日数から導く。</span>
+<span id="L32"><span class="lineNum">      32</span>              : // 緯度勾配・時間帯・遮蔽を含まない季節変動そのもので、バランス導出が年間の寒暖の振れを見るのにも使う。</span>
+<span id="L33"><span class="lineNum">      33</span>              : func (d CalendarDefs) SeasonalTemperatureForDay(day int) int {</span>
+<span id="L34"><span class="lineNum">      34</span>              :         // day 1 を春の中点かつ上昇位相の起点にする。位相の比較のため1年周期へ折り返す</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC tlaBgGNC">           1 :         phase := math.Mod(2*math.Pi*float64(day-1)/daysPerYear, 2*math.Pi)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         s := math.Sin(phase)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L38"><span class="lineNum">      38</span>              :         // 年の前半の肩は春、夏ピークから冬底を挟む後半の肩は秋</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         mid := float64(d.Seasons[SeasonSpring].Temp)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if phase &gt;= math.Pi/2 &amp;&amp; phase &lt; 3*math.Pi/2 {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 mid = float64(d.Seasons[SeasonAutumn].Temp)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         if s &gt;= 0 {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 return int(math.Round(mid + (float64(d.Seasons[SeasonSummer].Temp)-mid)*s))</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         return int(math.Round(mid + (mid-float64(d.Seasons[SeasonWinter].Temp))*s))</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

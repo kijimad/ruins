@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,7 +111,7 @@
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         weather.UntilTurn = gt.TotalTurns + query.RollSpellTurns(defs, next, season, northDepth, rngSpell)</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         if next != prev {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 name := query.T(world, next.String())</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 name := query.WeatherName(world, next)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                         Markup(gamelog.Tag(&quot;system&quot;, query.T(world, &quot;The weather changed to %s.&quot;, name))).</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                         Log()</span></span>

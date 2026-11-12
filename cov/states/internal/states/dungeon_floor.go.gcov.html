@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,8 +84,8 @@
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              : // resolveDungeonDefinition は名前から通常ダンジョン定義を引く。未登録、またはオーバーワールドのような</span>
 <span id="L24"><span class="lineNum">      24</span>              : // フロアを生成しない定義なら error を返す。フロア生成の入口を1箇所に集約する。</span>
-<span id="L25"><span class="lineNum">      25</span>              : func resolveDungeonDefinition(defName string) (*dungeon.DungeonDefinition, error) {</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         def, found := dungeon.GetStageDefinition(defName)</span></span>
+<span id="L25"><span class="lineNum">      25</span>              : func resolveDungeonDefinition(world w.World, defName string) (*dungeon.DungeonDefinition, error) {</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         def, found := dungeon.GetStageDefinition(world.Resources.RawMaster, defName)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         if !found {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;stage definition not found: %s&quot;, defName)</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -284,7 +284,7 @@
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         var playerPos consts.Coord[consts.Tile]</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         var generated bool</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 def, err := resolveDungeonDefinition(defName)</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 def, err := resolveDungeonDefinition(world, defName)</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -433,7 +433,7 @@
 <span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :         var landing consts.Coord[consts.Tile]</span></span>
 <span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         var generated bool</span></span>
 <span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :         if err := stage.SwapTo(world, target, func(world w.World, key gc.StageKey) error {</span></span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :                 def, derr := resolveDungeonDefinition(defName)</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :                 def, derr := resolveDungeonDefinition(world, defName)</span></span>
 <span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :                 if derr != nil {</span></span>
 <span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC tlaBgUNC">           0 :                         return derr</span></span>
 <span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -490,7 +490,7 @@
 <span id="L428"><span class="lineNum">     428</span>              : </span>
 <span id="L429"><span class="lineNum">     429</span>              :         // 既にその遺跡にいる。SwapTo は自己スワップを前提としないので、その場で作り直す。</span>
 <span id="L430"><span class="lineNum">     430</span>              :         // 上り階段の戻り先結線を引き継がないと ascend が結線なしで失敗するため、Purge 前に控える</span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :         def, err := resolveDungeonDefinition(defName)</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :         def, err := resolveDungeonDefinition(world, defName)</span></span>
 <span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :         }</span></span>

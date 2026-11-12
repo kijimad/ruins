@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,8 +80,8 @@
 <span id="L18"><span class="lineNum">      18</span>              : // 扉の開閉のような通行可否の構造変化後に呼ぶ。座標とその4隣接を種に、</span>
 <span id="L19"><span class="lineNum">      19</span>              : // 壁と閉じた扉を越えずに繋がる領域を求めて屋内外を書き直す。</span>
 <span id="L20"><span class="lineNum">      20</span>              : //</span>
-<span id="L21"><span class="lineNum">      21</span>              : // 再計算範囲の外周へ達した領域は原則として屋外だが、領域内に既存の屋外タイルを</span>
-<span id="L22"><span class="lineNum">      22</span>              : // ひとつも見なかった場合は範囲より大きい囲いと区別できないため書き換えない。</span>
+<span id="L21"><span class="lineNum">      21</span>              : // 再計算範囲の外周へ達した領域は原則として屋外だが、領域内に既存の</span>
+<span id="L22"><span class="lineNum">      22</span>              : // 覆われないタイルをひとつも見なかった場合は範囲より大きい囲いと区別できないため書き換えない。</span>
 <span id="L23"><span class="lineNum">      23</span>              : // この保守則により、範囲に収まらない構造は誤って冷やされず現状維持で外れる。</span>
 <span id="L24"><span class="lineNum">      24</span>              : func RecalcShelterAround(world w.World, x, y consts.Tile) {</span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         const size = shelterRecalcRadius*2 + 1</span></span>
@@ -135,19 +135,19 @@
 <span id="L73"><span class="lineNum">      73</span>              :                 }</span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 cells, touchesEdge := geometry.EnclosedRegion(size, size, blockedAt, s[0], s[1])</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 sawOutdoor := false</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 sawUncovered := false</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 for _, c := range cells {</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                         visited[c] = true</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                         if tile, ok := tiles[c]; ok {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                                 if world.Components.TileEnvironment.Get(tile).Shelter == oapi.Outdoor {</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                                         sawOutdoor = true</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                                 if !world.Resources.TileEnvDefs.Shelters[world.Components.TileEnvironment.Get(tile).Shelter].Covered {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                                         sawUncovered = true</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                                 }</span></span>
 <span id="L83"><span class="lineNum">      83</span>              :                         }</span>
 <span id="L84"><span class="lineNum">      84</span>              :                 }</span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 shelter := oapi.Indoor</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                 switch {</span></span>
-<span id="L88"><span class="lineNum">      88</span>              :                 case touchesEdge &amp;&amp; sawOutdoor:</span>
+<span id="L88"><span class="lineNum">      88</span>              :                 case touchesEdge &amp;&amp; sawUncovered:</span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                         shelter = oapi.Outdoor</span></span>
 <span id="L90"><span class="lineNum">      90</span>              :                 case touchesEdge:</span>
 <span id="L91"><span class="lineNum">      91</span>              :                         // 範囲より大きい囲いか判定できないので現状維持にする</span>

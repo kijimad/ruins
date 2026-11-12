@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">33.3&nbsp;%</td>
+            <td class="headerCovTableEntryHi">92.6&nbsp;%</td>
             <td class="headerCovTableEntry">27</td>
-            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">25</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,28 +84,28 @@
 <span id="L22"><span class="lineNum">      22</span>              : }</span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : func runFmtRaw(_ context.Context, cmd *cli.Command) error {</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC tlaBgUNC">           0 :         path := rawTOMLPath</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         if cmd.Args().Present() {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 path = cmd.Args().First()</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         src, err := os.ReadFile(path)</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to read %s: %w&quot;, path, err)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         out, err := formatRaw(src)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to format %s: %w&quot;, path, err)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         if bytes.Equal(src, out) {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         return os.WriteFile(path, out, 0o644)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         path := rawTOMLPath</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if cmd.Args().Present() {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 path = cmd.Args().First()</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         src, err := os.ReadFile(path)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;failed to read %s: %w&quot;, path, err)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         out, err := formatRaw(src)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;failed to format %s: %w&quot;, path, err)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         if bytes.Equal(src, out) {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return os.WriteFile(path, out, 0o644)</span></span>
 <span id="L41"><span class="lineNum">      41</span>              : }</span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
 <span id="L43"><span class="lineNum">      43</span>              : // formatRaw は TOML を正規形に整える。キーを並べ替え、子の表をインデントし、同じ表の飛び飛びの配置を併合する。</span>
 <span id="L44"><span class="lineNum">      44</span>              : // どの道具で書いた TOML も同じ形に戻る。コメントは残らない。</span>
 <span id="L45"><span class="lineNum">      45</span>              : func formatRaw(src []byte) ([]byte, error) {</span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC tlaBgGNC">           1 :         var m map[string]any</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         var m map[string]any</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         if _, err := toml.Decode(string(src), &amp;m); err != nil {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         }</span></span>

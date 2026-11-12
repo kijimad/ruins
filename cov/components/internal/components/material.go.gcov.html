@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - components/internal/components/material.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">components/internal/components</a> - material.go<span style="font-size: 80%;"> (source / <a href="material.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package components</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/i18n&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // Material はアイテムの材質を表す。可燃性と燃焼熱量の算出根拠で、生成時に raw から付く。</span>
+<span id="L10"><span class="lineNum">      10</span>              : // Kind は raw の Material enum の値。金属や石など不燃の材質も保持し、</span>
+<span id="L11"><span class="lineNum">      11</span>              : // 観察メニューで材質を見せて、なぜ燃える/燃えないかを読み取れるようにする。</span>
+<span id="L12"><span class="lineNum">      12</span>              : type Material struct {</span>
+<span id="L13"><span class="lineNum">      13</span>              :         Kind oapi.Material // 材質の種類。WOOD・METAL・FOOD など。enum で比較のタイプミスを型が弾く</span>
+<span id="L14"><span class="lineNum">      14</span>              : }</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // MaterialDef は材質1つの定義。raw の materials の1行から組み立てる</span>
+<span id="L17"><span class="lineNum">      17</span>              : type MaterialDef struct {</span>
+<span id="L18"><span class="lineNum">      18</span>              :         Name      i18n.Msgid // 表示名</span>
+<span id="L19"><span class="lineNum">      19</span>              :         HeatPerKg int        // kgあたり燃焼熱量。0 なら不燃</span>
+<span id="L20"><span class="lineNum">      20</span>              : }</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // MaterialDefs は材質ごとの表示名と燃焼熱量の表。読み込み時に raw から1度だけ組み立て、以後は変えない</span>
+<span id="L23"><span class="lineNum">      23</span>              : type MaterialDefs map[oapi.Material]MaterialDef</span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : // HeatOf は材質と重量から燃焼熱量を導く。不燃の材質は0を返す。</span>
+<span id="L26"><span class="lineNum">      26</span>              : // 整数で閉じるため mg 基準で計算し 1kg=1_000_000mg で割って kg 換算する。切り捨てで軽い物は0になる</span>
+<span id="L27"><span class="lineNum">      27</span>              : func (d MaterialDefs) HeatOf(material oapi.Material, weight consts.Milligram) consts.Heat {</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :         return consts.Heat(d[material].HeatPerKg * int(weight) / consts.MilligramPerKg)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

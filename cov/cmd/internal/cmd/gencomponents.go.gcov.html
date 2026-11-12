@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">60.0&nbsp;%</td>
+            <td class="headerCovTableEntryLo">70.0&nbsp;%</td>
             <td class="headerCovTableEntry">20</td>
-            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">14</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -92,12 +92,12 @@
 <span id="L30"><span class="lineNum">      30</span>              : }</span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : func runGenComponents(_ context.Context, cmd *cli.Command) error {</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC tlaBgUNC">           0 :         return genComponents(cmd.Writer, cmd.String(&quot;out&quot;))</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 :         return genComponents(cmd.Writer, cmd.String(&quot;out&quot;))</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // genComponents は登録表から生成したコードを outPath へ書き、完了を out へ書く。</span>
 <span id="L37"><span class="lineNum">      37</span>              : func genComponents(out io.Writer, outPath string) error {</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           1 :         formatted, err := generateComponents()</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         formatted, err := generateComponents()</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>

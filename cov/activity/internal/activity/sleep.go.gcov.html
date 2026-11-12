@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">79.3&nbsp;%</td>
-            <td class="headerCovTableEntry">87</td>
-            <td class="headerCovTableEntry">69</td>
+            <td class="headerCovTableEntryMed">80.0&nbsp;%</td>
+            <td class="headerCovTableEntry">90</td>
+            <td class="headerCovTableEntry">72</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -141,7 +141,7 @@
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;woke up from the cold&quot;)</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         if isStarving(actor, world) {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         if hungerWakes(actor, world) {</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;woke up from hunger&quot;)</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -192,32 +192,36 @@
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         return cond != nil &amp;&amp; cond.IsActive()</span></span>
 <span id="L131"><span class="lineNum">     131</span>              : }</span>
 <span id="L132"><span class="lineNum">     132</span>              : </span>
-<span id="L133"><span class="lineNum">     133</span>              : // isStarving は飢餓段階かを返す</span>
-<span id="L134"><span class="lineNum">     134</span>              : func isStarving(actor ecs.Entity, world w.World) bool {</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         return world.Components.Hunger.Has(actor) &amp;&amp;</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 world.Components.Hunger.Get(actor).GetLevel(world.Resources.NeedDefs) == oapi.HungerStageIdStarving</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L138"><span class="lineNum">     138</span>              : </span>
-<span id="L139"><span class="lineNum">     139</span>              : // beddingQualityAt は足元か隣接の寝具から最大の Quality を返す。無ければ地べたの基準</span>
-<span id="L140"><span class="lineNum">     140</span>              : func beddingQualityAt(actor ecs.Entity, world w.World) consts.Percent {</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         quality := consts.PercentBase</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         if !world.Components.GridElement.Has(actor) {</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC tlaBgUNC">           0 :                 return quality</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC tlaBgGNC">           1 :         center := world.Components.GridElement.Get(actor).Coord</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         for dy := consts.Tile(-1); dy &lt;= 1; dy++ {</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 for dx := consts.Tile(-1); dx &lt;= 1; dx++ {</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                         for _, e := range query.GetEntitiesAt(world, center.X+dx, center.Y+dy) {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                                 if world.Components.Bedding.Has(e) {</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                                         if q := world.Components.Bedding.Get(e).Quality; q &gt; quality {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                                                 quality = q</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                                         }</span></span>
-<span id="L153"><span class="lineNum">     153</span>              :                                 }</span>
-<span id="L154"><span class="lineNum">     154</span>              :                         }</span>
-<span id="L155"><span class="lineNum">     155</span>              :                 }</span>
-<span id="L156"><span class="lineNum">     156</span>              :         }</span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         return quality</span></span>
-<span id="L158"><span class="lineNum">     158</span>              : }</span>
+<span id="L133"><span class="lineNum">     133</span>              : // hungerWakes は空腹の段階が寝ている者を起こすかを返す</span>
+<span id="L134"><span class="lineNum">     134</span>              : func hungerWakes(actor ecs.Entity, world w.World) bool {</span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         if !world.Components.Hunger.Has(actor) {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         defs := world.Resources.NeedDefs</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         stage, _ := defs.HungerStageOf(world.Components.Hunger.Get(actor).GetLevel(defs))</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         return stage.WakesSleeper</span></span>
+<span id="L141"><span class="lineNum">     141</span>              : }</span>
+<span id="L142"><span class="lineNum">     142</span>              : </span>
+<span id="L143"><span class="lineNum">     143</span>              : // beddingQualityAt は足元か隣接の寝具から最大の Quality を返す。無ければ地べたの基準</span>
+<span id="L144"><span class="lineNum">     144</span>              : func beddingQualityAt(actor ecs.Entity, world w.World) consts.Percent {</span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         quality := consts.PercentBase</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         if !world.Components.GridElement.Has(actor) {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 return quality</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC tlaBgGNC">           1 :         center := world.Components.GridElement.Get(actor).Coord</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         for dy := consts.Tile(-1); dy &lt;= 1; dy++ {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 for dx := consts.Tile(-1); dx &lt;= 1; dx++ {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         for _, e := range query.GetEntitiesAt(world, center.X+dx, center.Y+dy) {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                                 if world.Components.Bedding.Has(e) {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                                         if q := world.Components.Bedding.Get(e).Quality; q &gt; quality {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                                                 quality = q</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                                         }</span></span>
+<span id="L157"><span class="lineNum">     157</span>              :                                 }</span>
+<span id="L158"><span class="lineNum">     158</span>              :                         }</span>
+<span id="L159"><span class="lineNum">     159</span>              :                 }</span>
+<span id="L160"><span class="lineNum">     160</span>              :         }</span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         return quality</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : }</span>
         </pre>
               </td>
             </tr>

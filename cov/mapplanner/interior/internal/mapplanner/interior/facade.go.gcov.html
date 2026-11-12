@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,13 +77,13 @@
 <span id="L15"><span class="lineNum">      15</span>              : // facadeElements は街路側の前壁に付ける外皮 prop を返す。前庭ぶん内寄せした建物の街路側の壁へ、入口と角を</span>
 <span id="L16"><span class="lineNum">      16</span>              : // 避けて窓を等間隔に並べる。廃業した店はシャッターを下ろす。店は入口脇に看板を出す。prop は壁タイルの上に</span>
 <span id="L17"><span class="lineNum">      17</span>              : // 載り、VRT と overworld が同じ表で描き spawn するので乖離しない。</span>
-<span id="L18"><span class="lineNum">      18</span>              : func facadeElements(s Site, fac oapi.Facility, dmg damageLevel) []Placed {</span>
+<span id="L18"><span class="lineNum">      18</span>              : func facadeElements(t profileTable, s Site, fac oapi.Facility, dmg damageLevel) []Placed {</span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         fside := frontSide(s)</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         lo, hi, wall := frontWallSpan(s.Building, fside)</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         doorAxis := wall.along(s.Door)</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         winRef := &quot;window&quot;</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         winRef := t.facade.Window</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         if fac.IsShop &amp;&amp; dmg == dmgMajor {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 winRef = &quot;shutter&quot; // 廃業した店はシャッターを下ろす</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 winRef = t.facade.Shutter // 廃業した店はシャッターを下ろす</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         var out []Placed</span></span>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                         w := wall.at(a)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                         yard := Vec{X: w.X + outward.X, Y: w.Y + outward.Y}</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                         if s.Garden[yard] {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                                 out = append(out, Placed{Kind: oapi.Decor, Ref: &quot;sign&quot;, Pos: yard})</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                                 out = append(out, Placed{Kind: oapi.Decor, Ref: t.facade.Sign, Pos: yard})</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                                 break</span></span>
 <span id="L52"><span class="lineNum">      52</span>              :                         }</span>
 <span id="L53"><span class="lineNum">      53</span>              :                 }</span>

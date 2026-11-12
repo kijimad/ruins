@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">57.5&nbsp;%</td>
-            <td class="headerCovTableEntry">214</td>
-            <td class="headerCovTableEntry">123</td>
+            <td class="headerCovTableEntryLo">57.3&nbsp;%</td>
+            <td class="headerCovTableEntry">213</td>
+            <td class="headerCovTableEntry">122</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -423,13 +423,13 @@
 <span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;FeedFuelMenuState{sink: sink}, nil</span></span>
 <span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L363"><span class="lineNum">     363</span>              : </span>
-<span id="L364"><span class="lineNum">     364</span>              : // NewMerchantDialogState は商人との会話ステートを作成。merchant はこの商人の実体で、店を開くとき在庫の持ち主として渡す</span>
-<span id="L365"><span class="lineNum">     365</span>              : func NewMerchantDialogState(speakerName string, merchant ecs.Entity) (es.State[w.World], error) {</span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         persistentState := &amp;PersistentMessageState{}</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :         persistentState.build = func(world w.World) *messagedata.MessageData {</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :                 return messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;Want to make a deal?\n\nI've got good stuff.&quot;)).</span></span>
+<span id="L364"><span class="lineNum">     364</span>              : // NewMerchantDialogState は商人との会話ステートを作成。merchant はこの商人の実体で、店を開くとき在庫の持ち主として渡す。</span>
+<span id="L365"><span class="lineNum">     365</span>              : // messageKey は商人の会話の行で、その最初のページに店を開く選択肢を付ける</span>
+<span id="L366"><span class="lineNum">     366</span>              : func NewMerchantDialogState(speakerName string, merchant ecs.Entity, messageKey string) (es.State[w.World], error) {</span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         persistentState := &amp;PersistentMessageState{}</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :         persistentState.build = func(world w.World) *messagedata.MessageData {</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :                 return messagedata.GetDialogue(world, messageKey, speakerName).</span></span>
 <span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :                         WithChoice(query.T(world, &quot;Look&quot;), func(_ w.World) error {</span></span>
 <span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC tlaBgUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{</span></span>
 <span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                                         Type: es.TransPush,</span></span>

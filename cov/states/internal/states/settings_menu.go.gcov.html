@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-11 13:19:05</td>
+            <td class="headerValue">2026-11-12 00:01:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -206,13 +206,13 @@
 <span id="L144"><span class="lineNum">     144</span>              : // ================</span>
 <span id="L145"><span class="lineNum">     145</span>              : </span>
 <span id="L146"><span class="lineNum">     146</span>              : // currentLanguageLabel は言語コードに対応する表示名の msgid を返す。対応一覧に無ければコードをそのまま返す。</span>
-<span id="L147"><span class="lineNum">     147</span>              : func currentLanguageLabel(code string) string {</span>
+<span id="L147"><span class="lineNum">     147</span>              : func currentLanguageLabel(code string) i18n.Msgid {</span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, l := range i18n.SupportedLangs() {</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 if l.Code == code {</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                         return l.Label</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L152"><span class="lineNum">     152</span>              :         }</span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         return code</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         return i18n.Msgid(code)</span></span>
 <span id="L154"><span class="lineNum">     154</span>              : }</span>
 <span id="L155"><span class="lineNum">     155</span>              : </span>
 <span id="L156"><span class="lineNum">     156</span>              : // cycleLanguage は表示言語を次へ循環させ、シングルトンへ即時反映してユーザー設定へ保存する。</span>
