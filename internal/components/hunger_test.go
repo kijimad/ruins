@@ -139,6 +139,13 @@ func TestNeedDefs_段階の始まりの割合(t *testing.T) {
 	assert.InDelta(t, 0.8, testNeedDefs.FatigueFrom(rawschema.FatigueStageIdExhausted), 1e-9)
 }
 
+func TestNeedDefs_段階の始まりの割合_未登録は0(t *testing.T) {
+	t.Parallel()
+
+	assert.InDelta(t, 0.0, testNeedDefs.HungerFrom(rawschema.HungerStageId("unknown")), 1e-9)
+	assert.InDelta(t, 0.0, testNeedDefs.FatigueFrom(rawschema.FatigueStageId("unknown")), 1e-9)
+}
+
 func TestNeedDefs_表が空なら満腹と快調(t *testing.T) {
 	t.Parallel()
 

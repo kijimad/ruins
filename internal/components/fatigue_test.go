@@ -3,6 +3,7 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 )
@@ -57,6 +58,22 @@ func TestFatigue_FatigueSeverity(t *testing.T) {
 			assert.Equal(t, tt.wantSev, sev)
 		})
 	}
+}
+
+func TestNeedDefs_FatigueName(t *testing.T) {
+	t.Parallel()
+
+	got := map[rawschema.FatigueStageId]string{}
+	for _, s := range testNeedDefs.Fatigue {
+		got[s.Level] = string(testNeedDefs.FatigueName(s.Level))
+	}
+	assert.Equal(t, map[rawschema.FatigueStageId]string{
+		rawschema.FatigueStageIdRested:    "Rested",
+		rawschema.FatigueStageIdNormal:    "Normal",
+		rawschema.FatigueStageIdTired:     "Tired",
+		rawschema.FatigueStageIdExhausted: "Exhausted",
+	}, got)
+	assert.Equal(t, i18n.Msgid("unknown"), testNeedDefs.FatigueName("unknown"), "未登録は id をそのまま返す")
 }
 
 func TestNewFatigue_初期は疲れていない(t *testing.T) {
