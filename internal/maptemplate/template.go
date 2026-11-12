@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"maps"
 	"math/rand/v2"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -145,8 +147,9 @@ func FormatResolvedMap(cells [][]MapCell) string {
 // ChunkTemplate はチャンクテンプレート定義
 // すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
 type ChunkTemplate struct {
-	Name        string           `toml:"name"`   // キー
-	Weight      int              `toml:"weight"` // 出現確率の重み
+	Name        string           `toml:"name"`     // キー
+	Facility    string           `toml:"facility"` // この絵を使う施設の id。施設の絵でなければ空
+	Weight      int              `toml:"weight"`   // 出現確率の重み
 	Size        Size             // マップサイズ（名前から自動パース）
 	Palettes    []string         `toml:"palettes"`      // 使用するパレットID
 	Map         string           `toml:"map,multiline"` // ASCIIマップ
@@ -362,6 +365,51 @@ func (l *TemplateLoader) GetChunks(chunkName string) ([]*ChunkTemplate, error) {
 	return chunks, nil
 }
 
+// FacilityChunk は施設 facility の絵から重み付きで1枚選び、展開したセル配列を返す
+func (l *TemplateLoader) FacilityChunk(facility string, seed uint64) (*ChunkTemplate, [][]MapCell, error) {
+	var candidates []*ChunkTemplate
+	for _, name := range slices.Sorted(maps.Keys(l.chunkCache)) {
+		for _, c := range l.chunkCache[name] {
+			if c.Facility == facility {
+				candidates = append(candidates, c)
+			}
+		}
+	}
+	chunk, err := l.selectChunkByWeightFromList(candidates, rand.New(rand.NewPCG(seed, seed)))
+	if err != nil {
+		return nil, nil, fmt.Errorf("facility '%s': %w", facility, err)
+	}
+	cells, err := chunk.ExpandWithPlacements(l, mixSeed(seed, 1))
+	if err != nil {
+		return nil, nil, err
+	}
+	return chunk, cells, nil
+}
+
+// TransformCells は絵を左右に反転してから、左回りに quarterTurns 回だけ90度回したセル配列を返す
+func TransformCells(cells [][]MapCell, quarterTurns int, mirror bool) [][]MapCell {
+	out := cells
+	if mirror {
+		out = make([][]MapCell, len(cells))
+		for y, row := range cells {
+			out[y] = slices.Clone(row)
+			slices.Reverse(out[y])
+		}
+	}
+	for range ((quarterTurns % 4) + 4) % 4 {
+		h, w := len(out), len(out[0])
+		turned := make([][]MapCell, w)
+		for ny := range w {
+			turned[ny] = make([]MapCell, h)
+			for nx := range h {
+				turned[ny][nx] = out[nx][w-1-ny]
+			}
+		}
+		out = turned
+	}
+	return out
+}
+
 // RegisterChunk はチャンクテンプレートをキャッシュに登録する
 func (l *TemplateLoader) RegisterChunk(t *ChunkTemplate) {
 	l.chunkCache[t.Name] = append(l.chunkCache[t.Name], t)
@@ -532,12 +580,15 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 	palette := loader.buildMergedPalette(t.Palettes)
 	cells := ResolveMapCells(t.Map, palette, rand.New(rand.NewPCG(seed, mixSeed(seed, 0))))
 
+	visiting[t.Name] = true
+	defer delete(visiting, t.Name)
+
+	if err := t.expandNested(loader, palette, cells, seed, depth, visiting); err != nil {
+		return nil, err
+	}
 	if len(t.Placements) == 0 {
 		return cells, nil
 	}
-
-	visiting[t.Name] = true
-	defer delete(visiting, t.Name)
 
 	lines := t.GetMapLines()
 	rng := rand.New(rand.NewPCG(seed, seed))
@@ -609,6 +660,44 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 	}
 
 	return cells, nil
+}
+
+// expandNested はパレットの部品の文字の位置に、候補から選んだ部品を左上を合わせて重ねる
+func (t *ChunkTemplate) expandNested(loader *TemplateLoader, palette *Palette, cells [][]MapCell, seed uint64, depth int, visiting map[string]bool) error {
+	if palette == nil || len(palette.Nested) == 0 {
+		return nil
+	}
+	rng := rand.New(rand.NewPCG(seed, mixSeed(seed, 1)))
+	for y, line := range t.GetMapLines() {
+		for x, ch := range []rune(line) {
+			entry, ok := palette.Nested[string(ch)]
+			if !ok {
+				continue
+			}
+			i, ok := consts.Pick(rng, entry.Chunks, func(c WeightedChunkRef) float64 { return float64(c.Weight) })
+			if !ok {
+				return fmt.Errorf("chunk '%s' nested %q: %w", t.Name, ch, errNoChunkCandidate)
+			}
+			if entry.Chunks[i].Name == nullChunk {
+				continue
+			}
+			child, err := loader.selectChunkByWeight([]string{entry.Chunks[i].Name}, rng)
+			if err != nil {
+				return fmt.Errorf("chunk '%s' nested %q: %w", t.Name, ch, err)
+			}
+			if y+child.Size.H > len(cells) || x+child.Size.W > len(cells[y]) {
+				return fmt.Errorf("chunk '%s' nested %q at [%d,%d] child '%s' %s: %w", t.Name, ch, x, y, child.Name, child.Size, errRegionIncomplete)
+			}
+			childCells, err := child.expandWithPlacementsRecursive(loader, mixSeed(seed, uint64(y*len(line)+x)+2), depth+1, visiting)
+			if err != nil {
+				return err
+			}
+			for cy, row := range childCells {
+				copy(cells[y+cy][x:], row)
+			}
+		}
+	}
+	return nil
 }
 
 // validateNoPlaceholdersRemaining は展開後のセル配列にプレースホルダが残っていないか検証する

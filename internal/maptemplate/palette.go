@@ -59,6 +59,21 @@ type TileEntry struct {
 	Tile string `toml:"tile"`
 }
 
+// nullChunk は部品の候補で、何も置かないことを表す名前
+const nullChunk = "null"
+
+// NestedEntry は文字の位置を左上に部品を1つ置く定義。候補の nullChunk は何も置かない
+type NestedEntry struct {
+	Tile   string             `toml:"tile"`
+	Chunks []WeightedChunkRef `toml:"chunks"`
+}
+
+// WeightedChunkRef は部品の候補の1つ
+type WeightedChunkRef struct {
+	Name   string `toml:"name"`
+	Weight int    `toml:"weight"`
+}
+
 // Palette はマップ生成用のパレット定義
 // terrainとPropsとNPCの文字マッピングを提供する
 type Palette struct {
@@ -69,6 +84,7 @@ type Palette struct {
 	NPCs        map[string]PaletteEntry `toml:"npcs,omitempty"`    // {文字: NPC定義}
 	Items       map[string]ItemEntry    `toml:"items,omitempty"`   // {文字: 床の戦利品}
 	Beings      map[string]TileEntry    `toml:"beings,omitempty"`  // {文字: 施設の敵の表から引く敵}
+	Nested      map[string]NestedEntry  `toml:"nested,omitempty"`  // {文字: その位置を左上に置く部品}
 }
 
 // PaletteFile はTOMLファイルのルート構造
@@ -120,7 +136,7 @@ func (l *PaletteLoader) validate(p *Palette) error {
 		return errPaletteIDEmpty
 	}
 
-	if len(p.Terrain)+len(p.Props)+len(p.NPCs)+len(p.Items)+len(p.Beings) == 0 {
+	if len(p.Terrain)+len(p.Props)+len(p.NPCs)+len(p.Items)+len(p.Beings)+len(p.Nested) == 0 {
 		return errPaletteNoDefinition
 	}
 
@@ -160,6 +176,19 @@ func (l *PaletteLoader) validate(p *Palette) error {
 			return err
 		}
 	}
+	for char, entry := range p.Nested {
+		if err := validateTileChar("nested", char, entry.Tile); err != nil {
+			return err
+		}
+		if len(entry.Chunks) == 0 {
+			return fmt.Errorf("nested %w: %q", errNoChunkCandidate, char)
+		}
+		for _, c := range entry.Chunks {
+			if c.Weight <= 0 {
+				return fmt.Errorf("nested %q chunk %q: %w: %d", char, c.Name, errNonPositiveWeight, c.Weight)
+			}
+		}
+	}
 
 	used := make(map[string]string)
 	for _, c := range []struct {
@@ -171,6 +200,7 @@ func (l *PaletteLoader) validate(p *Palette) error {
 		{"npcs", keysOf(p.NPCs)},
 		{"items", keysOf(p.Items)},
 		{"beings", keysOf(p.Beings)},
+		{"nested", keysOf(p.Nested)},
 	} {
 		for _, char := range c.chars {
 			if other, ok := used[char]; ok {
@@ -210,6 +240,7 @@ func MergePalettes(palettes ...*Palette) *Palette {
 		NPCs:        make(map[string]PaletteEntry),
 		Items:       make(map[string]ItemEntry),
 		Beings:      make(map[string]TileEntry),
+		Nested:      make(map[string]NestedEntry),
 	}
 
 	for _, p := range palettes {
@@ -218,6 +249,7 @@ func MergePalettes(palettes ...*Palette) *Palette {
 		maps.Copy(merged.NPCs, p.NPCs)
 		maps.Copy(merged.Items, p.Items)
 		maps.Copy(merged.Beings, p.Beings)
+		maps.Copy(merged.Nested, p.Nested)
 	}
 
 	return merged
@@ -239,6 +271,9 @@ func (p *Palette) GetTerrain(char string) (string, bool) {
 		return entry.Tile, true
 	}
 	if entry, ok := p.Beings[char]; ok {
+		return entry.Tile, true
+	}
+	if entry, ok := p.Nested[char]; ok {
 		return entry.Tile, true
 	}
 	return "", false

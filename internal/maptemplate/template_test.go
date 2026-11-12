@@ -995,3 +995,92 @@ func TestTemplateLoader_LoadTemplateByName(t *testing.T) {
 		}
 	})
 }
+
+func TestExpandWithPlacements_部品の文字(t *testing.T) {
+	t.Parallel()
+
+	newLoader := func(chunks []NestedEntry) *TemplateLoader {
+		l := NewTemplateLoader()
+		l.RegisterPalette(&Palette{ID: "base", Terrain: map[string]string{".": "floor", "#": "wall"}, Nested: map[string]NestedEntry{"T": chunks[0]}})
+		l.RegisterPalette(&Palette{ID: "part", Props: map[string]PaletteEntry{"t": {ID: "table", Tile: "floor"}, "c": {ID: "chair", Tile: "floor"}}})
+		l.RegisterChunk(&ChunkTemplate{Name: "2x1_table_set", Weight: 1, Size: Size{W: 2, H: 1}, Palettes: []string{"part"}, Map: "tc"})
+		return l
+	}
+	parent := func(m string) *ChunkTemplate {
+		return &ChunkTemplate{Name: "4x2_room", Weight: 1, Size: Size{W: 4, H: 2}, Palettes: []string{"base"}, Map: m}
+	}
+
+	t.Run("文字の位置を左上に部品を重ねる", func(t *testing.T) {
+		t.Parallel()
+		l := newLoader([]NestedEntry{{Tile: "floor", Chunks: []WeightedChunkRef{{Name: "2x1_table_set", Weight: 1}}}})
+		cells, err := parent("#T..\n####").ExpandWithPlacements(l, 1)
+		require.NoError(t, err)
+		assert.Equal(t, []MapCell{{Terrain: "wall"}, {Terrain: "floor", Prop: "table"}, {Terrain: "floor", Prop: "chair"}, {Terrain: "floor"}}, cells[0])
+	})
+
+	t.Run("何も置かない候補が選ばれたら下に敷く地形のまま", func(t *testing.T) {
+		t.Parallel()
+		l := newLoader([]NestedEntry{{Tile: "floor", Chunks: []WeightedChunkRef{{Name: nullChunk, Weight: 1}}}})
+		cells, err := parent("#T..\n####").ExpandWithPlacements(l, 1)
+		require.NoError(t, err)
+		assert.Equal(t, []MapCell{{Terrain: "wall"}, {Terrain: "floor"}, {Terrain: "floor"}, {Terrain: "floor"}}, cells[0])
+	})
+
+	t.Run("はみ出す部品はエラー", func(t *testing.T) {
+		t.Parallel()
+		l := newLoader([]NestedEntry{{Tile: "floor", Chunks: []WeightedChunkRef{{Name: "2x1_table_set", Weight: 1}}}})
+		_, err := parent("...T\n####").ExpandWithPlacements(l, 1)
+		require.ErrorIs(t, err, errRegionIncomplete)
+	})
+}
+
+func TestTransformCells(t *testing.T) {
+	t.Parallel()
+
+	c := func(s string) MapCell { return MapCell{Terrain: s} }
+	// 1 2
+	// 3 4
+	// 5 6
+	cells := [][]MapCell{{c("1"), c("2")}, {c("3"), c("4")}, {c("5"), c("6")}}
+
+	tests := []struct {
+		name   string
+		turns  int
+		mirror bool
+		want   [][]MapCell
+	}{
+		{"そのまま", 0, false, cells},
+		{"左へ90度。上の辺が左の辺になる", 1, false, [][]MapCell{{c("2"), c("4"), c("6")}, {c("1"), c("3"), c("5")}}},
+		{"180度", 2, false, [][]MapCell{{c("6"), c("5")}, {c("4"), c("3")}, {c("2"), c("1")}}},
+		{"左右に反転", 0, true, [][]MapCell{{c("2"), c("1")}, {c("4"), c("3")}, {c("6"), c("5")}}},
+		{"反転してから左へ90度", 1, true, [][]MapCell{{c("1"), c("3"), c("5")}, {c("2"), c("4"), c("6")}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, TransformCells(cells, tt.turns, tt.mirror))
+		})
+	}
+}
+
+func TestFacilityChunk(t *testing.T) {
+	t.Parallel()
+
+	l := NewTemplateLoader()
+	l.RegisterPalette(&Palette{ID: "base", Terrain: map[string]string{".": "floor"}})
+	l.RegisterChunk(&ChunkTemplate{Name: "1x1_house_a", Facility: "house", Weight: 1, Size: Size{W: 1, H: 1}, Palettes: []string{"base"}, Map: "."})
+	l.RegisterChunk(&ChunkTemplate{Name: "1x1_house_b", Facility: "house", Weight: 1, Size: Size{W: 1, H: 1}, Palettes: []string{"base"}, Map: "."})
+	l.RegisterChunk(&ChunkTemplate{Name: "1x1_store", Facility: "store", Weight: 1, Size: Size{W: 1, H: 1}, Palettes: []string{"base"}, Map: "."})
+
+	picked := map[string]bool{}
+	for s := range uint64(64) {
+		chunk, cells, err := l.FacilityChunk("house", s)
+		require.NoError(t, err)
+		require.Equal(t, [][]MapCell{{{Terrain: "floor"}}}, cells)
+		picked[chunk.Name] = true
+	}
+	assert.Equal(t, map[string]bool{"1x1_house_a": true, "1x1_house_b": true}, picked, "施設の絵だけから重みで選ぶ")
+
+	_, _, err := l.FacilityChunk("lab", 1)
+	require.ErrorIs(t, err, errNoChunkCandidate)
+}
