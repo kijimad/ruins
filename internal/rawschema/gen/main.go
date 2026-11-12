@@ -293,10 +293,8 @@ func andType(v *ast.BinaryExpr) (string, error) {
 		return "", fmt.Errorf("%w: conflicting types %s & %s", errUnsupported, x, y)
 	case errX == nil:
 		return x, nil
-	case errY == nil:
-		return y, nil
 	default:
-		return "", errors.Join(errX, errY)
+		return y, errY
 	}
 }
 
