@@ -341,11 +341,16 @@ func tileEntitiesInRange(world w.World, loX, hiX consts.Tile) map[gc.GridElement
 // replaceTile は座標のタイルを取り除き、tileName のタイルへ置き換える。
 // オートタイル添字は仮の 0 で置き、後段の RecalcAutotileInXRange が実状態から揃える。
 func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileName string) (ecs.Entity, error) {
+	return replaceTileIndexed(world, tiles, pos, tileName, new(0))
+}
+
+// replaceTileIndexed は replaceTile と同じく置き換え、オートタイル添字 index を渡す。オートタイルしないタイルは nil を渡す
+func replaceTileIndexed(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileName string, index *int) (ecs.Entity, error) {
 	g := gc.GridElement{Coord: pos}
 	if e, ok := tiles[g]; ok && world.ECS.Alive(e) {
 		world.ECS.RemoveEntity(e)
 	}
-	e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, new(0))
+	e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, index)
 	if err != nil {
 		return ecs.Entity{}, err
 	}

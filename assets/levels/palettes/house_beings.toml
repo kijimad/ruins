@@ -1,6 +1,0 @@
-[palette]
-id = "house_beings"
-description = "民家の住人"
-
-[palette.beings.Z]
-tile = "floor"

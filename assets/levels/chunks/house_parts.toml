@@ -1,7 +1,7 @@
 [[chunk]]
 name = "1x1_house_occupant"
 weight = 1
-palettes = ["house", "house_beings"]
+palettes = ["house_parts"]
 map = """
 Z
 """
@@ -9,59 +9,59 @@ Z
 [[chunk]]
 name = "3x3_house_bed_set"
 weight = 2
-palettes = ["house"]
+palettes = ["house_parts"]
 map = """
 B.c
 B.c
-..d
+...
 """
 
 [[chunk]]
 name = "3x3_house_bed_set"
 weight = 2
-palettes = ["house"]
+palettes = ["house_parts"]
 map = """
 c.B
 ..B
-l.d
+...
 """
 
 [[chunk]]
 name = "3x3_house_bed_set"
 weight = 1
-palettes = ["house"]
+palettes = ["house_parts"]
 map = """
 Bl.
 ...
-dcc
+dc.
 """
 
 [[chunk]]
-name = "4x3_house_dining_set"
+name = "3x3_house_dining_set"
 weight = 2
-palettes = ["house"]
+palettes = ["house_parts"]
 map = """
-.hh.
-htth
-.hh.
+_h_
+hth
+___
 """
 
 [[chunk]]
-name = "4x3_house_dining_set"
+name = "3x3_house_dining_set"
 weight = 1
-palettes = ["house"]
+palettes = ["house_parts"]
 map = """
-s...
-st..
-...l
+s__
+st_
+___
 """
 
 [[chunk]]
-name = "4x3_house_dining_set"
+name = "3x3_house_dining_set"
 weight = 1
-palettes = ["house"]
+palettes = ["house_parts"]
 map = """
-....
-.th.
-....
+___
+_th
+___
 """
