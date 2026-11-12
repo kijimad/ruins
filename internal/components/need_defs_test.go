@@ -61,6 +61,7 @@ func TestNeedDefs_FatigueStageOf(t *testing.T) {
 
 func TestNeedDefs_FreshnessOf(t *testing.T) {
 	t.Parallel()
+	// testNeedDefs は Freshness を持たないため、ここだけ専用のフィクスチャを組む
 	defs := NeedDefs{Freshness: []FreshnessDef{
 		{Level: rawschema.Fresh, From: 0, Name: "Fresh", NutritionPercent: 100},
 		{Level: rawschema.Stale, From: 1, Name: "Stale", NutritionPercent: 50},
