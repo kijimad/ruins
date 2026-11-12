@@ -71,14 +71,17 @@ var (
 // MapCell はマップの1セルを表す解決済みオブジェクト。
 // 各チャンクがパレットを独立に解決した結果を保持する
 type MapCell struct {
-	Terrain string // 地形名
-	Prop    string // Prop ID（なければ空文字）
-	NPC     string // NPC ID（なければ空文字）
+	Terrain   string // 地形名
+	Prop      string // Prop ID（なければ空文字）
+	NPC       string // NPC ID（なければ空文字）
+	LootTable string // 収納の中身を引く itemTables の id。収納でなければ空
+	ItemGroup string // 床に落ちる戦利品の itemGroup の id。無ければ空
+	Being     bool   // 施設の敵の表から1体置く
 }
 
 // ResolveMapCells はマップ文字列をパレットで解決し、セル配列に変換する。
-// パレットで解決できない文字は文字自体をTerrain名として使用する
-func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell {
+// パレットで解決できない文字は文字自体をTerrain名として使用する。prop の候補は rng で選ぶ
+func ResolveMapCells(mapStr string, palette *Palette, rng *rand.Rand) [][]MapCell {
 	lines := strings.Split(strings.TrimSpace(mapStr), "\n")
 	cells := make([][]MapCell, len(lines))
 	for y, line := range lines {
@@ -91,12 +94,17 @@ func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell {
 				if terrain, ok := palette.GetTerrain(charStr); ok {
 					cell.Terrain = terrain
 				}
-				if prop, ok := palette.GetProp(charStr); ok {
+				if prop, lootTable, ok := palette.GetProp(charStr, rng); ok {
 					cell.Prop = prop
+					cell.LootTable = lootTable
 				}
 				if npc, ok := palette.GetNPC(charStr); ok {
 					cell.NPC = npc
 				}
+				if item, ok := palette.Items[charStr]; ok {
+					cell.ItemGroup = item.ItemGroup
+				}
+				_, cell.Being = palette.Beings[charStr]
 			}
 			// パレットで解決できなかった場合、文字自体をTerrain名として使用する
 			if cell.Terrain == "" {
@@ -522,7 +530,7 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 
 	// このチャンクのパレットで文字をセルに解決する
 	palette := loader.buildMergedPalette(t.Palettes)
-	cells := ResolveMapCells(t.Map, palette)
+	cells := ResolveMapCells(t.Map, palette, rand.New(rand.NewPCG(seed, mixSeed(seed, 0))))
 
 	if len(t.Placements) == 0 {
 		return cells, nil
@@ -560,7 +568,7 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 			}
 
 			// 再帰的に展開（子は自身のパレットで解決する）
-			regionSeed := seed + uint64(idx)*1000 + uint64(regionIdx)*100
+			regionSeed := mixSeed(seed, uint64(idx)*1000+uint64(regionIdx)+1)
 			childCells, err := selectedChunk.expandWithPlacementsRecursive(loader, regionSeed, depth+1, visiting)
 			if err != nil {
 				return nil, err
@@ -797,4 +805,12 @@ func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
 	}
 
 	return nil
+}
+
+// mixSeed は親の seed と番号から子の seed を作る。加算だと隣り合う番号の子が似た乱数列を引くので撹拌する
+func mixSeed(seed, n uint64) uint64 {
+	z := seed + n*0x9e3779b97f4a7c15
+	z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9
+	z = (z ^ (z >> 27)) * 0x94d049bb133111eb
+	return z ^ (z >> 31)
 }

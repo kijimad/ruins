@@ -1,6 +1,7 @@
 package mapspawner
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/mapplanner"
@@ -33,7 +34,7 @@ func TestTemplateToMapIntegration(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// 4. テンプレートからマップを生成
-		resolvedMap := maptemplate.ResolveMapCells(template.Map, palette)
+		resolvedMap := maptemplate.ResolveMapCells(template.Map, palette, rand.New(rand.NewPCG(1, 1)))
 		chain, err := mapplanner.NewTemplatePlannerChain(template, resolvedMap, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = &world.Resources.RawMaster
