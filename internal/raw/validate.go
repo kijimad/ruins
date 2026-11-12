@@ -390,7 +390,7 @@ func validateEnumRows(name string, values, ids []string) error {
 		seen[id] = struct{}{}
 	}
 	for _, v := range values {
-		if !slices.Contains(ids, v) {
+		if _, ok := seen[v]; !ok {
 			return fmt.Errorf("%s %q: %w", name, v, errEnumRowMissing)
 		}
 	}

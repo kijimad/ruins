@@ -276,15 +276,26 @@ func goType(e ast.Expr) (string, error) {
 		return "[]" + elem, nil
 	case *ast.BinaryExpr:
 		if v.Op == token.AND {
-			if t, err := goType(v.X); err == nil {
-				return t, nil
-			}
-			return goType(v.Y)
+			return andType(v)
 		}
 	case *ast.ParenExpr:
 		return goType(v.X)
 	}
 	return "", fmt.Errorf("%w: %T", errUnsupported, e)
+}
+
+// andType は a & b の Go の型を返す。片方が型で他方が制約なら型の側を使い、両方が型で食い違えば扱えない。
+func andType(v *ast.BinaryExpr) (string, error) {
+	x, errX := goType(v.X)
+	y, errY := goType(v.Y)
+	switch {
+	case errX == nil && errY == nil && x != y:
+		return "", fmt.Errorf("%w: conflicting types %s & %s", errUnsupported, x, y)
+	case errX == nil:
+		return x, nil
+	default:
+		return y, errY
+	}
 }
 
 var basicTypes = map[string]string{

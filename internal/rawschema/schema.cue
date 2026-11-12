@@ -223,7 +223,7 @@ import "strings"
 	style!: #GroupStyle
 
 	// pick_n のときの選ぶ個数。pick_each / pick_one では使わないので省略可
-	pick?: int32 & int
+	pick?: int32
 	items!: [...#ContentStuff]
 }
 
@@ -260,8 +260,8 @@ import "strings"
 
 // 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向
 #ContentVec: {
-	x!: int32 & int
-	y!: int32 & int
+	x!: int32
+	y!: int32
 }
 
 // キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる
@@ -506,7 +506,7 @@ import "strings"
 	zones!: [...#FacilityZone]
 
 	// 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
-	lootedChance?: int32 & int & >=0 & <=100
+	lootedChance?: int32 & >=0 & <=100
 }
 
 // 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
@@ -529,8 +529,8 @@ import "strings"
 // 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
 #FacilityZone: {
 	zone!:    #Zone
-	weight!:  int32 & int & >=1
-	minSpan!: int32 & int
+	weight!:  int32 & >=1
+	minSpan!: int32
 }
 
 // 派閥タイプ
@@ -616,7 +616,7 @@ import "strings"
 // 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
 #GroundCoverEntry: {
 	ref!:    #EntityID
-	weight!: int32 & int & >=1
+	weight!: int32 & >=1
 }
 
 // グループの抽選方式。保証セットとランダム充填を分ける
@@ -718,7 +718,7 @@ import "strings"
 	wearPercent!: #InteriorPercent
 
 	// hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ
-	heroOneIn!: int32 & int & >=1
+	heroOneIn!: int32 & >=1
 }
 
 // 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
@@ -847,10 +847,10 @@ import "strings"
 // 原野の点在ランドマーク1種。hutW/hutH は drawer=hut のときだけ使う
 #Landmark: {
 	id!:     #EntityID
-	weight!: int32 & int & >=1
+	weight!: int32 & >=1
 	drawer!: #DrawerKey
-	hutW!:   int32 & int
-	hutH!:   int32 & int
+	hutW!:   int32
+	hutH!:   int32
 	props!: [...#PropSpot]
 	props_ref: [for x in props {_propIDs[x.name]}] @rawgen(-)
 }
@@ -894,7 +894,7 @@ import "strings"
 	glyph!: string
 	name!:  string
 	color!: #RGBAColor
-	order!: int32 & int
+	order!: int32
 
 	// この記号で描く、持ち主の行を持たないチャンクの種類。施設と集落とランドマークの記号は持ち主の行の id で引くので省く
 	chunk?: #GlyphChunk
@@ -1075,8 +1075,8 @@ import "strings"
 // 基準点から相対の位置に置くエンティティ1個
 #PropSpot: {
 	name!: #EntityID
-	dx!:   int32 & int
-	dy!:   int32 & int
+	dx!:   int32
+	dy!:   int32
 }
 
 // 回復効果
@@ -1230,7 +1230,7 @@ import "strings"
 	if ref != "" {
 		ref_ref: _propIDs[ref] @rawgen(-)
 	}
-	weight!: int32 & int & >=1
+	weight!: int32 & >=1
 	big!:    bool
 	satellites?: [...#PropSpot]
 	if satellites != _|_ {
@@ -1273,7 +1273,7 @@ import "strings"
 // id は地図の記号の id を兼ねる。行の順に重みを積む
 #Settlement: {
 	id!:     #EntityID
-	weight!: int32 & int & >=1
+	weight!: int32 & >=1
 
 	// 住人の member。name は members の id
 	members!: [...#PropSpot]
@@ -1314,7 +1314,7 @@ import "strings"
 #SiteType: "detached" | "shopfront" | "roadside"
 
 // 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
-#SiteWeight: int32 & int & >=0 @rawgen(type=int32)
+#SiteWeight: int32 & >=0 @rawgen(type=int32)
 
 // スキル。同じカテゴリのスキルは行の順に表示する
 #Skill: {
@@ -1568,7 +1568,7 @@ import "strings"
 #Weight: string & =~"^[0-9]+(\\.[0-9]+)? (mg|g|kg)$"
 
 // 入口側に空ける前庭の奥行き。タイル
-#YardDepth: int32 & int & >=0 & <=10 @rawgen(type=int32)
+#YardDepth: int32 & >=0 & <=10 @rawgen(type=int32)
 
 // 市街地の地区
 #Zone: "downtown" | "residential" | "industrial"

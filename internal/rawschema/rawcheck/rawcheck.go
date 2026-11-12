@@ -16,13 +16,13 @@
 package rawcheck
 
 import (
+	"cmp"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/fs"
 	"path"
 	"slices"
-	"sort"
 	"strings"
 	"sync"
 
@@ -144,11 +144,8 @@ func toError(err error) error {
 		seen[key] = true
 		out.Violations = append(out.Violations, v)
 	}
-	sort.Slice(out.Violations, func(i, j int) bool {
-		if out.Violations[i].Path != out.Violations[j].Path {
-			return out.Violations[i].Path < out.Violations[j].Path
-		}
-		return out.Violations[i].Message < out.Violations[j].Message
+	slices.SortFunc(out.Violations, func(a, b Violation) int {
+		return cmp.Or(cmp.Compare(a.Path, b.Path), cmp.Compare(a.Message, b.Message))
 	})
 	return &out
 }
