@@ -133,15 +133,14 @@ func Validate(raws rawschema.Raws) error {
 
 func toError(err error) error {
 	var out Error
-	seen := map[string]bool{}
+	seen := map[Violation]bool{}
 	for _, e := range cueerrors.Errors(err) {
 		format, args := e.Msg()
 		v := Violation{Path: strings.Join(e.Path(), "."), Message: fmt.Sprintf(format, args...)}
-		key := v.Path + "\x00" + v.Message
-		if seen[key] {
+		if seen[v] {
 			continue
 		}
-		seen[key] = true
+		seen[v] = true
 		out.Violations = append(out.Violations, v)
 	}
 	slices.SortFunc(out.Violations, func(a, b Violation) int {
