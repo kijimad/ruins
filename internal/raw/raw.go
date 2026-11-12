@@ -44,8 +44,7 @@ func findByKey[T any](slice *[]T, keyFn func(T) string, target string) (T, bool)
 	return zero, false
 }
 
-// LoadFromFile はファイルからローデータを読み込み、Go で書いた決まりを検証する。形と値の制約と参照は
-// rawcheck が CUE のスキーマで検証し、CI のテストが保証する
+// LoadFromFile はファイルからローデータを読み込み、Go で書いた決まりを検証する。
 func LoadFromFile(path string) (rawschema.Raws, error) {
 	bs, err := assets.FS.ReadFile(path)
 	if err != nil {
@@ -173,7 +172,6 @@ func toGCBedding(b *rawschema.Bedding) *gc.Bedding {
 }
 
 // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
-// enum値の妥当性は CUE のスキーマで検証済み
 func parseTargetType(targetGroup rawschema.TargetGroup, targetNum rawschema.TargetNum) gc.TargetType {
 	if targetGroup == "" {
 		return gc.TargetType{}
@@ -219,7 +217,6 @@ func parseFire(f *rawschema.Fire) *gc.Fire {
 }
 
 // newProvidesHealingFromAPI はrawschema.ProvidesHealingからProvidesHealingコンポーネントを生成する
-// enum値の妥当性は CUE のスキーマで検証済み
 func newProvidesHealingFromAPI(h *rawschema.ProvidesHealing) *gc.ProvidesHealing {
 	switch h.ValueType {
 	case rawschema.PERCENTAGE:

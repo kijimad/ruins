@@ -195,7 +195,6 @@ func writeStruct(b *bytes.Buffer, name string, s *ast.StructLit) error {
 }
 
 // checkOnlyComprehension は内包表記が @rawgen(-) のフィールドだけを持つことを確かめる。
-// 内包表記はあるかないかが値で決まり Go のフィールドに写せないので、検査のためだけに許す。
 func checkOnlyComprehension(c *ast.Comprehension) error {
 	s, ok := c.Value.(*ast.StructLit)
 	if !ok {
@@ -258,7 +257,7 @@ func writeValues(b *bytes.Buffer, name string, values []string, prefix bool) {
 	b.WriteString("}\n}\n\n")
 }
 
-// goType は値の式から Go の型を決める。定義の参照はその名前、基本の型は Go の型、[...T] はスライスにする。
+// goType は値の式から Go の型を決める。
 func goType(e ast.Expr) (string, error) {
 	switch v := e.(type) {
 	case *ast.Ident:

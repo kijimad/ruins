@@ -12,7 +12,6 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
-// 検証エラー。呼び出し側とテストが errors.Is で種類を同定できるよう sentinel にする。
 var (
 	errZoneNoBaseFacility            = errors.New("zone has no base facility")
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
@@ -39,7 +38,6 @@ var (
 )
 
 // validateRules は行の間の決まりのうち、CUE のスキーマで書かないものを検証する。
-// 行の間の参照と id の一意は rawcheck が CUE のスキーマで検証する
 func validateRules(raws rawschema.Raws) error {
 	validators := []func(rawschema.Raws) error{
 		validateDisassemblies,

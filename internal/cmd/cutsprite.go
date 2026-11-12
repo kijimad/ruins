@@ -58,15 +58,14 @@ func runCutSprite(_ context.Context, cmd *cli.Command) error {
 	return err
 }
 
-// spriteCell は切り出した1マス。透明でないマスだけを持つ。
+// spriteCell は切り出した1マス
 type spriteCell struct {
 	row, col int
 	img      *image.NRGBA
 }
 
 // cutCells は img を size ピクセル角のマスに切り、すべての画素が透明なマスを除いて行と列の順に返す。
-// 端に余った size に満たない部分は捨てる。aseprite へ渡す単体のスプライトの名前は末尾を _ にするので、
-// 呼び出し側がその名前で書き出す。
+// 端に余った size に満たない部分は捨てる。
 func cutCells(img image.Image, size int) []spriteCell {
 	b := img.Bounds()
 	var out []spriteCell
