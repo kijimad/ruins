@@ -1,0 +1,85 @@
+[palette]
+id = "store"
+description = "店"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"=" = "floor_concrete"
+"." = "floor_linoleum"
+"~" = "floor_tile"
+
+[palette.props."+"]
+tile = "floor_linoleum"
+id = "door"
+
+[palette.props."w"]
+tile = "wall"
+id = "window"
+
+[palette.props."G"]
+tile = "floor_linoleum"
+id = "goods_shelf"
+lootTable = "store_goods"
+
+[palette.props."C"]
+tile = "floor_linoleum"
+id = "refrigerator"
+lootTable = "pantry"
+
+[palette.props."R"]
+tile = "floor_linoleum"
+id = "register"
+lootTable = "store_goods"
+
+[palette.props."k"]
+tile = "floor_linoleum"
+id = "checkout_counter"
+
+[palette.props."M"]
+tile = "floor_linoleum"
+id = "magazine_rack"
+
+[palette.props."V"]
+tile = "floor_concrete"
+id = "vending_machine"
+
+[palette.props."b"]
+tile = "floor_linoleum"
+id = "shopping_basket"
+
+[palette.props."B"]
+tile = "floor_concrete"
+candidates = [{ id = "barrel", weight = 1 }, { id = "wooden_crate", weight = 2 }]
+lootTable = "office_storage"
+
+[palette.props."d"]
+tile = "floor_linoleum"
+id = "desk"
+lootTable = "office_storage"
+
+[palette.props."h"]
+tile = "floor_linoleum"
+id = "chair"
+
+[palette.props."T"]
+tile = "floor_tile"
+id = "toilet"
+
+[palette.props."s"]
+tile = "floor_tile"
+id = "sink"
+
+[palette.props."p"]
+tile = "dirt"
+candidates = [{ id = "plant", weight = 2 }, { id = "bush", weight = 1 }]
+
+[palette.items."o"]
+itemGroup = "food"
+tile = "floor_linoleum"
+chance = 40
+repeat = [1, 2]
+
+[palette.beings."z"]
+tile = "floor_linoleum"
+chance = 30

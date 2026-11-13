@@ -29,7 +29,7 @@ func TestFacilityTemplates_扉が塞がらず全ての床へ入れる(t *testing
 		blockedTile[tl.Id] = tl.BlockPass
 	}
 
-	for _, fac := range []string{"house"} {
+	for _, fac := range loader.Facilities() {
 		for seed := range uint64(200) {
 			_, base, err := loader.FacilityChunk(fac, seed)
 			require.NoError(t, err)

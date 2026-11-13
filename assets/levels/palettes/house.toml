@@ -83,9 +83,9 @@ candidates = [{ id = "washing_machine", weight = 2 }, { id = "washing_machine_fu
 tile = "floor_tile"
 id = "bathtub"
 
-[palette.nested.z]
+[palette.beings.z]
 tile = "floor_tatami"
-chunks = [{ name = "1x1_house_occupant", weight = 1 }, { name = "null", weight = 2 }]
+chance = 33
 
 [palette.nested.X]
 tile = "floor_wood"

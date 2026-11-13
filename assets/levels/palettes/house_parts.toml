@@ -36,9 +36,6 @@ id = "chair"
 tile = "floor_linoleum"
 candidates = [{ id = "sofa", weight = 2 }, { id = "two_seat_sofa", weight = 1 }]
 
-[palette.beings.Z]
-tile = "floor_tatami"
-
 [palette.items.t]
 itemGroup = "food"
 chance = 25

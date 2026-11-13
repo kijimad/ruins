@@ -1,0 +1,93 @@
+[palette]
+id = "clinic"
+description = "診療所"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"=" = "floor_concrete"
+"." = "floor_linoleum"
+"~" = "floor_tile"
+
+[palette.props."+"]
+tile = "floor_linoleum"
+id = "door"
+
+[palette.props."w"]
+tile = "wall"
+id = "window"
+
+[palette.props."Q"]
+tile = "floor_linoleum"
+id = "reception_counter"
+
+[palette.props."d"]
+tile = "floor_linoleum"
+id = "desk"
+lootTable = "office_storage"
+
+[palette.props."h"]
+tile = "floor_linoleum"
+id = "chair"
+
+[palette.props."n"]
+tile = "floor_linoleum"
+id = "bench"
+
+[palette.props."M"]
+tile = "floor_linoleum"
+id = "magazine_rack"
+
+[palette.props."E"]
+tile = "floor_linoleum"
+id = "exam_bed"
+
+[palette.props."K"]
+tile = "floor_linoleum"
+id = "medicine_cabinet"
+lootTable = "medicine_shelf"
+
+[palette.props."I"]
+tile = "floor_linoleum"
+id = "iv_stand"
+
+[palette.props."S"]
+tile = "floor_linoleum"
+id = "stretcher"
+
+[palette.props."W"]
+tile = "floor_linoleum"
+id = "wheelchair"
+
+[palette.props."m"]
+tile = "floor_linoleum"
+id = "medical_monitor"
+
+[palette.props."T"]
+tile = "floor_tile"
+id = "toilet"
+
+[palette.props."s"]
+tile = "floor_tile"
+id = "sink"
+
+[palette.props."V"]
+tile = "floor_concrete"
+id = "vending_machine"
+
+[palette.props."P"]
+tile = "floor_linoleum"
+id = "plant"
+
+[palette.props."p"]
+tile = "dirt"
+candidates = [{ id = "plant", weight = 2 }, { id = "bush", weight = 1 }]
+
+[palette.items."o"]
+itemGroup = "healing_item"
+tile = "floor_linoleum"
+chance = 35
+
+[palette.beings."z"]
+tile = "floor_linoleum"
+chance = 30

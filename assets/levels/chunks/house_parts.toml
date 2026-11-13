@@ -1,12 +1,4 @@
 [[chunk]]
-name = "1x1_house_occupant"
-weight = 1
-palettes = ["house_parts"]
-map = """
-Z
-"""
-
-[[chunk]]
 name = "3x3_house_bed_set"
 weight = 2
 palettes = ["house_parts"]

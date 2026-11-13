@@ -552,7 +552,7 @@ func TestResolveMapCells_施設の文字(t *testing.T) {
 			"d": {Tile: "floor", LootTable: "house_closet", Candidates: []WeightedID{{ID: "dresser", Weight: 1}, {ID: "bookshelf", Weight: 1}}},
 		},
 		Items:  map[string]ItemEntry{"f": {Tile: "floor", ItemGroup: "food"}},
-		Beings: map[string]TileEntry{"Z": {Tile: "floor"}},
+		Beings: map[string]BeingEntry{"Z": {Tile: "floor"}},
 	}
 
 	cells := ResolveMapCells("dfZ.", palette, rand.New(rand.NewPCG(1, 1)))

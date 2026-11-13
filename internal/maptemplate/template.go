@@ -108,7 +108,9 @@ func ResolveMapCells(mapStr string, palette *Palette, rng *rand.Rand) [][]MapCel
 					cell.ItemGroup = item.ItemGroup
 					cell.ItemCount = item.roll(rng)
 				}
-				_, cell.Being = palette.Beings[charStr]
+				if being, ok := palette.Beings[charStr]; ok {
+					cell.Being = being.Chance == 0 || rng.IntN(100) < being.Chance
+				}
 			}
 			// パレットで解決できなかった場合、文字自体をTerrain名として使用する
 			if cell.Terrain == "" {

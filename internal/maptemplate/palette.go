@@ -63,9 +63,11 @@ type ItemEntry struct {
 	Repeat []int `toml:"repeat,omitempty"`
 }
 
-// TileEntry は下に敷く地形だけを持つ文字の定義
-type TileEntry struct {
+// BeingEntry は施設の敵の表から1体置く文字の定義
+type BeingEntry struct {
 	Tile string `toml:"tile"`
+	// Chance は置く確率。百分率で、省くと必ず置く
+	Chance int `toml:"chance,omitempty"`
 }
 
 // nullChunk は部品の候補で、何も置かないことを表す名前
@@ -92,7 +94,7 @@ type Palette struct {
 	Props       map[string]PaletteEntry `toml:"props,omitempty"`   // {文字: Prop定義}
 	NPCs        map[string]PaletteEntry `toml:"npcs,omitempty"`    // {文字: NPC定義}
 	Items       map[string]ItemEntry    `toml:"items,omitempty"`   // {文字: 床の戦利品}
-	Beings      map[string]TileEntry    `toml:"beings,omitempty"`  // {文字: 施設の敵の表から引く敵}
+	Beings      map[string]BeingEntry   `toml:"beings,omitempty"`  // {文字: 施設の敵の表から引く敵}
 	Nested      map[string]NestedEntry  `toml:"nested,omitempty"`  // {文字: その位置を左上に置く部品}
 }
 
@@ -175,6 +177,9 @@ func (l *PaletteLoader) validate(p *Palette) error {
 	for char, entry := range p.Beings {
 		if err := validateTileChar("beings", char, entry.Tile); err != nil {
 			return err
+		}
+		if entry.Chance < 0 || entry.Chance > 100 {
+			return fmt.Errorf("beings %q: %w: %d", char, errPaletteChanceOutOfRange, entry.Chance)
 		}
 	}
 
@@ -270,7 +275,7 @@ func MergePalettes(palettes ...*Palette) *Palette {
 		Props:       make(map[string]PaletteEntry),
 		NPCs:        make(map[string]PaletteEntry),
 		Items:       make(map[string]ItemEntry),
-		Beings:      make(map[string]TileEntry),
+		Beings:      make(map[string]BeingEntry),
 		Nested:      make(map[string]NestedEntry),
 	}
 
