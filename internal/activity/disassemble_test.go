@@ -94,3 +94,35 @@ func TestDisassembleBehavior_DoTurn_途中でアイテムが無くなると中�
 
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 }
+
+func TestDisassembleBehavior_Canceled(t *testing.T) {
+	t.Parallel()
+
+	t.Run("対象が残っていれば名前を出す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		hammer, err := lifecycle.SpawnBackpackItem(world, "hammer", 1)
+		require.NoError(t, err)
+
+		require.NoError(t, (&DisassembleBehavior{}).Canceled(NewDisassembleActivity(hammer, world), player, world))
+
+		assert.Equal(t, []string{query.T(world, "interrupted disassembling %s", query.GetEntityName(hammer, world))}, query.GetGameLog(world).GetRecent(1))
+	})
+
+	t.Run("対象が消えていれば名前を出さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		hammer, err := lifecycle.SpawnBackpackItem(world, "hammer", 1)
+		require.NoError(t, err)
+		comp := NewDisassembleActivity(hammer, world)
+		require.NoError(t, lifecycle.ChangeItemCount(world, hammer, -1))
+
+		require.NoError(t, (&DisassembleBehavior{}).Canceled(comp, player, world))
+
+		assert.Equal(t, []string{query.T(world, "interrupted disassembling")}, query.GetGameLog(world).GetRecent(1))
+	})
+}
