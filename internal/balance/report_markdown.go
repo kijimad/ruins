@@ -37,12 +37,12 @@ func (r *Report) Markdown() string {
 	b.WriteString("\n")
 
 	b.WriteString("## 施設の戦利品\n\n")
-	for _, f := range r.RoomLoot {
+	for _, f := range r.FacilityLoot {
 		fmt.Fprintf(&b, "### %s\n\n試行 %d。\n\n", f.Facility, f.Trials)
-		b.WriteString("| 部屋 | アイテム | 1棟で出る確率 | 1棟あたりの期待個数 | 売買価値 |\n|---|---|---|---|---|\n")
-		for _, room := range f.Rooms {
-			for _, it := range room.Items {
-				fmt.Fprintf(&b, "| %s | %s | %s | %.2f | %d |\n", room.Role, it.Name, percent(it.Prob), it.ExpectedCount, it.Value)
+		b.WriteString("| 絵 | 選ばれた試行 | アイテム | 1棟で出る確率 | 1棟あたりの期待個数 | 売買価値 |\n|---|---|---|---|---|---|\n")
+		for _, tl := range f.Templates {
+			for _, it := range tl.Items {
+				fmt.Fprintf(&b, "| %s | %d | %s | %s | %.2f | %d |\n", tl.Template, tl.Trials, it.Name, percent(it.Prob), it.ExpectedCount, it.Value)
 			}
 		}
 		b.WriteString("\n")

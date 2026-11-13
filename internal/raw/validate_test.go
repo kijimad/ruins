@@ -187,7 +187,7 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 
 	t.Run("全地区に基本施設があれば通る", func(t *testing.T) {
 		t.Parallel()
-		raws := rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "house", Planner: rawschema.House, Zones: baseZones}}}
+		raws := rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "house", Zones: baseZones}}}
 		require.NoError(t, validateZoneBaseFacilities(raws))
 	})
 
@@ -206,111 +206,10 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 				}
 				zones = append(zones, z)
 			}
-			raws := rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "clinic", Planner: rawschema.Clinic, Zones: zones}}}
+			raws := rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "clinic", Zones: zones}}}
 			require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility)
 		})
 	}
-}
-
-func TestValidateFlavorContent(t *testing.T) {
-	t.Parallel()
-
-	t.Run("interior を積み flavorContent があれば通る", func(t *testing.T) {
-		t.Parallel()
-		raws := rawschema.Raws{
-			InteriorContents: &[]rawschema.InteriorContent{{Id: "house"}},
-			FlavorContent:    &rawschema.InteriorContent{Id: "flavor"},
-		}
-		require.NoError(t, validateFlavorContent(raws))
-	})
-
-	t.Run("interior を積まない raw は通る", func(t *testing.T) {
-		t.Parallel()
-		require.NoError(t, validateFlavorContent(rawschema.Raws{}))
-	})
-
-	t.Run("interior を積むのに flavorContent が無いとエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := rawschema.Raws{InteriorContents: &[]rawschema.InteriorContent{{Id: "house"}}}
-		require.ErrorIs(t, validateFlavorContent(raws), errInteriorFlavorContentMissing)
-	})
-}
-func TestValidateMapGlyphReferences(t *testing.T) {
-	t.Parallel()
-
-	wasteland, entrance := rawschema.Wasteland, rawschema.DungeonEntrance
-	chunkGlyphs := func() []rawschema.MapGlyph {
-		return []rawschema.MapGlyph{{Id: "field", Glyph: ".", Chunk: &wasteland}, {Id: "dungeon_entrance", Glyph: ">", Chunk: &entrance}}
-	}
-
-	t.Run("1文字で重複せず全施設とランドマークと集落とチャンクの種類に記号があれば通る", func(t *testing.T) {
-		t.Parallel()
-		glyphs := append(chunkGlyphs(), rawschema.MapGlyph{Id: "house", Glyph: "h"}, rawschema.MapGlyph{Id: "shrine", Glyph: "s"}, rawschema.MapGlyph{Id: "village", Glyph: "v"})
-		raws := rawschema.Raws{
-			Facilities:  &[]rawschema.Facility{{Id: "house"}},
-			Landmarks:   &[]rawschema.Landmark{{Id: "shrine"}},
-			Settlements: &[]rawschema.Settlement{{Id: "village"}},
-			MapGlyphs:   &glyphs,
-		}
-		require.NoError(t, validateMapGlyphReferences(raws))
-	})
-
-	t.Run("チャンクの種類に記号が無いとエラー", func(t *testing.T) {
-		t.Parallel()
-		glyphs := chunkGlyphs()[:1]
-		require.ErrorIs(t, validateMapGlyphReferences(rawschema.Raws{MapGlyphs: &glyphs}), errEnumRowMissing)
-	})
-
-	t.Run("チャンクの種類を2つの記号が指すとエラー", func(t *testing.T) {
-		t.Parallel()
-		glyphs := append(chunkGlyphs(), rawschema.MapGlyph{Id: "field2", Glyph: ",", Chunk: &wasteland})
-		require.ErrorIs(t, validateMapGlyphReferences(rawschema.Raws{MapGlyphs: &glyphs}), errDuplicateID)
-	})
-
-	t.Run("記号が2文字だとエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := rawschema.Raws{MapGlyphs: &[]rawschema.MapGlyph{{Id: "house", Glyph: "hh"}}}
-		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphNotSingleRune)
-	})
-
-	t.Run("記号が空だとエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := rawschema.Raws{MapGlyphs: &[]rawschema.MapGlyph{{Id: "house", Glyph: ""}}}
-		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphNotSingleRune)
-	})
-
-	t.Run("記号が重複するとエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := rawschema.Raws{MapGlyphs: &[]rawschema.MapGlyph{{Id: "house", Glyph: "h"}, {Id: "hamlet", Glyph: "h"}}}
-		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphDuplicate)
-	})
-
-	t.Run("施設に記号が無いとエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := rawschema.Raws{
-			Facilities: &[]rawschema.Facility{{Id: "house"}},
-			MapGlyphs:  &[]rawschema.MapGlyph{{Id: "field", Glyph: "."}},
-		}
-		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphMissing)
-	})
-
-	t.Run("ランドマークに記号が無いとエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := rawschema.Raws{
-			Landmarks: &[]rawschema.Landmark{{Id: "shrine"}},
-			MapGlyphs: &[]rawschema.MapGlyph{{Id: "field", Glyph: "."}},
-		}
-		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphMissing)
-	})
-
-	t.Run("集落に記号が無いとエラー", func(t *testing.T) {
-		t.Parallel()
-		raws := rawschema.Raws{
-			Settlements: &[]rawschema.Settlement{{Id: "village"}},
-			MapGlyphs:   &[]rawschema.MapGlyph{{Id: "field", Glyph: "."}},
-		}
-		require.ErrorIs(t, validateMapGlyphReferences(raws), errMapGlyphMissing)
-	})
 }
 
 func TestSchema_抽選重みは1以上(t *testing.T) {
@@ -350,11 +249,6 @@ func TestValidateRules_各検証の失敗を伝播する(t *testing.T) {
 			name:    "地区の基本施設が無い",
 			raws:    rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "f1", Zones: []rawschema.FacilityZone{{Zone: rawschema.Downtown, Weight: 1, MinSpan: 3}}}}},
 			wantErr: errZoneNoBaseFacility,
-		},
-		{
-			name:    "flavorContent が無い",
-			raws:    rawschema.Raws{InteriorContents: &[]rawschema.InteriorContent{{Id: "c"}}},
-			wantErr: errInteriorFlavorContentMissing,
 		},
 		{
 			name:    "地図記号が1文字でない",

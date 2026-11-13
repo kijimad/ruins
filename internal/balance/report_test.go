@@ -94,7 +94,7 @@ func TestReport_Markdown(t *testing.T) {
 			Depths: []DepthStat{{Depth: 1, MedianHP: 70, P5HP: 50, P95HP: 80, MedianHPBeforeHeal: 60, MedianKillTurns: 4, MedianWeaponDamage: 3, MedianHunger: 10, MedianDamage: 12, MedianHealing: 5, SuddenDeathRate: 0.1}},
 		}},
 		BattleMetrics: []BattleMetric{{Player: "ash", Weapon: "bare_hands", Enemy: "slime", DPS: 1.5}},
-		RoomLoot:      []FacilityLoot{{Facility: "house", Trials: 20, Rooms: []RoomLoot{{Role: "kitchen", Items: []LootItemStat{{Name: "bread", Prob: 0.5, ExpectedCount: 0.75, Value: 10}}}}}},
+		FacilityLoot:  []FacilityLoot{{Facility: "house", Trials: 20, Templates: []TemplateLoot{{Template: "20x20_house_hiraya", Trials: 8, Items: []LootItemStat{{Name: "bread", Prob: 0.5, ExpectedCount: 0.75, Value: 10}}}}}},
 	}
 
 	assert.Equal(t, `# バランスシミュレーション
@@ -125,9 +125,9 @@ func TestReport_Markdown(t *testing.T) {
 
 試行 20。
 
-| 部屋 | アイテム | 1棟で出る確率 | 1棟あたりの期待個数 | 売買価値 |
-|---|---|---|---|---|
-| kitchen | bread | 50.0% | 0.75 | 10 |
+| 絵 | 選ばれた試行 | アイテム | 1棟で出る確率 | 1棟あたりの期待個数 | 売買価値 |
+|---|---|---|---|---|---|
+| 20x20_house_hiraya | 8 | bread | 50.0% | 0.75 | 10 |
 
 `, r.Markdown())
 }

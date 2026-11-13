@@ -120,27 +120,6 @@ import "strings"
 	skill?:       #SkillBook
 }
 
-// 建物の散らかり段階
-#BuildingClutter: "tidy" | "messy" | "filthy"
-
-// 建物の損傷段階
-#BuildingDamage: "intact" | "minor" | "major" @rawgen(prefix)
-
-// 建物の事情。稀な1軒へ物語を与える
-#BuildingVariant: "standard" | "abandoned" | "under_construction" | "survivalist" | "hoarder"
-
-// 建物の散らかり段階の重み
-#ClutterChoice: {
-	id!:     #BuildingClutter
-	weight!: #EntryWeight
-
-	// 家具1つの隣へ小物を落とす割合。0 なら散らかりを足さない
-	furniturePercent!: #InteriorPercent
-
-	// 家具から離れた床のタイルへ小物を散らす割合
-	floorPercent!: #InteriorPercent
-}
-
 // RGBA色チャネル値 (0-255)
 #ColorChannel: int @rawgen(type=uint8)
 
@@ -218,52 +197,6 @@ import "strings"
 	targetNum!:   #TargetNum
 }
 
-// 抽選単位の束
-#ContentGroup: {
-	style!: #GroupStyle
-
-	// pick_n のときの選ぶ個数。pick_each / pick_one では使わないので省略可
-	pick?: int32
-	items!: [...#ContentStuff]
-}
-
-// anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
-#ContentSatellite: {
-	kind!: #StuffKind
-	ref!:  #EntityID
-	offsets!: [...#ContentVec]
-
-	// 収納家具の中身を引く itemTables の id。収納家具では必須
-	lootTable?: #EntityID
-	if lootTable != _|_ {
-		lootTable_ref: _itemTableIDs[lootTable] @rawgen(-)
-	}
-}
-
-// 内装レシピの1配置指示
-#ContentStuff: {
-	kind!:   #StuffKind
-	ref!:    #EntityID
-	weight?: #EntryWeight
-
-	// 置く個数のダイス表記
-	amount!:    #Dice
-	placement?: #Placement
-	satellites?: [...#ContentSatellite]
-
-	// 収納家具の中身を引く itemTables の id。収納家具では必須
-	lootTable?: #EntityID
-	if lootTable != _|_ {
-		lootTable_ref: _itemTableIDs[lootTable] @rawgen(-)
-	}
-}
-
-// 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向
-#ContentVec: {
-	x!: int32
-	y!: int32
-}
-
 // キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる
 #CubeModule: {
 	rangeBonus!:        #RangeBonus
@@ -273,32 +206,11 @@ import "strings"
 // ダメージ補正値
 #DamageBonus: int & >=-100 & <=100
 
-// 建物の損傷段階の重み
-#DamageChoice: {
-	id!:     #BuildingDamage
-	weight!: #EntryWeight
-
-	// 経年で戦利品を撤去する割合
-	lootPercent!: #InteriorPercent
-
-	// 廃墟化で壁際のタイルに瓦礫の種を撒く割合。0 から 1
-	rubbleSeedRatio!: #NeedRatio
-}
-
 // 危険度。経過日数から決まる
 #DangerLevel: int & >=0 & <=100
 
 // 防御力。被ダメージを軽減する
 #Defense: int & >=-100 & <=100
-
-// 建物の家具量の倍率の重み
-#DensityChoice: {
-	factor!: #DensityFactor
-	weight!: #EntryWeight
-}
-
-// 建物の家具量の倍率。10 が等倍の ×/10
-#DensityFactor: int & >=1 & <=30
 
 // 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
 #Deployable: {
@@ -482,48 +394,15 @@ import "strings"
 // 装備部位
 #EquipmentCategory: "HEAD" | "TORSO" | "ARMS" | "HANDS" | "LEGS" | "FEET" | "JEWELRY" @rawgen(prefix)
 
-// 街路側の前壁に付ける外皮の interiorRefs の id
-#FacadeRefs: {
-	window!:    #EntityID
-	window_ref: _propRefIDs[window] @rawgen(-)
-
-	// 大破した店が窓の代わりに下ろすシャッター
-	shutter!:    #EntityID
-	shutter_ref: _propRefIDs[shutter] @rawgen(-)
-
-	// 店の入口脇に立てる看板
-	sign!:    #EntityID
-	sign_ref: _propRefIDs[sign] @rawgen(-)
-}
-
-// 市街地の施設1種。isShop は看板やシャッターを出す店か
+// 市街地の施設1種
 #Facility: {
 	id!:            #EntityID
-	isShop!:        bool
-	planner!:       #PlannerKey
 	enemyTable!:    #EntityID
 	enemyTable_ref: _enemyTableIDs[enemyTable] @rawgen(-)
 	zones!: [...#FacilityZone]
 
 	// 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
 	lootedChance?: int32 & >=0 & <=100
-}
-
-// 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
-#FacilityContent: {
-	facility!:    #EntityID
-	facility_ref: _facilityIDs[facility] @rawgen(-)
-	variants!: [...#EntityID]
-	variants_ref: [for x in variants {_interiorContentIDs[x]}] @rawgen(-)
-}
-
-// 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
-#FacilityRooms: {
-	facility!:    #EntityID
-	facility_ref: _facilityIDs[facility] @rawgen(-)
-	rooms?: [...#RoomContent]
-	fallback!:    #EntityID
-	fallback_ref: _interiorContentIDs[fallback] @rawgen(-)
 }
 
 // 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
@@ -619,9 +498,6 @@ import "strings"
 	weight!: int32 & >=1
 }
 
-// グループの抽選方式。保証セットとランダム充填を分ける
-#GroupStyle: "pick_each" | "pick_one" | "pick_n"
-
 // 回復固定量
 #HealAmount: int & >=0 & <=9999
 
@@ -645,14 +521,6 @@ import "strings"
 
 // 熱源が毎ターン下げる低体温タイマーの量
 #HeatWarmth: number & >=0
-
-// hero 部屋の目玉の種類の重み。選ばれた種類の refs から1つを一様に引く
-#HeroChoice: {
-	id!:     #EntityID
-	weight!: #EntryWeight
-	refs!: [...#EntityID] & [_, ...]
-	refs_ref: [for x in refs {_propRefIDs[x]}] @rawgen(-)
-}
 
 // 耐久値。削り切られると壊れる
 #HitPoints: int & >=1 & <=9999
@@ -692,54 +560,6 @@ import "strings"
 
 // 耐暑性能
 #InsulationHeat: int & >=-100 & <=100
-
-// 内装レシピ。施設まるごと、または奥室1つに対応する
-#InteriorContent: {
-	id!: #EntityID
-	groups?: [...#ContentGroup]
-}
-
-// 内装の経年や散らかりの割合。百分率
-#InteriorPercent: int & >=0 & <=100
-
-// 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
-#InteriorProfile: {
-	damages!: [...#DamageChoice]
-	clutters!: [...#ClutterChoice]
-	variants!: [...#VariantChoice]
-	densities!: [...#DensityChoice]
-	heroes!: [...#HeroChoice]
-	heroIds_unique: {if heroes != _|_ for i, x in heroes {(x.id): i}} @rawgen(-)
-	sites!: [...#SiteChoice]
-	facade!: #FacadeRefs
-	lot!:    #LotRefs
-
-	// 経年で家具1つが隣へ生活痕を落とす割合
-	wearPercent!: #InteriorPercent
-
-	// hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ
-	heroOneIn!: int32 & >=1
-}
-
-// 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
-#InteriorRef: {
-	id!: #EntityID
-
-	// 家具と装飾として置く raw の prop。省くと prop として置かない
-	prop?: #EntityID
-	if prop != _|_ {
-		prop_ref: _propIDs[prop] @rawgen(-)
-	}
-
-	// 床 loot として引く itemGroups か itemCollections の id。省くと床 loot として置かない
-	itemGroup?: #EntityID
-	if itemGroup != _|_ {
-		itemGroup_ref: _itemGroupIDs[itemGroup] @rawgen(-)
-	}
-
-	// レシピが placement を省いたときの置き方
-	placement?: #Placement
-}
 
 // プレイヤーキャラクターかどうか
 #IsPlayer: bool
@@ -871,20 +691,6 @@ import "strings"
 	enabled!: #LightEnabled
 }
 
-// 敷地の外構の interiorRefs の id
-#LotRefs: {
-	fence!:    #EntityID
-	fence_ref: _propRefIDs[fence] @rawgen(-)
-
-	// 民家の前庭に置く外構
-	plant!:    #EntityID
-	plant_ref: _propRefIDs[plant] @rawgen(-)
-
-	// 店の前庭に置く外構
-	vending!:    #EntityID
-	vending_ref: _propRefIDs[vending] @rawgen(-)
-}
-
 // マガジン容量
 #MagazineSize: int & >=1 & <=100
 
@@ -1005,12 +811,6 @@ import "strings"
 // 通行コスト加算値。0で変化なし、50でベースコスト+50
 #PassCost: int & >=0 & <=9999
 
-// 配置の置き方。空なら interiorRefs の既定、それも無ければ全域へ落ちる
-#Placement: "center" | "wall" | "full_area" | "near_door" | "far_from_door" | "row"
-
-// 間取りテンプレの選択キー
-#PlannerKey: "house" | "store" | "clinic" | "bsp"
-
 // 治療の質。基準100の倍率。100が標準、150で回復1.5倍
 #Potency: int & >=0 & <=9999
 
@@ -1130,13 +930,6 @@ import "strings"
 	landmarks?: [...#Landmark]
 	scatterZones?: [...#ScatterZone]
 	mapGlyphs?: [...#MapGlyph]
-	interiorContents?: [...#InteriorContent]
-	facilityContents?: [...#FacilityContent]
-	facilityRooms?: [...#FacilityRooms]
-
-	// 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる。id は直接引かないので
-	// interiorContents プールには入れず、この専用フィールドだけに置く
-	flavorContent?: #InteriorContent
 	spriteSheets?: [...#SpriteSheet]
 	tiles?: [...#Tile]
 	props?: [...#Prop]
@@ -1146,8 +939,6 @@ import "strings"
 	skills?: [...#Skill]
 	skillCategories?: [...#SkillCategory]
 	attackTypes?: [...#AttackType]
-	interiorRefs?: [...#InteriorRef]
-	interiorProfile?: #InteriorProfile
 	weathers?: [...#Weather]
 	shelterEffects?: [...#ShelterEffect]
 	waterEffects?: [...#WaterEffect]
@@ -1174,10 +965,8 @@ import "strings"
 	attackTypeIds_unique: {if attackTypes != _|_ for i, x in attackTypes {(x.id): i}} @rawgen(-)
 	skillIds_unique: {if skills != _|_ for i, x in skills {(x.id): i}} @rawgen(-)
 	skillCategoryIds_unique: {if skillCategories != _|_ for i, x in skillCategories {(x.id): i}} @rawgen(-)
-	interiorRefIds_unique: {if interiorRefs != _|_ for i, x in interiorRefs {(x.id): i}} @rawgen(-)
 	dialogueIds_unique: {if dialogues != _|_ for i, x in dialogues {(x.id): i}} @rawgen(-)
 	dungeonIds_unique: {if dungeons != _|_ for i, x in dungeons {(x.id): i}} @rawgen(-)
-	interiorContentIds_unique: {if interiorContents != _|_ for i, x in interiorContents {(x.id): i}} @rawgen(-)
 
 	// アイテムグループとアイテムコレクションは同じ id の空間で参照される
 	itemGroupIds_unique: {
@@ -1227,16 +1016,6 @@ import "strings"
 	treats_ref: [for x in treats {_conditionIDs[x]}] @rawgen(-)
 	potency!: #Potency
 }
-
-// 奥室の役割名と内装レシピの対
-#RoomContent: {
-	role!:       #RoomRole
-	content!:    #EntityID
-	content_ref: _interiorContentIDs[content] @rawgen(-)
-}
-
-// 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
-#RoomRole: "bath" | "bedroom" | "coldroom" | "corridor" | "dressing" | "examination_room" | "genkan" | "kitchen" | "living" | "office" | "pharmacy" | "restroom" | "storage" | "storeroom" | "toilet" | "waiting"
 
 // 散布 prop 1種。ref の空文字は置かないことを表す
 #ScatterEntry: {
@@ -1312,23 +1091,6 @@ import "strings"
 
 // 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
 #ShelterInfluencePercent: int & >=0 & <=100
-
-// 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む
-#SiteChoice: {
-	id!:         #SiteType
-	homeWeight!: #SiteWeight
-	shopWeight!: #SiteWeight
-	yardDepth!:  #YardDepth
-
-	// 敷地を塀で囲うか。街路に面して開く敷地は囲わない
-	fence!: bool
-}
-
-// 敷地の類型。前庭の深さと外構の出し分けに使う
-#SiteType: "detached" | "shopfront" | "roadside"
-
-// 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
-#SiteWeight: int32 & >=0 @rawgen(type=int32)
 
 // スキル。同じカテゴリのスキルは行の順に表示する
 #Skill: {
@@ -1427,9 +1189,6 @@ import "strings"
 // 筋力。物理ダメージに影響する
 #Strength: int & >=-100 & <=100
 
-// 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
-#StuffKind: "furniture" | "loot" | "being" | "decor" | "trap"
-
 // ターゲットグループ
 #TargetGroup: "ENEMY" | "ALLY" | "WEAPON" | "NONE" @rawgen(prefix)
 
@@ -1504,21 +1263,6 @@ import "strings"
 // 使用可能シーン
 #UsableScene: "BATTLE" | "FIELD" | "ANY"
 
-// 建物の変種の重み
-#VariantChoice: {
-	id!:     #BuildingVariant
-	weight!: #EntryWeight
-
-	// 引いた損傷段階を上書きする。省くと上書きしない
-	damage?: #BuildingDamage
-
-	// 散らかり段階をこれ以上に引き上げる。省くと引き上げない
-	minClutter?: #BuildingClutter
-
-	// 引いた家具量の倍率を上書きする。省くと上書きしない
-	density?: #DensityFactor
-}
-
 // AI視界距離（タイル単位）
 #ViewDistance: int & >=1 & <=100
 
@@ -1580,9 +1324,6 @@ import "strings"
 
 // 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 #Weight: string & =~"^[0-9]+(\\.[0-9]+)? (mg|g|kg)$"
-
-// 入口側に空ける前庭の奥行き。タイル
-#YardDepth: int32 & >=0 & <=10 @rawgen(type=int32)
 
 // 市街地の地区
 #Zone: "downtown" | "residential" | "industrial"

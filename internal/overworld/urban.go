@@ -6,7 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/mapplanner/interior"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -23,8 +23,7 @@ import (
 const (
 	urbanMaxSpan consts.Chunk = 3 // 市街地の一辺の最大チャンク数
 
-	urbanStreetW    consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
-	urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
+	urbanStreetW consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
 )
 
 // urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 UrbanMinSpan..urbanMaxSpan。
@@ -186,58 +185,42 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 	return danger
 }
 
-// renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。
+// renderUrbanChunk は1チャンクに建物1棟を描き、施設種別の絵を描き、規模に応じた敵を湧かせる。
 func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac string, danger consts.Danger) error {
-	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける
+	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、施設の絵の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
-	footprint, door, err := planUrbanLot(world, g, rng)
+	loader, err := maptemplate.FacilityTemplates()
 	if err != nil {
+		return fmt.Errorf("failed to load facility templates: %w", err)
+	}
+	if err := drawUrbanStreets(world, g); err != nil {
 		return err
 	}
-	isWall, occupied, err := furnishBuilding(world, g, footprint, door, fac, danger, seed)
+	cells, err := planFacility(loader, fac, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
+	if err != nil {
+		return fmt.Errorf("failed to plan facility %q: %w", fac, err)
+	}
+	isWall, occupied, err := spawnFacility(world, g, cells, urbanStreetW, urbanStreetW, fac, danger, seed)
 	if err != nil {
 		return err
 	}
 	return spawnUrbanEnemies(world, g, rng, size, fac, danger, isWall, occupied)
 }
 
-// planUrbanLot は北辺・西辺の街路を描き、敷地内に建物区画 footprint と道路へ面した入口を選ぶ。建物の外形と
-// 内装は furnishBuilding が Site から描くので、ここは街路だけ描いて区画と入口を返す。扉の向きは壁の走る
-// 方向から furnishBuilding が決める。区画の中で前庭を空け坪庭を作り玄関を凹ませるのは interior の敷地計画に委ねる。
-func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, interior.Vec, error) {
+// drawUrbanStreets はチャンクの北辺と西辺に街路を描く。建物区画のタイルは建物の生成が描くので触らない
+func drawUrbanStreets(world w.World, g chunkGeom) error {
 	tiles := g.tiles.get()
-
-	// 建物区画の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残す。区画は最小 3×3 を保証する。
-	// 扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が破綻しない下限で、市街地チャンクは
-	// chunkW,chunkH >= urbanStreetW+3 を前提にする
-	spanX := g.chunkW - urbanStreetW
-	spanY := g.chunkH - urbanStreetW
-	bw := max(3, spanX-consts.Tile(rng.IntN(int(urbanMaxSetback)+1)))
-	bh := max(3, spanY-consts.Tile(rng.IntN(int(urbanMaxSetback)+1)))
-	bx := urbanStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))
-	by := urbanStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))
-
-	// 街路が北・西にあるので扉は道路に面する北辺か西辺に開ける。位置は interior が前室の内側へ寄せ、
-	// 向きは furnishBuilding が壁の走る方向から決める
-	doorX, doorY := bx+1+consts.Tile(rng.IntN(int(bw-2))), by
-	if rng.IntN(2) == 0 {
-		doorX, doorY = bx, by+1+consts.Tile(rng.IntN(int(bh-2)))
-	}
-
-	// 街路を描く。建物区画のタイルは furnishBuilding が Site から描くのでここでは触らない
 	for ly := range g.chunkH {
 		for lx := range g.chunkW {
 			if lx >= urbanStreetW && ly >= urbanStreetW {
 				continue
 			}
 			if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {
-				return interior.Rect{}, interior.Vec{}, fmt.Errorf("failed to place urban street (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
+				return fmt.Errorf("failed to place urban street (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 			}
 		}
 	}
-	footprint := interior.Rect{X: bx, Y: by, W: bw, H: bh}
-	door := interior.Vec{X: doorX, Y: doorY}
-	return footprint, door, nil
+	return nil
 }
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
@@ -315,11 +298,16 @@ func tileEntitiesInRange(world w.World, loX, hiX consts.Tile) map[gc.GridElement
 // replaceTile は座標のタイルを取り除き、tileName のタイルへ置き換える。
 // オートタイル添字は仮の 0 で置き、後段の RecalcAutotileInXRange が実状態から揃える。
 func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileName string) (ecs.Entity, error) {
+	return replaceTileIndexed(world, tiles, pos, tileName, new(0))
+}
+
+// replaceTileIndexed は replaceTile と同じく置き換え、オートタイル添字 index を渡す。オートタイルしないタイルは nil を渡す
+func replaceTileIndexed(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileName string, index *int) (ecs.Entity, error) {
 	g := gc.GridElement{Coord: pos}
 	if e, ok := tiles[g]; ok && world.ECS.Alive(e) {
 		world.ECS.RemoveEntity(e)
 	}
-	e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, new(0))
+	e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, index)
 	if err != nil {
 		return ecs.Entity{}, err
 	}

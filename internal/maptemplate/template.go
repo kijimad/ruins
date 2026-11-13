@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"maps"
 	"math/rand/v2"
+	"slices"
 	"strconv"
 	"strings"
+	"sync"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/kijimaD/ruins/assets"
@@ -38,6 +42,8 @@ var (
 	errMapRowEmpty = errors.New("map row is empty")
 	// errMapRowLengthMismatch はマップの行ごとの長さが揃っていないときに返す
 	errMapRowLengthMismatch = errors.New("map row length mismatch")
+	// errMapNotASCII はマップに ASCII でない文字があるときに返す
+	errMapNotASCII = errors.New("map has a non-ASCII character")
 	// errMapSizeMismatch はマップの実サイズが名前で定義したサイズと一致しないときに返す
 	errMapSizeMismatch = errors.New("map size does not match defined size")
 	// errCoordinateOutOfRange は座標がマップの範囲外のときに返す
@@ -71,14 +77,18 @@ var (
 // MapCell はマップの1セルを表す解決済みオブジェクト。
 // 各チャンクがパレットを独立に解決した結果を保持する
 type MapCell struct {
-	Terrain string // 地形名
-	Prop    string // Prop ID（なければ空文字）
-	NPC     string // NPC ID（なければ空文字）
+	Terrain   string // 地形名
+	Prop      string // Prop ID（なければ空文字）
+	NPC       string // NPC ID（なければ空文字）
+	LootTable string // 収納の中身を引く itemTables の id。収納でなければ空
+	ItemGroup string // 床に落ちる戦利品の itemGroup の id。無ければ空
+	ItemCount int    // ItemGroup から引く回数。パレットの確率と回数の範囲から解決済み
+	Being     bool   // 施設の敵の表から1体置く
 }
 
 // ResolveMapCells はマップ文字列をパレットで解決し、セル配列に変換する。
-// パレットで解決できない文字は文字自体をTerrain名として使用する
-func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell {
+// パレットで解決できない文字は文字自体をTerrain名として使用する。prop の候補は rng で選ぶ
+func ResolveMapCells(mapStr string, palette *Palette, rng *rand.Rand) [][]MapCell {
 	lines := strings.Split(strings.TrimSpace(mapStr), "\n")
 	cells := make([][]MapCell, len(lines))
 	for y, line := range lines {
@@ -91,11 +101,20 @@ func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell {
 				if terrain, ok := palette.GetTerrain(charStr); ok {
 					cell.Terrain = terrain
 				}
-				if prop, ok := palette.GetProp(charStr); ok {
+				if prop, lootTable, ok := palette.GetProp(charStr, rng); ok {
 					cell.Prop = prop
+					cell.LootTable = lootTable
 				}
 				if npc, ok := palette.GetNPC(charStr); ok {
 					cell.NPC = npc
+				}
+				if item, ok := palette.Items[charStr]; ok {
+					cell.ItemGroup = item.ItemGroup
+					cell.ItemCount = item.roll(rng)
+				}
+				if being, ok := palette.Beings[charStr]; ok {
+					chance := chancePercent(being.Chance)
+					cell.Being = chance == 100 || rng.IntN(100) < chance
 				}
 			}
 			// パレットで解決できなかった場合、文字自体をTerrain名として使用する
@@ -137,8 +156,9 @@ func FormatResolvedMap(cells [][]MapCell) string {
 // ChunkTemplate はチャンクテンプレート定義
 // すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
 type ChunkTemplate struct {
-	Name        string           `toml:"name"`   // キー
-	Weight      int              `toml:"weight"` // 出現確率の重み
+	Name        string           `toml:"name"`     // キー
+	Facility    string           `toml:"facility"` // この絵を使う施設の id。施設の絵でなければ空
+	Weight      int              `toml:"weight"`   // 出現確率の重み
 	Size        Size             // マップサイズ（名前から自動パース）
 	Palettes    []string         `toml:"palettes"`      // 使用するパレットID
 	Map         string           `toml:"map,multiline"` // ASCIIマップ
@@ -182,7 +202,6 @@ type ChunkTemplateFile struct {
 }
 
 // TemplateLoader はテンプレート定義の読み込みを担当する
-// TODO: Loaderが保持するのはおかしい気もする。Resourcesなどに保存することを検討する。が、依存が大きくなるのも微妙である。TemplatePlanner以外じゃ使わないしな...
 type TemplateLoader struct {
 	chunkCache   map[string][]*ChunkTemplate // 同じ名前で複数のバリエーションをサポート
 	paletteCache map[string]*Palette
@@ -195,6 +214,22 @@ func NewTemplateLoader() *TemplateLoader {
 		paletteCache: make(map[string]*Palette),
 	}
 }
+
+// FacilityTemplates は施設の絵、部品、パレットを読み込んだ loader を返す。資材は埋め込みで実行中に変わらないので、読み込みは1度だけ行う
+func FacilityTemplates() (*TemplateLoader, error) {
+	return loadFacilityTemplates()
+}
+
+var loadFacilityTemplates = sync.OnceValues(func() (*TemplateLoader, error) {
+	l := NewTemplateLoader()
+	if err := l.RegisterAllChunks([]string{"levels/chunks", "levels/facilities", "levels/layouts"}); err != nil {
+		return nil, err
+	}
+	if err := l.RegisterAllPalettes([]string{"levels/palettes"}); err != nil {
+		return nil, err
+	}
+	return l, nil
+})
 
 // Load はio.Readerからチャンクテンプレート定義を読み込む
 func (l *TemplateLoader) Load(r io.Reader) ([]ChunkTemplate, error) {
@@ -297,6 +332,10 @@ func (l *TemplateLoader) validateMap(t *ChunkTemplate) error {
 	}
 
 	for i, line := range lines {
+		// プレースホルダや部品の位置はバイトの添字で引くので、1文字を1バイトに限る
+		if j := strings.IndexFunc(line, func(r rune) bool { return r > unicode.MaxASCII }); j >= 0 {
+			return fmt.Errorf("%w: row %d byte %d", errMapNotASCII, i, j)
+		}
 		lineWidth := utf8.RuneCountInString(line)
 		if lineWidth != expectedWidth {
 			return fmt.Errorf("%w: row %d expected %d, got %d", errMapRowLengthMismatch, i, expectedWidth, lineWidth)
@@ -352,6 +391,75 @@ func (l *TemplateLoader) GetChunks(chunkName string) ([]*ChunkTemplate, error) {
 		return nil, fmt.Errorf("%w: '%s'", errChunkNotFound, chunkName)
 	}
 	return chunks, nil
+}
+
+// Facilities は絵が登録されている施設の id を昇順で返す
+func (l *TemplateLoader) Facilities() []string {
+	set := map[string]bool{}
+	for _, chunks := range l.chunkCache {
+		for _, c := range chunks {
+			if c.Facility != "" {
+				set[c.Facility] = true
+			}
+		}
+	}
+	return slices.Sorted(maps.Keys(set))
+}
+
+// FacilityChunkNames は施設 facility の絵の名前を昇順で返す
+func (l *TemplateLoader) FacilityChunkNames(facility string) []string {
+	var names []string
+	for _, name := range slices.Sorted(maps.Keys(l.chunkCache)) {
+		if slices.ContainsFunc(l.chunkCache[name], func(c *ChunkTemplate) bool { return c.Facility == facility }) {
+			names = append(names, name)
+		}
+	}
+	return names
+}
+
+// FacilityChunk は施設 facility の絵から重み付きで1枚選び、展開したセル配列を返す
+func (l *TemplateLoader) FacilityChunk(facility string, seed uint64) (*ChunkTemplate, [][]MapCell, error) {
+	var candidates []*ChunkTemplate
+	for _, name := range slices.Sorted(maps.Keys(l.chunkCache)) {
+		for _, c := range l.chunkCache[name] {
+			if c.Facility == facility {
+				candidates = append(candidates, c)
+			}
+		}
+	}
+	chunk, err := l.selectChunkByWeightFromList(candidates, rand.New(rand.NewPCG(seed, mixSeed(seed, 0))))
+	if err != nil {
+		return nil, nil, fmt.Errorf("facility '%s': %w", facility, err)
+	}
+	cells, err := chunk.ExpandWithPlacements(l, mixSeed(seed, 1))
+	if err != nil {
+		return nil, nil, err
+	}
+	return chunk, cells, nil
+}
+
+// TransformCells は絵を左右に反転してから、左回りに quarterTurns 回だけ90度回したセル配列を返す
+func TransformCells(cells [][]MapCell, quarterTurns int, mirror bool) [][]MapCell {
+	out := cells
+	if mirror {
+		out = make([][]MapCell, len(cells))
+		for y, row := range cells {
+			out[y] = slices.Clone(row)
+			slices.Reverse(out[y])
+		}
+	}
+	for range ((quarterTurns % 4) + 4) % 4 {
+		h, w := len(out), len(out[0])
+		turned := make([][]MapCell, w)
+		for ny := range w {
+			turned[ny] = make([]MapCell, h)
+			for nx := range h {
+				turned[ny][nx] = out[nx][w-1-ny]
+			}
+		}
+		out = turned
+	}
+	return out
 }
 
 // RegisterChunk はチャンクテンプレートをキャッシュに登録する
@@ -522,14 +630,17 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 
 	// このチャンクのパレットで文字をセルに解決する
 	palette := loader.buildMergedPalette(t.Palettes)
-	cells := ResolveMapCells(t.Map, palette)
-
-	if len(t.Placements) == 0 {
-		return cells, nil
-	}
+	cells := ResolveMapCells(t.Map, palette, rand.New(rand.NewPCG(seed, mixSeed(seed, 0))))
 
 	visiting[t.Name] = true
 	defer delete(visiting, t.Name)
+
+	if err := t.expandNested(loader, palette, cells, seed, depth, visiting); err != nil {
+		return nil, err
+	}
+	if len(t.Placements) == 0 {
+		return cells, nil
+	}
 
 	lines := t.GetMapLines()
 	rng := rand.New(rand.NewPCG(seed, seed))
@@ -560,7 +671,7 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 			}
 
 			// 再帰的に展開（子は自身のパレットで解決する）
-			regionSeed := seed + uint64(idx)*1000 + uint64(regionIdx)*100
+			regionSeed := mixSeed(seed, uint64(idx)*1000+uint64(regionIdx)+1)
 			childCells, err := selectedChunk.expandWithPlacementsRecursive(loader, regionSeed, depth+1, visiting)
 			if err != nil {
 				return nil, err
@@ -601,6 +712,44 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 	}
 
 	return cells, nil
+}
+
+// expandNested はパレットの部品の文字の位置に、候補から選んだ部品を左上を合わせて重ねる
+func (t *ChunkTemplate) expandNested(loader *TemplateLoader, palette *Palette, cells [][]MapCell, seed uint64, depth int, visiting map[string]bool) error {
+	if palette == nil || len(palette.Nested) == 0 {
+		return nil
+	}
+	rng := rand.New(rand.NewPCG(seed, mixSeed(seed, 1)))
+	for y, line := range t.GetMapLines() {
+		for x, ch := range []rune(line) {
+			entry, ok := palette.Nested[string(ch)]
+			if !ok {
+				continue
+			}
+			i, ok := consts.Pick(rng, entry.Chunks, func(c WeightedChunkRef) float64 { return float64(c.Weight) })
+			if !ok {
+				return fmt.Errorf("chunk '%s' nested %q: %w", t.Name, ch, errNoChunkCandidate)
+			}
+			if entry.Chunks[i].Name == nullChunk {
+				continue
+			}
+			child, err := loader.selectChunkByWeight([]string{entry.Chunks[i].Name}, rng)
+			if err != nil {
+				return fmt.Errorf("chunk '%s' nested %q: %w", t.Name, ch, err)
+			}
+			if y+child.Size.H > len(cells) || x+child.Size.W > len(cells[y]) {
+				return fmt.Errorf("chunk '%s' nested %q at [%d,%d] child '%s' %s: %w", t.Name, ch, x, y, child.Name, child.Size, errRegionIncomplete)
+			}
+			childCells, err := child.expandWithPlacementsRecursive(loader, mixSeed(seed, uint64(y*len(line)+x)+2), depth+1, visiting)
+			if err != nil {
+				return err
+			}
+			for cy, row := range childCells {
+				copy(cells[y+cy][x:], row)
+			}
+		}
+	}
+	return nil
 }
 
 // validateNoPlaceholdersRemaining は展開後のセル配列にプレースホルダが残っていないか検証する
@@ -797,4 +946,12 @@ func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
 	}
 
 	return nil
+}
+
+// mixSeed は親の seed と番号から子の seed を作る。加算だと隣り合う番号の子が似た乱数列を引くので撹拌する
+func mixSeed(seed, n uint64) uint64 {
+	z := seed + n*0x9e3779b97f4a7c15
+	z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9
+	z = (z ^ (z >> 27)) * 0x94d049bb133111eb
+	return z ^ (z >> 31)
 }

@@ -44,9 +44,9 @@ type EnemyTableRun struct {
 
 // FacilityLoot 1施設種別の loot 分布
 type FacilityLoot struct {
-	Facility string
-	Rooms    []RoomLoot
-	Trials   int
+	Facility  string
+	Templates []TemplateLoot
+	Trials    int
 }
 
 // LootItemStat 1アイテムの loot 統計
@@ -73,14 +73,15 @@ type Report struct {
 	BattleMetrics []BattleMetric
 	EnemyTables   []EnemyTableRun
 	Player        PlayerInfo
-	RoomLoot      []FacilityLoot
+	FacilityLoot  []FacilityLoot
 	Weapon        WeaponInfo
 }
 
-// RoomLoot 1部屋役割の loot 分布
-type RoomLoot struct {
-	Items []LootItemStat
-	Role  string
+// TemplateLoot 施設の絵1枚の loot 分布。Trials はその絵が選ばれた試行数
+type TemplateLoot struct {
+	Items    []LootItemStat
+	Template string
+	Trials   int
 }
 
 // WeaponInfo 武器の情報

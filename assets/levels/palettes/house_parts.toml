@@ -1,0 +1,42 @@
+[palette]
+id = "house_parts"
+description = "民家の部品"
+
+[palette.terrain]
+"." = "floor_wood"
+"_" = "floor_linoleum"
+
+[palette.props."B"]
+tile = "floor_wood"
+id = "bed"
+
+[palette.props."c"]
+tile = "floor_wood"
+id = "closet"
+lootTable = "house_closet"
+
+[palette.props."d"]
+tile = "floor_wood"
+candidates = [{ id = "dresser", weight = 1 }, { id = "drawer_chest", weight = 1 }]
+lootTable = "house_closet"
+
+[palette.props."l"]
+tile = "floor_wood"
+id = "lantern"
+
+[palette.props."t"]
+tile = "floor_linoleum"
+id = "table"
+
+[palette.props."h"]
+tile = "floor_linoleum"
+id = "chair"
+
+[palette.props."s"]
+tile = "floor_linoleum"
+candidates = [{ id = "sofa", weight = 2 }, { id = "two_seat_sofa", weight = 1 }]
+
+[palette.items.t]
+itemGroup = "food"
+chance = 25
+repeat = [1, 2]

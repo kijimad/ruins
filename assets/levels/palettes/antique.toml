@@ -1,0 +1,77 @@
+[palette]
+id = "antique"
+description = "骨董品店"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"=" = "floor_concrete"
+"." = "floor_wood"
+":" = "floor_tatami"
+"_" = "floor_linoleum"
+
+[palette.props."+"]
+tile = "floor_wood"
+id = "door"
+
+[palette.props."w"]
+tile = "wall"
+id = "window"
+
+[palette.props."S"]
+tile = "floor_wood"
+id = "goods_shelf"
+lootTable = "antique_shelf"
+
+[palette.props."R"]
+tile = "floor_wood"
+id = "register"
+lootTable = "antique_shelf"
+
+[palette.props."A"]
+tile = "floor_wood"
+candidates = [{ id = "artistic_shelf", weight = 2 }, { id = "book_showcase", weight = 2 }, { id = "old_lamp", weight = 1 }, { id = "black_vase", weight = 1 }, { id = "phonograph", weight = 1 }]
+
+[palette.props."a"]
+tile = "floor_tatami"
+candidates = [{ id = "buddhist_altar", weight = 1 }, { id = "household_shrine", weight = 1 }]
+
+[palette.props."c"]
+tile = "floor_tatami"
+id = "closet"
+lootTable = "house_closet"
+
+[palette.props."t"]
+tile = "floor_tatami"
+id = "table"
+
+[palette.props."K"]
+tile = "floor_linoleum"
+id = "kitchen_sink"
+
+[palette.props."P"]
+tile = "floor_linoleum"
+id = "dish_shelf"
+lootTable = "house_kitchen"
+
+[palette.props."F"]
+tile = "floor_linoleum"
+id = "refrigerator"
+lootTable = "house_kitchen"
+
+[palette.props."p"]
+tile = "dirt"
+candidates = [{ id = "plant", weight = 2 }, { id = "bush", weight = 1 }, { id = "rock", weight = 1 }]
+
+[palette.items."o"]
+itemGroup = "antique_goods"
+tile = "floor_wood"
+chance = 30
+
+[palette.beings."z"]
+tile = "floor_wood"
+chance = 30
+
+[palette.beings."Z"]
+tile = "floor_tatami"
+chance = 30
