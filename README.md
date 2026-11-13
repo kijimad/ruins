@@ -108,7 +108,7 @@ $ make help
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 9/15（見送り1） | worldgen, item, gamedesign |
 | in-progress | [脱出の鍵・作る段・アイテムの分解を足し、世界をオーバーワールドに一本化してゲームループを閉じる](docs/design/261111002908.md) | 3/18 | gamedesign, item, worldgen, refactor |
-| draft | [区域を一般化し、大きさの違う街と研究所の敷地を置く](docs/design/261113205202.md) | 0/12 | worldgen, gamedesign |
+| in-progress | [区域を一般化し、大きさの違う街と研究所の敷地を置く](docs/design/261113205202.md) | 5/12 | worldgen, gamedesign |
 
 
 ## Reference

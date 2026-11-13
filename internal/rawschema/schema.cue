@@ -309,6 +309,28 @@ import "strings"
 	weight!: #EntryWeight
 }
 
+// 区域の種類。複数のチャンクにまたがる施設の集まり。リージョンごとに大きさを重みで1つ選び、
+// 余った縦の範囲から位置を選ぶ。区域はリージョンの縦の範囲 spacing - separation からはみ出さない
+#District: {
+	id!: #EntityID
+	// 当選の間隔。チャンク数
+	spacing!: int & >=1
+	// 隣のリージョンの区域との最小の空き。チャンク数
+	separation!: int & >=0
+	layout!:     #DistrictLayout
+	sizes!: [...#DistrictSize] & [_, ...]
+}
+
+// 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める
+#DistrictSize: {
+	w!:      int & >=1
+	h!:      int & >=1
+	weight!: int & >=1
+}
+
+// 区域の作り。town は各チャンクの北辺と西辺に街路を敷き、中心を都心にする
+#DistrictLayout: "town" @rawgen(prefix)
+
 // フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
 #Dungeon: {
 	id!:          #EntityID
@@ -915,6 +937,7 @@ import "strings"
 	itemTables?: [...#ItemTable]
 	enemyTables?: [...#EnemyTable]
 	facilities?: [...#Facility]
+	districts?: [...#District]
 	landmarks?: [...#Landmark]
 	scatterZones?: [...#ScatterZone]
 	mapGlyphs?: [...#MapGlyph]
@@ -944,6 +967,7 @@ import "strings"
 
 	// id は表ごとに一意にする。重複すると同じ id に別の行番号が入り、値が食い違う
 	facilityIds_unique: {if facilities != _|_ for i, x in facilities {(x.id): i}} @rawgen(-)
+	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	scatterZoneIds_unique: {if scatterZones != _|_ for i, x in scatterZones {(x.id): i}} @rawgen(-)
 	mapGlyphIds_unique: {if mapGlyphs != _|_ for i, x in mapGlyphs {(x.id): i}} @rawgen(-)

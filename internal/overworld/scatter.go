@@ -125,9 +125,9 @@ func groundCoverEntries(rows []rawschema.GroundCoverEntry) []scatterEntry {
 // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
 func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool, error) {
-	switch chunkTypeAt(runSeed, c, cols) {
+	switch chunkTypeAt(raws, runSeed, c, cols) {
 	case chunkWasteland:
-		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(runSeed, c, cols))
+		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(raws, runSeed, c, cols))
 		return cat, err == nil, err
 	default:
 		return scatterCatalog{}, false, nil
@@ -258,7 +258,7 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、
 // それ以外を奥地にする。道は集落間を結ぶので、集落・市街の近傍が道沿いの帯を兼ねる。近傍地物の
 // 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。
-func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {
+func outdoorZoneAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {
 	// 集落・市街は Y 方向のリージョンに並ぶので region は c.Y から引く
 	sr := consts.FloorDiv(c.Y, settlementPlacement.Spacing)
 	for _, pr := range []consts.Chunk{sr - 1, sr, sr + 1} {
@@ -266,10 +266,12 @@ func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chu
 			return zoneRoadside
 		}
 	}
-	ur := consts.FloorDiv(c.Y, urbanPlacement.Spacing)
-	for _, pr := range []consts.Chunk{ur - 1, ur, ur + 1} {
-		if chunkChebyshev(c, urbanPlacement.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
-			return zoneRoadside
+	for _, d := range districtsFrom(raws) {
+		ry := consts.FloorDiv(c.Y, consts.Chunk(d.row.Spacing))
+		for _, pr := range []consts.Chunk{ry - 1, ry, ry + 1} {
+			if d.regionIn(runSeed, pr, cols).distance(c) <= scatterRoadsideRange {
+				return zoneRoadside
+			}
 		}
 	}
 	return zoneWild

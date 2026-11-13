@@ -1085,6 +1085,32 @@
   id = "merchant_greeting"
   pages = ["Want to make a deal?\n\nI've got good stuff."]
 
+[[districts]]
+  id = "town"
+  layout = "town"
+  separation = 2
+  spacing = 7
+
+  [[districts.sizes]]
+    h = 2
+    w = 2
+    weight = 6
+
+  [[districts.sizes]]
+    h = 3
+    w = 3
+    weight = 4
+
+  [[districts.sizes]]
+    h = 3
+    w = 4
+    weight = 2
+
+  [[districts.sizes]]
+    h = 5
+    w = 5
+    weight = 1
+
 [[dropTables]]
   id = "bat"
   name = "コウモリ"

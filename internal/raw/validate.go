@@ -8,12 +8,12 @@ import (
 	"unicode/utf8"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 var (
 	errZoneNoBaseFacility            = errors.New("zone has no base facility")
+	errDistrictSizeOutOfRegion       = errors.New("district size does not fit in its region")
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
 	errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
 	errMapGlyphMissing               = errors.New("map glyph is missing")
@@ -39,6 +39,7 @@ var (
 func validateRules(raws rawschema.Raws) error {
 	validators := []func(rawschema.Raws) error{
 		validateDisassemblies,
+		validateDistricts,
 		validateZoneBaseFacilities,
 		validateMapGlyphReferences,
 		validateConditions,
@@ -54,17 +55,38 @@ func validateRules(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateZoneBaseFacilities は施設を持つ raw で、全地区に基本施設があることを検証する。
+// validateDistricts は区域の全ての大きさの候補が、自分のリージョンの縦の範囲 spacing - separation に収まることを検証する。
+// 区域がリージョンからはみ出すと、チャンクを含む区域を1つのリージョンだけ見て決められなくなる
+func validateDistricts(raws rawschema.Raws) error {
+	for _, d := range PtrSlice(raws.Districts) {
+		for _, size := range d.Sizes {
+			if size.H > d.Spacing-d.Separation {
+				return fmt.Errorf("district %q size %dx%d, spacing %d, separation %d: %w", d.Id, size.W, size.H, d.Spacing, d.Separation, errDistrictSizeOutOfRegion)
+			}
+		}
+	}
+	return nil
+}
+
+// validateZoneBaseFacilities は、一番小さい市街地でも全地区に建てられる基本施設があることを検証する。
+// 施設は市街地の長い方の辺が minSpan 以上のときだけ建つので、一番小さい市街地の辺で足切りを越える施設が要る
 func validateZoneBaseFacilities(raws rawschema.Raws) error {
 	facilities := PtrSlice(raws.Facilities)
-	if len(facilities) == 0 {
+	baseSpan := 0
+	for _, d := range PtrSlice(raws.Districts) {
+		for _, size := range d.Sizes {
+			if span := max(size.W, size.H); baseSpan == 0 || span < baseSpan {
+				baseSpan = span
+			}
+		}
+	}
+	if len(facilities) == 0 || baseSpan == 0 {
 		return nil
 	}
-	baseSpan := int32(consts.UrbanMinSpan)
 	zoneHasBase := make(map[string]bool)
 	for i := range facilities {
 		for _, z := range facilities[i].Zones {
-			if z.MinSpan <= baseSpan {
+			if int(z.MinSpan) <= baseSpan {
 				zoneHasBase[string(z.Zone)] = true
 			}
 		}

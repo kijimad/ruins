@@ -26,13 +26,13 @@ func TestGlyphInfo_凡例の全記号に色が設定されている(t *testing.T
 }
 
 // findUrbanChunk は市街地の建物チャンクになる seed と座標を探す。
-func findUrbanChunk(t *testing.T, rows consts.Chunk) (uint64, consts.Coord[consts.Chunk]) {
+func findUrbanChunk(t *testing.T, raws rawschema.Raws, rows consts.Chunk) (uint64, consts.Coord[consts.Chunk]) {
 	t.Helper()
 	for s := uint64(1); s < 500; s++ {
 		for y := range rows {
 			for x := range consts.Chunk(12) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if _, ok := urbanChunkAt(s, c, rows); ok {
+				if _, ok := districtAt(raws, s, c, rows); ok {
 					return s, c
 				}
 			}
@@ -48,9 +48,10 @@ func TestChunkPlace_市街地の建物チャンクは施設種別の文字を返
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	cat := zoneCatalogFrom(raws)
 	const rows consts.Chunk = 9
-	seed, c := findUrbanChunk(t, rows)
-	kind, ok := urbanFacilityAt(cat, seed, c, rows)
+	seed, c := findUrbanChunk(t, raws, rows)
+	r, ok := districtAt(raws, seed, c, rows)
 	require.True(t, ok, "前提: 市街地チャンク")
+	kind := urbanFacilityAt(cat, r, c)
 
 	g, ok := glyphByID(raws, kind)
 	require.True(t, ok, "施設 %q の記号が mapGlyphs にある", kind)
@@ -63,7 +64,7 @@ func TestChunkPlace_純関数で決定的(t *testing.T) {
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	cat := zoneCatalogFrom(raws)
 	const rows consts.Chunk = 9
-	seed, c := findUrbanChunk(t, rows)
+	seed, c := findUrbanChunk(t, raws, rows)
 	first := chunkPlace(raws, cat, seed, c, rows)
 	for range 5 {
 		assert.Equal(t, first, chunkPlace(raws, cat, seed, c, rows), "同じ引数なら毎回同じ文字")
@@ -89,7 +90,7 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 			for x := range consts.Chunk(8) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
 				// 市街地に上書きされないチャンクだけ見る
-				if _, ok := urbanChunkAt(s, c, rows); ok {
+				if _, ok := districtAt(raws, s, c, rows); ok {
 					continue
 				}
 				switch chunkPlace(raws, cat, s, c, rows) {

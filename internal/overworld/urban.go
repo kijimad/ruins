@@ -15,48 +15,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 市街地は建物チャンクの2次元格子。1チャンク = 1建物とし、街路で区切る。
-// 市街地はアンカーから東と南へ w×h
-// チャンク広がり、各チャンクは自分の建物を (urbanSeed, チャンクのローカル座標) から独立に
-// 決める。全体一括導出や断片クリップは要らず、各チャンクが自己完結する。
+// 市街地は区域の1種類で、建物チャンクの2次元格子。1チャンク = 1建物とし、街路で区切る。
+// 各チャンクは自分の建物を、区域の seed と区域の中の座標から独立に決める。
 // 街路は各チャンクの北辺・西辺に敷き、隣接チャンクと連続して格子状の街並みになる。
-const (
-	urbanMaxSpan consts.Chunk = 3 // 市街地の一辺の最大チャンク数
-
-	urbanStreetW consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
-)
-
-// urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 UrbanMinSpan..urbanMaxSpan。
-// 規模が大きいほど敵も戦利品も多く、レアな施設が混ざる。リスクとリターンが規模に比例する。
-func urbanSizeOf(urbanSeed uint64) (w, h consts.Chunk) {
-	span := uint64(urbanMaxSpan - consts.UrbanMinSpan + 1)
-	w = consts.UrbanMinSpan + consts.Chunk((urbanSeed>>8)%span)
-	h = consts.UrbanMinSpan + consts.Chunk((urbanSeed>>16)%span)
-	return w, h
-}
+const urbanStreetW consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
 
 // urbanFeature は市街地の feature 実装。
 type urbanFeature struct{}
-
-// urbanRegionOf は c を含む市街地のアンカーと大きさを返す。市街地はアンカーから東と南へ
-// w×h チャンク広がる。該当しなければ ok=false。走査窓には当選アンカーが複数入りうるので
-// 早期に false を返さず探索を続ける。市街地どうしは urbanPlacement の Separation で重ならない
-// ため c を覆うアンカーは高々1つで、最初に見つかったものを返せば一意に定まる。
-func urbanRegionOf(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (anchor consts.Coord[consts.Chunk], w, h consts.Chunk, ok bool) {
-	for dy := range urbanMaxSpan {
-		for dx := range urbanMaxSpan {
-			a := c.Sub(consts.Coord[consts.Chunk]{X: dx, Y: dy})
-			if !urbanPlacement.At(runSeed, a, cols) {
-				continue
-			}
-			cw, ch := urbanSizeOf(ChunkSeed2D(runSeed^urbanSalt, a.X, a.Y))
-			if dx < cw && dy < ch {
-				return a, cw, ch, true
-			}
-		}
-	}
-	return consts.Coord[consts.Chunk]{}, 0, 0, false
-}
 
 // urbanEnemyTableFor は施設行の enemyTable が指す敵テーブルを返す。
 func urbanEnemyTableFor(raws rawschema.Raws, fac string) (rawschema.EnemyTable, error) {
@@ -92,13 +57,13 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 	return cat
 }
 
-// industrialUrbanBit は市街地の性格を住宅地寄りか産業区寄りかに振る urbanSeed のビット。
-// 規模抽選が使う下位ビット urbanSizeOf の >>8・>>16 と衝突しない上位ビットを使う。
+// industrialUrbanBit は市街地の性格を住宅地寄りか産業区寄りかに振る、区域の seed のビット。
 const industrialUrbanBit = uint64(1) << 32
 
-// zoneOf は市街地内のローカルチャンク座標から地区を決める純関数。厳密な中心を都心、それ以外を
-// 市街地の性格で住宅地か産業区にする。中心は 2 倍座標のチェビシェフ距離が 0 のマスで、
-// 奇数×奇数すなわち 3×3 の市街地にだけ存在する。都心が必ず最大規模に出るので専門施設を集められる。
+// zoneOf は市街地内のローカルチャンク座標から地区を決める純関数。中心に近いチャンクを都心、それ以外を
+// 市街地の性格で住宅地か産業区にする。中心からの距離は2倍座標のチェビシェフ距離で測り、短い辺から3を
+// 引いた値以下を都心にする。3×3 なら中心の1マス、5×5 なら中心の3×3 で、2×2 には都心が無い。
+// 大きい街ほど都心が広く、専門施設が集まる。
 func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) rawschema.Zone {
 	dx := int(lx)*2 - int(cw-1)
 	dy := int(ly)*2 - int(ch-1)
@@ -108,7 +73,7 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) rawschema.Zone {
 	if dy < 0 {
 		dy = -dy
 	}
-	if max(dx, dy) == 0 {
+	if max(dx, dy) <= int(min(cw, ch))-3 {
 		return rawschema.Downtown
 	}
 	if urbanSeed&industrialUrbanBit != 0 {
@@ -127,50 +92,33 @@ func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span 
 		return float64(f.weight)
 	})
 	if !ok {
-		// 各地区が重み正で minSpan<=UrbanMinSpan の基本施設を持つことを raw の検証が保証する
+		// 一番小さい市街地でも各地区に建てられる基本施設があることを raw の検証が保証する
 		panic("rollFacilityInZone: zone has no facility within span")
 	}
 	return zc[i].kind
 }
 
-// urbanChunkAt は c が市街地の建物チャンクなら市街地の規模を返す。
-func urbanChunkAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (size consts.Chunk, ok bool) {
-	_, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
-	if !ok {
-		return 0, false
-	}
-	return max(cw, ch), true
-}
-
-// urbanFacilityAt は c の建物チャンクの施設 id を返す。地図表示と生成の両方が使う。
-func urbanFacilityAt(cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (kind string, ok bool) {
-	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, cols)
-	if !ok {
-		return "", false
-	}
-	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
-	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
-	z := zoneOf(c.X-anchor.X, c.Y-anchor.Y, cw, ch, urbanSeed)
+// urbanFacilityAt は区域 r の中のチャンク c に建つ施設 id を返す。地図表示と生成の両方が使う。
+func urbanFacilityAt(cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk]) string {
+	l := r.local(c)
+	z := zoneOf(l.X, l.Y, r.w, r.h, r.seed)
 	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
 	// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
-	frng := rand.New(rand.NewPCG(chunkSeed, 0x1))
-	return rollFacilityInZone(frng, cat, z, max(cw, ch)), true
+	frng := rand.New(rand.NewPCG(ChunkSeed2D(r.seed, l.X, l.Y), 0x1))
+	return rollFacilityInZone(frng, cat, z, r.span())
 }
 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので
 // 生成順に依存しない。
 func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	anchor, _, _, ok := urbanRegionOf(runSeed, c, cols)
+	raws := world.Resources.RawMaster
+	r, ok := districtAt(raws, runSeed, c, cols)
 	if !ok {
 		return nil
 	}
-
-	// 施設種別は地図(chunkPlace)の表示に加え、建物内装の prop 差にも使う
-	size, _ := urbanChunkAt(runSeed, c, cols)
-	fac, _ := urbanFacilityAt(zoneCatalogFrom(world.Resources.RawMaster), runSeed, c, cols)
-	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
-	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
-	return renderUrbanChunk(world, g, chunkSeed, size, fac, urbanDangerAt(world, c))
+	l := r.local(c)
+	fac := urbanFacilityAt(zoneCatalogFrom(raws), r, c)
+	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), fac, urbanDangerAt(world, c))
 }
 
 // urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と日数(時間)の高い方。

@@ -91,8 +91,8 @@ const (
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
 // 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在ランドマーク > 荒れ地。地図も生成もこの
 // 分類を唯一の源にするので、地図の記号と実体が食い違わない。
-func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
-	if _, ok := urbanChunkAt(runSeed, c, cols); ok {
+func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
+	if _, ok := districtAt(raws, runSeed, c, cols); ok {
 		return chunkUrban
 	}
 	if dungeonEntrancePlacement.At(runSeed, c, cols) {
@@ -109,10 +109,10 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk
 
 // chunkPlace は1チャンクの種別を地図記号で返す純関数。
 func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
-	switch chunkTypeAt(runSeed, c, cols) {
+	switch chunkTypeAt(raws, runSeed, c, cols) {
 	case chunkUrban:
-		kind, _ := urbanFacilityAt(cat, runSeed, c, cols)
-		if g, ok := glyphByID(raws, kind); ok {
+		r, _ := districtAt(raws, runSeed, c, cols)
+		if g, ok := glyphByID(raws, urbanFacilityAt(cat, r, c)); ok {
 			return g.Label
 		}
 		return placeUnknownGlyph

@@ -11,37 +11,29 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestUrbanSizeOf_各辺は2からurbanMaxSpanの範囲 は、市街地の縦横チャンク数が常に 2..urbanMaxSpan に
-// 収まることを固定する。範囲外だと zoneOf の中心判定や規模 gate の前提が崩れる。
-func TestUrbanSizeOf_各辺は2からurbanMaxSpanの範囲(t *testing.T) {
+func TestZoneOf_大きい街ほど中心の都心が広い(t *testing.T) {
 	t.Parallel()
 
-	for s := range uint64(1000) {
-		w, h := urbanSizeOf(s)
-		assert.GreaterOrEqualf(t, w, consts.Chunk(2), "seed=%d の幅", s)
-		assert.LessOrEqualf(t, w, urbanMaxSpan, "seed=%d の幅", s)
-		assert.GreaterOrEqualf(t, h, consts.Chunk(2), "seed=%d の高さ", s)
-		assert.LessOrEqualf(t, h, urbanMaxSpan, "seed=%d の高さ", s)
-	}
-}
-
-// TestZoneOf_都心は奇数辺市街地の中心にだけ出る は、都心が 3×3 の厳密な中心にだけ現れ、偶数辺の
-// 市街地には現れないことを固定する。都心にだけ専門施設を集める設計の前提。
-func TestZoneOf_都心は奇数辺市街地の中心にだけ出る(t *testing.T) {
-	t.Parallel()
-
-	assert.Equal(t, rawschema.Downtown, zoneOf(1, 1, 3, 3, 0), "3×3 の中心 (1,1) は都心")
-
-	for _, c := range []consts.Coord[consts.Chunk]{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 2, Y: 1}, {X: 2, Y: 2}} {
-		assert.NotEqualf(t, rawschema.Downtown, zoneOf(c.X, c.Y, 3, 3, 0), "3×3 の非中心 %v は都心でない", c)
-	}
-
-	// 偶数辺 2×2 には中心マスが存在せず、どのマスも都心にならない
-	for lx := range consts.Chunk(2) {
-		for ly := range consts.Chunk(2) {
-			assert.NotEqualf(t, rawschema.Downtown, zoneOf(lx, ly, 2, 2, 0), "2×2 の (%d,%d) は都心でない", lx, ly)
+	downtowns := func(w, h consts.Chunk) []consts.Coord[consts.Chunk] {
+		var out []consts.Coord[consts.Chunk]
+		for ly := range h {
+			for lx := range w {
+				if zoneOf(lx, ly, w, h, 0) == rawschema.Downtown {
+					out = append(out, consts.Coord[consts.Chunk]{X: lx, Y: ly})
+				}
+			}
 		}
+		return out
 	}
+	assert.Empty(t, downtowns(2, 2))
+	assert.Equal(t, []consts.Coord[consts.Chunk]{{X: 1, Y: 1}}, downtowns(3, 3))
+	assert.Empty(t, downtowns(4, 3), "中心の列が無い")
+	assert.Equal(t, []consts.Coord[consts.Chunk]{{X: 1, Y: 1}, {X: 2, Y: 1}, {X: 1, Y: 2}, {X: 2, Y: 2}}, downtowns(4, 4))
+	assert.Equal(t, []consts.Coord[consts.Chunk]{
+		{X: 1, Y: 1}, {X: 2, Y: 1}, {X: 3, Y: 1},
+		{X: 1, Y: 2}, {X: 2, Y: 2}, {X: 3, Y: 2},
+		{X: 1, Y: 3}, {X: 2, Y: 3}, {X: 3, Y: 3},
+	}, downtowns(5, 5))
 }
 
 // TestZoneOf_都心以外はビットで産業区と住宅地に分かれる は、都心でないマスが市街地の性格ビットで
@@ -106,7 +98,8 @@ func TestUrbanZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 		for y := range rows {
 			for x := range consts.Chunk(60) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if k, ok := urbanFacilityAt(cat, s, c, rows); ok {
+				if r, ok := districtAt(raws, s, c, rows); ok {
+					k := urbanFacilityAt(cat, r, c)
 					grid[c] = k
 					kindCount[k]++
 					total++

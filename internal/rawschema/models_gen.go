@@ -531,6 +531,54 @@ type DisassemblyYield struct {
 	Id EntityID `json:"id"`
 }
 
+// District 区域の種類。複数のチャンクにまたがる施設の集まり。リージョンごとに大きさを重みで1つ選び、
+// 余った縦の範囲から位置を選ぶ。区域はリージョンの縦の範囲 spacing - separation からはみ出さない
+type District struct {
+	Id EntityID `json:"id"`
+
+	Layout DistrictLayout `json:"layout"`
+
+	// Separation 隣のリージョンの区域との最小の空き。チャンク数
+	Separation int `json:"separation"`
+
+	Sizes []DistrictSize `json:"sizes"`
+
+	// Spacing 当選の間隔。チャンク数
+	Spacing int `json:"spacing"`
+}
+
+// DistrictLayout 区域の作り。town は各チャンクの北辺と西辺に街路を敷き、中心を都心にする
+type DistrictLayout string
+
+// Defines values for DistrictLayout.
+const (
+	DistrictLayoutTown DistrictLayout = "town"
+)
+
+// Valid indicates whether the value is a known member of the DistrictLayout enum.
+func (e DistrictLayout) Valid() bool {
+	switch e {
+	case DistrictLayoutTown:
+		return true
+	default:
+		return false
+	}
+}
+
+// DistrictLayoutValues は DistrictLayout の値を、スキーマに書いた順に返す。
+func DistrictLayoutValues() []DistrictLayout {
+	return []DistrictLayout{DistrictLayoutTown}
+}
+
+// DistrictSize 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める
+type DistrictSize struct {
+	H int `json:"h"`
+
+	W int `json:"w"`
+
+	Weight int `json:"weight"`
+}
+
 // DoorRaw 扉ローデータ
 type DoorRaw struct {
 	HorizontalClosed SpriteKey `json:"horizontalClosed"`
@@ -1828,6 +1876,8 @@ type Raws struct {
 	Conditions *[]Condition `json:"conditions,omitempty"`
 
 	Dialogues *[]Dialogue `json:"dialogues,omitempty"`
+
+	Districts *[]District `json:"districts,omitempty"`
 
 	DropTables *[]DropTable `json:"dropTables,omitempty"`
 

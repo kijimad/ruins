@@ -185,9 +185,11 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 		{Zone: rawschema.Industrial, Weight: 10, MinSpan: 2},
 	}
 
+	towns := &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Sizes: []rawschema.DistrictSize{{W: 3, H: 3, Weight: 1}, {W: 2, H: 2, Weight: 1}}}}
+
 	t.Run("全地区に基本施設があれば通る", func(t *testing.T) {
 		t.Parallel()
-		raws := rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "house", Zones: baseZones}}}
+		raws := rawschema.Raws{Districts: towns, Facilities: &[]rawschema.Facility{{Id: "house", Zones: baseZones}}}
 		require.NoError(t, validateZoneBaseFacilities(raws))
 	})
 
@@ -206,10 +208,20 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 				}
 				zones = append(zones, z)
 			}
-			raws := rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "clinic", Zones: zones}}}
+			raws := rawschema.Raws{Districts: towns, Facilities: &[]rawschema.Facility{{Id: "clinic", Zones: zones}}}
 			require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility)
 		})
 	}
+}
+
+func TestValidateDistricts(t *testing.T) {
+	t.Parallel()
+
+	district := func(h int) rawschema.Raws {
+		return rawschema.Raws{Districts: &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}, {W: 5, H: h, Weight: 1}}}}}
+	}
+	require.NoError(t, validateDistricts(district(5)), "高さが spacing - separation ちょうどなら収まる")
+	require.ErrorIs(t, validateDistricts(district(6)), errDistrictSizeOutOfRegion)
 }
 
 func TestSchema_抽選重みは1以上(t *testing.T) {
@@ -247,8 +259,13 @@ func TestValidateRules_各検証の失敗を伝播する(t *testing.T) {
 	}{
 		{
 			name:    "地区の基本施設が無い",
-			raws:    rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "f1", Zones: []rawschema.FacilityZone{{Zone: rawschema.Downtown, Weight: 1, MinSpan: 3}}}}},
+			raws:    rawschema.Raws{Districts: &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}}}, Facilities: &[]rawschema.Facility{{Id: "f1", Zones: []rawschema.FacilityZone{{Zone: rawschema.Downtown, Weight: 1, MinSpan: 3}}}}},
 			wantErr: errZoneNoBaseFacility,
+		},
+		{
+			name:    "区域の大きさがリージョンに収まらない",
+			raws:    rawschema.Raws{Districts: &[]rawschema.District{{Id: "town", Spacing: 3, Separation: 2, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}}}},
+			wantErr: errDistrictSizeOutOfRegion,
 		},
 		{
 			name:    "地図記号が1文字でない",
