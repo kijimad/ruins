@@ -38,7 +38,9 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 	t.Helper()
 
 	drawFn := setupFn()
-	screen := ebiten.NewImage(width, height)
+	// 描き先も unmanaged にする。共有アトラス上の配置は並行テストの生成順で変わり、
+	// linear で引き伸ばす画像のサンプル行がずれる。機構は components.Texture を参照
+	screen := ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), &ebiten.NewImageOptions{Unmanaged: true})
 	drawFn(screen)
 	img := captureScreen(screen)
 
