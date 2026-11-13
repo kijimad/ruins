@@ -6,6 +6,7 @@ import (
 	"time"
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -69,6 +70,43 @@ func TestRunStatsState_結果画面は開いた時点のプレイ時間を出し
 			props, err := st.Fetch(world)
 			require.NoError(t, err)
 			assert.Contains(t, props.Tabs[0].Items, statusItemData{Label: query.T(world, "Play time"), Value: formatPlayTime(tt.want)})
+		})
+	}
+}
+
+func TestRunStatsState_Fetch_結果画面は統計だけを出す(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		state es.StateFactory[w.World]
+		want  []string
+	}{
+		{"死の結果画面", NewRunResultState, []string{"Summary"}},
+		{"クリアの画面", NewRunClearState, []string{"Summary"}},
+		{"道中の統計画面", NewRunStatsState, []string{"Summary", "Environment"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			state, err := tt.state()
+			require.NoError(t, err)
+			st, ok := state.(*RunStatsState)
+			require.True(t, ok)
+			require.NoError(t, st.OnStart(world))
+
+			props, err := st.Fetch(world)
+			require.NoError(t, err)
+			labels := make([]string, len(props.Tabs))
+			for i, tab := range props.Tabs {
+				labels[i] = tab.Label
+			}
+			want := make([]string, len(tt.want))
+			for i, l := range tt.want {
+				want[i] = query.T(world, i18n.Msgid(l))
+			}
+			assert.Equal(t, want, labels)
 		})
 	}
 }

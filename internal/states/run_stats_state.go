@@ -20,22 +20,21 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// run 統計の閲覧画面。character・inventory と同じ menuframe のタブ画面枠に、統計を
-// Label と Value の2列テーブルで並べる。読み取り専用で、道中の統計閲覧と死の結果画面を
-// 見出しと閉じ方だけ変えて共用する。値の組み立ては runStatsItems に1本化する。
+// run 統計の閲覧画面。統計を Label と Value の2列テーブルで並べる読み取り専用画面で、
+// 道中の統計閲覧と、死とクリアの結果画面を共用する。値の組み立ては runStatsItems に1本化する。
 
 const runStatsMenuKey = "run_stats"
 
 // RunStatsState は run 統計をテーブルで見る読み取り専用画面
 type RunStatsState struct {
 	es.BaseState[w.World]
-	headerMsgid  i18n.Msgid             // 見出し。統計は "Statistics"、結果は "You died."
-	exit         es.Transition[w.World] // Cancel で抜ける先。統計は Pop、結果はメインメニューへ Replace
-	exitOnSelect bool                   // Select でも exit へ抜けるか。結果画面は任意キーで戻せるよう真にする
-	// freezePlayTime が真なら、開いた時点のプレイ時間 playTime を出し続ける。結果画面を開いてもプレイヤーは残り時計が進むので、ランが終わった時点で止めて見せる
-	freezePlayTime bool
-	playTime       time.Duration
-	screen         *menuloop.Screen[RunStatsProps]
+	headerMsgid i18n.Msgid // 見出し
+	// result が真なら run の結果画面。統計だけをタブなしで出し、任意キーでメインメニューへ戻す。
+	// 結果画面を開いてもプレイヤーは残りプレイ時間の時計が進むので、開いた時点の playTime を出し続ける。
+	// 偽なら道中の統計画面で、統計と環境のタブを持ち、閉じると元の画面へ戻る
+	result   bool
+	playTime time.Duration
+	screen   *menuloop.Screen[RunStatsProps]
 }
 
 // RunStatsProps は統計画面の表示 props
@@ -53,30 +52,17 @@ var _ es.State[w.World] = &RunStatsState{}
 
 // NewRunStatsState は道中で run 統計を見る画面を作る。常時メニューから開き、閉じると元へ戻る
 func NewRunStatsState() (es.State[w.World], error) {
-	return &RunStatsState{
-		headerMsgid: "Statistics",
-		exit:        es.Transition[w.World]{Type: es.TransPop},
-	}, nil
+	return &RunStatsState{headerMsgid: "Statistics"}, nil
 }
 
-// NewRunResultState は run の死の結果画面を作る。統計を同じテーブルで見せ、任意キーでメインメニューへ戻す
+// NewRunResultState は run の死の結果画面を作る
 func NewRunResultState() (es.State[w.World], error) {
-	return &RunStatsState{
-		headerMsgid:    "You died.",
-		exit:           es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}},
-		exitOnSelect:   true,
-		freezePlayTime: true,
-	}, nil
+	return &RunStatsState{headerMsgid: "You died.", result: true}, nil
 }
 
-// NewRunClearState は run のクリアの結果画面を作る。死の結果画面と同じテーブルで統計を見せ、任意キーでメインメニューへ戻す
+// NewRunClearState は run のクリアの結果画面を作る
 func NewRunClearState() (es.State[w.World], error) {
-	return &RunStatsState{
-		headerMsgid:    "You escaped the planet.",
-		exit:           es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}},
-		exitOnSelect:   true,
-		freezePlayTime: true,
-	}, nil
+	return &RunStatsState{headerMsgid: "You escaped the planet.", result: true}, nil
 }
 
 // OnStart は Screen を組み立てる。overlay は持たない読み取り専用画面
@@ -101,10 +87,10 @@ func (st *RunStatsState) Draw(_ w.World, screen *ebiten.Image) error {
 func (st *RunStatsState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-		return st.exit, nil
+		return st.exitTransition(), nil
 	case inputmapper.ActionMenuSelect:
-		if st.exitOnSelect {
-			return st.exit, nil
+		if st.result {
+			return st.exitTransition(), nil
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
@@ -112,12 +98,21 @@ func (st *RunStatsState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tr
 	}
 }
 
-// Fetch は表示するタブと統計行を組む。統計と環境の2タブを持つ
+// exitTransition は画面を抜ける先を返す。結果画面はメインメニューへ、道中の統計画面は元の画面へ戻る
+func (st *RunStatsState) exitTransition() es.Transition[w.World] {
+	if st.result {
+		return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}}
+	}
+	return es.Transition[w.World]{Type: es.TransPop}
+}
+
+// Fetch は表示するタブと統計行を組む。結果画面は統計だけ、道中の統計画面は統計と環境の2タブを持つ
 func (st *RunStatsState) Fetch(world w.World) (RunStatsProps, error) {
-	return RunStatsProps{Tabs: []statsTab{
-		{Label: query.T(world, "Summary"), Items: runStatsItems(world, st.shownPlayTime(world))},
-		{Label: query.T(world, "Environment"), Items: environmentItems(world)},
-	}}, nil
+	summary := statsTab{Label: query.T(world, "Summary"), Items: runStatsItems(world, st.shownPlayTime(world))}
+	if st.result {
+		return RunStatsProps{Tabs: []statsTab{summary}}, nil
+	}
+	return RunStatsProps{Tabs: []statsTab{summary, {Label: query.T(world, "Environment"), Items: environmentItems(world)}}}, nil
 }
 
 // Menu は読み取り専用のタブ構成を返す。見出し行が無いのでスキップは不要
@@ -129,7 +124,7 @@ func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}
 }
 
-// ViewUI はタブ帯つきのステータス表を組む。
+// ViewUI はステータス表を組む。結果画面はタブ帯なしの枠、道中の統計画面はタブ帯つきの枠に載せる
 func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -140,6 +135,9 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
 		tabIndex = 0
 	}
 	content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
+	if st.result {
+		return menuframe.PanelScreen(world, res, query.T(world, st.headerMsgid), content, keybind.HelpHint(world), pager)
+	}
 	return menuframe.TabScreen(world, res, query.T(world, st.headerMsgid), labels, tabIndex, content, keybind.HelpHint(world), pager)
 }
 
@@ -158,7 +156,7 @@ func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res
 
 // shownPlayTime は画面に出すプレイ時間を返す
 func (st *RunStatsState) shownPlayTime(world w.World) time.Duration {
-	if st.freezePlayTime {
+	if st.result {
 		return st.playTime
 	}
 	return query.GetPlayTime(world).Elapsed()
