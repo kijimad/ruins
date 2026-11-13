@@ -45,13 +45,8 @@ func TestRecipes_道具の分類が無い分解の素材から木刀まで作れ
 	assert.Equal(t, []string{"wooden_stick", "wooden_sword"}, craftableFrom(raws, have))
 }
 
-// toolCategoriesOf は表 table から出うるアイテムの道具の分類を返す
-func toolCategoriesOf(raws rawschema.Raws, table string) []rawschema.ToolCategory {
-	all := PtrSlice(raws.Items)
-	items := map[string]*rawschema.Item{}
-	for i := range all {
-		items[all[i].Id] = &all[i]
-	}
+// tableItemIDs は表 table から出うるアイテムの id を返す
+func tableItemIDs(raws rawschema.Raws, table string) []string {
 	members := map[string][]string{}
 	for _, g := range PtrSlice(raws.ItemGroups) {
 		for _, e := range g.Entries {
@@ -63,17 +58,29 @@ func toolCategoriesOf(raws rawschema.Raws, table string) []rawschema.ToolCategor
 			members[c.Id] = append(members[c.Id], e.Id)
 		}
 	}
-	var cats []rawschema.ToolCategory
+	var ids []string
 	for _, tb := range PtrSlice(raws.ItemTables) {
 		if tb.Id != table {
 			continue
 		}
 		for _, e := range tb.Entries {
-			for _, id := range members[e.Id] {
-				if it, ok := items[id]; ok && it.Tool != nil {
-					cats = append(cats, it.Tool.Categories...)
-				}
-			}
+			ids = append(ids, members[e.Id]...)
+		}
+	}
+	return ids
+}
+
+// toolCategoriesOf は表 table から出うるアイテムの道具の分類を返す
+func toolCategoriesOf(raws rawschema.Raws, table string) []rawschema.ToolCategory {
+	all := PtrSlice(raws.Items)
+	items := map[string]*rawschema.Item{}
+	for i := range all {
+		items[all[i].Id] = &all[i]
+	}
+	var cats []rawschema.ToolCategory
+	for _, id := range tableItemIDs(raws, table) {
+		if it, ok := items[id]; ok && it.Tool != nil {
+			cats = append(cats, it.Tool.Categories...)
 		}
 	}
 	slices.Sort(cats)
@@ -98,4 +105,18 @@ func TestItemTables_施設の表が序盤の道具を出しうる(t *testing.T) 
 			assert.Equal(t, tt.want, toolCategoriesOf(raws, tt.table))
 		})
 	}
+}
+
+func TestItemTables_研究所の機密ケースの表から脱出の装置を直せる(t *testing.T) {
+	t.Parallel()
+	raws := loadTestRaws(t)
+
+	parts := tableItemIDs(raws, "classified_case")
+	assert.ElementsMatch(t, []string{"broken_escape_core", "signal_amplifier", "power_cell"}, parts)
+
+	have := map[string]bool{"electric_wire": true}
+	for _, id := range parts {
+		have[id] = true
+	}
+	assert.Equal(t, []string{"escape_core"}, craftableFrom(raws, have))
 }

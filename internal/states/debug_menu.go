@@ -43,6 +43,15 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			_, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 			return err
 		})},
+		{Label: "Spawn escape device parts (inventory)", Run: popAfter(func(world w.World) error {
+			// 合成して使うクリアの経路を試せるよう、修理のレシピの材料をそろえる
+			for id, count := range map[string]int{"broken_escape_core": 1, "signal_amplifier": 1, "power_cell": 2, "electric_wire": 4} {
+				if _, err := lifecycle.SpawnBackpackItem(world, id, count); err != nil {
+					return err
+				}
+			}
+			return nil
+		})},
 		{Label: "Inflict conditions", Run: popAfter(debugInflictConditions)},
 		{Label: "Treat all conditions", Run: popAfter(debugTreatAllConditions)},
 		{Label: "Exhaust fatigue", Run: popAfter(debugExhaustFatigue)},
@@ -55,6 +64,9 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 				s.Cause = gc.CauseDebug
 			}
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
+		}},
+		{Label: "Run result (clear screen)", Run: func(_ w.World) (es.Transition[w.World], error) {
+			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunClearState}}, nil
 		}},
 		{Label: "Start overworld", Run: func(world w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)}}, nil

@@ -4,6 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/gameaction"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -20,7 +21,7 @@ type useEffect interface {
 }
 
 // useEffects は使用時に働く効果の一覧。順に present を見て、持つ効果だけ適用する
-var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}}
+var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}}
 
 // healEffect は HP を回復する
 type healEffect struct{}
@@ -85,4 +86,17 @@ func (remedyEffect) check(u *UseItemBehavior, actor, item ecs.Entity, world w.Wo
 func (remedyEffect) apply(u *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	u.applyRemedy(actor, world, world.Components.Remedy.Get(item), item)
 	return nil
+}
+
+// escapeEffect は惑星を脱出してクリアの画面へ移る
+type escapeEffect struct{}
+
+func (escapeEffect) present(world w.World, item ecs.Entity) bool {
+	return world.Components.EscapeDevice.Has(item)
+}
+
+func (escapeEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
+
+func (escapeEffect) apply(_ *UseItemBehavior, _ *gc.Activity, _, _ ecs.Entity, world w.World) error {
+	return lifecycle.RequestStateChange(world, gc.EscapeEvent())
 }

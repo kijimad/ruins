@@ -157,8 +157,7 @@ var goldenCases = []struct {
 			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Basic"},
 		},
 	},
-	// RunStats は統計テーブル画面を撮る。character と同じテーブル枠に統計が並ぶ。
-	// 死の結果画面 NewRunResultState は見出しが違うだけの同じテーブルなので撮り分けない
+	// RunStats は道中の統計テーブル画面を撮る。統計と環境のタブを持つ
 	{
 		name: "RunStats",
 		build: func(world w.World) ([]es.State[w.World], error) {
@@ -181,6 +180,26 @@ var goldenCases = []struct {
 			{shot: true, suffix: "Table"},
 			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Environment"}, // 環境タブ。気温・時間帯・季節
 		},
+	},
+	// RunClear はクリアの結果画面を撮る。結果画面はタブなしで統計だけを並べる。死の結果画面は見出しが違うだけなので撮り分けない
+	{
+		name: "RunClear",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			if s := query.GetRunStats(world); s != nil {
+				s.EnemiesKilled = 12
+				s.ItemsScavenged = 8
+				s.SalesTotal = 3400
+			}
+			if gt := query.GetGameTime(world); gt != nil {
+				gt.TotalTurns = 1740
+			}
+			st, err := gs.NewRunClearState()
+			if err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{st}, nil
+		},
+		steps: []replayStep{{shot: true}},
 	},
 	{
 		name: "CraftMenu",

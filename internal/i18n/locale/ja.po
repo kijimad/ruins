@@ -6460,3 +6460,33 @@ msgstr "このアイテムは分解できない"
 
 msgid "Disassembly"
 msgstr "分解"
+
+msgid "Broken Escape Core"
+msgstr "壊れた脱出コア"
+
+msgid "A damaged core of an escape device. A signal amplifier, power cells and electric wire might fix it."
+msgstr "壊れた脱出装置のコア。信号増幅器と電源セルと電線があれば直せそうだ"
+
+msgid "Signal Amplifier"
+msgstr "信号増幅器"
+
+msgid "A classified signal amplifier. It looks like it could repair an escape device."
+msgstr "機密扱いの信号増幅器。脱出装置の修理に使えそうだ"
+
+msgid "Power Cell"
+msgstr "電源セル"
+
+msgid "A high-capacity power cell. It could power an escape device."
+msgstr "大容量の電源セル。脱出装置を動かせそうだ"
+
+msgid "Escape Core"
+msgstr "脱出コア"
+
+msgid "A repaired escape device. Use it to leave this planet."
+msgstr "直した脱出装置。使えばこの惑星を離れられる"
+
+msgid "Classified Case"
+msgstr "機密ケース"
+
+msgid "You escaped the planet."
+msgstr "惑星を脱出した。"

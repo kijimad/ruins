@@ -452,6 +452,9 @@ import "strings"
 // 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 #FireStarter: {}
 
+// 脱出の装置。使うと惑星を脱出してクリアになる
+#EscapeDevice: {}
+
 // タイルの植生
 #Foliage: "grass" | "forest" @rawgen(prefix)
 
@@ -602,6 +605,9 @@ import "strings"
 
 	// 火種。所持していると隣接の燃焼物に着火できる
 	fireStarter?: #FireStarter
+
+	// 脱出の装置。使うとクリアになる
+	escapeDevice?: #EscapeDevice
 }
 
 // アイテムコレクション。各エントリを chance の確率で独立に判定する。複数当選することもありうる

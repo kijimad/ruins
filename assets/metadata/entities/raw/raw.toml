@@ -6531,6 +6531,25 @@
     pack = "1d1"
     weight = 1
 
+[[itemGroups]]
+  id = "escape_device_parts"
+  name = "脱出の装置の部品"
+
+  [[itemGroups.entries]]
+    id = "broken_escape_core"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "signal_amplifier"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "power_cell"
+    pack = "1d2"
+    weight = 2
+
 [[itemTables]]
   id = "ruins_area"
   name = "廃墟"
@@ -7014,6 +7033,16 @@
     maxDanger = 30
     minDanger = 1
     weight = 2
+
+[[itemTables]]
+  id = "classified_case"
+  name = "研究所の機密ケース"
+
+  [[itemTables.entries]]
+    id = "escape_device_parts"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
 
 [[items]]
   description = "A lit torch. Serves as light, weapon, and a way to set fuel alight."
@@ -16427,6 +16456,51 @@
   value = 1
   weight = "300 g"
 
+[[items]]
+  description = "A damaged core of an escape device. A signal amplifier, power cells and electric wire might fix it."
+  id = "broken_escape_core"
+  material = "METAL"
+  name = "Broken Escape Core"
+  spriteKey = "equipment_core"
+  spriteSheetName = "field"
+  value = 500
+  weight = "900 g"
+
+[[items]]
+  description = "A classified signal amplifier. It looks like it could repair an escape device."
+  id = "signal_amplifier"
+  material = "METAL"
+  name = "Signal Amplifier"
+  spriteKey = "hdd"
+  spriteSheetName = "field"
+  value = 300
+  weight = "600 g"
+
+[[items]]
+  description = "A high-capacity power cell. It could power an escape device."
+  id = "power_cell"
+  material = "METAL"
+  name = "Power Cell"
+  spriteKey = "swap_cell"
+  spriteSheetName = "field"
+  value = 200
+  weight = "400 g"
+
+[[items]]
+  description = "A repaired escape device. Use it to leave this planet."
+  id = "escape_core"
+  material = "METAL"
+  name = "Escape Core"
+  spriteKey = "atomic_core"
+  spriteSheetName = "field"
+  value = 2000
+  weight = "900 g"
+  [items.consumable]
+    targetGroup = "ALLY"
+    targetNum = "SINGLE"
+    usableScene = "ANY"
+  [items.escapeDevice]
+
 [[landmarks]]
   drawer = "hut"
   hutH = 5
@@ -20696,6 +20770,22 @@
     spriteKey = "warp_next_0"
     spriteSheetName = "field"
 
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "鍵の掛かった金属のケース。研究所の機密の部品が収められている"
+  hp = 60
+  id = "classified_case"
+  name = "Classified Case"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "electric_locker"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d2"
+    lootTableId = "classified_case"
+    maxWeight = "20 kg"
+
 [[recipes]]
   id = "ray_gun"
   name = "レイガン"
@@ -20827,6 +20917,26 @@
   [[recipes.inputs]]
     amount = 2
     id = "iron"
+
+[[recipes]]
+  id = "escape_core"
+  name = "Escape Core"
+
+  [[recipes.inputs]]
+    amount = 1
+    id = "broken_escape_core"
+
+  [[recipes.inputs]]
+    amount = 1
+    id = "signal_amplifier"
+
+  [[recipes.inputs]]
+    amount = 2
+    id = "power_cell"
+
+  [[recipes.inputs]]
+    amount = 4
+    id = "electric_wire"
 
 [[scatterZones]]
   grassDensity = 0.09

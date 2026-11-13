@@ -386,6 +386,11 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.FireStarter = &gc.FireStarter{}
 	}
 
+	// 脱出の装置。使うとクリアになる
+	if item.EscapeDevice != nil {
+		entitySpec.EscapeDevice = &gc.EscapeDevice{}
+	}
+
 	// フィールドの相互作用。既定は拾えるアイテム。装着アイテムは applyDeployable が設備に応じて上書きする
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
 	if item.Deployable != nil {
