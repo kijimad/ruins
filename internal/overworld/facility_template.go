@@ -23,7 +23,7 @@ const facilityLot consts.Tile = 20
 // errFacilityLotSizeMismatch は施設の絵の大きさが区画と一致しないときに返す
 var errFacilityLotSizeMismatch = errors.New("facility template size does not match the lot")
 
-// planFacility は施設 fac の絵を1枚選んで展開する。入口が西の街路に面する区画では左へ90度回し、左右の反転は rng で半々に選ぶ
+// planFacility は施設 fac の絵を1枚選んで展開する。絵は入口を北に向けて描いてあり、rng で半々に左へ90度回して入口を西の街路へ向ける。左右の反転も半々で選ぶ
 func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand) ([][]maptemplate.MapCell, error) {
 	_, cells, err := loader.FacilityChunk(fac, seed)
 	if err != nil {

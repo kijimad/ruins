@@ -190,6 +190,7 @@ func (l *PaletteLoader) validate(p *Palette) error {
 		return err
 	}
 
+	// 床の戦利品は家具の上にも置くので、items の文字は他の分類と重ねてよい。重複の検査から外す
 	used := make(map[string]string)
 	for _, c := range []struct {
 		category string

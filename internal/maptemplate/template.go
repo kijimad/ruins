@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/kijimaD/ruins/assets"
@@ -41,6 +42,8 @@ var (
 	errMapRowEmpty = errors.New("map row is empty")
 	// errMapRowLengthMismatch はマップの行ごとの長さが揃っていないときに返す
 	errMapRowLengthMismatch = errors.New("map row length mismatch")
+	// errMapNotASCII はマップに ASCII でない文字があるときに返す
+	errMapNotASCII = errors.New("map has a non-ASCII character")
 	// errMapSizeMismatch はマップの実サイズが名前で定義したサイズと一致しないときに返す
 	errMapSizeMismatch = errors.New("map size does not match defined size")
 	// errCoordinateOutOfRange は座標がマップの範囲外のときに返す
@@ -329,6 +332,10 @@ func (l *TemplateLoader) validateMap(t *ChunkTemplate) error {
 	}
 
 	for i, line := range lines {
+		// プレースホルダや部品の位置はバイトの添字で引くので、1文字を1バイトに限る
+		if j := strings.IndexFunc(line, func(r rune) bool { return r > unicode.MaxASCII }); j >= 0 {
+			return fmt.Errorf("%w: row %d byte %d", errMapNotASCII, i, j)
+		}
 		lineWidth := utf8.RuneCountInString(line)
 		if lineWidth != expectedWidth {
 			return fmt.Errorf("%w: row %d expected %d, got %d", errMapRowLengthMismatch, i, expectedWidth, lineWidth)
@@ -420,7 +427,7 @@ func (l *TemplateLoader) FacilityChunk(facility string, seed uint64) (*ChunkTemp
 			}
 		}
 	}
-	chunk, err := l.selectChunkByWeightFromList(candidates, rand.New(rand.NewPCG(seed, seed)))
+	chunk, err := l.selectChunkByWeightFromList(candidates, rand.New(rand.NewPCG(seed, mixSeed(seed, 0))))
 	if err != nil {
 		return nil, nil, fmt.Errorf("facility '%s': %w", facility, err)
 	}

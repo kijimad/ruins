@@ -281,27 +281,6 @@ map = """
 		require.Len(t, templates, 1)
 		assert.Equal(t, Size{W: 10, H: 10}, templates[0].Size)
 	})
-
-	t.Run("マルチバイト文字を含むマップを読み込める", func(t *testing.T) {
-		t.Parallel()
-		content := `[[chunk]]
-name = "5x3_japanese_map"
-weight = 100
-palettes = ["standard"]
-map = """
-壁壁壁壁壁
-壁床床床壁
-壁壁壁壁壁
-"""
-`
-		loader := NewTemplateLoader()
-		templates, err := loader.Load(strings.NewReader(content))
-
-		require.NoError(t, err)
-		require.Len(t, templates, 1)
-		assert.Contains(t, templates[0].Map, "壁")
-		assert.Contains(t, templates[0].Map, "床")
-	})
 }
 
 func TestTemplateLoader_LoadFile(t *testing.T) {
@@ -398,6 +377,20 @@ map = """
 """
 `,
 				wantErr: errMapRowLengthMismatch,
+			},
+			{
+				name: "マップにASCIIでない文字があればエラー",
+				content: `[[chunk]]
+name = "3x3_全角"
+weight = 100
+palettes = ["standard"]
+map = """
+###
+#畳#
+###
+"""
+`,
+				wantErr: errMapNotASCII,
 			},
 		}
 
