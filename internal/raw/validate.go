@@ -22,7 +22,6 @@ var (
 	errPlayerMemberDuplicate         = errors.New("more than one member is marked as the player")
 	errDisassemblyToolRequiredNoTool = errors.New("disassembly requires a tool but has no tool category")
 	errDisassemblyWithoutHP          = errors.New("prop with disassembly has no hp and cannot be broken")
-	errInteriorFlavorContentMissing  = errors.New("interior flavor content is missing")
 	errBodyPartRowMissing            = errors.New("body part has no raw row")
 	errBodyPartUnknown               = errors.New("body part is not defined in code")
 	errConditionPartWholeBody        = errors.New("condition parts include whole body")
@@ -34,7 +33,6 @@ var (
 	errNeedStageNoZero               = errors.New("need stages have no stage from zero")
 	errEnumRowMissing                = errors.New("enum value has no raw row")
 	errTableMissing                  = errors.New("table required by code is missing")
-	errSiteWeightZero                = errors.New("site types have no weight for homes or shops")
 )
 
 // validateRules は行の間の決まりのうち、CUE のスキーマで書かないものを検証する。
@@ -42,10 +40,8 @@ func validateRules(raws rawschema.Raws) error {
 	validators := []func(rawschema.Raws) error{
 		validateDisassemblies,
 		validateZoneBaseFacilities,
-		validateFlavorContent,
 		validateMapGlyphReferences,
 		validateConditions,
-		validateInteriorProfile,
 		validateWeathers,
 		validateTileEffects,
 		validateNeedStages,
@@ -77,15 +73,6 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 		if !zoneHasBase[zone] {
 			return fmt.Errorf("zone %q has no facility with minSpan<=%d: %w", zone, baseSpan, errZoneNoBaseFacility)
 		}
-	}
-	return nil
-}
-
-// validateFlavorContent は interior を積む raw が flavorContent を持つことを検証する。
-// flavor は Go が全室へ引く必須レイヤで、未設定なら生成時に落ちる。interior を使わない部分的な Raws は素通しする
-func validateFlavorContent(raws rawschema.Raws) error {
-	if len(PtrSlice(raws.InteriorContents)) > 0 && raws.FlavorContent == nil {
-		return fmt.Errorf("flavorContent: %w", errInteriorFlavorContentMissing)
 	}
 	return nil
 }
@@ -264,7 +251,6 @@ func validateCodeRows(raws rawschema.Raws) error {
 		name    string
 		present bool
 	}{
-		{"interiorProfile", raws.InteriorProfile != nil},
 		{"weathers", len(PtrSlice(raws.Weathers)) > 0},
 		{"shelterEffects", len(PtrSlice(raws.ShelterEffects)) > 0},
 		{"waterEffects", len(PtrSlice(raws.WaterEffects)) > 0},
@@ -334,39 +320,6 @@ func validateResists(skills []rawschema.Skill) error {
 		}
 	}
 	return validateEnumRows("Element", enumStrings(rawschema.ElementValues()), elements)
-}
-
-// validateInteriorProfile は生活感の抽選表と敷地の類型が enum の全値を1回ずつ持ち、
-// 敷地の類型の重みが民家と店のどちらでも1以上あることを検証する
-func validateInteriorProfile(raws rawschema.Raws) error {
-	p := raws.InteriorProfile
-	if p == nil {
-		return nil
-	}
-	enumRows := []struct {
-		schema string
-		values []string
-		ids    []string
-	}{
-		{"BuildingDamage", enumStrings(rawschema.BuildingDamageValues()), rowIDs(p.Damages, func(c rawschema.DamageChoice) rawschema.BuildingDamage { return c.Id })},
-		{"BuildingClutter", enumStrings(rawschema.BuildingClutterValues()), rowIDs(p.Clutters, func(c rawschema.ClutterChoice) rawschema.BuildingClutter { return c.Id })},
-		{"BuildingVariant", enumStrings(rawschema.BuildingVariantValues()), rowIDs(p.Variants, func(c rawschema.VariantChoice) rawschema.BuildingVariant { return c.Id })},
-		{"SiteType", enumStrings(rawschema.SiteTypeValues()), rowIDs(p.Sites, func(c rawschema.SiteChoice) rawschema.SiteType { return c.Id })},
-	}
-	for _, e := range enumRows {
-		if err := validateEnumRows(e.schema, e.values, e.ids); err != nil {
-			return err
-		}
-	}
-	var home, shop int32
-	for _, s := range p.Sites {
-		home += s.HomeWeight
-		shop += s.ShopWeight
-	}
-	if home == 0 || shop == 0 {
-		return errSiteWeightZero
-	}
-	return nil
 }
 
 // rowIDs は行それぞれの enum の id を文字列にして返す

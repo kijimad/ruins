@@ -31,8 +31,8 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
 	return nil
 }
 
-// spawnInteriorBeing は施設 fac の敵の表から危険度で1体を引き、建物の中の pos へ置く。危険度帯に該当が無ければ置かない。
-func spawnInteriorBeing(world w.World, fac string, danger consts.Danger, pos consts.Coord[consts.Tile], rng *rand.Rand) error {
+// spawnFacilityBeing は施設 fac の敵の表から危険度で1体を引き、建物の中の pos へ置く。危険度帯に該当が無ければ置かない。
+func spawnFacilityBeing(world w.World, fac string, danger consts.Danger, pos consts.Coord[consts.Tile], rng *rand.Rand) error {
 	table, err := urbanEnemyTableFor(world.Resources.RawMaster, fac)
 	if err != nil {
 		return err

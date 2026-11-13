@@ -174,7 +174,7 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 		}
 	}
 	if cell.Being {
-		if err := spawnInteriorBeing(world, fac, danger, pos, beingRNG); err != nil {
+		if err := spawnFacilityBeing(world, fac, danger, pos, beingRNG); err != nil {
 			return fmt.Errorf("failed to place being of facility %q at %d,%d: %w", fac, pos.X, pos.Y, err)
 		}
 	}

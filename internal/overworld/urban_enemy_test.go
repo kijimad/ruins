@@ -29,7 +29,7 @@ func TestUrbanEnemyTableFor_敵テーブルが実在しなければerror(t *test
 
 	master := testutil.InitTestWorld(t).Resources.RawMaster
 	master.Facilities = &[]rawschema.Facility{
-		{Id: "clinic", EnemyTable: "no_such_table", Planner: rawschema.Clinic},
+		{Id: "clinic", EnemyTable: "no_such_table"},
 	}
 
 	_, err := urbanEnemyTableFor(master, "clinic")

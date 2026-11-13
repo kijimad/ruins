@@ -37,7 +37,7 @@ func countFieldItems(world w.World) int {
 }
 
 // TestSpawnFieldLoot_床に戦利品が出る は床 loot の配線を固定する。loot の item group を引き、抽選したアイテムを
-// LocationOnField として床へ置く。KindLoot placement を実アイテムへ実体化する経路を守る。
+// LocationOnField として床へ置く。施設の絵の床の戦利品を実アイテムへ実体化する経路を守る。
 func TestSpawnFieldLoot_床に戦利品が出る(t *testing.T) {
 	t.Parallel()
 
@@ -131,7 +131,6 @@ func TestPopulateStorageLoot_施設の荒らされ率で空のまま残す(t *te
 	}
 }
 
-// content へ loot を足して interiorRefs の itemGroup を忘れると、床の loot が黙って欠けるので全施設で確かめる
 func TestSpawnInteriorBeing(t *testing.T) {
 	t.Parallel()
 
@@ -145,7 +144,7 @@ func TestSpawnInteriorBeing(t *testing.T) {
 			members[e.Id] = true
 		}
 		pos := consts.Coord[consts.Tile]{X: 3, Y: 4}
-		require.NoError(t, spawnInteriorBeing(world, "store", raw.MinDanger, pos, rand.New(rand.NewPCG(1, 0x5))))
+		require.NoError(t, spawnFacilityBeing(world, "store", raw.MinDanger, pos, rand.New(rand.NewPCG(1, 0x5))))
 
 		var got []string
 		q := ecs.NewFilter2[gc.FactionEnemy, gc.GridElement](world.ECS).Query()
@@ -161,6 +160,6 @@ func TestSpawnInteriorBeing(t *testing.T) {
 	t.Run("未登録の施設はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		require.Error(t, spawnInteriorBeing(world, "no_such", raw.MinDanger, consts.Coord[consts.Tile]{X: 3, Y: 4}, rand.New(rand.NewPCG(1, 0x5))))
+		require.Error(t, spawnFacilityBeing(world, "no_such", raw.MinDanger, consts.Coord[consts.Tile]{X: 3, Y: 4}, rand.New(rand.NewPCG(1, 0x5))))
 	})
 }
