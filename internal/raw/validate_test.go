@@ -185,7 +185,7 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 		{Zone: rawschema.Industrial, Weight: 10, MinSpan: 2},
 	}
 
-	towns := &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Sizes: []rawschema.DistrictSize{{W: 3, H: 3, Weight: 1}, {W: 2, H: 2, Weight: 1}}}}
+	towns := &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Layout: rawschema.DistrictLayoutTown, Sizes: []rawschema.DistrictSize{{W: 3, H: 3, Weight: 1}, {W: 2, H: 2, Weight: 1}}}}
 
 	t.Run("全地区に基本施設があれば通る", func(t *testing.T) {
 		t.Parallel()
@@ -193,7 +193,7 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 		require.NoError(t, validateZoneBaseFacilities(raws))
 	})
 
-	t.Run("施設を持たない raw は通る", func(t *testing.T) {
+	t.Run("区域を持たない raw は通る", func(t *testing.T) {
 		t.Parallel()
 		require.NoError(t, validateZoneBaseFacilities(rawschema.Raws{}))
 	})
@@ -212,6 +212,21 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 			require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility)
 		})
 	}
+}
+
+func TestValidateZoneBaseFacilities_研究所の敷地は門と中ほどと奥の地区に施設が要る(t *testing.T) {
+	t.Parallel()
+
+	campus := &[]rawschema.District{{Id: "lab_campus", Spacing: 30, Separation: 4, Layout: rawschema.DistrictLayoutCampus, Sizes: []rawschema.DistrictSize{{W: 7, H: 6, Weight: 1}}}}
+	zones := []rawschema.FacilityZone{
+		{Zone: rawschema.CampusGate, Weight: 1, MinSpan: 1},
+		{Zone: rawschema.CampusInner, Weight: 1, MinSpan: 1},
+	}
+	raws := rawschema.Raws{Districts: campus, Facilities: &[]rawschema.Facility{{Id: "lab", Zones: zones}}}
+	require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility, "閉鎖区画の施設が無い")
+
+	raws.Facilities = &[]rawschema.Facility{{Id: "lab", Zones: zones}, {Id: "lab_quarantine", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusQuarantine, Weight: 1, MinSpan: 1}}}}
+	require.NoError(t, validateZoneBaseFacilities(raws))
 }
 
 func TestValidateDistricts(t *testing.T) {
@@ -259,7 +274,7 @@ func TestValidateRules_各検証の失敗を伝播する(t *testing.T) {
 	}{
 		{
 			name:    "地区の基本施設が無い",
-			raws:    rawschema.Raws{Districts: &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}}}, Facilities: &[]rawschema.Facility{{Id: "f1", Zones: []rawschema.FacilityZone{{Zone: rawschema.Downtown, Weight: 1, MinSpan: 3}}}}},
+			raws:    rawschema.Raws{Districts: &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Layout: rawschema.DistrictLayoutTown, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}}}, Facilities: &[]rawschema.Facility{{Id: "f1", Zones: []rawschema.FacilityZone{{Zone: rawschema.Downtown, Weight: 1, MinSpan: 3}}}}},
 			wantErr: errZoneNoBaseFacility,
 		},
 		{

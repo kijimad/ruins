@@ -67,14 +67,35 @@ func (d district) regionAt(runSeed uint64, c consts.Coord[consts.Chunk], cols co
 	return r, r.contains(c)
 }
 
-// districtAt は c を含む区域を返す。種類の違う区域が重なれば、raw の行の順で先の種類を返す
+// districtAt は c を含む区域を返す。種類の違う区域が重なれば、raw の行の順で先の種類を残し、後の種類の区域は
+// 丸ごと出さない。街路の途中に塀が刺さった半端な区域を作らないため
 func districtAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (districtRegion, bool) {
-	for _, d := range districtsFrom(raws) {
-		if r, ok := d.regionAt(runSeed, c, cols); ok {
+	ds := districtsFrom(raws)
+	for i, d := range ds {
+		r, ok := d.regionAt(runSeed, c, cols)
+		if ok && !overlapsAny(r, ds[:i], runSeed, cols) {
 			return r, true
 		}
 	}
 	return districtRegion{}, false
+}
+
+// overlapsAny は区域 r が、種類 higher のどれかの区域と重なるかを返す。r の行が属するリージョンだけを見る
+func overlapsAny(r districtRegion, higher []district, runSeed uint64, cols consts.Chunk) bool {
+	for _, d := range higher {
+		spacing := consts.Chunk(d.row.Spacing)
+		for ry := consts.FloorDiv(r.anchor.Y, spacing); ry <= consts.FloorDiv(r.anchor.Y+r.h-1, spacing); ry++ {
+			if d.regionIn(runSeed, ry, cols).overlaps(r) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// overlaps は2つの区域が1チャンクでも重なるかを返す
+func (r districtRegion) overlaps(o districtRegion) bool {
+	return r.anchor.X < o.anchor.X+o.w && o.anchor.X < r.anchor.X+r.w && r.anchor.Y < o.anchor.Y+o.h && o.anchor.Y < r.anchor.Y+r.h
 }
 
 // contains は c が区域の中かを返す

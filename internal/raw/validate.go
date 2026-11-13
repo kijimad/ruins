@@ -68,32 +68,37 @@ func validateDistricts(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateZoneBaseFacilities は、一番小さい市街地でも全地区に建てられる基本施設があることを検証する。
-// 施設は市街地の長い方の辺が minSpan 以上のときだけ建つので、一番小さい市街地の辺で足切りを越える施設が要る
+// DistrictZones は区域の作り l が割り振る地区を返す
+func DistrictZones(l rawschema.DistrictLayout) []rawschema.Zone {
+	switch l {
+	case rawschema.DistrictLayoutTown:
+		return []rawschema.Zone{rawschema.Downtown, rawschema.Residential, rawschema.Industrial}
+	case rawschema.DistrictLayoutCampus:
+		return []rawschema.Zone{rawschema.CampusGate, rawschema.CampusInner, rawschema.CampusQuarantine}
+	}
+	return nil
+}
+
+// validateZoneBaseFacilities は、どの区域でも一番小さい大きさのときに、割り振る全ての地区に建てられる施設があることを検証する。
+// 施設は区域の長い方の辺が minSpan 以上のときだけ建つので、一番小さい大きさの辺で足切りを越える施設が要る
 func validateZoneBaseFacilities(raws rawschema.Raws) error {
 	facilities := PtrSlice(raws.Facilities)
-	baseSpan := 0
 	for _, d := range PtrSlice(raws.Districts) {
+		baseSpan := 0
 		for _, size := range d.Sizes {
 			if span := max(size.W, size.H); baseSpan == 0 || span < baseSpan {
 				baseSpan = span
 			}
 		}
-	}
-	if len(facilities) == 0 || baseSpan == 0 {
-		return nil
-	}
-	zoneHasBase := make(map[string]bool)
-	for i := range facilities {
-		for _, z := range facilities[i].Zones {
-			if int(z.MinSpan) <= baseSpan {
-				zoneHasBase[string(z.Zone)] = true
+		for _, zone := range DistrictZones(d.Layout) {
+			hasBase := slices.ContainsFunc(facilities, func(f rawschema.Facility) bool {
+				return slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool {
+					return z.Zone == zone && int(z.MinSpan) <= baseSpan
+				})
+			})
+			if !hasBase {
+				return fmt.Errorf("district %q zone %q has no facility with minSpan<=%d: %w", d.Id, zone, baseSpan, errZoneNoBaseFacility)
 			}
-		}
-	}
-	for _, zone := range enumStrings(rawschema.ZoneValues()) {
-		if !zoneHasBase[zone] {
-			return fmt.Errorf("zone %q has no facility with minSpan<=%d: %w", zone, baseSpan, errZoneNoBaseFacility)
 		}
 	}
 	return nil

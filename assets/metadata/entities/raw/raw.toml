@@ -1086,6 +1086,22 @@
   pages = ["Want to make a deal?\n\nI've got good stuff."]
 
 [[districts]]
+  id = "lab_campus"
+  layout = "campus"
+  separation = 4
+  spacing = 30
+
+  [[districts.sizes]]
+    h = 6
+    w = 7
+    weight = 1
+
+  [[districts.sizes]]
+    h = 8
+    w = 7
+    weight = 1
+
+[[districts]]
   id = "town"
   layout = "town"
   separation = 2
@@ -2966,6 +2982,45 @@
     pack = "1d1"
     weight = 0.5
 
+[[enemyTables]]
+  id = "lab_quarantine_enemies"
+  name = "研究施設の閉鎖区画"
+
+  [[enemyTables.entries]]
+    id = "spark_wisp"
+    maxDanger = 6
+    minDanger = 1
+    pack = "1d3"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "prism_eye"
+    maxDanger = 12
+    minDanger = 3
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "shock_orb"
+    maxDanger = 22
+    minDanger = 6
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "crystal_wraith"
+    maxDanger = 25
+    minDanger = 6
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "shadow_priest"
+    maxDanger = 25
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.7
+
 [[facilities]]
   enemyTable = "house_enemies"
   id = "house"
@@ -3048,13 +3103,43 @@
 
 [[facilities]]
   enemyTable = "lab_enemies"
-  id = "lab"
+  id = "lab_experiment"
   lootedChance = 30
 
   [[facilities.zones]]
-    minSpan = 3
-    weight = 15
-    zone = "downtown"
+    minSpan = 1
+    weight = 2
+    zone = "campus_inner"
+
+[[facilities]]
+  enemyTable = "lab_enemies"
+  id = "lab_admin"
+  lootedChance = 30
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "campus_gate"
+
+[[facilities]]
+  enemyTable = "lab_enemies"
+  id = "lab_lecture"
+  lootedChance = 30
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "campus_inner"
+
+[[facilities]]
+  enemyTable = "lab_quarantine_enemies"
+  id = "lab_quarantine"
+  lootedChance = 10
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "campus_quarantine"
 
 [[fatigueStages]]
   canSleep = false
@@ -16689,14 +16774,47 @@
 
 [[mapGlyphs]]
   glyph = "L"
-  id = "lab"
-  name = "Research Facility"
+  id = "lab_experiment"
+  name = "Laboratory"
   order = 14
   [mapGlyphs.color]
     a = 255
     b = 208
     g = 106
     r = 160
+
+[[mapGlyphs]]
+  glyph = "B"
+  id = "lab_admin"
+  name = "Admin Block"
+  order = 15
+  [mapGlyphs.color]
+    a = 255
+    b = 200
+    g = 150
+    r = 120
+
+[[mapGlyphs]]
+  glyph = "E"
+  id = "lab_lecture"
+  name = "Lecture Hall"
+  order = 16
+  [mapGlyphs.color]
+    a = 255
+    b = 210
+    g = 130
+    r = 140
+
+[[mapGlyphs]]
+  glyph = "Q"
+  id = "lab_quarantine"
+  name = "Quarantine"
+  order = 17
+  [mapGlyphs.color]
+    a = 255
+    b = 120
+    g = 70
+    r = 210
 
 [[materials]]
   heatPerKg = 200

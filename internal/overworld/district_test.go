@@ -71,3 +71,32 @@ func TestDistrictRegion_distance(t *testing.T) {
 		assert.Equal(t, tt.want, r.distance(tt.c), "%v", tt.c)
 	}
 }
+
+func TestDistrictAt_先の種類の区域と重なる後の種類の区域は丸ごと出さない(t *testing.T) {
+	t.Parallel()
+
+	// 研究所の敷地は帯の全幅で縦の範囲が広く、町と必ず重なる
+	raws := rawschema.Raws{Districts: &[]rawschema.District{
+		{Id: "lab_campus", Spacing: 9, Separation: 1, Layout: rawschema.DistrictLayoutCampus, Sizes: []rawschema.DistrictSize{{W: 7, H: 8, Weight: 1}}},
+		{Id: "town", Spacing: 3, Separation: 1, Layout: rawschema.DistrictLayoutTown, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}},
+	}}
+	const cols consts.Chunk = 7
+	ds := districtsFrom(raws)
+
+	for seed := range uint64(30) {
+		campus := ds[0].regionIn(seed, 0, cols)
+		for y := range consts.Chunk(9) {
+			for x := range cols {
+				c := consts.Coord[consts.Chunk]{X: x, Y: y}
+				r, ok := districtAt(raws, seed, c, cols)
+				if campus.contains(c) {
+					require.True(t, ok)
+					assert.Equal(t, rawschema.DistrictLayoutCampus, r.layout, "seed=%d %v", seed, c)
+					continue
+				}
+				town := ds[1].regionIn(seed, consts.FloorDiv(y, 3), cols)
+				assert.Equal(t, town.contains(c) && !town.overlaps(campus), ok, "seed=%d %v", seed, c)
+			}
+		}
+	}
+}

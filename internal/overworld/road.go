@@ -21,6 +21,10 @@ type roadFeature struct{}
 const roadWidth consts.Tile = 4
 
 func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
+	// 区域の中は区域が街路を敷くので、道を描かない
+	if _, ok := districtAt(world.Resources.RawMaster, runSeed, c, cols); ok {
+		return nil
+	}
 	tiles := g.tiles.get()
 	for _, pair := range crossingRoads(runSeed, c, cols) {
 		if err := drawRoadSegments(world, tiles, pair[0], pair[1], c, g); err != nil {

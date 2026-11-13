@@ -328,8 +328,9 @@ import "strings"
 	weight!: int & >=1
 }
 
-// 区域の作り。town は各チャンクの北辺と西辺に街路を敷き、中心を都心にする
-#DistrictLayout: "town" @rawgen(prefix)
+// 区域の作り。town は各チャンクの北辺と西辺に街路を敷き、中心を都心にする。
+// campus は街路に加えて外周に塀を巡らせて南北に門を開け、南の門の列、中ほど、北の奥の列で地区を分ける
+#DistrictLayout: "town" | "campus" @rawgen(prefix)
 
 // フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
 #Dungeon: {
@@ -1337,5 +1338,5 @@ import "strings"
 // 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 #Weight: string & =~"^[0-9]+(\\.[0-9]+)? (mg|g|kg)$"
 
-// 市街地の地区
-#Zone: "downtown" | "residential" | "industrial"
+// 区域の地区。campus_ で始まる地区は研究所の敷地の門の列、中ほど、北の奥の列
+#Zone: "downtown" | "residential" | "industrial" | "campus_gate" | "campus_inner" | "campus_quarantine"

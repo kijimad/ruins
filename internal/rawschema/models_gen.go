@@ -547,17 +547,21 @@ type District struct {
 	Spacing int `json:"spacing"`
 }
 
-// DistrictLayout 区域の作り。town は各チャンクの北辺と西辺に街路を敷き、中心を都心にする
+// DistrictLayout 区域の作り。town は各チャンクの北辺と西辺に街路を敷き、中心を都心にする。
+// campus は街路に加えて外周に塀を巡らせて南北に門を開け、南の門の列、中ほど、北の奥の列で地区を分ける
 type DistrictLayout string
 
 // Defines values for DistrictLayout.
 const (
-	DistrictLayoutTown DistrictLayout = "town"
+	DistrictLayoutCampus DistrictLayout = "campus"
+	DistrictLayoutTown   DistrictLayout = "town"
 )
 
 // Valid indicates whether the value is a known member of the DistrictLayout enum.
 func (e DistrictLayout) Valid() bool {
 	switch e {
+	case DistrictLayoutCampus:
+		return true
 	case DistrictLayoutTown:
 		return true
 	default:
@@ -567,7 +571,7 @@ func (e DistrictLayout) Valid() bool {
 
 // DistrictLayoutValues は DistrictLayout の値を、スキーマに書いた順に返す。
 func DistrictLayoutValues() []DistrictLayout {
-	return []DistrictLayout{DistrictLayoutTown}
+	return []DistrictLayout{DistrictLayoutTown, DistrictLayoutCampus}
 }
 
 // DistrictSize 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める
@@ -2717,19 +2721,28 @@ type WeatherVisionDelta = int
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string
 
-// Zone 市街地の地区
+// Zone 区域の地区。campus_ で始まる地区は研究所の敷地の門の列、中ほど、北の奥の列
 type Zone string
 
 // Defines values for Zone.
 const (
-	Downtown    Zone = "downtown"
-	Industrial  Zone = "industrial"
-	Residential Zone = "residential"
+	CampusGate       Zone = "campus_gate"
+	CampusInner      Zone = "campus_inner"
+	CampusQuarantine Zone = "campus_quarantine"
+	Downtown         Zone = "downtown"
+	Industrial       Zone = "industrial"
+	Residential      Zone = "residential"
 )
 
 // Valid indicates whether the value is a known member of the Zone enum.
 func (e Zone) Valid() bool {
 	switch e {
+	case CampusGate:
+		return true
+	case CampusInner:
+		return true
+	case CampusQuarantine:
+		return true
 	case Downtown:
 		return true
 	case Industrial:
@@ -2743,5 +2756,5 @@ func (e Zone) Valid() bool {
 
 // ZoneValues は Zone の値を、スキーマに書いた順に返す。
 func ZoneValues() []Zone {
-	return []Zone{Downtown, Residential, Industrial}
+	return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine}
 }

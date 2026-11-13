@@ -3,6 +3,7 @@ package overworld
 import (
 	"fmt"
 	"math/rand/v2"
+	"slices"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -82,6 +83,31 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) rawschema.Zone {
 	return rawschema.Residential
 }
 
+// campusZoneOf は研究所の敷地の中の行 ly から地区を決める。南の端の列を門、北の端の列を奥の閉鎖区画、
+// 残りを中ほどにする。プレイヤーは南から北へ進むので、門から入って奥ほど危険になる
+func campusZoneOf(ly, ch consts.Chunk) rawschema.Zone {
+	switch ly {
+	case ch - 1:
+		return rawschema.CampusGate
+	case 0:
+		return rawschema.CampusQuarantine
+	default:
+		return rawschema.CampusInner
+	}
+}
+
+// zoneAt は区域の中の座標 l の地区を、区域の作りに従って返す
+func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.Zone {
+	switch r.layout {
+	case rawschema.DistrictLayoutTown:
+		return zoneOf(l.X, l.Y, r.w, r.h, r.seed)
+	case rawschema.DistrictLayoutCampus:
+		return campusZoneOf(l.Y, r.h)
+	}
+	// raw の列挙の外の作りは町として扱う
+	return zoneOf(l.X, l.Y, r.w, r.h, r.seed)
+}
+
 // rollFacilityInZone は地区の重み表から規模 gate を通った施設 id を重みで抽選する。
 func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk) string {
 	zc := cat[z]
@@ -101,7 +127,7 @@ func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span 
 // urbanFacilityAt は区域 r の中のチャンク c に建つ施設 id を返す。地図表示と生成の両方が使う。
 func urbanFacilityAt(cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk]) string {
 	l := r.local(c)
-	z := zoneOf(l.X, l.Y, r.w, r.h, r.seed)
+	z := r.zoneAt(l)
 	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
 	// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
 	frng := rand.New(rand.NewPCG(ChunkSeed2D(r.seed, l.X, l.Y), 0x1))
@@ -118,7 +144,33 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	}
 	l := r.local(c)
 	fac := urbanFacilityAt(zoneCatalogFrom(raws), r, c)
-	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), fac, urbanDangerAt(world, c))
+	var fence []consts.Coord[consts.Tile]
+	if r.layout == rawschema.DistrictLayoutCampus {
+		fence = campusFence(r, l, g.chunkW, g.chunkH)
+	}
+	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), fac, urbanDangerAt(world, c), fence)
+}
+
+// campusFence は研究所の敷地の中のチャンク l に置く塀のマスを、チャンク内の座標で返す。塀は敷地の外周を巡り、
+// 真ん中の列の北と南の端に、構内の縦の街路の幅だけ門を開ける。東と南の辺には街路が無いので、建物の区画の外側の
+// 1列に置く
+func campusFence(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) []consts.Coord[consts.Tile] {
+	gate := l.X == r.w/2
+	var out []consts.Coord[consts.Tile]
+	add := func(x, y consts.Tile) {
+		if gate && (y == 0 && l.Y == 0 || y == chunkH-1 && l.Y == r.h-1) && x < urbanStreetW {
+			return
+		}
+		out = append(out, consts.Coord[consts.Tile]{X: x, Y: y})
+	}
+	for y := range chunkH {
+		for x := range chunkW {
+			if x == 0 && l.X == 0 || x == chunkW-1 && l.X == r.w-1 || y == 0 && l.Y == 0 || y == chunkH-1 && l.Y == r.h-1 {
+				add(x, y)
+			}
+		}
+	}
+	return out
 }
 
 // urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と日数(時間)の高い方。
@@ -133,8 +185,8 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 	return danger
 }
 
-// renderUrbanChunk は1チャンクに建物1棟を描き、施設種別の絵を描き、規模に応じた敵を湧かせる。
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac string, danger consts.Danger) error {
+// renderUrbanChunk は1チャンクに建物1棟を描き、施設種別の絵を描き、塀を置き、規模に応じた敵を湧かせる。塀はチャンク内の座標で受ける。
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac string, danger consts.Danger, fence []consts.Coord[consts.Tile]) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、施設の絵の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
 	loader, err := maptemplate.FacilityTemplates()
@@ -151,6 +203,16 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 	isWall, occupied, err := spawnFacility(world, g, cells, urbanStreetW, urbanStreetW, fac, danger, seed)
 	if err != nil {
 		return err
+	}
+	for _, p := range fence {
+		pos := consts.Coord[consts.Tile]{X: g.offsetX + p.X, Y: g.offsetY + p.Y}
+		occupied[pos] = true
+		if slices.ContainsFunc(query.GetEntitiesAt(world, pos.X, pos.Y), world.Components.Prop.Has) {
+			continue
+		}
+		if _, err := lifecycle.SpawnProp(world, "fence", pos.X, pos.Y); err != nil {
+			return fmt.Errorf("failed to place campus fence at %d,%d: %w", pos.X, pos.Y, err)
+		}
 	}
 	return spawnUrbanEnemies(world, g, rng, size, fac, danger, isWall, occupied)
 }
