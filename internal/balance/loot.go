@@ -33,7 +33,6 @@ func GenerateFacilityLoot(master rawschema.Raws, trials int, seed uint64) ([]Fac
 	result := make([]FacilityLoot, 0, len(facilities))
 	for _, f := range facilities {
 		fac := f.Id
-		// 絵 -> item -> 合計個数 / 出た試行数
 		total := map[string]map[string]int{}
 		present := map[string]map[string]int{}
 		picked := map[string]int{facilityLootAll: trials}
@@ -47,7 +46,7 @@ func GenerateFacilityLoot(master rawschema.Raws, trials int, seed uint64) ([]Fac
 			}
 			picked[chunk.Name]++
 
-			// この試行の item -> 個数。試行内で集めてから present を1回だけ加算する
+			// 出た試行数は試行ごとに1回だけ数えるので、試行の中で集めてから足す
 			perTrial := map[string]int{}
 			for _, row := range cells {
 				for _, c := range row {
@@ -158,8 +157,8 @@ func templateTotalExpected(t TemplateLoot) float64 {
 	return sum
 }
 
-// rollStorageLoot は収納家具1個の中身を抽選する。ゲームの populateStorageLoot と同型で、パレットが書いた表 tableID から
-// LootCount 回を深度考慮で引く。荒らされ率は掛けない。収納でない家具は空を返す。
+// rollStorageLoot は収納家具1個の中身を、パレットが書いた表 tableID から LootCount 回引く。荒らされ率は掛けない。
+// 収納でない家具は空を返す。
 func rollStorageLoot(master rawschema.Raws, propName, tableID string, rng *rand.Rand) ([]drawnLoot, error) {
 	prop, err := raw.GetProp(master, propName)
 	if err != nil {

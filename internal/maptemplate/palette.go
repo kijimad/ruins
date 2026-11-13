@@ -55,7 +55,8 @@ type WeightedID struct {
 // ItemEntry は床に落ちる戦利品を置く文字の定義。家具など別の分類と同じ文字にも重ねて書け、そのマスの上に置く
 type ItemEntry struct {
 	// Tile は下に敷く地形。別の分類と重ねるときはそちらの地形を使うので省ける
-	Tile      string `toml:"tile,omitempty"`
+	Tile string `toml:"tile,omitempty"`
+	// ItemGroup は戦利品を引く itemGroups の id
 	ItemGroup string `toml:"itemGroup"`
 	// Chance は1回ごとにグループから引く確率。1 から 100 の百分率で、省くと必ず引く
 	Chance *int `toml:"chance,omitempty"`
@@ -65,6 +66,7 @@ type ItemEntry struct {
 
 // BeingEntry は施設の敵の表から1体置く文字の定義
 type BeingEntry struct {
+	// Tile は下に敷く地形
 	Tile string `toml:"tile"`
 	// Chance は置く確率。1 から 100 の百分率で、省くと必ず置く
 	Chance *int `toml:"chance,omitempty"`
@@ -75,7 +77,9 @@ const nullChunk = "null"
 
 // NestedEntry は文字の位置を左上に部品を1つ置く定義。候補の nullChunk は何も置かない
 type NestedEntry struct {
-	Tile   string             `toml:"tile"`
+	// Tile は文字のマスに敷く地形。部品が置かれると上書きされ、何も置かない候補のときだけ残る
+	Tile string `toml:"tile"`
+	// Chunks は置く部品の候補
 	Chunks []WeightedChunkRef `toml:"chunks"`
 }
 

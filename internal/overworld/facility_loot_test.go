@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// countStoredItems は収納に入っているアイテムの数を返す。LocationInStorage を持つエンティティを数える。
+// countStoredItems は収納に入っているアイテムの数を返す
 func countStoredItems(world w.World) int {
 	q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
 	n := 0
@@ -26,7 +26,7 @@ func countStoredItems(world w.World) int {
 	return n
 }
 
-// countFieldItems は床に置かれたアイテムの数を返す。LocationOnField を持つエンティティを数える。
+// countFieldItems は床に置かれたアイテムの数を返す
 func countFieldItems(world w.World) int {
 	q := ecs.NewFilter1[gc.LocationOnField](world.ECS).Query()
 	n := 0
@@ -36,21 +36,17 @@ func countFieldItems(world w.World) int {
 	return n
 }
 
-// TestSpawnFieldLoot_床に戦利品が出る は床 loot の配線を固定する。loot の item group を引き、抽選したアイテムを
-// LocationOnField として床へ置く。施設の絵の床の戦利品を実アイテムへ実体化する経路を守る。
 func TestSpawnFieldLoot_床に戦利品が出る(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	rng := rand.New(rand.NewPCG(1, 0x4))
 
-	// healing_item はグループなので必ず1件を返す。床に LocationOnField のアイテムが増える
 	pos := consts.Coord[consts.Tile]{X: 0, Y: 0}
 	require.NoError(t, spawnFieldLoot(world, "healing_item", pos, rng))
 	assert.Positive(t, countFieldItems(world), "loot group から床にアイテムが1つ以上出る")
 }
 
-// TestSpawnFieldLoot_未存在グループはエラー は写像先の typo や raw 側削除を spawn 時に検知することを守る。
 func TestSpawnFieldLoot_未存在グループはエラー(t *testing.T) {
 	t.Parallel()
 
@@ -60,8 +56,7 @@ func TestSpawnFieldLoot_未存在グループはエラー(t *testing.T) {
 	require.Error(t, spawnFieldLoot(world, "no_such_group", pos, rng))
 }
 
-// TestPopulateStorageLoot_収納家具に戦利品が入る は収納 loot の配線を固定する。収納 prop(押入れ)には渡した
-// item テーブルから戦利品が入り、収納でない prop(蝋燭)には入らない。家は荒らされ率を持つので複数置いて数える。
+// 家は荒らされ率を持つので、押入れを複数置いて数える
 func TestPopulateStorageLoot_収納家具に戦利品が入る(t *testing.T) {
 	t.Parallel()
 

@@ -577,7 +577,6 @@ func TestResolveMapCells_施設の文字(t *testing.T) {
 		{Terrain: "floor"},
 	}, cells[0])
 
-	// 候補は重みに従って両方とも選ばれる
 	seen := map[string]bool{}
 	for s := range uint64(64) {
 		seen[ResolveMapCells("d", palette, rand.New(rand.NewPCG(s, s)))[0][0].Prop] = true

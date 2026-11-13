@@ -37,7 +37,7 @@ func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, r
 }
 
 // spawnFacility は施設の絵のマスを、チャンク内の区画の左上 (ox, oy) から実体として置く。
-// 屋内の床は屋内として扱い、扉は左右か上下の壁から向きを決める。収納の中身と敵は今の施設と同じ処理で引く。
+// 屋内の床は屋内として扱い、扉は左右か上下の壁から向きを決める。
 // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする
 func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox, oy consts.Tile, fac string, danger consts.Danger, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
 	if len(cells) != int(g.chunkH-oy) || len(cells[0]) != int(g.chunkW-ox) {

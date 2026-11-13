@@ -19,7 +19,7 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
-// TestGolden_Facility は施設ごとに、描いた絵を全て北向きのまま並べて固定する。絵を足すと自動で並び、レビューでそのまま見られる
+// TestGolden_Facility は施設ごとに、描いた絵を全て北向きのまま並べて固定する
 func TestGolden_Facility(t *testing.T) {
 	t.Parallel()
 
