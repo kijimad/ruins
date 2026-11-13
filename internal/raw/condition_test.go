@@ -89,7 +89,6 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Conditions:      &conditions,
 		AttackTypes:     &attackTypes,
 		Skills:          &skills,
-		InteriorProfile: &rawschema.InteriorProfile{},
 		Weathers:        &[]rawschema.Weather{{Id: rawschema.Clear}},
 		Members:         &[]rawschema.Member{{Id: "ash", Player: new(true)}},
 		ShelterEffects:  &[]rawschema.ShelterEffect{{Id: rawschema.Outdoor}, {Id: rawschema.Partial}, {Id: rawschema.Indoor}},
@@ -331,13 +330,6 @@ func TestValidateCodeRows(t *testing.T) {
 			name: "ダンジョンが無い",
 			mutate: func(r *rawschema.Raws) {
 				r.Dungeons = nil
-			},
-			wantErr: errTableMissing,
-		},
-		{
-			name: "生活感の表が無い",
-			mutate: func(r *rawschema.Raws) {
-				r.InteriorProfile = nil
 			},
 			wantErr: errTableMissing,
 		},

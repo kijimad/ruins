@@ -1,4 +1,4 @@
-package overworld_test
+package overworld
 
 import (
 	"bytes"
@@ -13,7 +13,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -40,7 +39,7 @@ func TestGolden_Scatter(t *testing.T) {
 	const chunkW, chunkH consts.Tile = 24, 24
 	const cols consts.Chunk = 3
 	world := testutil.InitTestWorld(t)
-	gen := overworld.NewChunkGen(world, 66, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
+	gen := NewChunkGen(world, 66, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range cols {
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: i}, i.Tiles(chunkW), 0))
 	}

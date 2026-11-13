@@ -72,7 +72,7 @@ func snapshotNamed(world w.World) []string {
 func TestNewChunkGen_市街地の断片は生成順に依存しない(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	const window = 16 // 市街地リージョン1つぶん
 	const runSeed uint64 = 77
 
@@ -104,7 +104,7 @@ func TestNewChunkGen_市街地の断片は生成順に依存しない(t *testing
 func TestNewChunkGen_市街地に敵が湧き帯へ束縛される(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range 16 {
@@ -132,7 +132,7 @@ func TestNewChunkGen_市街地に敵が湧き帯へ束縛される(t *testing.T)
 func TestNewChunkGen_市街地の建物に見える扉が置かれる(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 77, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range 16 {

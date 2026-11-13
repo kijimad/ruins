@@ -1,0 +1,59 @@
+[[chunk]]
+name = "3x3_house_bed_set"
+weight = 2
+palettes = ["house_parts"]
+map = """
+B.c
+B.c
+...
+"""
+
+[[chunk]]
+name = "3x3_house_bed_set"
+weight = 2
+palettes = ["house_parts"]
+map = """
+c.B
+..B
+...
+"""
+
+[[chunk]]
+name = "3x3_house_bed_set"
+weight = 1
+palettes = ["house_parts"]
+map = """
+Bl.
+...
+dc.
+"""
+
+[[chunk]]
+name = "3x3_house_dining_set"
+weight = 2
+palettes = ["house_parts"]
+map = """
+_h_
+hth
+___
+"""
+
+[[chunk]]
+name = "3x3_house_dining_set"
+weight = 1
+palettes = ["house_parts"]
+map = """
+s__
+st_
+___
+"""
+
+[[chunk]]
+name = "3x3_house_dining_set"
+weight = 1
+palettes = ["house_parts"]
+map = """
+___
+_th
+___
+"""

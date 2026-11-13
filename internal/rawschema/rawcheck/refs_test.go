@@ -40,21 +40,9 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		ItemTables:      &[]rawschema.ItemTable{{Id: "chest", Name: "Chest", Entries: []rawschema.ItemTableEntry{{Id: "junk"}, {Id: "scraps"}}}},
 		EnemyTables:     &[]rawschema.EnemyTable{{Id: "wild", Name: "Wild", Entries: []rawschema.EnemyTableEntry{{Id: "slime", Weight: 1, Pack: "1d1"}}}},
 		Facilities: &[]rawschema.Facility{{
-			Id: "house", Planner: rawschema.House, EnemyTable: "wild",
+			Id: "house", EnemyTable: "wild",
 			Zones: []rawschema.FacilityZone{{Zone: rawschema.Residential, Weight: 1}},
 		}},
-		FacilityContents: &[]rawschema.FacilityContent{{Facility: "house", Variants: []rawschema.EntityID{"house_main"}}},
-		FacilityRooms: &[]rawschema.FacilityRooms{{
-			Facility: "house", Fallback: "house_main",
-			Rooms: &[]rawschema.RoomContent{{Role: rawschema.Bedroom, Content: "house_main"}},
-		}},
-		InteriorContents: &[]rawschema.InteriorContent{{Id: "house_main", Groups: &[]rawschema.ContentGroup{{
-			Style: rawschema.PickEach,
-			Items: []rawschema.ContentStuff{{
-				Kind: rawschema.Furniture, Ref: "bed", Amount: "1d1", LootTable: new("chest"),
-				Satellites: &[]rawschema.ContentSatellite{{Kind: rawschema.Furniture, Ref: "bed", Offsets: []rawschema.ContentVec{}, LootTable: new("chest")}},
-			}},
-		}}}},
 		Landmarks: &[]rawschema.Landmark{{Id: "shrine", Weight: 1, Drawer: rawschema.Open, Props: []rawschema.PropSpot{{Name: "bed"}}}},
 		ScatterZones: &[]rawschema.ScatterZone{{
 			Id: "meadow", LootGroup: "junk",
@@ -91,15 +79,6 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			Skills: &[]rawschema.ProfessionSkill{{Id: rawschema.SkillIdSword}},
 			Items:  []rawschema.ProfessionItem{}, Equips: []rawschema.ProfessionEquip{},
 		}},
-		InteriorRefs: &[]rawschema.InteriorRef{{Id: "bed_ref", Prop: new("bed")}, {Id: "snacks", ItemGroup: new("junk")}},
-		InteriorProfile: &rawschema.InteriorProfile{
-			Damages: []rawschema.DamageChoice{}, Clutters: []rawschema.ClutterChoice{}, Variants: []rawschema.VariantChoice{},
-			Densities: []rawschema.DensityChoice{}, Sites: []rawschema.SiteChoice{},
-			Heroes:    []rawschema.HeroChoice{{Id: "reward", Weight: 1, Refs: []rawschema.EntityID{"bed_ref"}}},
-			Facade:    rawschema.FacadeRefs{Window: "bed_ref", Shutter: "bed_ref", Sign: "bed_ref"},
-			Lot:       rawschema.LotRefs{Fence: "bed_ref", Plant: "bed_ref", Vending: "bed_ref"},
-			HeroOneIn: 1,
-		},
 		Dungeons: &[]rawschema.Dungeon{{
 			Id: "forest", Name: "Forest", Description: "Forest", ImageKey: "forest", EnemyTable: "wild", ItemTable: "chest",
 			Planners: []rawschema.DungeonPlannerWeight{{Id: rawschema.DungeonPlannerCave, Weight: 1}},
@@ -139,13 +118,6 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"コマンドテーブルの武器", func(r *rawschema.Raws) { (*r.CommandTables)[0].Entries[0].Id = "none" }, "commandTables.0.entries.0.id_ref"},
 		{"ドロップテーブルの素材", func(r *rawschema.Raws) { (*r.DropTables)[0].Entries[0].Id = "none" }, "dropTables.0.entries.0.id_ref"},
 		{"施設の敵テーブル", func(r *rawschema.Raws) { (*r.Facilities)[0].EnemyTable = "none" }, "facilities.0.enemyTable_ref"},
-		{"主室の内装の施設", func(r *rawschema.Raws) { (*r.FacilityContents)[0].Facility = "none" }, "facilityContents.0.facility_ref"},
-		{"主室の内装の変種", func(r *rawschema.Raws) { (*r.FacilityContents)[0].Variants[0] = "none" }, "facilityContents.0.variants_ref.0"},
-		{"奥室の施設", func(r *rawschema.Raws) { (*r.FacilityRooms)[0].Facility = "none" }, "facilityRooms.0.facility_ref"},
-		{"奥室の役割の内装", func(r *rawschema.Raws) { (*(*r.FacilityRooms)[0].Rooms)[0].Content = "none" }, "facilityRooms.0.rooms.0.content_ref"},
-		{"奥室のフォールバック", func(r *rawschema.Raws) { (*r.FacilityRooms)[0].Fallback = "none" }, "facilityRooms.0.fallback_ref"},
-		{"家具の戦利品表", func(r *rawschema.Raws) { contentStuff(r).LootTable = new("none") }, "interiorContents.0.groups.0.items.0.lootTable_ref"},
-		{"衛星の戦利品表", func(r *rawschema.Raws) { (*contentStuff(r).Satellites)[0].LootTable = new("none") }, "interiorContents.0.groups.0.items.0.satellites.0.lootTable_ref"},
 		{"ランドマークの prop", func(r *rawschema.Raws) { (*r.Landmarks)[0].Props[0].Name = "none" }, "landmarks.0.props_ref.0"},
 		{"散布ゾーンの戦利品グループ", func(r *rawschema.Raws) { (*r.ScatterZones)[0].LootGroup = "none" }, "scatterZones.0.lootGroup_ref"},
 		{"散布の prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Entries[1].Ref = "none" }, "scatterZones.0.entries.1.ref_ref"},
@@ -169,11 +141,6 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"スキルのカテゴリ", func(r *rawschema.Raws) { (*r.Skills)[0].Category = "magic" }, "skills.0.category_ref"},
 		{"本のスキル", func(r *rawschema.Raws) { (*r.Items)[0].Book.Skill.TargetSkill = rawschema.SkillIdSpear }, "items.0.book.skill.targetSkill_ref"},
 		{"職業のスキル", func(r *rawschema.Raws) { (*(*r.Professions)[0].Skills)[0].Id = rawschema.SkillIdSpear }, "professions.0.skills.0.id_ref"},
-		{"内装の Ref の prop", func(r *rawschema.Raws) { (*r.InteriorRefs)[0].Prop = new("none") }, "interiorRefs.0.prop_ref"},
-		{"内装の Ref のアイテムグループ", func(r *rawschema.Raws) { (*r.InteriorRefs)[1].ItemGroup = new("none") }, "interiorRefs.1.itemGroup_ref"},
-		{"hero の Ref が prop を持たない", func(r *rawschema.Raws) { r.InteriorProfile.Heroes[0].Refs[0] = "snacks" }, "interiorProfile.heroes.0.refs_ref.0"},
-		{"外皮の Ref が実在しない", func(r *rawschema.Raws) { r.InteriorProfile.Facade.Sign = "none" }, "interiorProfile.facade.sign_ref"},
-		{"外構の Ref が prop を持たない", func(r *rawschema.Raws) { r.InteriorProfile.Lot.Vending = "snacks" }, "interiorProfile.lot.vending_ref"},
 		{"ダンジョンの敵テーブル", func(r *rawschema.Raws) { (*r.Dungeons)[0].EnemyTable = "none" }, "dungeons.0.enemyTable_ref"},
 		{"ダンジョンのアイテムテーブル", func(r *rawschema.Raws) { (*r.Dungeons)[0].ItemTable = "none" }, "dungeons.0.itemTable_ref"},
 		{"集落の住人", func(r *rawschema.Raws) { (*r.Settlements)[0].Members[0].Name = "none" }, "settlements.0.members_ref.0"},
@@ -217,15 +184,8 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 			s.Id = rawschema.SkillIdSpear
 			*r.Skills = append(*r.Skills, s)
 		}, "proficiencyIds_unique.sword_damage"},
-		{"内装の Ref", func(r *rawschema.Raws) { *r.InteriorRefs = append(*r.InteriorRefs, (*r.InteriorRefs)[0]) }, "interiorRefIds_unique.bed_ref"},
-		{"hero の種類", func(r *rawschema.Raws) {
-			r.InteriorProfile.Heroes = append(r.InteriorProfile.Heroes, r.InteriorProfile.Heroes[0])
-		}, "interiorProfile.heroIds_unique.reward"},
 		{"会話", func(r *rawschema.Raws) { *r.Dialogues = append(*r.Dialogues, (*r.Dialogues)[0]) }, "dialogueIds_unique.greeting"},
 		{"ダンジョン", func(r *rawschema.Raws) { *r.Dungeons = append(*r.Dungeons, (*r.Dungeons)[0]) }, "dungeonIds_unique.forest"},
-		{"内装レシピ", func(r *rawschema.Raws) {
-			*r.InteriorContents = append(*r.InteriorContents, (*r.InteriorContents)[0])
-		}, "interiorContentIds_unique.house_main"},
 		{"アイテムグループとアイテムコレクション", func(r *rawschema.Raws) { (*r.ItemCollections)[0].Id = "junk" }, "itemGroupIds_unique.junk"},
 	}
 	for _, tt := range tests {
@@ -236,9 +196,4 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 			assert.Equal(t, []string{tt.wantPath}, ce.Paths())
 		})
 	}
-}
-
-// contentStuff は makeRefRaws の内装レシピの最初の家具を返す
-func contentStuff(r *rawschema.Raws) *rawschema.ContentStuff {
-	return &(*(*r.InteriorContents)[0].Groups)[0].Items[0]
 }

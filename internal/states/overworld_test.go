@@ -27,7 +27,7 @@ func TestOverworldState_ロード復元で視界が再計算され真っ暗に�
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 
 	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
@@ -58,7 +58,7 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	const cols = 3
 	// 遺跡入口は Y 方向のリージョンに並ぶので、リージョンを含む高さの帯にする
 	const rows = 9
@@ -111,7 +111,7 @@ func TestOverworldState_OnStart_経過日数のスプラッシュを出す(t *te
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 777})
+	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, 24, 24, 3, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
 	require.NoError(t, err)
 	st, ok := state.(*DungeonState)
@@ -136,7 +136,7 @@ func TestOverworldState_オーバーレイ進入で帯タイルを消さない(t
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 
 	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()
@@ -161,7 +161,7 @@ func TestOverworldState_オーバーレイ往復でフィールドエンティ�
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 
 	factory := NewOverworldState(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &overworld.NewGameParams{RunSeed: 777})
 	state, err := factory()

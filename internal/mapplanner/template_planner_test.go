@@ -1,6 +1,7 @@
 package mapplanner
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/maptemplate"
@@ -30,7 +31,7 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 		Props: map[string]maptemplate.PaletteEntry{},
 	}
 
-	resolvedMap := maptemplate.ResolveMapCells(template.Map, palette)
+	resolvedMap := maptemplate.ResolveMapCells(template.Map, palette, rand.New(rand.NewPCG(1, 1)))
 	planner := NewTemplatePlanner(template, resolvedMap)
 
 	t.Run("マップサイズが正しく設定される", func(t *testing.T) {
@@ -103,7 +104,7 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 		},
 	}
 
-	resolvedMap := maptemplate.ResolveMapCells(template.Map, palette)
+	resolvedMap := maptemplate.ResolveMapCells(template.Map, palette, rand.New(rand.NewPCG(1, 1)))
 	planner := NewTemplatePlanner(template, resolvedMap)
 
 	t.Run("Propsが正しく配置予定リストに追加される", func(t *testing.T) {
@@ -172,7 +173,7 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 		Props: map[string]maptemplate.PaletteEntry{},
 	}
 
-	resolvedMap := maptemplate.ResolveMapCells(template.Map, palette)
+	resolvedMap := maptemplate.ResolveMapCells(template.Map, palette, rand.New(rand.NewPCG(1, 1)))
 
 	t.Run("PlannerChainが正常に作成される", func(t *testing.T) {
 		t.Parallel()

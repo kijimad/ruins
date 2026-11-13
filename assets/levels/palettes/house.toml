@@ -1,0 +1,110 @@
+[palette]
+id = "house"
+description = "民家"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"." = "floor_wood"
+":" = "floor_tatami"
+"=" = "floor_concrete"
+"_" = "floor_linoleum"
+"~" = "floor_tile"
+
+[palette.props."f"]
+tile = "dirt"
+id = "fence"
+
+[palette.props."p"]
+tile = "dirt"
+candidates = [{ id = "plant", weight = 3 }, { id = "bush", weight = 1 }]
+
+[palette.props."+"]
+tile = "floor_wood"
+id = "door"
+
+[palette.props."S"]
+tile = "floor_concrete"
+id = "shoe_cabinet"
+
+[palette.props."c"]
+tile = "floor_tatami"
+id = "closet"
+lootTable = "house_closet"
+
+[palette.props."a"]
+tile = "floor_tatami"
+candidates = [{ id = "buddhist_altar", weight = 1 }, { id = "household_shrine", weight = 1 }]
+
+[palette.props."k"]
+tile = "floor_tatami"
+candidates = [{ id = "black_vase", weight = 1 }, { id = "clock", weight = 1 }, { id = "plant", weight = 1 }]
+
+[palette.props."t"]
+tile = "floor_tatami"
+id = "table"
+
+[palette.props."d"]
+tile = "floor_wood"
+candidates = [{ id = "dresser", weight = 1 }, { id = "drawer_chest", weight = 1 }]
+lootTable = "house_closet"
+
+[palette.props."K"]
+tile = "floor_linoleum"
+id = "kitchen_sink"
+
+[palette.props."R"]
+tile = "floor_linoleum"
+id = "refrigerator"
+lootTable = "house_kitchen"
+
+[palette.props."P"]
+tile = "floor_linoleum"
+id = "dish_shelf"
+lootTable = "house_kitchen"
+
+[palette.props."m"]
+tile = "floor_linoleum"
+candidates = [{ id = "microwave", weight = 1 }, { id = "coffee_maker", weight = 1 }]
+
+[palette.props."T"]
+tile = "floor_tile"
+id = "toilet"
+
+[palette.props."s"]
+tile = "floor_tile"
+id = "sink"
+
+[palette.props."W"]
+tile = "floor_tile"
+candidates = [{ id = "washing_machine", weight = 2 }, { id = "washing_machine_full", weight = 1 }]
+
+[palette.props."U"]
+tile = "floor_tile"
+id = "bathtub"
+
+[palette.beings.z]
+tile = "floor_tatami"
+chance = 33
+
+[palette.nested.X]
+tile = "floor_wood"
+chunks = [{ name = "3x3_house_bed_set", weight = 1 }]
+
+[palette.nested.E]
+tile = "floor_linoleum"
+chunks = [{ name = "3x3_house_dining_set", weight = 1 }]
+
+[palette.props."n"]
+tile = "floor_wood"
+candidates = [{ id = "wooden_crate", weight = 2 }, { id = "drawer_chest", weight = 1 }]
+lootTable = "house_closet"
+
+[palette.items.t]
+itemGroup = "food"
+chance = 25
+repeat = [1, 2]
+
+[palette.items.K]
+itemGroup = "food"
+chance = 15

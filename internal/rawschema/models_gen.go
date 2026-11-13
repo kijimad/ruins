@@ -255,112 +255,6 @@ type Book struct {
 	TotalEffort ReadingEffort `json:"totalEffort"`
 }
 
-// BuildingClutter 建物の散らかり段階
-type BuildingClutter string
-
-// Defines values for BuildingClutter.
-const (
-	Filthy BuildingClutter = "filthy"
-	Messy  BuildingClutter = "messy"
-	Tidy   BuildingClutter = "tidy"
-)
-
-// Valid indicates whether the value is a known member of the BuildingClutter enum.
-func (e BuildingClutter) Valid() bool {
-	switch e {
-	case Filthy:
-		return true
-	case Messy:
-		return true
-	case Tidy:
-		return true
-	default:
-		return false
-	}
-}
-
-// BuildingClutterValues は BuildingClutter の値を、スキーマに書いた順に返す。
-func BuildingClutterValues() []BuildingClutter {
-	return []BuildingClutter{Tidy, Messy, Filthy}
-}
-
-// BuildingDamage 建物の損傷段階
-type BuildingDamage string
-
-// Defines values for BuildingDamage.
-const (
-	BuildingDamageIntact BuildingDamage = "intact"
-	BuildingDamageMajor  BuildingDamage = "major"
-	BuildingDamageMinor  BuildingDamage = "minor"
-)
-
-// Valid indicates whether the value is a known member of the BuildingDamage enum.
-func (e BuildingDamage) Valid() bool {
-	switch e {
-	case BuildingDamageIntact:
-		return true
-	case BuildingDamageMajor:
-		return true
-	case BuildingDamageMinor:
-		return true
-	default:
-		return false
-	}
-}
-
-// BuildingDamageValues は BuildingDamage の値を、スキーマに書いた順に返す。
-func BuildingDamageValues() []BuildingDamage {
-	return []BuildingDamage{BuildingDamageIntact, BuildingDamageMinor, BuildingDamageMajor}
-}
-
-// BuildingVariant 建物の事情。稀な1軒へ物語を与える
-type BuildingVariant string
-
-// Defines values for BuildingVariant.
-const (
-	Abandoned         BuildingVariant = "abandoned"
-	Hoarder           BuildingVariant = "hoarder"
-	Standard          BuildingVariant = "standard"
-	Survivalist       BuildingVariant = "survivalist"
-	UnderConstruction BuildingVariant = "under_construction"
-)
-
-// Valid indicates whether the value is a known member of the BuildingVariant enum.
-func (e BuildingVariant) Valid() bool {
-	switch e {
-	case Abandoned:
-		return true
-	case Hoarder:
-		return true
-	case Standard:
-		return true
-	case Survivalist:
-		return true
-	case UnderConstruction:
-		return true
-	default:
-		return false
-	}
-}
-
-// BuildingVariantValues は BuildingVariant の値を、スキーマに書いた順に返す。
-func BuildingVariantValues() []BuildingVariant {
-	return []BuildingVariant{Standard, Abandoned, UnderConstruction, Survivalist, Hoarder}
-}
-
-// ClutterChoice 建物の散らかり段階の重み
-type ClutterChoice struct {
-	// FloorPercent 家具から離れた床のタイルへ小物を散らす割合
-	FloorPercent InteriorPercent `json:"floorPercent"`
-
-	// FurniturePercent 家具1つの隣へ小物を落とす割合。0 なら散らかりを足さない
-	FurniturePercent InteriorPercent `json:"furniturePercent"`
-
-	Id BuildingClutter `json:"id"`
-
-	Weight EntryWeight `json:"weight"`
-}
-
 // ColorChannel RGBA色チャネル値 (0-255)
 type ColorChannel = uint8
 
@@ -550,54 +444,6 @@ type Consumable struct {
 	UsableScene UsableScene `json:"usableScene"`
 }
 
-// ContentGroup 抽選単位の束
-type ContentGroup struct {
-	Items []ContentStuff `json:"items"`
-
-	// Pick pick_n のときの選ぶ個数。pick_each / pick_one では使わないので省略可
-	Pick *int32 `json:"pick,omitempty"`
-
-	Style GroupStyle `json:"style"`
-}
-
-// ContentSatellite anchor 相対に一緒に置く衛星。机に対する椅子など。束で置いて散布事故を防ぐ
-type ContentSatellite struct {
-	Kind StuffKind `json:"kind"`
-
-	// LootTable 収納家具の中身を引く itemTables の id。収納家具では必須
-	LootTable *EntityID `json:"lootTable,omitempty"`
-
-	Offsets []ContentVec `json:"offsets"`
-
-	Ref EntityID `json:"ref"`
-}
-
-// ContentStuff 内装レシピの1配置指示
-type ContentStuff struct {
-	// Amount 置く個数のダイス表記
-	Amount Dice `json:"amount"`
-
-	Kind StuffKind `json:"kind"`
-
-	// LootTable 収納家具の中身を引く itemTables の id。収納家具では必須
-	LootTable *EntityID `json:"lootTable,omitempty"`
-
-	Placement *Placement `json:"placement,omitempty"`
-
-	Ref EntityID `json:"ref"`
-
-	Satellites *[]ContentSatellite `json:"satellites,omitempty"`
-
-	Weight *EntryWeight `json:"weight,omitempty"`
-}
-
-// ContentVec 相対座標。衛星の anchor からのオフセットに使う。負値は上/左方向
-type ContentVec struct {
-	X int32 `json:"x"`
-
-	Y int32 `json:"y"`
-}
-
 // CubeModule キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる
 type CubeModule struct {
 	FuelCapacityBonus FuelCapacityBonus `json:"fuelCapacityBonus"`
@@ -608,34 +454,11 @@ type CubeModule struct {
 // DamageBonus ダメージ補正値
 type DamageBonus = int
 
-// DamageChoice 建物の損傷段階の重み
-type DamageChoice struct {
-	Id BuildingDamage `json:"id"`
-
-	// LootPercent 経年で戦利品を撤去する割合
-	LootPercent InteriorPercent `json:"lootPercent"`
-
-	// RubbleSeedRatio 廃墟化で壁際のタイルに瓦礫の種を撒く割合。0 から 1
-	RubbleSeedRatio NeedRatio `json:"rubbleSeedRatio"`
-
-	Weight EntryWeight `json:"weight"`
-}
-
 // DangerLevel 危険度。経過日数から決まる
 type DangerLevel = int
 
 // Defense 防御力。被ダメージを軽減する
 type Defense = int
-
-// DensityChoice 建物の家具量の倍率の重み
-type DensityChoice struct {
-	Factor DensityFactor `json:"factor"`
-
-	Weight EntryWeight `json:"weight"`
-}
-
-// DensityFactor 建物の家具量の倍率。10 が等倍の ×/10
-type DensityFactor = int
 
 // Deployable 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
 type Deployable struct {
@@ -1006,47 +829,16 @@ func EquipmentCategoryValues() []EquipmentCategory {
 	return []EquipmentCategory{EquipmentCategoryHEAD, EquipmentCategoryTORSO, EquipmentCategoryARMS, EquipmentCategoryHANDS, EquipmentCategoryLEGS, EquipmentCategoryFEET, EquipmentCategoryJEWELRY}
 }
 
-// FacadeRefs 街路側の前壁に付ける外皮の interiorRefs の id
-type FacadeRefs struct {
-	// Shutter 大破した店が窓の代わりに下ろすシャッター
-	Shutter EntityID `json:"shutter"`
-
-	// Sign 店の入口脇に立てる看板
-	Sign EntityID `json:"sign"`
-
-	Window EntityID `json:"window"`
-}
-
-// Facility 市街地の施設1種。isShop は看板やシャッターを出す店か
+// Facility 市街地の施設1種
 type Facility struct {
 	EnemyTable EntityID `json:"enemyTable"`
 
 	Id EntityID `json:"id"`
 
-	IsShop bool `json:"isShop"`
-
 	// LootedChance 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
 	LootedChance *int32 `json:"lootedChance,omitempty"`
 
-	Planner PlannerKey `json:"planner"`
-
 	Zones []FacilityZone `json:"zones"`
-}
-
-// FacilityContent 施設種別ごとの主室の内装変種。抽選で1つ選ぶ
-type FacilityContent struct {
-	Facility EntityID `json:"facility"`
-
-	Variants []EntityID `json:"variants"`
-}
-
-// FacilityRooms 施設種別ごとの奥室カタログ。役割別 content と、カタログに無い役割のフォールバック
-type FacilityRooms struct {
-	Facility EntityID `json:"facility"`
-
-	Fallback EntityID `json:"fallback"`
-
-	Rooms *[]RoomContent `json:"rooms,omitempty"`
 }
 
 // FacilityZone 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
@@ -1281,35 +1073,6 @@ type GroundCoverEntry struct {
 	Weight int32 `json:"weight"`
 }
 
-// GroupStyle グループの抽選方式。保証セットとランダム充填を分ける
-type GroupStyle string
-
-// Defines values for GroupStyle.
-const (
-	PickEach GroupStyle = "pick_each"
-	PickN    GroupStyle = "pick_n"
-	PickOne  GroupStyle = "pick_one"
-)
-
-// Valid indicates whether the value is a known member of the GroupStyle enum.
-func (e GroupStyle) Valid() bool {
-	switch e {
-	case PickEach:
-		return true
-	case PickN:
-		return true
-	case PickOne:
-		return true
-	default:
-		return false
-	}
-}
-
-// GroupStyleValues は GroupStyle の値を、スキーマに書いた順に返す。
-func GroupStyleValues() []GroupStyle {
-	return []GroupStyle{PickEach, PickOne, PickN}
-}
-
 // HealAmount 回復固定量
 type HealAmount = int
 
@@ -1360,15 +1123,6 @@ type HeatSource struct {
 
 // HeatWarmth 熱源が毎ターン下げる低体温タイマーの量
 type HeatWarmth = float64
-
-// HeroChoice hero 部屋の目玉の種類の重み。選ばれた種類の refs から1つを一様に引く
-type HeroChoice struct {
-	Id EntityID `json:"id"`
-
-	Refs []EntityID `json:"refs"`
-
-	Weight EntryWeight `json:"weight"`
-}
 
 // HitPoints 耐久値。削り切られると壊れる
 type HitPoints = int
@@ -1437,55 +1191,6 @@ type InsulationCold = int
 
 // InsulationHeat 耐暑性能
 type InsulationHeat = int
-
-// InteriorContent 内装レシピ。施設まるごと、または奥室1つに対応する
-type InteriorContent struct {
-	Groups *[]ContentGroup `json:"groups,omitempty"`
-
-	Id EntityID `json:"id"`
-}
-
-// InteriorPercent 内装の経年や散らかりの割合。百分率
-type InteriorPercent = int
-
-// InteriorProfile 建物単位の生活感の抽選表。建物ごとに各軸を1回引き、全室へ一様に効かせる
-type InteriorProfile struct {
-	Clutters []ClutterChoice `json:"clutters"`
-
-	Damages []DamageChoice `json:"damages"`
-
-	Densities []DensityChoice `json:"densities"`
-
-	Facade FacadeRefs `json:"facade"`
-
-	// HeroOneIn hero 部屋の目玉を持つ建物の割合の逆数。この数の建物に1棟が目玉を持つ
-	HeroOneIn int32 `json:"heroOneIn"`
-
-	Heroes []HeroChoice `json:"heroes"`
-
-	Lot LotRefs `json:"lot"`
-
-	Sites []SiteChoice `json:"sites"`
-
-	Variants []VariantChoice `json:"variants"`
-
-	// WearPercent 経年で家具1つが隣へ生活痕を落とす割合
-	WearPercent InteriorPercent `json:"wearPercent"`
-}
-
-// InteriorRef 内装レシピの Ref。spawn する prop か床 loot の item group と、既定の置き方を持つ
-type InteriorRef struct {
-	Id EntityID `json:"id"`
-
-	// ItemGroup 床 loot として引く itemGroups か itemCollections の id。省くと床 loot として置かない
-	ItemGroup *EntityID `json:"itemGroup,omitempty"`
-
-	// Placement レシピが placement を省いたときの置き方
-	Placement *Placement `json:"placement,omitempty"`
-
-	// Prop 家具と装飾として置く raw の prop。省くと prop として置かない
-	Prop *EntityID `json:"prop,omitempty"`
-}
 
 // IsPlayer プレイヤーキャラクターかどうか
 type IsPlayer = bool
@@ -1649,17 +1354,6 @@ type LightSource struct {
 	Enabled LightEnabled `json:"enabled"`
 
 	Radius LightRadius `json:"radius"`
-}
-
-// LotRefs 敷地の外構の interiorRefs の id
-type LotRefs struct {
-	Fence EntityID `json:"fence"`
-
-	// Plant 民家の前庭に置く外構
-	Plant EntityID `json:"plant"`
-
-	// Vending 店の前庭に置く外構
-	Vending EntityID `json:"vending"`
 }
 
 // MagazineSize マガジン容量
@@ -1883,76 +1577,6 @@ type NutritionPercent = int
 
 // PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
 type PassCost = int
-
-// Placement 配置の置き方。空なら interiorRefs の既定、それも無ければ全域へ落ちる
-type Placement string
-
-// Defines values for Placement.
-const (
-	Center      Placement = "center"
-	FarFromDoor Placement = "far_from_door"
-	FullArea    Placement = "full_area"
-	NearDoor    Placement = "near_door"
-	Row         Placement = "row"
-	Wall        Placement = "wall"
-)
-
-// Valid indicates whether the value is a known member of the Placement enum.
-func (e Placement) Valid() bool {
-	switch e {
-	case Center:
-		return true
-	case FarFromDoor:
-		return true
-	case FullArea:
-		return true
-	case NearDoor:
-		return true
-	case Row:
-		return true
-	case Wall:
-		return true
-	default:
-		return false
-	}
-}
-
-// PlacementValues は Placement の値を、スキーマに書いた順に返す。
-func PlacementValues() []Placement {
-	return []Placement{Center, Wall, FullArea, NearDoor, FarFromDoor, Row}
-}
-
-// PlannerKey 間取りテンプレの選択キー
-type PlannerKey string
-
-// Defines values for PlannerKey.
-const (
-	Bsp    PlannerKey = "bsp"
-	Clinic PlannerKey = "clinic"
-	House  PlannerKey = "house"
-	Store  PlannerKey = "store"
-)
-
-// Valid indicates whether the value is a known member of the PlannerKey enum.
-func (e PlannerKey) Valid() bool {
-	switch e {
-	case Bsp:
-		return true
-	case Clinic:
-		return true
-	case House:
-		return true
-	case Store:
-		return true
-	default:
-		return false
-	}
-}
-
-// PlannerKeyValues は PlannerKey の値を、スキーマに書いた順に返す。
-func PlannerKeyValues() []PlannerKey {
-	return []PlannerKey{House, Store, Clinic, Bsp}
-}
 
 // Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍
 type Potency = int
@@ -2213,27 +1837,13 @@ type Raws struct {
 
 	Facilities *[]Facility `json:"facilities,omitempty"`
 
-	FacilityContents *[]FacilityContent `json:"facilityContents,omitempty"`
-
-	FacilityRooms *[]FacilityRooms `json:"facilityRooms,omitempty"`
-
 	FatigueStages *[]FatigueStage `json:"fatigueStages,omitempty"`
-
-	// FlavorContent 全施設共通のフレーバー装飾。施設レシピと直交し全室へ一様に重ねる。id は直接引かないので
-	// interiorContents プールには入れず、この専用フィールドだけに置く
-	FlavorContent *InteriorContent `json:"flavorContent,omitempty"`
 
 	FoliageEffects *[]FoliageEffect `json:"foliageEffects,omitempty"`
 
 	FreshnessStages *[]FreshnessStage `json:"freshnessStages,omitempty"`
 
 	HungerStages *[]HungerStage `json:"hungerStages,omitempty"`
-
-	InteriorContents *[]InteriorContent `json:"interiorContents,omitempty"`
-
-	InteriorProfile *InteriorProfile `json:"interiorProfile,omitempty"`
-
-	InteriorRefs *[]InteriorRef `json:"interiorRefs,omitempty"`
 
 	ItemCollections *[]ItemCollection `json:"itemCollections,omitempty"`
 
@@ -2338,81 +1948,6 @@ type Remedy struct {
 	Potency Potency `json:"potency"`
 
 	Treats []ConditionTypeName `json:"treats"`
-}
-
-// RoomContent 奥室の役割名と内装レシピの対
-type RoomContent struct {
-	Content EntityID `json:"content"`
-
-	Role RoomRole `json:"role"`
-}
-
-// RoomRole 部屋の役割名。interior の roleName に相当する。main/back は Go 内部専用で raw.toml には現れないため含めない
-type RoomRole string
-
-// Defines values for RoomRole.
-const (
-	Bath            RoomRole = "bath"
-	Bedroom         RoomRole = "bedroom"
-	Coldroom        RoomRole = "coldroom"
-	Corridor        RoomRole = "corridor"
-	Dressing        RoomRole = "dressing"
-	ExaminationRoom RoomRole = "examination_room"
-	Genkan          RoomRole = "genkan"
-	Kitchen         RoomRole = "kitchen"
-	Living          RoomRole = "living"
-	Office          RoomRole = "office"
-	Pharmacy        RoomRole = "pharmacy"
-	Restroom        RoomRole = "restroom"
-	Storage         RoomRole = "storage"
-	Storeroom       RoomRole = "storeroom"
-	Toilet          RoomRole = "toilet"
-	Waiting         RoomRole = "waiting"
-)
-
-// Valid indicates whether the value is a known member of the RoomRole enum.
-func (e RoomRole) Valid() bool {
-	switch e {
-	case Bath:
-		return true
-	case Bedroom:
-		return true
-	case Coldroom:
-		return true
-	case Corridor:
-		return true
-	case Dressing:
-		return true
-	case ExaminationRoom:
-		return true
-	case Genkan:
-		return true
-	case Kitchen:
-		return true
-	case Living:
-		return true
-	case Office:
-		return true
-	case Pharmacy:
-		return true
-	case Restroom:
-		return true
-	case Storage:
-		return true
-	case Storeroom:
-		return true
-	case Toilet:
-		return true
-	case Waiting:
-		return true
-	default:
-		return false
-	}
-}
-
-// RoomRoleValues は RoomRole の値を、スキーマに書いた順に返す。
-func RoomRoleValues() []RoomRole {
-	return []RoomRole{Bath, Bedroom, Coldroom, Corridor, Dressing, ExaminationRoom, Genkan, Kitchen, Living, Office, Pharmacy, Restroom, Storage, Storeroom, Toilet, Waiting}
 }
 
 // ScatterEntry 散布 prop 1種。ref の空文字は置かないことを表す
@@ -2550,52 +2085,6 @@ type ShelterEffect struct {
 
 // ShelterInfluencePercent 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
 type ShelterInfluencePercent = int
-
-// SiteChoice 敷地の類型の、民家と店それぞれで選ばれる重みと前庭の奥行き。行の順に重みを積む
-type SiteChoice struct {
-	// Fence 敷地を塀で囲うか。街路に面して開く敷地は囲わない
-	Fence bool `json:"fence"`
-
-	HomeWeight SiteWeight `json:"homeWeight"`
-
-	Id SiteType `json:"id"`
-
-	ShopWeight SiteWeight `json:"shopWeight"`
-
-	YardDepth YardDepth `json:"yardDepth"`
-}
-
-// SiteType 敷地の類型。前庭の深さと外構の出し分けに使う
-type SiteType string
-
-// Defines values for SiteType.
-const (
-	Detached  SiteType = "detached"
-	Roadside  SiteType = "roadside"
-	Shopfront SiteType = "shopfront"
-)
-
-// Valid indicates whether the value is a known member of the SiteType enum.
-func (e SiteType) Valid() bool {
-	switch e {
-	case Detached:
-		return true
-	case Roadside:
-		return true
-	case Shopfront:
-		return true
-	default:
-		return false
-	}
-}
-
-// SiteTypeValues は SiteType の値を、スキーマに書いた順に返す。
-func SiteTypeValues() []SiteType {
-	return []SiteType{Detached, Shopfront, Roadside}
-}
-
-// SiteWeight 敷地の類型の選ばれる重み。0 ならその種類の建物では選ばれない
-type SiteWeight = int32
 
 // Skill スキル。同じカテゴリのスキルは行の順に表示する
 type Skill struct {
@@ -2815,41 +2304,6 @@ type StorageRaw struct {
 
 // Strength 筋力。物理ダメージに影響する
 type Strength = int
-
-// StuffKind 配置指示の種別。家具・戦利品・敵・装飾・罠を同じ器で扱う
-type StuffKind string
-
-// Defines values for StuffKind.
-const (
-	Being     StuffKind = "being"
-	Decor     StuffKind = "decor"
-	Furniture StuffKind = "furniture"
-	Loot      StuffKind = "loot"
-	Trap      StuffKind = "trap"
-)
-
-// Valid indicates whether the value is a known member of the StuffKind enum.
-func (e StuffKind) Valid() bool {
-	switch e {
-	case Being:
-		return true
-	case Decor:
-		return true
-	case Furniture:
-		return true
-	case Loot:
-		return true
-	case Trap:
-		return true
-	default:
-		return false
-	}
-}
-
-// StuffKindValues は StuffKind の値を、スキーマに書いた順に返す。
-func StuffKindValues() []StuffKind {
-	return []StuffKind{Furniture, Loot, Being, Decor, Trap}
-}
 
 // TargetGroup ターゲットグループ
 type TargetGroup string
@@ -3081,22 +2535,6 @@ func UsableSceneValues() []UsableScene {
 	return []UsableScene{BATTLE, FIELD, ANY}
 }
 
-// VariantChoice 建物の変種の重み
-type VariantChoice struct {
-	// Damage 引いた損傷段階を上書きする。省くと上書きしない
-	Damage *BuildingDamage `json:"damage,omitempty"`
-
-	// Density 引いた家具量の倍率を上書きする。省くと上書きしない
-	Density *DensityFactor `json:"density,omitempty"`
-
-	Id BuildingVariant `json:"id"`
-
-	// MinClutter 散らかり段階をこれ以上に引き上げる。省くと引き上げない
-	MinClutter *BuildingClutter `json:"minClutter,omitempty"`
-
-	Weight EntryWeight `json:"weight"`
-}
-
 // ViewDistance AI視界距離（タイル単位）
 type ViewDistance = int
 
@@ -3228,9 +2666,6 @@ type WeatherVisionDelta = int
 
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string
-
-// YardDepth 入口側に空ける前庭の奥行き。タイル
-type YardDepth = int32
 
 // Zone 市街地の地区
 type Zone string

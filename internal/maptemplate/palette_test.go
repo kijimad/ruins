@@ -1,6 +1,9 @@
 package maptemplate
 
 import (
+	"maps"
+	"math/rand/v2"
+	"slices"
 	"strings"
 	"testing"
 
@@ -443,14 +446,163 @@ func TestPalette_GetTerrainAndProp(t *testing.T) {
 
 	t.Run("存在するPropsを取得できる", func(t *testing.T) {
 		t.Parallel()
-		prop, ok := palette.GetProp("T")
+		prop, lootTable, ok := palette.GetProp("T", rand.New(rand.NewPCG(1, 1)))
 		assert.True(t, ok)
 		assert.Equal(t, "table", prop)
+		assert.Empty(t, lootTable)
 	})
 
 	t.Run("存在しないPropsはfalseを返す", func(t *testing.T) {
 		t.Parallel()
-		_, ok := palette.GetProp("X")
+		_, _, ok := palette.GetProp("X", rand.New(rand.NewPCG(1, 1)))
 		assert.False(t, ok)
 	})
+}
+
+func TestPaletteLoader_Load_施設の文字(t *testing.T) {
+	t.Parallel()
+
+	const head = "[palette]\nid = \"facility\"\n"
+	tests := []struct {
+		name    string
+		body    string
+		wantErr error
+	}{
+		{"候補と収納の中身と床の戦利品と敵を書ける", `
+[palette.props.d]
+tile = "floor"
+lootTable = "house_closet"
+candidates = [{ id = "dresser", weight = 2 }, { id = "bookshelf", weight = 1 }]
+[palette.items.f]
+tile = "floor"
+itemGroup = "food"
+[palette.beings.Z]
+tile = "floor"
+`, nil},
+		{"prop は id と候補の両方を書けない", `
+[palette.props.d]
+tile = "floor"
+id = "dresser"
+candidates = [{ id = "bookshelf", weight = 1 }]
+`, errPalettePropIDAmbiguous},
+		{"prop は id か候補のどちらかが要る", `
+[palette.props.d]
+tile = "floor"
+`, errPalettePropIDAmbiguous},
+		{"候補の重みは正", `
+[palette.props.d]
+tile = "floor"
+candidates = [{ id = "dresser", weight = 0 }]
+`, errNonPositiveWeight},
+		{"床の戦利品は itemGroup が要る", `
+[palette.items.f]
+tile = "floor"
+`, errPaletteItemGroupRequired},
+		{"敵は下に敷く地形が要る", `
+[palette.beings.Z]
+`, errPaletteTileRequired},
+		{"床の戦利品は家具と同じ文字に重ねられる", `
+[palette.props.t]
+id = "table"
+tile = "floor"
+[palette.items.t]
+itemGroup = "food"
+chance = 20
+repeat = [1, 2]
+`, nil},
+		{"確率は 100 以下", `
+[palette.items.f]
+tile = "floor"
+itemGroup = "food"
+chance = 101
+`, errPaletteChanceOutOfRange},
+		{"確率に 0 を書けば必ずにならずエラー", `
+[palette.items.f]
+tile = "floor"
+itemGroup = "food"
+chance = 0
+`, errPaletteChanceOutOfRange},
+		{"敵の確率も 1 以上", `
+[palette.beings.Z]
+tile = "floor"
+chance = 0
+`, errPaletteChanceOutOfRange},
+		{"回数の範囲は最小が最大以下", `
+[palette.items.f]
+tile = "floor"
+itemGroup = "food"
+repeat = [3, 1]
+`, errPaletteRepeatInvalid},
+		{"敵の文字は prop と重ならない", `
+[palette.props.Z]
+id = "dresser"
+tile = "floor"
+[palette.beings.Z]
+tile = "floor"
+`, errPaletteCharDuplicated},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := NewPaletteLoader().Load(strings.NewReader(head + tt.body))
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestResolveMapCells_施設の文字(t *testing.T) {
+	t.Parallel()
+
+	palette := &Palette{
+		Terrain: map[string]string{".": "floor"},
+		Props: map[string]PaletteEntry{
+			"d": {Tile: "floor", LootTable: "house_closet", Candidates: []WeightedID{{ID: "dresser", Weight: 1}, {ID: "bookshelf", Weight: 1}}},
+		},
+		Items:  map[string]ItemEntry{"f": {Tile: "floor", ItemGroup: "food"}},
+		Beings: map[string]BeingEntry{"Z": {Tile: "floor"}},
+	}
+
+	cells := ResolveMapCells("dfZ.", palette, rand.New(rand.NewPCG(1, 1)))
+	require.Len(t, cells, 1)
+	assert.Contains(t, []string{"dresser", "bookshelf"}, cells[0][0].Prop)
+	cells[0][0].Prop = ""
+	assert.Equal(t, []MapCell{
+		{Terrain: "floor", LootTable: "house_closet"},
+		{Terrain: "floor", ItemGroup: "food", ItemCount: 1},
+		{Terrain: "floor", Being: true},
+		{Terrain: "floor"},
+	}, cells[0])
+
+	seen := map[string]bool{}
+	for s := range uint64(64) {
+		seen[ResolveMapCells("d", palette, rand.New(rand.NewPCG(s, s)))[0][0].Prop] = true
+	}
+	assert.Equal(t, map[string]bool{"dresser": true, "bookshelf": true}, seen)
+}
+
+func TestItemEntry_roll(t *testing.T) {
+	t.Parallel()
+
+	rng := rand.New(rand.NewPCG(1, 1))
+	tests := []struct {
+		name  string
+		entry ItemEntry
+		want  []int
+	}{
+		{"省くと1回", ItemEntry{}, []int{1}},
+		{"確率100で回数の範囲の全てが出る", ItemEntry{Chance: new(100), Repeat: []int{1, 3}}, []int{1, 2, 3}},
+		{"確率50で0回から回数の上限まで出る", ItemEntry{Chance: new(50), Repeat: []int{2, 2}}, []int{0, 1, 2}},
+	}
+	for _, tt := range tests {
+		seen := map[int]bool{}
+		for range 200 {
+			seen[tt.entry.roll(rng)] = true
+		}
+		got := slices.Sorted(maps.Keys(seen))
+		assert.Equal(t, tt.want, got, tt.name)
+	}
 }

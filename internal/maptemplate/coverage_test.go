@@ -84,7 +84,7 @@ func TestResolveMapCells_NPC文字をNPCとして解決する(t *testing.T) {
 		},
 	}
 
-	cells := ResolveMapCells(".G\n..", palette)
+	cells := ResolveMapCells(".G\n..", palette, rand.New(rand.NewPCG(1, 1)))
 
 	require.Len(t, cells, 2)
 	require.Len(t, cells[0], 2)

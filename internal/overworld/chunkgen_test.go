@@ -49,7 +49,7 @@ func TestNewChunkGen_オフセット配置(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
 
 	require.NoError(t, gen(consts.Coord[consts.Chunk]{X: 2}, 60, 0)) // X=2 を offsetX=60 へ
@@ -69,7 +69,7 @@ func TestNewChunkGen_生成物をオーバーワールドへ束縛する(t *test
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 
 	// プレイヤーはステージをまたぐ訪問者で束縛されない
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -100,7 +100,7 @@ func TestNewChunkGen_生成物をオーバーワールドへ束縛する(t *test
 func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 
 	collect := func() []gc.GridElement {
 		world := testutil.InitTestWorld(t)
@@ -132,7 +132,7 @@ func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 func TestShiftNorth_実チャンク生成との統合(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	const rows = 3
 	const cols = 1
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: chunkW, TileHeight: chunkH * rows}))
@@ -192,7 +192,7 @@ func settlementBucket(world w.World) (int, bool) {
 func TestNewChunkGen_小集落はリージョンにちょうど1つ生成される(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	const regionSpan = 8 // settlementPlacement の Spacing。1リージョンぶんを生成する
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
@@ -216,7 +216,7 @@ func TestNewChunkGen_小集落はリージョンにちょうど1つ生成され�
 func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	// まず当選チャンクを探し、外れチャンクを1つ確定させる。集落は Y リージョンなので Y 方向に生成する
 	scout := testutil.InitTestWorld(t)
 	genScout := overworld.NewChunkGen(scout, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
@@ -241,7 +241,7 @@ func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T)
 func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	c := consts.Coord[consts.Chunk]{X: 3}
 
 	collect := func(advanceTurns consts.Turn) ([]gc.GridElement, int, bool) {

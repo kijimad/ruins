@@ -7,7 +7,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
-	"github.com/kijimaD/ruins/internal/mapplanner/interior"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -159,9 +158,8 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 	absTile := func(rel consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
 		return consts.Coord[consts.Tile]{X: loX + rel.X, Y: loY + rel.Y}
 	}
-	area := interior.Rect{X: 0, Y: 0, W: g.chunkW, H: g.chunkH}
 	// 候補は土系の地面かつ非占有。占有は BlockPass の壁と、先に撒いた草・prop を含む
-	accept := func(rel interior.Vec) bool {
+	accept := func(rel consts.Coord[consts.Tile]) bool {
 		bl := bandLocal(rel)
 		return isEarthTile(world, tiles, bl) && !occupied[gc.GridElement{Coord: bl}]
 	}
@@ -196,7 +194,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 	// 続けて樹木・岩を疎に撒く。Big の大物は位相 0 かつ経路外のタイルにだけ乗せ、二段で通行性を担保する。
 	selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
 	propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
-	for _, rel := range interior.ScatterArea(area, accept, selSeed, propCount) {
+	for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, propCount) {
 		bigAllowed := onBigPhase(rel) && !onScatterRoute(runSeed, c, cols, g, absTile(rel))
 		roll := hashTileCoord(selSeed, rel)
 		entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
@@ -219,8 +217,8 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 // 先に占有されていれば丸ごと諦める。衛星は土系の地面かつ非占有のタイルにだけ置き、収まらない衛星は
 // 落とす。anchor だけ置いて衛星を諦める「尽きたら諦める」方針にする。
 func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occupied map[gc.GridElement]bool, entry scatterEntry, origin consts.Coord[consts.Tile]) error {
-	// ScatterArea は選定時点の occupied で候補を絞るが、その後この関数が衛星を置いて occupied を更新する。
-	// 同じ ScatterArea が返した後続の anchor が、先の entry の衛星に占有されうるので入口で再確認する。
+	// scatterTiles は選定時点の occupied で候補を絞るが、その後この関数が衛星を置いて occupied を更新する。
+	// 同じ scatterTiles が返した後続の anchor が、先の entry の衛星に占有されうるので入口で再確認する。
 	if occupied[gc.GridElement{Coord: origin}] {
 		return nil
 	}
