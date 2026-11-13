@@ -73,7 +73,6 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
 	if err != nil {
 		return err
 	}
-	// ルート数はダイス表記で決める。省略時は1個
 	lootDice := consts.Dice{Base: 1, Sides: 1}
 	if propRaw.Storage.LootCount != nil {
 		d, err := consts.ParseDice(*propRaw.Storage.LootCount)

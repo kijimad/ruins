@@ -202,7 +202,6 @@ type ChunkTemplateFile struct {
 }
 
 // TemplateLoader はテンプレート定義の読み込みを担当する
-// TODO: Loaderが保持するのはおかしい気もする。Resourcesなどに保存することを検討する。が、依存が大きくなるのも微妙である。TemplatePlanner以外じゃ使わないしな...
 type TemplateLoader struct {
 	chunkCache   map[string][]*ChunkTemplate // 同じ名前で複数のバリエーションをサポート
 	paletteCache map[string]*Palette

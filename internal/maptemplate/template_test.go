@@ -1011,6 +1011,14 @@ func TestExpandWithPlacements_部品の文字(t *testing.T) {
 		assert.Equal(t, []MapCell{{Terrain: "wall"}, {Terrain: "floor", Prop: "table"}, {Terrain: "floor", Prop: "chair"}, {Terrain: "floor"}}, cells[0])
 	})
 
+	t.Run("同じ部品を2か所に置いても循環と見なさない", func(t *testing.T) {
+		t.Parallel()
+		l := newLoader([]NestedEntry{{Tile: "floor", Chunks: []WeightedChunkRef{{Name: "2x1_table_set", Weight: 1}}}})
+		cells, err := parent("T.T.\n####").ExpandWithPlacements(l, 1)
+		require.NoError(t, err)
+		assert.Equal(t, []MapCell{{Terrain: "floor", Prop: "table"}, {Terrain: "floor", Prop: "chair"}, {Terrain: "floor", Prop: "table"}, {Terrain: "floor", Prop: "chair"}}, cells[0])
+	})
+
 	t.Run("何も置かない候補が選ばれたら下に敷く地形のまま", func(t *testing.T) {
 		t.Parallel()
 		l := newLoader([]NestedEntry{{Tile: "floor", Chunks: []WeightedChunkRef{{Name: nullChunk, Weight: 1}}}})
