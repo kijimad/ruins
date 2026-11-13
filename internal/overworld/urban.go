@@ -165,7 +165,11 @@ func campusFence(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH 
 	}
 	for y := range chunkH {
 		for x := range chunkW {
-			if x == 0 && l.X == 0 || x == chunkW-1 && l.X == r.w-1 || y == 0 && l.Y == 0 || y == chunkH-1 && l.Y == r.h-1 {
+			west := x == 0 && l.X == 0
+			east := x == chunkW-1 && l.X == r.w-1
+			north := y == 0 && l.Y == 0
+			south := y == chunkH-1 && l.Y == r.h-1
+			if west || east || north || south {
 				add(x, y)
 			}
 		}

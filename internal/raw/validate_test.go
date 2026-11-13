@@ -237,6 +237,12 @@ func TestValidateDistricts(t *testing.T) {
 	}
 	require.NoError(t, validateDistricts(district(5)), "高さが spacing - separation ちょうどなら収まる")
 	require.ErrorIs(t, validateDistricts(district(6)), errDistrictSizeOutOfRegion)
+
+	campus := func(h int) rawschema.Raws {
+		return rawschema.Raws{Districts: &[]rawschema.District{{Id: "lab_campus", Spacing: 30, Separation: 4, Layout: rawschema.DistrictLayoutCampus, Sizes: []rawschema.DistrictSize{{W: 7, H: h, Weight: 1}}}}}
+	}
+	require.NoError(t, validateDistricts(campus(3)), "門、中ほど、奥が1行ずつ並ぶ")
+	require.ErrorIs(t, validateDistricts(campus(2)), errCampusTooShort)
 }
 
 func TestSchema_抽選重みは1以上(t *testing.T) {

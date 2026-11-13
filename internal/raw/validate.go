@@ -14,6 +14,7 @@ import (
 var (
 	errZoneNoBaseFacility            = errors.New("zone has no base facility")
 	errDistrictSizeOutOfRegion       = errors.New("district size does not fit in its region")
+	errCampusTooShort                = errors.New("campus is shorter than its zones")
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
 	errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
 	errMapGlyphMissing               = errors.New("map glyph is missing")
@@ -56,12 +57,16 @@ func validateRules(raws rawschema.Raws) error {
 }
 
 // validateDistricts は区域の全ての大きさの候補が、自分のリージョンの縦の範囲 spacing - separation に収まることを検証する。
-// 区域がリージョンからはみ出すと、チャンクを含む区域を1つのリージョンだけ見て決められなくなる
+// 区域がリージョンからはみ出すと、チャンクを含む区域を1つのリージョンだけ見て決められなくなる。
+// 研究所の敷地は門、中ほど、奥の3つの地区を1行ずつ並べるので、高さを3以上にする
 func validateDistricts(raws rawschema.Raws) error {
 	for _, d := range PtrSlice(raws.Districts) {
 		for _, size := range d.Sizes {
 			if size.H > d.Spacing-d.Separation {
 				return fmt.Errorf("district %q size %dx%d, spacing %d, separation %d: %w", d.Id, size.W, size.H, d.Spacing, d.Separation, errDistrictSizeOutOfRegion)
+			}
+			if d.Layout == rawschema.DistrictLayoutCampus && size.H < len(DistrictZones(d.Layout)) {
+				return fmt.Errorf("district %q size %dx%d: %w", d.Id, size.W, size.H, errCampusTooShort)
 			}
 		}
 	}
