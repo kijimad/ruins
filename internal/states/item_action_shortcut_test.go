@@ -26,7 +26,7 @@ func TestItemActionShortcut_文字キーが動詞Actionへ変換される(t *tes
 			t.Parallel()
 			mock := input.NewMockKeyboardInput()
 			mock.SetKeyJustPressed(v.Key, true)
-			if v.Shift {
+			if v.Shift == keybind.ShiftRequired {
 				mock.SetKeyPressed(ebiten.KeyShift, true)
 			}
 			got, ok := keybind.Convert(mock, table)

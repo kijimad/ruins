@@ -39,7 +39,8 @@ var dungeonBindings = []keybind.Binding{
 	{Key: ebiten.KeyG, Action: inputmapper.ActionPickup, Label: "Pick up"},
 	// 動詞タブ画面への直達。調べる X は Shift+x で区別する
 	{Key: ebiten.KeyX, Shift: keybind.ShiftRequired, Action: inputmapper.ActionVerbExamine, Label: "Inspect"},
-	{Key: ebiten.KeyD, Action: inputmapper.ActionVerbPlace, Label: "Drop"},
+	{Key: ebiten.KeyD, Shift: keybind.ShiftForbidden, Action: inputmapper.ActionVerbPlace, Label: "Drop"},
+	{Key: ebiten.KeyD, Shift: keybind.ShiftRequired, Action: inputmapper.ActionVerbDisassemble, Label: "Disassemble"},
 	{Key: ebiten.KeyE, Action: inputmapper.ActionVerbConsume, Label: "Eat"},
 	{Key: ebiten.KeyR, Action: inputmapper.ActionVerbRead, Label: "Read"},
 	{Key: ebiten.KeyT, Action: inputmapper.ActionVerbUse, Label: "Use"},
@@ -101,7 +102,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	// UI系アクションは常に実行可能
 	switch action {
 	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot,
-		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow,
+		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbDisassemble, inputmapper.ActionVerbThrow,
 		inputmapper.ActionRotateLeft, inputmapper.ActionRotateRight:
 		// UI系と視点操作はターンを消費しないのでターンチェック不要
 	default:
@@ -155,7 +156,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		return startPickup(world)
 	case inputmapper.ActionSleep:
 		return st.handleSleep(world)
-	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow:
+	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbDisassemble, inputmapper.ActionVerbThrow:
 		verb, ok := verbByAction(action)
 		if !ok {
 			return es.Transition[w.World]{Type: es.TransNone}, nil

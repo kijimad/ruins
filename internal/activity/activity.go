@@ -56,6 +56,8 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 		return &SleepBehavior{}, nil
 	case gc.BehaviorSwap:
 		return &SwapBehavior{}, nil
+	case gc.BehaviorDisassemble:
+		return &DisassembleBehavior{}, nil
 	case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel:
 		// ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
 	}
