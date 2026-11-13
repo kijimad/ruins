@@ -57,8 +57,8 @@ type ItemEntry struct {
 	// Tile は下に敷く地形。別の分類と重ねるときはそちらの地形を使うので省ける
 	Tile      string `toml:"tile,omitempty"`
 	ItemGroup string `toml:"itemGroup"`
-	// Chance は1回ごとにグループから引く確率。百分率で、省くと必ず引く
-	Chance int `toml:"chance,omitempty"`
+	// Chance は1回ごとにグループから引く確率。1 から 100 の百分率で、省くと必ず引く
+	Chance *int `toml:"chance,omitempty"`
 	// Repeat は引く回数の範囲 [最小, 最大]。省くと1回
 	Repeat []int `toml:"repeat,omitempty"`
 }
@@ -66,8 +66,8 @@ type ItemEntry struct {
 // BeingEntry は施設の敵の表から1体置く文字の定義
 type BeingEntry struct {
 	Tile string `toml:"tile"`
-	// Chance は置く確率。百分率で、省くと必ず置く
-	Chance int `toml:"chance,omitempty"`
+	// Chance は置く確率。1 から 100 の百分率で、省くと必ず置く
+	Chance *int `toml:"chance,omitempty"`
 }
 
 // nullChunk は部品の候補で、何も置かないことを表す名前
@@ -178,8 +178,8 @@ func (l *PaletteLoader) validate(p *Palette) error {
 		if err := validateTileChar("beings", char, entry.Tile); err != nil {
 			return err
 		}
-		if entry.Chance < 0 || entry.Chance > 100 {
-			return fmt.Errorf("beings %q: %w: %d", char, errPaletteChanceOutOfRange, entry.Chance)
+		if !validChance(entry.Chance) {
+			return fmt.Errorf("beings %q: %w: %d", char, errPaletteChanceOutOfRange, *entry.Chance)
 		}
 	}
 
@@ -222,8 +222,8 @@ func validateItems(items map[string]ItemEntry) error {
 		if entry.ItemGroup == "" {
 			return fmt.Errorf("items %w: %q", errPaletteItemGroupRequired, char)
 		}
-		if entry.Chance < 0 || entry.Chance > 100 {
-			return fmt.Errorf("items %q: %w: %d", char, errPaletteChanceOutOfRange, entry.Chance)
+		if !validChance(entry.Chance) {
+			return fmt.Errorf("items %q: %w: %d", char, errPaletteChanceOutOfRange, *entry.Chance)
 		}
 		if entry.Repeat != nil && (len(entry.Repeat) != 2 || entry.Repeat[0] < 0 || entry.Repeat[0] > entry.Repeat[1]) {
 			return fmt.Errorf("items %q: %w: %v", char, errPaletteRepeatInvalid, entry.Repeat)
@@ -344,14 +344,28 @@ func (e ItemEntry) roll(rng *rand.Rand) int {
 	if len(e.Repeat) == 2 {
 		n = e.Repeat[0] + rng.IntN(e.Repeat[1]-e.Repeat[0]+1)
 	}
-	if e.Chance == 0 || e.Chance == 100 {
+	chance := chancePercent(e.Chance)
+	if chance == 100 {
 		return n
 	}
 	count := 0
 	for range n {
-		if rng.IntN(100) < e.Chance {
+		if rng.IntN(100) < chance {
 			count++
 		}
 	}
 	return count
+}
+
+// validChance は確率が省かれているか、1 から 100 に収まるかを返す
+func validChance(c *int) bool {
+	return c == nil || (*c >= 1 && *c <= 100)
+}
+
+// chancePercent は確率を百分率で返す。省くと必ずなので 100 にする
+func chancePercent(c *int) int {
+	if c == nil {
+		return 100
+	}
+	return *c
 }

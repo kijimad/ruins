@@ -516,6 +516,17 @@ tile = "floor"
 itemGroup = "food"
 chance = 101
 `, errPaletteChanceOutOfRange},
+		{"確率に 0 を書けば必ずにならずエラー", `
+[palette.items.f]
+tile = "floor"
+itemGroup = "food"
+chance = 0
+`, errPaletteChanceOutOfRange},
+		{"敵の確率も 1 以上", `
+[palette.beings.Z]
+tile = "floor"
+chance = 0
+`, errPaletteChanceOutOfRange},
 		{"回数の範囲は最小が最大以下", `
 [palette.items.f]
 tile = "floor"
@@ -584,8 +595,8 @@ func TestItemEntry_roll(t *testing.T) {
 		want  []int
 	}{
 		{"省くと1回", ItemEntry{}, []int{1}},
-		{"確率100で回数の範囲の全てが出る", ItemEntry{Chance: 100, Repeat: []int{1, 3}}, []int{1, 2, 3}},
-		{"確率50で0回から回数の上限まで出る", ItemEntry{Chance: 50, Repeat: []int{2, 2}}, []int{0, 1, 2}},
+		{"確率100で回数の範囲の全てが出る", ItemEntry{Chance: new(100), Repeat: []int{1, 3}}, []int{1, 2, 3}},
+		{"確率50で0回から回数の上限まで出る", ItemEntry{Chance: new(50), Repeat: []int{2, 2}}, []int{0, 1, 2}},
 	}
 	for _, tt := range tests {
 		seen := map[int]bool{}

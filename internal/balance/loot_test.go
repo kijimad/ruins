@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/maptemplate"
@@ -48,4 +49,15 @@ func TestGenerateFacilityLoot_同じseedは同じ結果(t *testing.T) {
 	got, err := GenerateFacilityLoot(master, 50, 7)
 	require.NoError(t, err)
 	assert.Equal(t, want, got)
+}
+
+func TestResolveCellLoot_表が引けなければエラー(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	rng := rand.New(rand.NewPCG(1, 2))
+
+	_, err := resolveCellLoot(master, maptemplate.MapCell{Prop: "closet", LootTable: "no_such_table"}, rng)
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "no_such_table", Collection: "ItemTables"}, notFound)
 }

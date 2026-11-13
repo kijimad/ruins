@@ -51,7 +51,11 @@ func GenerateFacilityLoot(master rawschema.Raws, trials int, seed uint64) ([]Fac
 			perTrial := map[string]int{}
 			for _, row := range cells {
 				for _, c := range row {
-					for _, it := range resolveCellLoot(master, c, rng) {
+					drawn, err := resolveCellLoot(master, c, rng)
+					if err != nil {
+						return nil, fmt.Errorf("facility %q %s: %w", fac, chunk.Name, err)
+					}
+					for _, it := range drawn {
 						perTrial[it.name] += it.count
 					}
 				}
@@ -83,16 +87,20 @@ type drawnLoot struct {
 	count int
 }
 
-// resolveCellLoot は施設の絵の1マスの収納の中身と床の戦利品を、実行と同じ表から引いて返す。
-func resolveCellLoot(master rawschema.Raws, c maptemplate.MapCell, rng *rand.Rand) []drawnLoot {
+// resolveCellLoot は施設の絵の1マスの収納の中身と床の戦利品を、実行と同じ表から引いて返す。表が引けなければ error を返す。
+func resolveCellLoot(master rawschema.Raws, c maptemplate.MapCell, rng *rand.Rand) ([]drawnLoot, error) {
 	var out []drawnLoot
 	if c.Prop != "" && c.LootTable != "" {
-		out = append(out, rollStorageLoot(master, c.Prop, c.LootTable, rng)...)
+		stored, err := rollStorageLoot(master, c.Prop, c.LootTable, rng)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, stored...)
 	}
 	for range c.ItemCount {
 		draws, err := raw.SelectFromItemGroup(master, c.ItemGroup, rng)
 		if err != nil {
-			continue
+			return nil, err
 		}
 		for _, d := range draws {
 			if d.Name != "" {
@@ -100,7 +108,7 @@ func resolveCellLoot(master rawschema.Raws, c maptemplate.MapCell, rng *rand.Ran
 			}
 		}
 	}
-	return out
+	return out, nil
 }
 
 // buildTemplateLoot は集計 map を絵ごとの TemplateLoot へ整える。全体を先頭に、以降は期待個数の合計が多い絵の順に並べる。
@@ -152,32 +160,37 @@ func templateTotalExpected(t TemplateLoot) float64 {
 
 // rollStorageLoot は収納家具1個の中身を抽選する。ゲームの populateStorageLoot と同型で、パレットが書いた表 tableID から
 // LootCount 回を深度考慮で引く。荒らされ率は掛けない。収納でない家具は空を返す。
-func rollStorageLoot(master rawschema.Raws, propName, tableID string, rng *rand.Rand) []drawnLoot {
+func rollStorageLoot(master rawschema.Raws, propName, tableID string, rng *rand.Rand) ([]drawnLoot, error) {
 	prop, err := raw.GetProp(master, propName)
-	if err != nil || prop.Storage == nil {
-		return nil
+	if err != nil {
+		return nil, err
+	}
+	if prop.Storage == nil {
+		return nil, nil
 	}
 	table, err := raw.GetItemTable(master, tableID)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	n := 1
 	if prop.Storage.LootCount != nil {
-		if d, derr := consts.ParseDice(*prop.Storage.LootCount); derr == nil {
-			n = d.Roll(rng)
+		d, err := consts.ParseDice(*prop.Storage.LootCount)
+		if err != nil {
+			return nil, fmt.Errorf("lootCount of %q: %w", propName, err)
 		}
+		n = d.Roll(rng)
 	}
 	var out []drawnLoot
 	for range n {
-		draws, derr := raw.DrawFromItemTable(master, table, rng, facilityLootDepth)
-		if derr != nil {
-			continue
+		draws, err := raw.DrawFromItemTable(master, table, rng, facilityLootDepth)
+		if err != nil {
+			return nil, err
 		}
 		for _, d := range draws {
 			out = append(out, drawnLoot{name: d.Name, count: d.Count})
 		}
 	}
-	return out
+	return out, nil
 }
 
 // itemValue は raw のアイテム価値を返す。未定義は0。
