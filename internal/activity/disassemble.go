@@ -43,7 +43,7 @@ func NewDisassembleActivity(target ecs.Entity, world w.World) *gc.Activity {
 	return comp
 }
 
-// DisassemblyYield は item を分解したときに戻る素材の id と個数を返す。分解できなければ ok は false
+// DisassemblyYield は item を分解したときに戻る素材の id と個数を返す。装着する設備と、材質から素材を導けない物は ok が false
 func DisassemblyYield(world w.World, item ecs.Entity) (id string, count int, ok bool) {
 	if !world.ECS.Alive(item) || !world.Components.Material.Has(item) || !world.Components.Weight.Has(item) {
 		return "", 0, false
