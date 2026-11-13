@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -200,24 +201,29 @@ func TestNewMaterialDefs_実データ(t *testing.T) {
 
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
+	defs, err := NewMaterialDefs(raws)
+	require.NoError(t, err)
+	disassembly := func(item string, per consts.Milligram) *gc.MaterialDisassembly {
+		return &gc.MaterialDisassembly{Item: item, PerWeight: per}
+	}
 	assert.Equal(t, gc.MaterialDefs{
-		rawschema.WOOD:    {Name: "Wood", HeatPerKg: 200},
+		rawschema.WOOD:    {Name: "Wood", HeatPerKg: 200, Disassembly: disassembly("branch", 300*consts.MilligramPerGram)},
 		rawschema.PAPER:   {Name: "Paper", HeatPerKg: 300},
 		rawschema.CLOTH:   {Name: "Cloth", HeatPerKg: 160},
 		rawschema.LEATHER: {Name: "Leather", HeatPerKg: 120},
 		rawschema.PLANT:   {Name: "Plant fiber", HeatPerKg: 120},
 		rawschema.FOOD:    {Name: "Food", HeatPerKg: 60},
-		rawschema.BONE:    {Name: "Bone", HeatPerKg: 40},
+		rawschema.BONE:    {Name: "Bone", HeatPerKg: 40, Disassembly: disassembly("ancient_bone", 200*consts.MilligramPerGram)},
 		rawschema.OIL:     {Name: "Oil", HeatPerKg: 1000},
 		rawschema.COAL:    {Name: "Coal", HeatPerKg: 800},
 		rawschema.PLASTIC: {Name: "Plastic", HeatPerKg: 240},
-		rawschema.METAL:   {Name: "Metal", HeatPerKg: 0},
-		rawschema.STONE:   {Name: "Stone", HeatPerKg: 0},
+		rawschema.METAL:   {Name: "Metal", HeatPerKg: 0, Disassembly: disassembly("scrap_iron", consts.MilligramPerKg)},
+		rawschema.STONE:   {Name: "Stone", HeatPerKg: 0, Disassembly: disassembly("stone", consts.MilligramPerKg)},
 		rawschema.GLASS:   {Name: "Glass", HeatPerKg: 0},
-		rawschema.CRYSTAL: {Name: "Crystal", HeatPerKg: 0},
+		rawschema.CRYSTAL: {Name: "Crystal", HeatPerKg: 0, Disassembly: disassembly("crystal_powder", 100*consts.MilligramPerGram)},
 		rawschema.CERAMIC: {Name: "Ceramic", HeatPerKg: 0},
 		rawschema.LIQUID:  {Name: "Liquid", HeatPerKg: 0},
-	}, NewMaterialDefs(raws))
+	}, defs)
 }
 
 func TestNewSkillDefs_道具の分類が伸ばすスキルの実データ(t *testing.T) {

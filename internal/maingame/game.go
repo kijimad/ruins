@@ -192,7 +192,11 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	world.Resources.WeatherDefs = raw.NewWeatherDefs(rw)
 	world.Resources.TileEnvDefs = raw.NewTileEnvDefs(rw)
 	world.Resources.NeedDefs = raw.NewNeedDefs(rw)
-	world.Resources.MaterialDefs = raw.NewMaterialDefs(rw)
+	materialDefs, err := raw.NewMaterialDefs(rw)
+	if err != nil {
+		return w.World{}, err
+	}
+	world.Resources.MaterialDefs = materialDefs
 	world.Resources.CalendarDefs = raw.NewCalendarDefs(rw)
 
 	// スプライトシートを読み込む

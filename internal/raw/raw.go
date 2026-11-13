@@ -1165,13 +1165,21 @@ func NewCalendarDefs(raws rawschema.Raws) gc.CalendarDefs {
 	return defs
 }
 
-// NewMaterialDefs は raw の materials から材質の表示名と燃焼熱量の表を組み立てる
-func NewMaterialDefs(raws rawschema.Raws) gc.MaterialDefs {
+// NewMaterialDefs は raw の materials から材質の表示名と燃焼熱量と分解の戻し先の表を組み立てる
+func NewMaterialDefs(raws rawschema.Raws) (gc.MaterialDefs, error) {
 	defs := make(gc.MaterialDefs, len(PtrSlice(raws.Materials)))
 	for _, row := range PtrSlice(raws.Materials) {
-		defs[row.Id] = gc.MaterialDef{Name: i18n.Msgid(row.Name), HeatPerKg: row.HeatPerKg}
+		def := gc.MaterialDef{Name: i18n.Msgid(row.Name), HeatPerKg: row.HeatPerKg}
+		if row.Disassembly != nil {
+			per, err := consts.ParseWeight(row.Disassembly.PerWeight)
+			if err != nil {
+				return nil, fmt.Errorf("material %s: %w", row.Id, err)
+			}
+			def.Disassembly = &gc.MaterialDisassembly{Item: row.Disassembly.Item, PerWeight: per}
+		}
+		defs[row.Id] = def
 	}
-	return defs
+	return defs, nil
 }
 
 // toRGBA は raw の色を color.RGBA にする。nil なら nil を返す

@@ -72,7 +72,7 @@ func TestVerbList_各動詞が直達キーとアクションを持ち往復す�
 		require.NotNil(t, v.Accept, "動詞 %s は Accept を持つ。nil だと Fetch で panic する", v.ID)
 
 		// 直達キーは一意。重複すると束縛表の評価で先勝ちして片方が黙って隠れる
-		keyID := fmt.Sprintf("%d/%t", v.Key, v.Shift)
+		keyID := fmt.Sprintf("%d/%d", v.Key, v.Shift)
 		prevKey, dupKey := seenKey[keyID]
 		assert.False(t, dupKey, "直達キーが重複する: %s と %s", prevKey, v.ID)
 		seenKey[keyID] = v.ID

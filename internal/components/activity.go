@@ -63,6 +63,8 @@ const (
 	BehaviorSleep BehaviorName = "Sleep"
 	// BehaviorSwap は隣接の相手と位置を入れ替える
 	BehaviorSwap BehaviorName = "Swap"
+	// BehaviorDisassemble は所持品のアイテムを材質の素材に戻す
+	BehaviorDisassemble BehaviorName = "Disassemble"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント
@@ -149,6 +151,13 @@ type ReadParams struct {
 }
 
 func (*ReadParams) isActivityParams() {}
+
+// DisassembleParams はアイテムの分解のパラメータ。
+type DisassembleParams struct {
+	Target ecs.Entity // 分解するアイテムのエンティティ
+}
+
+func (*DisassembleParams) isActivityParams() {}
 
 // PlaceParams は対象と操作先を取るアクションのパラメータ。ドロップ・押し引きが使う。
 type PlaceParams struct {
