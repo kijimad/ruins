@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,7 +66,7 @@
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : )</span>
@@ -76,9 +76,9 @@
 <span id="L14"><span class="lineNum">      14</span>              : // 個体差を足すときはキーに項を1つ加える。鮮度のような連続量は段階へ量子化すれば束ね、</span>
 <span id="L15"><span class="lineNum">      15</span>              : // 生値のまま持てば個体ごとに分かれる。</span>
 <span id="L16"><span class="lineNum">      16</span>              : type StackKey struct {</span>
-<span id="L17"><span class="lineNum">      17</span>              :         RawID          string                // 生成元の同定キー。まず品種が一致すること</span>
-<span id="L18"><span class="lineNum">      18</span>              :         FreshnessStage oapi.FreshnessStageId // 腐敗品の鮮度段階。非腐敗品は空文字</span>
-<span id="L19"><span class="lineNum">      19</span>              :         Equip          string                // 装備の個体差の指紋。性能の違う同名装備を束ねない。非装備は空文字</span>
+<span id="L17"><span class="lineNum">      17</span>              :         RawID          string                     // 生成元の同定キー。まず品種が一致すること</span>
+<span id="L18"><span class="lineNum">      18</span>              :         FreshnessStage rawschema.FreshnessStageId // 腐敗品の鮮度段階。非腐敗品は空文字</span>
+<span id="L19"><span class="lineNum">      19</span>              :         Equip          string                     // 装備の個体差の指紋。性能の違う同名装備を束ねない。非装備は空文字</span>
 <span id="L20"><span class="lineNum">      20</span>              : }</span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // StackKeyOf は entity のスタック同一性キーを返す。スタック同一判定の唯一の権威。</span>

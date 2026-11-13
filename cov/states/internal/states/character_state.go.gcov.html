@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,8 +74,8 @@
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/keybind&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/menuloop&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              :         gs &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
 <span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/entityspec&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/overlay&quot;</span>
@@ -368,22 +368,22 @@
 <span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                 return query.SortEntities(world, items)</span></span>
 <span id="L307"><span class="lineNum">     307</span>              :         }</span>
 <span id="L308"><span class="lineNum">     308</span>              : </span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :         var target oapi.EquipmentCategory</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :         var target rawschema.EquipmentCategory</span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         switch slotNumber {</span></span>
 <span id="L311"><span class="lineNum">     311</span>              :         case gc.SlotHead:</span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 target = oapi.EquipmentCategoryHEAD</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 target = rawschema.EquipmentCategoryHEAD</span></span>
 <span id="L313"><span class="lineNum">     313</span>              :         case gc.SlotTorso:</span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC tlaBgUNC">           0 :                 target = oapi.EquipmentCategoryTORSO</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC tlaBgUNC">           0 :                 target = rawschema.EquipmentCategoryTORSO</span></span>
 <span id="L315"><span class="lineNum">     315</span>              :         case gc.SlotArms:</span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                 target = oapi.EquipmentCategoryARMS</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                 target = rawschema.EquipmentCategoryARMS</span></span>
 <span id="L317"><span class="lineNum">     317</span>              :         case gc.SlotHands:</span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                 target = oapi.EquipmentCategoryHANDS</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                 target = rawschema.EquipmentCategoryHANDS</span></span>
 <span id="L319"><span class="lineNum">     319</span>              :         case gc.SlotLegs:</span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 target = oapi.EquipmentCategoryLEGS</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 target = rawschema.EquipmentCategoryLEGS</span></span>
 <span id="L321"><span class="lineNum">     321</span>              :         case gc.SlotFeet:</span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 target = oapi.EquipmentCategoryFEET</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 target = rawschema.EquipmentCategoryFEET</span></span>
 <span id="L323"><span class="lineNum">     323</span>              :         case gc.SlotJewelry:</span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 target = oapi.EquipmentCategoryJEWELRY</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 target = rawschema.EquipmentCategoryJEWELRY</span></span>
 <span id="L325"><span class="lineNum">     325</span>              :         default:</span>
 <span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :                 return query.SortEntities(world, items)</span></span>
 <span id="L327"><span class="lineNum">     327</span>              :         }</span>

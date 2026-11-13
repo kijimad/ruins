@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,7 +66,7 @@
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : )</span>
@@ -87,7 +87,7 @@
 <span id="L25"><span class="lineNum">      25</span>              : }</span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
 <span id="L27"><span class="lineNum">      27</span>              : // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する</span>
-<span id="L28"><span class="lineNum">      28</span>              : func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) {</span>
+<span id="L28"><span class="lineNum">      28</span>              : func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoTag) (ecs.Entity, bool) {</span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter2[gc.LocationInBackpack, gc.Ammo](world.ECS).Query()</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>

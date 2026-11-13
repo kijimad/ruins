@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,7 +64,7 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
@@ -85,7 +85,7 @@
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // FreshnessStageOf は entity の鮮度段階を返す。Perishable を持たなければ ok=false。</span>
 <span id="L25"><span class="lineNum">      25</span>              : // 鮮度の算出をここへ集約し、食べる処理と表示が同じ判定を通す</span>
-<span id="L26"><span class="lineNum">      26</span>              : func FreshnessStageOf(world w.World, entity ecs.Entity) (oapi.FreshnessStageId, bool) {</span>
+<span id="L26"><span class="lineNum">      26</span>              : func FreshnessStageOf(world w.World, entity ecs.Entity) (rawschema.FreshnessStageId, bool) {</span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         if !world.Components.Perishable.Has(entity) {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -105,7 +105,7 @@
 <span id="L43"><span class="lineNum">      43</span>              : }</span>
 <span id="L44"><span class="lineNum">      44</span>              : </span>
 <span id="L45"><span class="lineNum">      45</span>              : // FreshnessName は鮮度の段階の訳した表示名を返す</span>
-<span id="L46"><span class="lineNum">      46</span>              : func FreshnessName(world w.World, stage oapi.FreshnessStageId) string {</span>
+<span id="L46"><span class="lineNum">      46</span>              : func FreshnessName(world w.World, stage rawschema.FreshnessStageId) string {</span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         return T(world, world.Resources.NeedDefs.FreshnessOf(stage).Name)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>

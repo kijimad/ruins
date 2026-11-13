@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,7 +66,7 @@
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;strconv&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
 <span id="L10"><span class="lineNum">      10</span>              : // 敷地計画。footprint を矩形のまま全部屋で埋めず、建物を内側へ取り、差分を庭にする。外形が clean な矩形</span>
@@ -86,7 +86,7 @@
 <span id="L24"><span class="lineNum">      24</span>              :         ExtraWall map[Vec]bool</span>
 <span id="L25"><span class="lineNum">      25</span>              :         Door      Vec</span>
 <span id="L26"><span class="lineNum">      26</span>              :         Rooms     []PlannedRoom</span>
-<span id="L27"><span class="lineNum">      27</span>              :         Type      oapi.SiteType</span>
+<span id="L27"><span class="lineNum">      27</span>              :         Type      rawschema.SiteType</span>
 <span id="L28"><span class="lineNum">      28</span>              :         Fence     bool // 敷地を塀で囲うか</span>
 <span id="L29"><span class="lineNum">      29</span>              : }</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
@@ -94,7 +94,7 @@
 <span id="L32"><span class="lineNum">      32</span>              : // 入口を建物辺へ寄せ、玄関を凹ませる。建物が施設テンプレに満たない狭さなら内寄せを諦め、最低限の建物は必ず作る。</span>
 <span id="L33"><span class="lineNum">      33</span>              : // 前庭は道路側の一辺に広く取るもので、建物を全周で囲む細い帯ではない。他の3辺は footprint の縁まで</span>
 <span id="L34"><span class="lineNum">      34</span>              : // 建物で埋め、庭が壁に囲まれた堀に見えないようにする。</span>
-<span id="L35"><span class="lineNum">      35</span>              : func planSite(t profileTable, footprint Rect, seed uint64, door Vec, fac oapi.Facility) Site {</span>
+<span id="L35"><span class="lineNum">      35</span>              : func planSite(t profileTable, footprint Rect, seed uint64, door Vec, fac rawschema.Facility) Site {</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           1 :         st := rollSiteType(t, fac, seed)</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         building := insetBuilding(footprint, door, consts.Tile(st.YardDepth))</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         side := doorSide(footprint, door)</span></span>

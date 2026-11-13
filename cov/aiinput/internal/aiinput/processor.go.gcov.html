@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,7 +70,7 @@
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/geometry&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/logger&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
@@ -144,7 +144,7 @@
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         kept := make([]ecs.Entity, 0, len(targets))</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         for _, entity := range targets {</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 solo := world.Components.SoloAI.Get(entity)</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 if solo != nil &amp;&amp; !isActiveCombatState(solo.SubState) &amp;&amp; solo.Movement != oapi.Follow {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 if solo != nil &amp;&amp; !isActiveCombatState(solo.SubState) &amp;&amp; solo.Movement != rawschema.Follow {</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                         grid := world.Components.GridElement.Get(entity)</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                         if geometry.ChebyshevDistance(playerGrid.Coord, grid.Coord) &gt; activationRadius {</span></span>
 <span id="L88"><span class="lineNum">      88</span>              :                                 // 圏外の待機・徘徊敵はスキップ。画面外で観測不能なため凍結してよい</span>

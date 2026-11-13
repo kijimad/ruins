@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,8 +66,8 @@
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;math&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : )</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
@@ -112,7 +112,7 @@
 <span id="L50"><span class="lineNum">      50</span>              : </span>
 <span id="L51"><span class="lineNum">      51</span>              : // ProgressionCurve は経過日 1..days の静的下限と想定プレイヤーの戦闘リスクを並べて返す。難易度は日→危険度、プレイヤーは</span>
 <span id="L52"><span class="lineNum">      52</span>              : // attacksPerDay からその日の想定スキルで進む。下限と想定の帯で体験曲線を見る。乱数を使わない。</span>
-<span id="L53"><span class="lineNum">      53</span>              : func ProgressionCurve(master oapi.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days, attacksPerDay int) ([]ProgressionDay, error) {</span>
+<span id="L53"><span class="lineNum">      53</span>              : func ProgressionCurve(master rawschema.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days, attacksPerDay int) ([]ProgressionDay, error) {</span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         defs, err := raw.NewSkillDefs(master)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>

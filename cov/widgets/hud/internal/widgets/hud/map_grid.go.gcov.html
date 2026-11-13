@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,8 +69,8 @@
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/overworld&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/overworld&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         theme &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              : )</span>
@@ -150,7 +150,7 @@
 <span id="L88"><span class="lineNum">      88</span>              : </span>
 <span id="L89"><span class="lineNum">      89</span>              : // DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、</span>
 <span id="L90"><span class="lineNum">      90</span>              : // 地図上の1文字から凡例を引けるようにする。全画面図の下部 chrome。top は並べ始める y ピクセル。</span>
-<span id="L91"><span class="lineNum">      91</span>              : func DrawMapLegend(cv uicore.Canvas, raws oapi.Raws, translate func(msgid string) string, face, glyphFace text.Face, top int) {</span>
+<span id="L91"><span class="lineNum">      91</span>              : func DrawMapLegend(cv uicore.Canvas, raws rawschema.Raws, translate func(msgid string) string, face, glyphFace text.Face, top int) {</span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         const swatch = 14</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         x, y := 8, top</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         for _, g := range overworld.LegendGlyphs(raws) {</span></span>

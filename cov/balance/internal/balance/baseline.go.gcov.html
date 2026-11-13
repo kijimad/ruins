@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,8 +69,8 @@
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;strings&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/olekukonko/tablewriter/tw&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              : )</span>
@@ -123,7 +123,7 @@
 <span id="L61"><span class="lineNum">      61</span>              : </span>
 <span id="L62"><span class="lineNum">      62</span>              : // Baseline は指定した敵テーブルの序盤戦闘ベースラインを返す。プレイヤーは強化なしの素手を</span>
 <span id="L63"><span class="lineNum">      63</span>              : // 最悪ケースとして固定し、難易度カーブを目標帯と突き合わせる。</span>
-<span id="L64"><span class="lineNum">      64</span>              : func Baseline(master oapi.Raws, playerName, weaponName, enemyTableName string, days int) ([]BaselineRow, error) {</span>
+<span id="L64"><span class="lineNum">      64</span>              : func Baseline(master rawschema.Raws, playerName, weaponName, enemyTableName string, days int) ([]BaselineRow, error) {</span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, playerName)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -152,7 +152,7 @@
 <span id="L90"><span class="lineNum">      90</span>              : </span>
 <span id="L91"><span class="lineNum">      91</span>              : // RenderBaselineMarkdown は全敵テーブルのベースラインを markdown 表にする。日次の powerRatio と目標・帯内かを</span>
 <span id="L92"><span class="lineNum">      92</span>              : // 並べ、パラメータ変更の影響を diff で読めるようにする。テーブル名は raw 由来の実行時データ。</span>
-<span id="L93"><span class="lineNum">      93</span>              : func RenderBaselineMarkdown(master oapi.Raws, playerName, weaponName string, days int) (string, error) {</span>
+<span id="L93"><span class="lineNum">      93</span>              : func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string, days int) (string, error) {</span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         var b strings.Builder</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;# バランスベースライン\n\n&quot;)</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;実コードの戦闘式と raw.toml から乱数なしで導出したバランスの現状値。`make balance-report` で再生成する。\n&quot;)</span></span>
@@ -298,14 +298,14 @@
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         writeMDTable(&amp;b, []string{&quot;積荷(kg)&quot;, &quot;燃費(/歩)&quot;, &quot;満タン航続(歩)&quot;}, []tw.Align{alignR, alignR, alignR}, fuelCostRows)</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         materials := raw.NewMaterialDefs(master)</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         writeMDTable(&amp;b, []string{&quot;くべる燃料&quot;, &quot;燃料ポイント&quot;, &quot;積荷0の航続(歩)&quot;}, []tw.Align{alignL, alignR, alignR}, [][]string{</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 {&quot;OIL 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, materials.HeatOf(oapi.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf(&quot;%.0f&quot;, FollowRangeTiles(materials.HeatOf(oapi.OIL, 10*consts.MilligramPerKg), 0))},</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 {&quot;WOOD 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, materials.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf(&quot;%.0f&quot;, FollowRangeTiles(materials.HeatOf(oapi.WOOD, 10*consts.MilligramPerKg), 0))},</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 {&quot;OIL 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf(&quot;%.0f&quot;, FollowRangeTiles(materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg), 0))},</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 {&quot;WOOD 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf(&quot;%.0f&quot;, FollowRangeTiles(materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg), 0))},</span></span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;同じ燃料は火にくべると燃焼ターンになる。地面直の火は熱量の半分を時間へ変える。\n\n&quot;)</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         writeMDTable(&amp;b, []string{&quot;燃料&quot;, &quot;燃焼ターン&quot;}, []tw.Align{alignL, alignR}, [][]string{</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 {&quot;OIL 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, FuelBurnTurns(materials, oapi.OIL, 10))},</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 {&quot;WOOD 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, FuelBurnTurns(materials, oapi.WOOD, 10))},</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 {&quot;OIL 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, FuelBurnTurns(materials, rawschema.OIL, 10))},</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 {&quot;WOOD 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, FuelBurnTurns(materials, rawschema.WOOD, 10))},</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L249"><span class="lineNum">     249</span>              :         // 感度行列。つまみ×メトリクスの横断ヤコビアン</span>
@@ -391,7 +391,7 @@
 <span id="L329"><span class="lineNum">     329</span>              : </span>
 <span id="L330"><span class="lineNum">     330</span>              : // renderCombatRisk は戦闘リスクのカーブを markdown で書き出す。難易度カーブが期待値の比を見るのに対し、</span>
 <span id="L331"><span class="lineNum">     331</span>              : // こちらは吸収マルコフ連鎖で解いた死亡確率と決着ターンを日ごとに出す。突然死の裾を可視化する。</span>
-<span id="L332"><span class="lineNum">     332</span>              : func renderCombatRisk(b *strings.Builder, master oapi.Raws, playerName, weaponName string, days int) error {</span>
+<span id="L332"><span class="lineNum">     332</span>              : func renderCombatRisk(b *strings.Builder, master rawschema.Raws, playerName, weaponName string, days int) error {</span>
 <span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, playerName)</span></span>
 <span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
@@ -417,7 +417,7 @@
 <span id="L355"><span class="lineNum">     355</span>              : </span>
 <span id="L356"><span class="lineNum">     356</span>              : // renderProgression は静的下限と想定プレイヤーの進行カーブを markdown で書き出す。難易度の側は日→危険度で</span>
 <span id="L357"><span class="lineNum">     357</span>              : // 進み、プレイヤーの側は想定攻撃頻度からその日の想定スキルで進む。床と想定の帯で進行度調整を見る。</span>
-<span id="L358"><span class="lineNum">     358</span>              : func renderProgression(b *strings.Builder, master oapi.Raws, player CombatantStats, weapon WeaponStats, days int) error {</span>
+<span id="L358"><span class="lineNum">     358</span>              : func renderProgression(b *strings.Builder, master rawschema.Raws, player CombatantStats, weapon WeaponStats, days int) error {</span>
 <span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :         curve, err := ProgressionCurve(master, player, weapon, BaselineAreaTable, days, DefaultAttacksPerDay)</span></span>
 <span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
@@ -445,7 +445,7 @@
 <span id="L383"><span class="lineNum">     383</span>              : </span>
 <span id="L384"><span class="lineNum">     384</span>              : // renderSensitivityMatrix はドメイン横断の感度行列を markdown で書き出す。RenderBaselineMarkdown の</span>
 <span id="L385"><span class="lineNum">     385</span>              : // 複雑度を抑えるため別関数にする。</span>
-<span id="L386"><span class="lineNum">     386</span>              : func renderSensitivityMatrix(b *strings.Builder, master oapi.Raws) {</span>
+<span id="L386"><span class="lineNum">     386</span>              : func renderSensitivityMatrix(b *strings.Builder, master rawschema.Raws) {</span>
 <span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         fmt.Fprintf(b, &quot;## 感度行列（各つまみ+10%%、ドメイン横断）\n\n&quot;)</span></span>
 <span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         fmt.Fprintf(b, &quot;**概要**: どのつまみがどのメトリクスをどれだけ動かすか。各つまみを+10%%したときの各メトリクスの変化率。\n&quot;)</span></span>
 <span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :         fmt.Fprintf(b, &quot;多くはブロック対角、すなわち各つまみは自分のドメインだけを動かす。横断するのは1日ターン数のような共通の分母だけ。整数丸めで小さな値は表に出ないことがある。\n\n&quot;)</span></span>
@@ -473,7 +473,7 @@
 <span id="L411"><span class="lineNum">     411</span>              : </span>
 <span id="L412"><span class="lineNum">     412</span>              : // renderExchangeRates はメトリクスごとの交換レート表を markdown で書き出す。行のつまみを+10%した</span>
 <span id="L413"><span class="lineNum">     413</span>              : // とき、列のつまみをどれだけ動かせば同じメトリクスに据え置けるかの相互補償を示す。</span>
-<span id="L414"><span class="lineNum">     414</span>              : func renderExchangeRates(b *strings.Builder, master oapi.Raws) {</span>
+<span id="L414"><span class="lineNum">     414</span>              : func renderExchangeRates(b *strings.Builder, master rawschema.Raws) {</span>
 <span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :         fmt.Fprintf(b, &quot;## 交換レート（相互補償）\n\n&quot;)</span></span>
 <span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :         fmt.Fprintf(b, &quot;**概要**: あるつまみを+10%%したとき、同じメトリクスを元へ戻すには別のつまみをどれだけ動かせばよいか。\n&quot;)</span></span>
 <span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :         fmt.Fprintf(b, &quot;行のつまみを+10%%し、列のつまみの変化率で打ち消す。実式を二分探索で解いた値で、感度の比の線形近似より正確。\n&quot;)</span></span>
@@ -507,7 +507,7 @@
 <span id="L445"><span class="lineNum">     445</span>              : </span>
 <span id="L446"><span class="lineNum">     446</span>              : // renderBoundaryMargins は目標帯の余白を markdown で書き出す。各つまみを動かして目標帯を割るまでの</span>
 <span id="L447"><span class="lineNum">     447</span>              : // 変化率を、崖の近い順に並べる。凍結ゲートの点固定を余白監視へ拡張したもの。</span>
-<span id="L448"><span class="lineNum">     448</span>              : func renderBoundaryMargins(b *strings.Builder, master oapi.Raws) {</span>
+<span id="L448"><span class="lineNum">     448</span>              : func renderBoundaryMargins(b *strings.Builder, master rawschema.Raws) {</span>
 <span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :         margins := BoundaryMargins(master)</span></span>
 <span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           1 :         sort.Slice(margins, func(i, j int) bool {</span></span>
 <span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :                 if margins[i].OK != margins[j].OK {</span></span>
@@ -531,7 +531,7 @@
 <span id="L469"><span class="lineNum">     469</span>              : </span>
 <span id="L470"><span class="lineNum">     470</span>              : // renderWeaponRestriction は武器を素手へ制限したときの死亡確率の劣化量を書き出す。劣化が大きい順に必須な武器を、</span>
 <span id="L471"><span class="lineNum">     471</span>              : // 小さい順に効かない死にコンテンツ候補を見せる。Restricted Play の翻案。</span>
-<span id="L472"><span class="lineNum">     472</span>              : func renderWeaponRestriction(b *strings.Builder, master oapi.Raws) error {</span>
+<span id="L472"><span class="lineNum">     472</span>              : func renderWeaponRestriction(b *strings.Builder, master rawschema.Raws) error {</span>
 <span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :         const day = 20</span></span>
 <span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :         values, baseDeath, err := WeaponRestrictionValues(master, BaselineAreaTable, day)</span></span>
 <span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
@@ -567,7 +567,7 @@
 <span id="L505"><span class="lineNum">     505</span>              : </span>
 <span id="L506"><span class="lineNum">     506</span>              : // renderWeaponSkillSections は武器・スキルの各分析を順に書き出す。RenderBaselineMarkdown の複雑度を</span>
 <span id="L507"><span class="lineNum">     507</span>              : // 抑えるため、エラーを返すレンダラをまとめる。</span>
-<span id="L508"><span class="lineNum">     508</span>              : func renderWeaponSkillSections(b *strings.Builder, master oapi.Raws) error {</span>
+<span id="L508"><span class="lineNum">     508</span>              : func renderWeaponSkillSections(b *strings.Builder, master rawschema.Raws) error {</span>
 <span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :         if err := renderWeaponRestriction(b, master); err != nil {</span></span>
 <span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -579,7 +579,7 @@
 <span id="L517"><span class="lineNum">     517</span>              : </span>
 <span id="L518"><span class="lineNum">     518</span>              : // renderViability は武器ロスターの viability を markdown で書き出す。Pfau の知見に基づき、使える武器が</span>
 <span id="L519"><span class="lineNum">     519</span>              : // 多く、罠が少なく、viable どうしに差がある状態を健全とみなす。全ビルド等価な symmetry は避ける。</span>
-<span id="L520"><span class="lineNum">     520</span>              : func renderViability(b *strings.Builder, master oapi.Raws) error {</span>
+<span id="L520"><span class="lineNum">     520</span>              : func renderViability(b *strings.Builder, master rawschema.Raws) error {</span>
 <span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :         const day = 20</span></span>
 <span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           1 :         s, err := WeaponViability(master, BaselineAreaTable, day)</span></span>
 <span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
@@ -608,7 +608,7 @@
 <span id="L546"><span class="lineNum">     546</span>              : </span>
 <span id="L547"><span class="lineNum">     547</span>              : // renderSkillDepth はスキル進行の手応えを markdown で書き出す。弱い武器と強い武器で、レベルアップが</span>
 <span id="L548"><span class="lineNum">     548</span>              : // 体験に響く実効ティアと、丸めで死んだティアの割合を対比する。</span>
-<span id="L549"><span class="lineNum">     549</span>              : func renderSkillDepth(b *strings.Builder, master oapi.Raws) error {</span>
+<span id="L549"><span class="lineNum">     549</span>              : func renderSkillDepth(b *strings.Builder, master rawschema.Raws) error {</span>
 <span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC">           1 :         const day = 20</span></span>
 <span id="L551"><span class="lineNum">     551</span> <span class="tlaGNC">           1 :         fmt.Fprintf(b, &quot;## スキル深度（レベルアップの手応え・廃墟day%d）\n\n&quot;, day)</span></span>
 <span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC">           1 :         fmt.Fprintf(b, &quot;**概要**: 素手スキルを1レベル上げるたびに、敵プールの撃破ターンがどれだけ縮むか。熟練度倍率は実ゲームと同じく\n&quot;)</span></span>

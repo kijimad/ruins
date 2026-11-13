@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,7 +67,7 @@
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/world/gameaction&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
@@ -162,7 +162,7 @@
 <span id="L100"><span class="lineNum">     100</span>              : // 負なら回復、正なら悪化。int の目盛りで計算し、UpdateTimer の境界で float64 にする。</span>
 <span id="L101"><span class="lineNum">     101</span>              : func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab consts.Percent) float64 {</span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         switch def.Recovery {</span></span>
-<span id="L103"><span class="lineNum">     103</span>              :         case oapi.RecoverAfterTend:</span>
+<span id="L103"><span class="lineNum">     103</span>              :         case rawschema.RecoverAfterTend:</span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 if cond.TendQuality &gt; 0 {</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                         return -float64(cond.TendQuality.ApplyInt(def.RecoverPer))</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 }</span></span>
@@ -171,7 +171,7 @@
 <span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                         return -float64(conditionMinorNaturalRecoveryPerTurn)</span></span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L112"><span class="lineNum">     112</span>              :         case oapi.ProgressUntilTend:</span>
+<span id="L112"><span class="lineNum">     112</span>              :         case rawschema.ProgressUntilTend:</span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 if cond.TendQuality == 0 {</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                         return float64(def.WorsenPer)</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 }</span></span>
@@ -179,7 +179,7 @@
 <span id="L117"><span class="lineNum">     117</span>              :                 // 不調が意識を下げ自分の回復を鈍らせても、整数切り捨てで治癒が停止しないようにする</span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 rec := cond.TendQuality.ApplyInt(def.RecoverPer)</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 return -metabScale(rec, metab)</span></span>
-<span id="L120"><span class="lineNum">     120</span>              :         case oapi.RecoverOverTime:</span>
+<span id="L120"><span class="lineNum">     120</span>              :         case rawschema.RecoverOverTime:</span>
 <span id="L121"><span class="lineNum">     121</span>              :                 // 自己限定。未治療でも代謝で自然に治る。治療すればその質でさらに速まる</span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 rec := def.RecoverPer</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 if cond.TendQuality &gt; 0 {</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-12 15:48:40</td>
+            <td class="headerValue">2026-11-13 00:21:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,7 +65,7 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
@@ -81,7 +81,7 @@
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // FuelBurnTurns は material を weightKg だけ地面直の火にくべたとき増える燃焼ターン数を返す。熱量を地面の燃焼効率で</span>
 <span id="L21"><span class="lineNum">      21</span>              : // 割り引く。MaterialDefs.HeatOf と consts.Heat.BurnTurns に自動追従する。移動燃料と同じ熱量が火では燃焼時間へ変わる。</span>
-<span id="L22"><span class="lineNum">      22</span>              : func FuelBurnTurns(defs gc.MaterialDefs, material oapi.Material, weightKg int) int {</span>
+<span id="L22"><span class="lineNum">      22</span>              : func FuelBurnTurns(defs gc.MaterialDefs, material rawschema.Material, weightKg int) int {</span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         weight := consts.Milligram(weightKg) * consts.MilligramPerKg</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         return int(defs.HeatOf(material, weight).BurnTurns(query.GroundBurnEfficiency))</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : }</span></span>
