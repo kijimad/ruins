@@ -5,7 +5,6 @@ import (
 	"slices"
 
 	"github.com/kijimaD/ruins/internal/i18n"
-	"github.com/kijimaD/ruins/internal/raw"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
@@ -55,8 +54,6 @@ type itemVerb struct {
 	Action inputmapper.ActionID
 	Accept func(world w.World, entity ecs.Entity) bool
 	Exec   func(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
-	// Column は一覧の右端の列の文字列を返す。nil なら束の総重量を出す
-	Column func(world w.World, stack query.Stack) string
 }
 
 // verbList は表示順に並べた動詞タブの一覧。タブ順を兼ねる。内容は定数なのでパッケージ変数で1度だけ構築する。
@@ -119,7 +116,6 @@ var verbList = []itemVerb{
 		Action:  inputmapper.ActionVerbDisassemble,
 		Accept:  acceptDisassemble,
 		Exec:    execDisassemble,
-		Column:  disassemblyColumn,
 	},
 }
 
@@ -143,15 +139,6 @@ func acceptUseTool(world w.World, entity ecs.Entity) bool {
 func acceptDisassemble(world w.World, entity ecs.Entity) bool {
 	_, _, ok := activity.DisassemblyYield(world, entity)
 	return ok
-}
-
-// disassemblyColumn は1個を分解したときに戻る素材と個数を出す
-func disassemblyColumn(world w.World, stack query.Stack) string {
-	id, count, ok := activity.DisassemblyYield(world, stack.Rep)
-	if !ok {
-		return ""
-	}
-	return query.FormatNameCount(query.T(world, raw.ItemName(world.Resources.RawMaster, id)), count)
 }
 
 // execDisassemble は選択アイテムの分解を開始しダンジョンへ戻る。分解は重さに応じて複数ターンかかる
@@ -361,26 +348,22 @@ func (st *ItemActionState) Fetch(world w.World) (ItemActionProps, error) {
 			if !verb.Accept(world, stack.Rep) {
 				continue
 			}
-			items = append(items, newItemActionEntry(world, stack, verb.Column))
+			items = append(items, newItemActionEntry(world, stack))
 		}
 		tabs[i] = verbTabData{ID: verb.ID, Label: query.T(world, verb.Label), Key: verb.KeyHint, Items: items}
 	}
 	return ItemActionProps{Tabs: tabs}, nil
 }
 
-func newItemActionEntry(world w.World, stack query.Stack, column func(w.World, query.Stack) string) itemRowData {
+func newItemActionEntry(world w.World, stack query.Stack) itemRowData {
+	// 1行は1スタックなので、重量は個数分の合計にして行内の粒度を名前の個数と揃える。
+	// 1個分の値は詳細モーダルが受け持つ
+	total := query.GetEntityWeight(world, stack.Rep) * consts.Milligram(stack.Count)
 	entry := itemRowData{
 		Entity: stack.Rep,
 		Name:   query.GetEntityName(stack.Rep, world),
+		Weight: total.KgString(),
 		Count:  stack.Count,
-	}
-	if column != nil {
-		entry.Trailing = column(world, stack)
-	} else {
-		// 1行は1スタックなので、重量は個数分の合計にして行内の粒度を名前の個数と揃える。
-		// 1個分の値は詳細モーダルが受け持つ
-		total := query.GetEntityWeight(world, stack.Rep) * consts.Milligram(stack.Count)
-		entry.Trailing = total.KgString()
 	}
 	if world.Components.Description.Has(stack.Rep) {
 		entry.Desc = query.T(world, world.Components.Description.Get(stack.Rep).Description)
@@ -424,7 +407,7 @@ func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps,
 	cols := itemMenuColumns(styled.Num())
 	rows := make([]menuframe.Row, len(items))
 	for i, it := range items {
-		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Trailing)
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
 	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No matching items"), ItemsPerPage: perPage}, res)
 }

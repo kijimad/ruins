@@ -14,11 +14,11 @@ import (
 // 表示の名前・個数・アイコンは itemMenuRow が entity から解決するので、Name・Count は元データの
 // 保持にとどまる。Desc は詳細用途で、収納メニューなど使わない画面ではゼロ値のままにする
 type itemRowData struct {
-	Entity   ecs.Entity
-	Name     string
-	Trailing string // 一覧の右端の列に出す文字列
-	Count    int
-	Desc     string
+	Entity ecs.Entity
+	Name   string
+	Weight string
+	Count  int
+	Desc   string
 }
 
 // itemMenuColumns はアイコン列と伸縮する名前列の共通の先頭2列に、メニュー固有の trailing 列を
