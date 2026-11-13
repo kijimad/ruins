@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/kijimaD/ruins/internal/i18n"
 
@@ -31,7 +32,10 @@ type RunStatsState struct {
 	headerMsgid  i18n.Msgid             // 見出し。統計は "Statistics"、結果は "You died."
 	exit         es.Transition[w.World] // Cancel で抜ける先。統計は Pop、結果はメインメニューへ Replace
 	exitOnSelect bool                   // Select でも exit へ抜けるか。結果画面は任意キーで戻せるよう真にする
-	screen       *menuloop.Screen[RunStatsProps]
+	// freezePlayTime が真なら、開いた時点のプレイ時間 playTime を出し続ける。結果画面を開いてもプレイヤーは残り時計が進むので、ランが終わった時点で止めて見せる
+	freezePlayTime bool
+	playTime       time.Duration
+	screen         *menuloop.Screen[RunStatsProps]
 }
 
 // RunStatsProps は統計画面の表示 props
@@ -58,23 +62,26 @@ func NewRunStatsState() (es.State[w.World], error) {
 // NewRunResultState は run の死の結果画面を作る。統計を同じテーブルで見せ、任意キーでメインメニューへ戻す
 func NewRunResultState() (es.State[w.World], error) {
 	return &RunStatsState{
-		headerMsgid:  "You died.",
-		exit:         es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}},
-		exitOnSelect: true,
+		headerMsgid:    "You died.",
+		exit:           es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}},
+		exitOnSelect:   true,
+		freezePlayTime: true,
 	}, nil
 }
 
 // NewRunClearState は run のクリアの結果画面を作る。死の結果画面と同じテーブルで統計を見せ、任意キーでメインメニューへ戻す
 func NewRunClearState() (es.State[w.World], error) {
 	return &RunStatsState{
-		headerMsgid:  "You escaped the planet.",
-		exit:         es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}},
-		exitOnSelect: true,
+		headerMsgid:    "You escaped the planet.",
+		exit:           es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}},
+		exitOnSelect:   true,
+		freezePlayTime: true,
 	}, nil
 }
 
 // OnStart は Screen を組み立てる。overlay は持たない読み取り専用画面
-func (st *RunStatsState) OnStart(_ w.World) error {
+func (st *RunStatsState) OnStart(world w.World) error {
+	st.playTime = query.GetPlayTime(world).Elapsed()
 	st.screen = menuloop.NewScreen[RunStatsProps](st)
 	return nil
 }
@@ -108,7 +115,7 @@ func (st *RunStatsState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tr
 // Fetch は表示するタブと統計行を組む。統計と環境の2タブを持つ
 func (st *RunStatsState) Fetch(world w.World) (RunStatsProps, error) {
 	return RunStatsProps{Tabs: []statsTab{
-		{Label: query.T(world, "Summary"), Items: runStatsItems(world)},
+		{Label: query.T(world, "Summary"), Items: runStatsItems(world, st.shownPlayTime(world))},
 		{Label: query.T(world, "Environment"), Items: environmentItems(world)},
 	}}, nil
 }
@@ -149,9 +156,17 @@ func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res
 	}, res)
 }
 
+// shownPlayTime は画面に出すプレイ時間を返す
+func (st *RunStatsState) shownPlayTime(world w.World) time.Duration {
+	if st.freezePlayTime {
+		return st.playTime
+	}
+	return query.GetPlayTime(world).Elapsed()
+}
+
 // runStatsItems は run 統計をテーブル行に組む。結果画面と道中の統計画面で共通。
 // Label と Value の2列で、値は右寄せの数値。到達度は経過ターンで示す
-func runStatsItems(world w.World) []statusItemData {
+func runStatsItems(world w.World, playTime time.Duration) []statusItemData {
 	days, turns, kills, items, sales := runStatsFields(world)
 	rows := make([]statusItemData, 0, 6)
 	// 死因は決着時にだけ記録される。道中の統計画面では空なので出さない
@@ -159,7 +174,7 @@ func runStatsItems(world w.World) []statusItemData {
 		rows = append(rows, statusItemData{Label: query.T(world, "Cause of death"), Value: query.T(world, s.Cause.DisplayName())})
 	}
 	return append(rows,
-		statusItemData{Label: query.T(world, "Play time"), Value: formatPlayTime(query.GetPlayTime(world).Elapsed())},
+		statusItemData{Label: query.T(world, "Play time"), Value: formatPlayTime(playTime)},
 		statusItemData{Label: query.T(world, "Days"), Value: fmt.Sprintf("%d", days)},
 		statusItemData{Label: query.T(world, "Turns"), Value: fmt.Sprintf("%d", turns)},
 		statusItemData{Label: query.T(world, "Enemies killed"), Value: fmt.Sprintf("%d", kills)},
