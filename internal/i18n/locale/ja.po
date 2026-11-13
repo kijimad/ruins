@@ -6457,3 +6457,6 @@ msgstr "そのアイテムは所持品に無い"
 
 msgid "this item cannot be disassembled"
 msgstr "このアイテムは分解できない"
+
+msgid "Disassembles into"
+msgstr "分解すると"

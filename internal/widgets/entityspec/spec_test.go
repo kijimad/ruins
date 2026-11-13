@@ -447,3 +447,40 @@ func TestUpdateSpecFromSpec_可燃性の材質と重量があれば燃料行を�
 		"Weight", consts.Milligram(1_000_000).String(),
 	}, labels)
 }
+
+func TestUpdateSpec_分解できるアイテムは戻る素材と個数の行を表示する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	e := world.ECS.NewEntity()
+	world.Components.RawID.Add(e, &gc.RawID{ID: "hammer"})
+	world.Components.Material.Add(e, &gc.Material{Kind: rawschema.METAL})
+	world.Components.Weight.Add(e, &gc.Weight{Milligram: 4_000_000})
+
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+
+	assert.Equal(t, []string{
+		"Basic", "Material", query.T(world, "Metal"),
+		query.T(world, "Disassembles into"), query.T(world, "Scrap Iron") + " x4",
+		"Weight", consts.Milligram(4_000_000).String(),
+	}, labels)
+}
+
+func TestUpdateSpecFromSpec_分解できるアイテムは戻る素材と個数の行を表示する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	spec := gc.EntitySpec{
+		RawID:    &gc.RawID{ID: "hammer"},
+		Material: &gc.Material{Kind: rawschema.METAL},
+		Weight:   &gc.Weight{Milligram: 4_000_000},
+	}
+
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
+
+	assert.Equal(t, []string{
+		"Basic", "Material", query.T(world, "Metal"),
+		query.T(world, "Disassembles into"), query.T(world, "Scrap Iron") + " x4",
+		"Weight", consts.Milligram(4_000_000).String(),
+	}, labels)
+}

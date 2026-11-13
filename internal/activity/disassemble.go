@@ -43,21 +43,6 @@ func NewDisassembleActivity(target ecs.Entity, world w.World) *gc.Activity {
 	return comp
 }
 
-// DisassemblyYield は item を分解したときに戻る素材の id と個数を返す。装着する設備と、材質から素材を導けない物は ok が false
-func DisassemblyYield(world w.World, item ecs.Entity) (id string, count int, ok bool) {
-	if !world.ECS.Alive(item) || !world.Components.Material.Has(item) || !world.Components.Weight.Has(item) {
-		return "", 0, false
-	}
-	if world.Components.Deployable.Has(item) {
-		return "", 0, false
-	}
-	return world.Resources.MaterialDefs.DisassemblyOf(
-		query.GetEntityID(item, world),
-		world.Components.Material.Get(item).Kind,
-		world.Components.Weight.Get(item).Milligram,
-	)
-}
-
 // inBackpackOf は item が actor の所持品にあるかを返す
 func inBackpackOf(world w.World, item, actor ecs.Entity) bool {
 	return world.ECS.Alive(item) &&
@@ -74,7 +59,7 @@ func (b *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, worl
 	if !inBackpackOf(world, p.Target, actor) {
 		return &UserError{Msg: query.T(world, "the item is not in your inventory")}
 	}
-	if _, _, ok := DisassemblyYield(world, p.Target); !ok {
+	if _, _, ok := query.ItemDisassemblyYield(world, p.Target); !ok {
 		return &UserError{Msg: query.T(world, "this item cannot be disassembled")}
 	}
 	if !query.IsAreaSafe(world, actor) {
@@ -125,7 +110,7 @@ func (b *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world 
 	if !inBackpackOf(world, p.Target, actor) {
 		return nil
 	}
-	id, count, ok := DisassemblyYield(world, p.Target)
+	id, count, ok := query.ItemDisassemblyYield(world, p.Target)
 	if !ok {
 		return nil
 	}

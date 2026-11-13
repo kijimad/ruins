@@ -137,7 +137,7 @@ func acceptUseTool(world w.World, entity ecs.Entity) bool {
 
 // acceptDisassemble は材質の素材に戻せるアイテムを分解するの対象とする
 func acceptDisassemble(world w.World, entity ecs.Entity) bool {
-	_, _, ok := activity.DisassemblyYield(world, entity)
+	_, _, ok := query.ItemDisassemblyYield(world, entity)
 	return ok
 }
 
