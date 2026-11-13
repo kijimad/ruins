@@ -50,12 +50,13 @@ const (
 
 // 動詞タブ画面を対応タブで開くアクション。ダンジョン・各メニューから直達する
 const (
-	ActionVerbExamine ActionID = "verb_examine" // 調べる
-	ActionVerbPlace   ActionID = "verb_place"   // 置く
-	ActionVerbConsume ActionID = "verb_consume" // 食べる。飲み物も含む
-	ActionVerbRead    ActionID = "verb_read"    // 読む
-	ActionVerbUse     ActionID = "verb_use"     // 使う
-	ActionVerbThrow   ActionID = "verb_throw"   // 投げる
+	ActionVerbExamine     ActionID = "verb_examine"     // 調べる
+	ActionVerbPlace       ActionID = "verb_place"       // 置く
+	ActionVerbConsume     ActionID = "verb_consume"     // 食べる。飲み物も含む
+	ActionVerbRead        ActionID = "verb_read"        // 読む
+	ActionVerbUse         ActionID = "verb_use"         // 使う
+	ActionVerbDisassemble ActionID = "verb_disassemble" // 分解する
+	ActionVerbThrow       ActionID = "verb_throw"       // 投げる
 )
 
 // ActionOpenItemDetail は動詞タブ画面で選択中アイテムの詳細モーダルを開く

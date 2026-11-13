@@ -101,7 +101,9 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	world.Resources.WeatherDefs = raw.NewWeatherDefs(rawMaster)
 	world.Resources.TileEnvDefs = raw.NewTileEnvDefs(rawMaster)
 	world.Resources.NeedDefs = raw.NewNeedDefs(rawMaster)
-	world.Resources.MaterialDefs = raw.NewMaterialDefs(rawMaster)
+	materialDefs, err := raw.NewMaterialDefs(rawMaster)
+	require.NoError(tb, err)
+	world.Resources.MaterialDefs = materialDefs
 	world.Resources.CalendarDefs = raw.NewCalendarDefs(rawMaster)
 
 	// テスト用スプライトシートを初期化

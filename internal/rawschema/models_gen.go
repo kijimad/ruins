@@ -1501,11 +1501,22 @@ type MaterialAmount = int
 
 // MaterialDef 材質の表示名と燃焼の熱量
 type MaterialDef struct {
+	// Disassembly 分解で戻る素材。無い材質のアイテムは分解できない
+	Disassembly *MaterialDisassembly `json:"disassembly,omitempty"`
+
 	HeatPerKg HeatPerKg `json:"heatPerKg"`
 
 	Id Material `json:"id"`
 
 	Name EntityName `json:"name"`
+}
+
+// MaterialDisassembly 材質のアイテムを分解したときに戻る素材
+type MaterialDisassembly struct {
+	Item EntityID `json:"item"`
+
+	// PerWeight 素材1個に要るアイテムの重さ
+	PerWeight Weight `json:"perWeight"`
 }
 
 // Melee 近接攻撃設定

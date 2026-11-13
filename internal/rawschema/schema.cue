@@ -741,6 +741,18 @@ import "strings"
 	id!:        #Material
 	name!:      #EntityName
 	heatPerKg!: #HeatPerKg
+
+	// 分解で戻る素材。無い材質のアイテムは分解できない
+	disassembly?: #MaterialDisassembly
+}
+
+// 材質のアイテムを分解したときに戻る素材
+#MaterialDisassembly: {
+	item!:    #EntityID
+	item_ref: _itemIDs[item] @rawgen(-)
+
+	// 素材1個に要るアイテムの重さ
+	perWeight!: #Weight
 }
 
 // 近接攻撃設定

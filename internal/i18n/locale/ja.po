@@ -6436,3 +6436,36 @@ msgstr "HP"
 
 msgid "Enter"
 msgstr "Enter"
+
+msgid "Disassemble"
+msgstr "分解する"
+
+msgid "started disassembling %s"
+msgstr "%sの分解を始めた"
+
+msgid "disassembled into %s x%d"
+msgstr "分解して%sを%d個得た"
+
+msgid "interrupted disassembling"
+msgstr "分解を中断した"
+
+msgid "interrupted disassembling %s"
+msgstr "%sの分解を中断した"
+
+msgid "interrupted because the item is gone"
+msgstr "アイテムが無くなったため中断"
+
+msgid "disassembly interrupted because enemies are nearby"
+msgstr "周囲に敵がいるため分解を中断"
+
+msgid "cannot disassemble because enemies are nearby"
+msgstr "敵が近くにいるので分解できない"
+
+msgid "the item is not in your inventory"
+msgstr "そのアイテムは所持品に無い"
+
+msgid "this item cannot be disassembled"
+msgstr "このアイテムは分解できない"
+
+msgid "Disassembly"
+msgstr "分解"

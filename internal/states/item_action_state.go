@@ -29,11 +29,12 @@ import (
 type verbID string
 
 const (
-	verbExamine verbID = "examine" // 調べる
-	verbPlace   verbID = "place"   // 置く
-	verbConsume verbID = "consume" // 食べる。飲み物も含む
-	verbRead    verbID = "read"    // 読む
-	verbUse     verbID = "use"     // 使う
+	verbExamine     verbID = "examine"     // 調べる
+	verbPlace       verbID = "place"       // 置く
+	verbConsume     verbID = "consume"     // 食べる。飲み物も含む
+	verbRead        verbID = "read"        // 読む
+	verbUse         verbID = "use"         // 使う
+	verbDisassemble verbID = "disassemble" // 分解する
 )
 
 // itemVerb は動詞タブ1つ分の定義。Accept で対象アイテムを絞り、Exec で選択アイテムへ動詞を適用する。
@@ -46,10 +47,10 @@ type itemVerb struct {
 	// KeyHint はタブ見出しに添える直達ショートカットの表記。大文字は Shift 併用を表す。
 	// 調べる X は Shift+x、置く d は KeyD をそのまま押す
 	KeyHint string
-	// Key と Shift は直達ショートカットのキー。Shift が真なら Shift 併用を要する。
+	// Key と Shift は直達ショートカットのキー。Shift は同じキーの動詞を Shift の有無で分ける。
 	// Action はそのショートカットが発するアクション。ダンジョン等からの直達もこのアクションで届く
 	Key    ebiten.Key
-	Shift  bool
+	Shift  keybind.ShiftMode
 	Action inputmapper.ActionID
 	Accept func(world w.World, entity ecs.Entity) bool
 	Exec   func(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
@@ -63,7 +64,7 @@ var verbList = []itemVerb{
 		Label:   "Inspect",
 		KeyHint: "X",
 		Key:     ebiten.KeyX,
-		Shift:   true,
+		Shift:   keybind.ShiftRequired,
 		Action:  inputmapper.ActionVerbExamine,
 		Accept:  func(_ w.World, _ ecs.Entity) bool { return true },
 		Exec:    nil,
@@ -73,6 +74,7 @@ var verbList = []itemVerb{
 		Label:   "Drop",
 		KeyHint: "d",
 		Key:     ebiten.KeyD,
+		Shift:   keybind.ShiftForbidden,
 		Action:  inputmapper.ActionVerbPlace,
 		// 装着アイテムは設備画面からのみ装着する。素で落とすと展開空間外に設備が残るので落とさせない
 		Accept: func(world w.World, entity ecs.Entity) bool { return !world.Components.Deployable.Has(entity) },
@@ -105,6 +107,16 @@ var verbList = []itemVerb{
 		Accept:  acceptUseTool,
 		Exec:    execUseItem,
 	},
+	{
+		ID:      verbDisassemble,
+		Label:   "Disassemble",
+		KeyHint: "D",
+		Key:     ebiten.KeyD,
+		Shift:   keybind.ShiftRequired,
+		Action:  inputmapper.ActionVerbDisassemble,
+		Accept:  acceptDisassemble,
+		Exec:    execDisassemble,
+	},
 }
 
 // acceptConsumeFood は栄養か回復を持つ消費物を食べるの対象とする。飲み物も含む
@@ -121,6 +133,24 @@ func acceptUseTool(world w.World, entity ecs.Entity) bool {
 		return false
 	}
 	return !world.Components.ProvidesNutrition.Has(entity) && !world.Components.ProvidesHealing.Has(entity)
+}
+
+// acceptDisassemble は材質の素材に戻せるアイテムを分解するの対象とする
+func acceptDisassemble(world w.World, entity ecs.Entity) bool {
+	_, _, ok := query.ItemDisassemblyYield(world, entity)
+	return ok
+}
+
+// execDisassemble は選択アイテムの分解を開始しダンジョンへ戻る。分解は重さに応じて複数ターンかかる
+func execDisassemble(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return es.Transition[w.World]{}, err
+	}
+	if _, err := activity.Execute(activity.NewDisassembleActivity(entity, world), player, world); err != nil {
+		return es.Transition[w.World]{}, err
+	}
+	return es.Transition[w.World]{Type: es.TransPop}, nil
 }
 
 // execPlace は選択アイテムをプレイヤーの足元に置いてダンジョンへ戻る。置く位置は指定しない
@@ -230,11 +260,7 @@ func (st *ItemActionState) Draw(_ w.World, screen *ebiten.Image) error {
 var itemActionBindings = func() []keybind.Binding {
 	bindings := slices.Clone(detailOpenBindings)
 	for _, v := range verbList {
-		shift := keybind.ShiftAny
-		if v.Shift {
-			shift = keybind.ShiftRequired
-		}
-		bindings = append(bindings, keybind.Binding{Key: v.Key, Shift: shift, Action: v.Action})
+		bindings = append(bindings, keybind.Binding{Key: v.Key, Shift: v.Shift, Action: v.Action})
 	}
 	return bindings
 }()
