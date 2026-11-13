@@ -158,7 +158,7 @@ func campusFence(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH 
 	gate := l.X == r.w/2
 	var out []consts.Coord[consts.Tile]
 	add := func(x, y consts.Tile) {
-		if gate && (y == 0 && l.Y == 0 || y == chunkH-1 && l.Y == r.h-1) && x < urbanStreetW {
+		if gate && ((y == 0 && l.Y == 0) || (y == chunkH-1 && l.Y == r.h-1)) && x < urbanStreetW {
 			return
 		}
 		out = append(out, consts.Coord[consts.Tile]{X: x, Y: y})
