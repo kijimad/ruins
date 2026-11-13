@@ -9,6 +9,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -32,7 +33,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 }
 
 // debugMenuChoices はデバッグメニューの選択肢を返す。開発用のスポーンやメッセージ確認をまとめる
-func debugMenuChoices(_ w.World) (string, []Choice) {
+func debugMenuChoices(world w.World) (string, []Choice) {
 	debugName := dungeon.DungeonDebug.Name()
 	choices := []Choice{
 		{Label: "Spawn healing potion (inventory)", Run: popAfter(func(world w.World) error {
@@ -66,6 +67,19 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 	for _, pt := range debugEnterPlanners {
 		choices = append(choices, Choice{Label: "Generate debug dungeon " + pt.Name, Run: popAfter(func(world w.World) error {
 			return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(debugName, pt.Name))
+		})})
+	}
+
+	// 区域の種類ごとに、北で一番近い区域の手前まで帯を進める。マルチチャンクの区域を次々に確かめる。
+	// 帯を進めるのは地上でだけできる
+	districts := raw.PtrSlice(world.Resources.RawMaster.Districts)
+	if !query.IsOnOverworld(world) {
+		districts = nil
+	}
+	for _, d := range districts {
+		id := d.Id
+		choices = append(choices, Choice{Label: "Jump to next district " + id, Run: popAfter(func(world w.World) error {
+			return lifecycle.RequestStateChange(world, gc.DebugJumpToDistrictEvent(id))
 		})})
 	}
 
