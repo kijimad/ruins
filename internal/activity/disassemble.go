@@ -114,7 +114,6 @@ func (b *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world 
 	if !ok {
 		return nil
 	}
-	name := query.GetEntityName(p.Target, world)
 	if err := lifecycle.ChangeItemCount(world, p.Target, -1); err != nil {
 		return fmt.Errorf("failed to consume disassembled item: %w", err)
 	}
@@ -123,7 +122,7 @@ func (b *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world 
 		return fmt.Errorf("failed to spawn disassembled material: %w", err)
 	}
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "disassembled %s into %s x%d", name, query.GetEntityName(material, world), count)).
+		Markup(query.T(world, "disassembled into %s x%d", query.GetEntityName(material, world), count)).
 		Log()
 	return nil
 }

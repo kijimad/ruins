@@ -6434,8 +6434,8 @@ msgstr "分解する"
 msgid "started disassembling %s"
 msgstr "%sの分解を始めた"
 
-msgid "disassembled %s into %s x%d"
-msgstr "%sを分解して%sを%d個得た"
+msgid "disassembled into %s x%d"
+msgstr "分解して%sを%d個得た"
 
 msgid "interrupted disassembling"
 msgstr "分解を中断した"
