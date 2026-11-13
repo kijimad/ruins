@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">11</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-13 14:27:07</td>
+            <td class="headerValue">2026-11-13 15:27:51</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,18 +77,39 @@
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // MaterialDef は材質1つの定義。raw の materials の1行から組み立てる</span>
 <span id="L17"><span class="lineNum">      17</span>              : type MaterialDef struct {</span>
-<span id="L18"><span class="lineNum">      18</span>              :         Name      i18n.Msgid // 表示名</span>
-<span id="L19"><span class="lineNum">      19</span>              :         HeatPerKg int        // kgあたり燃焼熱量。0 なら不燃</span>
-<span id="L20"><span class="lineNum">      20</span>              : }</span>
-<span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span>              : // MaterialDefs は材質ごとの表示名と燃焼熱量の表。読み込み時に raw から1度だけ組み立て、以後は変えない</span>
-<span id="L23"><span class="lineNum">      23</span>              : type MaterialDefs map[rawschema.Material]MaterialDef</span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              : // HeatOf は材質と重量から燃焼熱量を導く。不燃の材質は0を返す。</span>
-<span id="L26"><span class="lineNum">      26</span>              : // 整数で閉じるため mg 基準で計算し 1kg=1_000_000mg で割って kg 換算する。切り捨てで軽い物は0になる</span>
-<span id="L27"><span class="lineNum">      27</span>              : func (d MaterialDefs) HeatOf(material rawschema.Material, weight consts.Milligram) consts.Heat {</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">           1 :         return consts.Heat(d[material].HeatPerKg * int(weight) / consts.MilligramPerKg)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L18"><span class="lineNum">      18</span>              :         Name        i18n.Msgid           // 表示名</span>
+<span id="L19"><span class="lineNum">      19</span>              :         HeatPerKg   int                  // kgあたり燃焼熱量。0 なら不燃</span>
+<span id="L20"><span class="lineNum">      20</span>              :         Disassembly *MaterialDisassembly // 分解で戻る素材。nil なら分解できない</span>
+<span id="L21"><span class="lineNum">      21</span>              : }</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // MaterialDisassembly は材質のアイテムを分解したときに戻る素材</span>
+<span id="L24"><span class="lineNum">      24</span>              : type MaterialDisassembly struct {</span>
+<span id="L25"><span class="lineNum">      25</span>              :         Item      string           // 戻る素材の id</span>
+<span id="L26"><span class="lineNum">      26</span>              :         PerWeight consts.Milligram // 素材1個に要るアイテムの重さ</span>
+<span id="L27"><span class="lineNum">      27</span>              : }</span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : // MaterialDefs は材質ごとの表示名と燃焼熱量の表。読み込み時に raw から1度だけ組み立て、以後は変えない</span>
+<span id="L30"><span class="lineNum">      30</span>              : type MaterialDefs map[rawschema.Material]MaterialDef</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : // HeatOf は材質と重量から燃焼熱量を導く。不燃の材質は0を返す。</span>
+<span id="L33"><span class="lineNum">      33</span>              : // 整数で閉じるため mg 基準で計算し 1kg=1_000_000mg で割って kg 換算する。切り捨てで軽い物は0になる</span>
+<span id="L34"><span class="lineNum">      34</span>              : func (d MaterialDefs) HeatOf(material rawschema.Material, weight consts.Milligram) consts.Heat {</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC tlaBgGNC">           1 :         return consts.Heat(d[material].HeatPerKg * int(weight) / consts.MilligramPerKg)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : // DisassemblyOf は材質と重さのアイテム itemID を分解したときに戻る素材の id と個数を返す。</span>
+<span id="L39"><span class="lineNum">      39</span>              : // 個数は重さを PerWeight で割って切り捨てる。分解できない材質、戻し先の素材そのもの、1個に満たない軽い物は ok が false</span>
+<span id="L40"><span class="lineNum">      40</span>              : func (d MaterialDefs) DisassemblyOf(itemID string, material rawschema.Material, weight consts.Milligram) (id string, count int, ok bool) {</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         dis := d[material].Disassembly</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         if dis == nil || dis.Item == itemID {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, 0, false</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         count = int(weight / dis.PerWeight)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         if count &lt; 1 {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, 0, false</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return dis.Item, count, true</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : }</span>
         </pre>
               </td>
             </tr>

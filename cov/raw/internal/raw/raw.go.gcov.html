@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">96.5&nbsp;%</td>
-            <td class="headerCovTableEntry">798</td>
-            <td class="headerCovTableEntry">770</td>
+            <td class="headerCovTableEntryHi">96.3&nbsp;%</td>
+            <td class="headerCovTableEntry">804</td>
+            <td class="headerCovTableEntry">774</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-13 14:27:07</td>
+            <td class="headerValue">2026-11-13 15:27:51</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -1227,55 +1227,63 @@
 <span id="L1165"><span class="lineNum">    1165</span> <span class="tlaGNC">           1 :         return defs</span></span>
 <span id="L1166"><span class="lineNum">    1166</span>              : }</span>
 <span id="L1167"><span class="lineNum">    1167</span>              : </span>
-<span id="L1168"><span class="lineNum">    1168</span>              : // NewMaterialDefs は raw の materials から材質の表示名と燃焼熱量の表を組み立てる</span>
-<span id="L1169"><span class="lineNum">    1169</span>              : func NewMaterialDefs(raws rawschema.Raws) gc.MaterialDefs {</span>
+<span id="L1168"><span class="lineNum">    1168</span>              : // NewMaterialDefs は raw の materials から材質の表示名と燃焼熱量と分解の戻し先の表を組み立てる</span>
+<span id="L1169"><span class="lineNum">    1169</span>              : func NewMaterialDefs(raws rawschema.Raws) (gc.MaterialDefs, error) {</span>
 <span id="L1170"><span class="lineNum">    1170</span> <span class="tlaGNC">           1 :         defs := make(gc.MaterialDefs, len(PtrSlice(raws.Materials)))</span></span>
 <span id="L1171"><span class="lineNum">    1171</span> <span class="tlaGNC">           1 :         for _, row := range PtrSlice(raws.Materials) {</span></span>
-<span id="L1172"><span class="lineNum">    1172</span> <span class="tlaGNC">           1 :                 defs[row.Id] = gc.MaterialDef{Name: i18n.Msgid(row.Name), HeatPerKg: row.HeatPerKg}</span></span>
-<span id="L1173"><span class="lineNum">    1173</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L1174"><span class="lineNum">    1174</span> <span class="tlaGNC">           1 :         return defs</span></span>
-<span id="L1175"><span class="lineNum">    1175</span>              : }</span>
-<span id="L1176"><span class="lineNum">    1176</span>              : </span>
-<span id="L1177"><span class="lineNum">    1177</span>              : // toRGBA は raw の色を color.RGBA にする。nil なら nil を返す</span>
-<span id="L1178"><span class="lineNum">    1178</span>              : func toRGBA(c *rawschema.RGBAColor) *color.RGBA {</span>
-<span id="L1179"><span class="lineNum">    1179</span> <span class="tlaGNC">           1 :         if c == nil {</span></span>
-<span id="L1180"><span class="lineNum">    1180</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L1181"><span class="lineNum">    1181</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L1182"><span class="lineNum">    1182</span> <span class="tlaGNC">           1 :         return &amp;color.RGBA{R: c.R, G: c.G, B: c.B, A: c.A}</span></span>
+<span id="L1172"><span class="lineNum">    1172</span> <span class="tlaGNC">           1 :                 def := gc.MaterialDef{Name: i18n.Msgid(row.Name), HeatPerKg: row.HeatPerKg}</span></span>
+<span id="L1173"><span class="lineNum">    1173</span> <span class="tlaGNC">           1 :                 if row.Disassembly != nil {</span></span>
+<span id="L1174"><span class="lineNum">    1174</span> <span class="tlaGNC">           1 :                         per, err := consts.ParseWeight(row.Disassembly.PerWeight)</span></span>
+<span id="L1175"><span class="lineNum">    1175</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
+<span id="L1176"><span class="lineNum">    1176</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return nil, fmt.Errorf(&quot;material %s: %w&quot;, row.Id, err)</span></span>
+<span id="L1177"><span class="lineNum">    1177</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L1178"><span class="lineNum">    1178</span> <span class="tlaGNC tlaBgGNC">           1 :                         def.Disassembly = &amp;gc.MaterialDisassembly{Item: row.Disassembly.Item, PerWeight: per}</span></span>
+<span id="L1179"><span class="lineNum">    1179</span>              :                 }</span>
+<span id="L1180"><span class="lineNum">    1180</span> <span class="tlaGNC">           1 :                 defs[row.Id] = def</span></span>
+<span id="L1181"><span class="lineNum">    1181</span>              :         }</span>
+<span id="L1182"><span class="lineNum">    1182</span> <span class="tlaGNC">           1 :         return defs, nil</span></span>
 <span id="L1183"><span class="lineNum">    1183</span>              : }</span>
 <span id="L1184"><span class="lineNum">    1184</span>              : </span>
-<span id="L1185"><span class="lineNum">    1185</span>              : // NewNeedDefs は raw の hungerStages、fatigueStages、freshnessStages から空腹と疲労と鮮度の段階の表を組み立てる</span>
-<span id="L1186"><span class="lineNum">    1186</span>              : func NewNeedDefs(raws rawschema.Raws) gc.NeedDefs {</span>
-<span id="L1187"><span class="lineNum">    1187</span> <span class="tlaGNC">           1 :         conditionOf := func(s *rawschema.ConditionSeverity) gc.Severity {</span></span>
-<span id="L1188"><span class="lineNum">    1188</span> <span class="tlaGNC">           1 :                 if s == nil {</span></span>
-<span id="L1189"><span class="lineNum">    1189</span> <span class="tlaGNC">           1 :                         return gc.SeverityNone</span></span>
-<span id="L1190"><span class="lineNum">    1190</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L1191"><span class="lineNum">    1191</span> <span class="tlaGNC">           1 :                 return severities[*s]</span></span>
-<span id="L1192"><span class="lineNum">    1192</span>              :         }</span>
-<span id="L1193"><span class="lineNum">    1193</span> <span class="tlaGNC">           1 :         hunger := make([]gc.HungerStage, 0, len(PtrSlice(raws.HungerStages)))</span></span>
-<span id="L1194"><span class="lineNum">    1194</span> <span class="tlaGNC">           1 :         for _, row := range PtrSlice(raws.HungerStages) {</span></span>
-<span id="L1195"><span class="lineNum">    1195</span> <span class="tlaGNC">           1 :                 hunger = append(hunger, gc.HungerStage{</span></span>
-<span id="L1196"><span class="lineNum">    1196</span> <span class="tlaGNC">           1 :                         Level: row.Id, Name: i18n.Msgid(row.Name), From: row.From, Condition: conditionOf(row.Severity),</span></span>
-<span id="L1197"><span class="lineNum">    1197</span> <span class="tlaGNC">           1 :                         ReachedLog: i18n.Msgid(deref(row.ReachedLog)), WakesSleeper: deref(row.WakesSleeper), Badge: toRGBA(row.BadgeColor),</span></span>
-<span id="L1198"><span class="lineNum">    1198</span> <span class="tlaGNC">           1 :                 })</span></span>
-<span id="L1199"><span class="lineNum">    1199</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L1200"><span class="lineNum">    1200</span> <span class="tlaGNC">           1 :         fatigue := make([]gc.FatigueStage, 0, len(PtrSlice(raws.FatigueStages)))</span></span>
-<span id="L1201"><span class="lineNum">    1201</span> <span class="tlaGNC">           1 :         for _, row := range PtrSlice(raws.FatigueStages) {</span></span>
-<span id="L1202"><span class="lineNum">    1202</span> <span class="tlaGNC">           1 :                 fatigue = append(fatigue, gc.FatigueStage{</span></span>
-<span id="L1203"><span class="lineNum">    1203</span> <span class="tlaGNC">           1 :                         Level: row.Id, Name: i18n.Msgid(row.Name), From: row.From, Condition: conditionOf(row.Severity),</span></span>
-<span id="L1204"><span class="lineNum">    1204</span> <span class="tlaGNC">           1 :                         CanSleep: row.CanSleep, Badge: toRGBA(row.BadgeColor),</span></span>
-<span id="L1205"><span class="lineNum">    1205</span> <span class="tlaGNC">           1 :                 })</span></span>
-<span id="L1206"><span class="lineNum">    1206</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L1207"><span class="lineNum">    1207</span> <span class="tlaGNC">           1 :         freshness := make([]gc.FreshnessDef, 0, len(PtrSlice(raws.FreshnessStages)))</span></span>
-<span id="L1208"><span class="lineNum">    1208</span> <span class="tlaGNC">           1 :         for _, row := range PtrSlice(raws.FreshnessStages) {</span></span>
-<span id="L1209"><span class="lineNum">    1209</span> <span class="tlaGNC">           1 :                 freshness = append(freshness, gc.FreshnessDef{</span></span>
-<span id="L1210"><span class="lineNum">    1210</span> <span class="tlaGNC">           1 :                         Level: row.Id, From: row.From,</span></span>
-<span id="L1211"><span class="lineNum">    1211</span> <span class="tlaGNC">           1 :                         Name: i18n.Msgid(row.Name), NutritionPercent: row.NutritionPercent, EatLog: i18n.Msgid(row.EatLog), Marker: row.Marker,</span></span>
-<span id="L1212"><span class="lineNum">    1212</span> <span class="tlaGNC">           1 :                         IllnessChancePercent: deref(row.IllnessChancePercent),</span></span>
+<span id="L1185"><span class="lineNum">    1185</span>              : // toRGBA は raw の色を color.RGBA にする。nil なら nil を返す</span>
+<span id="L1186"><span class="lineNum">    1186</span>              : func toRGBA(c *rawschema.RGBAColor) *color.RGBA {</span>
+<span id="L1187"><span class="lineNum">    1187</span> <span class="tlaGNC">           1 :         if c == nil {</span></span>
+<span id="L1188"><span class="lineNum">    1188</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L1189"><span class="lineNum">    1189</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L1190"><span class="lineNum">    1190</span> <span class="tlaGNC">           1 :         return &amp;color.RGBA{R: c.R, G: c.G, B: c.B, A: c.A}</span></span>
+<span id="L1191"><span class="lineNum">    1191</span>              : }</span>
+<span id="L1192"><span class="lineNum">    1192</span>              : </span>
+<span id="L1193"><span class="lineNum">    1193</span>              : // NewNeedDefs は raw の hungerStages、fatigueStages、freshnessStages から空腹と疲労と鮮度の段階の表を組み立てる</span>
+<span id="L1194"><span class="lineNum">    1194</span>              : func NewNeedDefs(raws rawschema.Raws) gc.NeedDefs {</span>
+<span id="L1195"><span class="lineNum">    1195</span> <span class="tlaGNC">           1 :         conditionOf := func(s *rawschema.ConditionSeverity) gc.Severity {</span></span>
+<span id="L1196"><span class="lineNum">    1196</span> <span class="tlaGNC">           1 :                 if s == nil {</span></span>
+<span id="L1197"><span class="lineNum">    1197</span> <span class="tlaGNC">           1 :                         return gc.SeverityNone</span></span>
+<span id="L1198"><span class="lineNum">    1198</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L1199"><span class="lineNum">    1199</span> <span class="tlaGNC">           1 :                 return severities[*s]</span></span>
+<span id="L1200"><span class="lineNum">    1200</span>              :         }</span>
+<span id="L1201"><span class="lineNum">    1201</span> <span class="tlaGNC">           1 :         hunger := make([]gc.HungerStage, 0, len(PtrSlice(raws.HungerStages)))</span></span>
+<span id="L1202"><span class="lineNum">    1202</span> <span class="tlaGNC">           1 :         for _, row := range PtrSlice(raws.HungerStages) {</span></span>
+<span id="L1203"><span class="lineNum">    1203</span> <span class="tlaGNC">           1 :                 hunger = append(hunger, gc.HungerStage{</span></span>
+<span id="L1204"><span class="lineNum">    1204</span> <span class="tlaGNC">           1 :                         Level: row.Id, Name: i18n.Msgid(row.Name), From: row.From, Condition: conditionOf(row.Severity),</span></span>
+<span id="L1205"><span class="lineNum">    1205</span> <span class="tlaGNC">           1 :                         ReachedLog: i18n.Msgid(deref(row.ReachedLog)), WakesSleeper: deref(row.WakesSleeper), Badge: toRGBA(row.BadgeColor),</span></span>
+<span id="L1206"><span class="lineNum">    1206</span> <span class="tlaGNC">           1 :                 })</span></span>
+<span id="L1207"><span class="lineNum">    1207</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L1208"><span class="lineNum">    1208</span> <span class="tlaGNC">           1 :         fatigue := make([]gc.FatigueStage, 0, len(PtrSlice(raws.FatigueStages)))</span></span>
+<span id="L1209"><span class="lineNum">    1209</span> <span class="tlaGNC">           1 :         for _, row := range PtrSlice(raws.FatigueStages) {</span></span>
+<span id="L1210"><span class="lineNum">    1210</span> <span class="tlaGNC">           1 :                 fatigue = append(fatigue, gc.FatigueStage{</span></span>
+<span id="L1211"><span class="lineNum">    1211</span> <span class="tlaGNC">           1 :                         Level: row.Id, Name: i18n.Msgid(row.Name), From: row.From, Condition: conditionOf(row.Severity),</span></span>
+<span id="L1212"><span class="lineNum">    1212</span> <span class="tlaGNC">           1 :                         CanSleep: row.CanSleep, Badge: toRGBA(row.BadgeColor),</span></span>
 <span id="L1213"><span class="lineNum">    1213</span> <span class="tlaGNC">           1 :                 })</span></span>
 <span id="L1214"><span class="lineNum">    1214</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L1215"><span class="lineNum">    1215</span> <span class="tlaGNC">           1 :         return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}</span></span>
-<span id="L1216"><span class="lineNum">    1216</span>              : }</span>
+<span id="L1215"><span class="lineNum">    1215</span> <span class="tlaGNC">           1 :         freshness := make([]gc.FreshnessDef, 0, len(PtrSlice(raws.FreshnessStages)))</span></span>
+<span id="L1216"><span class="lineNum">    1216</span> <span class="tlaGNC">           1 :         for _, row := range PtrSlice(raws.FreshnessStages) {</span></span>
+<span id="L1217"><span class="lineNum">    1217</span> <span class="tlaGNC">           1 :                 freshness = append(freshness, gc.FreshnessDef{</span></span>
+<span id="L1218"><span class="lineNum">    1218</span> <span class="tlaGNC">           1 :                         Level: row.Id, From: row.From,</span></span>
+<span id="L1219"><span class="lineNum">    1219</span> <span class="tlaGNC">           1 :                         Name: i18n.Msgid(row.Name), NutritionPercent: row.NutritionPercent, EatLog: i18n.Msgid(row.EatLog), Marker: row.Marker,</span></span>
+<span id="L1220"><span class="lineNum">    1220</span> <span class="tlaGNC">           1 :                         IllnessChancePercent: deref(row.IllnessChancePercent),</span></span>
+<span id="L1221"><span class="lineNum">    1221</span> <span class="tlaGNC">           1 :                 })</span></span>
+<span id="L1222"><span class="lineNum">    1222</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L1223"><span class="lineNum">    1223</span> <span class="tlaGNC">           1 :         return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}</span></span>
+<span id="L1224"><span class="lineNum">    1224</span>              : }</span>
         </pre>
               </td>
             </tr>
