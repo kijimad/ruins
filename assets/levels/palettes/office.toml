@@ -1,0 +1,102 @@
+[palette]
+id = "office"
+description = "事務所"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"=" = "floor_concrete"
+"." = "floor_linoleum"
+"~" = "floor_tile"
+
+[palette.props."+"]
+tile = "floor_linoleum"
+id = "door"
+
+[palette.props."w"]
+tile = "wall"
+id = "window"
+
+[palette.props."D"]
+tile = "floor_linoleum"
+id = "desk"
+lootTable = "office_storage"
+
+[palette.props."h"]
+tile = "floor_linoleum"
+id = "chair"
+
+[palette.props."k"]
+tile = "floor_linoleum"
+candidates = [{ id = "desktop_pc", weight = 3 }, { id = "printer", weight = 1 }]
+
+[palette.props."u"]
+tile = "floor_linoleum"
+id = "cubicle_partition"
+
+[palette.props."L"]
+tile = "floor_linoleum"
+candidates = [{ id = "locker", weight = 1 }, { id = "closet", weight = 1 }]
+lootTable = "office_storage"
+
+[palette.props."B"]
+tile = "floor_linoleum"
+id = "whiteboard"
+
+[palette.props."t"]
+tile = "floor_linoleum"
+id = "table"
+
+[palette.props."n"]
+tile = "floor_linoleum"
+id = "bench"
+
+[palette.props."P"]
+tile = "floor_linoleum"
+id = "plant"
+
+[palette.props."W"]
+tile = "floor_linoleum"
+id = "water_cooler"
+
+[palette.props."K"]
+tile = "floor_linoleum"
+id = "kitchen_sink"
+
+[palette.props."c"]
+tile = "floor_linoleum"
+id = "coffee_maker"
+
+[palette.props."R"]
+tile = "floor_linoleum"
+id = "refrigerator"
+lootTable = "pantry"
+
+[palette.props."T"]
+tile = "floor_tile"
+id = "toilet"
+
+[palette.props."S"]
+tile = "floor_linoleum"
+id = "server_rack"
+
+[palette.props."V"]
+tile = "floor_concrete"
+id = "vending_machine"
+
+[palette.props."p"]
+tile = "dirt"
+candidates = [{ id = "plant", weight = 2 }, { id = "bush", weight = 1 }]
+
+[palette.items."o"]
+itemGroup = "office_goods"
+tile = "floor_linoleum"
+chance = 40
+
+[palette.items."D"]
+itemGroup = "office_goods"
+chance = 20
+
+[palette.beings."z"]
+tile = "floor_linoleum"
+chance = 30

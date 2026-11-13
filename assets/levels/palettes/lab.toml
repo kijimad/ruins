@@ -1,0 +1,100 @@
+[palette]
+id = "lab"
+description = "研究所"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"=" = "floor_concrete"
+"." = "floor_tile"
+
+[palette.props."+"]
+tile = "floor_tile"
+id = "door"
+
+[palette.props."w"]
+tile = "wall"
+id = "window"
+
+[palette.props."Q"]
+tile = "floor_tile"
+id = "reception_counter"
+
+[palette.props."n"]
+tile = "floor_tile"
+id = "bench"
+
+[palette.props."P"]
+tile = "floor_tile"
+id = "plant"
+
+[palette.props."g"]
+tile = "floor_tile"
+candidates = [{ id = "generator_green", weight = 1 }, { id = "generator_yellow", weight = 1 }]
+
+[palette.props."G"]
+tile = "floor_tile"
+id = "gauge_machine"
+
+[palette.props."S"]
+tile = "floor_tile"
+id = "server_rack"
+
+[palette.props."m"]
+tile = "floor_tile"
+id = "medical_monitor"
+
+[palette.props."D"]
+tile = "floor_tile"
+id = "desk"
+lootTable = "office_storage"
+
+[palette.props."k"]
+tile = "floor_tile"
+id = "desktop_pc"
+
+[palette.props."h"]
+tile = "floor_tile"
+id = "chair"
+
+[palette.props."M"]
+tile = "floor_tile"
+id = "gauge_machine"
+
+[palette.props."W"]
+tile = "floor_tile"
+id = "whiteboard"
+
+[palette.props."L"]
+tile = "floor_tile"
+id = "medicine_cabinet"
+lootTable = "medicine_shelf"
+
+[palette.props."B"]
+tile = "floor_tile"
+candidates = [{ id = "white_barrel", weight = 2 }, { id = "green_drum", weight = 2 }, { id = "red_drum", weight = 1 }, { id = "poison_barrel", weight = 1 }]
+
+[palette.props."C"]
+tile = "floor_tile"
+id = "cage"
+
+[palette.props."V"]
+tile = "floor_concrete"
+id = "vending_machine"
+
+[palette.props."p"]
+tile = "dirt"
+candidates = [{ id = "plant", weight = 2 }, { id = "bush", weight = 1 }]
+
+[palette.items."o"]
+itemGroup = "industrial_materials"
+tile = "floor_tile"
+chance = 40
+
+[palette.items."L"]
+itemGroup = "healing_item"
+chance = 20
+
+[palette.beings."z"]
+tile = "floor_tile"
+chance = 35

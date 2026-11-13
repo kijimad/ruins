@@ -1,0 +1,81 @@
+[palette]
+id = "depot"
+description = "倉庫"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"=" = "floor_concrete"
+"." = "floor_concrete"
+"_" = "floor_linoleum"
+"~" = "floor_tile"
+
+[palette.props."+"]
+tile = "floor_concrete"
+id = "door"
+
+[palette.props."w"]
+tile = "wall"
+id = "window"
+
+[palette.props."B"]
+tile = "floor_concrete"
+id = "barrel"
+lootTable = "depot_storage"
+
+[palette.props."X"]
+tile = "floor_concrete"
+id = "wooden_crate"
+lootTable = "depot_storage"
+
+[palette.props."I"]
+tile = "floor_concrete"
+id = "iron_shelf"
+
+[palette.props."p"]
+tile = "floor_concrete"
+id = "pallet"
+
+[palette.props."F"]
+tile = "floor_concrete"
+id = "forklift"
+
+[palette.props."D"]
+tile = "floor_linoleum"
+id = "desk"
+lootTable = "office_storage"
+
+[palette.props."h"]
+tile = "floor_linoleum"
+id = "chair"
+
+[palette.props."L"]
+tile = "floor_linoleum"
+id = "locker"
+lootTable = "office_storage"
+
+[palette.props."T"]
+tile = "floor_tile"
+id = "toilet"
+
+[palette.props."s"]
+tile = "floor_tile"
+id = "sink"
+
+[palette.props."g"]
+tile = "dirt"
+candidates = [{ id = "weeds", weight = 2 }, { id = "bush", weight = 1 }]
+
+[palette.items."m"]
+itemGroup = "industrial_materials"
+tile = "floor_concrete"
+chance = 40
+repeat = [1, 2]
+
+[palette.items."I"]
+itemGroup = "industrial_materials"
+chance = 25
+
+[palette.beings."z"]
+tile = "floor_concrete"
+chance = 30
