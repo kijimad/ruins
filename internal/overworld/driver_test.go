@@ -28,8 +28,8 @@ func countCubes(world w.World) int {
 }
 
 const (
-	testChunkW consts.Tile  = 30
-	testChunkH consts.Tile  = 20
+	testChunkW consts.Tile  = 24
+	testChunkH consts.Tile  = 24
 	testCols   consts.Chunk = 1 // 有界の回廊幅
 	testRows   consts.Chunk = 3 // 北へ流す窓の行数
 )
@@ -165,7 +165,7 @@ func TestDriver_MaybeShift_中央では動かない(t *testing.T) {
 func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 40, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	const cols consts.Chunk = 1
 	const rows consts.Chunk = 3
 
@@ -221,7 +221,7 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	const cols consts.Chunk = 1
 	// chunkTypeAt が集落と分類するチャンクを探す。集落は Y リージョンなので Y を振る
 	var seed uint64

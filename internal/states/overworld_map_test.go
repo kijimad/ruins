@@ -20,7 +20,7 @@ import (
 func TestOverworldMapState_キューブのチャンク位置を出す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 24, 24, 3, 1), &overworld.NewGameParams{RunSeed: 42})
 	require.NoError(t, drv.Start(world)) // プレイヤー付近の中央チャンクにキューブを1体スポーンする
 
 	// プレイヤーを中央のキューブと別チャンクへ動かす。同じチャンクだとキューブは向きポインタに隠れる

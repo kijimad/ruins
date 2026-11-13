@@ -21,7 +21,7 @@ import (
 func TestChunkGen_継ぎ目は生成順に依存しない(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	const runSeed uint64 = 42
 	planner := mapplanner.PlannerTypeOverworldField
 
@@ -157,7 +157,7 @@ func TestRecalcChunkSeams_南北境界は隣を見て再計算する(t *testing.
 func TestChunkGen_縦の継ぎ目は生成順に依存しない(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 30, 20
+	const chunkW, chunkH consts.Tile = 24, 24
 	const runSeed uint64 = 42
 	planner := mapplanner.PlannerTypeOverworldField
 

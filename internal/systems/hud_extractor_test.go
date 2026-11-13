@@ -44,7 +44,7 @@ func TestExtractMacroMapData_オーバーワールドは近傍をフォグ付き
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.SetScreenDimensions(800, 600)
-	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 24, 24, 3, 1), &overworld.NewGameParams{RunSeed: 42})
 	require.NoError(t, drv.Start(world)) // プレイヤーとキューブをスポーンする
 
 	// 探索フォグを1タイルぶん開ける。VisionSystem が書くのと同じ ExploredTiles を直接埋める。

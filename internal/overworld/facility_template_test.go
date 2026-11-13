@@ -2,10 +2,14 @@ package overworld
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -102,4 +106,75 @@ func unreachableCells(cells [][]maptemplate.MapCell, blockedTile, blockedProp ma
 		}
 	}
 	return bad
+}
+
+func TestFacilityTemplates_収納家具は戦利品表を持つ(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := facilityTemplates()
+	require.NoError(t, err)
+
+	storage := map[string]bool{}
+	for _, p := range raw.PtrSlice(raws.Props) {
+		storage[p.Id] = p.Storage != nil
+	}
+	for _, fac := range loader.Facilities() {
+		for seed := range uint64(200) {
+			_, cells, err := loader.FacilityChunk(fac, seed)
+			require.NoError(t, err)
+			for y, row := range cells {
+				for x, c := range row {
+					if storage[c.Prop] {
+						assert.NotEmpty(t, c.LootTable, "%s seed=%d %s at %d,%d", fac, seed, c.Prop, x, y)
+					}
+				}
+			}
+		}
+	}
+}
+
+func TestFacilityTemplates_全施設に絵がある(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := facilityTemplates()
+	require.NoError(t, err)
+
+	facilities := raw.PtrSlice(raws.Facilities)
+	want := make([]string, 0, len(facilities))
+	for _, f := range facilities {
+		want = append(want, f.Id)
+	}
+	assert.ElementsMatch(t, want, loader.Facilities())
+}
+
+func TestSpawnFacility_畳は屋内で土は屋外(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	loader, err := facilityTemplates()
+	require.NoError(t, err)
+	_, cells, err := loader.FacilityChunk("house", 1)
+	require.NoError(t, err)
+	g := chunkGeom{chunkW: facilityLot, chunkH: facilityLot, tiles: &tileIndex{world: world, loX: 0, hiX: facilityLot}}
+	_, _, err = spawnFacility(world, g, cells, 0, 0, "house", raw.MinDanger, 1)
+	require.NoError(t, err)
+
+	got := map[string]map[rawschema.Shelter]int{}
+	for _, e := range g.tiles.get() {
+		if !world.Components.TileEnvironment.Has(e) {
+			continue
+		}
+		id := world.Components.RawID.Get(e).ID
+		if got[id] == nil {
+			got[id] = map[rawschema.Shelter]int{}
+		}
+		got[id][world.Components.TileEnvironment.Get(e).Shelter]++
+	}
+	for _, id := range []string{"floor_tatami", consts.TileNameDirt} {
+		require.NotEmpty(t, got[id], id)
+	}
+	assert.Equal(t, []rawschema.Shelter{rawschema.Indoor}, slices.Collect(maps.Keys(got["floor_tatami"])))
+	assert.Equal(t, []rawschema.Shelter{rawschema.Outdoor}, slices.Collect(maps.Keys(got[consts.TileNameDirt])))
 }
