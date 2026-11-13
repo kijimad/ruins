@@ -307,7 +307,7 @@ func fuelRow(world w.World, heat consts.Heat) SpecRow {
 // disassemblyRow は1個を分解したときに戻る素材と個数の行を返す
 func disassemblyRow(world w.World, id string, count int) SpecRow {
 	name := query.T(world, raw.ItemName(world.Resources.RawMaster, id))
-	return SpecRow{Label: query.T(world, "Disassembles into"), Value: fmt.Sprintf("%s x%d", name, count)}
+	return SpecRow{Label: query.T(world, "Disassembly"), Value: fmt.Sprintf("%s x%d", name, count)}
 }
 
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し

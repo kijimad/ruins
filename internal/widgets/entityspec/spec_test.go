@@ -461,7 +461,7 @@ func TestUpdateSpec_分解できるアイテムは戻る素材と個数の行を
 
 	assert.Equal(t, []string{
 		"Basic", "Material", query.T(world, "Metal"),
-		query.T(world, "Disassembles into"), query.T(world, "Scrap Iron") + " x4",
+		query.T(world, "Disassembly"), query.T(world, "Scrap Iron") + " x4",
 		"Weight", consts.Milligram(4_000_000).String(),
 	}, labels)
 }
@@ -480,7 +480,7 @@ func TestUpdateSpecFromSpec_分解できるアイテムは戻る素材と個数�
 
 	assert.Equal(t, []string{
 		"Basic", "Material", query.T(world, "Metal"),
-		query.T(world, "Disassembles into"), query.T(world, "Scrap Iron") + " x4",
+		query.T(world, "Disassembly"), query.T(world, "Scrap Iron") + " x4",
 		"Weight", consts.Milligram(4_000_000).String(),
 	}, labels)
 }
