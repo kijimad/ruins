@@ -313,6 +313,8 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return NewFeedFuelMenuState(FireFuelSink(p.FireEntity)) },
 		}}, nil
+	case gc.Escape:
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunClearState}}, nil
 	case gc.OpenCubeMenu:
 		// 移動拠点キューブのメニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{

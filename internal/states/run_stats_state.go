@@ -64,6 +64,15 @@ func NewRunResultState() (es.State[w.World], error) {
 	}, nil
 }
 
+// NewRunClearState は run のクリアの結果画面を作る。死の結果画面と同じテーブルで統計を見せ、任意キーでメインメニューへ戻す
+func NewRunClearState() (es.State[w.World], error) {
+	return &RunStatsState{
+		headerMsgid:  "You escaped the planet.",
+		exit:         es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}},
+		exitOnSelect: true,
+	}, nil
+}
+
 // OnStart は Screen を組み立てる。overlay は持たない読み取り専用画面
 func (st *RunStatsState) OnStart(_ w.World) error {
 	st.screen = menuloop.NewScreen[RunStatsProps](st)

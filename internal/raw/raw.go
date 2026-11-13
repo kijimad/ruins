@@ -382,6 +382,9 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	// 火種。所持していると隣接の燃焼物に着火できる道具
+	if item.EscapeDevice != nil {
+		entitySpec.EscapeDevice = &gc.EscapeDevice{}
+	}
 	if item.FireStarter != nil {
 		entitySpec.FireStarter = &gc.FireStarter{}
 	}

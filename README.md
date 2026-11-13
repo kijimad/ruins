@@ -106,8 +106,8 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [施設の多様化](docs/design/261108165219.md) | 9/15（見送り1） | worldgen, item, gamedesign |
-| in-progress | [脱出の鍵・作る段・アイテムの分解を足し、世界をオーバーワールドに一本化してゲームループを閉じる](docs/design/261111002908.md) | 5/18 | gamedesign, item, worldgen, refactor |
+| in-progress | [施設の多様化](docs/design/261108165219.md) | 9/17（見送り1） | worldgen, item, gamedesign |
+| in-progress | [脱出の鍵・作る段・アイテムの分解を足し、世界をオーバーワールドに一本化してゲームループを閉じる](docs/design/261111002908.md) | 10/11（見送り7） | gamedesign, item, worldgen, refactor |
 
 
 ## Reference
