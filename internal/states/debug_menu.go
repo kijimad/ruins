@@ -70,8 +70,7 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 		})})
 	}
 
-	// 区域の種類ごとに、北で一番近い区域の手前まで帯を進める。マルチチャンクの区域を次々に確かめる。
-	// 帯を進めるのは地上でだけできる
+	// 区域の種類ごとに、北で一番近い区域の手前まで帯を進める。帯は地上にしか無い
 	districts := raw.PtrSlice(world.Resources.RawMaster.Districts)
 	if !query.IsOnOverworld(world) {
 		districts = nil

@@ -23,9 +23,8 @@ var (
 const districtJumpSearch = 100
 
 // JumpToDistrict はプレイヤーの北で一番近い種類 id の区域まで帯を進め、プレイヤーを区域の南の端の
-// 真ん中の列のすぐ外へ、キューブをその隣へ置く。デバッグで区域を次々に確かめるため。
-// 帯は1行ずつ北へシフトし、シフトのたびにプレイヤーとキューブを1行北へ動かして中央の行に留める。
-// シフトは南端の行を捨てるので、キューブを連れていかないと失う
+// 真ん中の列のすぐ外へ、キューブをその隣へ置く。シフトは南端の行を捨てるので、シフトのたびにプレイヤーと
+// キューブを1行北へ動かして中央の行に留める
 func (dr *Driver) JumpToDistrict(world w.World, id string) error {
 	raws := world.Resources.RawMaster
 	var target *district

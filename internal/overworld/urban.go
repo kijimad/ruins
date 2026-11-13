@@ -61,10 +61,8 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 // industrialUrbanBit は市街地の性格を住宅地寄りか産業区寄りかに振る、区域の seed のビット。
 const industrialUrbanBit = uint64(1) << 32
 
-// zoneOf は市街地内のローカルチャンク座標から地区を決める純関数。中心に近いチャンクを都心、それ以外を
-// 市街地の性格で住宅地か産業区にする。中心からの距離は2倍座標のチェビシェフ距離で測り、短い辺から3を
-// 引いた値以下を都心にする。3×3 なら中心の1マス、5×5 なら中心の3×3 で、2×2 には都心が無い。
-// 大きい街ほど都心が広く、専門施設が集まる。
+// zoneOf は市街地内のローカルチャンク座標から地区を決める純関数。中心からの2倍座標のチェビシェフ距離が
+// 短い辺から3を引いた値以下なら都心、それ以外は市街地の性格で住宅地か産業区にする
 func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) rawschema.Zone {
 	dx := int(lx)*2 - int(cw-1)
 	dy := int(ly)*2 - int(ch-1)
@@ -189,7 +187,7 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 	return danger
 }
 
-// renderUrbanChunk は1チャンクに建物1棟を描き、施設種別の絵を描き、塀を置き、規模に応じた敵を湧かせる。塀はチャンク内の座標で受ける。
+// renderUrbanChunk は1チャンクに街路と施設の絵と塀を置き、規模に応じた敵を湧かせる。塀はチャンク内の座標で受ける。
 func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac string, danger consts.Danger, fence []consts.Coord[consts.Tile]) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、施設の絵の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
