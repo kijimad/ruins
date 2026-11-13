@@ -797,7 +797,7 @@
 				
 				<option value="file370">github.com/kijimaD/ruins/internal/world/lifecycle/shelter.go (95.5%)</option>
 				
-				<option value="file371">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.8%)</option>
+				<option value="file371">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.2%)</option>
 				
 				<option value="file372">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (91.7%)</option>
 				
@@ -49986,7 +49986,9 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
         <span class="cov0" title="0">t.Helper()
 </span>
         <span class="cov0" title="0">drawFn := setupFn()
-        screen := ebiten.NewImage(width, height)
+</span>        // 描き先も unmanaged にする。共有アトラス上の配置は並行テストの生成順で変わり、
+        // linear で引き伸ばす画像のサンプル行がずれる。機構は components.Texture を参照
+        <span class="cov0" title="0">screen := ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), &amp;ebiten.NewImageOptions{Unmanaged: true})
         drawFn(screen)
         img := captureScreen(screen)
 </span>
@@ -56915,7 +56917,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov8" title="1">return 1
+                <span class="cov0" title="0">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
