@@ -7,7 +7,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/mapplanner/interior"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -23,7 +22,7 @@ import (
 // 約600タイルで期待 1 タイル強に相当する。屑物 group 側も低確率なので、実際に物が出るのはさらに疎になる。
 const outdoorLootDensity = 0.002
 
-// outdoorLootItemChannel はアイテム抽選を座標選択と無相関にするハッシュチャネル。ScatterArea のタイル選択
+// outdoorLootItemChannel はアイテム抽選を座標選択と無相関にするハッシュチャネル。scatterTiles のタイル選択
 // seed と別チャネルにし、どのタイルに何が出るかの相関を切る。scatter.go の grass/weed チャネルと同じ考え方。
 const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // "loot_itm"
 
@@ -31,17 +30,16 @@ const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // "loot_itm"
 // occupied は草・樹木の散布と共有して重なりを避ける。group は散布ゾーン行の lootGroup から引き、
 // 抽選は建物 loot と同じ raw.SelectFromItemGroup で行い、深度は扱わない。乱数は
 // 散布とは別の salt から引き、地物や建物 loot の消費順と干渉させない。同一 seed で同一結果、再訪で一致する。
-func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], g chunkGeom, cat scatterCatalog, accept func(interior.Vec) bool, occupied map[gc.GridElement]bool) error {
+func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], g chunkGeom, cat scatterCatalog, accept func(consts.Coord[consts.Tile]) bool, occupied map[gc.GridElement]bool) error {
 	groupID := cat.LootGroup
 
-	area := interior.Rect{X: 0, Y: 0, W: g.chunkW, H: g.chunkH}
 	// タイル選択の seed とアイテム抽選の rng を別チャネルにする。同一 seed だと「どこに置くか」と「何を置くか」が
 	// 相関しうるので、アイテム側は専用チャネルを XOR して無相関にする
 	selSeed := ChunkSeed2D(runSeed^outdoorLootSalt, c.X, c.Y)
 	rng := rand.New(rand.NewPCG(selSeed^outdoorLootItemChannel, outdoorLootSalt))
 	count := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * outdoorLootDensity))
 
-	for _, rel := range interior.ScatterArea(area, accept, selSeed, count) {
+	for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, count) {
 		draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)
 		if err != nil {
 			return err
