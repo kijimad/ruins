@@ -134,10 +134,10 @@ func (st *StorageMenuState) toStorageItemData(world w.World, stacks []query.Stac
 		rep := stack.Rep
 		total := query.GetEntityWeight(world, rep) * consts.Milligram(stack.Count)
 		items[i] = itemRowData{
-			Entity: rep,
-			Name:   query.GetEntityName(rep, world),
-			Weight: total.KgString(),
-			Count:  stack.Count,
+			Entity:   rep,
+			Name:     query.GetEntityName(rep, world),
+			Trailing: total.KgString(),
+			Count:    stack.Count,
 		}
 	}
 	return items
@@ -210,7 +210,7 @@ func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps,
 	cols := itemMenuColumns(styled.Num())
 	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Trailing)
 	}
 	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No items"), ItemsPerPage: perPage}, res)
 }

@@ -110,11 +110,15 @@ var goldenCases = []struct {
 		steps: []replayStep{{shot: true}},
 	},
 	// ItemAction は動詞タブ画面の全タブを撮る。動詞ごとにバックパックのアイテムが
-	// 適用可否で絞られる。回復薬は調べる・置く・食べる・使うに出て、読むには出ない
+	// 適用可否で絞られる。回復薬は調べる・置く・食べる・使うに出て、読むには出ない。
+	// ハンマーは分解のタブで戻る素材と個数を出す
 	{
 		name: "ItemAction",
 		build: func(world w.World) ([]es.State[w.World], error) {
 			if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
+				return nil, err
+			}
+			if _, err := lifecycle.SpawnBackpackItem(world, "hammer", 1); err != nil {
 				return nil, err
 			}
 			return []es.State[w.World]{&gs.ItemActionState{}}, nil
@@ -125,6 +129,7 @@ var goldenCases = []struct {
 			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Eat"},
 			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Read"},
 			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Use"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Disassemble"},
 		},
 	},
 	// ItemAction_VerbJump は動詞キーでのタブジャンプが画面へ反映されることを固定する。
