@@ -51584,7 +51584,7 @@
     {
       "X": 20,
       "Y": 11,
-      "Name": "pickaxe",
+      "Name": "fire_extinguisher",
       "Count": 1
     },
     {
@@ -51596,7 +51596,7 @@
     {
       "X": 16,
       "Y": 1,
-      "Name": "shovel",
+      "Name": "needle_tool",
       "Count": 1
     },
     {
