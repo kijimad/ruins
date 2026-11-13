@@ -37,6 +37,8 @@ func TestAddFloorLoot(t *testing.T) {
 		require.NotNil(t, result.weapon)
 		assert.Equal(t, "torch", result.weaponName)
 		assert.Equal(t, 5, result.weapon.Damage)
+		// torch の value 15 の売却額は半分の7
+		assert.Equal(t, 7, result.income)
 
 		addFloorLoot(result, master, raw.DrawnItem{Name: "bare_hands", Count: 1}, 80)
 		assert.Equal(t, "torch", result.weaponName)
@@ -77,7 +79,7 @@ func TestRollFloorLoot(t *testing.T) {
 	})
 }
 
-func TestSimulateRun_境界(t *testing.T) {
+func TestSimulateRun(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 
@@ -105,6 +107,8 @@ func TestSimulateRun_境界(t *testing.T) {
 		assert.Len(t, result.HPByDepth, maxDepth)
 		assert.Len(t, result.HPBeforeHealByDepth, maxDepth)
 		assert.Len(t, result.WeaponByDepth, maxDepth)
+		assert.Len(t, result.WeaponDamageByDepth, maxDepth)
+		assert.Len(t, result.AvgKillTurnsByDepth, maxDepth)
 		assert.Len(t, result.HungerByDepth, maxDepth)
 		assert.GreaterOrEqual(t, result.LootIncome, 0)
 	})
