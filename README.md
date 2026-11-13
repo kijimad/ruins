@@ -108,7 +108,6 @@ $ make help
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 9/15（見送り1） | worldgen, item, gamedesign |
 | in-progress | [脱出の鍵・作る段・アイテムの分解を足し、世界をオーバーワールドに一本化してゲームループを閉じる](docs/design/261111002908.md) | 5/18 | gamedesign, item, worldgen, refactor |
-| in-progress | [複数のチャンクにまたがる建物を、部屋の絵の組み合わせで作る](docs/design/261114012608.md) | 0/7 | worldgen, gamedesign |
 
 
 ## Reference

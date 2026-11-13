@@ -426,7 +426,23 @@ import "strings"
 
 	// 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
 	lootedChance?: int32 & >=0 & <=100
+
+	// 建物の大きさの候補。チャンク数で、区画に収まらなければ小さくする。省けば 1×1
+	footprints?: [...#FacilityFootprint]
+
+	// 2チャンク以上の建物の中の繋がり。省けば rooms
+	interior?: #FacilityInterior
 }
+
+// 建物の大きさの候補
+#FacilityFootprint: {
+	w!:      int & >=1
+	h!:      int & >=1
+	weight!: int & >=1
+}
+
+// 2チャンク以上の建物の中の繋がり。rooms は部屋を扉で繋ぐ迷路、hall はチャンクの境に壁の無い広い空間
+#FacilityInterior: "rooms" | "hall" @rawgen(prefix)
 
 // 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
 #FacilityZone: {

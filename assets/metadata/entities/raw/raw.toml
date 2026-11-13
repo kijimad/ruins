@@ -3141,6 +3141,32 @@
     weight = 1
     zone = "campus_quarantine"
 
+[[facilities]]
+  enemyTable = "lab_enemies"
+  id = "lab_main"
+  interior = "rooms"
+  lootedChance = 20
+
+  [[facilities.footprints]]
+    h = 3
+    w = 3
+    weight = 2
+
+  [[facilities.footprints]]
+    h = 4
+    w = 3
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 3
+    w = 4
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 3
+    zone = "campus_inner"
+
 [[fatigueStages]]
   canSleep = false
   from = 0.0
@@ -16815,6 +16841,17 @@
     b = 120
     g = 70
     r = 210
+
+[[mapGlyphs]]
+  glyph = "M"
+  id = "lab_main"
+  name = "Main Lab"
+  order = 18
+  [mapGlyphs.color]
+    a = 255
+    b = 210
+    g = 190
+    r = 100
 
 [[materials]]
   heatPerKg = 200

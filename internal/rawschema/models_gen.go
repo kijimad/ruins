@@ -885,12 +885,53 @@ func EquipmentCategoryValues() []EquipmentCategory {
 type Facility struct {
 	EnemyTable EntityID `json:"enemyTable"`
 
+	// Footprints 建物の大きさの候補。チャンク数で、区画に収まらなければ小さくする。省けば 1×1
+	Footprints *[]FacilityFootprint `json:"footprints,omitempty"`
+
 	Id EntityID `json:"id"`
+
+	// Interior 2チャンク以上の建物の中の繋がり。省けば rooms
+	Interior *FacilityInterior `json:"interior,omitempty"`
 
 	// LootedChance 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
 	LootedChance *int32 `json:"lootedChance,omitempty"`
 
 	Zones []FacilityZone `json:"zones"`
+}
+
+// FacilityFootprint 建物の大きさの候補
+type FacilityFootprint struct {
+	H int `json:"h"`
+
+	W int `json:"w"`
+
+	Weight int `json:"weight"`
+}
+
+// FacilityInterior 2チャンク以上の建物の中の繋がり。rooms は部屋を扉で繋ぐ迷路、hall はチャンクの境に壁の無い広い空間
+type FacilityInterior string
+
+// Defines values for FacilityInterior.
+const (
+	FacilityInteriorHall  FacilityInterior = "hall"
+	FacilityInteriorRooms FacilityInterior = "rooms"
+)
+
+// Valid indicates whether the value is a known member of the FacilityInterior enum.
+func (e FacilityInterior) Valid() bool {
+	switch e {
+	case FacilityInteriorHall:
+		return true
+	case FacilityInteriorRooms:
+		return true
+	default:
+		return false
+	}
+}
+
+// FacilityInteriorValues は FacilityInterior の値を、スキーマに書いた順に返す。
+func FacilityInteriorValues() []FacilityInterior {
+	return []FacilityInterior{FacilityInteriorRooms, FacilityInteriorHall}
 }
 
 // FacilityZone 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる

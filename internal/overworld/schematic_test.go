@@ -51,7 +51,7 @@ func TestChunkPlace_市街地の建物チャンクは施設種別の文字を返
 	seed, c := findUrbanChunk(t, raws, rows)
 	r, ok := districtAt(raws, seed, c, rows)
 	require.True(t, ok, "前提: 市街地チャンク")
-	kind := urbanFacilityAt(cat, r, c)
+	kind := urbanFacilityAt(raws, cat, r, c)
 
 	g, ok := glyphByID(raws, kind)
 	require.True(t, ok, "施設 %q の記号が mapGlyphs にある", kind)

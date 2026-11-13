@@ -112,7 +112,7 @@ func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.C
 	switch chunkTypeAt(raws, runSeed, c, cols) {
 	case chunkUrban:
 		r, _ := districtAt(raws, runSeed, c, cols)
-		if g, ok := glyphByID(raws, urbanFacilityAt(cat, r, c)); ok {
+		if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c)); ok {
 			return g.Label
 		}
 		return placeUnknownGlyph

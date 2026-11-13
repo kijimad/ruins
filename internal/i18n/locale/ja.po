@@ -1689,6 +1689,9 @@ msgstr "講義棟"
 msgid "Quarantine"
 msgstr "閉鎖区画"
 
+msgid "Main Lab"
+msgstr "研究本館"
+
 msgid "Wasteland"
 msgstr "荒れ地"
 

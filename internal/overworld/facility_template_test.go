@@ -34,6 +34,10 @@ func TestFacilityTemplates_扉が塞がらず全ての床へ入れる(t *testing
 	}
 
 	for _, fac := range loader.Facilities() {
+		// 部屋の絵を組む建物は building_test.go で確かめる
+		if loader.HasRooms(fac) {
+			continue
+		}
 		for seed := range uint64(200) {
 			_, base, err := loader.FacilityChunk(fac, seed)
 			require.NoError(t, err)
@@ -120,6 +124,10 @@ func TestFacilityTemplates_収納家具は戦利品表を持つ(t *testing.T) {
 		storage[p.Id] = p.Storage != nil
 	}
 	for _, fac := range loader.Facilities() {
+		// 部屋の絵を組む建物は building_test.go で確かめる
+		if loader.HasRooms(fac) {
+			continue
+		}
 		for seed := range uint64(200) {
 			_, cells, err := loader.FacilityChunk(fac, seed)
 			require.NoError(t, err)
@@ -158,7 +166,7 @@ func TestSpawnFacility_畳は屋内で土は屋外(t *testing.T) {
 	_, cells, err := loader.FacilityChunk("house", 1)
 	require.NoError(t, err)
 	g := chunkGeom{chunkW: facilityLot, chunkH: facilityLot, tiles: &tileIndex{world: world, loX: 0, hiX: facilityLot}}
-	_, _, err = spawnFacility(world, g, cells, 0, 0, "house", raw.MinDanger, 1)
+	_, _, err = spawnFacility(world, g, cells, 0, 0, "house", raw.MinDanger, 1, nil)
 	require.NoError(t, err)
 
 	got := map[string]map[rawschema.Shelter]int{}

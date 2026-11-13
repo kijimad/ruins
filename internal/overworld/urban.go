@@ -123,16 +123,11 @@ func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span 
 }
 
 // urbanFacilityAt は区域 r の中のチャンク c に建つ施設 id を返す。地図表示と生成の両方が使う。
-func urbanFacilityAt(cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk]) string {
-	l := r.local(c)
-	z := r.zoneAt(l)
-	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
-	// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
-	frng := rand.New(rand.NewPCG(ChunkSeed2D(r.seed, l.X, l.Y), 0x1))
-	return rollFacilityInZone(frng, cat, z, r.span())
+func urbanFacilityAt(raws rawschema.Raws, cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk]) string {
+	return lotAt(lotsOf(raws, cat, r), r.local(c)).facility
 }
 
-// place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので
+// place は c が市街地の建物チャンクなら自分の建物を描く。各チャンクは自己完結するので
 // 生成順に依存しない。
 func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
 	raws := world.Resources.RawMaster
@@ -141,12 +136,12 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 		return nil
 	}
 	l := r.local(c)
-	fac := urbanFacilityAt(zoneCatalogFrom(raws), r, c)
+	lot := lotAt(lotsOf(raws, zoneCatalogFrom(raws), r), l)
 	var fence []consts.Coord[consts.Tile]
 	if r.layout == rawschema.DistrictLayoutCampus {
 		fence = campusFence(r, l, g.chunkW, g.chunkH)
 	}
-	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), fac, urbanDangerAt(world, c), fence)
+	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence)
 }
 
 // campusFence は研究所の敷地の中のチャンク l に置く塀のマスを、チャンク内の座標で返す。塀は敷地の外周を巡り、
@@ -188,28 +183,42 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 }
 
 // renderUrbanChunk は1チャンクに街路と施設の絵と塀を置き、規模に応じた敵を湧かせる。塀はチャンク内の座標で受ける。
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac string, danger consts.Danger, fence []consts.Coord[consts.Tile]) error {
+// 部屋の絵を持つ施設は区画の中の座標 l の部屋と帯を組み、それ以外は1棟の絵を描く
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, lot buildingLot, l consts.Coord[consts.Chunk], danger consts.Danger, fence []consts.Coord[consts.Tile]) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、施設の絵の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
 	loader, err := maptemplate.FacilityTemplates()
 	if err != nil {
 		return fmt.Errorf("failed to load facility templates: %w", err)
 	}
-	if err := drawUrbanStreets(world, g); err != nil {
+	var cells [][]maptemplate.MapCell
+	var indoor func(x, y int) bool
+	origin := urbanStreetW
+	if loader.HasRooms(lot.facility) {
+		cells, indoor, err = roomChunkCells(loader, lot, l, g.chunkW, g.chunkH)
+		if err != nil {
+			return fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
+		}
+		origin = 0
+	} else {
+		if err := drawUrbanStreets(world, g); err != nil {
+			return err
+		}
+		cells, err = planFacility(loader, lot.facility, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
+		if err != nil {
+			return fmt.Errorf("failed to plan facility %q: %w", lot.facility, err)
+		}
+	}
+	isWall, occupied, err := spawnFacility(world, g, cells, origin, origin, lot.facility, danger, seed, indoor)
+	if err != nil {
 		return err
 	}
-	cells, err := planFacility(loader, fac, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
-	if err != nil {
-		return fmt.Errorf("failed to plan facility %q: %w", fac, err)
-	}
-	isWall, occupied, err := spawnFacility(world, g, cells, urbanStreetW, urbanStreetW, fac, danger, seed)
-	if err != nil {
-		return err
-	}
+	fac := lot.facility
 	for _, p := range fence {
 		pos := consts.Coord[consts.Tile]{X: g.offsetX + p.X, Y: g.offsetY + p.Y}
 		occupied[pos] = true
-		if slices.ContainsFunc(query.GetEntitiesAt(world, pos.X, pos.Y), world.Components.Prop.Has) {
+		// 建物の外壁が敷地の外周に来れば、外壁を塀の代わりにする
+		if isWall(p.X, p.Y) || slices.ContainsFunc(query.GetEntitiesAt(world, pos.X, pos.Y), world.Components.Prop.Has) {
 			continue
 		}
 		if _, err := lifecycle.SpawnProp(world, "fence", pos.X, pos.Y); err != nil {

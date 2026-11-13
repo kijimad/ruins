@@ -37,9 +37,9 @@ func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, r
 }
 
 // spawnFacility は施設の絵のマスを、チャンク内の区画の左上 (ox, oy) から実体として置く。
-// 屋内の床は屋内として扱い、扉は左右か上下の壁から向きを決める。
+// 屋内のマスは indoorAt で受け、nil なら壁と扉の囲いから決める。扉は左右か上下の壁から向きを決める。
 // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする
-func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox, oy consts.Tile, fac string, danger consts.Danger, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
+func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox, oy consts.Tile, fac string, danger consts.Danger, seed uint64, indoorAt func(x, y int) bool) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
 	if len(cells) != int(g.chunkH-oy) || len(cells[0]) != int(g.chunkW-ox) {
 		return nil, nil, fmt.Errorf("facility %q %dx%d, lot %dx%d: %w", fac, len(cells[0]), len(cells), g.chunkW-ox, g.chunkH-oy, errFacilityLotSizeMismatch)
 	}
@@ -64,7 +64,10 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		return err == nil && t.BlockPass
 	}
 
-	indoor := enclosedCells(cells, wallAt)
+	if indoorAt == nil {
+		indoor := enclosedCells(cells, wallAt)
+		indoorAt = func(x, y int) bool { return indoor[[2]int{x, y}] }
+	}
 	tiles := g.tiles.get()
 	occupied := make(map[consts.Coord[consts.Tile]]bool)
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
@@ -78,11 +81,15 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 			if err != nil {
 				return nil, nil, fmt.Errorf("facility %q tile at %d,%d: %w", fac, x, y, err)
 			}
-			if err := spawnFacilityTile(world, tiles, pos, t, indoor[[2]int{x, y}]); err != nil {
+			if err := spawnFacilityTile(world, tiles, pos, t, indoorAt(x, y)); err != nil {
 				return nil, nil, err
 			}
 			orientation := gc.DoorOrientationHorizontal
-			if wallAt(x-1, y) && wallAt(x+1, y) {
+			// 2マスの扉は隣が扉になるので、扉も壁と同じく向きを決める側に数える
+			blocks := func(x, y int) bool {
+				return wallAt(x, y) || y >= 0 && y < len(cells) && x >= 0 && x < len(cells[y]) && cells[y][x].Prop == "door"
+			}
+			if blocks(x-1, y) && blocks(x+1, y) {
 				orientation = gc.DoorOrientationVertical
 			}
 			if err := spawnFacilityCell(world, cell, pos, orientation, fac, danger, lootRNG, beingRNG); err != nil {
