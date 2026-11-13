@@ -169,10 +169,7 @@ var basicParts = []specPart{
 			return nil
 		},
 		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
-			if s.RawID == nil || s.Material == nil || s.Weight == nil || s.Deployable != nil {
-				return nil
-			}
-			if id, count, ok := world.Resources.MaterialDefs.DisassemblyOf(s.RawID.ID, s.Material.Kind, s.Weight.Milligram); ok {
+			if id, count, ok := query.SpecDisassemblyYield(world, s); ok {
 				return []SpecRow{disassemblyRow(world, id, count)}
 			}
 			return nil
