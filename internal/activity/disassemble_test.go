@@ -3,6 +3,8 @@ package activity
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/i18n"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -93,6 +95,30 @@ func TestDisassembleBehavior_DoTurn_途中でアイテムが無くなると中�
 	require.NoError(t, b.DoTurn(comp, player, world))
 
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+}
+
+func TestDisassembleBehavior_DoTurn_途中で敵が近づくと中断する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	hammer, err := lifecycle.SpawnBackpackItem(world, "hammer", 1)
+	require.NoError(t, err)
+
+	b := &DisassembleBehavior{}
+	comp := NewDisassembleActivity(hammer, world)
+	require.NoError(t, b.Validate(comp, player, world))
+	require.NoError(t, b.Start(comp, player, world))
+	require.NoError(t, b.DoTurn(comp, player, world))
+	require.Equal(t, gc.ActivityStateRunning, comp.State)
+
+	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 11}, "fireball")
+	require.NoError(t, err)
+	require.NoError(t, b.DoTurn(comp, player, world))
+
+	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	assert.Equal(t, i18n.Msgid("disassembly interrupted because enemies are nearby"), comp.CancelReason)
+	assert.True(t, world.ECS.Alive(hammer))
 }
 
 func TestDisassembleBehavior_Canceled(t *testing.T) {
