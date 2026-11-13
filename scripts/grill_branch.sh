@@ -25,11 +25,18 @@ if [ -z "$pkgs" ]; then
 	exit 0
 fi
 
-echo "grill-branch: 次のパッケージを -race -count=${count} -shuffle=on で反復する"
+echo "grill-branch: 次のパッケージを -race -shuffle=on で ${count} 回反復する"
 echo "$pkgs"
 
+# 反復は1回ずつ別のプロセスで回す。-count で1つのプロセスに重ねると、反復ぶん積み上がったメモリが
+# runner のメモリを超えて強制終了される。
 # シャッフル seed は go test が冒頭に出力する。失敗時は -shuffle=<seed> で再現する。
 # $pkgs は語分割させるため意図的にクォートしない
 # go test の既定のタイムアウト 10 分は重いパッケージで足りないので外す
-# shellcheck disable=SC2086
-go test -race -count="$count" -shuffle=on -timeout=0 $pkgs
+i=1
+while [ "$i" -le "$count" ]; do
+	echo "grill-branch: ${i}/${count} 回目"
+	# shellcheck disable=SC2086
+	go test -race -count=1 -shuffle=on -timeout=0 $pkgs
+	i=$((i + 1))
+done
