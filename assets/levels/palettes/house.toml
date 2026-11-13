@@ -99,3 +99,12 @@ chunks = [{ name = "3x3_house_dining_set", weight = 1 }]
 tile = "floor_wood"
 candidates = [{ id = "wooden_crate", weight = 2 }, { id = "drawer_chest", weight = 1 }]
 lootTable = "house_closet"
+
+[palette.items.t]
+itemGroup = "food"
+chance = 25
+repeat = [1, 2]
+
+[palette.items.K]
+itemGroup = "food"
+chance = 15

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/require"
@@ -18,35 +19,69 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
-// TestGolden_FacilityHouse は家の絵を seed を変えて4棟並べ、実体にしたタイルと prop をスプライトで描いて固定する。
-// 絵の選択、家具の候補、部品、回転と反転がどう変化を出すかを1枚で見る。棟ごとに選ばれた絵の名前を添える
-func TestGolden_FacilityHouse(t *testing.T) {
+// TestGolden_Facility は施設ごとに、描いた絵を全て北向きのまま並べて固定する。絵を足すと自動で並び、レビューでそのまま見られる
+func TestGolden_Facility(t *testing.T) {
 	t.Parallel()
 
-	const cols, rows = 2, 2
-	const lot consts.Tile = 20
-	world := testutil.InitTestWorld(t)
 	loader, err := facilityTemplates()
 	require.NoError(t, err)
-
-	g := chunkGeom{chunkW: lot * cols, chunkH: lot * rows, tiles: &tileIndex{world: world, loX: 0, hiX: lot * cols}}
-	labels := make([]string, 0, cols*rows)
-	for i := range cols * rows {
-		seed := uint64(i + 1)
-		chunk, _, err := loader.FacilityChunk("house", seed)
-		require.NoError(t, err)
-		cells, err := planFacility(loader, "house", seed, rand.New(rand.NewPCG(seed, 0x2)))
-		require.NoError(t, err)
-		ox, oy := lot*consts.Tile(i%cols), lot*consts.Tile(i/cols)
-		cg := chunkGeom{offsetX: ox, offsetY: oy, chunkW: lot, chunkH: lot, tiles: g.tiles}
-		_, _, err = spawnFacility(world, cg, cells, 0, 0, "house", 1, seed)
-		require.NoError(t, err)
-		labels = append(labels, chunk.Name)
+	for _, fac := range loader.Facilities() {
+		t.Run(fac, func(t *testing.T) {
+			t.Parallel()
+			names := loader.FacilityChunkNames(fac)
+			cells := make([][][]maptemplate.MapCell, 0, len(names))
+			for _, name := range names {
+				_, _, c, err := loader.LoadTemplateByName(name, 1)
+				require.NoError(t, err)
+				cells = append(cells, c)
+			}
+			assertFacilityGolden(t, fac, names, cells)
+		})
 	}
+}
 
+// TestGolden_FacilityVariants は施設ごとに seed を変えて6棟並べ、絵の選択、家具の候補、部品、戦利品、回転と反転が出す変化を固定する
+func TestGolden_FacilityVariants(t *testing.T) {
+	t.Parallel()
+
+	loader, err := facilityTemplates()
+	require.NoError(t, err)
+	for _, fac := range loader.Facilities() {
+		t.Run(fac, func(t *testing.T) {
+			t.Parallel()
+			const n = 6
+			names := make([]string, 0, n)
+			cells := make([][][]maptemplate.MapCell, 0, n)
+			for i := range n {
+				seed := uint64(i + 1)
+				chunk, _, err := loader.FacilityChunk(fac, seed)
+				require.NoError(t, err)
+				c, err := planFacility(loader, fac, seed, rand.New(rand.NewPCG(seed, 0x2)))
+				require.NoError(t, err)
+				names = append(names, chunk.Name)
+				cells = append(cells, c)
+			}
+			assertFacilityGolden(t, fac, names, cells)
+		})
+	}
+}
+
+// assertFacilityGolden は施設の絵のマスを3列に並べて実体にし、スプライトで描いて golden と比べる。各棟に名前を添える
+func assertFacilityGolden(t *testing.T, fac string, names []string, cells [][][]maptemplate.MapCell) {
+	t.Helper()
+	const cols = 3
+	const lot = facilityLot
+	rows := (len(cells) + cols - 1) / cols
+	world := testutil.InitTestWorld(t)
+	tiles := &tileIndex{world: world, loX: 0, hiX: lot * cols}
+	for i, c := range cells {
+		g := chunkGeom{offsetX: lot * consts.Tile(i%cols), offsetY: lot * consts.Tile(i/cols), chunkW: lot, chunkH: lot, tiles: tiles}
+		_, _, err := spawnFacility(world, g, c, 0, 0, fac, 1, uint64(i+1))
+		require.NoError(t, err)
+	}
 	img := renderOverworldRegion(t, world, 0, 0, int(lot)*cols, int(lot)*rows)
-	for i, label := range labels {
-		drawLabel(img, (i%cols)*int(lot)*scatterCellPx+4, (i/cols)*int(lot)*scatterCellPx+14, label)
+	for i, name := range names {
+		drawLabel(img, (i%cols)*int(lot)*scatterCellPx+4, (i/cols)*int(lot)*scatterCellPx+14, name)
 	}
 	var buf bytes.Buffer
 	require.NoError(t, png.Encode(&buf, img))

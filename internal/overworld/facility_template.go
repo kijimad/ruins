@@ -181,7 +181,7 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 			return fmt.Errorf("failed to populate storage loot (%s): %w", cell.Prop, err)
 		}
 	}
-	if cell.ItemGroup != "" {
+	for range cell.ItemCount {
 		if err := spawnFieldLoot(world, cell.ItemGroup, pos, lootRNG); err != nil {
 			return fmt.Errorf("failed to place field loot (%s at %d,%d): %w", cell.ItemGroup, pos.X, pos.Y, err)
 		}

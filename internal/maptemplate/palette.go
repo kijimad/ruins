@@ -30,6 +30,10 @@ var (
 	errPalettePropIDAmbiguous = errors.New("prop needs exactly one of id or candidates")
 	// errPaletteItemGroupRequired は床の戦利品の itemGroup が未指定のときに返す
 	errPaletteItemGroupRequired = errors.New("itemGroup is required")
+	// errPaletteChanceOutOfRange は確率が 1 から 100 の外のときに返す
+	errPaletteChanceOutOfRange = errors.New("chance must be in 1..100")
+	// errPaletteRepeatInvalid は回数の範囲が [最小, 最大] で 0 <= 最小 <= 最大 でないときに返す
+	errPaletteRepeatInvalid = errors.New("repeat must be [min, max] with 0 <= min <= max")
 )
 
 // PaletteEntry はパレットのProp/NPCマッピングの1エントリ
@@ -48,10 +52,15 @@ type WeightedID struct {
 	Weight int    `toml:"weight"`
 }
 
-// ItemEntry は床に落ちる戦利品を置く文字の定義
+// ItemEntry は床に落ちる戦利品を置く文字の定義。家具など別の分類と同じ文字にも重ねて書け、そのマスの上に置く
 type ItemEntry struct {
-	Tile      string `toml:"tile"`
+	// Tile は下に敷く地形。別の分類と重ねるときはそちらの地形を使うので省ける
+	Tile      string `toml:"tile,omitempty"`
 	ItemGroup string `toml:"itemGroup"`
+	// Chance は1回ごとにグループから引く確率。百分率で、省くと必ず引く
+	Chance int `toml:"chance,omitempty"`
+	// Repeat は引く回数の範囲 [最小, 最大]。省くと1回
+	Repeat []int `toml:"repeat,omitempty"`
 }
 
 // TileEntry は下に敷く地形だけを持つ文字の定義
@@ -163,20 +172,63 @@ func (l *PaletteLoader) validate(p *Palette) error {
 			return err
 		}
 	}
-	for char, entry := range p.Items {
-		if err := validateTileChar("items", char, entry.Tile); err != nil {
-			return err
-		}
-		if entry.ItemGroup == "" {
-			return fmt.Errorf("items %w: %q", errPaletteItemGroupRequired, char)
-		}
-	}
 	for char, entry := range p.Beings {
 		if err := validateTileChar("beings", char, entry.Tile); err != nil {
 			return err
 		}
 	}
-	for char, entry := range p.Nested {
+
+	if err := validateItems(p.Items); err != nil {
+		return err
+	}
+	if err := validateNested(p.Nested); err != nil {
+		return err
+	}
+
+	used := make(map[string]string)
+	for _, c := range []struct {
+		category string
+		chars    []string
+	}{
+		{"terrain", keysOf(p.Terrain)},
+		{"props", keysOf(p.Props)},
+		{"npcs", keysOf(p.NPCs)},
+		{"beings", keysOf(p.Beings)},
+		{"nested", keysOf(p.Nested)},
+	} {
+		for _, char := range c.chars {
+			if other, ok := used[char]; ok {
+				return fmt.Errorf("%w: %q between %s and %s", errPaletteCharDuplicated, char, other, c.category)
+			}
+			used[char] = c.category
+		}
+	}
+
+	return nil
+}
+
+// validateItems は床の戦利品の文字の定義を検証する
+func validateItems(items map[string]ItemEntry) error {
+	for char, entry := range items {
+		if utf8.RuneCountInString(char) != 1 {
+			return fmt.Errorf("items %w: %q", errPaletteKeyNotSingleChar, char)
+		}
+		if entry.ItemGroup == "" {
+			return fmt.Errorf("items %w: %q", errPaletteItemGroupRequired, char)
+		}
+		if entry.Chance < 0 || entry.Chance > 100 {
+			return fmt.Errorf("items %q: %w: %d", char, errPaletteChanceOutOfRange, entry.Chance)
+		}
+		if entry.Repeat != nil && (len(entry.Repeat) != 2 || entry.Repeat[0] < 0 || entry.Repeat[0] > entry.Repeat[1]) {
+			return fmt.Errorf("items %q: %w: %v", char, errPaletteRepeatInvalid, entry.Repeat)
+		}
+	}
+	return nil
+}
+
+// validateNested は部品の文字の定義を検証する
+func validateNested(nested map[string]NestedEntry) error {
+	for char, entry := range nested {
 		if err := validateTileChar("nested", char, entry.Tile); err != nil {
 			return err
 		}
@@ -189,27 +241,6 @@ func (l *PaletteLoader) validate(p *Palette) error {
 			}
 		}
 	}
-
-	used := make(map[string]string)
-	for _, c := range []struct {
-		category string
-		chars    []string
-	}{
-		{"terrain", keysOf(p.Terrain)},
-		{"props", keysOf(p.Props)},
-		{"npcs", keysOf(p.NPCs)},
-		{"items", keysOf(p.Items)},
-		{"beings", keysOf(p.Beings)},
-		{"nested", keysOf(p.Nested)},
-	} {
-		for _, char := range c.chars {
-			if other, ok := used[char]; ok {
-				return fmt.Errorf("%w: %q between %s and %s", errPaletteCharDuplicated, char, other, c.category)
-			}
-			used[char] = c.category
-		}
-	}
-
 	return nil
 }
 
@@ -267,7 +298,7 @@ func (p *Palette) GetTerrain(char string) (string, bool) {
 	if entry, ok := p.NPCs[char]; ok && entry.Tile != "" {
 		return entry.Tile, true
 	}
-	if entry, ok := p.Items[char]; ok {
+	if entry, ok := p.Items[char]; ok && entry.Tile != "" {
 		return entry.Tile, true
 	}
 	if entry, ok := p.Beings[char]; ok {
@@ -299,4 +330,22 @@ func (p *Palette) GetNPC(char string) (string, bool) {
 		return "", false
 	}
 	return entry.ID, true
+}
+
+// roll はグループから引く回数を決める。回数の範囲から回数を選び、1回ごとに確率で引くかを決める
+func (e ItemEntry) roll(rng *rand.Rand) int {
+	n := 1
+	if len(e.Repeat) == 2 {
+		n = e.Repeat[0] + rng.IntN(e.Repeat[1]-e.Repeat[0]+1)
+	}
+	if e.Chance == 0 || e.Chance == 100 {
+		return n
+	}
+	count := 0
+	for range n {
+		if rng.IntN(100) < e.Chance {
+			count++
+		}
+	}
+	return count
 }

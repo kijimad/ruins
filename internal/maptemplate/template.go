@@ -78,6 +78,7 @@ type MapCell struct {
 	NPC       string // NPC ID（なければ空文字）
 	LootTable string // 収納の中身を引く itemTables の id。収納でなければ空
 	ItemGroup string // 床に落ちる戦利品の itemGroup の id。無ければ空
+	ItemCount int    // ItemGroup から引く回数。パレットの確率と回数の範囲から解決済み
 	Being     bool   // 施設の敵の表から1体置く
 }
 
@@ -105,6 +106,7 @@ func ResolveMapCells(mapStr string, palette *Palette, rng *rand.Rand) [][]MapCel
 				}
 				if item, ok := palette.Items[charStr]; ok {
 					cell.ItemGroup = item.ItemGroup
+					cell.ItemCount = item.roll(rng)
 				}
 				_, cell.Being = palette.Beings[charStr]
 			}
@@ -363,6 +365,30 @@ func (l *TemplateLoader) GetChunks(chunkName string) ([]*ChunkTemplate, error) {
 		return nil, fmt.Errorf("%w: '%s'", errChunkNotFound, chunkName)
 	}
 	return chunks, nil
+}
+
+// Facilities は絵が登録されている施設の id を昇順で返す
+func (l *TemplateLoader) Facilities() []string {
+	set := map[string]bool{}
+	for _, chunks := range l.chunkCache {
+		for _, c := range chunks {
+			if c.Facility != "" {
+				set[c.Facility] = true
+			}
+		}
+	}
+	return slices.Sorted(maps.Keys(set))
+}
+
+// FacilityChunkNames は施設 facility の絵の名前を昇順で返す
+func (l *TemplateLoader) FacilityChunkNames(facility string) []string {
+	var names []string
+	for _, name := range slices.Sorted(maps.Keys(l.chunkCache)) {
+		if slices.ContainsFunc(l.chunkCache[name], func(c *ChunkTemplate) bool { return c.Facility == facility }) {
+			names = append(names, name)
+		}
+	}
+	return names
 }
 
 // HasFacility は施設 facility の絵が1枚でも登録されているかを返す

@@ -1084,3 +1084,18 @@ func TestFacilityChunk(t *testing.T) {
 	_, _, err := l.FacilityChunk("lab", 1)
 	require.ErrorIs(t, err, errNoChunkCandidate)
 }
+
+func TestTemplateLoader_施設の絵の一覧(t *testing.T) {
+	t.Parallel()
+
+	l := NewTemplateLoader()
+	l.RegisterChunk(&ChunkTemplate{Name: "1x1_store", Facility: "store", Weight: 1, Size: Size{W: 1, H: 1}, Map: "."})
+	l.RegisterChunk(&ChunkTemplate{Name: "1x1_house_b", Facility: "house", Weight: 1, Size: Size{W: 1, H: 1}, Map: "."})
+	l.RegisterChunk(&ChunkTemplate{Name: "1x1_house_a", Facility: "house", Weight: 1, Size: Size{W: 1, H: 1}, Map: "."})
+	l.RegisterChunk(&ChunkTemplate{Name: "1x1_part", Weight: 1, Size: Size{W: 1, H: 1}, Map: "."})
+
+	assert.Equal(t, []string{"house", "store"}, l.Facilities())
+	assert.Equal(t, []string{"1x1_house_a", "1x1_house_b"}, l.FacilityChunkNames("house"))
+	assert.True(t, l.HasFacility("house"))
+	assert.False(t, l.HasFacility("lab"))
+}
