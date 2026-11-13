@@ -1,6 +1,7 @@
 package raw
 
 import (
+	"maps"
 	"slices"
 	"testing"
 
@@ -9,7 +10,8 @@ import (
 )
 
 // craftableFrom は have の素材から、レシピを繰り返し作って得られる物の id を作った順に返す
-func craftableFrom(raws rawschema.Raws, have map[string]bool) []string {
+func craftableFrom(raws rawschema.Raws, materials map[string]bool) []string {
+	have := maps.Clone(materials)
 	var made []string
 	for changed := true; changed; {
 		changed = false
@@ -50,32 +52,28 @@ func toolCategoriesOf(raws rawschema.Raws, table string) []rawschema.ToolCategor
 	for i := range all {
 		items[all[i].Id] = &all[i]
 	}
-	var ids []string
+	members := map[string][]string{}
+	for _, g := range PtrSlice(raws.ItemGroups) {
+		for _, e := range g.Entries {
+			members[g.Id] = append(members[g.Id], e.Id)
+		}
+	}
+	for _, c := range PtrSlice(raws.ItemCollections) {
+		for _, e := range c.Entries {
+			members[c.Id] = append(members[c.Id], e.Id)
+		}
+	}
+	var cats []rawschema.ToolCategory
 	for _, tb := range PtrSlice(raws.ItemTables) {
 		if tb.Id != table {
 			continue
 		}
 		for _, e := range tb.Entries {
-			for _, g := range PtrSlice(raws.ItemGroups) {
-				if g.Id == e.Id {
-					for _, ge := range g.Entries {
-						ids = append(ids, ge.Id)
-					}
+			for _, id := range members[e.Id] {
+				if it, ok := items[id]; ok && it.Tool != nil {
+					cats = append(cats, it.Tool.Categories...)
 				}
 			}
-			for _, c := range PtrSlice(raws.ItemCollections) {
-				if c.Id == e.Id {
-					for _, ce := range c.Entries {
-						ids = append(ids, ce.Id)
-					}
-				}
-			}
-		}
-	}
-	var cats []rawschema.ToolCategory
-	for _, id := range ids {
-		if it, ok := items[id]; ok && it.Tool != nil {
-			cats = append(cats, it.Tool.Categories...)
 		}
 	}
 	slices.Sort(cats)
