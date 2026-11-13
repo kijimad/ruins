@@ -234,7 +234,10 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string
 		fuelCostRows = append(fuelCostRows, []string{fmt.Sprintf("%d", kg), fmt.Sprintf("%d", query.FollowFuelCost(load)), fmt.Sprintf("%.0f", FollowRangeTiles(consts.CubeFuelCapacityBase, load))})
 	}
 	writeMDTable(&b, []string{"積荷(kg)", "燃費(/歩)", "満タン航続(歩)"}, []tw.Align{alignR, alignR, alignR}, fuelCostRows)
-	materials := raw.NewMaterialDefs(master)
+	materials, err := raw.NewMaterialDefs(master)
+	if err != nil {
+		return "", err
+	}
 	writeMDTable(&b, []string{"くべる燃料", "燃料ポイント", "積荷0の航続(歩)"}, []tw.Align{alignL, alignR, alignR}, [][]string{
 		{"OIL 10kg", fmt.Sprintf("%d", materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg), 0))},
 		{"WOOD 10kg", fmt.Sprintf("%d", materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg), 0))},

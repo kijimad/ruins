@@ -7,6 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -160,6 +161,20 @@ var basicParts = []specPart{
 			return nil
 		},
 	},
+	{ // 分解。燃料と同じく材質と重量から導く
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			if id, count, ok := query.ItemDisassemblyYield(world, e); ok {
+				return []SpecRow{disassemblyRow(world, id, count)}
+			}
+			return nil
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if id, count, ok := query.SpecDisassemblyYield(world, s); ok {
+				return []SpecRow{disassemblyRow(world, id, count)}
+			}
+			return nil
+		},
+	},
 	{ // 回復
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
 			if !world.Components.ProvidesHealing.Has(e) {
@@ -284,6 +299,12 @@ func materialRow(world w.World, material *gc.Material) SpecRow {
 func fuelRow(world w.World, heat consts.Heat) SpecRow {
 	// 熱量は炎アイコンで見せる。満burn時の燃焼ターン数に等しく、地面直の火では効率で減る
 	return SpecRow{Label: query.T(world, "Fuel"), Value: heat.String()}
+}
+
+// disassemblyRow は1個を分解したときに戻る素材と個数の行を返す
+func disassemblyRow(world w.World, id string, count int) SpecRow {
+	name := query.T(world, raw.ItemName(world.Resources.RawMaster, id))
+	return SpecRow{Label: query.T(world, "Disassembly"), Value: fmt.Sprintf("%s x%d", name, count)}
 }
 
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し

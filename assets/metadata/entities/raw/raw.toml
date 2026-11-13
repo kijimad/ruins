@@ -16676,6 +16676,9 @@
   heatPerKg = 200
   id = "WOOD"
   name = "Wood"
+  [materials.disassembly]
+    item = "branch"
+    perWeight = "300 g"
 
 [[materials]]
   heatPerKg = 300
@@ -16706,6 +16709,9 @@
   heatPerKg = 40
   id = "BONE"
   name = "Bone"
+  [materials.disassembly]
+    item = "ancient_bone"
+    perWeight = "200 g"
 
 [[materials]]
   heatPerKg = 1000
@@ -16726,11 +16732,17 @@
   heatPerKg = 0
   id = "METAL"
   name = "Metal"
+  [materials.disassembly]
+    item = "scrap_iron"
+    perWeight = "1 kg"
 
 [[materials]]
   heatPerKg = 0
   id = "STONE"
   name = "Stone"
+  [materials.disassembly]
+    item = "stone"
+    perWeight = "1 kg"
 
 [[materials]]
   heatPerKg = 0
@@ -16741,6 +16753,9 @@
   heatPerKg = 0
   id = "CRYSTAL"
   name = "Crystal"
+  [materials.disassembly]
+    item = "crystal_powder"
+    perWeight = "100 g"
 
 [[materials]]
   heatPerKg = 0
