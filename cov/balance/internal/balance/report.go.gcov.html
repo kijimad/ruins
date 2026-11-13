@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-13 12:22:15</td>
+            <td class="headerValue">2026-11-13 14:27:07</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -151,17 +151,17 @@
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">           1 :         report.BattleMetrics = metrics</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         roomLoot, err := GenerateRoomLoot(master, roomLootTrials, seed)</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         facilityLoot, err := GenerateFacilityLoot(master, facilityLootTrials, seed)</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC tlaBgGNC">           1 :         report.RoomLoot = roomLoot</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC tlaBgGNC">           1 :         report.FacilityLoot = facilityLoot</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         return report, nil</span></span>
 <span id="L99"><span class="lineNum">      99</span>              : }</span>
 <span id="L100"><span class="lineNum">     100</span>              : </span>
-<span id="L101"><span class="lineNum">     101</span>              : // roomLootTrials は施設 loot 集計の試行数。多いほど確率が安定する。</span>
-<span id="L102"><span class="lineNum">     102</span>              : const roomLootTrials = 2000</span>
+<span id="L101"><span class="lineNum">     101</span>              : // facilityLootTrials は施設 loot 集計の試行数。多いほど確率が安定する。</span>
+<span id="L102"><span class="lineNum">     102</span>              : const facilityLootTrials = 2000</span>
 <span id="L103"><span class="lineNum">     103</span>              : </span>
 <span id="L104"><span class="lineNum">     104</span>              : const battleMetricTrials = 500</span>
 <span id="L105"><span class="lineNum">     105</span>              : </span>

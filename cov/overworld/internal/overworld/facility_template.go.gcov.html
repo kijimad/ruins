@@ -1,0 +1,258 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - overworld/internal/overworld/facility_template.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">overworld/internal/overworld</a> - facility_template.go<span style="font-size: 80%;"> (source / <a href="facility_template.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">79.5&nbsp;%</td>
+            <td class="headerCovTableEntry">117</td>
+            <td class="headerCovTableEntry">93</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-11-13 14:27:07</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package overworld</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;errors&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;fmt&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;math/rand/v2&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;slices&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/maptemplate&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              : )</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : // facilityLot は施設の絵の1辺の長さ。チャンク 24×24 から北と西の街路を引いた区画の大きさ</span>
+<span id="L21"><span class="lineNum">      21</span>              : const facilityLot consts.Tile = 20</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // errFacilityLotSizeMismatch は施設の絵の大きさが区画と一致しないときに返す</span>
+<span id="L24"><span class="lineNum">      24</span>              : var errFacilityLotSizeMismatch = errors.New(&quot;facility template size does not match the lot&quot;)</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : // planFacility は施設 fac の絵を1枚選んで展開する。絵は入口を北に向けて描いてあり、rng で半々に左へ90度回して入口を西の街路へ向ける。左右の反転も半々で選ぶ</span>
+<span id="L27"><span class="lineNum">      27</span>              : func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand) ([][]maptemplate.MapCell, error) {</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">           1 :         _, cells, err := loader.FacilityChunk(fac, seed)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">           1 :         turns := 0</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if rng.IntN(2) == 0 {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 turns = 1</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return maptemplate.TransformCells(cells, turns, rng.IntN(2) == 0), nil</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : }</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : // spawnFacility は施設の絵のマスを、チャンク内の区画の左上 (ox, oy) から実体として置く。</span>
+<span id="L40"><span class="lineNum">      40</span>              : // 屋内の床は屋内として扱い、扉は左右か上下の壁から向きを決める。</span>
+<span id="L41"><span class="lineNum">      41</span>              : // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする</span>
+<span id="L42"><span class="lineNum">      42</span>              : func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox, oy consts.Tile, fac string, danger consts.Danger, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         if len(cells) != int(g.chunkH-oy) || len(cells[0]) != int(g.chunkW-ox) {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, nil, fmt.Errorf(&quot;facility %q %dx%d, lot %dx%d: %w&quot;, fac, len(cells[0]), len(cells), g.chunkW-ox, g.chunkH-oy, errFacilityLotSizeMismatch)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC tlaBgGNC">           1 :         tileRows := map[string]rawschema.Tile{}</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         tileOf := func(id string) (rawschema.Tile, error) {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 if t, ok := tileRows[id]; ok {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                         return t, nil</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 t, err := raw.GetTile(world.Resources.RawMaster, id)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC tlaBgUNC">           0 :                         return rawschema.Tile{}, err</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           1 :                 tileRows[id] = t</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return t, nil</span></span>
+<span id="L58"><span class="lineNum">      58</span>              :         }</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         wallAt := func(x, y int) bool {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 if y &lt; 0 || y &gt;= len(cells) || x &lt; 0 || x &gt;= len(cells[y]) {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                         return false</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 t, err := tileOf(cells[y][x].Terrain)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 return err == nil &amp;&amp; t.BlockPass</span></span>
+<span id="L65"><span class="lineNum">      65</span>              :         }</span>
+<span id="L66"><span class="lineNum">      66</span>              : </span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         indoor := enclosedCells(cells, wallAt)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         tiles := g.tiles.get()</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         occupied := make(map[consts.Coord[consts.Tile]]bool)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         lootRNG := rand.New(rand.NewPCG(seed, 0x4))</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         beingRNG := rand.New(rand.NewPCG(seed, 0x5))</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         for y, row := range cells {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 for x, cell := range row {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                         pos := consts.Coord[consts.Tile]{X: g.offsetX + ox + consts.Tile(x), Y: g.offsetY + oy + consts.Tile(y)}</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                         occupied[pos] = true</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                         t, err := tileOf(cell.Terrain)</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return nil, nil, fmt.Errorf(&quot;facility %q tile at %d,%d: %w&quot;, fac, x, y, err)</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC tlaBgGNC">           1 :                         if err := spawnFacilityTile(world, tiles, pos, t, indoor[[2]int{x, y}]); err != nil {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return nil, nil, err</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC tlaBgGNC">           1 :                         orientation := gc.DoorOrientationHorizontal</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                         if wallAt(x-1, y) &amp;&amp; wallAt(x+1, y) {</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                                 orientation = gc.DoorOrientationVertical</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                         if err := spawnFacilityCell(world, cell, pos, orientation, fac, danger, lootRNG, beingRNG); err != nil {</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return nil, nil, err</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L91"><span class="lineNum">      91</span>              :                 }</span>
+<span id="L92"><span class="lineNum">      92</span>              :         }</span>
+<span id="L93"><span class="lineNum">      93</span>              : </span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC tlaBgGNC">           2 :         isWall := func(lx, ly consts.Tile) bool { return wallAt(int(lx-ox), int(ly-oy)) }</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         return isWall, occupied, nil</span></span>
+<span id="L96"><span class="lineNum">      96</span>              : }</span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span>              : // enclosedCells は区画の縁からたどれない、壁と扉で囲まれたマスを屋内として返す。塀は家具なので囲いに数えず、塀の内の庭は屋外のままにする</span>
+<span id="L99"><span class="lineNum">      99</span>              : func enclosedCells(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool) map[[2]int]bool {</span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         h, w := len(cells), len(cells[0])</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           2 :         blocks := func(x, y int) bool { return wallAt(x, y) || cells[y][x].Prop == &quot;door&quot; }</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         outside := map[[2]int]bool{}</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         var queue [][2]int</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         for y := range h {</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 for x := range w {</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                         if (x == 0 || y == 0 || x == w-1 || y == h-1) &amp;&amp; !blocks(x, y) {</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                                 outside[[2]int{x, y}] = true</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                                 queue = append(queue, [2]int{x, y})</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L110"><span class="lineNum">     110</span>              :                 }</span>
+<span id="L111"><span class="lineNum">     111</span>              :         }</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         for len(queue) &gt; 0 {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 c := queue[0]</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 queue = queue[1:]</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 for _, d := range [][2]int{{1, 0}, {-1, 0}, {0, 1}, {0, -1}} {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                         n := [2]int{c[0] + d[0], c[1] + d[1]}</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                         if n[0] &lt; 0 || n[1] &lt; 0 || n[0] &gt;= w || n[1] &gt;= h || outside[n] || blocks(n[0], n[1]) {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L119"><span class="lineNum">     119</span>              :                         }</span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                         outside[n] = true</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                         queue = append(queue, n)</span></span>
+<span id="L122"><span class="lineNum">     122</span>              :                 }</span>
+<span id="L123"><span class="lineNum">     123</span>              :         }</span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         indoor := map[[2]int]bool{}</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         for y := range h {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 for x := range w {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                         if !outside[[2]int{x, y}] &amp;&amp; !blocks(x, y) {</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                                 indoor[[2]int{x, y}] = true</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L130"><span class="lineNum">     130</span>              :                 }</span>
+<span id="L131"><span class="lineNum">     131</span>              :         }</span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         return indoor</span></span>
+<span id="L133"><span class="lineNum">     133</span>              : }</span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span>              : // spawnFacilityTile はタイルの行 t を pos へ置く。行の生成の仕様が別のタイルを指せばそれを置き、オートタイルしないタイルは添字を付けない</span>
+<span id="L136"><span class="lineNum">     136</span>              : func spawnFacilityTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], t rawschema.Tile, indoor bool) error {</span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         name := t.Id</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         if t.Spawn != nil &amp;&amp; t.Spawn.Tile != nil {</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 name = *t.Spawn.Tile</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         var index *int</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         if t.Spawn != nil &amp;&amp; t.Spawn.Autotile {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 index = new(0)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         e, err := replaceTileIndexed(world, tiles, pos, name, index)</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to place facility tile (x=%d, y=%d): %w&quot;, pos.X, pos.Y, err)</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC tlaBgGNC">           1 :         if indoor &amp;&amp; world.Components.TileEnvironment.Has(e) {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 world.Components.TileEnvironment.Get(e).Shelter = rawschema.Indoor</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L153"><span class="lineNum">     153</span>              : }</span>
+<span id="L154"><span class="lineNum">     154</span>              : </span>
+<span id="L155"><span class="lineNum">     155</span>              : // spawnFacilityCell はマスの扉、家具と収納の中身、床の戦利品、敵を pos へ置く。扉の向きは呼び出し側が壁から決める</span>
+<span id="L156"><span class="lineNum">     156</span>              : func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation, fac string, danger consts.Danger, lootRNG, beingRNG *rand.Rand) error {</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L158"><span class="lineNum">     158</span>              :         case cell.Prop == &quot;door&quot;:</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 if _, err := lifecycle.SpawnDoor(world, pos, orientation); err != nil {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place facility door at %d,%d: %w&quot;, pos.X, pos.Y, err)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L162"><span class="lineNum">     162</span>              :         case cell.Prop != &quot;&quot; &amp;&amp; !slices.ContainsFunc(query.GetEntitiesAt(world, pos.X, pos.Y), world.Components.Prop.Has):</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC tlaBgGNC">           1 :                 ent, err := lifecycle.SpawnProp(world, cell.Prop, pos.X, pos.Y)</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place facility prop (%s at %d,%d): %w&quot;, cell.Prop, pos.X, pos.Y, err)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC tlaBgGNC">           1 :                 if err := populateStorageLoot(world, ent, cell.Prop, cell.LootTable, fac, lootRNG); err != nil {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to populate storage loot (%s): %w&quot;, cell.Prop, err)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L170"><span class="lineNum">     170</span>              :         }</span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC tlaBgGNC">           1 :         for range cell.ItemCount {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 if err := spawnFieldLoot(world, cell.ItemGroup, pos, lootRNG); err != nil {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place field loot (%s at %d,%d): %w&quot;, cell.ItemGroup, pos.X, pos.Y, err)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L175"><span class="lineNum">     175</span>              :         }</span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC tlaBgGNC">           1 :         if cell.Being {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 if err := spawnFacilityBeing(world, fac, danger, pos, beingRNG); err != nil {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place being of facility %q at %d,%d: %w&quot;, fac, pos.X, pos.Y, err)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L180"><span class="lineNum">     180</span>              :         }</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
