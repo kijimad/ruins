@@ -89,17 +89,17 @@ func GenerateReport(master rawschema.Raws, playerName string, weaponName string,
 	}
 	report.BattleMetrics = metrics
 
-	roomLoot, err := GenerateRoomLoot(master, roomLootTrials, seed)
+	facilityLoot, err := GenerateFacilityLoot(master, facilityLootTrials, seed)
 	if err != nil {
 		return nil, err
 	}
-	report.RoomLoot = roomLoot
+	report.FacilityLoot = facilityLoot
 
 	return report, nil
 }
 
-// roomLootTrials は施設 loot 集計の試行数。多いほど確率が安定する。
-const roomLootTrials = 2000
+// facilityLootTrials は施設 loot 集計の試行数。多いほど確率が安定する。
+const facilityLootTrials = 2000
 
 const battleMetricTrials = 500
 

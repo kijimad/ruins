@@ -21,7 +21,7 @@ func TestFacilityTemplates_扉が塞がらず全ての床へ入れる(t *testing
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	loader, err := facilityTemplates()
+	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
 
 	blockedProp := map[string]bool{}
@@ -112,7 +112,7 @@ func TestFacilityTemplates_収納家具は戦利品表を持つ(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	loader, err := facilityTemplates()
+	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
 
 	storage := map[string]bool{}
@@ -138,7 +138,7 @@ func TestFacilityTemplates_全施設に絵がある(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	loader, err := facilityTemplates()
+	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
 
 	facilities := raw.PtrSlice(raws.Facilities)
@@ -153,7 +153,7 @@ func TestSpawnFacility_畳は屋内で土は屋外(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	loader, err := facilityTemplates()
+	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
 	_, cells, err := loader.FacilityChunk("house", 1)
 	require.NoError(t, err)

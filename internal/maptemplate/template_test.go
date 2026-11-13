@@ -1096,6 +1096,4 @@ func TestTemplateLoader_施設の絵の一覧(t *testing.T) {
 
 	assert.Equal(t, []string{"house", "store"}, l.Facilities())
 	assert.Equal(t, []string{"1x1_house_a", "1x1_house_b"}, l.FacilityChunkNames("house"))
-	assert.True(t, l.HasFacility("house"))
-	assert.False(t, l.HasFacility("lab"))
 }

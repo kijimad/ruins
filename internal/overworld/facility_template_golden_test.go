@@ -23,7 +23,7 @@ import (
 func TestGolden_Facility(t *testing.T) {
 	t.Parallel()
 
-	loader, err := facilityTemplates()
+	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
 	for _, fac := range loader.Facilities() {
 		t.Run(fac, func(t *testing.T) {
@@ -44,7 +44,7 @@ func TestGolden_Facility(t *testing.T) {
 func TestGolden_FacilityVariants(t *testing.T) {
 	t.Parallel()
 
-	loader, err := facilityTemplates()
+	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
 	for _, fac := range loader.Facilities() {
 		t.Run(fac, func(t *testing.T) {

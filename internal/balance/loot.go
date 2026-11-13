@@ -6,81 +6,72 @@ import (
 	"sort"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/mapplanner/interior"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 const (
-	// roomLootDepth は地上の建物の深度。床 loot も収納 loot も浅い戦利品を引く。
-	roomLootDepth = 1
-	// roomLootStream は施設 loot 抽選 RNG のストリーム。試行 seed と組で決定的にする。
-	roomLootStream = 0x1007
-	// roomLootAllRole は建物全体の合算を表す役割キー。表示名は UI 側で訳す。
-	roomLootAllRole = "all"
-	// roomLootOtherRole はどの部屋にも属さない配置の役割キー。表示名は UI 側で訳す。
-	roomLootOtherRole = "other"
+	// facilityLootDepth は地上の建物の深度。収納 loot は浅い戦利品を引く。
+	facilityLootDepth = 1
+	// facilityLootStream は施設 loot 抽選 RNG のストリーム。試行 seed と組で決定的にする。
+	facilityLootStream = 0x1007
+	// facilityLootAll は建物全体の合算を表すキー。
+	facilityLootAll = "all"
 )
 
-// GenerateRoomLoot は各施設を trials 回生成し、床と収納の loot を実際の抽選経路で materialize して部屋役割ごとに
+// GenerateFacilityLoot は各施設の絵を trials 回展開し、収納と床の loot を実際の抽選経路で materialize して、絵ごとに
 // アイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで抽選の相互作用をそのまま反映する。同一 seed で同一結果。
 // 集計対象の施設は raw.toml の facilities 行から導出する。
-func GenerateRoomLoot(master rawschema.Raws, trials int, seed uint64) ([]FacilityLoot, error) {
-	footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
-	door := interior.Vec{X: 14, Y: 0}
+func GenerateFacilityLoot(master rawschema.Raws, trials int, seed uint64) ([]FacilityLoot, error) {
+	loader, err := maptemplate.FacilityTemplates()
+	if err != nil {
+		return nil, err
+	}
 
 	facilities := raw.PtrSlice(master.Facilities)
 	result := make([]FacilityLoot, 0, len(facilities))
 	for _, f := range facilities {
 		fac := f.Id
-		// role -> item -> 合計個数 / 出た試行数
+		// 絵 -> item -> 合計個数 / 出た試行数
 		total := map[string]map[string]int{}
 		present := map[string]map[string]int{}
-		// add は合計個数だけを積む。present は「その item が出た試行数」で試行ごとに1回だけ数えるため、
-		// ここでは触らず試行末尾の集計ループで加算する。present[role] の初期化だけここで揃えておく。
-		add := func(role, name string, count int) {
-			if total[role] == nil {
-				total[role] = map[string]int{}
-				present[role] = map[string]int{}
-			}
-			total[role][name] += count
-		}
+		picked := map[string]int{facilityLootAll: trials}
 
 		for i := range trials {
 			trialSeed := seed + uint64(i)
-			rng := rand.New(rand.NewPCG(trialSeed, roomLootStream))
-			site, placed, err := interior.FurnishBuilding(master, trialSeed, footprint, door, fac)
+			rng := rand.New(rand.NewPCG(trialSeed, facilityLootStream))
+			chunk, cells, err := loader.FacilityChunk(fac, trialSeed)
 			if err != nil {
-				return nil, fmt.Errorf("furnish %q: %w", fac, err)
+				return nil, fmt.Errorf("facility %q: %w", fac, err)
 			}
+			picked[chunk.Name]++
 
-			// この試行の role -> item -> 個数。試行内で集めてから present を1回だけ加算する
-			perRole := map[string]map[string]int{}
-			bump := func(role, name string, count int) {
-				if perRole[role] == nil {
-					perRole[role] = map[string]int{}
-				}
-				perRole[role][name] += count
-			}
-			for _, p := range placed {
-				role := roomRoleAt(site, p.Pos)
-				for _, it := range resolvePlacedLoot(master, p, rng) {
-					bump(role, it.name, it.count)
-					bump(roomLootAllRole, it.name, it.count) // 建物全体の合算
+			// この試行の item -> 個数。試行内で集めてから present を1回だけ加算する
+			perTrial := map[string]int{}
+			for _, row := range cells {
+				for _, c := range row {
+					for _, it := range resolveCellLoot(master, c, rng) {
+						perTrial[it.name] += it.count
+					}
 				}
 			}
-			for role, items := range perRole {
-				for name, c := range items {
-					add(role, name, c)
-					present[role][name]++
+			for _, key := range []string{chunk.Name, facilityLootAll} {
+				if total[key] == nil {
+					total[key] = map[string]int{}
+					present[key] = map[string]int{}
+				}
+				for name, n := range perTrial {
+					total[key][name] += n
+					present[key][name]++
 				}
 			}
 		}
 
 		result = append(result, FacilityLoot{
-			Facility: fac,
-			Trials:   trials,
-			Rooms:    buildRoomLoot(master, total, present, trials),
+			Facility:  fac,
+			Trials:    trials,
+			Templates: buildTemplateLoot(master, total, present, picked),
 		})
 	}
 	return result, nil
@@ -92,65 +83,39 @@ type drawnLoot struct {
 	count int
 }
 
-// resolvePlacedLoot は1つの配置指示を実行と同じ経路で materialize してアイテムと個数を返す。床 loot は
-// item group から、収納家具は Storage.LootTableId から引く。それ以外は何も返さない。
-func resolvePlacedLoot(master rawschema.Raws, p interior.Placed, rng *rand.Rand) []drawnLoot {
-	switch p.Kind {
-	case rawschema.Loot:
-		groupID, ok := interior.LootGroupName(master, p.Ref)
-		if !ok {
-			return nil
-		}
-		draws, err := raw.SelectFromItemGroup(master, groupID, rng)
+// resolveCellLoot は施設の絵の1マスの収納の中身と床の戦利品を、実行と同じ表から引いて返す。
+func resolveCellLoot(master rawschema.Raws, c maptemplate.MapCell, rng *rand.Rand) []drawnLoot {
+	var out []drawnLoot
+	if c.Prop != "" && c.LootTable != "" {
+		out = append(out, rollStorageLoot(master, c.Prop, c.LootTable, rng)...)
+	}
+	for range c.ItemCount {
+		draws, err := raw.SelectFromItemGroup(master, c.ItemGroup, rng)
 		if err != nil {
-			return nil
+			continue
 		}
-		out := make([]drawnLoot, 0, len(draws))
 		for _, d := range draws {
 			if d.Name != "" {
 				out = append(out, drawnLoot{name: d.Name, count: d.Count})
 			}
 		}
-		return out
-	case rawschema.Furniture:
-		name, ok := interior.PropRawName(master, p.Ref)
-		if !ok {
-			return nil
-		}
-		return rollStorageLoot(master, name, rng)
-	default:
-		// 装飾・敵・罠などは loot でない
-		return nil
 	}
+	return out
 }
 
-// roomRoleAt は座標 pos を含む部屋の役割を返す。どの部屋にも属さなければ "その他"。loot は部屋の内側に置かれる
-// ので、外構や外皮の装飾以外は必ずいずれかの部屋に収まる。
-func roomRoleAt(site interior.Site, pos interior.Vec) string {
-	for _, r := range site.Rooms {
-		rect := r.Room.Rect
-		if pos.X >= rect.X && pos.X < rect.X+rect.W && pos.Y >= rect.Y && pos.Y < rect.Y+rect.H {
-			role := string(r.Role)
-			if role == "" {
-				return roomLootOtherRole
-			}
-			return role
-		}
-	}
-	return roomLootOtherRole
-}
-
-// buildRoomLoot は集計 map を役割ごとの RoomLoot へ整える。全体を先頭に、以降は期待個数の合計が多い役割順に並べる。
-func buildRoomLoot(master rawschema.Raws, total, present map[string]map[string]int, trials int) []RoomLoot {
-	rooms := make([]RoomLoot, 0, len(total))
-	for role, items := range total {
+// buildTemplateLoot は集計 map を絵ごとの TemplateLoot へ整える。全体を先頭に、以降は期待個数の合計が多い絵の順に並べる。
+// 確率と期待個数は、その絵が選ばれた試行数で割る。
+func buildTemplateLoot(master rawschema.Raws, total, present map[string]map[string]int, picked map[string]int) []TemplateLoot {
+	templates := make([]TemplateLoot, 0, len(total))
+	for name, items := range total {
+		n := picked[name]
 		stats := make([]LootItemStat, 0, len(items))
-		for name, c := range items {
+		for item, c := range items {
 			stats = append(stats, LootItemStat{
-				Name:          name,
-				Prob:          float64(present[role][name]) / float64(trials),
-				ExpectedCount: float64(c) / float64(trials),
-				Value:         itemValue(master, name),
+				Name:          item,
+				Prob:          float64(present[name][item]) / float64(n),
+				ExpectedCount: float64(c) / float64(n),
+				Value:         itemValue(master, item),
 			})
 		}
 		sort.Slice(stats, func(a, b int) bool {
@@ -159,38 +124,40 @@ func buildRoomLoot(master rawschema.Raws, total, present map[string]map[string]i
 			}
 			return stats[a].Name < stats[b].Name
 		})
-		rooms = append(rooms, RoomLoot{Role: role, Items: stats})
+		templates = append(templates, TemplateLoot{Template: name, Trials: n, Items: stats})
 	}
-	sort.Slice(rooms, func(a, b int) bool {
-		// 全体を必ず先頭にする
-		if rooms[a].Role == roomLootAllRole {
+	sort.Slice(templates, func(a, b int) bool {
+		if templates[a].Template == facilityLootAll {
 			return true
 		}
-		if rooms[b].Role == roomLootAllRole {
+		if templates[b].Template == facilityLootAll {
 			return false
 		}
-		return roomTotalExpected(rooms[a]) > roomTotalExpected(rooms[b])
+		if ea, eb := templateTotalExpected(templates[a]), templateTotalExpected(templates[b]); ea != eb {
+			return ea > eb
+		}
+		return templates[a].Template < templates[b].Template
 	})
-	return rooms
+	return templates
 }
 
-// roomTotalExpected は役割の期待個数合計。役割の並び順に使う。
-func roomTotalExpected(r RoomLoot) float64 {
+// templateTotalExpected は絵の期待個数の合計。絵の並び順に使う。
+func templateTotalExpected(t TemplateLoot) float64 {
 	var sum float64
-	for _, it := range r.Items {
+	for _, it := range t.Items {
 		sum += it.ExpectedCount
 	}
 	return sum
 }
 
-// rollStorageLoot は収納家具1個の中身を抽選する。ゲームの populateStorageLoot と同型で、LootTableId のテーブルから
-// LootCount 回を深度考慮で引く。収納でない家具は空を返す。
-func rollStorageLoot(master rawschema.Raws, propName string, rng *rand.Rand) []drawnLoot {
+// rollStorageLoot は収納家具1個の中身を抽選する。ゲームの populateStorageLoot と同型で、パレットが書いた表 tableID から
+// LootCount 回を深度考慮で引く。荒らされ率は掛けない。収納でない家具は空を返す。
+func rollStorageLoot(master rawschema.Raws, propName, tableID string, rng *rand.Rand) []drawnLoot {
 	prop, err := raw.GetProp(master, propName)
-	if err != nil || prop.Storage == nil || prop.Storage.LootTableId == nil || *prop.Storage.LootTableId == "" {
+	if err != nil || prop.Storage == nil {
 		return nil
 	}
-	table, err := raw.GetItemTable(master, *prop.Storage.LootTableId)
+	table, err := raw.GetItemTable(master, tableID)
 	if err != nil {
 		return nil
 	}
@@ -202,7 +169,7 @@ func rollStorageLoot(master rawschema.Raws, propName string, rng *rand.Rand) []d
 	}
 	var out []drawnLoot
 	for range n {
-		draws, derr := raw.DrawFromItemTable(master, table, rng, roomLootDepth)
+		draws, derr := raw.DrawFromItemTable(master, table, rng, facilityLootDepth)
 		if derr != nil {
 			continue
 		}

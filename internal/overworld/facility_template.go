@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"slices"
-	"sync"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -23,18 +22,6 @@ const facilityLot consts.Tile = 20
 
 // errFacilityLotSizeMismatch は施設の絵の大きさが区画と一致しないときに返す
 var errFacilityLotSizeMismatch = errors.New("facility template size does not match the lot")
-
-// facilityTemplates は施設の絵とパレットを1度だけ読み込んで返す。絵は資材に埋め込まれていて実行中に変わらない
-var facilityTemplates = sync.OnceValues(func() (*maptemplate.TemplateLoader, error) {
-	l := maptemplate.NewTemplateLoader()
-	if err := l.RegisterAllChunks([]string{"levels/chunks", "levels/facilities", "levels/layouts"}); err != nil {
-		return nil, err
-	}
-	if err := l.RegisterAllPalettes([]string{"levels/palettes"}); err != nil {
-		return nil, err
-	}
-	return l, nil
-})
 
 // planFacility は施設 fac の絵を1枚選んで展開する。入口が西の街路に面する区画では左へ90度回し、左右の反転は rng で半々に選ぶ
 func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand) ([][]maptemplate.MapCell, error) {

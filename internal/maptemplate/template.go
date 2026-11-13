@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode/utf8"
 
 	"github.com/kijimaD/ruins/assets"
@@ -211,6 +212,22 @@ func NewTemplateLoader() *TemplateLoader {
 	}
 }
 
+// FacilityTemplates は施設の絵、部品、パレットを読み込んだ loader を返す。資材は埋め込みで実行中に変わらないので、読み込みは1度だけ行う
+func FacilityTemplates() (*TemplateLoader, error) {
+	return loadFacilityTemplates()
+}
+
+var loadFacilityTemplates = sync.OnceValues(func() (*TemplateLoader, error) {
+	l := NewTemplateLoader()
+	if err := l.RegisterAllChunks([]string{"levels/chunks", "levels/facilities", "levels/layouts"}); err != nil {
+		return nil, err
+	}
+	if err := l.RegisterAllPalettes([]string{"levels/palettes"}); err != nil {
+		return nil, err
+	}
+	return l, nil
+})
+
 // Load はio.Readerからチャンクテンプレート定義を読み込む
 func (l *TemplateLoader) Load(r io.Reader) ([]ChunkTemplate, error) {
 	data, err := io.ReadAll(r)
@@ -391,16 +408,6 @@ func (l *TemplateLoader) FacilityChunkNames(facility string) []string {
 		}
 	}
 	return names
-}
-
-// HasFacility は施設 facility の絵が1枚でも登録されているかを返す
-func (l *TemplateLoader) HasFacility(facility string) bool {
-	for _, chunks := range l.chunkCache {
-		if slices.ContainsFunc(chunks, func(c *ChunkTemplate) bool { return c.Facility == facility }) {
-			return true
-		}
-	}
-	return false
 }
 
 // FacilityChunk は施設 facility の絵から重み付きで1枚選び、展開したセル配列を返す
