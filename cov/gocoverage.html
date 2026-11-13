@@ -99,9 +99,9 @@
 				
 				<option value="file21">github.com/kijimaD/ruins/internal/activity/talk.go (84.8%)</option>
 				
-				<option value="file22">github.com/kijimaD/ruins/internal/activity/use_effect.go (73.7%)</option>
+				<option value="file22">github.com/kijimaD/ruins/internal/activity/use_effect.go (77.3%)</option>
 				
-				<option value="file23">github.com/kijimaD/ruins/internal/activity/use_item.go (90.2%)</option>
+				<option value="file23">github.com/kijimaD/ruins/internal/activity/use_item.go (94.3%)</option>
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/activity/wait.go (96.0%)</option>
 				
@@ -209,7 +209,7 @@
 				
 				<option value="file76">github.com/kijimaD/ruins/internal/components/enum.go (95.5%)</option>
 				
-				<option value="file77">github.com/kijimaD/ruins/internal/components/event.go (62.5%)</option>
+				<option value="file77">github.com/kijimaD/ruins/internal/components/event.go (55.6%)</option>
 				
 				<option value="file78">github.com/kijimaD/ruins/internal/components/fatigue.go (87.5%)</option>
 				
@@ -477,7 +477,7 @@
 				
 				<option value="file210">github.com/kijimaD/ruins/internal/raw/item_group.go (93.3%)</option>
 				
-				<option value="file211">github.com/kijimaD/ruins/internal/raw/raw.go (96.3%)</option>
+				<option value="file211">github.com/kijimaD/ruins/internal/raw/raw.go (96.2%)</option>
 				
 				<option value="file212">github.com/kijimaD/ruins/internal/raw/validate.go (98.1%)</option>
 				
@@ -545,7 +545,7 @@
 				
 				<option value="file244">github.com/kijimaD/ruins/internal/states/cube_module_menu.go (25.0%)</option>
 				
-				<option value="file245">github.com/kijimaD/ruins/internal/states/debug_menu.go (7.0%)</option>
+				<option value="file245">github.com/kijimaD/ruins/internal/states/debug_menu.go (6.8%)</option>
 				
 				<option value="file246">github.com/kijimaD/ruins/internal/states/direction_select.go (66.7%)</option>
 				
@@ -555,7 +555,7 @@
 				
 				<option value="file249">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (74.3%)</option>
 				
-				<option value="file250">github.com/kijimaD/ruins/internal/states/dungeon_input.go (24.3%)</option>
+				<option value="file250">github.com/kijimaD/ruins/internal/states/dungeon_input.go (24.2%)</option>
 				
 				<option value="file251">github.com/kijimaD/ruins/internal/states/equip_select_state.go (82.5%)</option>
 				
@@ -579,7 +579,7 @@
 				
 				<option value="file261">github.com/kijimaD/ruins/internal/states/persistent_message_state.go (43.8%)</option>
 				
-				<option value="file262">github.com/kijimaD/ruins/internal/states/run_stats_state.go (81.1%)</option>
+				<option value="file262">github.com/kijimaD/ruins/internal/states/run_stats_state.go (81.8%)</option>
 				
 				<option value="file263">github.com/kijimaD/ruins/internal/states/settings_menu.go (76.8%)</option>
 				
@@ -4839,6 +4839,7 @@ import (
         gc "github.com/kijimaD/ruins/internal/components"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/gameaction"
+        "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
 )
@@ -4855,7 +4856,7 @@ type useEffect interface {
 }
 
 // useEffects は使用時に働く効果の一覧。順に present を見て、持つ効果だけ適用する
-var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}}
+var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}}
 
 // healEffect は HP を回復する
 type healEffect struct{}
@@ -4920,6 +4921,19 @@ func (remedyEffect) check(u *UseItemBehavior, actor, item ecs.Entity, world w.Wo
 func (remedyEffect) apply(u *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
         <span class="cov0" title="0">u.applyRemedy(actor, world, world.Components.Remedy.Get(item), item)
         return nil
+</span>}
+
+// escapeEffect は惑星を脱出してクリアの画面へ移る
+type escapeEffect struct{}
+
+func (escapeEffect) present(world w.World, item ecs.Entity) bool {
+        <span class="cov8" title="1">return world.Components.EscapeDevice.Has(item)
+</span>}
+
+func (escapeEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { <span class="cov8" title="1">return nil }</span>
+
+func (escapeEffect) apply(_ *UseItemBehavior, _ *gc.Activity, _, _ ecs.Entity, world w.World) error {
+        <span class="cov8" title="1">return lifecycle.RequestStateChange(world, gc.EscapeEvent())
 </span>}
 </pre>
 		
@@ -5010,10 +5024,10 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 // Start はBehaviorの実装
 func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">if p, ok := comp.Params.(*gc.UseItemParams); ok </span>{
-                <span class="cov0" title="0">log.Debug("item use started", "actor", actor, "item", p.Target)
+        <span class="cov8" title="1">if p, ok := comp.Params.(*gc.UseItemParams); ok </span>{
+                <span class="cov8" title="1">log.Debug("item use started", "actor", actor, "item", p.Target)
 </span>        }
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // DoTurn はBehaviorの実装
@@ -5048,7 +5062,7 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Finish はBehaviorの実装
 func (u *UseItemBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("item use finished", "actor", actor)
+        <span class="cov8" title="1">log.Debug("item use finished", "actor", actor)
         return nil
 </span>}
 
@@ -11596,6 +11610,7 @@ type EntitySpec struct {
         Consumable         *Consumable
         Material           *Material
         FireStarter        *FireStarter
+        EscapeDevice       *EscapeDevice
         Perishable         *Perishable
         WeightCapacity     *WeightCapacity
         Melee              *Melee
@@ -11691,6 +11706,7 @@ type Components struct {
         Consumable         *ecs.Map[Consumable]
         Material           *ecs.Map[Material]
         FireStarter        *ecs.Map[FireStarter]
+        EscapeDevice       *ecs.Map[EscapeDevice]
         Perishable         *ecs.Map[Perishable]
         WeightCapacity     *ecs.Map[WeightCapacity]
         Melee              *ecs.Map[Melee]
@@ -11786,6 +11802,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
         c.Consumable = ecs.NewMap[Consumable](world)
         c.Material = ecs.NewMap[Material](world)
         c.FireStarter = ecs.NewMap[FireStarter](world)
+        c.EscapeDevice = ecs.NewMap[EscapeDevice](world)
         c.Perishable = ecs.NewMap[Perishable](world)
         c.WeightCapacity = ecs.NewMap[WeightCapacity](world)
         c.Melee = ecs.NewMap[Melee](world)
@@ -11883,6 +11900,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
         addComp(c.Consumable, entity, spec.Consumable)
         addComp(c.Material, entity, spec.Material)
         addComp(c.FireStarter, entity, spec.FireStarter)
+        addComp(c.EscapeDevice, entity, spec.EscapeDevice)
         addComp(c.Perishable, entity, spec.Perishable)
         addComp(c.WeightCapacity, entity, spec.WeightCapacity)
         addComp(c.Melee, entity, spec.Melee)
@@ -12353,6 +12371,10 @@ func (ShowDialog) isStatePayload()       {<span class="cov0" title="0"></span>}
 func (OpenStorage) isStatePayload()      {<span class="cov0" title="0"></span>}
 func (OpenFeedFuel) isStatePayload()     {<span class="cov0" title="0"></span>}
 func (OpenCubeMenu) isStatePayload()     {<span class="cov0" title="0"></span>}
+func (Escape) isStatePayload()           {<span class="cov0" title="0"></span>}
+
+// Escape は惑星を脱出してクリアの画面へ移る
+type Escape struct{}
 
 // StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。
 // Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。
@@ -12377,6 +12399,9 @@ func WarpDungeonEnterEvent(definitionName string) StateChangeRequest {
 func WarpDungeonEnterWithPlannerEvent(definitionName, plannerName string) StateChangeRequest {
         <span class="cov0" title="0">return StateChangeRequest{Payload: WarpDungeonEnter{DefinitionName: definitionName, PlannerName: plannerName}}
 </span>}
+
+// EscapeEvent は脱出のリクエストを生成する
+func EscapeEvent() StateChangeRequest { <span class="cov0" title="0">return StateChangeRequest{Payload: Escape{}} }</span>
 
 // ShowDialogEvent は会話メッセージ表示リクエストを生成する
 func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {
@@ -28742,6 +28767,11 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
                 <span class="cov8" title="1">entitySpec.FireStarter = &amp;gc.FireStarter{}
 </span>        }
 
+        // 脱出の装置。使うとクリアになる
+        <span class="cov8" title="1">if item.EscapeDevice != nil </span>{
+                <span class="cov0" title="0">entitySpec.EscapeDevice = &amp;gc.EscapeDevice{}
+</span>        }
+
         // フィールドの相互作用。既定は拾えるアイテム。装着アイテムは applyDeployable が設備に応じて上書きする
         <span class="cov8" title="1">entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
         if item.Deployable != nil </span>{
@@ -30835,6 +30865,9 @@ func EquipmentCategoryValues() []EquipmentCategory {
         <span class="cov0" title="0">return []EquipmentCategory{EquipmentCategoryHEAD, EquipmentCategoryTORSO, EquipmentCategoryARMS, EquipmentCategoryHANDS, EquipmentCategoryLEGS, EquipmentCategoryFEET, EquipmentCategoryJEWELRY}
 </span>}
 
+// EscapeDevice 脱出の装置。使うと惑星を脱出してクリアになる
+type EscapeDevice = map[string]interface{}
+
 // Facility 市街地の施設1種
 type Facility struct {
         EnemyTable EntityID `json:"enemyTable"`
@@ -31218,6 +31251,9 @@ type Item struct {
         Description EntityDescription `json:"description"`
 
         EquipBonus *EquipBonus `json:"equipBonus,omitempty"`
+
+        // EscapeDevice 脱出の装置。使うとクリアになる
+        EscapeDevice *EscapeDevice `json:"escapeDevice,omitempty"`
 
         Fire *Fire `json:"fire,omitempty"`
 
@@ -37745,6 +37781,15 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
                         <span class="cov0" title="0">_, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
                         return err
 </span>                })},
+                {Label: "Spawn escape device parts (inventory)", Run: popAfter(func(world w.World) error {
+                        // 合成して使うクリアの経路を試せるよう、修理のレシピの材料をそろえる
+                        <span class="cov0" title="0">for id, count := range map[string]int{"broken_escape_core": 1, "signal_amplifier": 1, "power_cell": 2, "electric_wire": 4} </span>{
+                                <span class="cov0" title="0">if _, err := lifecycle.SpawnBackpackItem(world, id, count); err != nil </span>{
+                                        <span class="cov0" title="0">return err
+</span>                                }
+                        }
+                        <span class="cov0" title="0">return nil</span>
+                })},
                 {Label: "Inflict conditions", Run: popAfter(debugInflictConditions)},
                 {Label: "Treat all conditions", Run: popAfter(debugTreatAllConditions)},
                 {Label: "Exhaust fatigue", Run: popAfter(debugExhaustFatigue)},
@@ -37758,6 +37803,9 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 </span>                        }
                         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil</span>
                 }},
+                {Label: "Run result (clear screen)", Run: func(_ w.World) (es.Transition[w.World], error) {
+                        <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunClearState}}, nil
+</span>                }},
                 {Label: "Start overworld", Run: func(world w.World) (es.Transition[w.World], error) {
                         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)}}, nil
 </span>                }},
@@ -39366,6 +39414,8 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
                 <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
                         func() (es.State[w.World], error) </span>{ <span class="cov0" title="0">return NewFeedFuelMenuState(FireFuelSink(p.FireEntity)) }</span>,
                 }}, nil
+        case gc.Escape:
+                <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunClearState}}, nil</span>
         case gc.OpenCubeMenu:
                 // 移動拠点キューブのメニューを開く
                 <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
@@ -41790,6 +41840,7 @@ func NewPersistentMessageState(messageData *messagedata.MessageData) *Persistent
 
 import (
         "fmt"
+        "time"
 
         "github.com/kijimaD/ruins/internal/i18n"
 
@@ -41807,19 +41858,21 @@ import (
         "github.com/kijimaD/ruins/internal/world/query"
 )
 
-// run 統計の閲覧画面。character・inventory と同じ menuframe のタブ画面枠に、統計を
-// Label と Value の2列テーブルで並べる。読み取り専用で、道中の統計閲覧と死の結果画面を
-// 見出しと閉じ方だけ変えて共用する。値の組み立ては runStatsItems に1本化する。
+// run 統計の閲覧画面。統計を Label と Value の2列テーブルで並べる読み取り専用画面で、
+// 道中の統計閲覧と、死とクリアの結果画面を共用する。値の組み立ては runStatsItems に1本化する。
 
 const runStatsMenuKey = "run_stats"
 
 // RunStatsState は run 統計をテーブルで見る読み取り専用画面
 type RunStatsState struct {
         es.BaseState[w.World]
-        headerMsgid  i18n.Msgid             // 見出し。統計は "Statistics"、結果は "You died."
-        exit         es.Transition[w.World] // Cancel で抜ける先。統計は Pop、結果はメインメニューへ Replace
-        exitOnSelect bool                   // Select でも exit へ抜けるか。結果画面は任意キーで戻せるよう真にする
-        screen       *menuloop.Screen[RunStatsProps]
+        headerMsgid i18n.Msgid // 見出し
+        // result が真なら run の結果画面。統計だけをタブなしで出し、任意キーでメインメニューへ戻す。
+        // 結果画面を開いてもプレイヤーは残りプレイ時間の時計が進むので、開いた時点の playTime を出し続ける。
+        // 偽なら道中の統計画面で、統計と環境のタブを持ち、閉じると元の画面へ戻る
+        result   bool
+        playTime time.Duration
+        screen   *menuloop.Screen[RunStatsProps]
 }
 
 // RunStatsProps は統計画面の表示 props
@@ -41837,24 +41890,23 @@ var _ es.State[w.World] = &amp;RunStatsState{}
 
 // NewRunStatsState は道中で run 統計を見る画面を作る。常時メニューから開き、閉じると元へ戻る
 func NewRunStatsState() (es.State[w.World], error) {
-        <span class="cov8" title="1">return &amp;RunStatsState{
-                headerMsgid: "Statistics",
-                exit:        es.Transition[w.World]{Type: es.TransPop},
-        }, nil
+        <span class="cov8" title="1">return &amp;RunStatsState{headerMsgid: "Statistics"}, nil
 </span>}
 
-// NewRunResultState は run の死の結果画面を作る。統計を同じテーブルで見せ、任意キーでメインメニューへ戻す
+// NewRunResultState は run の死の結果画面を作る
 func NewRunResultState() (es.State[w.World], error) {
-        <span class="cov0" title="0">return &amp;RunStatsState{
-                headerMsgid:  "You died.",
-                exit:         es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}},
-                exitOnSelect: true,
-        }, nil
+        <span class="cov8" title="1">return &amp;RunStatsState{headerMsgid: "You died.", result: true}, nil
+</span>}
+
+// NewRunClearState は run のクリアの結果画面を作る
+func NewRunClearState() (es.State[w.World], error) {
+        <span class="cov8" title="1">return &amp;RunStatsState{headerMsgid: "You escaped the planet.", result: true}, nil
 </span>}
 
 // OnStart は Screen を組み立てる。overlay は持たない読み取り専用画面
-func (st *RunStatsState) OnStart(_ w.World) error {
-        <span class="cov8" title="1">st.screen = menuloop.NewScreen[RunStatsProps](st)
+func (st *RunStatsState) OnStart(world w.World) error {
+        <span class="cov8" title="1">st.playTime = query.GetPlayTime(world).Elapsed()
+        st.screen = menuloop.NewScreen[RunStatsProps](st)
         return nil
 </span>}
 
@@ -41873,10 +41925,10 @@ func (st *RunStatsState) Draw(_ w.World, screen *ebiten.Image) error {
 func (st *RunStatsState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
         <span class="cov0" title="0">switch action </span>{
         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-                <span class="cov0" title="0">return st.exit, nil</span>
+                <span class="cov0" title="0">return st.exitTransition(), nil</span>
         case inputmapper.ActionMenuSelect:
-                <span class="cov0" title="0">if st.exitOnSelect </span>{
-                        <span class="cov0" title="0">return st.exit, nil
+                <span class="cov0" title="0">if st.result </span>{
+                        <span class="cov0" title="0">return st.exitTransition(), nil
 </span>                }
                 <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
         default:
@@ -41884,13 +41936,22 @@ func (st *RunStatsState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tr
         }
 }
 
-// Fetch は表示するタブと統計行を組む。統計と環境の2タブを持つ
+// exitTransition は画面を抜ける先を返す。結果画面はメインメニューへ、道中の統計画面は元の画面へ戻る
+func (st *RunStatsState) exitTransition() es.Transition[w.World] {
+        <span class="cov0" title="0">if st.result </span>{
+                <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}}
+</span>        }
+        <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}</span>
+}
+
+// Fetch は表示するタブと統計行を組む。結果画面は統計だけ、道中の統計画面は統計と環境の2タブを持つ
 func (st *RunStatsState) Fetch(world w.World) (RunStatsProps, error) {
-        <span class="cov8" title="1">return RunStatsProps{Tabs: []statsTab{
-                {Label: query.T(world, "Summary"), Items: runStatsItems(world)},
-                {Label: query.T(world, "Environment"), Items: environmentItems(world)},
-        }}, nil
-</span>}
+        <span class="cov8" title="1">summary := statsTab{Label: query.T(world, "Summary"), Items: runStatsItems(world, st.shownPlayTime(world))}
+        if st.result </span>{
+                <span class="cov8" title="1">return RunStatsProps{Tabs: []statsTab{summary}}, nil
+</span>        }
+        <span class="cov8" title="1">return RunStatsProps{Tabs: []statsTab{summary, {Label: query.T(world, "Environment"), Items: environmentItems(world)}}}, nil</span>
+}
 
 // Menu は読み取り専用のタブ構成を返す。見出し行が無いのでスキップは不要
 func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
@@ -41901,7 +41962,7 @@ func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
         <span class="cov8" title="1">return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}</span>
 }
 
-// ViewUI はタブ帯つきのステータス表を組む。
+// ViewUI はステータス表を組む。結果画面はタブ帯なしの枠、道中の統計画面はタブ帯つきの枠に載せる
 func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
         <span class="cov8" title="1">labels := make([]string, len(props.Tabs))
         for i, tab := range props.Tabs </span>{
@@ -41912,7 +41973,10 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
                 <span class="cov0" title="0">tabIndex = 0
 </span>        }
         <span class="cov8" title="1">content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
-        return menuframe.TabScreen(world, res, query.T(world, st.headerMsgid), labels, tabIndex, content, keybind.HelpHint(world), pager)</span>
+        if st.result </span>{
+                <span class="cov8" title="1">return menuframe.PanelScreen(world, res, query.T(world, st.headerMsgid), content, keybind.HelpHint(world), pager)
+</span>        }
+        <span class="cov8" title="1">return menuframe.TabScreen(world, res, query.T(world, st.headerMsgid), labels, tabIndex, content, keybind.HelpHint(world), pager)</span>
 }
 
 // buildStatsTableUI はラベル左・値右の2列表とフッタ右端のページ表示を返す。
@@ -41928,9 +41992,17 @@ func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res
         }, res)</span>
 }
 
+// shownPlayTime は画面に出すプレイ時間を返す
+func (st *RunStatsState) shownPlayTime(world w.World) time.Duration {
+        <span class="cov8" title="1">if st.result </span>{
+                <span class="cov8" title="1">return st.playTime
+</span>        }
+        <span class="cov8" title="1">return query.GetPlayTime(world).Elapsed()</span>
+}
+
 // runStatsItems は run 統計をテーブル行に組む。結果画面と道中の統計画面で共通。
 // Label と Value の2列で、値は右寄せの数値。到達度は経過ターンで示す
-func runStatsItems(world w.World) []statusItemData {
+func runStatsItems(world w.World, playTime time.Duration) []statusItemData {
         <span class="cov8" title="1">days, turns, kills, items, sales := runStatsFields(world)
         rows := make([]statusItemData, 0, 6)
 </span>        // 死因は決着時にだけ記録される。道中の統計画面では空なので出さない
@@ -41938,7 +42010,7 @@ func runStatsItems(world w.World) []statusItemData {
                 <span class="cov0" title="0">rows = append(rows, statusItemData{Label: query.T(world, "Cause of death"), Value: query.T(world, s.Cause.DisplayName())})
 </span>        }
         <span class="cov8" title="1">return append(rows,
-                statusItemData{Label: query.T(world, "Play time"), Value: formatPlayTime(query.GetPlayTime(world).Elapsed())},
+                statusItemData{Label: query.T(world, "Play time"), Value: formatPlayTime(playTime)},
                 statusItemData{Label: query.T(world, "Days"), Value: fmt.Sprintf("%d", days)},
                 statusItemData{Label: query.T(world, "Turns"), Value: fmt.Sprintf("%d", turns)},
                 statusItemData{Label: query.T(world, "Enemies killed"), Value: fmt.Sprintf("%d", kills)},

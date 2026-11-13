@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">24.1&nbsp;%</td>
-            <td class="headerCovTableEntry">187</td>
+            <td class="headerCovTableEntryLo">23.9&nbsp;%</td>
+            <td class="headerCovTableEntry">188</td>
             <td class="headerCovTableEntry">45</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-13 15:27:51</td>
+            <td class="headerValue">2026-11-13 16:44:29</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -375,110 +375,112 @@
 <span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
 <span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewFeedFuelMenuState(FireFuelSink(p.FireEntity)) },</span></span>
 <span id="L315"><span class="lineNum">     315</span>              :                 }}, nil</span>
-<span id="L316"><span class="lineNum">     316</span>              :         case gc.OpenCubeMenu:</span>
-<span id="L317"><span class="lineNum">     317</span>              :                 // 移動拠点キューブのメニューを開く</span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewCubeMenuState(p.Cube) },</span></span>
-<span id="L320"><span class="lineNum">     320</span>              :                 }}, nil</span>
-<span id="L321"><span class="lineNum">     321</span>              :         default:</span>
-<span id="L322"><span class="lineNum">     322</span>              :                 // この switch で扱わない種別。未実装の scaffold もここに落ちる</span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unhandled StateChangeRequest: %T&quot;, req.Payload)</span></span>
-<span id="L324"><span class="lineNum">     324</span>              :         }</span>
-<span id="L325"><span class="lineNum">     325</span>              : }</span>
-<span id="L326"><span class="lineNum">     326</span>              : </span>
-<span id="L327"><span class="lineNum">     327</span>              : // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える</span>
-<span id="L328"><span class="lineNum">     328</span>              : func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {</span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :         query.GetWeaponSelection(world).Slot = slotNumber</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L331"><span class="lineNum">     331</span>              :         // プレイヤーの武器スロット情報を取得してログメッセージを出力</span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :         query.Player(world, func(playerEntity ecs.Entity) {</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                 weapons := query.GetWeapons(world, playerEntity)</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                 weaponIndex := slotNumber - 1 // 1-based to 0-based</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                 weapon := weapons[weaponIndex]</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                 if weapon != nil {</span></span>
-<span id="L338"><span class="lineNum">     338</span>              :                         // 武器が装備されている場合は武器名を表示</span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                         if world.Components.Name.Has(*weapon) {</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                                 weaponName := query.GetEntityName(*weapon, world)</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;Readied %s.&quot;, gamelog.Tag(&quot;item&quot;, weaponName))).</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L345"><span class="lineNum">     345</span>              :                 }</span>
-<span id="L346"><span class="lineNum">     346</span>              :         })</span>
-<span id="L347"><span class="lineNum">     347</span>              : }</span>
-<span id="L348"><span class="lineNum">     348</span>              : </span>
-<span id="L349"><span class="lineNum">     349</span>              : // handleSleep は睡眠の確認プロンプトを開く。入眠可否と各条件は activity.EvaluateSleepConditions が</span>
-<span id="L350"><span class="lineNum">     350</span>              : // 1箇所で評価し、プロンプトはそれを見せて確認を取る。実際の入眠は選択肢の Sleep で行う。</span>
-<span id="L351"><span class="lineNum">     351</span>              : func (st *DungeonState) handleSleep(world w.World) (es.Transition[w.World], error) {</span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :         player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, err</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L356"><span class="lineNum">     356</span>              :         // 入眠できないときはプロンプトを開かず、妨げている最初の理由だけをログへ出す。</span>
-<span id="L357"><span class="lineNum">     357</span>              :         // 可能なときだけ確認プロンプトを開く</span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :         if reason, blocked := sleepBlockReason(activity.EvaluateSleepConditions(world, player)); blocked {</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).Markup(query.T(world, reason)).Log()</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                 func() (es.State[w.World], error) { return NewChoiceMenu(st.sleepConfirmChoices), nil },</span></span>
-<span id="L364"><span class="lineNum">     364</span>              :         }}, nil</span>
-<span id="L365"><span class="lineNum">     365</span>              : }</span>
-<span id="L366"><span class="lineNum">     366</span>              : </span>
-<span id="L367"><span class="lineNum">     367</span>              : // sleepBlockReason は入眠を妨げる最初の条件の理由 msgid を返す。妨げが無ければ blocked=false。</span>
-<span id="L368"><span class="lineNum">     368</span>              : // 検査順は SleepBehavior.Validate と揃え、表示とゲートで同じ優先順位にする。</span>
-<span id="L369"><span class="lineNum">     369</span>              : // 返す文字列は Validate が query.T へインラインで渡す msgid と同じもの</span>
-<span id="L370"><span class="lineNum">     370</span>              : func sleepBlockReason(sc activity.SleepConditions) (msgid i18n.Msgid, blocked bool) {</span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         switch {</span></span>
-<span id="L372"><span class="lineNum">     372</span>              :         case sc.TooTired():</span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                 return &quot;Not tired enough to sleep.&quot;, true</span></span>
-<span id="L374"><span class="lineNum">     374</span>              :         case !sc.TemperatureOK:</span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 return &quot;Too cold or hot to sleep.&quot;, true</span></span>
-<span id="L376"><span class="lineNum">     376</span>              :         case !sc.AreaSafe:</span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                 return &quot;Cannot sleep because enemies are nearby.&quot;, true</span></span>
-<span id="L378"><span class="lineNum">     378</span>              :         }</span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         return &quot;&quot;, false</span></span>
-<span id="L380"><span class="lineNum">     380</span>              : }</span>
-<span id="L381"><span class="lineNum">     381</span>              : </span>
-<span id="L382"><span class="lineNum">     382</span>              : // sleepConfirmChoices は入眠可能なときだけ開く yes/no プロンプトを組む。入眠可否は handleSleep が</span>
-<span id="L383"><span class="lineNum">     383</span>              : // 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。入眠は</span>
-<span id="L384"><span class="lineNum">     384</span>              : // Validate 済みのチェックポイントなので、入った直後にオートセーブする。</span>
-<span id="L385"><span class="lineNum">     385</span>              : func (st *DungeonState) sleepConfirmChoices(world w.World) (string, []Choice) {</span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         title := query.T(world, &quot;Sleep here?&quot;)</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :         return title, []Choice{</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                 {</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :                         Label: query.T(world, &quot;Sleep&quot;),</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                         Run: func(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :                                 p, perr := query.GetPlayerEntity(world)</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                                 if perr != nil {</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                                         return es.Transition[w.World]{}, perr</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                                 }</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                                 res, eerr := activity.Execute(activity.NewSleepActivity(), p, world)</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :                                 if eerr != nil {</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                                         return es.Transition[w.World]{}, eerr</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                                 }</span></span>
-<span id="L399"><span class="lineNum">     399</span>              :                                 // 入眠に成功したときだけ保存する。Validate 失敗は Execute が err=nil・Success=false で返すため</span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :                                 if res != nil &amp;&amp; res.Success {</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :                                         if serr := autoSave(world, nil); serr != nil {</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :                                                 return es.Transition[w.World]{}, serr</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :                                         }</span></span>
-<span id="L404"><span class="lineNum">     404</span>              :                                 }</span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
-<span id="L406"><span class="lineNum">     406</span>              :                         },</span>
-<span id="L407"><span class="lineNum">     407</span>              :                 },</span>
-<span id="L408"><span class="lineNum">     408</span>              :                 {</span>
-<span id="L409"><span class="lineNum">     409</span>              :                         Label: query.T(world, &quot;Cancel&quot;),</span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :                         Run:   func(_ w.World) (es.Transition[w.World], error) { return es.Transition[w.World]{Type: es.TransPop}, nil },</span></span>
-<span id="L411"><span class="lineNum">     411</span>              :                 },</span>
-<span id="L412"><span class="lineNum">     412</span>              :         }</span>
-<span id="L413"><span class="lineNum">     413</span>              : }</span>
-<span id="L414"><span class="lineNum">     414</span>              : </span>
-<span id="L415"><span class="lineNum">     415</span>              : // hasStock は entity の member の行が店の在庫を持つかを返す</span>
-<span id="L416"><span class="lineNum">     416</span>              : func hasStock(world w.World, entity ecs.Entity) bool {</span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC tlaBgGNC">           1 :         member, err := raw.FindMember(world.Resources.RawMaster, query.GetEntityID(entity, world))</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :         return err == nil &amp;&amp; len(raw.PtrSlice(member.Stock)) &gt; 0</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L316"><span class="lineNum">     316</span>              :         case gc.Escape:</span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunClearState}}, nil</span></span>
+<span id="L318"><span class="lineNum">     318</span>              :         case gc.OpenCubeMenu:</span>
+<span id="L319"><span class="lineNum">     319</span>              :                 // 移動拠点キューブのメニューを開く</span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewCubeMenuState(p.Cube) },</span></span>
+<span id="L322"><span class="lineNum">     322</span>              :                 }}, nil</span>
+<span id="L323"><span class="lineNum">     323</span>              :         default:</span>
+<span id="L324"><span class="lineNum">     324</span>              :                 // この switch で扱わない種別。未実装の scaffold もここに落ちる</span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unhandled StateChangeRequest: %T&quot;, req.Payload)</span></span>
+<span id="L326"><span class="lineNum">     326</span>              :         }</span>
+<span id="L327"><span class="lineNum">     327</span>              : }</span>
+<span id="L328"><span class="lineNum">     328</span>              : </span>
+<span id="L329"><span class="lineNum">     329</span>              : // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える</span>
+<span id="L330"><span class="lineNum">     330</span>              : func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {</span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :         query.GetWeaponSelection(world).Slot = slotNumber</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L333"><span class="lineNum">     333</span>              :         // プレイヤーの武器スロット情報を取得してログメッセージを出力</span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :         query.Player(world, func(playerEntity ecs.Entity) {</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                 weapons := query.GetWeapons(world, playerEntity)</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 weaponIndex := slotNumber - 1 // 1-based to 0-based</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                 weapon := weapons[weaponIndex]</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                 if weapon != nil {</span></span>
+<span id="L340"><span class="lineNum">     340</span>              :                         // 武器が装備されている場合は武器名を表示</span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                         if world.Components.Name.Has(*weapon) {</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                                 weaponName := query.GetEntityName(*weapon, world)</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;Readied %s.&quot;, gamelog.Tag(&quot;item&quot;, weaponName))).</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L347"><span class="lineNum">     347</span>              :                 }</span>
+<span id="L348"><span class="lineNum">     348</span>              :         })</span>
+<span id="L349"><span class="lineNum">     349</span>              : }</span>
+<span id="L350"><span class="lineNum">     350</span>              : </span>
+<span id="L351"><span class="lineNum">     351</span>              : // handleSleep は睡眠の確認プロンプトを開く。入眠可否と各条件は activity.EvaluateSleepConditions が</span>
+<span id="L352"><span class="lineNum">     352</span>              : // 1箇所で評価し、プロンプトはそれを見せて確認を取る。実際の入眠は選択肢の Sleep で行う。</span>
+<span id="L353"><span class="lineNum">     353</span>              : func (st *DungeonState) handleSleep(world w.World) (es.Transition[w.World], error) {</span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, err</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L358"><span class="lineNum">     358</span>              :         // 入眠できないときはプロンプトを開かず、妨げている最初の理由だけをログへ出す。</span>
+<span id="L359"><span class="lineNum">     359</span>              :         // 可能なときだけ確認プロンプトを開く</span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :         if reason, blocked := sleepBlockReason(activity.EvaluateSleepConditions(world, player)); blocked {</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).Markup(query.T(world, reason)).Log()</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                 func() (es.State[w.World], error) { return NewChoiceMenu(st.sleepConfirmChoices), nil },</span></span>
+<span id="L366"><span class="lineNum">     366</span>              :         }}, nil</span>
+<span id="L367"><span class="lineNum">     367</span>              : }</span>
+<span id="L368"><span class="lineNum">     368</span>              : </span>
+<span id="L369"><span class="lineNum">     369</span>              : // sleepBlockReason は入眠を妨げる最初の条件の理由 msgid を返す。妨げが無ければ blocked=false。</span>
+<span id="L370"><span class="lineNum">     370</span>              : // 検査順は SleepBehavior.Validate と揃え、表示とゲートで同じ優先順位にする。</span>
+<span id="L371"><span class="lineNum">     371</span>              : // 返す文字列は Validate が query.T へインラインで渡す msgid と同じもの</span>
+<span id="L372"><span class="lineNum">     372</span>              : func sleepBlockReason(sc activity.SleepConditions) (msgid i18n.Msgid, blocked bool) {</span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         switch {</span></span>
+<span id="L374"><span class="lineNum">     374</span>              :         case sc.TooTired():</span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 return &quot;Not tired enough to sleep.&quot;, true</span></span>
+<span id="L376"><span class="lineNum">     376</span>              :         case !sc.TemperatureOK:</span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                 return &quot;Too cold or hot to sleep.&quot;, true</span></span>
+<span id="L378"><span class="lineNum">     378</span>              :         case !sc.AreaSafe:</span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                 return &quot;Cannot sleep because enemies are nearby.&quot;, true</span></span>
+<span id="L380"><span class="lineNum">     380</span>              :         }</span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :         return &quot;&quot;, false</span></span>
+<span id="L382"><span class="lineNum">     382</span>              : }</span>
+<span id="L383"><span class="lineNum">     383</span>              : </span>
+<span id="L384"><span class="lineNum">     384</span>              : // sleepConfirmChoices は入眠可能なときだけ開く yes/no プロンプトを組む。入眠可否は handleSleep が</span>
+<span id="L385"><span class="lineNum">     385</span>              : // 済ませ、不可の理由はログへ出しているので、ここは Sleep と Cancel の確認だけに徹する。入眠は</span>
+<span id="L386"><span class="lineNum">     386</span>              : // Validate 済みのチェックポイントなので、入った直後にオートセーブする。</span>
+<span id="L387"><span class="lineNum">     387</span>              : func (st *DungeonState) sleepConfirmChoices(world w.World) (string, []Choice) {</span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :         title := query.T(world, &quot;Sleep here?&quot;)</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         return title, []Choice{</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                 {</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :                         Label: query.T(world, &quot;Sleep&quot;),</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                         Run: func(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                                 p, perr := query.GetPlayerEntity(world)</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                                 if perr != nil {</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                                         return es.Transition[w.World]{}, perr</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                                 res, eerr := activity.Execute(activity.NewSleepActivity(), p, world)</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                                 if eerr != nil {</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :                                         return es.Transition[w.World]{}, eerr</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L401"><span class="lineNum">     401</span>              :                                 // 入眠に成功したときだけ保存する。Validate 失敗は Execute が err=nil・Success=false で返すため</span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :                                 if res != nil &amp;&amp; res.Success {</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :                                         if serr := autoSave(world, nil); serr != nil {</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :                                                 return es.Transition[w.World]{}, serr</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :                                         }</span></span>
+<span id="L406"><span class="lineNum">     406</span>              :                                 }</span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L408"><span class="lineNum">     408</span>              :                         },</span>
+<span id="L409"><span class="lineNum">     409</span>              :                 },</span>
+<span id="L410"><span class="lineNum">     410</span>              :                 {</span>
+<span id="L411"><span class="lineNum">     411</span>              :                         Label: query.T(world, &quot;Cancel&quot;),</span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :                         Run:   func(_ w.World) (es.Transition[w.World], error) { return es.Transition[w.World]{Type: es.TransPop}, nil },</span></span>
+<span id="L413"><span class="lineNum">     413</span>              :                 },</span>
+<span id="L414"><span class="lineNum">     414</span>              :         }</span>
+<span id="L415"><span class="lineNum">     415</span>              : }</span>
+<span id="L416"><span class="lineNum">     416</span>              : </span>
+<span id="L417"><span class="lineNum">     417</span>              : // hasStock は entity の member の行が店の在庫を持つかを返す</span>
+<span id="L418"><span class="lineNum">     418</span>              : func hasStock(world w.World, entity ecs.Entity) bool {</span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC tlaBgGNC">           1 :         member, err := raw.FindMember(world.Resources.RawMaster, query.GetEntityID(entity, world))</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :         return err == nil &amp;&amp; len(raw.PtrSlice(member.Stock)) &gt; 0</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
