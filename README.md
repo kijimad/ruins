@@ -109,7 +109,6 @@ $ make help
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 9/17（見送り1） | worldgen, item, gamedesign |
 | in-progress | [地面の雪を気温と同じ式から導き、寒さを画面に出す](docs/design/261114172029.md) | 6/7 | ui, worldgen, gamedesign |
-| in-progress | [軍基地・発電施設の区域と、銃砲店・通信施設を足す](docs/design/261114215819.md) | 5/6 | worldgen, gamedesign |
 
 
 ## Reference

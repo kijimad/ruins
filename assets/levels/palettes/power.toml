@@ -1,0 +1,69 @@
+[palette]
+id = "power"
+description = "発電施設"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"." = "floor_concrete"
+
+[palette.props."+"]
+tile = "floor_concrete"
+id = "door"
+
+[palette.props."g"]
+tile = "floor_concrete"
+candidates = [{ id = "generator_green", weight = 1 }, { id = "generator_yellow", weight = 1 }]
+
+[palette.props."G"]
+tile = "floor_concrete"
+id = "gauge_machine"
+
+[palette.props."c"]
+tile = "floor_concrete"
+id = "control_panel"
+lootTable = "power_control"
+
+[palette.props."S"]
+tile = "floor_concrete"
+id = "server_rack"
+
+[palette.props."d"]
+tile = "floor_concrete"
+id = "desk"
+lootTable = "office_storage"
+
+[palette.props."h"]
+tile = "floor_concrete"
+id = "chair"
+
+[palette.props."L"]
+tile = "floor_concrete"
+id = "locker"
+lootTable = "power_fuel"
+
+[palette.props."f"]
+tile = "floor_concrete"
+id = "wooden_crate"
+lootTable = "power_fuel"
+
+[palette.props."r"]
+tile = "dirt"
+id = "rubble"
+
+[palette.props."Y"]
+tile = "dirt"
+id = "generator_yellow"
+
+[palette.props."B"]
+tile = "dirt"
+candidates = [{ id = "red_drum", weight = 1 }, { id = "green_drum", weight = 1 }, { id = "white_barrel", weight = 1 }]
+
+[palette.items."o"]
+itemGroup = "fuel"
+tile = "dirt"
+chance = 50
+
+[palette.beings."z"]
+tile = "floor_concrete"
+chance = 35

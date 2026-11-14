@@ -6547,3 +6547,12 @@ msgstr "練兵場"
 
 msgid "Armory"
 msgstr "武器庫"
+
+msgid "Turbine Hall"
+msgstr "タービン建屋"
+
+msgid "Control Room"
+msgstr "制御棟"
+
+msgid "Coal Yard"
+msgstr "貯炭場"

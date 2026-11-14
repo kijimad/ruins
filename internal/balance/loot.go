@@ -80,19 +80,12 @@ func GenerateFacilityLoot(master rawschema.Raws, trials int, seed uint64) ([]Fac
 	return result, nil
 }
 
-// roomEdgeTrials は部屋の絵で組む施設の試行で、順に使う辺の組。迷路の部屋の5通りの形を1つずつ持つ
-var roomEdgeTrials = [][4]maptemplate.EdgeKind{
-	{maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeWall, maptemplate.EdgeWall},
-	{maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeWall},
-	{maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeDoor, maptemplate.EdgeWall},
-	{maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeDoor},
-	{maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeDoor},
-}
-
-// facilityTrialChunk は施設 fac の i 回目の試行の絵を引く。部屋の絵で組む施設は、試行ごとに部屋1つを引く
+// facilityTrialChunk は施設 fac の i 回目の試行の絵を引く。部屋の絵で組む施設は、試行ごとに部屋の絵を1枚ずつ順に引く
 func facilityTrialChunk(loader *maptemplate.TemplateLoader, fac string, i int, seed uint64) (*maptemplate.ChunkTemplate, [][]maptemplate.MapCell, error) {
 	if loader.HasRooms(fac) {
-		return loader.FacilityRoom(fac, roomEdgeTrials[i%len(roomEdgeTrials)], seed)
+		names := loader.FacilityChunkNames(fac)
+		chunk, _, cells, err := loader.LoadTemplateByName(names[i%len(names)], seed)
+		return chunk, cells, err
 	}
 	return loader.FacilityChunk(fac, seed)
 }

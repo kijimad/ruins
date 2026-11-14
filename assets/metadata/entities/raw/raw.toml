@@ -1146,6 +1146,30 @@
     weight = 1
 
 [[districts]]
+  fence = true
+  id = "power_plant"
+  landmark = "power_turbine"
+  pattern = "rings"
+  separation = 4
+  spacing = 40
+
+  [[districts.layers]]
+    zones = ["plant_outer"]
+
+  [[districts.layers]]
+    zones = ["plant_core"]
+
+  [[districts.sizes]]
+    h = 5
+    w = 5
+    weight = 1
+
+  [[districts.sizes]]
+    h = 5
+    w = 6
+    weight = 1
+
+[[districts]]
   id = "town"
   pattern = "rings"
   separation = 2
@@ -3234,6 +3258,52 @@
     pack = "1d1"
     weight = 0.15
 
+[[enemyTables]]
+  id = "power_plant_enemies"
+  name = "発電施設"
+
+  [[enemyTables.entries]]
+    id = "static_mite"
+    maxDanger = 4
+    minDanger = 1
+    pack = "1d3"
+    weight = 1.1
+
+  [[enemyTables.entries]]
+    id = "spark_wisp"
+    maxDanger = 8
+    minDanger = 2
+    pack = "1d3"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "fireball"
+    maxDanger = 25
+    minDanger = 7
+    pack = "1d2"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "shock_orb"
+    maxDanger = 22
+    minDanger = 8
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "iron_sentinel"
+    maxDanger = 25
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.6
+
+  [[enemyTables.entries]]
+    id = "chemical_tank"
+    maxDanger = 30
+    minDanger = 12
+    pack = "1d1"
+    weight = 0.2
+
 [[facilities]]
   enemyTable = "house_enemies"
   id = "house"
@@ -3535,6 +3605,63 @@
     minSpan = 1
     weight = 1
     zone = "military_armory"
+
+[[facilities]]
+  enemyTable = "power_plant_enemies"
+  id = "power_turbine"
+  interior = "hall"
+  lootedChance = 30
+
+  [[facilities.footprints]]
+    h = 3
+    w = 3
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 3
+    w = 2
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 2
+    w = 2
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "plant_core"
+
+[[facilities]]
+  enemyTable = "power_plant_enemies"
+  id = "power_control"
+  interior = "rooms"
+  lootedChance = 30
+
+  [[facilities.footprints]]
+    h = 1
+    w = 2
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 3
+    zone = "plant_outer"
+
+[[facilities]]
+  enemyTable = "power_plant_enemies"
+  id = "power_coalyard"
+  lootedChance = 20
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 3
+    zone = "plant_outer"
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "plant_core"
 
 [[fatigueStages]]
   canSleep = false
@@ -7200,6 +7327,20 @@
     pack = "1d6"
     weight = 1
 
+[[itemGroups]]
+  id = "fuel"
+  name = "燃料"
+
+  [[itemGroups.entries]]
+    id = "coal"
+    pack = "1d3"
+    weight = 3
+
+  [[itemGroups.entries]]
+    id = "firewood"
+    pack = "1d3"
+    weight = 2
+
 [[itemTables]]
   id = "ruins_area"
   name = "廃墟"
@@ -7820,6 +7961,22 @@
 
   [[itemTables.entries]]
     id = "escape_repair_parts"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "power_fuel"
+  name = "発電施設の燃料"
+
+  [[itemTables.entries]]
+    id = "fuel"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "industrial_materials"
     maxDanger = 100
     minDanger = 1
     weight = 1
@@ -17666,6 +17823,39 @@
     b = 60
     g = 90
     r = 200
+
+[[mapGlyphs]]
+  glyph = "U"
+  id = "power_turbine"
+  name = "Turbine Hall"
+  order = 26
+  [mapGlyphs.color]
+    a = 255
+    b = 60
+    g = 200
+    r = 230
+
+[[mapGlyphs]]
+  glyph = "N"
+  id = "power_control"
+  name = "Control Room"
+  order = 27
+  [mapGlyphs.color]
+    a = 255
+    b = 90
+    g = 170
+    r = 200
+
+[[mapGlyphs]]
+  glyph = "Z"
+  id = "power_coalyard"
+  name = "Coal Yard"
+  order = 28
+  [mapGlyphs.color]
+    a = 255
+    b = 90
+    g = 100
+    r = 110
 
 [[materials]]
   heatPerKg = 200
