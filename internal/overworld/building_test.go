@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"image/png"
+	"slices"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -114,9 +115,14 @@ func TestFacilityRooms_区画が要る辺の組の絵を持ち辺の種類どお
 		}
 		needed := map[[4]maptemplate.EdgeKind]bool{}
 		for _, b := range roomLots(raws, fac) {
+			if b.seed != 0 {
+				continue
+			}
 			for ly := range b.h {
 				for lx := range b.w {
-					needed[b.roomEdges(consts.Coord[consts.Chunk]{X: lx, Y: ly})] = true
+					for _, edges := range possibleRoomEdges(b, consts.Coord[consts.Chunk]{X: lx, Y: ly}) {
+						needed[edges] = true
+					}
 				}
 			}
 		}
@@ -344,4 +350,40 @@ func largestFittingFootprint(raws rawschema.Raws, r districtRegion, fac string) 
 		}
 	}
 	return best
+}
+
+// possibleRoomEdges は区画 b の中の座標 l のチャンクが、seed によらず取りうる北・東・南・西の辺の組を全て返す。
+// 区画の外へ向く辺は壁で、北の辺の真ん中の列だけ入口の扉になる。内側の辺は吹き抜けなら吹き抜け、迷路なら壁か扉で、
+// 迷路は全域木なので全ての部屋が扉を1つ以上持つ
+func possibleRoomEdges(b buildingLot, l consts.Coord[consts.Chunk]) [][4]maptemplate.EdgeKind {
+	dirs := [4]consts.Coord[consts.Chunk]{{Y: -1}, {X: 1}, {Y: 1}, {X: -1}}
+	var choices [4][]maptemplate.EdgeKind
+	for i, d := range dirs {
+		n := l.Add(d)
+		switch {
+		case i == 0 && l.Y == 0 && l.X == b.w/2:
+			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeDoor}
+		case n.X < 0 || n.Y < 0 || n.X >= b.w || n.Y >= b.h:
+			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeWall}
+		case b.interior == rawschema.FacilityInteriorHall:
+			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeOpen}
+		default:
+			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeWall, maptemplate.EdgeDoor}
+		}
+	}
+	var out [][4]maptemplate.EdgeKind
+	for _, n := range choices[0] {
+		for _, e := range choices[1] {
+			for _, so := range choices[2] {
+				for _, w := range choices[3] {
+					edges := [4]maptemplate.EdgeKind{n, e, so, w}
+					if b.interior == rawschema.FacilityInteriorRooms && !slices.Contains(edges[:], maptemplate.EdgeDoor) {
+						continue
+					}
+					out = append(out, edges)
+				}
+			}
+		}
+	}
+	return out
 }

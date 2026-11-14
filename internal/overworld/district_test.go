@@ -117,7 +117,7 @@ func TestDistrictAt_先の種類の区域と重なる後の種類の区域は丸
 	}
 }
 
-func TestDistricts_通信施設は起点から北へ60チャンク以内に建つ(t *testing.T) {
+func TestDistricts_seed100個の全てで通信施設が起点から北へ60チャンク以内に建つ(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
