@@ -3073,6 +3073,45 @@
     pack = "1d1"
     weight = 0.8
 
+[[enemyTables]]
+  id = "comms_enemies"
+  name = "通信施設"
+
+  [[enemyTables.entries]]
+    id = "spark_wisp"
+    maxDanger = 8
+    minDanger = 1
+    pack = "1d3"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "veteran_husk"
+    maxDanger = 14
+    minDanger = 4
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "shock_orb"
+    maxDanger = 22
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "iron_sentinel"
+    maxDanger = 25
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.6
+
+  [[enemyTables.entries]]
+    id = "guard_soldier"
+    maxDanger = 25
+    minDanger = 12
+    pack = "1d1"
+    weight = 0.6
+
 [[facilities]]
   enemyTable = "house_enemies"
   id = "house"
@@ -3284,6 +3323,23 @@
   [[facilities.zones]]
     minSpan = 2
     weight = 8
+    zone = "industrial"
+
+[[facilities]]
+  enemyTable = "comms_enemies"
+  id = "comms"
+  lootedChance = 10
+
+  [[facilities.zones]]
+    minDanger = 6
+    minSpan = 2
+    weight = 4
+    zone = "downtown"
+
+  [[facilities.zones]]
+    minDanger = 6
+    minSpan = 2
+    weight = 4
     zone = "industrial"
 
 [[fatigueStages]]
@@ -6788,13 +6844,8 @@
     weight = 1
 
 [[itemGroups]]
-  id = "escape_device_parts"
-  name = "脱出の装置の部品"
-
-  [[itemGroups.entries]]
-    id = "broken_escape_core"
-    pack = "1d1"
-    weight = 1
+  id = "escape_repair_parts"
+  name = "脱出の装置の修理の部品"
 
   [[itemGroups.entries]]
     id = "signal_amplifier"
@@ -7386,7 +7437,7 @@
   name = "研究所の機密ケース"
 
   [[itemTables.entries]]
-    id = "escape_device_parts"
+    id = "escape_repair_parts"
     maxDanger = 100
     minDanger = 1
     weight = 1
@@ -17236,6 +17287,17 @@
     b = 70
     g = 110
     r = 170
+
+[[mapGlyphs]]
+  glyph = "R"
+  id = "comms"
+  name = "Comms Station"
+  order = 21
+  [mapGlyphs.color]
+    a = 255
+    b = 230
+    g = 200
+    r = 120
 
 [[materials]]
   heatPerKg = 200

@@ -1,0 +1,51 @@
+[palette]
+id = "comms"
+description = "通信施設"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"=" = "floor_concrete"
+"." = "floor_tile"
+
+[palette.props."+"]
+tile = "floor_tile"
+id = "door"
+
+[palette.props."w"]
+tile = "wall"
+id = "window"
+
+[palette.props."f"]
+tile = "dirt"
+id = "fence"
+
+[palette.props."M"]
+tile = "dirt"
+id = "radio_mast"
+
+[palette.props."c"]
+tile = "floor_tile"
+id = "radio_console"
+lootTable = "comms_console"
+
+[palette.props."S"]
+tile = "floor_tile"
+id = "server_rack"
+
+[palette.props."g"]
+tile = "floor_tile"
+candidates = [{ id = "generator_green", weight = 1 }, { id = "generator_yellow", weight = 1 }]
+
+[palette.props."d"]
+tile = "floor_tile"
+id = "desk"
+lootTable = "office_storage"
+
+[palette.props."h"]
+tile = "floor_tile"
+id = "chair"
+
+[palette.beings."z"]
+tile = "floor_tile"
+chance = 40
