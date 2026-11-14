@@ -985,9 +985,6 @@ import "strings"
 	tileSpawns_ref: {
 		if tiles != _|_ for x in tiles if x.spawn.tile != _|_ {(x.id): _tileIDs[x.spawn.tile]}
 	} @rawgen(-)
-	tileSnowCovers_ref: {
-		if tiles != _|_ for x in tiles if x.snowCover != _|_ {(x.id): _tileIDs[x.snowCover]}
-	} @rawgen(-)
 
 	// 熟練の効果倍率の id はスキルをまたいで一意にする
 	proficiencyIds_unique: {
@@ -1222,8 +1219,8 @@ import "strings"
 	// マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
 	spawn?: #TileSpawn
 
-	// その日の平均気温が雪の閾値以下のとき、代わりに絵を描くタイルの id。屋外の土の地面だけに付ける
-	snowCover?: #EntityID
+	// 雪が積もる地面か。屋根の無い場所で、その日の平均気温に応じた量の雪を重ねて描く
+	snowable?: bool
 }
 
 // 計画のタイルを実体化する仕様

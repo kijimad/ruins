@@ -388,7 +388,7 @@ func TestHeatSourceWarmthAt_複数の熱源を加算する(t *testing.T) {
 	assert.InDelta(t, 0.8, query.HeatSourceWarmthAt(world, 5, 5), 1e-9)
 }
 
-func TestClimateTemperatureAt_時間帯を含まないその日の平均気温で雪を決める(t *testing.T) {
+func TestClimateTemperatureAt_時間帯を含まないその日の平均気温で雪の量を決める(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -396,10 +396,10 @@ func TestClimateTemperatureAt_時間帯を含まないその日の平均気温�
 		turns       consts.Turn
 		wantClimate int
 		wantAmbient int
-		wantSnow    bool
+		wantSnow    float64
 	}{
-		{"冬の昼は昼の補正を除いた冬の底で雪に覆われる", 24*1500 + 500, -30, -20, true},
-		{"春の始まりは雪に覆われない", 0, 5, 5, false},
+		{"冬の昼は昼の補正を除いた冬の底で全面に雪が積もる", 24*1500 + 500, -30, -20, 1},
+		{"春の始まりは雪が積もらない", 0, 5, 5, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -413,7 +413,7 @@ func TestClimateTemperatureAt_時間帯を含まないその日の平均気温�
 			require.NoError(t, err)
 			assert.Equal(t, tt.wantAmbient, ambient)
 			assert.Equal(t, tt.wantClimate, query.ClimateTemperatureAt(world, 0))
-			assert.Equal(t, tt.wantSnow, query.IsSnowCoveredAt(world, 0, 0))
+			assert.InDelta(t, tt.wantSnow, query.SnowAmountAt(world, 0, 0), 1e-9)
 		})
 	}
 }
@@ -433,6 +433,28 @@ func TestSnowFraction(t *testing.T) {
 	}
 	for _, tt := range tests {
 		assert.InDelta(t, tt.want, query.SnowFraction(tt.temp), 1e-9, "%d℃", tt.temp)
+	}
+}
+
+func TestSnowAmount_割合と順位の差から縁ほど薄く積もる(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		fraction float64
+		rank     float64
+		want     float64
+	}{
+		{"割合が0なら積もらない", 0, 0, 0},
+		{"割合が1なら順位が最も高いマスも全面に積もる", 1, 0.999, 1},
+		{"縁の幅の中ほどは半分積もる", 0.5, 0.5, 0.5},
+		{"順位が割合を十分に上回れば積もらない", 0.5, 0.7, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.InDelta(t, tt.want, query.SnowAmount(tt.fraction, tt.rank), 1e-9)
+		})
 	}
 }
 

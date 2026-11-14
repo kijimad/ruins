@@ -21615,7 +21615,7 @@
   description = "茶色の土のオートタイル床。屋外や地面の歩行可能タイル"
   id = "dirt"
   name = "Dirt"
-  snowCover = "snow"
+  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -21640,6 +21640,7 @@
   description = "灰色の石床のオートタイル。屋内の歩行可能タイル"
   id = "floor"
   name = "Floor"
+  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -21702,6 +21703,7 @@
   description = "[dummy] コンクリート床。倉庫や地下の無機質な床。実アート未実装の仮素材"
   id = "floor_concrete"
   name = "Concrete Floor"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_concrete"
@@ -21746,6 +21748,7 @@
   description = "青緑の丸石を敷いた床のオートタイル"
   id = "cobble_teal"
   name = "Cobblestone"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_teal"
@@ -21757,6 +21760,7 @@
   description = "金色の丸石を敷いた床のオートタイル"
   id = "cobble_gold"
   name = "Cobblestone"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_gold"
@@ -21779,6 +21783,7 @@
   description = "緑の草地のオートタイル床"
   id = "grass_green"
   name = "Grass Field"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "grass_green"
@@ -21790,6 +21795,7 @@
   description = "クリーム色の丸石を敷いた床のオートタイル"
   id = "cobble_cream"
   name = "Cobblestone"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_cream"
@@ -21812,6 +21818,7 @@
   description = "オリーブ色の草地のオートタイル床"
   id = "grass_olive"
   name = "Grass Field"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "grass_olive"
@@ -21823,6 +21830,7 @@
   description = "赤い丸石を敷いた床のオートタイル"
   id = "cobble_red"
   name = "Cobblestone"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_red"
@@ -21845,6 +21853,7 @@
   description = "紫がかった砂利の床のオートタイル"
   id = "cobble_purple"
   name = "Cobblestone"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_purple"
@@ -21856,6 +21865,7 @@
   description = "石板色の砂利の床のオートタイル"
   id = "cobble_slate"
   name = "Cobblestone"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_slate"
@@ -21867,7 +21877,7 @@
   description = "桃色の砂の床のオートタイル"
   id = "sand_pink"
   name = "Sand"
-  snowCover = "snow"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_pink"
@@ -21901,7 +21911,7 @@
   description = "橙色の砂の床のオートタイル"
   id = "sand_orange"
   name = "Sand"
-  snowCover = "snow"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_orange"
@@ -21935,7 +21945,7 @@
   description = "赤茶の砂の床のオートタイル"
   id = "sand_red"
   name = "Sand"
-  snowCover = "snow"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_red"
@@ -21969,6 +21979,7 @@
   description = "石板色の砂の床のオートタイル"
   id = "sand_slate"
   name = "Sand"
+  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_slate"
@@ -22043,7 +22054,7 @@
 [[tiles]]
   blockPass = false
   blockView = false
-  description = "雪に覆われた地面。屋根の無い土の地面に、その日の平均気温に応じてまだらに積もって描かれる"
+  description = "地面に重ねて描く雪の層の絵。snowable の地面に、その日の平均気温に応じた濃さで重ねる"
   id = "snow"
   name = "Snow"
   [tiles.spriteRender]

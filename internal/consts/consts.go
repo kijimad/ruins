@@ -113,6 +113,8 @@ const (
 	TileNameFloor = "floor"
 	// TileNameDirt は土のタイル名
 	TileNameDirt = "dirt"
+	// TileNameSnow は地面に重ねて描く雪の層の絵を持つタイル名
+	TileNameSnow = "snow"
 	// TileNameVoid は虚空タイル名
 	TileNameVoid = "void"
 )

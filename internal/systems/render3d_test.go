@@ -1,7 +1,6 @@
 package systems
 
 import (
-	"fmt"
 	"image/color"
 	"testing"
 
@@ -248,33 +247,21 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 	assert.Equal(t, int(gc.DepthNumDecal), quads[0].depth)
 }
 
-func TestSplitAutoTileKey(t *testing.T) {
-	t.Parallel()
-
-	base, bits := splitAutoTileKey("sand_orange_6")
-	assert.Equal(t, "sand_orange", base)
-	assert.Equal(t, 6, bits)
-	base, bits = splitAutoTileKey("dirt")
-	assert.Equal(t, "dirt", base)
-	assert.Equal(t, 15, bits, "添字が無ければ全方向がつながる")
-}
-
-func TestGroundSprite_寒いとき屋根の無い土を雪の添字で描く(t *testing.T) {
+func TestSnowLayer_屋根の無い雪が積もる地面にだけ量を重ねる(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name    string
 		turns   consts.Turn
-		earth   int
+		tile    string
 		shelter rawschema.Shelter
-		wantKey string
-		wantOK  bool
+		want    float64
 	}{
-		{"冬は全面が雪なので土の添字のまま雪でつなぐ", 24*1500 + 500, 15, rawschema.Outdoor, "snow_15", true},
-		{"土がつながらない向きは雪でもつながない", 24*1500 + 500, 6, rawschema.Outdoor, "snow_6", true},
-		{"冬でも屋根のある屋内の土は描き替えない", 24*1500 + 500, 15, rawschema.Indoor, "", false},
-		{"冬でも屋根のある半屋外の土は描き替えない", 24*1500 + 500, 15, rawschema.Partial, "", false},
-		{"春は雪が無いので土のまま描き替えない", 0, 15, rawschema.Outdoor, "", false},
+		{"冬の屋外の土は全面に積もる", 24*1500 + 500, "dirt", rawschema.Outdoor, 1},
+		{"冬でも屋根のある屋内には積もらない", 24*1500 + 500, "dirt", rawschema.Indoor, 0},
+		{"冬でも屋根のある半屋外には積もらない", 24*1500 + 500, "dirt", rawschema.Partial, 0},
+		{"冬でも雪が積もらない床には積もらない", 24*1500 + 500, "floor_tile", rawschema.Outdoor, 0},
+		{"春は積もらない", 0, "dirt", rawschema.Outdoor, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -283,16 +270,12 @@ func TestGroundSprite_寒いとき屋根の無い土を雪の添字で描く(t *
 			query.GetGameTime(world).TotalTurns = tt.turns
 			query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
 			query.EnsureSeamlessBand(world)
-			tile, err := lifecycle.SpawnTile(world, "dirt", 3, 3, &tt.earth)
+			tile, err := lifecycle.SpawnTile(world, tt.tile, 3, 3, nil)
 			require.NoError(t, err)
 			world.Components.TileEnvironment.Get(tile).Shelter = tt.shelter
 
-			sr, ok := groundSprite(world, tile, map[consts.Tile]float64{})
-			require.Equal(t, tt.wantOK, ok)
-			if ok {
-				assert.Equal(t, tt.wantKey, sr.SpriteKey)
-				assert.Equal(t, fmt.Sprintf("dirt_%d", tt.earth), world.Components.SpriteRender.Get(tile).SpriteKey, "エンティティの絵は書き換えない")
-			}
+			layer := (&Render3DSystem{}).newSnowLayer(world)
+			assert.InDelta(t, tt.want, layer.amount(world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}), 1e-9)
 		})
 	}
 }

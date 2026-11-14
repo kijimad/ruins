@@ -757,13 +757,8 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	}
 
 	entitySpec.Tile = &gc.Tile{}
-
-	if tileRaw.SnowCover != nil {
-		snow, err := GetTile(raws, *tileRaw.SnowCover)
-		if err != nil {
-			return gc.EntitySpec{}, err
-		}
-		entitySpec.SnowCover = &gc.SnowCover{SpriteKey: snow.SpriteRender.SpriteKey}
+	if tileRaw.Snowable != nil && *tileRaw.Snowable {
+		entitySpec.Snowable = &gc.Snowable{}
 	}
 
 	// タイル種別によらないので、ここでは初期化するだけ

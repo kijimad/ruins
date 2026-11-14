@@ -4,14 +4,12 @@ import (
 	"image"
 	"image/color"
 	"sort"
-	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/render3d"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -318,8 +316,7 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 // collectTiles は床と壁のクアッドを quads へ追記して返す。
 func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
 	walls := render3d.WallTileSet(world)
-	// 雪の割合はその日の平均気温から決まり行ごとに同じなので、行ごとに1回だけ求める
-	snowFractions := map[consts.Tile]float64{}
+	snow := sys.newSnowLayer(world)
 	tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
 	for tileQ.Next() {
 		e := tileQ.Entity()
@@ -330,9 +327,6 @@ func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector
 			continue
 		}
 		sr := world.Components.SpriteRender.Get(e)
-		if ground, ok := groundSprite(world, e, snowFractions); ok {
-			sr = ground
-		}
 		atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)
 		if !ok {
 			continue
@@ -345,56 +339,62 @@ func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector
 			sys.addWall(&quads, walls, g.Coord, fx, fz, atlas, ux, uy, uw, uh, tint)
 		} else {
 			sys.addQuad(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)
+			snow.add(&quads, world, e, g.Coord, tint)
 		}
 	}
 	return quads
 }
 
-// groundSprite は屋根の無い土の地面 e を、雪の積もり方に合わせた絵で返す。添字は、土の添字がつながる向きのうち
-// 隣の覆いが自分と同じ向きだけをつなぐので、雪と土の境目に両側から縁が付く。絵が変わらなければ ok は false。
-// fractions は1回の描画の中で行ごとの雪の割合を使い回す
-func groundSprite(world w.World, e ecs.Entity, fractions map[consts.Tile]float64) (*gc.SpriteRender, bool) {
-	if !world.Components.SnowCover.Has(e) || !world.Components.TileEnvironment.Has(e) ||
-		world.Resources.TileEnvDefs.Shelters[world.Components.TileEnvironment.Get(e).Shelter].Covered {
-		return nil, false
-	}
-	covered := func(x, y consts.Tile) bool {
-		f, ok := fractions[y]
-		if !ok {
-			f = query.SnowFractionAt(world, y)
-			fractions[y] = f
-		}
-		return query.SnowRankAt(world, x, y) < f
-	}
-	g := world.Components.GridElement.Get(e)
-	sr := world.Components.SpriteRender.Get(e)
-	base, earth := splitAutoTileKey(sr.SpriteKey)
-	self := covered(g.X, g.Y)
-	same := func(bit int, x, y consts.Tile) bool { return earth&bit != 0 && covered(x, y) == self }
-	bits := int(mapplanner.AutoTileBits(
-		same(1, g.X, g.Y-1),
-		same(2, g.X+1, g.Y),
-		same(4, g.X, g.Y+1),
-		same(8, g.X-1, g.Y),
-	))
-	if self {
-		base = world.Components.SnowCover.Get(e).SpriteKey
-	} else if bits == earth {
-		return nil, false
-	}
-	out := *sr
-	out.SpriteKey = base + "_" + strconv.Itoa(bits)
-	return &out, true
+// snowLayer は1回の描画で地面に重ねる雪の層。雪の割合はその日の平均気温から決まり行ごとに同じなので、
+// 行ごとに1回だけ求める
+type snowLayer struct {
+	sys            *Render3DSystem
+	atlas          *ebiten.Image
+	ux, uy, uw, uh float64
+	ok             bool
+	fractions      map[consts.Tile]float64
 }
 
-// splitAutoTileKey は地面の絵のキーを、autotile の添字を除いた基と添字に分ける。添字が無ければ全方向がつながる添字にする
-func splitAutoTileKey(key string) (string, int) {
-	if i := strings.LastIndex(key, "_"); i >= 0 {
-		if n, err := strconv.Atoi(key[i+1:]); err == nil {
-			return key[:i], n
-		}
+// newSnowLayer は雪の層の絵を raw の雪のタイルから引く。引けなければ雪を重ねない
+func (sys *Render3DSystem) newSnowLayer(world w.World) *snowLayer {
+	l := &snowLayer{sys: sys, fractions: map[consts.Tile]float64{}}
+	row, err := raw.GetTile(world.Resources.RawMaster, consts.TileNameSnow)
+	if err != nil {
+		return l
 	}
-	return key, int(mapplanner.AutoTileCenter)
+	sr := gc.SpriteRender{SpriteSheetName: row.SpriteRender.SpriteSheetName, SpriteKey: row.SpriteRender.SpriteKey}
+	l.atlas, l.ux, l.uy, l.uw, l.uh, l.ok = sys.spriteRect(world, &sr)
+	return l
+}
+
+// amount は地面 e に積もる雪の量を返す。雪が積もる地面で屋根が無いときだけ正になる
+func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Tile]) float64 {
+	if !world.Components.Snowable.Has(e) || !world.Components.TileEnvironment.Has(e) ||
+		world.Resources.TileEnvDefs.Shelters[world.Components.TileEnvironment.Get(e).Shelter].Covered {
+		return 0
+	}
+	f, ok := l.fractions[c.Y]
+	if !ok {
+		f = query.SnowFractionAt(world, c.Y)
+		l.fractions[c.Y] = f
+	}
+	return query.SnowAmount(f, query.SnowRankAt(world, c.X, c.Y))
+}
+
+// add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。地面より後に描くよう depth を1つ上げる
+func (l *snowLayer) add(out *[]r3quad, world w.World, e ecs.Entity, c consts.Coord[consts.Tile], tint [3]float64) {
+	if !l.ok {
+		return
+	}
+	a := l.amount(world, e, c)
+	if a <= 0 {
+		return
+	}
+	fx, fz := float64(c.X), float64(c.Y)
+	l.sys.addQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), l.atlas, l.ux, l.uy, l.uw, l.uh, tint)
+	q := &(*out)[len(*out)-1]
+	q.alpha = a
+	q.depth = 1
 }
 
 // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。
