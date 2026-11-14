@@ -192,3 +192,42 @@ func TestCampusFence_外周を巡り門の列の南北に門を開ける(t *test
 	assert.Equal(t, []string{"......", "......", "......", "......", "....ff"}, render(consts.Coord[consts.Chunk]{X: 1, Y: 1}))
 	assert.Equal(t, []string{".....f", ".....f", ".....f", ".....f", "ffffff"}, render(consts.Coord[consts.Chunk]{X: 2, Y: 1}))
 }
+
+func TestStreetTerrain_植え込みは帯の両端で角は道(t *testing.T) {
+	t.Parallel()
+
+	render := func(verge bool) []string {
+		out := make([]string, 0, 6)
+		for y := range consts.Tile(6) {
+			row := ""
+			for x := range consts.Tile(6) {
+				switch {
+				case x >= urbanStreetW && y >= urbanStreetW:
+					row += " "
+				case streetTerrain(x, y, verge) == streetVergeTile:
+					row += ","
+				default:
+					row += "."
+				}
+			}
+			out = append(out, row)
+		}
+		return out
+	}
+	assert.Equal(t, []string{
+		"....,,",
+		"......",
+		"......",
+		"....,,",
+		",..,  ",
+		",..,  ",
+	}, render(true))
+	assert.Equal(t, []string{
+		"......",
+		"......",
+		"......",
+		"......",
+		"....  ",
+		"....  ",
+	}, render(false))
+}

@@ -203,8 +203,8 @@ func edgeKey(a, b consts.Coord[consts.Chunk]) [2]consts.Coord[consts.Chunk] {
 }
 
 // roomChunkCells は区画 b の中の座標 l のチャンクの部屋の絵を引き、北と西の帯と合わせてチャンク全体のマスを組む。
-// 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする。屋内のマスを判定する関数も返す
-func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) ([][]maptemplate.MapCell, func(x, y int) bool, error) {
+// 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする。verge なら街路の両端を植え込みにする。屋内のマスを判定する関数も返す
+func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, verge bool) ([][]maptemplate.MapCell, func(x, y int) bool, error) {
 	edges := b.roomEdges(l)
 	_, room, err := loader.FacilityRoom(b.facility, edges, ChunkSeed2D(b.seed, l.X, l.Y))
 	if err != nil {
@@ -216,12 +216,11 @@ func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.
 		return nil, nil, fmt.Errorf("facility %q room %dx%d, chunk %dx%d: %w", b.facility, len(room[0]), len(room), w, h, errRoomSizeMismatch)
 	}
 
-	street := maptemplate.MapCell{Terrain: consts.TileNameFloor}
 	cells := make([][]maptemplate.MapCell, h)
 	for y := range cells {
 		cells[y] = make([]maptemplate.MapCell, w)
 		for x := range cells[y] {
-			cells[y][x] = street
+			cells[y][x] = maptemplate.MapCell{Terrain: streetTerrain(consts.Tile(x), consts.Tile(y), verge)}
 		}
 	}
 	for y, row := range room {

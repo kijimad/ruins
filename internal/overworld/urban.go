@@ -142,7 +142,9 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 		north, south := campusGateColumns(raws, r)
 		fence = campusFence(r, l, g.chunkW, g.chunkH, north-r.anchor.X, south-r.anchor.X)
 	}
-	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence)
+	// 研究所の敷地の建物は庭を持たない部屋の絵で組むので、街路の両端を植え込みにして建物と道を分ける
+	verge := r.layout == rawschema.DistrictLayoutCampus
+	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, verge)
 }
 
 // campusGateColumns は研究所の敷地の北と南の門を開ける絶対チャンク列を返す。真ん中の列を覆う区画の西の端の列で、
@@ -193,9 +195,10 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 	return danger
 }
 
-// renderUrbanChunk は1チャンクに街路と施設の絵と塀を置き、規模に応じた敵を湧かせる。塀はチャンク内の座標で受ける。
+// renderUrbanChunk は1チャンクに街路と施設の絵と塀を置き、規模に応じた敵を湧かせる。塀はチャンク内の座標で受け、
+// verge なら街路の両端を植え込みにする。
 // 部屋の絵を持つ施設は区画の中の座標 l の部屋と帯を組み、それ以外は1棟の絵を描く
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, lot buildingLot, l consts.Coord[consts.Chunk], danger consts.Danger, fence []consts.Coord[consts.Tile]) error {
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, lot buildingLot, l consts.Coord[consts.Chunk], danger consts.Danger, fence []consts.Coord[consts.Tile], verge bool) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、施設の絵の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
 	loader, err := maptemplate.FacilityTemplates()
@@ -206,13 +209,13 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 	var indoor func(x, y int) bool
 	origin := urbanStreetW
 	if loader.HasRooms(lot.facility) {
-		cells, indoor, err = roomChunkCells(loader, lot, l, g.chunkW, g.chunkH)
+		cells, indoor, err = roomChunkCells(loader, lot, l, g.chunkW, g.chunkH, verge)
 		if err != nil {
 			return fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
 		}
 		origin = 0
 	} else {
-		if err := drawUrbanStreets(world, g); err != nil {
+		if err := drawUrbanStreets(world, g, verge); err != nil {
 			return err
 		}
 		cells, err = planFacility(loader, lot.facility, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
@@ -240,19 +243,35 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 }
 
 // drawUrbanStreets はチャンクの北辺と西辺に街路を描く。建物区画のタイルは建物の生成が描くので触らない
-func drawUrbanStreets(world w.World, g chunkGeom) error {
+func drawUrbanStreets(world w.World, g chunkGeom, verge bool) error {
 	tiles := g.tiles.get()
 	for ly := range g.chunkH {
 		for lx := range g.chunkW {
 			if lx >= urbanStreetW && ly >= urbanStreetW {
 				continue
 			}
-			if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {
+			if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, streetTerrain(lx, ly, verge)); err != nil {
 				return fmt.Errorf("failed to place urban street (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 			}
 		}
 	}
 	return nil
+}
+
+// streetVergeTile は街路の植え込みの地形
+const streetVergeTile = "grass_green"
+
+// streetTerrain は街路の帯のマス (x, y) の地形を返す。verge なら帯の両端の1マスを植え込みにして、建物と道の間を空ける。
+// 北と西の帯が交わる角は全て道にする
+func streetTerrain(x, y consts.Tile, verge bool) string {
+	edge := func(v consts.Tile) bool { return v == 0 || v == urbanStreetW-1 }
+	switch {
+	case !verge || x < urbanStreetW && y < urbanStreetW:
+		return consts.TileNameFloor
+	case y < urbanStreetW && edge(y), x < urbanStreetW && edge(x):
+		return streetVergeTile
+	}
+	return consts.TileNameFloor
 }
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから

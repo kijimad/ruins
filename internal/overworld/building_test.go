@@ -28,7 +28,7 @@ func composeBuilding(t *testing.T, loader *maptemplate.TemplateLoader, b buildin
 	}
 	for ly := range b.h {
 		for lx := range b.w {
-			c, _, err := roomChunkCells(loader, b, consts.Coord[consts.Chunk]{X: lx, Y: ly}, testChunkSide, testChunkSide)
+			c, _, err := roomChunkCells(loader, b, consts.Coord[consts.Chunk]{X: lx, Y: ly}, testChunkSide, testChunkSide, true)
 			require.NoError(t, err)
 			for y, row := range c {
 				copy(cells[int(ly)*side+y][int(lx)*side:], row)
