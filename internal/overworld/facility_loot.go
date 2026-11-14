@@ -80,7 +80,7 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
 	}
 	danger := query.DangerLevelAt(world)
 	if sb := query.GetSeamlessBand(world); sb != nil {
-		depth := sb.DepthOfChunkRow(sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))
+		depth := consts.NorthDepth(sb.SpawnChunkY(), sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))
 		if d := query.DangerLevelForDepth(depth); d > danger {
 			danger = d
 		}

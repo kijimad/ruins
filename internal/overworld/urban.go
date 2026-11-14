@@ -196,11 +196,11 @@ func districtFence(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunk
 }
 
 // urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と日数(時間)の高い方。
-// c.Y は絶対チャンク行なので DepthOfChunkRow へそのまま渡せ、生成の再訪一致を壊さない。
+// c.Y は絶対チャンク行なので consts.NorthDepth へそのまま渡せ、生成の再訪一致を壊さない。
 func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 	danger := query.DangerLevelAt(world)
 	if sb := query.GetSeamlessBand(world); sb != nil {
-		if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(c.Y)); d > danger {
+		if d := query.DangerLevelForDepth(consts.NorthDepth(sb.SpawnChunkY(), c.Y)); d > danger {
 			danger = d
 		}
 	}
