@@ -2,11 +2,11 @@ package states_test
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -97,8 +97,9 @@ func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 	return nil
 }
 
-// TestGolden_MapGenSnapshot は全PlannerTypeの全フェーズのスナップショットをJSONで検証する。
-// テーブル名はダンジョン定義から取得する
+// TestGolden_MapGenSnapshot は全PlannerTypeの全フェーズのスナップショットを文字の地図で検証する。
+// 目視用の参照画像は比較せず、更新の実行で地図が変わったときだけ描き直す。
+// 変わったかは golden を書き換える前に比べる
 func TestGolden_MapGenSnapshot(t *testing.T) {
 	t.Parallel()
 
@@ -107,70 +108,193 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 		if result == nil {
 			continue
 		}
+		width := int(result.chain.PlanData.Level.TileWidth)
 		for i, snap := range result.chain.Snapshots {
 			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
 				t.Parallel()
-				data, err := json.MarshalIndent(snap, "", "  ")
-				require.NoError(t, err)
+				text := []byte(snapshotText(snap, width))
+				g := goldie.New(t, goldie.WithNameSuffix(".txt"))
+				img := goldie.New(t, goldie.WithNameSuffix(".png"))
 
-				g := goldie.New(t, goldie.WithNameSuffix(".json"))
-				g.Assert(t, t.Name(), data)
+				if goldenUpdating() && imgNeedsUpdate(img.GoldenFileName(t, t.Name()), g.GoldenFileName(t, t.Name()), text) {
+					pngData := vrt.RenderPNG(t, vrt.States(&gs.MapGenVisualizerState{
+						PlannerType:   pt,
+						Seed:          result.seed,
+						SnapshotIndex: i,
+					}))
+					require.NoError(t, img.Update(t, t.Name(), pngData))
+				}
+				g.Assert(t, t.Name(), text)
 			})
 		}
 	}
 }
 
-// TestGolden_FacilitySamples は施設種別ごとに建物候補を 3x3 で並べたギャラリーを描く。
-// 生成＆選別パイプラインの段3(人間の採否)の視覚基盤。生成規則が変わると golden が変わるので
-// updategolden で更新し、並んだ候補を見比べて良し悪しを判断する。フォグ無しで内装まで見える。
-// TestMapGenImages は全PlannerTypeの各フェーズのVRT画像を生成する。
-// 対応するスナップショットJSONの内容が変わった場合のみ画像を再生成する。
-// ピクセル比較は行わず、目視確認用の参照画像として保存する
-func TestMapGenImages(t *testing.T) {
+func TestMapGenVisualizerState_空のタイルと収納の中身を描ける(t *testing.T) {
 	t.Parallel()
 
-	for _, pt := range collectPlannerTypes(t) {
-		result := buildMapGenChain(t, pt)
-		if result == nil {
-			continue
-		}
-		for i, snap := range result.chain.Snapshots {
-			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
-				t.Parallel()
+	tests := []struct {
+		planner string
+		label   string
+	}{
+		{"Small Room", "Initial"},
+		{"Small Town", "TemplatePlanner"},
+	}
+	plannerTypes := collectPlannerTypes(t)
+	for _, tt := range tests {
+		t.Run(tt.planner+"/"+tt.label, func(t *testing.T) {
+			t.Parallel()
+			i := slices.IndexFunc(plannerTypes, func(pt mapplanner.PlannerType) bool { return pt.Name == tt.planner })
+			require.GreaterOrEqual(t, i, 0)
+			pt := plannerTypes[i]
+			result := buildMapGenChain(t, pt)
+			require.NotNil(t, result)
+			index := slices.IndexFunc(result.chain.Snapshots, func(s mapplanner.Snapshot) bool { return s.Label == tt.label })
+			require.GreaterOrEqual(t, index, 0)
 
-				currentJSON, err := json.MarshalIndent(snap, "", "  ")
-				require.NoError(t, err)
-
-				g := goldie.New(t, goldie.WithNameSuffix(".png"))
-				imgPath := g.GoldenFileName(t, t.Name())
-				subName := strings.TrimPrefix(t.Name(), "TestMapGenImages/")
-				jsonPath := filepath.Join("testdata", "TestGolden_MapGenSnapshot", subName+".json")
-
-				if !imgNeedsUpdate(imgPath, jsonPath, currentJSON) {
-					return
-				}
-
-				pngData := vrt.RenderPNG(t, vrt.States(&gs.MapGenVisualizerState{
-					PlannerType:   pt,
-					Seed:          result.seed,
-					SnapshotIndex: i,
-				}))
-				require.NoError(t, g.Update(t, t.Name(), pngData))
-				t.Logf("画像を更新: %s", imgPath)
-			})
-		}
+			png := vrt.RenderPNG(t, vrt.States(&gs.MapGenVisualizerState{
+				PlannerType:   pt,
+				Seed:          result.seed,
+				SnapshotIndex: index,
+			}))
+			require.NotEmpty(t, png)
+		})
 	}
 }
 
-// imgNeedsUpdate は画像が存在しないかJSONの内容が変わった場合にtrueを返す。
-// goldie はJSONの末尾に改行を付加するためTrimSpaceで比較する
-func imgNeedsUpdate(imgPath, jsonPath string, currentJSON []byte) bool {
+func TestWriteGrid_固定の文字を先に当て残りを名前順に割り当てる(t *testing.T) {
+	t.Parallel()
+
+	var b strings.Builder
+	writeGrid(&b, "tiles", []string{"wall", "road", "floor", "", "grass", "wall"}, 3, snapshotTileGlyphs)
+
+	require.Equal(t, `tiles:
+  '?' = ""
+  '.' = "floor"
+  'a' = "grass"
+  'b' = "road"
+  '#' = "wall"
+|#b.|
+|?a#|
+`, b.String())
+}
+
+// goldenUpdating は -update か GOLDIE_UPDATE を付けた実行かを返す
+func goldenUpdating() bool {
+	f := flag.Lookup("update")
+	return f != nil && f.Value.String() == "true"
+}
+
+// snapshotTileGlyphs と snapshotEnvGlyphs は頻出する値の文字。残りは snapshotGlyphs から名前順に割り当てる
+var (
+	snapshotTileGlyphs = map[string]rune{"": '?', "void": ' ', "floor": '.', "wall": '#', "dirt": ','}
+	snapshotEnvGlyphs  = map[string]rune{"indoor//": 'i', "outdoor//": 'o', "partial//": 'p'}
+)
+
+const snapshotGlyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+// snapshotText はスナップショットを文字の地図と1行1件の配置で書き出す
+func snapshotText(snap mapplanner.Snapshot, width int) string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "label: %s\n", snap.Label)
+
+	tileIDs := make([]string, len(snap.Tiles))
+	for i := range snap.Tiles {
+		tileIDs[i] = snap.Tiles[i].Id
+	}
+	writeGrid(&b, "tiles", tileIDs, width, snapshotTileGlyphs)
+
+	if snap.Environments != nil {
+		envs := make([]string, len(snap.Environments))
+		for i, e := range snap.Environments {
+			envs[i] = fmt.Sprintf("%s/%s/%s", e.Shelter, e.Water, e.Foliage)
+		}
+		writeGrid(&b, "environments shelter/water/foliage", envs, width, snapshotEnvGlyphs)
+	}
+
+	for _, r := range snap.Rooms {
+		fmt.Fprintf(&b, "room: %d,%d-%d,%d\n", r.Min.X, r.Min.Y, r.Max.X, r.Max.Y)
+	}
+	for _, c := range snap.Corridors {
+		cells := make([]string, len(c))
+		for i, idx := range c {
+			cells[i] = fmt.Sprintf("%d,%d", int(idx)%width, int(idx)/width)
+		}
+		fmt.Fprintf(&b, "corridor: %s\n", strings.Join(cells, " "))
+	}
+	for _, d := range snap.Doors {
+		fmt.Fprintf(&b, "door: %d,%d orientation=%d\n", d.X, d.Y, d.Orientation)
+	}
+	for _, p := range snap.NextPortals {
+		fmt.Fprintf(&b, "portal: %d,%d\n", p.X, p.Y)
+	}
+	for _, p := range snap.SpawnPoints {
+		fmt.Fprintf(&b, "spawn: %d,%d\n", p.X, p.Y)
+	}
+	for _, n := range snap.NPCs {
+		fmt.Fprintf(&b, "npc: %d,%d %s\n", n.X, n.Y, n.Name)
+	}
+	for _, it := range snap.Items {
+		fmt.Fprintf(&b, "item: %d,%d %s x%d\n", it.X, it.Y, it.Name, it.Count)
+	}
+	for _, p := range snap.Props {
+		fmt.Fprintf(&b, "prop: %d,%d %s\n", p.X, p.Y, p.Name)
+	}
+	return b.String()
+}
+
+// writeGrid は凡例と width 列の文字の地図を書く。両端の | は行末の空白が削られないようにするため
+func writeGrid(b *strings.Builder, name string, values []string, width int, fixed map[string]rune) {
+	distinct := map[string]bool{}
+	for _, v := range values {
+		distinct[v] = true
+	}
+	keys := make([]string, 0, len(distinct))
+	for v := range distinct {
+		keys = append(keys, v)
+	}
+	slices.Sort(keys)
+
+	glyph := map[string]rune{}
+	used := map[rune]bool{}
+	for _, v := range keys {
+		if r, ok := fixed[v]; ok {
+			glyph[v], used[r] = r, true
+		}
+	}
+	next := []rune(snapshotGlyphs)
+	for _, v := range keys {
+		if _, ok := glyph[v]; ok {
+			continue
+		}
+		for used[next[0]] {
+			next = next[1:]
+		}
+		glyph[v], used[next[0]] = next[0], true
+	}
+
+	fmt.Fprintf(b, "%s:\n", name)
+	for _, v := range keys {
+		fmt.Fprintf(b, "  %q = %q\n", glyph[v], v)
+	}
+	for y := 0; y*width < len(values); y++ {
+		row := values[y*width : min((y+1)*width, len(values))]
+		b.WriteByte('|')
+		for _, v := range row {
+			b.WriteRune(glyph[v])
+		}
+		b.WriteString("|\n")
+	}
+}
+
+// imgNeedsUpdate は画像が無いか、地図が golden と違うかを返す
+func imgNeedsUpdate(imgPath, textPath string, current []byte) bool {
 	if _, err := os.Stat(imgPath); err != nil {
 		return true
 	}
-	goldenJSON, err := os.ReadFile(jsonPath)
+	golden, err := os.ReadFile(textPath)
 	if err != nil {
 		return true
 	}
-	return !bytes.Equal(bytes.TrimSpace(currentJSON), bytes.TrimSpace(goldenJSON))
+	return !bytes.Equal(current, golden)
 }
