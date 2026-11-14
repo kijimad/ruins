@@ -11,3 +11,8 @@ type Chunk int
 func (c Chunk) Tiles(chunkSize Tile) Tile {
 	return Tile(int(c)) * chunkSize
 }
+
+// NorthDepth は起点の行 spawnRow から絶対チャンク行 row までの北進チャンク数を返す。起点より南は0
+func NorthDepth(spawnRow, row Chunk) Chunk {
+	return max(spawnRow-row, 0)
+}

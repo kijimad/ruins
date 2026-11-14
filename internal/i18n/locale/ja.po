@@ -6523,3 +6523,42 @@ msgstr "革切れ"
 
 msgid "A scrap of leather cut from old leather goods. Useful as material."
 msgstr "古い革製品から切り取った革の切れ端。素材として使える"
+
+msgid "Gun Rack"
+msgstr "銃架"
+
+msgid "Ammo Crate"
+msgstr "弾薬箱"
+
+msgid "Radio Console"
+msgstr "無線機"
+
+msgid "Radio Mast"
+msgstr "無線塔"
+
+msgid "Gun Shop"
+msgstr "銃砲店"
+
+msgid "Comms Station"
+msgstr "通信施設"
+
+msgid "Checkpoint"
+msgstr "検問所"
+
+msgid "Barracks"
+msgstr "兵舎"
+
+msgid "Drill Yard"
+msgstr "練兵場"
+
+msgid "Armory"
+msgstr "武器庫"
+
+msgid "Turbine Hall"
+msgstr "タービン建屋"
+
+msgid "Control Room"
+msgstr "制御棟"
+
+msgid "Coal Yard"
+msgstr "貯炭場"

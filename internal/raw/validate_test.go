@@ -250,6 +250,19 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 			require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility)
 		})
 	}
+
+	t.Run("深い所にしか建たない施設は基本施設に数えない", func(t *testing.T) {
+		t.Parallel()
+		zones := make([]rawschema.FacilityZone, 0, len(baseZones))
+		for _, z := range baseZones {
+			if z.Zone == rawschema.Downtown {
+				z.MinDanger = new(2)
+			}
+			zones = append(zones, z)
+		}
+		raws := rawschema.Raws{Districts: towns, Facilities: &[]rawschema.Facility{{Id: "comms", Zones: zones}}}
+		require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility)
+	})
 }
 
 func TestValidateZoneBaseFacilities_研究所の敷地は門と中ほどと奥の地区に施設が要る(t *testing.T) {
@@ -377,4 +390,20 @@ func TestValidateRules_各検証の失敗を伝播する(t *testing.T) {
 func TestValidateRules_空のRawsは通る(t *testing.T) {
 	t.Parallel()
 	require.NoError(t, validateRules(rawschema.Raws{}))
+}
+
+func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くとエラー(t *testing.T) {
+	t.Parallel()
+
+	landmark := rawschema.EntityID("armory")
+	layers := []rawschema.DistrictLayer{{Zones: []rawschema.Zone{rawschema.MilitaryArmory}}}
+	raws := func(zone rawschema.Zone, minDanger *int) rawschema.Raws {
+		return rawschema.Raws{
+			Districts:  &[]rawschema.District{{Id: "base", Landmark: &landmark, Layers: layers}},
+			Facilities: &[]rawschema.Facility{{Id: "armory", Zones: []rawschema.FacilityZone{{Zone: zone, Weight: 1, MinSpan: 1, MinDanger: minDanger}}}},
+		}
+	}
+	require.NoError(t, validateLandmarkMinDanger(raws(rawschema.MilitaryArmory, nil)))
+	require.ErrorIs(t, validateLandmarkMinDanger(raws(rawschema.MilitaryArmory, new(3))), errLandmarkMinDanger)
+	require.NoError(t, validateLandmarkMinDanger(raws(rawschema.Downtown, new(3))), "区域が割り振らない地区の行は抽選を通るので深さの下限を書ける")
 }

@@ -28,3 +28,9 @@ func TestChunk_Tiles(t *testing.T) {
 		})
 	}
 }
+
+func TestNorthDepth_起点より北の行だけを数え南は0(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, []consts.Chunk{0, 0, 3, 6}, []consts.Chunk{consts.NorthDepth(4, 6), consts.NorthDepth(4, 4), consts.NorthDepth(4, 1), consts.NorthDepth(4, -2)})
+}

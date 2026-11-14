@@ -1,0 +1,96 @@
+[palette]
+id = "military"
+description = "軍基地"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"." = "floor_concrete"
+"=" = "pavement"
+
+[palette.props."+"]
+tile = "floor_concrete"
+id = "door"
+
+[palette.props."w"]
+tile = "wall"
+id = "window"
+
+[palette.props."b"]
+tile = "floor_concrete"
+id = "bed"
+
+[palette.props."L"]
+tile = "floor_concrete"
+id = "locker"
+lootTable = "military_locker"
+
+[palette.props."T"]
+tile = "floor_concrete"
+id = "table"
+
+[palette.props."h"]
+tile = "floor_concrete"
+id = "chair"
+
+[palette.props."d"]
+tile = "floor_concrete"
+id = "desk"
+lootTable = "office_storage"
+
+[palette.props."a"]
+tile = "floor_concrete"
+id = "ammo_crate"
+lootTable = "ammo_crate"
+
+[palette.props."A"]
+tile = "floor_concrete"
+id = "ammo_crate"
+lootTable = "military_armory"
+
+[palette.props."r"]
+tile = "floor_concrete"
+id = "gun_rack"
+lootTable = "military_armory"
+
+[palette.props."K"]
+tile = "floor_concrete"
+id = "classified_case"
+lootTable = "military_parts_case"
+
+[palette.props."B"]
+tile = "dirt"
+candidates = [{ id = "red_drum", weight = 1 }, { id = "green_drum", weight = 2 }]
+
+[palette.props."F"]
+tile = "dirt"
+id = "flag_pot"
+
+[palette.props."S"]
+tile = "dirt"
+id = "construction_sign"
+
+[palette.props."P"]
+tile = "pavement"
+id = "pallet"
+
+[palette.props."c"]
+tile = "pavement"
+id = "crate"
+
+[palette.props."k"]
+tile = "pavement"
+id = "forklift"
+
+[palette.items."o"]
+itemGroup = "military_ammo"
+tile = "pavement"
+chance = 40
+
+[palette.beings."z"]
+tile = "floor_concrete"
+chance = 35
+
+[palette.beings."y"]
+tile = "pavement"
+chance = 35

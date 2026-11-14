@@ -1,0 +1,59 @@
+[palette]
+id = "gunshop"
+description = "銃砲店"
+
+[palette.terrain]
+"#" = "wall"
+"," = "dirt"
+"=" = "pavement"
+"." = "floor_wood"
+
+[palette.props."+"]
+tile = "floor_wood"
+id = "door"
+
+[palette.props."w"]
+tile = "wall"
+id = "window"
+
+[palette.props."r"]
+tile = "floor_wood"
+id = "gun_rack"
+lootTable = "gunshop_rack"
+
+[palette.props."a"]
+tile = "floor_wood"
+id = "ammo_crate"
+lootTable = "ammo_crate"
+
+[palette.props."k"]
+tile = "floor_wood"
+id = "checkout_counter"
+
+[palette.props."R"]
+tile = "floor_wood"
+id = "register"
+lootTable = "ammo_crate"
+
+[palette.props."d"]
+tile = "floor_wood"
+id = "desk"
+lootTable = "office_storage"
+
+[palette.props."h"]
+tile = "floor_wood"
+id = "chair"
+
+[palette.props."p"]
+tile = "dirt"
+candidates = [{ id = "plant", weight = 2 }, { id = "bush", weight = 1 }]
+
+[palette.items."o"]
+itemGroup = "civilian_ammo"
+tile = "floor_wood"
+chance = 40
+repeat = [1, 2]
+
+[palette.beings."z"]
+tile = "floor_wood"
+chance = 30

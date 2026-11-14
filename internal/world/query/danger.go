@@ -15,7 +15,7 @@ func DangerLevelForDay(days int) consts.Danger {
 	if days < 0 {
 		days = 0
 	}
-	return 1 + consts.Danger(days)/dangerDaysPerLevel
+	return consts.MinDanger + consts.Danger(days)/dangerDaysPerLevel
 }
 
 // DangerLevelAt は world から経過日数を引いて危険度を返す。
@@ -32,5 +32,5 @@ func DangerLevelForDepth(chunksNorth consts.Chunk) consts.Danger {
 	if chunksNorth < 0 {
 		chunksNorth = 0
 	}
-	return 1 + consts.Danger(chunksNorth)/dangerChunksPerLevel
+	return consts.MinDanger + consts.Danger(chunksNorth)/dangerChunksPerLevel
 }

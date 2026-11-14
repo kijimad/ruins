@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
@@ -16,6 +17,7 @@ var (
 	errDistrictSizeOutOfRegion       = errors.New("district size does not fit in its region")
 	errDistrictTooShort              = errors.New("district is shorter than its layers")
 	errDistrictLayers                = errors.New("district layers do not fit its pattern")
+	errLandmarkMinDanger             = errors.New("landmark facility has minDanger")
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
 	errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
 	errMapGlyphMissing               = errors.New("map glyph is missing")
@@ -44,6 +46,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateDisassemblies,
 		validateDistricts,
 		validateZoneBaseFacilities,
+		validateLandmarkMinDanger,
 		validateMapGlyphReferences,
 		validateConditions,
 		validateWeathers,
@@ -120,8 +123,8 @@ func DistrictZones(d rawschema.District) []rawschema.Zone {
 	return out
 }
 
-// validateZoneBaseFacilities は、どの区域でも一番小さい大きさのときに、割り振る全ての地区に建てられる施設があることを検証する。
-// 施設は区域の長い方の辺が minSpan 以上のときだけ建つので、一番小さい大きさの辺で足切りを越える施設が要る
+// validateZoneBaseFacilities は、どの区域でも一番小さく一番浅いときに、割り振る全ての地区に建てられる施設があることを検証する。
+// 施設は区域の長い方の辺が minSpan 以上で、危険度が minDanger 以上のときだけ建つので、一番小さい大きさの辺と危険度1で足切りを越える施設が要る
 func validateZoneBaseFacilities(raws rawschema.Raws) error {
 	facilities := PtrSlice(raws.Facilities)
 	districts := PtrSlice(raws.Districts)
@@ -140,11 +143,32 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 					return false
 				}
 				return slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool {
-					return z.Zone == zone && int(z.MinSpan) <= baseSpan
+					return z.Zone == zone && int(z.MinSpan) <= baseSpan && (z.MinDanger == nil || consts.Danger(*z.MinDanger) <= consts.MinDanger)
 				})
 			})
 			if !hasBase {
-				return fmt.Errorf("district %q zone %q has no facility with minSpan<=%d: %w", d.Id, zone, baseSpan, errZoneNoBaseFacility)
+				return fmt.Errorf("district %q zone %q has no facility with minSpan<=%d and minDanger<=1: %w", d.Id, zone, baseSpan, errZoneNoBaseFacility)
+			}
+		}
+	}
+	return nil
+}
+
+// validateLandmarkMinDanger は区域の目玉の施設が、その区域が割り振る地区の行に深さの下限を持たないことを検証する。
+// 目玉の施設は抽選を通らず区域に必ず1つ建つので、深さの下限を書いても効かない。区域の外の地区の行は抽選を通るので見ない
+func validateLandmarkMinDanger(raws rawschema.Raws) error {
+	for _, d := range PtrSlice(raws.Districts) {
+		if d.Landmark == nil {
+			continue
+		}
+		f, ok := GetFacility(raws, *d.Landmark)
+		if !ok {
+			continue
+		}
+		zones := DistrictZones(d)
+		for _, z := range f.Zones {
+			if z.MinDanger != nil && slices.Contains(zones, z.Zone) {
+				return fmt.Errorf("district %q landmark %q zone %q: %w", d.Id, f.Id, z.Zone, errLandmarkMinDanger)
 			}
 		}
 	}

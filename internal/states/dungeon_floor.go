@@ -356,7 +356,7 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	// 危険度は入口の北進度と日数の高い方で進入ごとに引き直し全階で共有する。swapTo 前の入口座標 fromPos から引く
 	st.Danger = query.DangerLevelAt(world)
 	if sb := query.GetSeamlessBand(world); sb != nil {
-		if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(sb.AbsChunkRow(fromPos.Y))); d > st.Danger {
+		if d := query.DangerLevelForDepth(consts.NorthDepth(sb.SpawnChunkY(), sb.AbsChunkRow(fromPos.Y))); d > st.Danger {
 			st.Danger = d
 		}
 	}

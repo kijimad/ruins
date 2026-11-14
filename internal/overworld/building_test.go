@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"image/png"
+	"slices"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -60,19 +61,14 @@ func TestBuilding_部屋で組む建物は入口から全ての部屋へ入れ�
 		if !loader.HasRooms(fac) {
 			continue
 		}
-		for w := consts.Chunk(1); w <= 4; w++ {
-			for h := consts.Chunk(1); h <= 4; h++ {
-				for seed := range uint64(30) {
-					b := buildingLot{facility: fac, w: w, h: h, interior: rawschema.FacilityInteriorRooms, seed: seed}
-					cells := composeBuilding(t, raws, loader, b)
-					name := fmt.Sprintf("%s %dx%d seed=%d", fac, w, h, seed)
-					assert.Empty(t, unreachableCells(cells, blockedTile, blockedProp), name)
-					for y, row := range cells {
-						for x, c := range row {
-							if storage[c.Prop] {
-								assert.NotEmpty(t, c.LootTable, "%s %s at %d,%d", name, c.Prop, x, y)
-							}
-						}
+		for _, b := range roomLots(raws, fac) {
+			cells := composeBuilding(t, raws, loader, b)
+			name := fmt.Sprintf("%s %dx%d seed=%d", fac, b.w, b.h, b.seed)
+			assert.Empty(t, unreachableCells(cells, blockedTile, blockedProp), name)
+			for y, row := range cells {
+				for x, c := range row {
+					if storage[c.Prop] {
+						assert.NotEmpty(t, c.LootTable, "%s %s at %d,%d", name, c.Prop, x, y)
 					}
 				}
 			}
@@ -80,63 +76,78 @@ func TestBuilding_部屋で組む建物は入口から全ての部屋へ入れ�
 	}
 }
 
-func TestFacilityRooms_扉の辺は真ん中の2マスが扉で壁の辺は全て壁(t *testing.T) {
+// roomLots は部屋の絵で組む施設 fac が取りうる区画を返す。大きさの候補を縮めた全ての大きさを seed 30 個ずつ、施設の行の中の繋がりで組む
+func roomLots(raws rawschema.Raws, fac string) []buildingLot {
+	f, _ := raw.GetFacility(raws, fac)
+	interior := rawschema.FacilityInteriorRooms
+	if f.Interior != nil {
+		interior = *f.Interior
+	}
+	maxW, maxH := consts.Chunk(1), consts.Chunk(1)
+	for _, fp := range raw.PtrSlice(f.Footprints) {
+		maxW, maxH = max(maxW, consts.Chunk(fp.W)), max(maxH, consts.Chunk(fp.H))
+	}
+	var out []buildingLot
+	for w := consts.Chunk(1); w <= maxW; w++ {
+		for h := consts.Chunk(1); h <= maxH; h++ {
+			for seed := range uint64(30) {
+				out = append(out, buildingLot{facility: fac, w: w, h: h, interior: interior, seed: seed})
+			}
+		}
+	}
+	return out
+}
+
+func TestFacilityRooms_区画が要る辺の組の絵を持ち辺の種類どおりに描く(t *testing.T) {
 	t.Parallel()
 
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
-	kinds := []maptemplate.EdgeKind{maptemplate.EdgeWall, maptemplate.EdgeDoor}
+	want := map[maptemplate.EdgeKind]string{
+		maptemplate.EdgeWall: "####################",
+		maptemplate.EdgeDoor: "#########++#########",
+		maptemplate.EdgeOpen: "..................",
+	}
 	for _, fac := range loader.Facilities() {
 		if !loader.HasRooms(fac) {
 			continue
 		}
-		for _, n := range kinds {
-			for _, e := range kinds {
-				for _, s := range kinds {
-					for _, wk := range kinds {
-						edges := [4]maptemplate.EdgeKind{n, e, s, wk}
-						if edges == [4]maptemplate.EdgeKind{maptemplate.EdgeWall, maptemplate.EdgeWall, maptemplate.EdgeWall, maptemplate.EdgeWall} {
-							continue
-						}
-						_, cells, err := loader.FacilityRoom(fac, edges, 1)
-						require.NoError(t, err, "%s %v", fac, edges)
-						last := len(cells) - 1
-						line := func(i int) [20]maptemplate.MapCell {
-							var out [20]maptemplate.MapCell
-							for j := range 20 {
-								switch i {
-								case 0:
-									out[j] = cells[0][j]
-								case 1:
-									out[j] = cells[j][last]
-								case 2:
-									out[j] = cells[last][j]
-								default:
-									out[j] = cells[j][0]
-								}
-							}
-							return out
-						}
-						for i, k := range edges {
-							got := ""
-							for _, c := range line(i) {
-								switch {
-								case c.Prop == "door":
-									got += "+"
-								case c.Terrain == "wall":
-									got += "#"
-								default:
-									got += "."
-								}
-							}
-							want := "####################"
-							if k == maptemplate.EdgeDoor {
-								want = "#########++#########"
-							}
-							assert.Equal(t, want, got, "%s %v edge %d", fac, edges, i)
-						}
+		needed := map[[4]maptemplate.EdgeKind]bool{}
+		for _, b := range roomLots(raws, fac) {
+			if b.seed != 0 {
+				continue
+			}
+			for ly := range b.h {
+				for lx := range b.w {
+					for _, edges := range possibleRoomEdges(b, consts.Coord[consts.Chunk]{X: lx, Y: ly}) {
+						needed[edges] = true
 					}
 				}
+			}
+		}
+		for edges := range needed {
+			_, cells, err := loader.FacilityRoom(fac, edges, 1)
+			require.NoError(t, err, "%s %v", fac, edges)
+			last := len(cells) - 1
+			for i, k := range edges {
+				got := ""
+				for j := range 20 {
+					c := [4]maptemplate.MapCell{cells[0][j], cells[j][last], cells[last][j], cells[j][0]}[i]
+					switch {
+					case c.Prop == "door":
+						got += "+"
+					case c.Terrain == "wall":
+						got += "#"
+					default:
+						got += "."
+					}
+				}
+				// 吹き抜けの辺の両端は、隣の辺が壁なら壁になるので、端を除いて比べる
+				if k == maptemplate.EdgeOpen {
+					got = got[1:19]
+				}
+				assert.Equal(t, want[k], got, "%s %v edge %d", fac, edges, i)
 			}
 		}
 	}
@@ -153,7 +164,7 @@ func TestLotsOf_区域を同じ地区の中の区画で隙間なく埋める(t *
 		for seed := range uint64(40) {
 			r := d.regionIn(seed, 0, 7)
 			covered := map[consts.Coord[consts.Chunk]]int{}
-			for _, b := range lotsOf(raws, cat, r) {
+			for _, b := range lotsOf(raws, cat, r, 0) {
 				if b.w*b.h > 1 {
 					big++
 				}
@@ -250,6 +261,8 @@ func TestGolden_Building(t *testing.T) {
 	}{
 		{"lab_main_3x3", buildingLot{facility: "lab_main", w: 3, h: 3, interior: rawschema.FacilityInteriorRooms, seed: 1}},
 		{"lab_main_4x3", buildingLot{facility: "lab_main", w: 4, h: 3, interior: rawschema.FacilityInteriorRooms, seed: 2}},
+		{"military_armory_4x1", buildingLot{facility: "military_armory", w: 4, h: 1, interior: rawschema.FacilityInteriorRooms, seed: 3}},
+		{"power_turbine_3x3", buildingLot{facility: "power_turbine", w: 3, h: 3, interior: rawschema.FacilityInteriorHall, seed: 4}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
@@ -279,13 +292,13 @@ func TestLotsOf_目玉の施設は区域に1つだけ地区の真ん中へ一番
 		for seed := range uint64(40) {
 			r := d.regionIn(seed, 0, 7)
 			var got []buildingLot
-			for _, b := range lotsOf(raws, cat, r) {
+			for _, b := range lotsOf(raws, cat, r, 0) {
 				if b.facility == *d.row.Landmark {
 					got = append(got, b)
 				}
 			}
 			require.Len(t, got, 1, "seed=%d", seed)
-			assert.GreaterOrEqual(t, got[0].w*got[0].h, consts.Chunk(9), "seed=%d 一番大きい候補から収まるものを選ぶ", seed)
+			assert.Equal(t, largestFittingFootprint(raws, r, *d.row.Landmark), got[0].w*got[0].h, "%s seed=%d 一番大きい候補から収まるものを選ぶ", d.row.Id, seed)
 		}
 	}
 }
@@ -311,4 +324,66 @@ func TestFacilities_2チャンク以上になりうる施設は部屋の絵を�
 		}
 	}
 	assert.Equal(t, want, got)
+}
+
+// largestFittingFootprint は施設 fac の大きさの候補のうち、施設が建つ地区を囲む矩形に収まる一番大きい面積を返す
+func largestFittingFootprint(raws rawschema.Raws, r districtRegion, fac string) consts.Chunk {
+	f, _ := raw.GetFacility(raws, fac)
+	minC, maxC := consts.Coord[consts.Chunk]{X: r.w, Y: r.h}, consts.Coord[consts.Chunk]{X: -1, Y: -1}
+	for _, fz := range f.Zones {
+		for y := range r.h {
+			for x := range r.w {
+				if r.zoneAt(consts.Coord[consts.Chunk]{X: x, Y: y}) == fz.Zone {
+					minC = consts.Coord[consts.Chunk]{X: min(minC.X, x), Y: min(minC.Y, y)}
+					maxC = consts.Coord[consts.Chunk]{X: max(maxC.X, x), Y: max(maxC.Y, y)}
+				}
+			}
+		}
+		if maxC.X >= 0 {
+			break
+		}
+	}
+	var best consts.Chunk
+	for _, fp := range raw.PtrSlice(f.Footprints) {
+		if consts.Chunk(fp.W) <= maxC.X-minC.X+1 && consts.Chunk(fp.H) <= maxC.Y-minC.Y+1 {
+			best = max(best, consts.Chunk(fp.W*fp.H))
+		}
+	}
+	return best
+}
+
+// possibleRoomEdges は区画 b の中の座標 l のチャンクが、seed によらず取りうる北・東・南・西の辺の組を全て返す。
+// 区画の外へ向く辺は壁で、北の辺の真ん中の列だけ入口の扉になる。内側の辺は吹き抜けなら吹き抜け、迷路なら壁か扉で、
+// 迷路は全域木なので全ての部屋が扉を1つ以上持つ
+func possibleRoomEdges(b buildingLot, l consts.Coord[consts.Chunk]) [][4]maptemplate.EdgeKind {
+	dirs := [4]consts.Coord[consts.Chunk]{{Y: -1}, {X: 1}, {Y: 1}, {X: -1}}
+	var choices [4][]maptemplate.EdgeKind
+	for i, d := range dirs {
+		n := l.Add(d)
+		switch {
+		case i == 0 && l.Y == 0 && l.X == b.w/2:
+			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeDoor}
+		case n.X < 0 || n.Y < 0 || n.X >= b.w || n.Y >= b.h:
+			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeWall}
+		case b.interior == rawschema.FacilityInteriorHall:
+			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeOpen}
+		default:
+			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeWall, maptemplate.EdgeDoor}
+		}
+	}
+	var out [][4]maptemplate.EdgeKind
+	for _, n := range choices[0] {
+		for _, e := range choices[1] {
+			for _, so := range choices[2] {
+				for _, w := range choices[3] {
+					edges := [4]maptemplate.EdgeKind{n, e, so, w}
+					if b.interior == rawschema.FacilityInteriorRooms && !slices.Contains(edges[:], maptemplate.EdgeDoor) {
+						continue
+					}
+					out = append(out, edges)
+				}
+			}
+		}
+	}
+	return out
 }

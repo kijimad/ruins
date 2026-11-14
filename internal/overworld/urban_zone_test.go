@@ -62,8 +62,8 @@ func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出�
 	small := map[string]bool{}
 	big := map[string]bool{}
 	for s := range uint64(300) {
-		small[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 2, "")] = true
-		big[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 3, "")] = true
+		small[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 2, 1, "")] = true
+		big[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 3, 1, "")] = true
 	}
 	for _, f := range []string{"antique", "clinic"} {
 		assert.Falsef(t, small[f], "span=2 の都心に minSpan=3 の %s は出ない", f)
@@ -72,16 +72,73 @@ func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出�
 		"span=3 の都心では専門施設が混ざる")
 }
 
+func TestRollFacilityInZone_深さの下限に届く危険度でだけ出る(t *testing.T) {
+	t.Parallel()
+
+	cat := zoneCatalog{rawschema.Downtown: {
+		{kind: "store", weight: 1, minSpan: 1, minDanger: 1},
+		{kind: "comms", weight: 1, minSpan: 1, minDanger: 3},
+	}}
+	seen := func(danger consts.Danger) []string {
+		got := map[string]bool{}
+		for s := range uint64(100) {
+			got[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 1, danger, "")] = true
+		}
+		return slices.Sorted(maps.Keys(got))
+	}
+	assert.Equal(t, []string{"store"}, seen(2))
+	assert.Equal(t, []string{"comms", "store"}, seen(3))
+}
+
+func TestLotsOf_施設の深さは起点の行から測った区域の北の端の危険度で決まる(t *testing.T) {
+	t.Parallel()
+
+	town := &rawschema.District{Id: "town", Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{
+		{Zones: []rawschema.Zone{rawschema.Residential}},
+		{Zones: []rawschema.Zone{rawschema.Downtown}},
+	}}
+	raws := rawschema.Raws{Facilities: &[]rawschema.Facility{
+		{Id: "house", Zones: []rawschema.FacilityZone{{Zone: rawschema.Residential, Weight: 1, MinSpan: 1}, {Zone: rawschema.Downtown, Weight: 1, MinSpan: 1}}},
+		{Id: "comms", Zones: []rawschema.FacilityZone{{Zone: rawschema.Residential, Weight: 1000, MinSpan: 1, MinDanger: new(2)}}},
+	}}
+	cat := zoneCatalogFrom(raws)
+	r := districtRegion{kind: town, anchor: consts.Coord[consts.Chunk]{X: 0, Y: -2}, w: 2, h: 2, seed: 1}
+	facilities := func(spawnRow consts.Chunk) []string {
+		got := map[string]bool{}
+		for _, l := range lotsOf(raws, cat, r, spawnRow) {
+			got[l.facility] = true
+		}
+		return slices.Sorted(maps.Keys(got))
+	}
+	// 危険度は北進3チャンクで1段上がる。区域の北の端は起点から2チャンク北なら1、3チャンク北なら2
+	assert.Equal(t, []string{"house"}, facilities(0))
+	assert.Equal(t, []string{"comms"}, facilities(1))
+}
+
+func TestRollFacilityInZone_実データの通信施設は危険度6から都心に混ざる(t *testing.T) {
+	t.Parallel()
+
+	cat := zoneCatalogFrom(testutil.InitTestWorld(t).Resources.RawMaster)
+	seen := func(danger consts.Danger) []string {
+		got := map[string]bool{}
+		for s := range uint64(300) {
+			got[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 3, danger, "")] = true
+		}
+		return slices.Sorted(maps.Keys(got))
+	}
+	assert.Equal(t, slices.Sorted(slices.Values(append(seen(5), "comms"))), seen(6))
+}
+
 // TestRollFacilityInZone_決定的 は、同じ rng 状態から同じ施設が出て、必ず有効な種別を返すことを固定する。
 func TestRollFacilityInZone_決定的(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	cat := zoneCatalogFrom(raws)
-	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, rawschema.Residential, 3, "")
+	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, rawschema.Residential, 3, 1, "")
 	assert.NotEmpty(t, first, "有効な施設種別を返す")
 	for range 5 {
-		got := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, rawschema.Residential, 3, "")
+		got := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, rawschema.Residential, 3, 1, "")
 		assert.Equal(t, first, got, "同じ rng シードなら同じ施設")
 	}
 }
@@ -105,7 +162,7 @@ func TestUrbanZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 			for x := range consts.Chunk(60) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
 				if r, ok := districtAt(raws, s, c, rows); ok {
-					k := urbanFacilityAt(raws, cat, r, c)
+					k := urbanFacilityAt(raws, cat, r, c, 0)
 					grid[c] = k
 					kindCount[k]++
 					total++

@@ -36,11 +36,12 @@ func urbanEnemyTableFor(raws rawschema.Raws, fac string) (rawschema.EnemyTable, 
 	return et, nil
 }
 
-// facilityWeight は施設の抽選重みと規模 gate。市街地の一辺が minSpan 以上のときだけ抽選対象になる。
+// facilityWeight は施設の抽選重みと、規模と深さの足切り
 type facilityWeight struct {
-	kind    string
-	weight  int
-	minSpan consts.Chunk
+	kind      string
+	weight    int
+	minSpan   consts.Chunk
+	minDanger consts.Danger
 }
 
 // zoneCatalog は地区ごとの施設抽選重み。
@@ -51,7 +52,11 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 	cat := make(zoneCatalog)
 	for _, f := range raw.PtrSlice(raws.Facilities) {
 		for _, z := range f.Zones {
-			cat[z.Zone] = append(cat[z.Zone], facilityWeight{kind: f.Id, weight: int(z.Weight), minSpan: consts.Chunk(z.MinSpan)})
+			minDanger := consts.MinDanger
+			if z.MinDanger != nil {
+				minDanger = consts.Danger(*z.MinDanger)
+			}
+			cat[z.Zone] = append(cat[z.Zone], facilityWeight{kind: f.Id, weight: int(z.Weight), minSpan: consts.Chunk(z.MinSpan), minDanger: minDanger})
 		}
 	}
 	return cat
@@ -114,25 +119,25 @@ func rowsLayer(layers []rawschema.DistrictLayer, ly, ch consts.Chunk) int {
 	return rest
 }
 
-// rollFacilityInZone は地区の重み表から規模 gate を通った施設 id を重みで抽選する。exclude の施設は引かない
-func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk, exclude string) string {
+// rollFacilityInZone は地区の重み表から、規模 span と危険度 danger の足切りを通った施設 id を重みで抽選する。exclude の施設は引かない
+func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk, danger consts.Danger, exclude string) string {
 	zc := cat[z]
 	i, ok := consts.Pick(rng, zc, func(f facilityWeight) float64 {
-		if span < f.minSpan || f.kind == exclude {
+		if span < f.minSpan || danger < f.minDanger || f.kind == exclude {
 			return 0
 		}
 		return float64(f.weight)
 	})
 	if !ok {
-		// 一番小さい市街地でも各地区に建てられる基本施設があることを raw の検証が保証する
-		panic("rollFacilityInZone: zone has no facility within span")
+		// 一番小さく浅い区域でも各地区に建てられる基本施設があることを raw の検証が保証する
+		panic("rollFacilityInZone: zone has no facility within span and danger")
 	}
 	return zc[i].kind
 }
 
 // urbanFacilityAt は区域 r の中のチャンク c に建つ施設 id を返す。地図表示と生成の両方が使う。
-func urbanFacilityAt(raws rawschema.Raws, cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk]) string {
-	return lotAt(lotsOf(raws, cat, r), r.local(c)).facility
+func urbanFacilityAt(raws rawschema.Raws, cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk], spawnRow consts.Chunk) string {
+	return lotAt(lotsOf(raws, cat, r, spawnRow), r.local(c)).facility
 }
 
 // place は c が市街地の建物チャンクなら自分の建物を描く。各チャンクは自己完結するので
@@ -144,7 +149,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 		return nil
 	}
 	l := r.local(c)
-	lots := lotsOf(raws, zoneCatalogFrom(raws), r)
+	lots := lotsOf(raws, zoneCatalogFrom(raws), r, spawnRowOf(world))
 	lot := lotAt(lots, l)
 	var fence []consts.Coord[consts.Tile]
 	if r.kind.Fence != nil && *r.kind.Fence {
@@ -190,11 +195,11 @@ func districtFence(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunk
 }
 
 // urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と日数(時間)の高い方。
-// c.Y は絶対チャンク行なので DepthOfChunkRow へそのまま渡せ、生成の再訪一致を壊さない。
+// c.Y は絶対チャンク行なので consts.NorthDepth へそのまま渡せ、生成の再訪一致を壊さない。
 func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 	danger := query.DangerLevelAt(world)
 	if sb := query.GetSeamlessBand(world); sb != nil {
-		if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(c.Y)); d > danger {
+		if d := query.DangerLevelForDepth(consts.NorthDepth(sb.SpawnChunkY(), c.Y)); d > danger {
 			danger = d
 		}
 	}

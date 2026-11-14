@@ -1117,6 +1117,60 @@
     weight = 1
 
 [[districts]]
+  fence = true
+  id = "military_base"
+  landmark = "military_armory"
+  pattern = "rows"
+  separation = 4
+  spacing = 36
+  verge = true
+
+  [[districts.layers]]
+    rows = 1
+    zones = ["military_gate"]
+
+  [[districts.layers]]
+    zones = ["military_inner"]
+
+  [[districts.layers]]
+    rows = 1
+    zones = ["military_armory"]
+
+  [[districts.sizes]]
+    h = 5
+    w = 7
+    weight = 1
+
+  [[districts.sizes]]
+    h = 6
+    w = 7
+    weight = 1
+
+[[districts]]
+  fence = true
+  id = "power_plant"
+  landmark = "power_turbine"
+  pattern = "rings"
+  separation = 4
+  spacing = 40
+
+  [[districts.layers]]
+    zones = ["plant_outer"]
+
+  [[districts.layers]]
+    zones = ["plant_core"]
+
+  [[districts.sizes]]
+    h = 5
+    w = 5
+    weight = 1
+
+  [[districts.sizes]]
+    h = 5
+    w = 6
+    weight = 1
+
+[[districts]]
   id = "town"
   pattern = "rings"
   separation = 2
@@ -3043,6 +3097,215 @@
     pack = "1d1"
     weight = 0.7
 
+[[enemyTables]]
+  id = "gunshop_enemies"
+  name = "銃砲店"
+
+  [[enemyTables.entries]]
+    id = "decayed_soldier"
+    maxDanger = 10
+    minDanger = 1
+    pack = "1d2"
+    weight = 1.2
+
+  [[enemyTables.entries]]
+    id = "veteran_husk"
+    maxDanger = 14
+    minDanger = 4
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "stray_dog"
+    maxDanger = 22
+    minDanger = 3
+    pack = "1d2"
+    weight = 0.6
+
+  [[enemyTables.entries]]
+    id = "guard_soldier"
+    maxDanger = 25
+    minDanger = 12
+    pack = "1d1"
+    weight = 0.8
+
+[[enemyTables]]
+  id = "comms_enemies"
+  name = "通信施設"
+
+  [[enemyTables.entries]]
+    id = "spark_wisp"
+    maxDanger = 8
+    minDanger = 1
+    pack = "1d3"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "veteran_husk"
+    maxDanger = 14
+    minDanger = 4
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "shock_orb"
+    maxDanger = 22
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "iron_sentinel"
+    maxDanger = 25
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.6
+
+  [[enemyTables.entries]]
+    id = "guard_soldier"
+    maxDanger = 25
+    minDanger = 12
+    pack = "1d1"
+    weight = 0.6
+
+[[enemyTables]]
+  id = "military_enemies"
+  name = "軍基地"
+
+  [[enemyTables.entries]]
+    id = "decayed_soldier"
+    maxDanger = 10
+    minDanger = 1
+    pack = "1d3"
+    weight = 1.2
+
+  [[enemyTables.entries]]
+    id = "veteran_husk"
+    maxDanger = 14
+    minDanger = 4
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "skeleton_soldier"
+    maxDanger = 25
+    minDanger = 6
+    pack = "1d2"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "guard_soldier"
+    maxDanger = 25
+    minDanger = 8
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "jeep"
+    maxDanger = 30
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.3
+
+  [[enemyTables.entries]]
+    id = "light_tank"
+    maxDanger = 30
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.3
+
+[[enemyTables]]
+  id = "military_armory_enemies"
+  name = "軍基地の武器庫"
+
+  [[enemyTables.entries]]
+    id = "veteran_husk"
+    maxDanger = 14
+    minDanger = 1
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "guard_soldier"
+    maxDanger = 25
+    minDanger = 4
+    pack = "1d2"
+    weight = 1.2
+
+  [[enemyTables.entries]]
+    id = "iron_sentinel"
+    maxDanger = 25
+    minDanger = 8
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "light_tank"
+    maxDanger = 30
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.5
+
+  [[enemyTables.entries]]
+    id = "gray_tank"
+    maxDanger = 30
+    minDanger = 12
+    pack = "1d1"
+    weight = 0.3
+
+  [[enemyTables.entries]]
+    id = "heavy_artillery_tank"
+    maxDanger = 35
+    minDanger = 16
+    pack = "1d1"
+    weight = 0.15
+
+[[enemyTables]]
+  id = "power_plant_enemies"
+  name = "発電施設"
+
+  [[enemyTables.entries]]
+    id = "static_mite"
+    maxDanger = 4
+    minDanger = 1
+    pack = "1d3"
+    weight = 1.1
+
+  [[enemyTables.entries]]
+    id = "spark_wisp"
+    maxDanger = 8
+    minDanger = 2
+    pack = "1d3"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "fireball"
+    maxDanger = 25
+    minDanger = 7
+    pack = "1d2"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "shock_orb"
+    maxDanger = 22
+    minDanger = 8
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "iron_sentinel"
+    maxDanger = 25
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.6
+
+  [[enemyTables.entries]]
+    id = "chemical_tank"
+    maxDanger = 30
+    minDanger = 12
+    pack = "1d1"
+    weight = 0.2
+
 [[facilities]]
   enemyTable = "house_enemies"
   id = "house"
@@ -3240,6 +3503,179 @@
     minSpan = 1
     weight = 1
     zone = "campus_gate"
+
+[[facilities]]
+  enemyTable = "gunshop_enemies"
+  id = "gunshop"
+  lootedChance = 60
+
+  [[facilities.zones]]
+    minSpan = 3
+    weight = 12
+    zone = "downtown"
+
+  [[facilities.zones]]
+    minSpan = 2
+    weight = 8
+    zone = "industrial"
+
+[[facilities]]
+  enemyTable = "comms_enemies"
+  id = "comms"
+  lootedChance = 10
+
+  [[facilities.zones]]
+    minDanger = 6
+    minSpan = 2
+    weight = 4
+    zone = "downtown"
+
+  [[facilities.zones]]
+    minDanger = 6
+    minSpan = 2
+    weight = 4
+    zone = "industrial"
+
+  [[facilities.zones]]
+    minDanger = 6
+    minSpan = 1
+    weight = 2
+    zone = "military_inner"
+
+  [[facilities.zones]]
+    minDanger = 6
+    minSpan = 1
+    weight = 4
+    zone = "campus_quarantine"
+
+[[facilities]]
+  enemyTable = "military_enemies"
+  id = "military_checkpoint"
+  lootedChance = 20
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 4
+    zone = "military_gate"
+
+[[facilities]]
+  enemyTable = "military_enemies"
+  id = "military_yard"
+  lootedChance = 20
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 2
+    zone = "military_gate"
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 2
+    zone = "military_inner"
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 3
+    zone = "military_armory"
+
+[[facilities]]
+  enemyTable = "military_enemies"
+  id = "military_barracks"
+  interior = "rooms"
+  lootedChance = 40
+
+  [[facilities.footprints]]
+    h = 1
+    w = 2
+    weight = 3
+
+  [[facilities.footprints]]
+    h = 2
+    w = 2
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 5
+    zone = "military_inner"
+
+[[facilities]]
+  enemyTable = "military_armory_enemies"
+  id = "military_armory"
+  interior = "rooms"
+  lootedChance = 40
+
+  [[facilities.footprints]]
+    h = 1
+    w = 3
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 1
+    w = 4
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "military_armory"
+
+[[facilities]]
+  enemyTable = "power_plant_enemies"
+  id = "power_turbine"
+  interior = "hall"
+  lootedChance = 30
+
+  [[facilities.footprints]]
+    h = 3
+    w = 3
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 3
+    w = 2
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 2
+    w = 2
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "plant_core"
+
+[[facilities]]
+  enemyTable = "power_plant_enemies"
+  id = "power_control"
+  interior = "rooms"
+  lootedChance = 30
+
+  [[facilities.footprints]]
+    h = 1
+    w = 2
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 3
+    zone = "plant_outer"
+
+[[facilities]]
+  enemyTable = "power_plant_enemies"
+  id = "power_coalyard"
+  lootedChance = 20
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 3
+    zone = "plant_outer"
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "plant_core"
 
 [[fatigueStages]]
   canSleep = false
@@ -6743,13 +7179,8 @@
     weight = 1
 
 [[itemGroups]]
-  id = "escape_device_parts"
-  name = "脱出の装置の部品"
-
-  [[itemGroups.entries]]
-    id = "broken_escape_core"
-    pack = "1d1"
-    weight = 1
+  id = "escape_repair_parts"
+  name = "脱出の装置の修理の部品"
 
   [[itemGroups.entries]]
     id = "signal_amplifier"
@@ -6759,6 +7190,169 @@
   [[itemGroups.entries]]
     id = "power_cell"
     pack = "1d2"
+    weight = 2
+
+[[itemGroups]]
+  id = "civilian_firearms"
+  name = "民間の銃と弓"
+
+  [[itemGroups.entries]]
+    id = "handgun"
+    pack = "1d1"
+    weight = 4
+
+  [[itemGroups.entries]]
+    id = "hunter_bow"
+    pack = "1d1"
+    weight = 3
+
+  [[itemGroups.entries]]
+    id = "iron_crossbow"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "flame_gun"
+    pack = "1d1"
+    weight = 1
+
+[[itemGroups]]
+  id = "civilian_ammo"
+  name = "拳銃の弾と矢"
+
+  [[itemGroups.entries]]
+    id = "9mm_fmj"
+    pack = "2d6"
+    weight = 4
+
+  [[itemGroups.entries]]
+    id = "9mm_hp"
+    pack = "1d6"
+    weight = 2
+
+  [[itemGroups.entries]]
+    id = "9mm_ap"
+    pack = "1d6"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "small_caliber_round_gray"
+    pack = "2d6"
+    weight = 2
+
+  [[itemGroups.entries]]
+    id = "wooden_arrow"
+    pack = "2d6"
+    weight = 3
+
+  [[itemGroups.entries]]
+    id = "iron_arrow"
+    pack = "1d6"
+    weight = 1
+
+[[itemGroups]]
+  id = "electronic_parts"
+  name = "電子部品"
+
+  [[itemGroups.entries]]
+    id = "electric_wire"
+    pack = "1d3"
+    weight = 4
+
+  [[itemGroups.entries]]
+    id = "cable_bundle"
+    pack = "1d2"
+    weight = 2
+
+  [[itemGroups.entries]]
+    id = "ferrite_core"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "energy_cell"
+    pack = "1d4"
+    weight = 2
+
+[[itemGroups]]
+  id = "escape_core"
+  name = "脱出の装置の鍵"
+
+  [[itemGroups.entries]]
+    id = "broken_escape_core"
+    pack = "1d1"
+    weight = 1
+
+[[itemGroups]]
+  id = "military_firearms"
+  name = "軍の銃火器"
+
+  [[itemGroups.entries]]
+    id = "handgun"
+    pack = "1d1"
+    weight = 3
+
+  [[itemGroups.entries]]
+    id = "rapid_fire_cannon"
+    pack = "1d1"
+    weight = 2
+
+  [[itemGroups.entries]]
+    id = "m72_law"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "m1919_heavy_machine_gun"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "flame_gun"
+    pack = "1d1"
+    weight = 1
+
+[[itemGroups]]
+  id = "military_ammo"
+  name = "軍の弾薬"
+
+  [[itemGroups.entries]]
+    id = "cannon_shell"
+    pack = "1d4"
+    weight = 3
+
+  [[itemGroups.entries]]
+    id = "9mm_fmj"
+    pack = "2d6"
+    weight = 2
+
+  [[itemGroups.entries]]
+    id = "9mm_ap"
+    pack = "1d6"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "rifle_round"
+    pack = "2d6"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "heavy_round"
+    pack = "1d6"
+    weight = 1
+
+[[itemGroups]]
+  id = "fuel"
+  name = "燃料"
+
+  [[itemGroups.entries]]
+    id = "coal"
+    pack = "1d3"
+    weight = 3
+
+  [[itemGroups.entries]]
+    id = "firewood"
+    pack = "1d3"
     weight = 2
 
 [[itemTables]]
@@ -7250,7 +7844,153 @@
   name = "研究所の機密ケース"
 
   [[itemTables.entries]]
-    id = "escape_device_parts"
+    id = "electronic_parts"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "gunshop_rack"
+  name = "銃砲店の銃架"
+
+  [[itemTables.entries]]
+    id = "civilian_firearms"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "civilian_ammo"
+    maxDanger = 100
+    minDanger = 1
+    weight = 2
+
+[[itemTables]]
+  id = "ammo_crate"
+  name = "弾薬箱"
+
+  [[itemTables.entries]]
+    id = "civilian_ammo"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "comms_console"
+  name = "通信施設の無線機"
+
+  [[itemTables.entries]]
+    id = "escape_core"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "electronic_parts"
+    maxDanger = 100
+    minDanger = 1
+    weight = 2
+
+[[itemTables]]
+  id = "power_control"
+  name = "発電施設の制御盤"
+
+  [[itemTables.entries]]
+    id = "electronic_parts"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "industrial_materials"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "military_locker"
+  name = "兵舎のロッカー"
+
+  [[itemTables.entries]]
+    id = "military_ammo"
+    maxDanger = 100
+    minDanger = 1
+    weight = 2
+
+  [[itemTables.entries]]
+    id = "civilian_firearms"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+  [[itemTables.entries]]
+    id = "clothing"
+    maxDanger = 100
+    minDanger = 1
+    weight = 2
+
+  [[itemTables.entries]]
+    id = "food"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+  [[itemTables.entries]]
+    id = "midgame_armor"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "military_armory"
+  name = "武器庫"
+
+  [[itemTables.entries]]
+    id = "military_firearms"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "military_ammo"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "midgame_armor"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+  [[itemTables.entries]]
+    id = "endgame_armor"
+    maxDanger = 100
+    minDanger = 8
+    weight = 1
+
+[[itemTables]]
+  id = "military_parts_case"
+  name = "武器庫の部品箱"
+
+  [[itemTables.entries]]
+    id = "escape_repair_parts"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "power_fuel"
+  name = "発電施設の燃料"
+
+  [[itemTables.entries]]
+    id = "fuel"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "industrial_materials"
     maxDanger = 100
     minDanger = 1
     weight = 1
@@ -17036,6 +17776,105 @@
     g = 180
     r = 120
 
+[[mapGlyphs]]
+  glyph = "G"
+  id = "gunshop"
+  name = "Gun Shop"
+  order = 20
+  [mapGlyphs.color]
+    a = 255
+    b = 70
+    g = 110
+    r = 170
+
+[[mapGlyphs]]
+  glyph = "R"
+  id = "comms"
+  name = "Comms Station"
+  order = 21
+  [mapGlyphs.color]
+    a = 255
+    b = 230
+    g = 200
+    r = 120
+
+[[mapGlyphs]]
+  glyph = "K"
+  id = "military_checkpoint"
+  name = "Checkpoint"
+  order = 22
+  [mapGlyphs.color]
+    a = 255
+    b = 90
+    g = 160
+    r = 150
+
+[[mapGlyphs]]
+  glyph = "W"
+  id = "military_barracks"
+  name = "Barracks"
+  order = 23
+  [mapGlyphs.color]
+    a = 255
+    b = 70
+    g = 140
+    r = 110
+
+[[mapGlyphs]]
+  glyph = "P"
+  id = "military_yard"
+  name = "Drill Yard"
+  order = 24
+  [mapGlyphs.color]
+    a = 255
+    b = 100
+    g = 150
+    r = 170
+
+[[mapGlyphs]]
+  glyph = "X"
+  id = "military_armory"
+  name = "Armory"
+  order = 25
+  [mapGlyphs.color]
+    a = 255
+    b = 60
+    g = 90
+    r = 200
+
+[[mapGlyphs]]
+  glyph = "U"
+  id = "power_turbine"
+  name = "Turbine Hall"
+  order = 26
+  [mapGlyphs.color]
+    a = 255
+    b = 60
+    g = 200
+    r = 230
+
+[[mapGlyphs]]
+  glyph = "N"
+  id = "power_control"
+  name = "Control Room"
+  order = 27
+  [mapGlyphs.color]
+    a = 255
+    b = 90
+    g = 170
+    r = 200
+
+[[mapGlyphs]]
+  glyph = "Z"
+  id = "power_coalyard"
+  name = "Coal Yard"
+  order = 28
+  [mapGlyphs.color]
+    a = 255
+    b = 90
+    g = 100
+    r = 110
+
 [[materials]]
   heatPerKg = 200
   id = "WOOD"
@@ -21081,6 +21920,106 @@
     lootCount = "1d2"
     lootTableId = "classified_case"
     maxWeight = "20 kg"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "[dummy] 銃を立てて並べる銃架。実アート未実装の仮素材"
+  hp = 40
+  id = "gun_rack"
+  name = "Gun Rack"
+  [props.disassembly]
+    toolCategory = "prying"
+
+    [[props.disassembly.yields]]
+      count = "1d2"
+      id = "scrap_iron"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "gun_rack"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d2"
+    lootTableId = "gunshop_rack"
+    maxWeight = "60 kg"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "[dummy] 弾薬を詰めた金属の箱。実アート未実装の仮素材"
+  hp = 30
+  id = "ammo_crate"
+  name = "Ammo Crate"
+  [props.disassembly]
+    toolCategory = "prying"
+
+    [[props.disassembly.yields]]
+      count = "1d2"
+      id = "scrap_iron"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "ammo_crate"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d2"
+    lootTableId = "ammo_crate"
+    maxWeight = "40 kg"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "[dummy] 机に据えた無線機。引き出しに部品が残っている。実アート未実装の仮素材"
+  hp = 30
+  id = "radio_console"
+  name = "Radio Console"
+  [props.disassembly]
+    toolCategory = "prying"
+
+    [[props.disassembly.yields]]
+      count = "1d2"
+      id = "electric_wire"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "radio_console"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d1"
+    lootTableId = "comms_console"
+    maxWeight = "20 kg"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "[dummy] 鉄骨を組んだ無線塔。実アート未実装の仮素材"
+  hp = 80
+  id = "radio_mast"
+  name = "Radio Mast"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "radio_mast"
+    spriteSheetName = "field"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "[dummy] 計器とスイッチの並ぶ制御盤。実アート未実装の仮素材"
+  hp = 40
+  id = "control_panel"
+  name = "Control Panel"
+  [props.disassembly]
+    toolCategory = "prying"
+
+    [[props.disassembly.yields]]
+      count = "1d2"
+      id = "electric_wire"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "control_panel"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d2"
+    lootTableId = "power_control"
+    maxWeight = "30 kg"
 
 [[recipes]]
   id = "ray_gun"

@@ -265,8 +265,8 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 	}, render(east), "通れる外に面する辺の壁だけが残る")
 }
 
-// TestFacilityTemplates_囲いの外の床は屋外で内は屋内 は施設の絵で、区画の縁から壁と扉を越えずにたどれる床が屋外のタイルを、
-// たどれない床が屋内のタイルを指すことを確かめる。屋内外はタイルの種類で決まるので、絵が置き場所に合うタイルを選ぶ必要がある
+// TestFacilityTemplates_囲いの外の床は屋外で内は屋内 は1棟の絵で、区画の縁から壁と扉を越えずにたどれる床が屋外のタイルを、
+// たどれない床が屋内のタイルを指すことを確かめる。部屋の絵は床が全て屋内のタイルを指すことを確かめる。屋内外はタイルの種類で決まるので、絵が置き場所に合うタイルを選ぶ必要がある
 func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing.T) {
 	t.Parallel()
 
@@ -282,11 +282,15 @@ func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing
 	for _, fac := range loader.Facilities() {
 		for _, name := range loader.FacilityChunkNames(fac) {
 			for seed := range uint64(20) {
-				_, _, cells, err := loader.LoadTemplateByName(name, seed)
+				chunk, _, cells, err := loader.LoadTemplateByName(name, seed)
 				require.NoError(t, err)
-				outside := reachableFromEdge(cells, func(x, y int) bool {
-					return rows[cells[y][x].Terrain].BlockPass || cells[y][x].Prop == "door"
-				})
+				// 部屋の絵の縁の先は隣の部屋か建物の中の帯なので、部屋の絵の床は全て屋内
+				outside := map[[2]int]bool{}
+				if chunk.Edges == nil {
+					outside = reachableFromEdge(cells, func(x, y int) bool {
+						return rows[cells[y][x].Terrain].BlockPass || cells[y][x].Prop == "door"
+					})
+				}
 				var bad []string
 				for y, row := range cells {
 					for x, c := range row {

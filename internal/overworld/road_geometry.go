@@ -50,13 +50,13 @@ func roadSegments(a, b consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) [
 // roadPath は当選集落 a から b への道を返す。roadSegments の垂直辺が塀に囲まれた区域を横切るなら、区域の手前の行で
 // 北の門の列へ折れて門へ入り、南の門から出て区域の向こうの行で元の列へ戻る。区域の中は区域が街路を敷くので辺を置かない。
 // 門は区域の外周の街路の帯に開くので、門の列では帯の幅の真ん中を通す
-func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chunk], cols consts.Chunk, chunkW, chunkH consts.Tile) []roadSeg {
+func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, chunkW, chunkH consts.Tile) []roadSeg {
 	segs := roadSegments(a, b, chunkW, chunkH)
 	vertical := segs[1]
 	x, y := vertical.fixed, vertical.lo
 	out := []roadSeg{segs[0]}
 	for _, r := range fencedDistrictsBetween(raws, runSeed, min(a.Y, b.Y), max(a.Y, b.Y), cols) {
-		north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r))
+		north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, spawnRow))
 		top := r.anchor.Y.Tiles(chunkH)
 		bottom := (r.anchor.Y + r.h).Tiles(chunkH) - 1
 		lane := func(col consts.Chunk) consts.Tile { return col.Tiles(chunkW) + urbanStreetW/2 }

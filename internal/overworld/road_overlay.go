@@ -31,7 +31,7 @@ func (d RoadDir) Any() bool {
 // buildRoadOverlay は表示範囲に重なる範囲の道の接続方角を、絶対チャンク座標をキーに算出する。
 // road.go と同じく隣接リージョンの当選集落どうしを roadPath で結ぶ。生成を伴わない純関数で、
 // 表示範囲外へはみ出すチャンクも含みうるが、読み手が表示範囲内だけを引くので無害。
-func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols consts.Chunk, chunkW, chunkH consts.Tile) map[consts.Coord[consts.Chunk]]RoadDir {
+func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols, spawnRow consts.Chunk, chunkW, chunkH consts.Tile) map[consts.Coord[consts.Chunk]]RoadDir {
 	overlay := map[consts.Coord[consts.Chunk]]RoadDir{}
 	cols = max(cols, 1)
 	// 道 (pr, pr+1) が占めるチャンク列は当選集落 a.X..b.X で、a.X は pr*Spacing 以上、b.X は
@@ -46,7 +46,7 @@ func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols
 	for pr := rLo; pr <= rHi; pr++ {
 		a := settlementPlacement.WinnerOf(runSeed, pr, cols)
 		b := settlementPlacement.WinnerOf(runSeed, pr+1, cols)
-		markRoadPath(overlay, roadPath(raws, runSeed, a, b, cols, chunkW, chunkH), chunkW, chunkH)
+		markRoadPath(overlay, roadPath(raws, runSeed, a, b, cols, spawnRow, chunkW, chunkH), chunkW, chunkH)
 	}
 	return overlay
 }
