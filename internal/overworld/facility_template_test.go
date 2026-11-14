@@ -166,7 +166,7 @@ func TestSpawnFacility_畳は屋内で土は屋外(t *testing.T) {
 	_, cells, err := loader.FacilityChunk("house", 1)
 	require.NoError(t, err)
 	g := chunkGeom{chunkW: facilityLot, chunkH: facilityLot, tiles: &tileIndex{world: world, loX: 0, hiX: facilityLot}}
-	_, _, err = spawnFacility(world, g, cells, 0, 0, "house", raw.MinDanger, 1, nil)
+	_, _, err = spawnFacility(world, g, cells, 0, 0, "house", raw.MinDanger, 1)
 	require.NoError(t, err)
 
 	got := map[string]map[rawschema.Shelter]int{}
@@ -185,42 +185,6 @@ func TestSpawnFacility_畳は屋内で土は屋外(t *testing.T) {
 	}
 	assert.Equal(t, []rawschema.Shelter{rawschema.Indoor}, slices.Collect(maps.Keys(got["floor_tatami"])))
 	assert.Equal(t, []rawschema.Shelter{rawschema.Outdoor}, slices.Collect(maps.Keys(got[consts.TileNameDirt])))
-}
-
-func TestEnclosedCells_壁と扉で囲まれたマスだけを屋内にする(t *testing.T) {
-	t.Parallel()
-
-	// 左は扉の無い部屋、中央は扉のある部屋、右は上が開いたコの字で、内側の庭は屋外
-	rows := []string{
-		"..............",
-		".###.####.#.#.",
-		".#.#.#..#.#.#.",
-		".#.#.#..#.#.#.",
-		".###.##+#.###.",
-		"..............",
-	}
-	cells := make([][]maptemplate.MapCell, len(rows))
-	for y, row := range rows {
-		cells[y] = make([]maptemplate.MapCell, len(row))
-		for x, ch := range row {
-			switch ch {
-			case '#':
-				cells[y][x] = maptemplate.MapCell{Terrain: "wall"}
-			case '+':
-				cells[y][x] = maptemplate.MapCell{Terrain: "floor", Prop: "door"}
-			default:
-				cells[y][x] = maptemplate.MapCell{Terrain: "floor"}
-			}
-		}
-	}
-	wallAt := func(x, y int) bool {
-		return y >= 0 && y < len(cells) && x >= 0 && x < len(cells[y]) && cells[y][x].Terrain == "wall"
-	}
-
-	assert.Equal(t, map[[2]int]bool{
-		{2, 2}: true, {2, 3}: true,
-		{6, 2}: true, {7, 2}: true, {6, 3}: true, {7, 3}: true,
-	}, enclosedCells(cells, wallAt))
 }
 
 func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空にする(t *testing.T) {

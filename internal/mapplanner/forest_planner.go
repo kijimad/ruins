@@ -50,7 +50,7 @@ type ForestTerrain struct{}
 func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {
 	// まず全体を床で埋める（森の地面）
 	for i := range planData.Tiles {
-		planData.Tiles[i] = planData.GetTile("floor")
+		planData.Tiles[i] = planData.GetTile(consts.TileNameRoad)
 	}
 
 	// 空き地を床として確保
@@ -72,7 +72,7 @@ func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Re
 
 			if distance <= radius {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-				planData.Tiles[idx] = planData.GetTile("floor")
+				planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)
 			}
 		}
 	}
@@ -204,7 +204,7 @@ func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, hei
 			x := pathX + dx
 			if x >= 0 && x < width {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-				planData.Tiles[idx] = planData.GetTile("floor")
+				planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)
 			}
 		}
 
@@ -274,7 +274,7 @@ func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect)
 
 					// 70%の確率で通路を作成（自然な感じに）
 					if planData.RNG.Float64() < 0.7 {
-						planData.Tiles[idx] = planData.GetTile("floor")
+						planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)
 					}
 				}
 			}
@@ -311,7 +311,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 					distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))
 					if distance <= float64(radius) {
 						idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
-						planData.Tiles[idx] = planData.GetTile("floor")
+						planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)
 					}
 				}
 			}
@@ -328,8 +328,8 @@ func NewForestPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Plan
 	chain.With(ForestTrees{})        // 木を配置
 	chain.With(ForestPaths{})        // 自然な通路を作成
 	chain.With(ForestWildlife{})     // 野生動物の痕跡を追加
-	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をfloorに変換
-		ReplacementTile: consts.TileNameFloor,
+	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁を道に変換
+		ReplacementTile: consts.TileNameRoad,
 	})
 	chain.With(EnvironmentPlanner{})
 

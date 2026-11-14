@@ -5,7 +5,8 @@ description = "店"
 [palette.terrain]
 "#" = "wall"
 "," = "dirt"
-"=" = "floor_concrete"
+"=" = "pavement"
+"%" = "floor_concrete"
 "." = "floor_linoleum"
 "~" = "floor_tile"
 
@@ -41,7 +42,7 @@ tile = "floor_linoleum"
 id = "magazine_rack"
 
 [palette.props."V"]
-tile = "floor_concrete"
+tile = "pavement"
 id = "vending_machine"
 
 [palette.props."b"]

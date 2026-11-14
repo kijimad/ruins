@@ -111,6 +111,8 @@ const (
 	TileNameDWall = "dwall"
 	// TileNameFloor は床タイル名
 	TileNameFloor = "floor"
+	// TileNameRoad は屋外の道のタイル名
+	TileNameRoad = "road"
 	// TileNameDirt は土のタイル名
 	TileNameDirt = "dirt"
 	// TileNameSnow は地面に重ねて描く雪の層の絵を持つタイル名

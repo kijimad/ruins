@@ -71,7 +71,7 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs [
 	return nil
 }
 
-// replaceDirtTile は座標のタイルが土のときだけ床へ置き換える。土以外は他の地物の
+// replaceDirtTile は座標のタイルが土のときだけ道へ置き換える。土以外は他の地物の
 // 生成物なので触らない。
 func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) error {
 	g := gc.GridElement{Coord: pos}
@@ -82,6 +82,6 @@ func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos con
 	if world.Components.RawID.Get(e).ID != consts.TileNameDirt {
 		return nil
 	}
-	_, err := replaceTile(world, tiles, pos, consts.TileNameFloor)
+	_, err := replaceTile(world, tiles, pos, consts.TileNameRoad)
 	return err
 }

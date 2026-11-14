@@ -37,9 +37,9 @@ func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, r
 }
 
 // spawnFacility は施設の絵のマスを、チャンク内の区画の左上 (ox, oy) から実体として置く。
-// 屋内のマスは indoorAt で受け、nil なら壁と扉の囲いから決める。扉は左右か上下の壁から向きを決める。
+// 扉は左右か上下の壁から向きを決める。
 // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする
-func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox, oy consts.Tile, fac string, danger consts.Danger, seed uint64, indoorAt func(x, y int) bool) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
+func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox, oy consts.Tile, fac string, danger consts.Danger, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
 	if len(cells) != int(g.chunkH-oy) || len(cells[0]) != int(g.chunkW-ox) {
 		return nil, nil, fmt.Errorf("facility %q %dx%d, lot %dx%d: %w", fac, len(cells[0]), len(cells), g.chunkW-ox, g.chunkH-oy, errFacilityLotSizeMismatch)
 	}
@@ -64,10 +64,6 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		return err == nil && t.BlockPass
 	}
 
-	if indoorAt == nil {
-		indoor := enclosedCells(cells, wallAt)
-		indoorAt = func(x, y int) bool { return indoor[[2]int{x, y}] }
-	}
 	tiles := g.tiles.get()
 	occupied := make(map[consts.Coord[consts.Tile]]bool)
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
@@ -81,7 +77,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 			if err != nil {
 				return nil, nil, fmt.Errorf("facility %q tile at %d,%d: %w", fac, x, y, err)
 			}
-			if err := spawnFacilityTile(world, tiles, pos, t, indoorAt(x, y)); err != nil {
+			if err := spawnFacilityTile(world, tiles, pos, t); err != nil {
 				return nil, nil, err
 			}
 			orientation := gc.DoorOrientationHorizontal
@@ -102,45 +98,8 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 	return isWall, occupied, nil
 }
 
-// enclosedCells は区画の縁からたどれない、壁と扉で囲まれたマスを屋内として返す。塀は家具なので囲いに数えず、塀の内の庭は屋外のままにする
-func enclosedCells(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool) map[[2]int]bool {
-	h, w := len(cells), len(cells[0])
-	blocks := func(x, y int) bool { return wallAt(x, y) || cells[y][x].Prop == "door" }
-	outside := map[[2]int]bool{}
-	var queue [][2]int
-	for y := range h {
-		for x := range w {
-			if (x == 0 || y == 0 || x == w-1 || y == h-1) && !blocks(x, y) {
-				outside[[2]int{x, y}] = true
-				queue = append(queue, [2]int{x, y})
-			}
-		}
-	}
-	for len(queue) > 0 {
-		c := queue[0]
-		queue = queue[1:]
-		for _, d := range [][2]int{{1, 0}, {-1, 0}, {0, 1}, {0, -1}} {
-			n := [2]int{c[0] + d[0], c[1] + d[1]}
-			if n[0] < 0 || n[1] < 0 || n[0] >= w || n[1] >= h || outside[n] || blocks(n[0], n[1]) {
-				continue
-			}
-			outside[n] = true
-			queue = append(queue, n)
-		}
-	}
-	indoor := map[[2]int]bool{}
-	for y := range h {
-		for x := range w {
-			if !outside[[2]int{x, y}] && !blocks(x, y) {
-				indoor[[2]int{x, y}] = true
-			}
-		}
-	}
-	return indoor
-}
-
 // spawnFacilityTile はタイルの行 t を pos へ置く。行の生成の仕様が別のタイルを指せばそれを置き、オートタイルしないタイルは添字を付けない
-func spawnFacilityTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], t rawschema.Tile, indoor bool) error {
+func spawnFacilityTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], t rawschema.Tile) error {
 	name := t.Id
 	if t.Spawn != nil && t.Spawn.Tile != nil {
 		name = *t.Spawn.Tile
@@ -149,12 +108,8 @@ func spawnFacilityTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos c
 	if t.Spawn != nil && t.Spawn.Autotile {
 		index = new(0)
 	}
-	e, err := replaceTileIndexed(world, tiles, pos, name, index)
-	if err != nil {
+	if _, err := replaceTileIndexed(world, tiles, pos, name, index); err != nil {
 		return fmt.Errorf("failed to place facility tile (x=%d, y=%d): %w", pos.X, pos.Y, err)
-	}
-	if indoor && world.Components.TileEnvironment.Has(e) {
-		world.Components.TileEnvironment.Get(e).Shelter = rawschema.Indoor
 	}
 	return nil
 }

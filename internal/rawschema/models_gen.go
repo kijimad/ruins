@@ -2221,7 +2221,7 @@ func ShelterValues() []Shelter {
 type ShelterEffect struct {
 	AnchorTemp TileTempModifier `json:"anchorTemp"`
 
-	// Covered 屋根か壁に覆われているか。覆われないタイルに繋がる領域は屋外とみなす
+	// Covered 屋根に覆われているか。覆われないタイルには雪が積もる
 	Covered bool `json:"covered"`
 
 	Id Shelter `json:"id"`
@@ -2525,6 +2525,9 @@ type Tile struct {
 	Id EntityID `json:"id"`
 
 	Name EntityName `json:"name"`
+
+	// Shelter 囲われの度合い。省くと屋外
+	Shelter *Shelter `json:"shelter,omitempty"`
 
 	// Snowable 雪が積もる地面か。屋根の無い場所で、その日の平均気温に応じた量の雪を重ねて描く
 	Snowable *bool `json:"snowable,omitempty"`

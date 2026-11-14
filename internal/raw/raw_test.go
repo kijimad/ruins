@@ -1183,6 +1183,7 @@ func TestTileSpawn_実データ(t *testing.T) {
 	assert.Equal(t, map[string]rawschema.TileSpawn{
 		"dirt":             {Autotile: true},
 		"floor":            {Autotile: true},
+		"road":             {Autotile: true},
 		"grass_green":      {Autotile: true},
 		"dwall":            {Autotile: true},
 		"brick_cyan":       {Autotile: true},
@@ -1214,6 +1215,28 @@ func TestTileSpawn_実データ(t *testing.T) {
 		"plank_blue":       {Autotile: true},
 		"wall":             {Tile: new("dwall"), Autotile: true},
 		"void":             {Autotile: false},
+	}, got)
+}
+
+func TestTileShelter_実データ(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	got := map[string]rawschema.Shelter{}
+	tiles := PtrSlice(raws.Tiles)
+	for i := range tiles {
+		if s := TileShelter(tiles[i]); s != rawschema.Outdoor {
+			got[tiles[i].Id] = s
+		}
+	}
+	assert.Equal(t, map[string]rawschema.Shelter{
+		"floor":          rawschema.Indoor,
+		"floor_concrete": rawschema.Indoor,
+		"floor_linoleum": rawschema.Indoor,
+		"floor_tatami":   rawschema.Indoor,
+		"floor_tile":     rawschema.Indoor,
+		"floor_wood":     rawschema.Indoor,
 	}, got)
 }
 

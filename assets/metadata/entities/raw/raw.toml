@@ -21876,6 +21876,32 @@
 [[tiles]]
   blockPass = false
   blockView = false
+  description = "灰色の石を敷いた道のオートタイル。街路や森の小道の屋外の歩行可能タイル"
+  id = "road"
+  name = "Road"
+  snowable = true
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "floor"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "[dummy] コンクリート舗装。駐車場や中庭の屋外の地面。実アート未実装の仮素材"
+  id = "pavement"
+  name = "Pavement"
+  snowable = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "floor_concrete"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
   description = "茶色の土のオートタイル床。屋外や地面の歩行可能タイル"
   id = "dirt"
   name = "Dirt"
@@ -21906,7 +21932,7 @@
   description = "灰色の石床のオートタイル。屋内の歩行可能タイル"
   id = "floor"
   name = "Floor"
-  snowable = true
+  shelter = "indoor"
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -21947,6 +21973,7 @@
   description = "[dummy] リノリウム床。コンビニや病院の滑らかな樹脂床。実アート未実装の仮素材"
   id = "floor_linoleum"
   name = "Linoleum Floor"
+  shelter = "indoor"
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_linoleum"
@@ -21958,6 +21985,7 @@
   description = "[dummy] タイル床。浴室や厨房の四角いタイルの床。実アート未実装の仮素材"
   id = "floor_tile"
   name = "Tile Floor"
+  shelter = "indoor"
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_tile"
@@ -21969,7 +21997,7 @@
   description = "[dummy] コンクリート床。倉庫や地下の無機質な床。実アート未実装の仮素材"
   id = "floor_concrete"
   name = "Concrete Floor"
-  snowable = true
+  shelter = "indoor"
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_concrete"
@@ -21981,6 +22009,7 @@
   description = "[dummy] フローリング床。民家やオフィスの木の床。実アート未実装の仮素材"
   id = "floor_wood"
   name = "Wooden Floor"
+  shelter = "indoor"
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_wood"
@@ -21992,6 +22021,7 @@
   description = "[dummy] 畳。和室のい草の床。実アート未実装の仮素材"
   id = "floor_tatami"
   name = "Tatami"
+  shelter = "indoor"
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_tatami"

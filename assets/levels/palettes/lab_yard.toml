@@ -4,7 +4,7 @@ description = "研究所の中庭"
 
 [palette.terrain]
 "," = "grass_green"
-"." = "floor_concrete"
+"." = "pavement"
 
 [palette.props."T"]
 tile = "grass_green"
@@ -23,7 +23,7 @@ tile = "grass_green"
 id = "grass_lush"
 
 [palette.props."P"]
-tile = "floor_concrete"
+tile = "pavement"
 id = "plant"
 
 [palette.props."n"]
@@ -31,7 +31,7 @@ tile = "grass_green"
 id = "bench"
 
 [palette.props."S"]
-tile = "floor_concrete"
+tile = "pavement"
 id = "stone_pillar"
 
 [palette.items."o"]
