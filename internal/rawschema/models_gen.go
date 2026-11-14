@@ -2526,6 +2526,9 @@ type Tile struct {
 
 	Name EntityName `json:"name"`
 
+	// Snowable 雪が積もる地面か。屋根の無い場所で、その日の平均気温に応じた量の雪を重ねて描く
+	Snowable *bool `json:"snowable,omitempty"`
+
 	// Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
 	Spawn *TileSpawn `json:"spawn,omitempty"`
 

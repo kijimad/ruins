@@ -247,6 +247,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -262,6 +263,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -277,6 +279,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -292,6 +295,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -307,6 +311,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -322,6 +327,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1041,6 +1047,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1056,6 +1063,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1071,6 +1079,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1086,6 +1095,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1101,6 +1111,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1116,6 +1127,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1835,6 +1847,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1850,6 +1863,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1865,6 +1879,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1880,6 +1895,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1895,6 +1911,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -1910,6 +1927,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -2629,6 +2647,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -2644,6 +2663,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -2659,6 +2679,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -2674,6 +2695,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -2689,6 +2711,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -2704,6 +2727,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -3423,6 +3447,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -3438,6 +3463,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -3453,6 +3479,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -3468,6 +3495,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -3483,6 +3511,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -3498,6 +3527,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -4217,6 +4247,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -4232,6 +4263,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -4247,6 +4279,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -4262,6 +4295,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -4277,6 +4311,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -4292,6 +4327,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5011,6 +5047,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5026,6 +5063,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5041,6 +5079,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5056,6 +5095,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5071,6 +5111,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5086,6 +5127,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5805,6 +5847,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5820,6 +5863,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5835,6 +5879,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5850,6 +5895,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5865,6 +5911,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -5880,6 +5927,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -6151,6 +6199,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -6166,6 +6215,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -6597,6 +6647,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -6612,6 +6663,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -6627,6 +6679,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -6642,6 +6695,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -6657,6 +6711,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -6672,6 +6727,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -6943,6 +6999,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -6958,6 +7015,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -8253,6 +8311,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -8268,6 +8327,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -8283,6 +8343,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -8298,6 +8359,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -8313,6 +8375,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -8328,6 +8391,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -8343,6 +8407,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9046,6 +9111,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9061,6 +9127,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9076,6 +9143,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9091,6 +9159,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9106,6 +9175,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9121,6 +9191,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9136,6 +9207,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9839,6 +9911,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9854,6 +9927,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9869,6 +9943,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9884,6 +9959,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9899,6 +9975,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9914,6 +9991,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -9929,6 +10007,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -10632,6 +10711,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -10647,6 +10727,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -10662,6 +10743,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -10677,6 +10759,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -10692,6 +10775,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -10707,6 +10791,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -10722,6 +10807,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -11425,6 +11511,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -11440,6 +11527,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -11455,6 +11543,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -11470,6 +11559,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -11485,6 +11575,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -11500,6 +11591,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -11515,6 +11607,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -12218,6 +12311,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -12233,6 +12327,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -12248,6 +12343,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -12263,6 +12359,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -12278,6 +12375,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -12293,6 +12391,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -12308,6 +12407,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -13011,6 +13111,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -13026,6 +13127,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -13041,6 +13143,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -13056,6 +13159,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -13071,6 +13175,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -13086,6 +13191,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -13101,6 +13207,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -19772,6 +19879,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -19787,6 +19895,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -19802,6 +19911,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -19817,6 +19927,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -19832,6 +19943,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -20567,6 +20679,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -20582,6 +20695,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -20597,6 +20711,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -20612,6 +20727,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -20627,6 +20743,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -21362,6 +21479,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -21377,6 +21495,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -21392,6 +21511,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -21407,6 +21527,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -21422,6 +21543,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -22157,6 +22279,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -22172,6 +22295,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -22187,6 +22311,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -22202,6 +22327,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -22217,6 +22343,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -22952,6 +23079,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -22967,6 +23095,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -22982,6 +23111,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -22997,6 +23127,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -23012,6 +23143,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -23747,6 +23879,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -23762,6 +23895,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -23777,6 +23911,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -23792,6 +23927,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -23807,6 +23943,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -24542,6 +24679,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -24557,6 +24695,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -24572,6 +24711,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -24587,6 +24727,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -24602,6 +24743,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -25337,6 +25479,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -25352,6 +25495,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -25367,6 +25511,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -25382,6 +25527,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -25397,6 +25543,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -35988,6 +36135,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -36003,6 +36151,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -36018,6 +36167,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -36785,6 +36935,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -36800,6 +36951,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -36815,6 +36967,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -37582,6 +37735,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -37597,6 +37751,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -37612,6 +37767,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -38379,6 +38535,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -38394,6 +38551,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -38409,6 +38567,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -38776,6 +38935,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -38791,6 +38951,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -39174,6 +39335,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -39189,6 +39351,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -39204,6 +39367,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -39571,6 +39735,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },
@@ -39586,6 +39751,7 @@
       "description": "灰色の石床のオートタイル。屋内の歩行可能タイル",
       "id": "floor",
       "name": "Floor",
+      "snowable": true,
       "spawn": {
         "autotile": true
       },

@@ -757,6 +757,9 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	}
 
 	entitySpec.Tile = &gc.Tile{}
+	if tileRaw.Snowable != nil && *tileRaw.Snowable {
+		entitySpec.Snowable = &gc.Snowable{}
+	}
 
 	// タイル種別によらないので、ここでは初期化するだけ
 	entitySpec.TileEnvironment = &gc.TileEnvironment{Shelter: rawschema.Outdoor}

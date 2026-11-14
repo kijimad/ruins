@@ -7,10 +7,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -243,4 +245,37 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 		render3d.At(25, 0, 25), render3d.At(26, 0, 25), render3d.At(26, 0, 26), render3d.At(25, 0, 26),
 	}, quads[0].p)
 	assert.Equal(t, int(gc.DepthNumDecal), quads[0].depth)
+}
+
+func TestSnowLayer_屋根の無い雪が積もる地面にだけ量を重ねる(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		turns   consts.Turn
+		tile    string
+		shelter rawschema.Shelter
+		want    float64
+	}{
+		{"冬の屋外の土は全面に積もる", 24*1500 + 500, "dirt", rawschema.Outdoor, 1},
+		{"冬でも屋根のある屋内には積もらない", 24*1500 + 500, "dirt", rawschema.Indoor, 0},
+		{"冬でも屋根のある半屋外には積もらない", 24*1500 + 500, "dirt", rawschema.Partial, 0},
+		{"冬でも雪が積もらない床には積もらない", 24*1500 + 500, "floor_tile", rawschema.Outdoor, 0},
+		{"春は積もらない", 0, "dirt", rawschema.Outdoor, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			query.GetGameTime(world).TotalTurns = tt.turns
+			query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+			query.EnsureSeamlessBand(world)
+			tile, err := lifecycle.SpawnTile(world, tt.tile, 3, 3, nil)
+			require.NoError(t, err)
+			world.Components.TileEnvironment.Get(tile).Shelter = tt.shelter
+
+			layer := (&Render3DSystem{}).newSnowLayer(world)
+			assert.InDelta(t, tt.want, layer.amount(world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}), 1e-9)
+		})
+	}
 }

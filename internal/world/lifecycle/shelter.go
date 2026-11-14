@@ -18,7 +18,8 @@ const shelterRecalcRadius = 32
 // 扉の開閉のような通行可否の構造変化後に呼ぶ。座標とその4隣接を種に、
 // 壁と閉じた扉を越えずに繋がる領域を求めて屋内外を書き直す。
 //
-// 再計算範囲の外周へ達した領域は原則として屋外だが、領域内に既存の
+// 再計算範囲の外周へ達した領域は外気に繋がる。屋根のあるタイルは半屋外、無いタイルは屋外にする。
+// 屋根の有無は扉の開閉で変わらない。ただし領域内に既存の
 // 覆われないタイルをひとつも見なかった場合は範囲より大きい囲いと区別できないため書き換えない。
 // この保守則により、範囲に収まらない構造は誤って冷やされず現状維持で外れる。
 func RecalcShelterAround(world w.World, x, y consts.Tile) {
@@ -83,17 +84,24 @@ func RecalcShelterAround(world w.World, x, y consts.Tile) {
 			}
 		}
 
-		shelter := rawschema.Indoor
-		switch {
-		case touchesEdge && sawUncovered:
-			shelter = rawschema.Outdoor
-		case touchesEdge:
+		if touchesEdge && !sawUncovered {
 			// 範囲より大きい囲いか判定できないので現状維持にする
 			continue
 		}
 		for _, c := range cells {
-			if tile, ok := tiles[c]; ok {
-				world.Components.TileEnvironment.Get(tile).Shelter = shelter
+			tile, ok := tiles[c]
+			if !ok {
+				continue
+			}
+			env := world.Components.TileEnvironment.Get(tile)
+			switch {
+			case !touchesEdge:
+				env.Shelter = rawschema.Indoor
+			case world.Resources.TileEnvDefs.Shelters[env.Shelter].Covered:
+				// 外気は入るが屋根は残る
+				env.Shelter = rawschema.Partial
+			default:
+				env.Shelter = rawschema.Outdoor
 			}
 		}
 	}

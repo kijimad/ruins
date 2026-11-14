@@ -223,8 +223,9 @@ func voidEnclosedWalls(cells [][]maptemplate.MapCell, blocks func(terrain string
 // tileBlocksPass は地形 terrain が通れないかを raw のタイルの行から返す。行の無い地形は通れないとする
 func tileBlocksPass(raws rawschema.Raws) func(terrain string) bool {
 	blocks := map[string]bool{}
-	for _, t := range raw.PtrSlice(raws.Tiles) {
-		blocks[t.Id] = t.BlockPass
+	tiles := raw.PtrSlice(raws.Tiles)
+	for i := range tiles {
+		blocks[tiles[i].Id] = tiles[i].BlockPass
 	}
 	return func(terrain string) bool {
 		b, ok := blocks[terrain]
