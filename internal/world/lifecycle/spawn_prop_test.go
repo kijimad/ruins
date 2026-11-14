@@ -157,3 +157,30 @@ func TestSpawnDoor_扉のHPはrawのdoor定義と一致する(t *testing.T) {
 	require.NotNil(t, rawSpec.HP)
 	assert.Equal(t, rawSpec.HP.Max, world.Components.HP.Get(door).Max, "SpawnDoor の扉 HP は raw の door 定義と一致すべき")
 }
+
+func TestOpenDoor_扉を開け閉めしても床の囲われは変わらない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	pos := consts.Coord[consts.Tile]{X: 3, Y: 4}
+	floor, err := lifecycle.SpawnTile(world, consts.TileNameFloor, pos.X, pos.Y, new(0))
+	require.NoError(t, err)
+	outside, err := lifecycle.SpawnTile(world, consts.TileNameRoad, pos.X, pos.Y+1, new(0))
+	require.NoError(t, err)
+	door, err := lifecycle.SpawnDoor(world, pos, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	shelters := func() []rawschema.Shelter {
+		return []rawschema.Shelter{
+			world.Components.TileEnvironment.Get(floor).Shelter,
+			world.Components.TileEnvironment.Get(outside).Shelter,
+		}
+	}
+	want := []rawschema.Shelter{rawschema.Indoor, rawschema.Outdoor}
+
+	require.NoError(t, lifecycle.OpenDoor(world, door))
+	assert.Equal(t, want, shelters(), "開けても変わらない")
+
+	require.NoError(t, lifecycle.CloseDoor(world, door))
+	assert.Equal(t, want, shelters(), "閉じても変わらない")
+}

@@ -5,7 +5,7 @@ description = "倉庫"
 [palette.terrain]
 "#" = "wall"
 "," = "dirt"
-"=" = "floor_concrete"
+"=" = "pavement"
 "." = "floor_concrete"
 "_" = "floor_linoleum"
 "~" = "floor_tile"

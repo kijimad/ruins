@@ -367,9 +367,9 @@ func (sys *Render3DSystem) newSnowLayer(world w.World) *snowLayer {
 	return l
 }
 
-// amount は地面 e に積もる雪の量を返す。雪が積もる地面で屋根が無いときだけ正になる
+// amount は地面 e に積もる雪の量を返す。通れて屋根の無い地面のときだけ正になる
 func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Tile]) float64 {
-	if !world.Components.Snowable.Has(e) || !world.Components.TileEnvironment.Has(e) ||
+	if world.Components.BlockPass.Has(e) || !world.Components.TileEnvironment.Has(e) ||
 		world.Resources.TileEnvDefs.Shelters[world.Components.TileEnvironment.Get(e).Shelter].Covered {
 		return 0
 	}

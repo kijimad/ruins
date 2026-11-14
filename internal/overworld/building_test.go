@@ -28,7 +28,7 @@ func composeBuilding(t *testing.T, raws rawschema.Raws, loader *maptemplate.Temp
 	}
 	for ly := range b.h {
 		for lx := range b.w {
-			c, _, _, err := planUrbanChunk(raws, loader, b, consts.Coord[consts.Chunk]{X: lx, Y: ly}, testChunkSide, testChunkSide, b.seed, nil, true)
+			c, _, err := planUrbanChunk(raws, loader, b, consts.Coord[consts.Chunk]{X: lx, Y: ly}, testChunkSide, testChunkSide, b.seed, nil, true)
 			require.NoError(t, err)
 			for y, row := range c {
 				copy(cells[int(ly)*side+y][int(lx)*side:], row)
@@ -264,7 +264,7 @@ func TestGolden_Building(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 			w, h := tt.lot.w.Tiles(testChunkSide), tt.lot.h.Tiles(testChunkSide)
 			g := chunkGeom{chunkW: w, chunkH: h, tiles: &tileIndex{world: world, loX: 0, hiX: w}}
-			_, _, err := spawnFacility(world, g, cells, 0, 0, tt.lot.facility, 1, tt.lot.seed, nil)
+			_, _, err := spawnFacility(world, g, cells, 0, 0, tt.lot.facility, 1, tt.lot.seed)
 			require.NoError(t, err)
 			img := renderOverworldRegion(t, world, 0, 0, int(w), int(h))
 			var buf bytes.Buffer

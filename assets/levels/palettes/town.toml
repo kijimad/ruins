@@ -4,12 +4,12 @@ description = '街用の地形パレット'
 
 [palette.terrain]
 '.' = 'dirt'
-r = 'floor'
+r = 'road'
 
 [palette.props]
 [palette.props.K]
 id = 'wooden_crate'
-tile = 'floor'
+tile = 'road'
 
 [palette.npcs]
 [palette.npcs.'$']

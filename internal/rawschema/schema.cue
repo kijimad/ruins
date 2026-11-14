@@ -1169,7 +1169,7 @@ import "strings"
 	anchorTemp!:       #TileTempModifier
 	influencePercent!: #ShelterInfluencePercent
 
-	// 屋根か壁に覆われているか。覆われないタイルに繋がる領域は屋外とみなす
+	// 屋根に覆われているか。覆われない通れるタイルには雪が積もる
 	covered!: bool
 }
 
@@ -1297,8 +1297,8 @@ import "strings"
 	// マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
 	spawn?: #TileSpawn
 
-	// 雪が積もる地面か。屋根の無い場所で、その日の平均気温に応じた量の雪を重ねて描く
-	snowable?: bool
+	// 囲われの度合い。省くと屋外
+	shelter?: #Shelter
 }
 
 // 計画のタイルを実体化する仕様

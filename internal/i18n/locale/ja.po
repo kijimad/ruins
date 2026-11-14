@@ -5628,6 +5628,12 @@ msgstr "ダンジョンの壁"
 msgid "Floor"
 msgstr "床"
 
+msgid "Road"
+msgstr "道"
+
+msgid "Pavement"
+msgstr "舗装"
+
 msgid "Void"
 msgstr "暗闇"
 

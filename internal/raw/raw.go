@@ -757,14 +757,18 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	}
 
 	entitySpec.Tile = &gc.Tile{}
-	if tileRaw.Snowable != nil && *tileRaw.Snowable {
-		entitySpec.Snowable = &gc.Snowable{}
-	}
 
-	// タイル種別によらないので、ここでは初期化するだけ
-	entitySpec.TileEnvironment = &gc.TileEnvironment{Shelter: rawschema.Outdoor}
+	entitySpec.TileEnvironment = &gc.TileEnvironment{Shelter: TileShelter(tileRaw)}
 
 	return entitySpec, nil
+}
+
+// TileShelter はタイルの行の囲われを返す。行が省けば屋外
+func TileShelter(t rawschema.Tile) rawschema.Shelter {
+	if t.Shelter == nil {
+		return rawschema.Outdoor
+	}
+	return *t.Shelter
 }
 
 // GetProp は指定された名前の置物の設定を取得する
