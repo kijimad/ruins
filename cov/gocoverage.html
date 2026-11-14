@@ -151,7 +151,7 @@
 				
 				<option value="file47">github.com/kijimaD/ruins/internal/balance/restriction.go (80.6%)</option>
 				
-				<option value="file48">github.com/kijimaD/ruins/internal/balance/run.go (52.7%)</option>
+				<option value="file48">github.com/kijimaD/ruins/internal/balance/run.go (94.6%)</option>
 				
 				<option value="file49">github.com/kijimaD/ruins/internal/balance/search.go (92.0%)</option>
 				
@@ -8516,7 +8516,7 @@ func SimulateRun(master rawschema.Raws, enemyTableName string, player CombatantS
 </span>
         <span class="cov8" title="1">enemyTable, err := raw.GetEnemyTable(master, enemyTableName)
         if err != nil </span>{
-                <span class="cov0" title="0">result.ReachedDepth = 0
+                <span class="cov8" title="1">result.ReachedDepth = 0
                 return result
 </span>        }
 
@@ -8575,41 +8575,41 @@ func SimulateRun(master rawschema.Raws, enemyTableName string, player CombatantS
                 }
 
                 // 回復前のHPを記録する
-                <span class="cov0" title="0">result.HPBeforeHealByDepth[depth] = currentHP
+                <span class="cov8" title="1">result.HPBeforeHealByDepth[depth] = currentHP
 </span>
                 // フロアの移動による空腹度減少
-                <span class="cov0" title="0">steps := baseStepsPerFloor + rng.IntN(randomStepsPerFloor)
+                <span class="cov8" title="1">steps := baseStepsPerFloor + rng.IntN(randomStepsPerFloor)
                 hunger.Decrease(steps)
 </span>
                 // フロアのアイテムドロップから回復・武器・食料を取得する
-                <span class="cov0" title="0">loot := rollFloorLoot(master, enemyTableName, depth, player.HP, rng)
+                <span class="cov8" title="1">loot := rollFloorLoot(master, enemyTableName, depth, player.HP, rng)
                 currentHP += loot.healing
                 if currentHP &gt; player.HP </span>{
-                        <span class="cov0" title="0">currentHP = player.HP
+                        <span class="cov8" title="1">currentHP = player.HP
 </span>                }
-                <span class="cov0" title="0">if loot.weapon != nil &amp;&amp; loot.weapon.Damage &gt; currentWeapon.Damage </span>{
+                <span class="cov8" title="1">if loot.weapon != nil &amp;&amp; loot.weapon.Damage &gt; currentWeapon.Damage </span>{
                         <span class="cov0" title="0">currentWeapon = *loot.weapon
                         currentWeaponName = loot.weaponName
 </span>                }
-                <span class="cov0" title="0">foodStock += loot.nutrition
+                <span class="cov8" title="1">foodStock += loot.nutrition
                 result.LootIncome += loot.income
 </span>
                 // 空腹（33%未満）になったら食料ストックを消費する
-                <span class="cov0" title="0">if _, malnourished := needs.HungerSeverity(hunger.GetLevel(needs)); malnourished &amp;&amp; foodStock &gt; 0 </span>{
-                        <span class="cov0" title="0">hunger.Increase(foodStock)
+                <span class="cov8" title="1">if _, malnourished := needs.HungerSeverity(hunger.GetLevel(needs)); malnourished &amp;&amp; foodStock &gt; 0 </span>{
+                        <span class="cov8" title="1">hunger.Increase(foodStock)
                         foodStock = 0
 </span>                }
 
-                <span class="cov0" title="0">result.HPByDepth[depth] = currentHP
+                <span class="cov8" title="1">result.HPByDepth[depth] = currentHP
                 result.WeaponByDepth[depth] = currentWeaponName
                 result.WeaponDamageByDepth[depth] = currentWeapon.Damage
                 if floorBattleCount &gt; 0 </span>{
-                        <span class="cov0" title="0">result.AvgKillTurnsByDepth[depth] = floorTotalTurns / floorBattleCount
+                        <span class="cov8" title="1">result.AvgKillTurnsByDepth[depth] = floorTotalTurns / floorBattleCount
 </span>                }
-                <span class="cov0" title="0">result.HungerByDepth[depth] = hunger.Current</span>
+                <span class="cov8" title="1">result.HungerByDepth[depth] = hunger.Current</span>
         }
 
-        <span class="cov0" title="0">result.ReachedDepth = maxDepth
+        <span class="cov8" title="1">result.ReachedDepth = maxDepth
         return result</span>
 }
 
@@ -8625,48 +8625,48 @@ type floorLoot struct {
 // rollFloorLoot はフロアで拾えるアイテムを計算する。
 // 回復アイテムと武器の両方を処理し、武器はフロア内で最も強いものを返す
 func rollFloorLoot(master rawschema.Raws, tableName string, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {
-        <span class="cov0" title="0">result := floorLoot{}
+        <span class="cov8" title="1">result := floorLoot{}
 </span>
-        <span class="cov0" title="0">itemTable, err := raw.GetItemTable(master, tableName)
+        <span class="cov8" title="1">itemTable, err := raw.GetItemTable(master, tableName)
         if err != nil </span>{
-                <span class="cov0" title="0">return result
+                <span class="cov8" title="1">return result
 </span>        }
 
-        <span class="cov0" title="0">itemCount := consts.FloorItemBase + rng.IntN(consts.FloorItemRandom)
+        <span class="cov8" title="1">itemCount := consts.FloorItemBase + rng.IntN(consts.FloorItemRandom)
 </span>
-        <span class="cov0" title="0">for range itemCount </span>{
-                <span class="cov0" title="0">draws, err := raw.DrawFromItemTable(master, itemTable, rng, depth)
+        <span class="cov8" title="1">for range itemCount </span>{
+                <span class="cov8" title="1">draws, err := raw.DrawFromItemTable(master, itemTable, rng, depth)
                 if err != nil </span>{
                         <span class="cov0" title="0">continue</span>
                 }
-                <span class="cov0" title="0">for _, d := range draws </span>{
-                        <span class="cov0" title="0">addFloorLoot(&amp;result, master, d, playerMaxHP)
+                <span class="cov8" title="1">for _, d := range draws </span>{
+                        <span class="cov8" title="1">addFloorLoot(&amp;result, master, d, playerMaxHP)
 </span>                }
         }
 
-        <span class="cov0" title="0">return result</span>
+        <span class="cov8" title="1">return result</span>
 }
 
 // addFloorLoot は拾った1山を回復量・栄養・最強の武器・売却額へ積む。
 func addFloorLoot(result *floorLoot, master rawschema.Raws, d raw.DrawnItem, playerMaxHP int) {
-        <span class="cov0" title="0">spec, err := raw.NewItemSpec(master, d.Name)
+        <span class="cov8" title="1">spec, err := raw.NewItemSpec(master, d.Name)
         if err != nil </span>{
-                <span class="cov0" title="0">return
+                <span class="cov8" title="1">return
 </span>        }
-        <span class="cov0" title="0">if spec.ProvidesHealing != nil </span>{
-                <span class="cov0" title="0">result.healing += spec.ProvidesHealing.Calc(playerMaxHP) * d.Count
+        <span class="cov8" title="1">if spec.ProvidesHealing != nil </span>{
+                <span class="cov8" title="1">result.healing += spec.ProvidesHealing.Calc(playerMaxHP) * d.Count
 </span>        }
-        <span class="cov0" title="0">if spec.ProvidesNutrition != nil </span>{
-                <span class="cov0" title="0">result.nutrition += spec.ProvidesNutrition.Amount * d.Count
+        <span class="cov8" title="1">if spec.ProvidesNutrition != nil </span>{
+                <span class="cov8" title="1">result.nutrition += spec.ProvidesNutrition.Amount * d.Count
 </span>        }
-        <span class="cov0" title="0">if w, err := LoadWeaponFromItem(master, d.Name); err == nil &amp;&amp; (result.weapon == nil || w.Damage &gt; result.weapon.Damage) </span>{
-                <span class="cov0" title="0">result.weapon = &amp;w
+        <span class="cov8" title="1">if w, err := LoadWeaponFromItem(master, d.Name); err == nil &amp;&amp; (result.weapon == nil || w.Damage &gt; result.weapon.Damage) </span>{
+                <span class="cov8" title="1">result.weapon = &amp;w
                 result.weaponName = d.Name
 </span>        }
         // 拾った loot をすべて売った仮定の粗収入。装備・消費する品も一律に計上する上限指標
-        <span class="cov0" title="0">if it, e := raw.FindItem(master, d.Name); e == nil </span>{
-                <span class="cov0" title="0">if net := query.CalculateSellPrice(it.Value); net &gt; 0 </span>{
-                        <span class="cov0" title="0">result.income += int(net) * d.Count
+        <span class="cov8" title="1">if it, e := raw.FindItem(master, d.Name); e == nil </span>{
+                <span class="cov8" title="1">if net := query.CalculateSellPrice(it.Value); net &gt; 0 </span>{
+                        <span class="cov8" title="1">result.income += int(net) * d.Count
 </span>                }
         }
 }
