@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 12:59:07</td>
+            <td class="headerValue">2026-11-14 13:58:19</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -2588,332 +2588,335 @@
 <span id="L2526"><span class="lineNum">    2526</span>              : </span>
 <span id="L2527"><span class="lineNum">    2527</span>              :         Name EntityName `json:&quot;name&quot;`</span>
 <span id="L2528"><span class="lineNum">    2528</span>              : </span>
-<span id="L2529"><span class="lineNum">    2529</span>              :         // Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない</span>
-<span id="L2530"><span class="lineNum">    2530</span>              :         Spawn *TileSpawn `json:&quot;spawn,omitempty&quot;`</span>
+<span id="L2529"><span class="lineNum">    2529</span>              :         // Snowable 雪が積もる地面か。屋根の無い場所で、その日の平均気温に応じた量の雪を重ねて描く</span>
+<span id="L2530"><span class="lineNum">    2530</span>              :         Snowable *bool `json:&quot;snowable,omitempty&quot;`</span>
 <span id="L2531"><span class="lineNum">    2531</span>              : </span>
-<span id="L2532"><span class="lineNum">    2532</span>              :         SpriteRender SpriteRender `json:&quot;spriteRender&quot;`</span>
-<span id="L2533"><span class="lineNum">    2533</span>              : </span>
-<span id="L2534"><span class="lineNum">    2534</span>              :         // Water 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける</span>
-<span id="L2535"><span class="lineNum">    2535</span>              :         Water *bool `json:&quot;water,omitempty&quot;`</span>
-<span id="L2536"><span class="lineNum">    2536</span>              : }</span>
-<span id="L2537"><span class="lineNum">    2537</span>              : </span>
-<span id="L2538"><span class="lineNum">    2538</span>              : // TileSpawn 計画のタイルを実体化する仕様</span>
-<span id="L2539"><span class="lineNum">    2539</span>              : type TileSpawn struct {</span>
-<span id="L2540"><span class="lineNum">    2540</span>              :         // Autotile 周りのタイルを見てオートタイルの添字を計算するか。単一の絵柄のタイルは false</span>
-<span id="L2541"><span class="lineNum">    2541</span>              :         Autotile bool `json:&quot;autotile&quot;`</span>
-<span id="L2542"><span class="lineNum">    2542</span>              : </span>
-<span id="L2543"><span class="lineNum">    2543</span>              :         // Tile 生成するタイルの id。壁の計画を壁の見た目の別タイルで生成するときに使う。省くと自身</span>
-<span id="L2544"><span class="lineNum">    2544</span>              :         Tile *EntityID `json:&quot;tile,omitempty&quot;`</span>
-<span id="L2545"><span class="lineNum">    2545</span>              : }</span>
-<span id="L2546"><span class="lineNum">    2546</span>              : </span>
-<span id="L2547"><span class="lineNum">    2547</span>              : // TileTempModifier 水や植生がタイルの気温に足す補正。℃</span>
-<span id="L2548"><span class="lineNum">    2548</span>              : type TileTempModifier = int</span>
+<span id="L2532"><span class="lineNum">    2532</span>              :         // Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない</span>
+<span id="L2533"><span class="lineNum">    2533</span>              :         Spawn *TileSpawn `json:&quot;spawn,omitempty&quot;`</span>
+<span id="L2534"><span class="lineNum">    2534</span>              : </span>
+<span id="L2535"><span class="lineNum">    2535</span>              :         SpriteRender SpriteRender `json:&quot;spriteRender&quot;`</span>
+<span id="L2536"><span class="lineNum">    2536</span>              : </span>
+<span id="L2537"><span class="lineNum">    2537</span>              :         // Water 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける</span>
+<span id="L2538"><span class="lineNum">    2538</span>              :         Water *bool `json:&quot;water,omitempty&quot;`</span>
+<span id="L2539"><span class="lineNum">    2539</span>              : }</span>
+<span id="L2540"><span class="lineNum">    2540</span>              : </span>
+<span id="L2541"><span class="lineNum">    2541</span>              : // TileSpawn 計画のタイルを実体化する仕様</span>
+<span id="L2542"><span class="lineNum">    2542</span>              : type TileSpawn struct {</span>
+<span id="L2543"><span class="lineNum">    2543</span>              :         // Autotile 周りのタイルを見てオートタイルの添字を計算するか。単一の絵柄のタイルは false</span>
+<span id="L2544"><span class="lineNum">    2544</span>              :         Autotile bool `json:&quot;autotile&quot;`</span>
+<span id="L2545"><span class="lineNum">    2545</span>              : </span>
+<span id="L2546"><span class="lineNum">    2546</span>              :         // Tile 生成するタイルの id。壁の計画を壁の見た目の別タイルで生成するときに使う。省くと自身</span>
+<span id="L2547"><span class="lineNum">    2547</span>              :         Tile *EntityID `json:&quot;tile,omitempty&quot;`</span>
+<span id="L2548"><span class="lineNum">    2548</span>              : }</span>
 <span id="L2549"><span class="lineNum">    2549</span>              : </span>
-<span id="L2550"><span class="lineNum">    2550</span>              : // TimeOfDay 時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。</span>
-<span id="L2551"><span class="lineNum">    2551</span>              : // 明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する</span>
-<span id="L2552"><span class="lineNum">    2552</span>              : type TimeOfDay struct {</span>
-<span id="L2553"><span class="lineNum">    2553</span>              :         AmbientColor AmbientColor `json:&quot;ambientColor&quot;`</span>
-<span id="L2554"><span class="lineNum">    2554</span>              : </span>
-<span id="L2555"><span class="lineNum">    2555</span>              :         Daylight LightLevel `json:&quot;daylight&quot;`</span>
-<span id="L2556"><span class="lineNum">    2556</span>              : </span>
-<span id="L2557"><span class="lineNum">    2557</span>              :         Id TimeOfDayId `json:&quot;id&quot;`</span>
-<span id="L2558"><span class="lineNum">    2558</span>              : </span>
-<span id="L2559"><span class="lineNum">    2559</span>              :         Name EntityName `json:&quot;name&quot;`</span>
-<span id="L2560"><span class="lineNum">    2560</span>              : </span>
-<span id="L2561"><span class="lineNum">    2561</span>              :         TempModifier TimeOfDayTempModifier `json:&quot;tempModifier&quot;`</span>
-<span id="L2562"><span class="lineNum">    2562</span>              : }</span>
+<span id="L2550"><span class="lineNum">    2550</span>              : // TileTempModifier 水や植生がタイルの気温に足す補正。℃</span>
+<span id="L2551"><span class="lineNum">    2551</span>              : type TileTempModifier = int</span>
+<span id="L2552"><span class="lineNum">    2552</span>              : </span>
+<span id="L2553"><span class="lineNum">    2553</span>              : // TimeOfDay 時間帯の表示名、世界温度への加算、地上の日照の明るさと環境光の色。</span>
+<span id="L2554"><span class="lineNum">    2554</span>              : // 明るさと色は時間帯の中心の値で、間は隣の時間帯の値と線形に補間する</span>
+<span id="L2555"><span class="lineNum">    2555</span>              : type TimeOfDay struct {</span>
+<span id="L2556"><span class="lineNum">    2556</span>              :         AmbientColor AmbientColor `json:&quot;ambientColor&quot;`</span>
+<span id="L2557"><span class="lineNum">    2557</span>              : </span>
+<span id="L2558"><span class="lineNum">    2558</span>              :         Daylight LightLevel `json:&quot;daylight&quot;`</span>
+<span id="L2559"><span class="lineNum">    2559</span>              : </span>
+<span id="L2560"><span class="lineNum">    2560</span>              :         Id TimeOfDayId `json:&quot;id&quot;`</span>
+<span id="L2561"><span class="lineNum">    2561</span>              : </span>
+<span id="L2562"><span class="lineNum">    2562</span>              :         Name EntityName `json:&quot;name&quot;`</span>
 <span id="L2563"><span class="lineNum">    2563</span>              : </span>
-<span id="L2564"><span class="lineNum">    2564</span>              : // TimeOfDayId 時間帯。1日は夜明けで始まり、この順に巡る</span>
-<span id="L2565"><span class="lineNum">    2565</span>              : type TimeOfDayId string</span>
+<span id="L2564"><span class="lineNum">    2564</span>              :         TempModifier TimeOfDayTempModifier `json:&quot;tempModifier&quot;`</span>
+<span id="L2565"><span class="lineNum">    2565</span>              : }</span>
 <span id="L2566"><span class="lineNum">    2566</span>              : </span>
-<span id="L2567"><span class="lineNum">    2567</span>              : // Defines values for TimeOfDayId.</span>
-<span id="L2568"><span class="lineNum">    2568</span>              : const (</span>
-<span id="L2569"><span class="lineNum">    2569</span>              :         Dawn     TimeOfDayId = &quot;dawn&quot;</span>
-<span id="L2570"><span class="lineNum">    2570</span>              :         Evening  TimeOfDayId = &quot;evening&quot;</span>
-<span id="L2571"><span class="lineNum">    2571</span>              :         Midnight TimeOfDayId = &quot;midnight&quot;</span>
-<span id="L2572"><span class="lineNum">    2572</span>              :         Morning  TimeOfDayId = &quot;morning&quot;</span>
-<span id="L2573"><span class="lineNum">    2573</span>              :         Night    TimeOfDayId = &quot;night&quot;</span>
-<span id="L2574"><span class="lineNum">    2574</span>              :         Noon     TimeOfDayId = &quot;noon&quot;</span>
-<span id="L2575"><span class="lineNum">    2575</span>              : )</span>
-<span id="L2576"><span class="lineNum">    2576</span>              : </span>
-<span id="L2577"><span class="lineNum">    2577</span>              : // Valid indicates whether the value is a known member of the TimeOfDayId enum.</span>
-<span id="L2578"><span class="lineNum">    2578</span>              : func (e TimeOfDayId) Valid() bool {</span>
-<span id="L2579"><span class="lineNum">    2579</span> <span class="tlaUNC">           0 :         switch e {</span></span>
-<span id="L2580"><span class="lineNum">    2580</span>              :         case Dawn:</span>
-<span id="L2581"><span class="lineNum">    2581</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2582"><span class="lineNum">    2582</span>              :         case Evening:</span>
-<span id="L2583"><span class="lineNum">    2583</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2584"><span class="lineNum">    2584</span>              :         case Midnight:</span>
-<span id="L2585"><span class="lineNum">    2585</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2586"><span class="lineNum">    2586</span>              :         case Morning:</span>
-<span id="L2587"><span class="lineNum">    2587</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2588"><span class="lineNum">    2588</span>              :         case Night:</span>
-<span id="L2589"><span class="lineNum">    2589</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2590"><span class="lineNum">    2590</span>              :         case Noon:</span>
-<span id="L2591"><span class="lineNum">    2591</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2592"><span class="lineNum">    2592</span>              :         default:</span>
-<span id="L2593"><span class="lineNum">    2593</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L2594"><span class="lineNum">    2594</span>              :         }</span>
-<span id="L2595"><span class="lineNum">    2595</span>              : }</span>
-<span id="L2596"><span class="lineNum">    2596</span>              : </span>
-<span id="L2597"><span class="lineNum">    2597</span>              : // TimeOfDayIdValues は TimeOfDayId の値を、スキーマに書いた順に返す。</span>
-<span id="L2598"><span class="lineNum">    2598</span>              : func TimeOfDayIdValues() []TimeOfDayId {</span>
-<span id="L2599"><span class="lineNum">    2599</span> <span class="tlaUNC">           0 :         return []TimeOfDayId{Dawn, Morning, Noon, Evening, Night, Midnight}</span></span>
-<span id="L2600"><span class="lineNum">    2600</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L2601"><span class="lineNum">    2601</span>              : </span>
-<span id="L2602"><span class="lineNum">    2602</span>              : // TimeOfDayTempModifier 時間帯による世界温度への加算。℃</span>
-<span id="L2603"><span class="lineNum">    2603</span>              : type TimeOfDayTempModifier = int</span>
+<span id="L2567"><span class="lineNum">    2567</span>              : // TimeOfDayId 時間帯。1日は夜明けで始まり、この順に巡る</span>
+<span id="L2568"><span class="lineNum">    2568</span>              : type TimeOfDayId string</span>
+<span id="L2569"><span class="lineNum">    2569</span>              : </span>
+<span id="L2570"><span class="lineNum">    2570</span>              : // Defines values for TimeOfDayId.</span>
+<span id="L2571"><span class="lineNum">    2571</span>              : const (</span>
+<span id="L2572"><span class="lineNum">    2572</span>              :         Dawn     TimeOfDayId = &quot;dawn&quot;</span>
+<span id="L2573"><span class="lineNum">    2573</span>              :         Evening  TimeOfDayId = &quot;evening&quot;</span>
+<span id="L2574"><span class="lineNum">    2574</span>              :         Midnight TimeOfDayId = &quot;midnight&quot;</span>
+<span id="L2575"><span class="lineNum">    2575</span>              :         Morning  TimeOfDayId = &quot;morning&quot;</span>
+<span id="L2576"><span class="lineNum">    2576</span>              :         Night    TimeOfDayId = &quot;night&quot;</span>
+<span id="L2577"><span class="lineNum">    2577</span>              :         Noon     TimeOfDayId = &quot;noon&quot;</span>
+<span id="L2578"><span class="lineNum">    2578</span>              : )</span>
+<span id="L2579"><span class="lineNum">    2579</span>              : </span>
+<span id="L2580"><span class="lineNum">    2580</span>              : // Valid indicates whether the value is a known member of the TimeOfDayId enum.</span>
+<span id="L2581"><span class="lineNum">    2581</span>              : func (e TimeOfDayId) Valid() bool {</span>
+<span id="L2582"><span class="lineNum">    2582</span> <span class="tlaUNC">           0 :         switch e {</span></span>
+<span id="L2583"><span class="lineNum">    2583</span>              :         case Dawn:</span>
+<span id="L2584"><span class="lineNum">    2584</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2585"><span class="lineNum">    2585</span>              :         case Evening:</span>
+<span id="L2586"><span class="lineNum">    2586</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2587"><span class="lineNum">    2587</span>              :         case Midnight:</span>
+<span id="L2588"><span class="lineNum">    2588</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2589"><span class="lineNum">    2589</span>              :         case Morning:</span>
+<span id="L2590"><span class="lineNum">    2590</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2591"><span class="lineNum">    2591</span>              :         case Night:</span>
+<span id="L2592"><span class="lineNum">    2592</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2593"><span class="lineNum">    2593</span>              :         case Noon:</span>
+<span id="L2594"><span class="lineNum">    2594</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2595"><span class="lineNum">    2595</span>              :         default:</span>
+<span id="L2596"><span class="lineNum">    2596</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L2597"><span class="lineNum">    2597</span>              :         }</span>
+<span id="L2598"><span class="lineNum">    2598</span>              : }</span>
+<span id="L2599"><span class="lineNum">    2599</span>              : </span>
+<span id="L2600"><span class="lineNum">    2600</span>              : // TimeOfDayIdValues は TimeOfDayId の値を、スキーマに書いた順に返す。</span>
+<span id="L2601"><span class="lineNum">    2601</span>              : func TimeOfDayIdValues() []TimeOfDayId {</span>
+<span id="L2602"><span class="lineNum">    2602</span> <span class="tlaUNC">           0 :         return []TimeOfDayId{Dawn, Morning, Noon, Evening, Night, Midnight}</span></span>
+<span id="L2603"><span class="lineNum">    2603</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L2604"><span class="lineNum">    2604</span>              : </span>
-<span id="L2605"><span class="lineNum">    2605</span>              : // Tool 道具の性質。道具の分類とグレードを持つ</span>
-<span id="L2606"><span class="lineNum">    2606</span>              : type Tool struct {</span>
-<span id="L2607"><span class="lineNum">    2607</span>              :         Categories []ToolCategory `json:&quot;categories&quot;`</span>
-<span id="L2608"><span class="lineNum">    2608</span>              : </span>
-<span id="L2609"><span class="lineNum">    2609</span>              :         Grade ToolGrade `json:&quot;grade&quot;`</span>
-<span id="L2610"><span class="lineNum">    2610</span>              : }</span>
+<span id="L2605"><span class="lineNum">    2605</span>              : // TimeOfDayTempModifier 時間帯による世界温度への加算。℃</span>
+<span id="L2606"><span class="lineNum">    2606</span>              : type TimeOfDayTempModifier = int</span>
+<span id="L2607"><span class="lineNum">    2607</span>              : </span>
+<span id="L2608"><span class="lineNum">    2608</span>              : // Tool 道具の性質。道具の分類とグレードを持つ</span>
+<span id="L2609"><span class="lineNum">    2609</span>              : type Tool struct {</span>
+<span id="L2610"><span class="lineNum">    2610</span>              :         Categories []ToolCategory `json:&quot;categories&quot;`</span>
 <span id="L2611"><span class="lineNum">    2611</span>              : </span>
-<span id="L2612"><span class="lineNum">    2612</span>              : // ToolCategory 道具の分類</span>
-<span id="L2613"><span class="lineNum">    2613</span>              : type ToolCategory string</span>
+<span id="L2612"><span class="lineNum">    2612</span>              :         Grade ToolGrade `json:&quot;grade&quot;`</span>
+<span id="L2613"><span class="lineNum">    2613</span>              : }</span>
 <span id="L2614"><span class="lineNum">    2614</span>              : </span>
-<span id="L2615"><span class="lineNum">    2615</span>              : // Defines values for ToolCategory.</span>
-<span id="L2616"><span class="lineNum">    2616</span>              : const (</span>
-<span id="L2617"><span class="lineNum">    2617</span>              :         Chopping  ToolCategory = &quot;chopping&quot;</span>
-<span id="L2618"><span class="lineNum">    2618</span>              :         Cutting   ToolCategory = &quot;cutting&quot;</span>
-<span id="L2619"><span class="lineNum">    2619</span>              :         Mining    ToolCategory = &quot;mining&quot;</span>
-<span id="L2620"><span class="lineNum">    2620</span>              :         Precision ToolCategory = &quot;precision&quot;</span>
-<span id="L2621"><span class="lineNum">    2621</span>              :         Prying    ToolCategory = &quot;prying&quot;</span>
-<span id="L2622"><span class="lineNum">    2622</span>              : )</span>
-<span id="L2623"><span class="lineNum">    2623</span>              : </span>
-<span id="L2624"><span class="lineNum">    2624</span>              : // Valid indicates whether the value is a known member of the ToolCategory enum.</span>
-<span id="L2625"><span class="lineNum">    2625</span>              : func (e ToolCategory) Valid() bool {</span>
-<span id="L2626"><span class="lineNum">    2626</span> <span class="tlaUNC">           0 :         switch e {</span></span>
-<span id="L2627"><span class="lineNum">    2627</span>              :         case Chopping:</span>
-<span id="L2628"><span class="lineNum">    2628</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2629"><span class="lineNum">    2629</span>              :         case Cutting:</span>
-<span id="L2630"><span class="lineNum">    2630</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2631"><span class="lineNum">    2631</span>              :         case Mining:</span>
-<span id="L2632"><span class="lineNum">    2632</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2633"><span class="lineNum">    2633</span>              :         case Precision:</span>
-<span id="L2634"><span class="lineNum">    2634</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2635"><span class="lineNum">    2635</span>              :         case Prying:</span>
-<span id="L2636"><span class="lineNum">    2636</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2637"><span class="lineNum">    2637</span>              :         default:</span>
-<span id="L2638"><span class="lineNum">    2638</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L2639"><span class="lineNum">    2639</span>              :         }</span>
-<span id="L2640"><span class="lineNum">    2640</span>              : }</span>
-<span id="L2641"><span class="lineNum">    2641</span>              : </span>
-<span id="L2642"><span class="lineNum">    2642</span>              : // ToolCategoryValues は ToolCategory の値を、スキーマに書いた順に返す。</span>
-<span id="L2643"><span class="lineNum">    2643</span>              : func ToolCategoryValues() []ToolCategory {</span>
-<span id="L2644"><span class="lineNum">    2644</span> <span class="tlaUNC">           0 :         return []ToolCategory{Prying, Precision, Cutting, Chopping, Mining}</span></span>
-<span id="L2645"><span class="lineNum">    2645</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L2646"><span class="lineNum">    2646</span>              : </span>
-<span id="L2647"><span class="lineNum">    2647</span>              : // ToolCategoryDef 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない</span>
-<span id="L2648"><span class="lineNum">    2648</span>              : type ToolCategoryDef struct {</span>
-<span id="L2649"><span class="lineNum">    2649</span>              :         Id ToolCategory `json:&quot;id&quot;`</span>
-<span id="L2650"><span class="lineNum">    2650</span>              : </span>
-<span id="L2651"><span class="lineNum">    2651</span>              :         Skill *SkillId `json:&quot;skill,omitempty&quot;`</span>
-<span id="L2652"><span class="lineNum">    2652</span>              : }</span>
+<span id="L2615"><span class="lineNum">    2615</span>              : // ToolCategory 道具の分類</span>
+<span id="L2616"><span class="lineNum">    2616</span>              : type ToolCategory string</span>
+<span id="L2617"><span class="lineNum">    2617</span>              : </span>
+<span id="L2618"><span class="lineNum">    2618</span>              : // Defines values for ToolCategory.</span>
+<span id="L2619"><span class="lineNum">    2619</span>              : const (</span>
+<span id="L2620"><span class="lineNum">    2620</span>              :         Chopping  ToolCategory = &quot;chopping&quot;</span>
+<span id="L2621"><span class="lineNum">    2621</span>              :         Cutting   ToolCategory = &quot;cutting&quot;</span>
+<span id="L2622"><span class="lineNum">    2622</span>              :         Mining    ToolCategory = &quot;mining&quot;</span>
+<span id="L2623"><span class="lineNum">    2623</span>              :         Precision ToolCategory = &quot;precision&quot;</span>
+<span id="L2624"><span class="lineNum">    2624</span>              :         Prying    ToolCategory = &quot;prying&quot;</span>
+<span id="L2625"><span class="lineNum">    2625</span>              : )</span>
+<span id="L2626"><span class="lineNum">    2626</span>              : </span>
+<span id="L2627"><span class="lineNum">    2627</span>              : // Valid indicates whether the value is a known member of the ToolCategory enum.</span>
+<span id="L2628"><span class="lineNum">    2628</span>              : func (e ToolCategory) Valid() bool {</span>
+<span id="L2629"><span class="lineNum">    2629</span> <span class="tlaUNC">           0 :         switch e {</span></span>
+<span id="L2630"><span class="lineNum">    2630</span>              :         case Chopping:</span>
+<span id="L2631"><span class="lineNum">    2631</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2632"><span class="lineNum">    2632</span>              :         case Cutting:</span>
+<span id="L2633"><span class="lineNum">    2633</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2634"><span class="lineNum">    2634</span>              :         case Mining:</span>
+<span id="L2635"><span class="lineNum">    2635</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2636"><span class="lineNum">    2636</span>              :         case Precision:</span>
+<span id="L2637"><span class="lineNum">    2637</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2638"><span class="lineNum">    2638</span>              :         case Prying:</span>
+<span id="L2639"><span class="lineNum">    2639</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2640"><span class="lineNum">    2640</span>              :         default:</span>
+<span id="L2641"><span class="lineNum">    2641</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L2642"><span class="lineNum">    2642</span>              :         }</span>
+<span id="L2643"><span class="lineNum">    2643</span>              : }</span>
+<span id="L2644"><span class="lineNum">    2644</span>              : </span>
+<span id="L2645"><span class="lineNum">    2645</span>              : // ToolCategoryValues は ToolCategory の値を、スキーマに書いた順に返す。</span>
+<span id="L2646"><span class="lineNum">    2646</span>              : func ToolCategoryValues() []ToolCategory {</span>
+<span id="L2647"><span class="lineNum">    2647</span> <span class="tlaUNC">           0 :         return []ToolCategory{Prying, Precision, Cutting, Chopping, Mining}</span></span>
+<span id="L2648"><span class="lineNum">    2648</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L2649"><span class="lineNum">    2649</span>              : </span>
+<span id="L2650"><span class="lineNum">    2650</span>              : // ToolCategoryDef 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない</span>
+<span id="L2651"><span class="lineNum">    2651</span>              : type ToolCategoryDef struct {</span>
+<span id="L2652"><span class="lineNum">    2652</span>              :         Id ToolCategory `json:&quot;id&quot;`</span>
 <span id="L2653"><span class="lineNum">    2653</span>              : </span>
-<span id="L2654"><span class="lineNum">    2654</span>              : // ToolGrade 道具のグレード。高いほど速く壊し多く得る</span>
-<span id="L2655"><span class="lineNum">    2655</span>              : type ToolGrade = int</span>
+<span id="L2654"><span class="lineNum">    2654</span>              :         Skill *SkillId `json:&quot;skill,omitempty&quot;`</span>
+<span id="L2655"><span class="lineNum">    2655</span>              : }</span>
 <span id="L2656"><span class="lineNum">    2656</span>              : </span>
-<span id="L2657"><span class="lineNum">    2657</span>              : // UsableScene 使用可能シーン</span>
-<span id="L2658"><span class="lineNum">    2658</span>              : type UsableScene string</span>
+<span id="L2657"><span class="lineNum">    2657</span>              : // ToolGrade 道具のグレード。高いほど速く壊し多く得る</span>
+<span id="L2658"><span class="lineNum">    2658</span>              : type ToolGrade = int</span>
 <span id="L2659"><span class="lineNum">    2659</span>              : </span>
-<span id="L2660"><span class="lineNum">    2660</span>              : // Defines values for UsableScene.</span>
-<span id="L2661"><span class="lineNum">    2661</span>              : const (</span>
-<span id="L2662"><span class="lineNum">    2662</span>              :         ANY    UsableScene = &quot;ANY&quot;</span>
-<span id="L2663"><span class="lineNum">    2663</span>              :         BATTLE UsableScene = &quot;BATTLE&quot;</span>
-<span id="L2664"><span class="lineNum">    2664</span>              :         FIELD  UsableScene = &quot;FIELD&quot;</span>
-<span id="L2665"><span class="lineNum">    2665</span>              : )</span>
-<span id="L2666"><span class="lineNum">    2666</span>              : </span>
-<span id="L2667"><span class="lineNum">    2667</span>              : // Valid indicates whether the value is a known member of the UsableScene enum.</span>
-<span id="L2668"><span class="lineNum">    2668</span>              : func (e UsableScene) Valid() bool {</span>
-<span id="L2669"><span class="lineNum">    2669</span> <span class="tlaUNC">           0 :         switch e {</span></span>
-<span id="L2670"><span class="lineNum">    2670</span>              :         case ANY:</span>
-<span id="L2671"><span class="lineNum">    2671</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2672"><span class="lineNum">    2672</span>              :         case BATTLE:</span>
-<span id="L2673"><span class="lineNum">    2673</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2674"><span class="lineNum">    2674</span>              :         case FIELD:</span>
-<span id="L2675"><span class="lineNum">    2675</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2676"><span class="lineNum">    2676</span>              :         default:</span>
-<span id="L2677"><span class="lineNum">    2677</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L2678"><span class="lineNum">    2678</span>              :         }</span>
-<span id="L2679"><span class="lineNum">    2679</span>              : }</span>
-<span id="L2680"><span class="lineNum">    2680</span>              : </span>
-<span id="L2681"><span class="lineNum">    2681</span>              : // UsableSceneValues は UsableScene の値を、スキーマに書いた順に返す。</span>
-<span id="L2682"><span class="lineNum">    2682</span>              : func UsableSceneValues() []UsableScene {</span>
-<span id="L2683"><span class="lineNum">    2683</span> <span class="tlaUNC">           0 :         return []UsableScene{BATTLE, FIELD, ANY}</span></span>
-<span id="L2684"><span class="lineNum">    2684</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L2685"><span class="lineNum">    2685</span>              : </span>
-<span id="L2686"><span class="lineNum">    2686</span>              : // ViewDistance AI視界距離（タイル単位）</span>
-<span id="L2687"><span class="lineNum">    2687</span>              : type ViewDistance = int</span>
+<span id="L2660"><span class="lineNum">    2660</span>              : // UsableScene 使用可能シーン</span>
+<span id="L2661"><span class="lineNum">    2661</span>              : type UsableScene string</span>
+<span id="L2662"><span class="lineNum">    2662</span>              : </span>
+<span id="L2663"><span class="lineNum">    2663</span>              : // Defines values for UsableScene.</span>
+<span id="L2664"><span class="lineNum">    2664</span>              : const (</span>
+<span id="L2665"><span class="lineNum">    2665</span>              :         ANY    UsableScene = &quot;ANY&quot;</span>
+<span id="L2666"><span class="lineNum">    2666</span>              :         BATTLE UsableScene = &quot;BATTLE&quot;</span>
+<span id="L2667"><span class="lineNum">    2667</span>              :         FIELD  UsableScene = &quot;FIELD&quot;</span>
+<span id="L2668"><span class="lineNum">    2668</span>              : )</span>
+<span id="L2669"><span class="lineNum">    2669</span>              : </span>
+<span id="L2670"><span class="lineNum">    2670</span>              : // Valid indicates whether the value is a known member of the UsableScene enum.</span>
+<span id="L2671"><span class="lineNum">    2671</span>              : func (e UsableScene) Valid() bool {</span>
+<span id="L2672"><span class="lineNum">    2672</span> <span class="tlaUNC">           0 :         switch e {</span></span>
+<span id="L2673"><span class="lineNum">    2673</span>              :         case ANY:</span>
+<span id="L2674"><span class="lineNum">    2674</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2675"><span class="lineNum">    2675</span>              :         case BATTLE:</span>
+<span id="L2676"><span class="lineNum">    2676</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2677"><span class="lineNum">    2677</span>              :         case FIELD:</span>
+<span id="L2678"><span class="lineNum">    2678</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2679"><span class="lineNum">    2679</span>              :         default:</span>
+<span id="L2680"><span class="lineNum">    2680</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L2681"><span class="lineNum">    2681</span>              :         }</span>
+<span id="L2682"><span class="lineNum">    2682</span>              : }</span>
+<span id="L2683"><span class="lineNum">    2683</span>              : </span>
+<span id="L2684"><span class="lineNum">    2684</span>              : // UsableSceneValues は UsableScene の値を、スキーマに書いた順に返す。</span>
+<span id="L2685"><span class="lineNum">    2685</span>              : func UsableSceneValues() []UsableScene {</span>
+<span id="L2686"><span class="lineNum">    2686</span> <span class="tlaUNC">           0 :         return []UsableScene{BATTLE, FIELD, ANY}</span></span>
+<span id="L2687"><span class="lineNum">    2687</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L2688"><span class="lineNum">    2688</span>              : </span>
-<span id="L2689"><span class="lineNum">    2689</span>              : // Vitality 体力。HPに影響する</span>
-<span id="L2690"><span class="lineNum">    2690</span>              : type Vitality = int</span>
+<span id="L2689"><span class="lineNum">    2689</span>              : // ViewDistance AI視界距離（タイル単位）</span>
+<span id="L2690"><span class="lineNum">    2690</span>              : type ViewDistance = int</span>
 <span id="L2691"><span class="lineNum">    2691</span>              : </span>
-<span id="L2692"><span class="lineNum">    2692</span>              : // WarpNextTriggerRaw 次階層ワープトリガー</span>
-<span id="L2693"><span class="lineNum">    2693</span>              : type WarpNextTriggerRaw = map[string]interface{}</span>
+<span id="L2692"><span class="lineNum">    2692</span>              : // Vitality 体力。HPに影響する</span>
+<span id="L2693"><span class="lineNum">    2693</span>              : type Vitality = int</span>
 <span id="L2694"><span class="lineNum">    2694</span>              : </span>
-<span id="L2695"><span class="lineNum">    2695</span>              : // WarpPrevTriggerRaw 前階層ワープトリガー</span>
-<span id="L2696"><span class="lineNum">    2696</span>              : type WarpPrevTriggerRaw = map[string]interface{}</span>
+<span id="L2695"><span class="lineNum">    2695</span>              : // WarpNextTriggerRaw 次階層ワープトリガー</span>
+<span id="L2696"><span class="lineNum">    2696</span>              : type WarpNextTriggerRaw = map[string]interface{}</span>
 <span id="L2697"><span class="lineNum">    2697</span>              : </span>
-<span id="L2698"><span class="lineNum">    2698</span>              : // WaterEffect 水がタイルの気温に足す補正</span>
-<span id="L2699"><span class="lineNum">    2699</span>              : type WaterEffect struct {</span>
-<span id="L2700"><span class="lineNum">    2700</span>              :         Id WaterExposure `json:&quot;id&quot;`</span>
-<span id="L2701"><span class="lineNum">    2701</span>              : </span>
-<span id="L2702"><span class="lineNum">    2702</span>              :         TempModifier TileTempModifier `json:&quot;tempModifier&quot;`</span>
-<span id="L2703"><span class="lineNum">    2703</span>              : }</span>
+<span id="L2698"><span class="lineNum">    2698</span>              : // WarpPrevTriggerRaw 前階層ワープトリガー</span>
+<span id="L2699"><span class="lineNum">    2699</span>              : type WarpPrevTriggerRaw = map[string]interface{}</span>
+<span id="L2700"><span class="lineNum">    2700</span>              : </span>
+<span id="L2701"><span class="lineNum">    2701</span>              : // WaterEffect 水がタイルの気温に足す補正</span>
+<span id="L2702"><span class="lineNum">    2702</span>              : type WaterEffect struct {</span>
+<span id="L2703"><span class="lineNum">    2703</span>              :         Id WaterExposure `json:&quot;id&quot;`</span>
 <span id="L2704"><span class="lineNum">    2704</span>              : </span>
-<span id="L2705"><span class="lineNum">    2705</span>              : // WaterExposure タイルが受ける水の影響</span>
-<span id="L2706"><span class="lineNum">    2706</span>              : type WaterExposure string</span>
+<span id="L2705"><span class="lineNum">    2705</span>              :         TempModifier TileTempModifier `json:&quot;tempModifier&quot;`</span>
+<span id="L2706"><span class="lineNum">    2706</span>              : }</span>
 <span id="L2707"><span class="lineNum">    2707</span>              : </span>
-<span id="L2708"><span class="lineNum">    2708</span>              : // Defines values for WaterExposure.</span>
-<span id="L2709"><span class="lineNum">    2709</span>              : const (</span>
-<span id="L2710"><span class="lineNum">    2710</span>              :         Nearby    WaterExposure = &quot;nearby&quot;</span>
-<span id="L2711"><span class="lineNum">    2711</span>              :         Submerged WaterExposure = &quot;submerged&quot;</span>
-<span id="L2712"><span class="lineNum">    2712</span>              : )</span>
-<span id="L2713"><span class="lineNum">    2713</span>              : </span>
-<span id="L2714"><span class="lineNum">    2714</span>              : // Valid indicates whether the value is a known member of the WaterExposure enum.</span>
-<span id="L2715"><span class="lineNum">    2715</span>              : func (e WaterExposure) Valid() bool {</span>
-<span id="L2716"><span class="lineNum">    2716</span> <span class="tlaUNC">           0 :         switch e {</span></span>
-<span id="L2717"><span class="lineNum">    2717</span>              :         case Nearby:</span>
-<span id="L2718"><span class="lineNum">    2718</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2719"><span class="lineNum">    2719</span>              :         case Submerged:</span>
-<span id="L2720"><span class="lineNum">    2720</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2721"><span class="lineNum">    2721</span>              :         default:</span>
-<span id="L2722"><span class="lineNum">    2722</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L2723"><span class="lineNum">    2723</span>              :         }</span>
-<span id="L2724"><span class="lineNum">    2724</span>              : }</span>
-<span id="L2725"><span class="lineNum">    2725</span>              : </span>
-<span id="L2726"><span class="lineNum">    2726</span>              : // WaterExposureValues は WaterExposure の値を、スキーマに書いた順に返す。</span>
-<span id="L2727"><span class="lineNum">    2727</span>              : func WaterExposureValues() []WaterExposure {</span>
-<span id="L2728"><span class="lineNum">    2728</span> <span class="tlaUNC">           0 :         return []WaterExposure{Nearby, Submerged}</span></span>
-<span id="L2729"><span class="lineNum">    2729</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L2730"><span class="lineNum">    2730</span>              : </span>
-<span id="L2731"><span class="lineNum">    2731</span>              : // Wearable 装備可能設定</span>
-<span id="L2732"><span class="lineNum">    2732</span>              : type Wearable struct {</span>
-<span id="L2733"><span class="lineNum">    2733</span>              :         Defense ArmorDefense `json:&quot;defense&quot;`</span>
-<span id="L2734"><span class="lineNum">    2734</span>              : </span>
-<span id="L2735"><span class="lineNum">    2735</span>              :         EquipmentCategory EquipmentCategory `json:&quot;equipmentCategory&quot;`</span>
-<span id="L2736"><span class="lineNum">    2736</span>              : </span>
-<span id="L2737"><span class="lineNum">    2737</span>              :         InsulationCold InsulationCold `json:&quot;insulationCold&quot;`</span>
-<span id="L2738"><span class="lineNum">    2738</span>              : </span>
-<span id="L2739"><span class="lineNum">    2739</span>              :         InsulationHeat InsulationHeat `json:&quot;insulationHeat&quot;`</span>
-<span id="L2740"><span class="lineNum">    2740</span>              : }</span>
+<span id="L2708"><span class="lineNum">    2708</span>              : // WaterExposure タイルが受ける水の影響</span>
+<span id="L2709"><span class="lineNum">    2709</span>              : type WaterExposure string</span>
+<span id="L2710"><span class="lineNum">    2710</span>              : </span>
+<span id="L2711"><span class="lineNum">    2711</span>              : // Defines values for WaterExposure.</span>
+<span id="L2712"><span class="lineNum">    2712</span>              : const (</span>
+<span id="L2713"><span class="lineNum">    2713</span>              :         Nearby    WaterExposure = &quot;nearby&quot;</span>
+<span id="L2714"><span class="lineNum">    2714</span>              :         Submerged WaterExposure = &quot;submerged&quot;</span>
+<span id="L2715"><span class="lineNum">    2715</span>              : )</span>
+<span id="L2716"><span class="lineNum">    2716</span>              : </span>
+<span id="L2717"><span class="lineNum">    2717</span>              : // Valid indicates whether the value is a known member of the WaterExposure enum.</span>
+<span id="L2718"><span class="lineNum">    2718</span>              : func (e WaterExposure) Valid() bool {</span>
+<span id="L2719"><span class="lineNum">    2719</span> <span class="tlaUNC">           0 :         switch e {</span></span>
+<span id="L2720"><span class="lineNum">    2720</span>              :         case Nearby:</span>
+<span id="L2721"><span class="lineNum">    2721</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2722"><span class="lineNum">    2722</span>              :         case Submerged:</span>
+<span id="L2723"><span class="lineNum">    2723</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2724"><span class="lineNum">    2724</span>              :         default:</span>
+<span id="L2725"><span class="lineNum">    2725</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L2726"><span class="lineNum">    2726</span>              :         }</span>
+<span id="L2727"><span class="lineNum">    2727</span>              : }</span>
+<span id="L2728"><span class="lineNum">    2728</span>              : </span>
+<span id="L2729"><span class="lineNum">    2729</span>              : // WaterExposureValues は WaterExposure の値を、スキーマに書いた順に返す。</span>
+<span id="L2730"><span class="lineNum">    2730</span>              : func WaterExposureValues() []WaterExposure {</span>
+<span id="L2731"><span class="lineNum">    2731</span> <span class="tlaUNC">           0 :         return []WaterExposure{Nearby, Submerged}</span></span>
+<span id="L2732"><span class="lineNum">    2732</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L2733"><span class="lineNum">    2733</span>              : </span>
+<span id="L2734"><span class="lineNum">    2734</span>              : // Wearable 装備可能設定</span>
+<span id="L2735"><span class="lineNum">    2735</span>              : type Wearable struct {</span>
+<span id="L2736"><span class="lineNum">    2736</span>              :         Defense ArmorDefense `json:&quot;defense&quot;`</span>
+<span id="L2737"><span class="lineNum">    2737</span>              : </span>
+<span id="L2738"><span class="lineNum">    2738</span>              :         EquipmentCategory EquipmentCategory `json:&quot;equipmentCategory&quot;`</span>
+<span id="L2739"><span class="lineNum">    2739</span>              : </span>
+<span id="L2740"><span class="lineNum">    2740</span>              :         InsulationCold InsulationCold `json:&quot;insulationCold&quot;`</span>
 <span id="L2741"><span class="lineNum">    2741</span>              : </span>
-<span id="L2742"><span class="lineNum">    2742</span>              : // Weather 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る</span>
-<span id="L2743"><span class="lineNum">    2743</span>              : type Weather struct {</span>
-<span id="L2744"><span class="lineNum">    2744</span>              :         Id WeatherId `json:&quot;id&quot;`</span>
-<span id="L2745"><span class="lineNum">    2745</span>              : </span>
-<span id="L2746"><span class="lineNum">    2746</span>              :         Name EntityName `json:&quot;name&quot;`</span>
-<span id="L2747"><span class="lineNum">    2747</span>              : </span>
-<span id="L2748"><span class="lineNum">    2748</span>              :         Seasons []WeatherSeasonWeight `json:&quot;seasons&quot;`</span>
-<span id="L2749"><span class="lineNum">    2749</span>              : </span>
-<span id="L2750"><span class="lineNum">    2750</span>              :         Severity WeatherSeverity `json:&quot;severity&quot;`</span>
-<span id="L2751"><span class="lineNum">    2751</span>              : </span>
-<span id="L2752"><span class="lineNum">    2752</span>              :         SpellTurnsMax SpellTurns `json:&quot;spellTurnsMax&quot;`</span>
-<span id="L2753"><span class="lineNum">    2753</span>              : </span>
-<span id="L2754"><span class="lineNum">    2754</span>              :         SpellTurnsMin SpellTurns `json:&quot;spellTurnsMin&quot;`</span>
-<span id="L2755"><span class="lineNum">    2755</span>              : </span>
-<span id="L2756"><span class="lineNum">    2756</span>              :         TempModifier WeatherTempModifier `json:&quot;tempModifier&quot;`</span>
-<span id="L2757"><span class="lineNum">    2757</span>              : </span>
-<span id="L2758"><span class="lineNum">    2758</span>              :         VisionDelta WeatherVisionDelta `json:&quot;visionDelta&quot;`</span>
-<span id="L2759"><span class="lineNum">    2759</span>              : }</span>
+<span id="L2742"><span class="lineNum">    2742</span>              :         InsulationHeat InsulationHeat `json:&quot;insulationHeat&quot;`</span>
+<span id="L2743"><span class="lineNum">    2743</span>              : }</span>
+<span id="L2744"><span class="lineNum">    2744</span>              : </span>
+<span id="L2745"><span class="lineNum">    2745</span>              : // Weather 天候。遷移の粘りの距離は行の順でなく Go の WeatherKind の並びに依る</span>
+<span id="L2746"><span class="lineNum">    2746</span>              : type Weather struct {</span>
+<span id="L2747"><span class="lineNum">    2747</span>              :         Id WeatherId `json:&quot;id&quot;`</span>
+<span id="L2748"><span class="lineNum">    2748</span>              : </span>
+<span id="L2749"><span class="lineNum">    2749</span>              :         Name EntityName `json:&quot;name&quot;`</span>
+<span id="L2750"><span class="lineNum">    2750</span>              : </span>
+<span id="L2751"><span class="lineNum">    2751</span>              :         Seasons []WeatherSeasonWeight `json:&quot;seasons&quot;`</span>
+<span id="L2752"><span class="lineNum">    2752</span>              : </span>
+<span id="L2753"><span class="lineNum">    2753</span>              :         Severity WeatherSeverity `json:&quot;severity&quot;`</span>
+<span id="L2754"><span class="lineNum">    2754</span>              : </span>
+<span id="L2755"><span class="lineNum">    2755</span>              :         SpellTurnsMax SpellTurns `json:&quot;spellTurnsMax&quot;`</span>
+<span id="L2756"><span class="lineNum">    2756</span>              : </span>
+<span id="L2757"><span class="lineNum">    2757</span>              :         SpellTurnsMin SpellTurns `json:&quot;spellTurnsMin&quot;`</span>
+<span id="L2758"><span class="lineNum">    2758</span>              : </span>
+<span id="L2759"><span class="lineNum">    2759</span>              :         TempModifier WeatherTempModifier `json:&quot;tempModifier&quot;`</span>
 <span id="L2760"><span class="lineNum">    2760</span>              : </span>
-<span id="L2761"><span class="lineNum">    2761</span>              : // WeatherId 天候の種類</span>
-<span id="L2762"><span class="lineNum">    2762</span>              : type WeatherId string</span>
+<span id="L2761"><span class="lineNum">    2761</span>              :         VisionDelta WeatherVisionDelta `json:&quot;visionDelta&quot;`</span>
+<span id="L2762"><span class="lineNum">    2762</span>              : }</span>
 <span id="L2763"><span class="lineNum">    2763</span>              : </span>
-<span id="L2764"><span class="lineNum">    2764</span>              : // Defines values for WeatherId.</span>
-<span id="L2765"><span class="lineNum">    2765</span>              : const (</span>
-<span id="L2766"><span class="lineNum">    2766</span>              :         Blizzard WeatherId = &quot;blizzard&quot;</span>
-<span id="L2767"><span class="lineNum">    2767</span>              :         Clear    WeatherId = &quot;clear&quot;</span>
-<span id="L2768"><span class="lineNum">    2768</span>              :         Cloudy   WeatherId = &quot;cloudy&quot;</span>
-<span id="L2769"><span class="lineNum">    2769</span>              :         ColdSnap WeatherId = &quot;cold_snap&quot;</span>
-<span id="L2770"><span class="lineNum">    2770</span>              :         Rain     WeatherId = &quot;rain&quot;</span>
-<span id="L2771"><span class="lineNum">    2771</span>              :         Snow     WeatherId = &quot;snow&quot;</span>
-<span id="L2772"><span class="lineNum">    2772</span>              : )</span>
-<span id="L2773"><span class="lineNum">    2773</span>              : </span>
-<span id="L2774"><span class="lineNum">    2774</span>              : // Valid indicates whether the value is a known member of the WeatherId enum.</span>
-<span id="L2775"><span class="lineNum">    2775</span>              : func (e WeatherId) Valid() bool {</span>
-<span id="L2776"><span class="lineNum">    2776</span> <span class="tlaUNC">           0 :         switch e {</span></span>
-<span id="L2777"><span class="lineNum">    2777</span>              :         case Blizzard:</span>
-<span id="L2778"><span class="lineNum">    2778</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2779"><span class="lineNum">    2779</span>              :         case Clear:</span>
-<span id="L2780"><span class="lineNum">    2780</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2781"><span class="lineNum">    2781</span>              :         case Cloudy:</span>
-<span id="L2782"><span class="lineNum">    2782</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2783"><span class="lineNum">    2783</span>              :         case ColdSnap:</span>
-<span id="L2784"><span class="lineNum">    2784</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2785"><span class="lineNum">    2785</span>              :         case Rain:</span>
-<span id="L2786"><span class="lineNum">    2786</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2787"><span class="lineNum">    2787</span>              :         case Snow:</span>
-<span id="L2788"><span class="lineNum">    2788</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2789"><span class="lineNum">    2789</span>              :         default:</span>
-<span id="L2790"><span class="lineNum">    2790</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L2791"><span class="lineNum">    2791</span>              :         }</span>
-<span id="L2792"><span class="lineNum">    2792</span>              : }</span>
-<span id="L2793"><span class="lineNum">    2793</span>              : </span>
-<span id="L2794"><span class="lineNum">    2794</span>              : // WeatherIdValues は WeatherId の値を、スキーマに書いた順に返す。</span>
-<span id="L2795"><span class="lineNum">    2795</span>              : func WeatherIdValues() []WeatherId {</span>
-<span id="L2796"><span class="lineNum">    2796</span> <span class="tlaUNC">           0 :         return []WeatherId{Clear, Cloudy, Rain, Snow, Blizzard, ColdSnap}</span></span>
-<span id="L2797"><span class="lineNum">    2797</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L2798"><span class="lineNum">    2798</span>              : </span>
-<span id="L2799"><span class="lineNum">    2799</span>              : // WeatherSeasonWeight 季節ごとの天候の出やすさ</span>
-<span id="L2800"><span class="lineNum">    2800</span>              : type WeatherSeasonWeight struct {</span>
-<span id="L2801"><span class="lineNum">    2801</span>              :         Id SeasonId `json:&quot;id&quot;`</span>
-<span id="L2802"><span class="lineNum">    2802</span>              : </span>
-<span id="L2803"><span class="lineNum">    2803</span>              :         Weight EntryWeight `json:&quot;weight&quot;`</span>
-<span id="L2804"><span class="lineNum">    2804</span>              : }</span>
+<span id="L2764"><span class="lineNum">    2764</span>              : // WeatherId 天候の種類</span>
+<span id="L2765"><span class="lineNum">    2765</span>              : type WeatherId string</span>
+<span id="L2766"><span class="lineNum">    2766</span>              : </span>
+<span id="L2767"><span class="lineNum">    2767</span>              : // Defines values for WeatherId.</span>
+<span id="L2768"><span class="lineNum">    2768</span>              : const (</span>
+<span id="L2769"><span class="lineNum">    2769</span>              :         Blizzard WeatherId = &quot;blizzard&quot;</span>
+<span id="L2770"><span class="lineNum">    2770</span>              :         Clear    WeatherId = &quot;clear&quot;</span>
+<span id="L2771"><span class="lineNum">    2771</span>              :         Cloudy   WeatherId = &quot;cloudy&quot;</span>
+<span id="L2772"><span class="lineNum">    2772</span>              :         ColdSnap WeatherId = &quot;cold_snap&quot;</span>
+<span id="L2773"><span class="lineNum">    2773</span>              :         Rain     WeatherId = &quot;rain&quot;</span>
+<span id="L2774"><span class="lineNum">    2774</span>              :         Snow     WeatherId = &quot;snow&quot;</span>
+<span id="L2775"><span class="lineNum">    2775</span>              : )</span>
+<span id="L2776"><span class="lineNum">    2776</span>              : </span>
+<span id="L2777"><span class="lineNum">    2777</span>              : // Valid indicates whether the value is a known member of the WeatherId enum.</span>
+<span id="L2778"><span class="lineNum">    2778</span>              : func (e WeatherId) Valid() bool {</span>
+<span id="L2779"><span class="lineNum">    2779</span> <span class="tlaUNC">           0 :         switch e {</span></span>
+<span id="L2780"><span class="lineNum">    2780</span>              :         case Blizzard:</span>
+<span id="L2781"><span class="lineNum">    2781</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2782"><span class="lineNum">    2782</span>              :         case Clear:</span>
+<span id="L2783"><span class="lineNum">    2783</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2784"><span class="lineNum">    2784</span>              :         case Cloudy:</span>
+<span id="L2785"><span class="lineNum">    2785</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2786"><span class="lineNum">    2786</span>              :         case ColdSnap:</span>
+<span id="L2787"><span class="lineNum">    2787</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2788"><span class="lineNum">    2788</span>              :         case Rain:</span>
+<span id="L2789"><span class="lineNum">    2789</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2790"><span class="lineNum">    2790</span>              :         case Snow:</span>
+<span id="L2791"><span class="lineNum">    2791</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2792"><span class="lineNum">    2792</span>              :         default:</span>
+<span id="L2793"><span class="lineNum">    2793</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L2794"><span class="lineNum">    2794</span>              :         }</span>
+<span id="L2795"><span class="lineNum">    2795</span>              : }</span>
+<span id="L2796"><span class="lineNum">    2796</span>              : </span>
+<span id="L2797"><span class="lineNum">    2797</span>              : // WeatherIdValues は WeatherId の値を、スキーマに書いた順に返す。</span>
+<span id="L2798"><span class="lineNum">    2798</span>              : func WeatherIdValues() []WeatherId {</span>
+<span id="L2799"><span class="lineNum">    2799</span> <span class="tlaUNC">           0 :         return []WeatherId{Clear, Cloudy, Rain, Snow, Blizzard, ColdSnap}</span></span>
+<span id="L2800"><span class="lineNum">    2800</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L2801"><span class="lineNum">    2801</span>              : </span>
+<span id="L2802"><span class="lineNum">    2802</span>              : // WeatherSeasonWeight 季節ごとの天候の出やすさ</span>
+<span id="L2803"><span class="lineNum">    2803</span>              : type WeatherSeasonWeight struct {</span>
+<span id="L2804"><span class="lineNum">    2804</span>              :         Id SeasonId `json:&quot;id&quot;`</span>
 <span id="L2805"><span class="lineNum">    2805</span>              : </span>
-<span id="L2806"><span class="lineNum">    2806</span>              : // WeatherSeverity 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う</span>
-<span id="L2807"><span class="lineNum">    2807</span>              : type WeatherSeverity = int</span>
+<span id="L2806"><span class="lineNum">    2806</span>              :         Weight EntryWeight `json:&quot;weight&quot;`</span>
+<span id="L2807"><span class="lineNum">    2807</span>              : }</span>
 <span id="L2808"><span class="lineNum">    2808</span>              : </span>
-<span id="L2809"><span class="lineNum">    2809</span>              : // WeatherTempModifier 天候による世界温度への加算。℃</span>
-<span id="L2810"><span class="lineNum">    2810</span>              : type WeatherTempModifier = int</span>
+<span id="L2809"><span class="lineNum">    2809</span>              : // WeatherSeverity 天候の寒さの厳しさ。奥地ほど厳しい天候を厚くし、冬と奥地で長引かせるのに使う</span>
+<span id="L2810"><span class="lineNum">    2810</span>              : type WeatherSeverity = int</span>
 <span id="L2811"><span class="lineNum">    2811</span>              : </span>
-<span id="L2812"><span class="lineNum">    2812</span>              : // WeatherVisionDelta 天候による視程レンジへの加算。タイル。負で狭くなる</span>
-<span id="L2813"><span class="lineNum">    2813</span>              : type WeatherVisionDelta = int</span>
+<span id="L2812"><span class="lineNum">    2812</span>              : // WeatherTempModifier 天候による世界温度への加算。℃</span>
+<span id="L2813"><span class="lineNum">    2813</span>              : type WeatherTempModifier = int</span>
 <span id="L2814"><span class="lineNum">    2814</span>              : </span>
-<span id="L2815"><span class="lineNum">    2815</span>              : // Weight 重量。単位付き文字列で指定する。例: &quot;500 g&quot; &quot;2 kg&quot; &quot;1 mg&quot;</span>
-<span id="L2816"><span class="lineNum">    2816</span>              : type Weight = string</span>
+<span id="L2815"><span class="lineNum">    2815</span>              : // WeatherVisionDelta 天候による視程レンジへの加算。タイル。負で狭くなる</span>
+<span id="L2816"><span class="lineNum">    2816</span>              : type WeatherVisionDelta = int</span>
 <span id="L2817"><span class="lineNum">    2817</span>              : </span>
-<span id="L2818"><span class="lineNum">    2818</span>              : // Zone 区域の地区。campus_ で始まる地区は研究所の敷地の門の列、中ほど、北の奥の列</span>
-<span id="L2819"><span class="lineNum">    2819</span>              : type Zone string</span>
+<span id="L2818"><span class="lineNum">    2818</span>              : // Weight 重量。単位付き文字列で指定する。例: &quot;500 g&quot; &quot;2 kg&quot; &quot;1 mg&quot;</span>
+<span id="L2819"><span class="lineNum">    2819</span>              : type Weight = string</span>
 <span id="L2820"><span class="lineNum">    2820</span>              : </span>
-<span id="L2821"><span class="lineNum">    2821</span>              : // Defines values for Zone.</span>
-<span id="L2822"><span class="lineNum">    2822</span>              : const (</span>
-<span id="L2823"><span class="lineNum">    2823</span>              :         CampusGate       Zone = &quot;campus_gate&quot;</span>
-<span id="L2824"><span class="lineNum">    2824</span>              :         CampusInner      Zone = &quot;campus_inner&quot;</span>
-<span id="L2825"><span class="lineNum">    2825</span>              :         CampusQuarantine Zone = &quot;campus_quarantine&quot;</span>
-<span id="L2826"><span class="lineNum">    2826</span>              :         Downtown         Zone = &quot;downtown&quot;</span>
-<span id="L2827"><span class="lineNum">    2827</span>              :         Industrial       Zone = &quot;industrial&quot;</span>
-<span id="L2828"><span class="lineNum">    2828</span>              :         Residential      Zone = &quot;residential&quot;</span>
-<span id="L2829"><span class="lineNum">    2829</span>              : )</span>
-<span id="L2830"><span class="lineNum">    2830</span>              : </span>
-<span id="L2831"><span class="lineNum">    2831</span>              : // Valid indicates whether the value is a known member of the Zone enum.</span>
-<span id="L2832"><span class="lineNum">    2832</span>              : func (e Zone) Valid() bool {</span>
-<span id="L2833"><span class="lineNum">    2833</span> <span class="tlaUNC">           0 :         switch e {</span></span>
-<span id="L2834"><span class="lineNum">    2834</span>              :         case CampusGate:</span>
-<span id="L2835"><span class="lineNum">    2835</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2836"><span class="lineNum">    2836</span>              :         case CampusInner:</span>
-<span id="L2837"><span class="lineNum">    2837</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2838"><span class="lineNum">    2838</span>              :         case CampusQuarantine:</span>
-<span id="L2839"><span class="lineNum">    2839</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2840"><span class="lineNum">    2840</span>              :         case Downtown:</span>
-<span id="L2841"><span class="lineNum">    2841</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2842"><span class="lineNum">    2842</span>              :         case Industrial:</span>
-<span id="L2843"><span class="lineNum">    2843</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2844"><span class="lineNum">    2844</span>              :         case Residential:</span>
-<span id="L2845"><span class="lineNum">    2845</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L2846"><span class="lineNum">    2846</span>              :         default:</span>
-<span id="L2847"><span class="lineNum">    2847</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L2848"><span class="lineNum">    2848</span>              :         }</span>
-<span id="L2849"><span class="lineNum">    2849</span>              : }</span>
-<span id="L2850"><span class="lineNum">    2850</span>              : </span>
-<span id="L2851"><span class="lineNum">    2851</span>              : // ZoneValues は Zone の値を、スキーマに書いた順に返す。</span>
-<span id="L2852"><span class="lineNum">    2852</span>              : func ZoneValues() []Zone {</span>
-<span id="L2853"><span class="lineNum">    2853</span> <span class="tlaUNC">           0 :         return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine}</span></span>
-<span id="L2854"><span class="lineNum">    2854</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L2821"><span class="lineNum">    2821</span>              : // Zone 区域の地区。campus_ で始まる地区は研究所の敷地の門の列、中ほど、北の奥の列</span>
+<span id="L2822"><span class="lineNum">    2822</span>              : type Zone string</span>
+<span id="L2823"><span class="lineNum">    2823</span>              : </span>
+<span id="L2824"><span class="lineNum">    2824</span>              : // Defines values for Zone.</span>
+<span id="L2825"><span class="lineNum">    2825</span>              : const (</span>
+<span id="L2826"><span class="lineNum">    2826</span>              :         CampusGate       Zone = &quot;campus_gate&quot;</span>
+<span id="L2827"><span class="lineNum">    2827</span>              :         CampusInner      Zone = &quot;campus_inner&quot;</span>
+<span id="L2828"><span class="lineNum">    2828</span>              :         CampusQuarantine Zone = &quot;campus_quarantine&quot;</span>
+<span id="L2829"><span class="lineNum">    2829</span>              :         Downtown         Zone = &quot;downtown&quot;</span>
+<span id="L2830"><span class="lineNum">    2830</span>              :         Industrial       Zone = &quot;industrial&quot;</span>
+<span id="L2831"><span class="lineNum">    2831</span>              :         Residential      Zone = &quot;residential&quot;</span>
+<span id="L2832"><span class="lineNum">    2832</span>              : )</span>
+<span id="L2833"><span class="lineNum">    2833</span>              : </span>
+<span id="L2834"><span class="lineNum">    2834</span>              : // Valid indicates whether the value is a known member of the Zone enum.</span>
+<span id="L2835"><span class="lineNum">    2835</span>              : func (e Zone) Valid() bool {</span>
+<span id="L2836"><span class="lineNum">    2836</span> <span class="tlaUNC">           0 :         switch e {</span></span>
+<span id="L2837"><span class="lineNum">    2837</span>              :         case CampusGate:</span>
+<span id="L2838"><span class="lineNum">    2838</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2839"><span class="lineNum">    2839</span>              :         case CampusInner:</span>
+<span id="L2840"><span class="lineNum">    2840</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2841"><span class="lineNum">    2841</span>              :         case CampusQuarantine:</span>
+<span id="L2842"><span class="lineNum">    2842</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2843"><span class="lineNum">    2843</span>              :         case Downtown:</span>
+<span id="L2844"><span class="lineNum">    2844</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2845"><span class="lineNum">    2845</span>              :         case Industrial:</span>
+<span id="L2846"><span class="lineNum">    2846</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2847"><span class="lineNum">    2847</span>              :         case Residential:</span>
+<span id="L2848"><span class="lineNum">    2848</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L2849"><span class="lineNum">    2849</span>              :         default:</span>
+<span id="L2850"><span class="lineNum">    2850</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L2851"><span class="lineNum">    2851</span>              :         }</span>
+<span id="L2852"><span class="lineNum">    2852</span>              : }</span>
+<span id="L2853"><span class="lineNum">    2853</span>              : </span>
+<span id="L2854"><span class="lineNum">    2854</span>              : // ZoneValues は Zone の値を、スキーマに書いた順に返す。</span>
+<span id="L2855"><span class="lineNum">    2855</span>              : func ZoneValues() []Zone {</span>
+<span id="L2856"><span class="lineNum">    2856</span> <span class="tlaUNC">           0 :         return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine}</span></span>
+<span id="L2857"><span class="lineNum">    2857</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>
             </tr>
