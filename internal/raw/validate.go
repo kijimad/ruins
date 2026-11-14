@@ -97,6 +97,10 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 		}
 		for _, zone := range DistrictZones(d.Layout) {
 			hasBase := slices.ContainsFunc(facilities, func(f rawschema.Facility) bool {
+				// 目玉の施設は区域に1つだけで、残りのチャンクの抽選からは外す
+				if d.Landmark != nil && f.Id == *d.Landmark {
+					return false
+				}
 				return slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool {
 					return z.Zone == zone && int(z.MinSpan) <= baseSpan
 				})

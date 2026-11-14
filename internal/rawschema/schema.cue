@@ -319,6 +319,12 @@ import "strings"
 	separation!: int & >=0
 	layout!:     #DistrictLayout
 	sizes!: [...#DistrictSize] & [_, ...]
+
+	// 区域に1つだけ建てる目玉の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
+	landmark?: #EntityID
+	if landmark != _|_ {
+		landmark_ref: _facilityIDs[landmark] @rawgen(-)
+	}
 }
 
 // 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める

@@ -106,11 +106,11 @@ func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.Zone {
 	return zoneOf(l.X, l.Y, r.w, r.h, r.seed)
 }
 
-// rollFacilityInZone は地区の重み表から規模 gate を通った施設 id を重みで抽選する。
-func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk) string {
+// rollFacilityInZone は地区の重み表から規模 gate を通った施設 id を重みで抽選する。exclude の施設は引かない
+func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk, exclude string) string {
 	zc := cat[z]
 	i, ok := consts.Pick(rng, zc, func(f facilityWeight) float64 {
-		if span < f.minSpan {
+		if span < f.minSpan || f.kind == exclude {
 			return 0
 		}
 		return float64(f.weight)

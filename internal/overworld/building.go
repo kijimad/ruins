@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand/v2"
+	"slices"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
@@ -47,6 +48,23 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion) []buildingLo
 	}
 
 	var lots []buildingLot
+	place := func(f rawschema.Facility, anchor consts.Coord[consts.Chunk], w, h consts.Chunk) {
+		interior := rawschema.FacilityInteriorRooms
+		if f.Interior != nil {
+			interior = *f.Interior
+		}
+		for dy := range h {
+			for dx := range w {
+				taken[anchor.Add(consts.Coord[consts.Chunk]{X: dx, Y: dy})] = true
+			}
+		}
+		lots = append(lots, buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: ChunkSeed2D(r.seed, anchor.X, anchor.Y)})
+	}
+	if f, ok := facilities[r.landmark]; ok {
+		if anchor, w, h, ok := landmarkLot(r, f, fits); ok {
+			place(f, anchor, w, h)
+		}
+	}
 	for y := range r.h {
 		for x := range r.w {
 			l := consts.Coord[consts.Chunk]{X: x, Y: y}
@@ -57,7 +75,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion) []buildingLo
 			// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
 			// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
 			frng := rand.New(rand.NewPCG(ChunkSeed2D(r.seed, x, y), 0x1))
-			f := facilities[rollFacilityInZone(frng, cat, z, r.span())]
+			f := facilities[rollFacilityInZone(frng, cat, z, r.span(), r.landmark)]
 			w, h := consts.Chunk(1), consts.Chunk(1)
 			if fps := raw.PtrSlice(f.Footprints); len(fps) > 0 {
 				i, _ := consts.Pick(frng, fps, func(fp rawschema.FacilityFootprint) float64 { return float64(fp.Weight) })
@@ -70,19 +88,44 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion) []buildingLo
 					h--
 				}
 			}
-			interior := rawschema.FacilityInteriorRooms
-			if f.Interior != nil {
-				interior = *f.Interior
-			}
-			for dy := range h {
-				for dx := range w {
-					taken[consts.Coord[consts.Chunk]{X: x + dx, Y: y + dy}] = true
-				}
-			}
-			lots = append(lots, buildingLot{facility: f.Id, anchor: l, w: w, h: h, interior: interior, seed: ChunkSeed2D(r.seed, x, y)})
+			place(f, l, w, h)
 		}
 	}
 	return lots
+}
+
+// landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、
+// 地区に収まるものを選ぶ。区域の作りがその地区を割り振らなければ置かない
+func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.Zone) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
+	for _, fz := range f.Zones {
+		var cells []consts.Coord[consts.Chunk]
+		for y := range r.h {
+			for x := range r.w {
+				if c := (consts.Coord[consts.Chunk]{X: x, Y: y}); r.zoneAt(c) == fz.Zone {
+					cells = append(cells, c)
+				}
+			}
+		}
+		if len(cells) == 0 {
+			continue
+		}
+		minC, maxC := cells[0], cells[0]
+		for _, c := range cells {
+			minC = consts.Coord[consts.Chunk]{X: min(minC.X, c.X), Y: min(minC.Y, c.Y)}
+			maxC = consts.Coord[consts.Chunk]{X: max(maxC.X, c.X), Y: max(maxC.Y, c.Y)}
+		}
+		fps := slices.Clone(raw.PtrSlice(f.Footprints))
+		slices.SortStableFunc(fps, func(a, b rawschema.FacilityFootprint) int { return b.W*b.H - a.W*a.H })
+		for _, fp := range fps {
+			w, h := consts.Chunk(fp.W), consts.Chunk(fp.H)
+			x := minC.X + (maxC.X-minC.X+1-w)/2
+			y := minC.Y + (maxC.Y-minC.Y+1-h)/2
+			if x >= 0 && y >= 0 && fits(x, y, w, h, fz.Zone) {
+				return consts.Coord[consts.Chunk]{X: x, Y: y}, w, h, true
+			}
+		}
+	}
+	return consts.Coord[consts.Chunk]{}, 0, 0, false
 }
 
 // lotAt は区域の中の座標 l を含む区画を返す。lotsOf が区域を隙間なく埋めるので必ず見つかる

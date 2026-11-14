@@ -1087,6 +1087,7 @@
 
 [[districts]]
   id = "lab_campus"
+  landmark = "lab_main"
   layout = "campus"
   separation = 4
   spacing = 30
@@ -3114,7 +3115,18 @@
 [[facilities]]
   enemyTable = "lab_enemies"
   id = "lab_admin"
+  interior = "rooms"
   lootedChance = 30
+
+  [[facilities.footprints]]
+    h = 1
+    w = 2
+    weight = 2
+
+  [[facilities.footprints]]
+    h = 1
+    w = 3
+    weight = 1
 
   [[facilities.zones]]
     minSpan = 1
@@ -3124,7 +3136,18 @@
 [[facilities]]
   enemyTable = "lab_enemies"
   id = "lab_lecture"
+  interior = "rooms"
   lootedChance = 30
+
+  [[facilities.footprints]]
+    h = 1
+    w = 2
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 2
+    w = 2
+    weight = 2
 
   [[facilities.zones]]
     minSpan = 1
@@ -3134,7 +3157,23 @@
 [[facilities]]
   enemyTable = "lab_quarantine_enemies"
   id = "lab_quarantine"
+  interior = "rooms"
   lootedChance = 10
+
+  [[facilities.footprints]]
+    h = 1
+    w = 3
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 1
+    w = 4
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 1
+    w = 7
+    weight = 2
 
   [[facilities.zones]]
     minSpan = 1

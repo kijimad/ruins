@@ -38,7 +38,7 @@ func composeBuilding(t *testing.T, loader *maptemplate.TemplateLoader, b buildin
 	return cells
 }
 
-func TestBuilding_研究所の本館は入口から全ての部屋へ入れる(t *testing.T) {
+func TestBuilding_部屋で組む建物は入口から全ての部屋へ入れる(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
@@ -56,17 +56,22 @@ func TestBuilding_研究所の本館は入口から全ての部屋へ入れる(t
 		storage[p.Id] = p.Storage != nil
 	}
 
-	for w := consts.Chunk(1); w <= 4; w++ {
-		for h := consts.Chunk(1); h <= 4; h++ {
-			for seed := range uint64(30) {
-				b := buildingLot{facility: "lab_main", w: w, h: h, interior: rawschema.FacilityInteriorRooms, seed: seed}
-				cells := composeBuilding(t, loader, b)
-				name := fmt.Sprintf("%dx%d seed=%d", w, h, seed)
-				assert.Empty(t, unreachableCells(cells, blockedTile, blockedProp), name)
-				for y, row := range cells {
-					for x, c := range row {
-						if storage[c.Prop] {
-							assert.NotEmpty(t, c.LootTable, "%s %s at %d,%d", name, c.Prop, x, y)
+	for _, fac := range loader.Facilities() {
+		if !loader.HasRooms(fac) {
+			continue
+		}
+		for w := consts.Chunk(1); w <= 4; w++ {
+			for h := consts.Chunk(1); h <= 4; h++ {
+				for seed := range uint64(30) {
+					b := buildingLot{facility: fac, w: w, h: h, interior: rawschema.FacilityInteriorRooms, seed: seed}
+					cells := composeBuilding(t, loader, b)
+					name := fmt.Sprintf("%s %dx%d seed=%d", fac, w, h, seed)
+					assert.Empty(t, unreachableCells(cells, blockedTile, blockedProp), name)
+					for y, row := range cells {
+						for x, c := range row {
+							if storage[c.Prop] {
+								assert.NotEmpty(t, c.LootTable, "%s %s at %d,%d", name, c.Prop, x, y)
+							}
 						}
 					}
 				}
@@ -236,4 +241,50 @@ func TestGolden_Building(t *testing.T) {
 			goldie.New(t, goldie.WithNameSuffix(".png")).Assert(t, t.Name(), buf.Bytes())
 		})
 	}
+}
+
+func TestLotsOf_目玉の施設は区域に1つだけ地区の真ん中へ一番大きく建つ(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	cat := zoneCatalogFrom(raws)
+	for _, d := range districtsFrom(raws) {
+		if d.row.Landmark == nil {
+			continue
+		}
+		for seed := range uint64(40) {
+			r := d.regionIn(seed, 0, 7)
+			var got []buildingLot
+			for _, b := range lotsOf(raws, cat, r) {
+				if b.facility == *d.row.Landmark {
+					got = append(got, b)
+				}
+			}
+			require.Len(t, got, 1, "seed=%d", seed)
+			assert.GreaterOrEqual(t, got[0].w*got[0].h, consts.Chunk(9), "seed=%d 一番大きい候補から収まるものを選ぶ", seed)
+		}
+	}
+}
+
+func TestFacilities_2チャンク以上になりうる施設は部屋の絵を持つ(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	var want, got []string
+	for _, f := range raw.PtrSlice(raws.Facilities) {
+		for _, fp := range raw.PtrSlice(f.Footprints) {
+			if fp.W*fp.H > 1 {
+				want = append(want, f.Id)
+				break
+			}
+		}
+	}
+	for _, id := range want {
+		if loader.HasRooms(id) {
+			got = append(got, id)
+		}
+	}
+	assert.Equal(t, want, got)
 }

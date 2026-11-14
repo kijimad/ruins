@@ -536,6 +536,9 @@ type DisassemblyYield struct {
 type District struct {
 	Id EntityID `json:"id"`
 
+	// Landmark 区域に1つだけ建てる目玉の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
+	Landmark *EntityID `json:"landmark,omitempty"`
+
 	Layout DistrictLayout `json:"layout"`
 
 	// Separation 隣のリージョンの区域との最小の空き。チャンク数

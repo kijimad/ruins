@@ -59,8 +59,8 @@ func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出�
 	small := map[string]bool{}
 	big := map[string]bool{}
 	for s := range uint64(300) {
-		small[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 2)] = true
-		big[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 3)] = true
+		small[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 2, "")] = true
+		big[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 3, "")] = true
 	}
 	for _, f := range []string{"antique", "clinic"} {
 		assert.Falsef(t, small[f], "span=2 の都心に minSpan=3 の %s は出ない", f)
@@ -75,10 +75,10 @@ func TestRollFacilityInZone_決定的(t *testing.T) {
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	cat := zoneCatalogFrom(raws)
-	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, rawschema.Residential, 3)
+	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, rawschema.Residential, 3, "")
 	assert.NotEmpty(t, first, "有効な施設種別を返す")
 	for range 5 {
-		got := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, rawschema.Residential, 3)
+		got := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, rawschema.Residential, 3, "")
 		assert.Equal(t, first, got, "同じ rng シードなら同じ施設")
 	}
 }

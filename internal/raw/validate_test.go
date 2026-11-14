@@ -227,6 +227,9 @@ func TestValidateZoneBaseFacilities_研究所の敷地は門と中ほどと奥�
 
 	raws.Facilities = &[]rawschema.Facility{{Id: "lab", Zones: zones}, {Id: "lab_quarantine", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusQuarantine, Weight: 1, MinSpan: 1}}}}
 	require.NoError(t, validateZoneBaseFacilities(raws))
+	landmark := rawschema.EntityID("lab_quarantine")
+	(*raws.Districts)[0].Landmark = &landmark
+	require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility, "目玉の施設は地区の基本施設に数えない")
 }
 
 func TestValidateDistricts(t *testing.T) {

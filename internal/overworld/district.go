@@ -22,6 +22,8 @@ type districtRegion struct {
 	w, h   consts.Chunk
 	// seed は区域の中の地区と施設を引く種
 	seed uint64
+	// landmark は区域に1つだけ建てる目玉の施設。無ければ空
+	landmark string
 }
 
 // districtsFrom は raw の districts の行を、行の順に区域の種類にする
@@ -52,12 +54,17 @@ func (d district) regionIn(runSeed uint64, ry, cols consts.Chunk) districtRegion
 		X: consts.Chunk(rng.IntN(int(cols-w) + 1)),
 		Y: ry*consts.Chunk(d.row.Spacing) + consts.Chunk(rng.IntN(d.row.Spacing-d.row.Separation-size.H+1)),
 	}
+	landmark := ""
+	if d.row.Landmark != nil {
+		landmark = *d.row.Landmark
+	}
 	return districtRegion{
-		layout: d.row.Layout,
-		anchor: anchor,
-		w:      w,
-		h:      consts.Chunk(size.H),
-		seed:   ChunkSeed2D(runSeed^d.salt, anchor.X, anchor.Y),
+		landmark: landmark,
+		layout:   d.row.Layout,
+		anchor:   anchor,
+		w:        w,
+		h:        consts.Chunk(size.H),
+		seed:     ChunkSeed2D(runSeed^d.salt, anchor.X, anchor.Y),
 	}
 }
 
