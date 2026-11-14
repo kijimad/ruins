@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 14:33:40</td>
+            <td class="headerValue">2026-11-14 15:41:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -272,7 +272,7 @@
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to load facility templates: %w&quot;, err)</span></span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC tlaBgGNC">           1 :         cells, origin, indoor, err := planUrbanChunk(world.Resources.RawMaster, loader, lot, l, g.chunkW, g.chunkH, seed, rng, verge)</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC tlaBgGNC">           1 :         cells, origin, err := planUrbanChunk(world.Resources.RawMaster, loader, lot, l, g.chunkW, g.chunkH, seed, rng, verge)</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -281,7 +281,7 @@
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L221"><span class="lineNum">     221</span>              :         }</span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">           1 :         isWall, occupied, err := spawnFacility(world, g, cells, origin, origin, lot.facility, danger, seed, indoor)</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">           1 :         isWall, occupied, err := spawnFacility(world, g, cells, origin, origin, lot.facility, danger, seed)</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -302,26 +302,26 @@
 <span id="L240"><span class="lineNum">     240</span>              : </span>
 <span id="L241"><span class="lineNum">     241</span>              : // planUrbanChunk は区画 lot の中の座標 l のチャンクに置くマスと、マスを置くチャンク内の原点を返す。部屋の絵を持つ施設は</span>
 <span id="L242"><span class="lineNum">     242</span>              : // 部屋と帯でチャンク全体を組み、それ以外は街路の帯の内側に1棟の絵を置く。厚い壁の塊の内側は虚空にする</span>
-<span id="L243"><span class="lineNum">     243</span>              : func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, verge bool) ([][]maptemplate.MapCell, consts.Tile, func(x, y int) bool, error) {</span>
+<span id="L243"><span class="lineNum">     243</span>              : func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, verge bool) ([][]maptemplate.MapCell, consts.Tile, error) {</span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         if loader.HasRooms(lot.facility) {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 cells, indoor, err := roomChunkCells(loader, lot, l, chunkW, chunkH, verge)</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, verge)</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, 0, nil, fmt.Errorf(&quot;failed to plan facility %q room: %w&quot;, lot.facility, err)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, 0, fmt.Errorf(&quot;failed to plan facility %q room: %w&quot;, lot.facility, err)</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L249"><span class="lineNum">     249</span>              :                 // 区画の東と南の外だけが隣の区画の街路で、ほかの外は隣の部屋の壁か帯</span>
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC tlaBgGNC">           1 :                 w, h := int(chunkW), int(chunkH)</span></span>
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 voidEnclosedWalls(cells, tileBlocksPass(raws), func(x, y int) bool {</span></span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                         return x &gt;= w &amp;&amp; l.X == lot.w-1 || y &gt;= h &amp;&amp; l.Y == lot.h-1</span></span>
 <span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                 })</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 return cells, 0, indoor, nil</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 return cells, 0, nil</span></span>
 <span id="L255"><span class="lineNum">     255</span>              :         }</span>
 <span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         cells, err := planFacility(loader, lot.facility, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)</span></span>
 <span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, 0, nil, fmt.Errorf(&quot;failed to plan facility %q: %w&quot;, lot.facility, err)</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, 0, fmt.Errorf(&quot;failed to plan facility %q: %w&quot;, lot.facility, err)</span></span>
 <span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L260"><span class="lineNum">     260</span>              :         // 1棟の絵は街路の帯に囲まれるので、絵の外は通れるものとして数える</span>
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC tlaBgGNC">           1 :         voidEnclosedWalls(cells, tileBlocksPass(raws), func(int, int) bool { return true })</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         return cells, urbanStreetW, nil, nil</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         return cells, urbanStreetW, nil</span></span>
 <span id="L263"><span class="lineNum">     263</span>              : }</span>
 <span id="L264"><span class="lineNum">     264</span>              : </span>
 <span id="L265"><span class="lineNum">     265</span>              : // drawUrbanStreets はチャンクの北辺と西辺に街路を描く。建物区画のタイルは建物の生成が描くので触らない</span>
@@ -349,11 +349,11 @@
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           2 :         edge := func(v consts.Tile) bool { return v == 0 || v == urbanStreetW-1 }</span></span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         switch {</span></span>
 <span id="L289"><span class="lineNum">     289</span>              :         case !verge || x &lt; urbanStreetW &amp;&amp; y &lt; urbanStreetW:</span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 return consts.TileNameFloor</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 return consts.TileNameRoad</span></span>
 <span id="L291"><span class="lineNum">     291</span>              :         case y &lt; urbanStreetW &amp;&amp; edge(y), x &lt; urbanStreetW &amp;&amp; edge(x):</span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 return streetVergeTile</span></span>
 <span id="L293"><span class="lineNum">     293</span>              :         }</span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         return consts.TileNameFloor</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         return consts.TileNameRoad</span></span>
 <span id="L295"><span class="lineNum">     295</span>              : }</span>
 <span id="L296"><span class="lineNum">     296</span>              : </span>
 <span id="L297"><span class="lineNum">     297</span>              : // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから</span>

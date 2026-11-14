@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 14:33:40</td>
+            <td class="headerValue">2026-11-14 15:41:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -429,9 +429,9 @@
 <span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         return l</span></span>
 <span id="L368"><span class="lineNum">     368</span>              : }</span>
 <span id="L369"><span class="lineNum">     369</span>              : </span>
-<span id="L370"><span class="lineNum">     370</span>              : // amount は地面 e に積もる雪の量を返す。雪が積もる地面で屋根が無いときだけ正になる</span>
+<span id="L370"><span class="lineNum">     370</span>              : // amount は地面 e に積もる雪の量を返す。通れて屋根の無い地面のときだけ正になる</span>
 <span id="L371"><span class="lineNum">     371</span>              : func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Tile]) float64 {</span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         if !world.Components.Snowable.Has(e) || !world.Components.TileEnvironment.Has(e) ||</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         if world.Components.BlockPass.Has(e) || !world.Components.TileEnvironment.Has(e) ||</span></span>
 <span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :                 world.Resources.TileEnvDefs.Shelters[world.Components.TileEnvironment.Get(e).Shelter].Covered {</span></span>
 <span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         }</span></span>

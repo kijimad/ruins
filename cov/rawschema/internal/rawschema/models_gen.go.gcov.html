@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 14:33:40</td>
+            <td class="headerValue">2026-11-14 15:41:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -2283,7 +2283,7 @@
 <span id="L2221"><span class="lineNum">    2221</span>              : type ShelterEffect struct {</span>
 <span id="L2222"><span class="lineNum">    2222</span>              :         AnchorTemp TileTempModifier `json:&quot;anchorTemp&quot;`</span>
 <span id="L2223"><span class="lineNum">    2223</span>              : </span>
-<span id="L2224"><span class="lineNum">    2224</span>              :         // Covered 屋根か壁に覆われているか。覆われないタイルに繋がる領域は屋外とみなす</span>
+<span id="L2224"><span class="lineNum">    2224</span>              :         // Covered 屋根に覆われているか。覆われない通れるタイルには雪が積もる</span>
 <span id="L2225"><span class="lineNum">    2225</span>              :         Covered bool `json:&quot;covered&quot;`</span>
 <span id="L2226"><span class="lineNum">    2226</span>              : </span>
 <span id="L2227"><span class="lineNum">    2227</span>              :         Id Shelter `json:&quot;id&quot;`</span>
@@ -2588,8 +2588,8 @@
 <span id="L2526"><span class="lineNum">    2526</span>              : </span>
 <span id="L2527"><span class="lineNum">    2527</span>              :         Name EntityName `json:&quot;name&quot;`</span>
 <span id="L2528"><span class="lineNum">    2528</span>              : </span>
-<span id="L2529"><span class="lineNum">    2529</span>              :         // Snowable 雪が積もる地面か。屋根の無い場所で、その日の平均気温に応じた量の雪を重ねて描く</span>
-<span id="L2530"><span class="lineNum">    2530</span>              :         Snowable *bool `json:&quot;snowable,omitempty&quot;`</span>
+<span id="L2529"><span class="lineNum">    2529</span>              :         // Shelter 囲われの度合い。省くと屋外</span>
+<span id="L2530"><span class="lineNum">    2530</span>              :         Shelter *Shelter `json:&quot;shelter,omitempty&quot;`</span>
 <span id="L2531"><span class="lineNum">    2531</span>              : </span>
 <span id="L2532"><span class="lineNum">    2532</span>              :         // Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない</span>
 <span id="L2533"><span class="lineNum">    2533</span>              :         Spawn *TileSpawn `json:&quot;spawn,omitempty&quot;`</span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">69.3&nbsp;%</td>
+            <td class="headerCovTableEntryLo">70.6&nbsp;%</td>
             <td class="headerCovTableEntry">153</td>
-            <td class="headerCovTableEntry">106</td>
+            <td class="headerCovTableEntry">108</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 14:33:40</td>
+            <td class="headerValue">2026-11-14 15:41:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -328,9 +328,9 @@
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                         panel.Line(fmt.Sprintf(&quot;%s: %+d&quot;, query.T(world, &quot;Temperature modifier&quot;), defs.TempModifier(*temp)))</span></span>
 <span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                         // Shelter は加算℃でなく世界温度の緩和度なので、数値でなく囲われの度合いの名前だけ示す</span></span>
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                         if defs.Shelters[temp.Shelter].Covered {</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC tlaBgUNC">           0 :                                 panel.Line(&quot;  &quot; + query.ShelterName(world, temp.Shelter))</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC tlaBgGNC">           1 :                         if v := defs.Water[temp.Water]; v != 0 {</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                                 panel.Line(&quot;  &quot; + query.ShelterName(world, temp.Shelter))</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                         if v := defs.Water[temp.Water]; v != 0 {</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC tlaBgUNC">           0 :                                 panel.Line(fmt.Sprintf(&quot;  %s: %+d&quot;, query.T(world, &quot;Waterside&quot;), v))</span></span>
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC tlaBgGNC">           1 :                         if v := defs.Foliage[temp.Foliage]; v != 0 {</span></span>
