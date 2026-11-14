@@ -371,12 +371,14 @@ func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くと
 	t.Parallel()
 
 	landmark := rawschema.EntityID("armory")
-	raws := func(minDanger *int) rawschema.Raws {
+	layers := []rawschema.DistrictLayer{{Zones: []rawschema.Zone{rawschema.MilitaryArmory}}}
+	raws := func(zone rawschema.Zone, minDanger *int) rawschema.Raws {
 		return rawschema.Raws{
-			Districts:  &[]rawschema.District{{Id: "base", Landmark: &landmark}},
-			Facilities: &[]rawschema.Facility{{Id: "armory", Zones: []rawschema.FacilityZone{{Zone: rawschema.MilitaryArmory, Weight: 1, MinSpan: 1, MinDanger: minDanger}}}},
+			Districts:  &[]rawschema.District{{Id: "base", Landmark: &landmark, Layers: layers}},
+			Facilities: &[]rawschema.Facility{{Id: "armory", Zones: []rawschema.FacilityZone{{Zone: zone, Weight: 1, MinSpan: 1, MinDanger: minDanger}}}},
 		}
 	}
-	require.NoError(t, validateLandmarkMinDanger(raws(nil)))
-	require.ErrorIs(t, validateLandmarkMinDanger(raws(new(3))), errLandmarkMinDanger)
+	require.NoError(t, validateLandmarkMinDanger(raws(rawschema.MilitaryArmory, nil)))
+	require.ErrorIs(t, validateLandmarkMinDanger(raws(rawschema.MilitaryArmory, new(3))), errLandmarkMinDanger)
+	require.NoError(t, validateLandmarkMinDanger(raws(rawschema.Downtown, new(3))), "区域が割り振らない地区の行は抽選を通るので深さの下限を書ける")
 }

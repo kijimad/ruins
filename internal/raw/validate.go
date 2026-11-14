@@ -148,8 +148,8 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateLandmarkMinDanger は区域の目玉の施設が、出る地区の行に深さの下限を持たないことを検証する。
-// 目玉の施設は抽選を通らず区域に必ず1つ建つので、深さの下限を書いても効かない
+// validateLandmarkMinDanger は区域の目玉の施設が、その区域が割り振る地区の行に深さの下限を持たないことを検証する。
+// 目玉の施設は抽選を通らず区域に必ず1つ建つので、深さの下限を書いても効かない。区域の外の地区の行は抽選を通るので見ない
 func validateLandmarkMinDanger(raws rawschema.Raws) error {
 	for _, d := range PtrSlice(raws.Districts) {
 		if d.Landmark == nil {
@@ -159,8 +159,9 @@ func validateLandmarkMinDanger(raws rawschema.Raws) error {
 		if !ok {
 			continue
 		}
+		zones := DistrictZones(d)
 		for _, z := range f.Zones {
-			if z.MinDanger != nil {
+			if z.MinDanger != nil && slices.Contains(zones, z.Zone) {
 				return fmt.Errorf("district %q landmark %q zone %q: %w", d.Id, f.Id, z.Zone, errLandmarkMinDanger)
 			}
 		}
