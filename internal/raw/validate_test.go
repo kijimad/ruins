@@ -366,3 +366,17 @@ func TestValidateRules_空のRawsは通る(t *testing.T) {
 	t.Parallel()
 	require.NoError(t, validateRules(rawschema.Raws{}))
 }
+
+func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くとエラー(t *testing.T) {
+	t.Parallel()
+
+	landmark := rawschema.EntityID("armory")
+	raws := func(minDanger *int) rawschema.Raws {
+		return rawschema.Raws{
+			Districts:  &[]rawschema.District{{Id: "base", Landmark: &landmark}},
+			Facilities: &[]rawschema.Facility{{Id: "armory", Zones: []rawschema.FacilityZone{{Zone: rawschema.MilitaryArmory, Weight: 1, MinSpan: 1, MinDanger: minDanger}}}},
+		}
+	}
+	require.NoError(t, validateLandmarkMinDanger(raws(nil)))
+	require.ErrorIs(t, validateLandmarkMinDanger(raws(new(3))), errLandmarkMinDanger)
+}

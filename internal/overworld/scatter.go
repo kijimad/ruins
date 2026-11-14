@@ -194,8 +194,9 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 	// 続けて樹木・岩を疎に撒く。Big の大物は位相 0 かつ経路外のタイルにだけ乗せ、二段で通行性を担保する。
 	selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
 	propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
+	spawnRow := spawnRowOf(world)
 	for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, propCount) {
-		bigAllowed := onBigPhase(rel) && !onScatterRoute(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world), g, absTile(rel))
+		bigAllowed := onBigPhase(rel) && !onScatterRoute(world.Resources.RawMaster, runSeed, c, cols, spawnRow, g, absTile(rel))
 		roll := hashTileCoord(selSeed, rel)
 		entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
 		if entry.Ref == "" {

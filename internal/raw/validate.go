@@ -17,6 +17,7 @@ var (
 	errDistrictSizeOutOfRegion       = errors.New("district size does not fit in its region")
 	errDistrictTooShort              = errors.New("district is shorter than its layers")
 	errDistrictLayers                = errors.New("district layers do not fit its pattern")
+	errLandmarkMinDanger             = errors.New("landmark facility has minDanger")
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
 	errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
 	errMapGlyphMissing               = errors.New("map glyph is missing")
@@ -44,6 +45,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateDisassemblies,
 		validateDistricts,
 		validateZoneBaseFacilities,
+		validateLandmarkMinDanger,
 		validateMapGlyphReferences,
 		validateConditions,
 		validateWeathers,
@@ -140,6 +142,26 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 			})
 			if !hasBase {
 				return fmt.Errorf("district %q zone %q has no facility with minSpan<=%d and minDanger<=1: %w", d.Id, zone, baseSpan, errZoneNoBaseFacility)
+			}
+		}
+	}
+	return nil
+}
+
+// validateLandmarkMinDanger は区域の目玉の施設が、出る地区の行に深さの下限を持たないことを検証する。
+// 目玉の施設は抽選を通らず区域に必ず1つ建つので、深さの下限を書いても効かない
+func validateLandmarkMinDanger(raws rawschema.Raws) error {
+	for _, d := range PtrSlice(raws.Districts) {
+		if d.Landmark == nil {
+			continue
+		}
+		f, ok := GetFacility(raws, *d.Landmark)
+		if !ok {
+			continue
+		}
+		for _, z := range f.Zones {
+			if z.MinDanger != nil {
+				return fmt.Errorf("district %q landmark %q zone %q: %w", d.Id, f.Id, z.Zone, errLandmarkMinDanger)
 			}
 		}
 	}

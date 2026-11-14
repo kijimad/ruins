@@ -324,12 +324,17 @@ func TestFacilities_2チャンク以上になりうる施設は部屋の絵を�
 func largestFittingFootprint(raws rawschema.Raws, r districtRegion, fac string) consts.Chunk {
 	f, _ := raw.GetFacility(raws, fac)
 	minC, maxC := consts.Coord[consts.Chunk]{X: r.w, Y: r.h}, consts.Coord[consts.Chunk]{X: -1, Y: -1}
-	for y := range r.h {
-		for x := range r.w {
-			if r.zoneAt(consts.Coord[consts.Chunk]{X: x, Y: y}) == f.Zones[0].Zone {
-				minC = consts.Coord[consts.Chunk]{X: min(minC.X, x), Y: min(minC.Y, y)}
-				maxC = consts.Coord[consts.Chunk]{X: max(maxC.X, x), Y: max(maxC.Y, y)}
+	for _, fz := range f.Zones {
+		for y := range r.h {
+			for x := range r.w {
+				if r.zoneAt(consts.Coord[consts.Chunk]{X: x, Y: y}) == fz.Zone {
+					minC = consts.Coord[consts.Chunk]{X: min(minC.X, x), Y: min(minC.Y, y)}
+					maxC = consts.Coord[consts.Chunk]{X: max(maxC.X, x), Y: max(maxC.Y, y)}
+				}
 			}
+		}
+		if maxC.X >= 0 {
+			break
 		}
 	}
 	var best consts.Chunk
