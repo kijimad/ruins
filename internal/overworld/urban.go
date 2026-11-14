@@ -241,8 +241,11 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
 		if err != nil {
 			return nil, 0, nil, fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
 		}
-		// 部屋の絵はチャンク全体を覆い、チャンクの外は隣の部屋の外壁なので壁として数える
-		voidEnclosedWalls(cells, tileBlocksPass(raws), true)
+		// チャンクの北と西の外、区画の内側の東と南の外は隣の部屋の壁か扉の帯なので壁と数える。区画の東と南の外は隣の区画の街路
+		w, h := int(chunkW), int(chunkH)
+		voidEnclosedWalls(cells, tileBlocksPass(raws), func(x, y int) bool {
+			return x >= w && l.X == lot.w-1 || y >= h && l.Y == lot.h-1
+		})
 		return cells, 0, indoor, nil
 	}
 	cells, err := planFacility(loader, lot.facility, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
@@ -250,7 +253,7 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
 		return nil, 0, nil, fmt.Errorf("failed to plan facility %q: %w", lot.facility, err)
 	}
 	// 1棟の絵は街路の帯に囲まれるので、絵の外は通れるものとして数える
-	voidEnclosedWalls(cells, tileBlocksPass(raws), false)
+	voidEnclosedWalls(cells, tileBlocksPass(raws), func(int, int) bool { return true })
 	return cells, urbanStreetW, nil, nil
 }
 

@@ -271,7 +271,7 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 	}
 
 	walled := parse(rows)
-	voidEnclosedWalls(walled, blocks, true)
+	voidEnclosedWalls(walled, blocks, func(int, int) bool { return false })
 	assert.Equal(t, []string{
 		"      ",
 		"      ",
@@ -281,7 +281,7 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 	}, render(walled), "マスの外を壁と数えると、外周の壁も床に接しなければ虚空になる")
 
 	open := parse(rows)
-	voidEnclosedWalls(open, blocks, false)
+	voidEnclosedWalls(open, blocks, func(int, int) bool { return true })
 	assert.Equal(t, []string{
 		"######",
 		"#    #",
@@ -289,4 +289,14 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 		"######",
 		"#....#",
 	}, render(open), "マスの外を通れると数えると、外周の壁は残る")
+
+	east := parse(rows)
+	voidEnclosedWalls(east, blocks, func(x, _ int) bool { return x >= 6 })
+	assert.Equal(t, []string{
+		"     #",
+		"     #",
+		"  w  #",
+		"######",
+		"#....#",
+	}, render(east), "通れる外に面する辺の壁だけが残る")
 }
