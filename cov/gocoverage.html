@@ -107,7 +107,7 @@
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -397,7 +397,7 @@
 				
 				<option value="file170">github.com/kijimaD/ruins/internal/mapplanner/pathfinder.go (95.5%)</option>
 				
-				<option value="file171">github.com/kijimaD/ruins/internal/mapplanner/plan.go (82.9%)</option>
+				<option value="file171">github.com/kijimaD/ruins/internal/mapplanner/plan.go (86.1%)</option>
 				
 				<option value="file172">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (100.0%)</option>
 				
@@ -437,7 +437,7 @@
 				
 				<option value="file190">github.com/kijimaD/ruins/internal/overworld/building.go (95.5%)</option>
 				
-				<option value="file191">github.com/kijimaD/ruins/internal/overworld/chunkgen.go (76.9%)</option>
+				<option value="file191">github.com/kijimaD/ruins/internal/overworld/chunkgen.go (77.8%)</option>
 				
 				<option value="file192">github.com/kijimaD/ruins/internal/overworld/district.go (97.5%)</option>
 				
@@ -455,19 +455,19 @@
 				
 				<option value="file199">github.com/kijimaD/ruins/internal/overworld/grass_density.go (100.0%)</option>
 				
-				<option value="file200">github.com/kijimaD/ruins/internal/overworld/landmark.go (86.8%)</option>
+				<option value="file200">github.com/kijimaD/ruins/internal/overworld/landmark.go (87.3%)</option>
 				
 				<option value="file201">github.com/kijimaD/ruins/internal/overworld/loot_scatter.go (83.3%)</option>
 				
 				<option value="file202">github.com/kijimaD/ruins/internal/overworld/macro_view.go (100.0%)</option>
 				
-				<option value="file203">github.com/kijimaD/ruins/internal/overworld/road.go (88.9%)</option>
+				<option value="file203">github.com/kijimaD/ruins/internal/overworld/road.go (90.9%)</option>
 				
 				<option value="file204">github.com/kijimaD/ruins/internal/overworld/road_geometry.go (97.7%)</option>
 				
 				<option value="file205">github.com/kijimaD/ruins/internal/overworld/road_overlay.go (100.0%)</option>
 				
-				<option value="file206">github.com/kijimaD/ruins/internal/overworld/scatter.go (94.0%)</option>
+				<option value="file206">github.com/kijimaD/ruins/internal/overworld/scatter.go (94.3%)</option>
 				
 				<option value="file207">github.com/kijimaD/ruins/internal/overworld/scatter_tiles.go (89.3%)</option>
 				
@@ -477,7 +477,7 @@
 				
 				<option value="file210">github.com/kijimaD/ruins/internal/overworld/settlement.go (87.5%)</option>
 				
-				<option value="file211">github.com/kijimaD/ruins/internal/overworld/urban.go (90.9%)</option>
+				<option value="file211">github.com/kijimaD/ruins/internal/overworld/urban.go (91.1%)</option>
 				
 				<option value="file212">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
@@ -485,7 +485,7 @@
 				
 				<option value="file214">github.com/kijimaD/ruins/internal/raw/raw.go (96.2%)</option>
 				
-				<option value="file215">github.com/kijimaD/ruins/internal/raw/validate.go (97.9%)</option>
+				<option value="file215">github.com/kijimaD/ruins/internal/raw/validate.go (98.0%)</option>
 				
 				<option value="file216">github.com/kijimaD/ruins/internal/rawschema/models_gen.go (0.0%)</option>
 				
@@ -767,7 +767,7 @@
 				
 				<option value="file355">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (71.4%)</option>
 				
-				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.8%)</option>
+				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.2%)</option>
 				
 				<option value="file357">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (91.4%)</option>
 				
@@ -5479,7 +5479,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -21428,6 +21428,8 @@ type MetaPlan struct {
         // Danger はこのプランに適用する危険度。敵やアイテムの湧きフィルタに使う。1以上であること。
         // 呼び出し側が世界の現在地から確定して渡す。
         Danger consts.Danger
+        // Ground は全面を埋める下地のタイル。地上の計画だけが使う
+        Ground string
         // 階層情報
         Level gc.Level
         // 部屋群。部屋は長方形の移動可能な空間のことをいう。
@@ -21725,6 +21727,8 @@ type PlannerType struct {
         ItemTableName string
         // 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。
         Danger consts.Danger
+        // 全面を埋める下地のタイル。地上の計画だけが使い、空ならエラーにする
+        Ground string
         // プランナー関数
         PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }
@@ -21769,6 +21773,7 @@ var (
         // 通行可能がデフォルトで障壁は例外。チャンクを継いでも東西通行が保証される。
         // UseFixedPortalPos=true はフロア降り/帰還ポータルを持たないため、
         // 手続き的なポータル配置をスキップさせる意味で使う。
+        // 下地は区分ごとに決まるので持たない。使う側が Ground を補わないと ErrGroundNotSet になる。
         PlannerTypeOverworldField = PlannerType{
                 Name:              "Overworld Field",
                 UseFixedPortalPos: true,
@@ -21813,7 +21818,7 @@ var (
 </span>                },
         }
 
-        // AllPlannerTypes はPlannerFuncを持つ全PlannerTypeの一覧。
+        // AllPlannerTypes はPlannerFuncを持つ全PlannerTypeの一覧。地上の計画は Ground を補って使う。
         // ランダム選択用のPlannerTypeRandomは含まない
         AllPlannerTypes = []PlannerType{
                 PlannerTypeSmallRoom,
@@ -22125,7 +22130,14 @@ func createLShapedCorridor(start, end consts.Coord[consts.Tile]) []consts.Coord[
 		
 		<pre class="file" id="file169" style="display: none">package mapplanner
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+        "errors"
+
+        "github.com/kijimaD/ruins/internal/consts"
+)
+
+// ErrGroundNotSet は下地を渡さずに地上の計画を組んだときのエラー
+var ErrGroundNotSet = errors.New("ground tile is not set")
 
 // OverworldFieldPlanner はオーバーワールドの「開けた地形」チャンクの初期プランナー。
 //
@@ -22136,13 +22148,28 @@ type OverworldFieldPlanner struct{}
 // PlanInitial は初期化を行う。開けた地形は部屋を持たないため何もしない。
 func (OverworldFieldPlanner) PlanInitial(_ *MetaPlan) error { <span class="cov8" title="1">return nil }</span>
 
-// NewOverworldFieldPlanner は開けた地形のチェーンを作る。全面を dirt で埋めるだけで障壁は置かない。
+// NewOverworldFieldPlanner は開けた地形のチェーンを作る。全面を下地で埋めるだけで障壁は置かない。
 func NewOverworldFieldPlanner(width, height consts.Tile, seed uint64) (*PlannerChain, error) {
         <span class="cov8" title="1">chain := NewPlannerChain(width, height, seed)
         chain.StartWith(OverworldFieldPlanner{})
-        chain.With(NewFillAll(consts.TileNameDirt))
+        chain.With(FillGround{})
         return chain, nil
 </span>}
+
+// FillGround は全面を計画の下地 MetaPlan.Ground で埋める
+type FillGround struct{}
+
+// PlanMeta は全面を下地で埋める。下地が空ならエラーにする
+func (FillGround) PlanMeta(planData *MetaPlan) error {
+        <span class="cov8" title="1">if planData.Ground == "" </span>{
+                <span class="cov8" title="1">return ErrGroundNotSet
+</span>        }
+        <span class="cov8" title="1">ground := planData.GetTile(planData.Ground)
+        for i := range planData.Tiles </span>{
+                <span class="cov8" title="1">planData.Tiles[i] = ground
+</span>        }
+        <span class="cov8" title="1">return nil</span>
+}
 </pre>
 		
 		<pre class="file" id="file170" style="display: none">package mapplanner
@@ -22416,7 +22443,7 @@ func Plan(world w.World, width, height consts.Tile, seed uint64, plannerType Pla
 </span>
                 // 接続性エラー以外は即座に失敗
                 <span class="cov8" title="1">if !errors.Is(err, ErrConnectivity) </span>{
-                        <span class="cov0" title="0">return nil, fmt.Errorf("plan generation failed (PlannerType=%s, seed=%d): %w", plannerType.Name, seed, err)
+                        <span class="cov8" title="1">return nil, fmt.Errorf("plan generation failed (PlannerType=%s, seed=%d): %w", plannerType.Name, seed, err)
 </span>                }
         }
 
@@ -22447,6 +22474,7 @@ func BuildChain(world w.World, width, height consts.Tile, seed uint64, plannerTy
         // 危険度を成果物 MetaPlan にも記録する。生成後に loot を撒く mapspawner は
         // 完成した MetaPlan だけを受け取り plannerType を持たないため、危険度を成果物側へ載せておく。
         <span class="cov8" title="1">chain.PlanData.Danger = plannerType.Danger
+        chain.PlanData.Ground = plannerType.Ground
 </span>
         <span class="cov8" title="1">chain.With(NewHostileNPCPlanner(world, plannerType))
         chain.With(NewItemPlanner(world, plannerType))
@@ -26051,7 +26079,7 @@ func edgeKey(a, b consts.Coord[consts.Chunk]) [2]consts.Coord[consts.Chunk] {
 
 // roomChunkCells は区画 b の中の座標 l のチャンクの部屋の絵を引き、北と西の帯と合わせてチャンク全体のマスを組む。
 // 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする
-func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, verge bool) ([][]maptemplate.MapCell, error) {
+func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, streets streetTiles) ([][]maptemplate.MapCell, error) {
         <span class="cov8" title="1">edges := b.roomEdges(l)
         _, room, err := loader.FacilityRoom(b.facility, edges, ChunkSeed2D(b.seed, l.X, l.Y))
         if err != nil </span>{
@@ -26067,7 +26095,7 @@ func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.
         for y := range cells </span>{
                 <span class="cov8" title="1">cells[y] = make([]maptemplate.MapCell, w)
                 for x := range cells[y] </span>{
-                        <span class="cov8" title="1">cells[y][x] = maptemplate.MapCell{Terrain: streetTerrain(consts.Tile(x), consts.Tile(y), verge)}
+                        <span class="cov8" title="1">cells[y][x] = maptemplate.MapCell{Terrain: streetTerrain(consts.Tile(x), consts.Tile(y), streets)}
 </span>                }
         }
         <span class="cov8" title="1">for y, row := range room </span>{
@@ -26145,6 +26173,7 @@ import (
         "github.com/kijimaD/ruins/internal/consts"
         mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
         "github.com/kijimaD/ruins/internal/mapspawner"
+        "github.com/kijimaD/ruins/internal/raw"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/stage"
         "github.com/kijimaD/ruins/internal/worldstream"
@@ -26171,7 +26200,13 @@ func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {
 // cols は帯の列数で当選列の抽選に使う。
 func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, cols consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {
         <span class="cov8" title="1">return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error </span>{
-                <span class="cov8" title="1">plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), planner)
+                <span class="cov8" title="1">zone, ok := raw.GetScatterZone(world.Resources.RawMaster, string(outdoorZoneAt(world.Resources.RawMaster, runSeed, c, cols)))
+                if !ok </span>{
+                        <span class="cov0" title="0">return fmt.Errorf("chunk (x=%d, y=%d): %w", c.X, c.Y, errScatterZoneMissing)
+</span>                }
+                <span class="cov8" title="1">zoned := planner
+                zoned.Ground = zone.Ground
+                plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), zoned)
                 if err != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("failed to generate chunk (x=%d, y=%d): %w", c.X, c.Y, err)
 </span>                }
@@ -27171,6 +27206,7 @@ func smoothstep(t float64) float64 {
 		<pre class="file" id="file200" style="display: none">package overworld
 
 import (
+        "errors"
         "fmt"
         "math/rand/v2"
 
@@ -27202,6 +27238,8 @@ type wildernessLandmarkFeature struct{}
 // landmarkDrawer はランドマーク1種を描く関数。
 type landmarkDrawer func(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error
 
+var errHutTilesMissing = errors.New("hut landmark has no floor or wall tile")
+
 // drawers は drawer キーから描画関数を引く。
 var drawers = map[rawschema.DrawerKey]landmarkDrawer{
         rawschema.Hut:  drawHutLandmark,
@@ -27214,7 +27252,10 @@ func drawHutLandmark(world w.World, g chunkGeom, rng *rand.Rand, origin consts.C
         for i, p := range lm.Props </span>{
                 <span class="cov8" title="1">names[i] = p.Name
 </span>        }
-        <span class="cov8" title="1">return drawHut(world, g, rng, origin, consts.Tile(lm.HutW), consts.Tile(lm.HutH), names)</span>
+        <span class="cov8" title="1">if lm.HutFloor == nil || lm.HutWall == nil </span>{
+                <span class="cov8" title="1">return fmt.Errorf("landmark %q: %w", lm.Id, errHutTilesMissing)
+</span>        }
+        <span class="cov8" title="1">return drawHut(world, g, rng, origin, consts.Tile(lm.HutW), consts.Tile(lm.HutH), *lm.HutFloor, *lm.HutWall, names)</span>
 }
 
 // drawOpenLandmark は prop を相対座標で露天に置く。
@@ -27258,16 +27299,16 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 
 // drawHut は外周壁・内側床・南辺出入口の小屋を置き、内装 prop を屋内へ順に配置する。
 // 市街地の街区と同じ構法だが、単チャンク完結なので断片クリップは不要。
-func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], hw, hh consts.Tile, props []string) error {
+func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], hw, hh consts.Tile, floor, wall string, props []string) error {
         <span class="cov8" title="1">tiles := g.tiles.get()
         ox, oy := origin.X, origin.Y
         door := ox + 1 + consts.Tile(rng.IntN(int(hw-2)))
         for ly := oy; ly &lt; oy+hh; ly++ </span>{
                 <span class="cov8" title="1">for lx := ox; lx &lt; ox+hw; lx++ </span>{
-                        <span class="cov8" title="1">name := consts.TileNameFloor
+                        <span class="cov8" title="1">name := floor
                         perimeter := lx == ox || lx == ox+hw-1 || ly == oy || ly == oy+hh-1
                         if perimeter &amp;&amp; (ly != oy+hh-1 || lx != door) </span>{
-                                <span class="cov8" title="1">name = consts.TileNameDWall
+                                <span class="cov8" title="1">name = wall
 </span>                        }
                         <span class="cov8" title="1">if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil </span>{
                                 <span class="cov0" title="0">return fmt.Errorf("failed to place landmark hut (x=%d, y=%d): %w", lx, ly, err)
@@ -27543,7 +27584,8 @@ func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Ch
 // drawRoadSegments は道の辺 segs のうち、チャンク c に含まれるマスだけを舗装する。既存タイルが土のマスだけを
 // 置き換え、市街地の壁や床、集落は壊さない。
 func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs []roadSeg, c consts.Coord[consts.Chunk], g chunkGeom) error {
-        <span class="cov8" title="1">pave := func(px, py consts.Tile) error </span>{
+        <span class="cov8" title="1">earth := earthTilesOf(world.Resources.RawMaster)
+        pave := func(px, py consts.Tile) error </span>{
                 <span class="cov8" title="1">loX := c.X.Tiles(g.chunkW)
                 loY := c.Y.Tiles(g.chunkH)
                 if px &lt; loX || px &gt;= loX+g.chunkW || py &lt; loY || py &gt;= loY+g.chunkH </span>{
@@ -27551,14 +27593,14 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs [
 </span>                }
                 <span class="cov8" title="1">wx := g.offsetX + (px - loX)
                 wy := g.offsetY + (py - loY)
-                if err := replaceDirtTile(world, tiles, consts.Coord[consts.Tile]{X: wx, Y: wy}); err != nil </span>{
+                if err := paveEarthTile(world, tiles, earth, consts.Coord[consts.Tile]{X: wx, Y: wy}); err != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("failed to pave road (x=%d, y=%d): %w", wx, wy, err)
 </span>                }
                 <span class="cov8" title="1">return nil</span>
         }
 
         // 各辺を幅 roadWidth のバンドで敷く。進行軸に沿って可変軸を進め、垂直に roadWidth ぶん広げる。
-        // 角付近は両辺のバンドが重なるが replaceDirtTile は冪等なので二重舗装は無害。
+        // 角付近は両辺のバンドが重なるが paveEarthTile は冪等なので二重舗装は無害。
         <span class="cov8" title="1">for _, seg := range segs </span>{
                 <span class="cov8" title="1">for v := seg.lo; v &lt;= seg.hi; v++ </span>{
                         <span class="cov8" title="1">for w := range roadWidth </span>{
@@ -27576,15 +27618,10 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs [
         <span class="cov8" title="1">return nil</span>
 }
 
-// replaceDirtTile は座標のタイルが土のときだけ道へ置き換える。土以外は他の地物の
+// paveEarthTile は座標のタイルが土の地面のときだけ道へ置き換える。土でないタイルは他の地物の
 // 生成物なので触らない。
-func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) error {
-        <span class="cov8" title="1">g := gc.GridElement{Coord: pos}
-        e, ok := tiles[g]
-        if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) </span>{
-                <span class="cov0" title="0">return nil
-</span>        }
-        <span class="cov8" title="1">if world.Components.RawID.Get(e).ID != consts.TileNameDirt </span>{
+func paveEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, earth earthTiles, pos consts.Coord[consts.Tile]) error {
+        <span class="cov8" title="1">if !earth.at(world, tiles, pos) </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">_, err := replaceTile(world, tiles, pos, consts.TileNameRoad)
@@ -27808,6 +27845,7 @@ func markRoadPath(overlay map[consts.Coord[consts.Chunk]]RoadDir, segs []roadSeg
 		<pre class="file" id="file206" style="display: none">package overworld
 
 import (
+        "errors"
         "fmt"
         "math"
 
@@ -27853,6 +27891,8 @@ type scatterCatalog struct {
         Soil         []scatterEntry // 土の飾りの種類と重み
 }
 
+var errScatterZoneMissing = errors.New("scatter zone not found")
+
 // outdoorZone は wasteland チャンクの人の手の残り具合。近傍の集落・市街地までの距離で決まる。
 // 実体は文字列にし、%v やログで数値でなく種別名が出て読みやすい。iota の連番は割に合わないので使わない。
 type outdoorZone string
@@ -27872,7 +27912,7 @@ const (
         scatterBigPhaseK   consts.Tile = 2
         // scatterRouteBuffer は経路マスクのバッファ幅。隊商の横断レーンを確保するため、算出した経路の
         // 直線からこのタイル数以内では Big の大物を置かない。road.go の roadWidth とは独立で、舗装済みの道は
-        // floor 化されて isEarthTile で弾かれ散布対象外になる。ここが守るのは舗装されない wasteland 内の横断レーン。
+        // 道のタイルになり土の地面でなくなるので散布対象外になる。ここが守るのは舗装されない wasteland 内の横断レーン。
         scatterRouteBuffer consts.Tile = 2
         // scatterRoadsideRange は道沿いゾーンの半径。集落・市街の当選チャンクからこのチャンク数以内を
         // 道沿いにする。道は集落間を結ぶので、集落の近傍が道沿いの帯を兼ねる。
@@ -27885,17 +27925,26 @@ const (
         scatterSoilChannel uint64 = 0x736f696c5f5f7072 // "soil__pr"
 )
 
-// scatterEarthTiles は自然物を立てられる土系タイル。草の prop もこの上に撒く。dirt が基調で、砂土は
-// 将来ムラを足すときの受け皿として許す。
-var scatterEarthTiles = map[string]bool{
-        consts.TileNameDirt: true, "sand_orange": true, "sand_red": true, "sand_pink": true,
+// earthTiles は土の地面のタイルの id の集合。草や木を立てられ、道で上書きしてよい
+type earthTiles map[string]bool
+
+// earthTilesOf はタイルの行の earth 欄から土の地面の集合を組む
+func earthTilesOf(raws rawschema.Raws) earthTiles {
+        <span class="cov8" title="1">set := earthTiles{}
+        tiles := raw.PtrSlice(raws.Tiles)
+        for i := range tiles </span>{
+                <span class="cov8" title="1">if tiles[i].Earth != nil &amp;&amp; *tiles[i].Earth </span>{
+                        <span class="cov8" title="1">set[tiles[i].Id] = true
+</span>                }
+        }
+        <span class="cov8" title="1">return set</span>
 }
 
 // scatterCatalogFrom は zone の散布定義を scatterZones 行から組み立てる。未登録 zone は error。
 func scatterCatalogFrom(raws rawschema.Raws, zone outdoorZone) (scatterCatalog, error) {
         <span class="cov8" title="1">sz, ok := raw.GetScatterZone(raws, string(zone))
         if !ok </span>{
-                <span class="cov8" title="1">return scatterCatalog{}, fmt.Errorf("scatter zone %q not found", zone)
+                <span class="cov8" title="1">return scatterCatalog{}, fmt.Errorf("scatter zone %q: %w", zone, errScatterZoneMissing)
 </span>        }
         <span class="cov8" title="1">entries := make([]scatterEntry, len(sz.Entries))
         for i, e := range sz.Entries </span>{
@@ -27957,6 +28006,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 
         <span class="cov8" title="1">tiles := g.tiles.get()
         occupied := blockedTilesInChunk(world, g)
+        earth := earthTilesOf(world.Resources.RawMaster)
 </span>
         <span class="cov8" title="1">loX, loY := c.X.Tiles(g.chunkW), c.Y.Tiles(g.chunkH)
         bandLocal := func(rel consts.Coord[consts.Tile]) consts.Coord[consts.Tile] </span>{
@@ -27968,7 +28018,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
         // 候補は土系の地面かつ非占有。占有は BlockPass の壁と、先に撒いた草・prop を含む
         <span class="cov8" title="1">accept := func(rel consts.Coord[consts.Tile]) bool </span>{
                 <span class="cov8" title="1">bl := bandLocal(rel)
-                return isEarthTile(world, tiles, bl) &amp;&amp; !occupied[gc.GridElement{Coord: bl}]
+                return earth.at(world, tiles, bl) &amp;&amp; !occupied[gc.GridElement{Coord: bl}]
 </span>        }
 
         // まず草と土の飾りを撒く。透明 prop なのでオートタイルの縁が出ず、地面へ自然に重なる。歩行可能なので
@@ -28008,7 +28058,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
                 if entry.Ref == "" </span>{
                         <span class="cov8" title="1">continue</span> // null 重み。ここは置かない
                 }
-                <span class="cov8" title="1">if err := placeScatterEntry(world, tiles, occupied, entry, bandLocal(rel)); err != nil </span>{
+                <span class="cov8" title="1">if err := placeScatterEntry(world, tiles, earth, occupied, entry, bandLocal(rel)); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
         }
@@ -28023,7 +28073,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 // placeScatterEntry は anchor へ prop を1個置き、Satellites を anchor 相対へ順に置く。anchor が
 // 先に占有されていれば丸ごと諦める。衛星は土系の地面かつ非占有のタイルにだけ置き、収まらない衛星は
 // 落とす。anchor だけ置いて衛星を諦める「尽きたら諦める」方針にする。
-func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occupied map[gc.GridElement]bool, entry scatterEntry, origin consts.Coord[consts.Tile]) error {
+func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, earth earthTiles, occupied map[gc.GridElement]bool, entry scatterEntry, origin consts.Coord[consts.Tile]) error {
         // scatterTiles は選定時点の occupied で候補を絞るが、その後この関数が衛星を置いて occupied を更新する。
         // 同じ scatterTiles が返した後続の anchor が、先の entry の衛星に占有されうるので入口で再確認する。
         <span class="cov8" title="1">if occupied[gc.GridElement{Coord: origin}] </span>{
@@ -28036,7 +28086,7 @@ func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occup
         for _, s := range entry.Satellites </span>{
                 <span class="cov8" title="1">pos := consts.Coord[consts.Tile]{X: origin.X + s.dx, Y: origin.Y + s.dy}
                 key := gc.GridElement{Coord: pos}
-                if occupied[key] || !isEarthTile(world, tiles, pos) </span>{
+                if occupied[key] || !earth.at(world, tiles, pos) </span>{
                         <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">if _, err := lifecycle.SpawnProp(world, s.name, pos.X, pos.Y); err != nil </span>{
@@ -28131,10 +28181,9 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
         <span class="cov8" title="1">return blocked</span>
 }
 
-// isEarthTile は帯ローカル座標 pos が土系タイル、dirt か砂土、かを返す。道の floor や壁、他フィーチャの
-// 生成物は土系でないので散布から外れる。
-func isEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
-        <span class="cov8" title="1">return scatterEarthTiles[tileIDAt(world, tiles, pos)]
+// at は帯ローカル座標 pos のタイルが土の地面かを返す。道や壁、他の地物が置いたタイルは土でない
+func (e earthTiles) at(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
+        <span class="cov8" title="1">return e[tileIDAt(world, tiles, pos)]
 </span>}
 
 // hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ
@@ -28774,8 +28823,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
                 <span class="cov8" title="1">north, south := gateColumns(r, lots)
                 fence = districtFence(r, l, g.chunkW, g.chunkH, north-r.anchor.X, south-r.anchor.X)
 </span>        }
-        <span class="cov8" title="1">verge := r.kind.Verge != nil &amp;&amp; *r.kind.Verge
-        return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, verge)</span>
+        <span class="cov8" title="1">return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, streetTilesOf(r.kind))</span>
 }
 
 // gateColumns は塀を巡らせる区域 r の、北と南の門を開ける絶対チャンク列を、区域を埋めた区画 lots から返す。
@@ -28826,19 +28874,19 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 }
 
 // renderUrbanChunk は1チャンクに街路と施設の絵と塀を置き、規模に応じた敵を湧かせる。塀はチャンク内の座標で受ける
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, lot buildingLot, l consts.Coord[consts.Chunk], danger consts.Danger, fence []consts.Coord[consts.Tile], verge bool) error {
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, lot buildingLot, l consts.Coord[consts.Chunk], danger consts.Danger, fence []consts.Coord[consts.Tile], streets streetTiles) error {
         // ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、施設の絵の 0x3 と分けて相互干渉を避ける
         <span class="cov8" title="1">rng := rand.New(rand.NewPCG(seed, 0x2))
         loader, err := maptemplate.FacilityTemplates()
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to load facility templates: %w", err)
 </span>        }
-        <span class="cov8" title="1">cells, origin, err := planUrbanChunk(world.Resources.RawMaster, loader, lot, l, g.chunkW, g.chunkH, seed, rng, verge)
+        <span class="cov8" title="1">cells, origin, err := planUrbanChunk(world.Resources.RawMaster, loader, lot, l, g.chunkW, g.chunkH, seed, rng, streets)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
         <span class="cov8" title="1">if origin != 0 </span>{
-                <span class="cov8" title="1">if err := drawUrbanStreets(world, g, verge); err != nil </span>{
+                <span class="cov8" title="1">if err := drawUrbanStreets(world, g, streets); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
         }
@@ -28863,9 +28911,9 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 
 // planUrbanChunk は区画 lot の中の座標 l のチャンクに置くマスと、マスを置くチャンク内の原点を返す。部屋の絵を持つ施設は
 // 部屋と帯でチャンク全体を組み、それ以外は街路の帯の内側に1棟の絵を置く。厚い壁の塊の内側は虚空にする
-func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, verge bool) ([][]maptemplate.MapCell, consts.Tile, error) {
+func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, streets streetTiles) ([][]maptemplate.MapCell, consts.Tile, error) {
         <span class="cov8" title="1">if loader.HasRooms(lot.facility) </span>{
-                <span class="cov8" title="1">cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, verge)
+                <span class="cov8" title="1">cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, streets)
                 if err != nil </span>{
                         <span class="cov0" title="0">return nil, 0, fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
 </span>                }
@@ -28886,14 +28934,14 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
 }
 
 // drawUrbanStreets はチャンクの北辺と西辺に街路を描く。建物区画のタイルは建物の生成が描くので触らない
-func drawUrbanStreets(world w.World, g chunkGeom, verge bool) error {
+func drawUrbanStreets(world w.World, g chunkGeom, streets streetTiles) error {
         <span class="cov8" title="1">tiles := g.tiles.get()
         for ly := range g.chunkH </span>{
                 <span class="cov8" title="1">for lx := range g.chunkW </span>{
                         <span class="cov8" title="1">if lx &gt;= urbanStreetW &amp;&amp; ly &gt;= urbanStreetW </span>{
                                 <span class="cov8" title="1">continue</span>
                         }
-                        <span class="cov8" title="1">if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, streetTerrain(lx, ly, verge)); err != nil </span>{
+                        <span class="cov8" title="1">if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, streetTerrain(lx, ly, streets)); err != nil </span>{
                                 <span class="cov0" title="0">return fmt.Errorf("failed to place urban street (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 </span>                        }
                 }
@@ -28901,20 +28949,32 @@ func drawUrbanStreets(world w.World, g chunkGeom, verge bool) error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// streetVergeTile は街路の植え込みの地形
-const streetVergeTile = "grass_green"
+// streetTiles は区域の街路に置くタイル。verge が空なら植え込みを置かない
+type streetTiles struct {
+        street string
+        verge  string
+}
 
-// streetTerrain は街路の帯のマス (x, y) の地形を返す。verge なら帯の両端の1マスを植え込みにして、建物と道の間を空ける。
-// 北と西の帯が交わる角は全て道にする
-func streetTerrain(x, y consts.Tile, verge bool) string {
+// streetTilesOf は区域の行から街路に置くタイルを組む
+func streetTilesOf(d *rawschema.District) streetTiles {
+        <span class="cov8" title="1">s := streetTiles{street: d.Street}
+        if d.Verge != nil </span>{
+                <span class="cov8" title="1">s.verge = *d.Verge
+</span>        }
+        <span class="cov8" title="1">return s</span>
+}
+
+// streetTerrain は街路の帯のマス (x, y) に置くタイルを返す。植え込みがあれば帯の両端の1マスを植え込みにして、
+// 建物と道の間を空ける。北と西の帯が交わる角は全て街路にする
+func streetTerrain(x, y consts.Tile, s streetTiles) string {
         <span class="cov8" title="1">edge := func(v consts.Tile) bool </span>{ <span class="cov8" title="1">return v == 0 || v == urbanStreetW-1 }</span>
         <span class="cov8" title="1">switch </span>{
-        case !verge || x &lt; urbanStreetW &amp;&amp; y &lt; urbanStreetW:
-                <span class="cov8" title="1">return consts.TileNameRoad</span>
+        case s.verge == "" || x &lt; urbanStreetW &amp;&amp; y &lt; urbanStreetW:
+                <span class="cov8" title="1">return s.street</span>
         case y &lt; urbanStreetW &amp;&amp; edge(y), x &lt; urbanStreetW &amp;&amp; edge(x):
-                <span class="cov8" title="1">return streetVergeTile</span>
+                <span class="cov8" title="1">return s.verge</span>
         }
-        <span class="cov8" title="1">return consts.TileNameRoad</span>
+        <span class="cov8" title="1">return s.street</span>
 }
 
 // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
@@ -30391,6 +30451,7 @@ var (
         errNeedStageNoZero               = errors.New("need stages have no stage from zero")
         errEnumRowMissing                = errors.New("enum value has no raw row")
         errTableMissing                  = errors.New("table required by code is missing")
+        errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
 )
 
 // validateRules は行の間の決まりのうち、CUE のスキーマで書かないものを検証する。
@@ -30403,6 +30464,7 @@ func validateRules(raws rawschema.Raws) error {
                 validateConditions,
                 validateWeathers,
                 validateTileEffects,
+                validateScatterZoneGrounds,
                 validateNeedStages,
 </span>        }
         <span class="cov8" title="1">for _, v := range validators </span>{
@@ -30417,8 +30479,10 @@ func validateRules(raws rawschema.Raws) error {
 // 区域がリージョンからはみ出すと、チャンクを含む区域を1つのリージョンだけ見て決められなくなる。
 // rows の区域は、行の数を書いた層を並べたうえで残りの行を占める層に1行以上を残す
 func validateDistricts(raws rawschema.Raws) error {
-        <span class="cov8" title="1">for _, d := range PtrSlice(raws.Districts) </span>{
-                <span class="cov8" title="1">if err := validateDistrictLayers(d); err != nil </span>{
+        <span class="cov8" title="1">districts := PtrSlice(raws.Districts)
+        for i := range districts </span>{
+                <span class="cov8" title="1">d := &amp;districts[i]
+                if err := validateDistrictLayers(d); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
                 <span class="cov8" title="1">fixed := 0
@@ -30439,7 +30503,7 @@ func validateDistricts(raws rawschema.Raws) error {
 
 // validateDistrictLayers は区域 d の層の数と行の数の書き方が、並べ方に合うことを検証する。
 // rings は外側と中心の2層で行の数を書かず、rows は2層以上で行の数を省いた層がちょうど1つある
-func validateDistrictLayers(d rawschema.District) error {
+func validateDistrictLayers(d *rawschema.District) error {
         <span class="cov8" title="1">rest := 0
         for _, l := range d.Layers </span>{
                 <span class="cov8" title="1">if l.Rows == nil </span>{
@@ -30476,14 +30540,16 @@ func DistrictZones(d rawschema.District) []rawschema.Zone {
 // 施設は区域の長い方の辺が minSpan 以上のときだけ建つので、一番小さい大きさの辺で足切りを越える施設が要る
 func validateZoneBaseFacilities(raws rawschema.Raws) error {
         <span class="cov8" title="1">facilities := PtrSlice(raws.Facilities)
-        for _, d := range PtrSlice(raws.Districts) </span>{
-                <span class="cov8" title="1">baseSpan := 0
+        districts := PtrSlice(raws.Districts)
+        for i := range districts </span>{
+                <span class="cov8" title="1">d := &amp;districts[i]
+                baseSpan := 0
                 for _, size := range d.Sizes </span>{
                         <span class="cov8" title="1">if span := max(size.W, size.H); baseSpan == 0 || span &lt; baseSpan </span>{
                                 <span class="cov8" title="1">baseSpan = span
 </span>                        }
                 }
-                <span class="cov8" title="1">for _, zone := range DistrictZones(d) </span>{
+                <span class="cov8" title="1">for _, zone := range DistrictZones(*d) </span>{
                         <span class="cov8" title="1">hasBase := slices.ContainsFunc(facilities, func(f rawschema.Facility) bool </span>{
                                 // 目玉の施設は区域に1つだけで、残りのチャンクの抽選からは外す
                                 <span class="cov8" title="1">if d.Landmark != nil &amp;&amp; f.Id == *d.Landmark </span>{
@@ -30796,6 +30862,23 @@ func validateWeathers(raws rawschema.Raws) error {
 </span>                }
         }
         <span class="cov8" title="1">return validateEnumRows("WeatherId", enumStrings(rawschema.WeatherIdValues()), rowIDs(weathers, func(w rawschema.Weather) rawschema.WeatherId </span>{ <span class="cov8" title="1">return w.Id }</span>))
+}
+
+// validateScatterZoneGrounds は区分の下地が土の地面のタイルを指すことを検証する。
+// 道と散布は土の地面の上にしか置かないので、土でない下地では黙って何も置かれなくなる
+func validateScatterZoneGrounds(raws rawschema.Raws) error {
+        <span class="cov8" title="1">earth := map[rawschema.EntityID]bool{}
+        tiles := PtrSlice(raws.Tiles)
+        for i := range tiles </span>{
+                <span class="cov8" title="1">earth[tiles[i].Id] = tiles[i].Earth != nil &amp;&amp; *tiles[i].Earth
+</span>        }
+        <span class="cov8" title="1">zones := PtrSlice(raws.ScatterZones)
+        for i := range zones </span>{
+                <span class="cov8" title="1">if !earth[zones[i].Ground] </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("scatter zone %q ground %q: %w", zones[i].Id, zones[i].Ground, errGroundNotEarth)
+</span>                }
+        }
+        <span class="cov8" title="1">return nil</span>
 }
 
 // validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する
@@ -31406,8 +31489,11 @@ type District struct {
         // Spacing 当選の間隔。チャンク数
         Spacing int `json:"spacing"`
 
-        // Verge 街路の両端を植え込みにして、建物と道の間を空ける
-        Verge *bool `json:"verge,omitempty"`
+        // Street 街路のタイル
+        Street EntityID `json:"street"`
+
+        // Verge 街路の両端に置く植え込みのタイル。省くと植え込みを置かず、建物と道の間を空けない
+        Verge *EntityID `json:"verge,omitempty"`
 }
 
 // DistrictLayer 地区の層。候補の地区から区域の seed で1つ選ぶ
@@ -32310,9 +32396,14 @@ type ItemValue = int
 type Landmark struct {
         Drawer DrawerKey `json:"drawer"`
 
+        // HutFloor 小屋の床と壁のタイル。drawer=hut のときだけ使い、そのとき必須
+        HutFloor *EntityID `json:"hutFloor,omitempty"`
+
         HutH int32 `json:"hutH"`
 
         HutW int32 `json:"hutW"`
+
+        HutWall *EntityID `json:"hutWall,omitempty"`
 
         Id EntityID `json:"id"`
 
@@ -32965,6 +33056,9 @@ type ScatterZone struct {
 
         GrassDensity float64 `json:"grassDensity"`
 
+        // Ground チャンクの全面を埋める下地のタイル
+        Ground EntityID `json:"ground"`
+
         Id EntityID `json:"id"`
 
         LootGroup EntityID `json:"lootGroup"`
@@ -33366,6 +33460,9 @@ type Tile struct {
         BlockView BlocksView `json:"blockView"`
 
         Description EntityDescription `json:"description"`
+
+        // Earth 草や木を立てられ、道で上書きしてよい土の地面か
+        Earth *bool `json:"earth,omitempty"`
 
         // Foliage 植生。省くと植生なし
         Foliage *Foliage `json:"foliage,omitempty"`
@@ -38782,8 +38879,8 @@ func debugMenuChoices(world w.World) (string, []Choice) {
         if !query.IsOnOverworld(world) </span>{
                 <span class="cov8" title="1">districts = nil
 </span>        }
-        <span class="cov8" title="1">for _, d := range districts </span>{
-                <span class="cov0" title="0">id := d.Id
+        <span class="cov8" title="1">for i := range districts </span>{
+                <span class="cov0" title="0">id := districts[i].Id
                 choices = append(choices, Choice{Label: "Jump to next district " + id, Run: popAfter(func(world w.World) error </span>{
                         <span class="cov0" title="0">return lifecycle.RequestStateChange(world, gc.DebugJumpToDistrictEvent(id))
 </span>                })})
@@ -55413,7 +55510,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov8" title="1">return -1</span>
+        <span class="cov0" title="0">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
