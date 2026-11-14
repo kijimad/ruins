@@ -107,6 +107,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 9/17（見送り1） | worldgen, item, gamedesign |
+| draft | [地面の雪を気温と同じ式から導き、寒さを画面に出す](docs/design/261114172029.md) | 0/6 | ui, worldgen, gamedesign |
 
 
 ## Reference
