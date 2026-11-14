@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
@@ -98,7 +97,9 @@ func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 }
 
 // TestGolden_MapGenSnapshot は全PlannerTypeの全フェーズのスナップショットを文字の地図で検証する。
-// テーブル名はダンジョン定義から取得する
+// テーブル名はダンジョン定義から取得する。
+// 目視用の参照画像も隣に置く。画像はピクセル比較せず、文字の地図が golden から変わったときだけ
+// 描き直す。比べるのは golden を書き換える前なので、更新の実行で地図と一緒に画像も新しくなる
 func TestGolden_MapGenSnapshot(t *testing.T) {
 	t.Parallel()
 
@@ -111,8 +112,19 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 		for i, snap := range result.chain.Snapshots {
 			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
 				t.Parallel()
+				text := []byte(snapshotText(snap, width))
 				g := goldie.New(t, goldie.WithNameSuffix(".txt"))
-				g.Assert(t, t.Name(), []byte(snapshotText(snap, width)))
+				img := goldie.New(t, goldie.WithNameSuffix(".png"))
+
+				if imgNeedsUpdate(img.GoldenFileName(t, t.Name()), g.GoldenFileName(t, t.Name()), text) {
+					pngData := vrt.RenderPNG(t, vrt.States(&gs.MapGenVisualizerState{
+						PlannerType:   pt,
+						Seed:          result.seed,
+						SnapshotIndex: i,
+					}))
+					require.NoError(t, img.Update(t, t.Name(), pngData))
+				}
+				g.Assert(t, t.Name(), text)
 			})
 		}
 	}
@@ -218,48 +230,6 @@ func writeGrid(b *strings.Builder, name string, values []string, width int, fixe
 			b.WriteRune(glyph[v])
 		}
 		b.WriteString("|\n")
-	}
-}
-
-// TestGolden_FacilitySamples は施設種別ごとに建物候補を 3x3 で並べたギャラリーを描く。
-// 生成＆選別パイプラインの段3(人間の採否)の視覚基盤。生成規則が変わると golden が変わるので
-// updategolden で更新し、並んだ候補を見比べて良し悪しを判断する。フォグ無しで内装まで見える。
-// TestMapGenImages は全PlannerTypeの各フェーズのVRT画像を生成する。
-// 対応するスナップショットの文字の地図が変わった場合のみ画像を再生成する。
-// ピクセル比較は行わず、目視確認用の参照画像として保存する
-func TestMapGenImages(t *testing.T) {
-	t.Parallel()
-
-	for _, pt := range collectPlannerTypes(t) {
-		result := buildMapGenChain(t, pt)
-		if result == nil {
-			continue
-		}
-		width := int(result.chain.PlanData.Level.TileWidth)
-		for i, snap := range result.chain.Snapshots {
-			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
-				t.Parallel()
-
-				current := []byte(snapshotText(snap, width))
-
-				g := goldie.New(t, goldie.WithNameSuffix(".png"))
-				imgPath := g.GoldenFileName(t, t.Name())
-				subName := strings.TrimPrefix(t.Name(), "TestMapGenImages/")
-				textPath := filepath.Join("testdata", "TestGolden_MapGenSnapshot", subName+".txt")
-
-				if !imgNeedsUpdate(imgPath, textPath, current) {
-					return
-				}
-
-				pngData := vrt.RenderPNG(t, vrt.States(&gs.MapGenVisualizerState{
-					PlannerType:   pt,
-					Seed:          result.seed,
-					SnapshotIndex: i,
-				}))
-				require.NoError(t, g.Update(t, t.Name(), pngData))
-				t.Logf("画像を更新: %s", imgPath)
-			})
-		}
 	}
 }
 
