@@ -3041,6 +3041,38 @@
     pack = "1d1"
     weight = 0.7
 
+[[enemyTables]]
+  id = "gunshop_enemies"
+  name = "銃砲店"
+
+  [[enemyTables.entries]]
+    id = "decayed_soldier"
+    maxDanger = 10
+    minDanger = 1
+    pack = "1d2"
+    weight = 1.2
+
+  [[enemyTables.entries]]
+    id = "veteran_husk"
+    maxDanger = 14
+    minDanger = 4
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "stray_dog"
+    maxDanger = 22
+    minDanger = 3
+    pack = "1d2"
+    weight = 0.6
+
+  [[enemyTables.entries]]
+    id = "guard_soldier"
+    maxDanger = 25
+    minDanger = 12
+    pack = "1d1"
+    weight = 0.8
+
 [[facilities]]
   enemyTable = "house_enemies"
   id = "house"
@@ -3238,6 +3270,21 @@
     minSpan = 1
     weight = 1
     zone = "campus_gate"
+
+[[facilities]]
+  enemyTable = "gunshop_enemies"
+  id = "gunshop"
+  lootedChance = 60
+
+  [[facilities.zones]]
+    minSpan = 3
+    weight = 12
+    zone = "downtown"
+
+  [[facilities.zones]]
+    minSpan = 2
+    weight = 8
+    zone = "industrial"
 
 [[fatigueStages]]
   canSleep = false
@@ -17178,6 +17225,17 @@
     b = 90
     g = 180
     r = 120
+
+[[mapGlyphs]]
+  glyph = "G"
+  id = "gunshop"
+  name = "Gun Shop"
+  order = 20
+  [mapGlyphs.color]
+    a = 255
+    b = 70
+    g = 110
+    r = 170
 
 [[materials]]
   heatPerKg = 200

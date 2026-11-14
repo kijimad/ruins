@@ -6529,3 +6529,6 @@ msgstr "無線機"
 
 msgid "Radio Mast"
 msgstr "無線塔"
+
+msgid "Gun Shop"
+msgstr "銃砲店"
