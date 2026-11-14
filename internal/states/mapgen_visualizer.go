@@ -147,7 +147,8 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 
 	tiles := slices.Clone(snap.Tiles)
 	plan := &mapplanner.MetaPlan{
-		Danger: st.danger,
+		Danger:    st.danger,
+		RawMaster: &world.Resources.RawMaster,
 		Level: gc.Level{
 			TileWidth:  st.mapWidth,
 			TileHeight: st.mapHeight,
@@ -163,9 +164,6 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 		SpawnPoints: snap.SpawnPoints,
 		// 収納の中身の抽選が乱数を引くので、シードから決まる乱数を渡して描画を毎回同じにする
 		RNG: rand.New(rand.NewPCG(st.Seed, st.Seed)),
-	}
-	if world.Resources != nil {
-		plan.RawMaster = &world.Resources.RawMaster
 	}
 	// 計画の前のフェーズはタイルが未初期化のゼロ値なので、raw の void の行に置き換えて描く
 	for i := range tiles {

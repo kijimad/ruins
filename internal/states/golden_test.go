@@ -3,6 +3,7 @@ package states_test
 import (
 	"bytes"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"slices"
@@ -98,8 +99,8 @@ func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 
 // TestGolden_MapGenSnapshot は全PlannerTypeの全フェーズのスナップショットを文字の地図で検証する。
 // テーブル名はダンジョン定義から取得する。
-// 目視用の参照画像も隣に置く。画像はピクセル比較せず、文字の地図が golden から変わったときだけ
-// 描き直す。比べるのは golden を書き換える前なので、更新の実行で地図と一緒に画像も新しくなる
+// 目視用の参照画像も隣に置く。画像はピクセル比較せず、更新の実行で文字の地図が golden から
+// 変わったときだけ描き直す。比べるのは golden を書き換える前なので、地図と一緒に画像も新しくなる
 func TestGolden_MapGenSnapshot(t *testing.T) {
 	t.Parallel()
 
@@ -116,7 +117,7 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 				g := goldie.New(t, goldie.WithNameSuffix(".txt"))
 				img := goldie.New(t, goldie.WithNameSuffix(".png"))
 
-				if imgNeedsUpdate(img.GoldenFileName(t, t.Name()), g.GoldenFileName(t, t.Name()), text) {
+				if goldenUpdating() && imgNeedsUpdate(img.GoldenFileName(t, t.Name()), g.GoldenFileName(t, t.Name()), text) {
 					pngData := vrt.RenderPNG(t, vrt.States(&gs.MapGenVisualizerState{
 						PlannerType:   pt,
 						Seed:          result.seed,
@@ -130,9 +131,19 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 	}
 }
 
-// snapshotFixedGlyphs は頻出するタイルの文字。ほかの id は出現した id の名前順に
-// snapshotGlyphs から割り当てるので、珍しい id が増減しても頻出タイルの文字はずれない
-var snapshotFixedGlyphs = map[string]rune{"void": ' ', "floor": '.', "wall": '#', "dirt": ','}
+// goldenUpdating は golden の更新の実行かを返す。goldie は -update と GOLDIE_UPDATE をこのフラグにまとめる
+func goldenUpdating() bool {
+	f := flag.Lookup("update")
+	return f != nil && f.Value.String() == "true"
+}
+
+// snapshotTileGlyphs と snapshotEnvGlyphs は頻出する値の文字。ほかの値は出現した値の名前順に
+// snapshotGlyphs から割り当てるので、珍しい値が増減しても頻出する値の文字はずれない。
+// 計画の前のフェーズのタイルは id が空のゼロ値で、? で表す
+var (
+	snapshotTileGlyphs = map[string]rune{"": '?', "void": ' ', "floor": '.', "wall": '#', "dirt": ','}
+	snapshotEnvGlyphs  = map[string]rune{"indoor//": 'i', "outdoor//": 'o', "partial//": 'p'}
+)
 
 const snapshotGlyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
@@ -147,14 +158,14 @@ func snapshotText(snap mapplanner.Snapshot, width int) string {
 	for i := range snap.Tiles {
 		tileIDs[i] = snap.Tiles[i].Id
 	}
-	writeGrid(&b, "tiles", tileIDs, width, snapshotFixedGlyphs)
+	writeGrid(&b, "tiles", tileIDs, width, snapshotTileGlyphs)
 
 	if snap.Environments != nil {
 		envs := make([]string, len(snap.Environments))
 		for i, e := range snap.Environments {
 			envs[i] = fmt.Sprintf("%s/%s/%s", e.Shelter, e.Water, e.Foliage)
 		}
-		writeGrid(&b, "environments shelter/water/foliage", envs, width, nil)
+		writeGrid(&b, "environments shelter/water/foliage", envs, width, snapshotEnvGlyphs)
 	}
 
 	for _, r := range snap.Rooms {
@@ -231,6 +242,23 @@ func writeGrid(b *strings.Builder, name string, values []string, width int, fixe
 		}
 		b.WriteString("|\n")
 	}
+}
+
+func TestWriteGrid_固定の文字を先に当て残りを名前順に割り当てる(t *testing.T) {
+	t.Parallel()
+
+	var b strings.Builder
+	writeGrid(&b, "tiles", []string{"wall", "road", "floor", "", "grass", "wall"}, 3, snapshotTileGlyphs)
+
+	require.Equal(t, `tiles:
+  '?' = ""
+  '.' = "floor"
+  'a' = "grass"
+  'b' = "road"
+  '#' = "wall"
+|#b.|
+|?a#|
+`, b.String())
 }
 
 // imgNeedsUpdate は画像が存在しないかスナップショットの内容が変わった場合にtrueを返す。

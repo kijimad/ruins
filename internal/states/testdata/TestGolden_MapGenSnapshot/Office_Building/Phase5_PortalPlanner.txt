@@ -13,18 +13,18 @@ tiles:
 |.....#...#.....|
 |.....#...#.....|
 environments shelter/water/foliage:
-  'a' = "indoor//"
-  'b' = "outdoor//"
-|aaaaaaaaaaaaaaa|
-|aaaaaaaaaaaaaaa|
-|aaaaaaaaaaaaaaa|
-|aaaaaaaaaaaaaaa|
-|aaaaaaaaaaaaaaa|
-|bbbbbbaaabbbbbb|
-|aaaaabaaabaaaaa|
-|aaaaaaaaaaaaaaa|
-|aaaaabaaabaaaaa|
-|aaaaabaaabaaaaa|
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|iiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiii|
+|ooooooiiioooooo|
+|iiiiioiiioiiiii|
+|iiiiiiiiiiiiiii|
+|iiiiioiiioiiiii|
+|iiiiioiiioiiiii|
 prop: 1,2 chair
 prop: 2,2 table
 prop: 3,2 chair

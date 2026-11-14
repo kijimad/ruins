@@ -25,28 +25,28 @@ tiles:
 |#,,,,,,,,,,,aaa,,,,,,,,aaa,,,,,,,,aaa,,,,,,,,,,,,#|
 |#,,,,,,,,,,,aaa,,,,,,.,aaa,.,,,,,,aaa,,,,,,,,,,,,#|
 environments shelter/water/foliage:
-  'a' = "indoor//"
-  'b' = "outdoor//"
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbabbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbabbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbabbbbbbbbbbbbbbbbabbbbbabbbbbbbbbbbbbbbabbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbabbbbbabbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb|
-|bbbbbbbbbbbbbbbbbbbbbabbbbbabbbbbbbbbbbbbbbbbbbbbb|
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|ooooioooooooooooooooooooiooooooooooooooooooioooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|ooooiooooooooooooooooioooooioooooooooooooooioooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooioooooioooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooioooooioooooooooooooooooooooo|
 spawn: 24,10
 npc: 3,5 merchant
 npc: 4,13 old_soldier
