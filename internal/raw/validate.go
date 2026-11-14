@@ -35,6 +35,7 @@ var (
 	errNeedStageNoZero               = errors.New("need stages have no stage from zero")
 	errEnumRowMissing                = errors.New("enum value has no raw row")
 	errTableMissing                  = errors.New("table required by code is missing")
+	errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
 )
 
 // validateRules は行の間の決まりのうち、CUE のスキーマで書かないものを検証する。
@@ -47,6 +48,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateConditions,
 		validateWeathers,
 		validateTileEffects,
+		validateScatterZoneGrounds,
 		validateNeedStages,
 	}
 	for _, v := range validators {
@@ -64,7 +66,7 @@ func validateDistricts(raws rawschema.Raws) error {
 	districts := PtrSlice(raws.Districts)
 	for i := range districts {
 		d := &districts[i]
-		if err := validateDistrictLayers(*d); err != nil {
+		if err := validateDistrictLayers(d); err != nil {
 			return err
 		}
 		fixed := 0
@@ -85,7 +87,7 @@ func validateDistricts(raws rawschema.Raws) error {
 
 // validateDistrictLayers は区域 d の層の数と行の数の書き方が、並べ方に合うことを検証する。
 // rings は外側と中心の2層で行の数を書かず、rows は2層以上で行の数を省いた層がちょうど1つある
-func validateDistrictLayers(d rawschema.District) error {
+func validateDistrictLayers(d *rawschema.District) error {
 	rest := 0
 	for _, l := range d.Layers {
 		if l.Rows == nil {
@@ -444,6 +446,23 @@ func validateWeathers(raws rawschema.Raws) error {
 		}
 	}
 	return validateEnumRows("WeatherId", enumStrings(rawschema.WeatherIdValues()), rowIDs(weathers, func(w rawschema.Weather) rawschema.WeatherId { return w.Id }))
+}
+
+// validateScatterZoneGrounds は区分の下地が土の地面のタイルを指すことを検証する。
+// 道と散布は土の地面の上にしか置かないので、土でない下地では黙って何も置かれなくなる
+func validateScatterZoneGrounds(raws rawschema.Raws) error {
+	earth := map[rawschema.EntityID]bool{}
+	tiles := PtrSlice(raws.Tiles)
+	for i := range tiles {
+		earth[tiles[i].Id] = tiles[i].Earth != nil && *tiles[i].Earth
+	}
+	zones := PtrSlice(raws.ScatterZones)
+	for i := range zones {
+		if !earth[zones[i].Ground] {
+			return fmt.Errorf("scatter zone %q ground %q: %w", zones[i].Id, zones[i].Ground, errGroundNotEarth)
+		}
+	}
+	return nil
 }
 
 // validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する

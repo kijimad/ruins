@@ -245,3 +245,10 @@ func TestStreetTerrain_植え込みは帯の両端で角は道(t *testing.T) {
 		"....  ",
 	}, render(streetTiles{street: consts.TileNameRoad}))
 }
+
+func TestStreetTilesOf_植え込みを省くと植え込みを置かない(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, streetTiles{street: "road"}, streetTilesOf(&rawschema.District{Street: "road"}))
+	assert.Equal(t, streetTiles{street: "road", verge: "grass_green"}, streetTilesOf(&rawschema.District{Street: "road", Verge: new(rawschema.EntityID("grass_green"))}))
+}

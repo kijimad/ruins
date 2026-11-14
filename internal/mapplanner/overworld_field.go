@@ -34,8 +34,9 @@ func (FillGround) PlanMeta(planData *MetaPlan) error {
 	if planData.Ground == "" {
 		return ErrGroundNotSet
 	}
+	ground := planData.GetTile(planData.Ground)
 	for i := range planData.Tiles {
-		planData.Tiles[i] = planData.GetTile(planData.Ground)
+		planData.Tiles[i] = ground
 	}
 	return nil
 }
