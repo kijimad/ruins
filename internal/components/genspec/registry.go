@@ -40,7 +40,6 @@ var Registry = []Def{
 
 	// field ================
 	{Field: "Tile"},            // タイルエンティティであることを示す
-	{Field: "Snowable"},        // 雪が積もる地面であることを示す
 	{Field: "SoloAI"},          // 単独行動AIの設定を保持する
 	{Field: "Camera"},          // カメラの位置とズームを保持する
 	{Field: "Position"},        // フィールド上のピクセル座標を保持する

@@ -1231,12 +1231,20 @@ func TestTileShelter_実データ(t *testing.T) {
 		}
 	}
 	assert.Equal(t, map[string]rawschema.Shelter{
-		"floor":          rawschema.Indoor,
-		"floor_concrete": rawschema.Indoor,
-		"floor_linoleum": rawschema.Indoor,
-		"floor_tatami":   rawschema.Indoor,
-		"floor_tile":     rawschema.Indoor,
-		"floor_wood":     rawschema.Indoor,
+		"floor":           rawschema.Indoor,
+		"floor_concrete":  rawschema.Indoor,
+		"floor_linoleum":  rawschema.Indoor,
+		"floor_tatami":    rawschema.Indoor,
+		"floor_tile":      rawschema.Indoor,
+		"floor_wood":      rawschema.Indoor,
+		"plank_blue":      rawschema.Indoor,
+		"plank_brown":     rawschema.Indoor,
+		"plank_navy":      rawschema.Indoor,
+		"plank_orange":    rawschema.Indoor,
+		"smooth_bluegray": rawschema.Indoor,
+		"smooth_cream":    rawschema.Indoor,
+		"smooth_teal":     rawschema.Indoor,
+		"smooth_white":    rawschema.Indoor,
 	}, got)
 }
 

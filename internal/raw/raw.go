@@ -757,9 +757,6 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	}
 
 	entitySpec.Tile = &gc.Tile{}
-	if tileRaw.Snowable != nil && *tileRaw.Snowable {
-		entitySpec.Snowable = &gc.Snowable{}
-	}
 
 	entitySpec.TileEnvironment = &gc.TileEnvironment{Shelter: TileShelter(tileRaw)}
 

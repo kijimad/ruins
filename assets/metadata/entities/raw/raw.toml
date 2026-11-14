@@ -21879,7 +21879,6 @@
   description = "灰色の石を敷いた道のオートタイル。街路や森の小道の屋外の歩行可能タイル"
   id = "road"
   name = "Road"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -21893,7 +21892,6 @@
   description = "[dummy] コンクリート舗装。駐車場や中庭の屋外の地面。実アート未実装の仮素材"
   id = "pavement"
   name = "Pavement"
-  snowable = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "floor_concrete"
@@ -21905,7 +21903,6 @@
   description = "茶色の土のオートタイル床。屋外や地面の歩行可能タイル"
   id = "dirt"
   name = "Dirt"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22046,7 +22043,6 @@
   description = "青緑の丸石を敷いた床のオートタイル"
   id = "cobble_teal"
   name = "Cobblestone"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22060,7 +22056,6 @@
   description = "金色の丸石を敷いた床のオートタイル"
   id = "cobble_gold"
   name = "Cobblestone"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22087,7 +22082,6 @@
   description = "緑の草地のオートタイル床"
   id = "grass_green"
   name = "Grass Field"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22101,7 +22095,6 @@
   description = "クリーム色の丸石を敷いた床のオートタイル"
   id = "cobble_cream"
   name = "Cobblestone"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22128,7 +22121,6 @@
   description = "オリーブ色の草地のオートタイル床"
   id = "grass_olive"
   name = "Grass Field"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22142,7 +22134,6 @@
   description = "赤い丸石を敷いた床のオートタイル"
   id = "cobble_red"
   name = "Cobblestone"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22169,7 +22160,6 @@
   description = "紫がかった砂利の床のオートタイル"
   id = "cobble_purple"
   name = "Cobblestone"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22183,7 +22173,6 @@
   description = "石板色の砂利の床のオートタイル"
   id = "cobble_slate"
   name = "Cobblestone"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22197,7 +22186,6 @@
   description = "桃色の砂の床のオートタイル"
   id = "sand_pink"
   name = "Sand"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22224,6 +22212,7 @@
   description = "クリーム色の滑らかな床のオートタイル"
   id = "smooth_cream"
   name = "Smooth Floor"
+  shelter = "indoor"
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22237,7 +22226,6 @@
   description = "橙色の砂の床のオートタイル"
   id = "sand_orange"
   name = "Sand"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22264,6 +22252,7 @@
   description = "白い滑らかな床のオートタイル"
   id = "smooth_white"
   name = "Smooth Floor"
+  shelter = "indoor"
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22277,7 +22266,6 @@
   description = "赤茶の砂の床のオートタイル"
   id = "sand_red"
   name = "Sand"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22304,6 +22292,7 @@
   description = "青緑の滑らかな床や水面のオートタイル"
   id = "smooth_teal"
   name = "Smooth Floor"
+  shelter = "indoor"
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22317,7 +22306,6 @@
   description = "石板色の砂の床のオートタイル"
   id = "sand_slate"
   name = "Sand"
-  snowable = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22344,6 +22332,7 @@
   description = "青灰の滑らかな床のオートタイル"
   id = "smooth_bluegray"
   name = "Smooth Floor"
+  shelter = "indoor"
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22357,6 +22346,7 @@
   description = "橙色の板を張った床のオートタイル"
   id = "plank_orange"
   name = "Planks"
+  shelter = "indoor"
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22370,6 +22360,7 @@
   description = "茶色の板を張った床のオートタイル"
   id = "plank_brown"
   name = "Planks"
+  shelter = "indoor"
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22383,6 +22374,7 @@
   description = "紺色の板を張った床のオートタイル"
   id = "plank_navy"
   name = "Planks"
+  shelter = "indoor"
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -22396,6 +22388,7 @@
   description = "青い板を張った床のオートタイル"
   id = "plank_blue"
   name = "Planks"
+  shelter = "indoor"
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
