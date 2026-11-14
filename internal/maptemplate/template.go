@@ -42,6 +42,8 @@ var (
 	errMapRowEmpty = errors.New("map row is empty")
 	// errMapRowLengthMismatch はマップの行ごとの長さが揃っていないときに返す
 	errMapRowLengthMismatch = errors.New("map row length mismatch")
+	// errInvalidEdge は部屋の絵の辺の種類が wall・door・open のどれでもないときに返す
+	errInvalidEdge = errors.New("room edge must be wall, door or open")
 	// errMapNotASCII はマップに ASCII でない文字があるときに返す
 	errMapNotASCII = errors.New("map has a non-ASCII character")
 	// errMapSizeMismatch はマップの実サイズが名前で定義したサイズと一致しないときに返す
@@ -158,12 +160,51 @@ func FormatResolvedMap(cells [][]MapCell) string {
 type ChunkTemplate struct {
 	Name        string           `toml:"name"`     // キー
 	Facility    string           `toml:"facility"` // この絵を使う施設の id。施設の絵でなければ空
+	Edges       *ChunkEdges      `toml:"edges"`    // 部屋の絵の4つの辺の種類。複数のチャンクにまたがる建物の部屋でなければ省く
 	Weight      int              `toml:"weight"`   // 出現確率の重み
 	Size        Size             // マップサイズ（名前から自動パース）
 	Palettes    []string         `toml:"palettes"`      // 使用するパレットID
 	Map         string           `toml:"map,multiline"` // ASCIIマップ
 	Placements  []ChunkPlacement `toml:"placements"`    // ネストされたチャンクの配置
 	SpawnPoints []SpawnPoint     `toml:"spawn_points"`  // スポーン地点の配置
+}
+
+// EdgeKind は部屋の絵の辺の種類
+type EdgeKind string
+
+const (
+	// EdgeWall は辺の全体が壁
+	EdgeWall EdgeKind = "wall"
+	// EdgeDoor は辺の真ん中の2マスが扉で、残りが壁
+	EdgeDoor EdgeKind = "door"
+	// EdgeOpen は辺の全体が吹き抜け
+	EdgeOpen EdgeKind = "open"
+)
+
+// ChunkEdges は部屋の絵の北・東・南・西の辺の種類
+type ChunkEdges struct {
+	North EdgeKind `toml:"north"`
+	East  EdgeKind `toml:"east"`
+	South EdgeKind `toml:"south"`
+	West  EdgeKind `toml:"west"`
+}
+
+// array は辺を北・東・南・西の順に並べる
+func (e ChunkEdges) array() [4]EdgeKind {
+	return [4]EdgeKind{e.North, e.East, e.South, e.West}
+}
+
+// transformEdges は TransformCells と同じく、左右に反転してから左回りに quarterTurns 回だけ回したときの辺を返す。
+// 左回りに回すと、北の辺は西へ、東は北へ、南は東へ、西は南へ移る
+func transformEdges(edges [4]EdgeKind, quarterTurns int, mirror bool) [4]EdgeKind {
+	n, e, s, w := edges[0], edges[1], edges[2], edges[3]
+	if mirror {
+		e, w = w, e
+	}
+	for range ((quarterTurns % 4) + 4) % 4 {
+		n, e, s, w = e, s, w, n
+	}
+	return [4]EdgeKind{n, e, s, w}
 }
 
 // Size はマップのサイズ（幅×高さ）を表す
@@ -317,6 +358,13 @@ func (l *TemplateLoader) validate(t *ChunkTemplate) error {
 
 // validateMap はマップの妥当性を検証する
 func (l *TemplateLoader) validateMap(t *ChunkTemplate) error {
+	if t.Edges != nil {
+		for _, e := range t.Edges.array() {
+			if e != EdgeWall && e != EdgeDoor && e != EdgeOpen {
+				return fmt.Errorf("%w: %q", errInvalidEdge, e)
+			}
+		}
+	}
 	if t.Map == "" {
 		return errMapEmpty
 	}
@@ -417,12 +465,12 @@ func (l *TemplateLoader) FacilityChunkNames(facility string) []string {
 	return names
 }
 
-// FacilityChunk は施設 facility の絵から重み付きで1枚選び、展開したセル配列を返す
+// FacilityChunk は施設 facility の1棟の絵から重み付きで1枚選び、展開したセル配列を返す。部屋の絵は選ばない
 func (l *TemplateLoader) FacilityChunk(facility string, seed uint64) (*ChunkTemplate, [][]MapCell, error) {
 	var candidates []*ChunkTemplate
 	for _, name := range slices.Sorted(maps.Keys(l.chunkCache)) {
 		for _, c := range l.chunkCache[name] {
-			if c.Facility == facility {
+			if c.Facility == facility && c.Edges == nil {
 				candidates = append(candidates, c)
 			}
 		}
@@ -436,6 +484,53 @@ func (l *TemplateLoader) FacilityChunk(facility string, seed uint64) (*ChunkTemp
 		return nil, nil, err
 	}
 	return chunk, cells, nil
+}
+
+// HasRooms は施設 facility が部屋の絵を持つかを返す
+func (l *TemplateLoader) HasRooms(facility string) bool {
+	for _, chunks := range l.chunkCache {
+		if slices.ContainsFunc(chunks, func(c *ChunkTemplate) bool { return c.Facility == facility && c.Edges != nil }) {
+			return true
+		}
+	}
+	return false
+}
+
+// roomChoice は部屋の絵と、辺を合わせる向き
+type roomChoice struct {
+	chunk  *ChunkTemplate
+	turns  int
+	mirror bool
+}
+
+// FacilityRoom は施設 facility の部屋の絵から、北・東・南・西の辺が edges になる絵と向きを重みで1つ選び、
+// 展開して向きを合わせたセル配列を返す。1枚の絵は回転と反転で、合う向きの数だけ候補になる
+func (l *TemplateLoader) FacilityRoom(facility string, edges [4]EdgeKind, seed uint64) (*ChunkTemplate, [][]MapCell, error) {
+	var choices []roomChoice
+	for _, name := range slices.Sorted(maps.Keys(l.chunkCache)) {
+		for _, c := range l.chunkCache[name] {
+			if c.Facility != facility || c.Edges == nil {
+				continue
+			}
+			for _, mirror := range []bool{false, true} {
+				for turns := range 4 {
+					if transformEdges(c.Edges.array(), turns, mirror) == edges {
+						choices = append(choices, roomChoice{chunk: c, turns: turns, mirror: mirror})
+					}
+				}
+			}
+		}
+	}
+	i, ok := consts.Pick(rand.New(rand.NewPCG(seed, mixSeed(seed, 0))), choices, func(c roomChoice) float64 { return float64(c.chunk.Weight) })
+	if !ok {
+		return nil, nil, fmt.Errorf("facility '%s' room %v: %w", facility, edges, errNoChunkCandidate)
+	}
+	c := choices[i]
+	cells, err := c.chunk.ExpandWithPlacements(l, mixSeed(seed, 1))
+	if err != nil {
+		return nil, nil, err
+	}
+	return c.chunk, TransformCells(cells, c.turns, c.mirror), nil
 }
 
 // TransformCells は絵を左右に反転してから、左回りに quarterTurns 回だけ90度回したセル配列を返す

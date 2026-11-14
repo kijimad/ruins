@@ -12,6 +12,7 @@ itemGroups?:      _
 itemCollections?: _
 itemTables?:      _
 enemyTables?:     _
+facilities?:      _
 tiles?:           _
 props?:           _
 conditions?:      _
@@ -26,6 +27,7 @@ _commandTableIDs: {if commandTables != _|_ for x in commandTables {(x.id): true}
 _dropTableIDs: {if dropTables != _|_ for x in dropTables {(x.id): true}}
 _itemTableIDs: {if itemTables != _|_ for x in itemTables {(x.id): true}}
 _enemyTableIDs: {if enemyTables != _|_ for x in enemyTables {(x.id): true}}
+_facilityIDs: {if facilities != _|_ for x in facilities {(x.id): true}}
 _tileIDs: {if tiles != _|_ for x in tiles {(x.id): true}}
 _propIDs: {if props != _|_ for x in props {(x.id): true}}
 _conditionIDs: {if conditions != _|_ for x in conditions {(x.id): true}}

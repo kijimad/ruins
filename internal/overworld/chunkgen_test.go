@@ -173,7 +173,7 @@ const merchantName = "Merchant"
 
 // settlementBucket は 商人 が立つチャンク行スロットと、商人がいるかを返す。集落は Y リージョンに並ぶ。
 func settlementBucket(world w.World) (int, bool) {
-	const chunkH consts.Tile = 20
+	const chunkH consts.Tile = 24
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
@@ -193,7 +193,7 @@ func TestNewChunkGen_小集落はリージョンにちょうど1つ生成され�
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 24, 24
-	const regionSpan = 8 // settlementPlacement の Spacing。1リージョンぶんを生成する
+	const regionSpan = 5 // settlementPlacement の Spacing。1リージョンぶんを生成する
 	world := testutil.InitTestWorld(t)
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
 	// 集落は Y リージョンに並ぶので、1リージョンぶんを Y 方向に生成する
@@ -220,12 +220,13 @@ func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T)
 	// まず当選チャンクを探し、外れチャンクを1つ確定させる。集落は Y リージョンなので Y 方向に生成する
 	scout := testutil.InitTestWorld(t)
 	genScout := overworld.NewChunkGen(scout, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
-	for i := range 8 {
+	const regionSpan = 5 // settlementPlacement の Spacing。1リージョンぶんを生成する
+	for i := range regionSpan {
 		require.NoError(t, genScout(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
 	}
 	winner, ok := settlementBucket(scout)
 	require.True(t, ok, "前提: 当選チャンクが存在する")
-	loser := consts.Coord[consts.Chunk]{Y: consts.Chunk((winner + 1) % 8)}
+	loser := consts.Coord[consts.Chunk]{Y: consts.Chunk((winner + 1) % regionSpan)}
 
 	// 外れチャンク単体では小集落が出ない
 	plain := testutil.InitTestWorld(t)
