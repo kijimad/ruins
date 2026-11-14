@@ -98,9 +98,8 @@ func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 }
 
 // TestGolden_MapGenSnapshot は全PlannerTypeの全フェーズのスナップショットを文字の地図で検証する。
-// テーブル名はダンジョン定義から取得する。
-// 目視用の参照画像も隣に置く。画像はピクセル比較せず、更新の実行で文字の地図が golden から
-// 変わったときだけ描き直す。比べるのは golden を書き換える前なので、地図と一緒に画像も新しくなる
+// 目視用の参照画像は比較せず、更新の実行で地図が変わったときだけ描き直す。
+// 変わったかは golden を書き換える前に比べる
 func TestGolden_MapGenSnapshot(t *testing.T) {
 	t.Parallel()
 
@@ -131,15 +130,62 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 	}
 }
 
-// goldenUpdating は golden の更新の実行かを返す。goldie は -update と GOLDIE_UPDATE をこのフラグにまとめる
+func TestMapGenVisualizerState_空のタイルと収納の中身を描ける(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		planner string
+		label   string
+	}{
+		{"Small Room", "Initial"},
+		{"Small Town", "TemplatePlanner"},
+	}
+	plannerTypes := collectPlannerTypes(t)
+	for _, tt := range tests {
+		t.Run(tt.planner+"/"+tt.label, func(t *testing.T) {
+			t.Parallel()
+			i := slices.IndexFunc(plannerTypes, func(pt mapplanner.PlannerType) bool { return pt.Name == tt.planner })
+			require.GreaterOrEqual(t, i, 0)
+			pt := plannerTypes[i]
+			result := buildMapGenChain(t, pt)
+			require.NotNil(t, result)
+			index := slices.IndexFunc(result.chain.Snapshots, func(s mapplanner.Snapshot) bool { return s.Label == tt.label })
+			require.GreaterOrEqual(t, index, 0)
+
+			png := vrt.RenderPNG(t, vrt.States(&gs.MapGenVisualizerState{
+				PlannerType:   pt,
+				Seed:          result.seed,
+				SnapshotIndex: index,
+			}))
+			require.NotEmpty(t, png)
+		})
+	}
+}
+
+func TestWriteGrid_固定の文字を先に当て残りを名前順に割り当てる(t *testing.T) {
+	t.Parallel()
+
+	var b strings.Builder
+	writeGrid(&b, "tiles", []string{"wall", "road", "floor", "", "grass", "wall"}, 3, snapshotTileGlyphs)
+
+	require.Equal(t, `tiles:
+  '?' = ""
+  '.' = "floor"
+  'a' = "grass"
+  'b' = "road"
+  '#' = "wall"
+|#b.|
+|?a#|
+`, b.String())
+}
+
+// goldenUpdating は -update か GOLDIE_UPDATE を付けた実行かを返す
 func goldenUpdating() bool {
 	f := flag.Lookup("update")
 	return f != nil && f.Value.String() == "true"
 }
 
-// snapshotTileGlyphs と snapshotEnvGlyphs は頻出する値の文字。ほかの値は出現した値の名前順に
-// snapshotGlyphs から割り当てるので、珍しい値が増減しても頻出する値の文字はずれない。
-// 計画の前のフェーズのタイルは id が空のゼロ値で、? で表す
+// snapshotTileGlyphs と snapshotEnvGlyphs は頻出する値の文字。残りは snapshotGlyphs から名前順に割り当てる
 var (
 	snapshotTileGlyphs = map[string]rune{"": '?', "void": ' ', "floor": '.', "wall": '#', "dirt": ','}
 	snapshotEnvGlyphs  = map[string]rune{"indoor//": 'i', "outdoor//": 'o', "partial//": 'p'}
@@ -147,9 +193,7 @@ var (
 
 const snapshotGlyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// snapshotText はスナップショットを文字の地図と1行1件の配置で書き出す。
-// タイルは id だけを書く。タイルの定義の中身は raw の検査が受け持ち、ここで写すと
-// 無関係な raw の変更で全マスに差分が出る
+// snapshotText はスナップショットを文字の地図と1行1件の配置で書き出す
 func snapshotText(snap mapplanner.Snapshot, width int) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "label: %s\n", snap.Label)
@@ -199,8 +243,7 @@ func snapshotText(snap mapplanner.Snapshot, width int) string {
 	return b.String()
 }
 
-// writeGrid は values を width 列の文字の地図として書き、先に凡例を書く。
-// 行の両端を | で囲み、空白の文字が行末で削られないようにする
+// writeGrid は凡例と width 列の文字の地図を書く。両端の | は行末の空白が削られないようにするため
 func writeGrid(b *strings.Builder, name string, values []string, width int, fixed map[string]rune) {
 	distinct := map[string]bool{}
 	for _, v := range values {
@@ -244,25 +287,7 @@ func writeGrid(b *strings.Builder, name string, values []string, width int, fixe
 	}
 }
 
-func TestWriteGrid_固定の文字を先に当て残りを名前順に割り当てる(t *testing.T) {
-	t.Parallel()
-
-	var b strings.Builder
-	writeGrid(&b, "tiles", []string{"wall", "road", "floor", "", "grass", "wall"}, 3, snapshotTileGlyphs)
-
-	require.Equal(t, `tiles:
-  '?' = ""
-  '.' = "floor"
-  'a' = "grass"
-  'b' = "road"
-  '#' = "wall"
-|#b.|
-|?a#|
-`, b.String())
-}
-
-// imgNeedsUpdate は画像が存在しないかスナップショットの内容が変わった場合にtrueを返す。
-// 末尾の改行の有無で再生成しないよう TrimSpace で比べる
+// imgNeedsUpdate は画像が無いか、地図が golden と違うかを返す
 func imgNeedsUpdate(imgPath, textPath string, current []byte) bool {
 	if _, err := os.Stat(imgPath); err != nil {
 		return true
@@ -271,5 +296,5 @@ func imgNeedsUpdate(imgPath, textPath string, current []byte) bool {
 	if err != nil {
 		return true
 	}
-	return !bytes.Equal(bytes.TrimSpace(current), bytes.TrimSpace(golden))
+	return !bytes.Equal(current, golden)
 }

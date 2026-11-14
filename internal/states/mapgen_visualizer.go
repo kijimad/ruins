@@ -165,7 +165,7 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 		// 収納の中身の抽選が乱数を引くので、シードから決まる乱数を渡して描画を毎回同じにする
 		RNG: rand.New(rand.NewPCG(st.Seed, st.Seed)),
 	}
-	// 計画の前のフェーズはタイルが未初期化のゼロ値なので、raw の void の行に置き換えて描く
+	// 計画の前のフェーズの空のタイルは void で描く
 	for i := range tiles {
 		if tiles[i].Id == "" {
 			tiles[i] = plan.GetTile("void")
