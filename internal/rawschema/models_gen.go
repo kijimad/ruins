@@ -2821,7 +2821,7 @@ type WeatherVisionDelta = int
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string
 
-// Zone 区域の地区。campus_ で始まる地区は研究所の敷地の門の列、中ほど、北の奥の列
+// Zone 区域の地区。区域の層が候補として持ち、施設は建つ地区として持つ
 type Zone string
 
 // Defines values for Zone.
@@ -2831,6 +2831,11 @@ const (
 	CampusQuarantine Zone = "campus_quarantine"
 	Downtown         Zone = "downtown"
 	Industrial       Zone = "industrial"
+	MilitaryArmory   Zone = "military_armory"
+	MilitaryGate     Zone = "military_gate"
+	MilitaryInner    Zone = "military_inner"
+	PlantCore        Zone = "plant_core"
+	PlantOuter       Zone = "plant_outer"
 	Residential      Zone = "residential"
 )
 
@@ -2847,6 +2852,16 @@ func (e Zone) Valid() bool {
 		return true
 	case Industrial:
 		return true
+	case MilitaryArmory:
+		return true
+	case MilitaryGate:
+		return true
+	case MilitaryInner:
+		return true
+	case PlantCore:
+		return true
+	case PlantOuter:
+		return true
 	case Residential:
 		return true
 	default:
@@ -2856,5 +2871,5 @@ func (e Zone) Valid() bool {
 
 // ZoneValues は Zone の値を、スキーマに書いた順に返す。
 func ZoneValues() []Zone {
-	return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine}
+	return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore}
 }

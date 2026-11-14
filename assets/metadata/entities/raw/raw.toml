@@ -1116,6 +1116,36 @@
     weight = 1
 
 [[districts]]
+  fence = true
+  id = "military_base"
+  landmark = "military_armory"
+  pattern = "rows"
+  separation = 4
+  spacing = 36
+  verge = true
+
+  [[districts.layers]]
+    rows = 1
+    zones = ["military_gate"]
+
+  [[districts.layers]]
+    zones = ["military_inner"]
+
+  [[districts.layers]]
+    rows = 1
+    zones = ["military_armory"]
+
+  [[districts.sizes]]
+    h = 5
+    w = 7
+    weight = 1
+
+  [[districts.sizes]]
+    h = 6
+    w = 7
+    weight = 1
+
+[[districts]]
   id = "town"
   pattern = "rings"
   separation = 2
@@ -3112,6 +3142,98 @@
     pack = "1d1"
     weight = 0.6
 
+[[enemyTables]]
+  id = "military_enemies"
+  name = "軍基地"
+
+  [[enemyTables.entries]]
+    id = "decayed_soldier"
+    maxDanger = 10
+    minDanger = 1
+    pack = "1d3"
+    weight = 1.2
+
+  [[enemyTables.entries]]
+    id = "veteran_husk"
+    maxDanger = 14
+    minDanger = 4
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "skeleton_soldier"
+    maxDanger = 25
+    minDanger = 6
+    pack = "1d2"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "guard_soldier"
+    maxDanger = 25
+    minDanger = 8
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "jeep"
+    maxDanger = 30
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.3
+
+  [[enemyTables.entries]]
+    id = "light_tank"
+    maxDanger = 30
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.3
+
+[[enemyTables]]
+  id = "military_armory_enemies"
+  name = "軍基地の武器庫"
+
+  [[enemyTables.entries]]
+    id = "veteran_husk"
+    maxDanger = 14
+    minDanger = 1
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "guard_soldier"
+    maxDanger = 25
+    minDanger = 4
+    pack = "1d2"
+    weight = 1.2
+
+  [[enemyTables.entries]]
+    id = "iron_sentinel"
+    maxDanger = 25
+    minDanger = 8
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "light_tank"
+    maxDanger = 30
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.5
+
+  [[enemyTables.entries]]
+    id = "gray_tank"
+    maxDanger = 30
+    minDanger = 12
+    pack = "1d1"
+    weight = 0.3
+
+  [[enemyTables.entries]]
+    id = "heavy_artillery_tank"
+    maxDanger = 35
+    minDanger = 16
+    pack = "1d1"
+    weight = 0.15
+
 [[facilities]]
   enemyTable = "house_enemies"
   id = "house"
@@ -3341,6 +3463,78 @@
     minSpan = 2
     weight = 4
     zone = "industrial"
+
+[[facilities]]
+  enemyTable = "military_enemies"
+  id = "military_checkpoint"
+  lootedChance = 20
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 4
+    zone = "military_gate"
+
+[[facilities]]
+  enemyTable = "military_enemies"
+  id = "military_yard"
+  lootedChance = 20
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 2
+    zone = "military_gate"
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 2
+    zone = "military_inner"
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 3
+    zone = "military_armory"
+
+[[facilities]]
+  enemyTable = "military_enemies"
+  id = "military_barracks"
+  interior = "rooms"
+  lootedChance = 40
+
+  [[facilities.footprints]]
+    h = 1
+    w = 2
+    weight = 3
+
+  [[facilities.footprints]]
+    h = 2
+    w = 2
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 5
+    zone = "military_inner"
+
+[[facilities]]
+  enemyTable = "military_armory_enemies"
+  id = "military_armory"
+  interior = "rooms"
+  lootedChance = 40
+
+  [[facilities.footprints]]
+    h = 1
+    w = 3
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 1
+    w = 4
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "military_armory"
 
 [[fatigueStages]]
   canSleep = false
@@ -6948,6 +7142,64 @@
     pack = "1d1"
     weight = 1
 
+[[itemGroups]]
+  id = "military_firearms"
+  name = "軍の銃火器"
+
+  [[itemGroups.entries]]
+    id = "handgun"
+    pack = "1d1"
+    weight = 3
+
+  [[itemGroups.entries]]
+    id = "rapid_fire_cannon"
+    pack = "1d1"
+    weight = 2
+
+  [[itemGroups.entries]]
+    id = "m72_law"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "m1919_heavy_machine_gun"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "flame_gun"
+    pack = "1d1"
+    weight = 1
+
+[[itemGroups]]
+  id = "military_ammo"
+  name = "軍の弾薬"
+
+  [[itemGroups.entries]]
+    id = "cannon_shell"
+    pack = "1d4"
+    weight = 3
+
+  [[itemGroups.entries]]
+    id = "9mm_fmj"
+    pack = "2d6"
+    weight = 2
+
+  [[itemGroups.entries]]
+    id = "9mm_ap"
+    pack = "1d6"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "rifle_round"
+    pack = "2d6"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "heavy_round"
+    pack = "1d6"
+    weight = 1
+
 [[itemTables]]
   id = "ruins_area"
   name = "廃墟"
@@ -7437,7 +7689,7 @@
   name = "研究所の機密ケース"
 
   [[itemTables.entries]]
-    id = "escape_repair_parts"
+    id = "electronic_parts"
     maxDanger = 100
     minDanger = 1
     weight = 1
@@ -7496,6 +7748,78 @@
 
   [[itemTables.entries]]
     id = "industrial_materials"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "military_locker"
+  name = "兵舎のロッカー"
+
+  [[itemTables.entries]]
+    id = "military_ammo"
+    maxDanger = 100
+    minDanger = 1
+    weight = 2
+
+  [[itemTables.entries]]
+    id = "civilian_firearms"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+  [[itemTables.entries]]
+    id = "clothing"
+    maxDanger = 100
+    minDanger = 1
+    weight = 2
+
+  [[itemTables.entries]]
+    id = "food"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+  [[itemTables.entries]]
+    id = "midgame_armor"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "military_armory"
+  name = "武器庫"
+
+  [[itemTables.entries]]
+    id = "military_firearms"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "military_ammo"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "midgame_armor"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+  [[itemTables.entries]]
+    id = "endgame_armor"
+    maxDanger = 100
+    minDanger = 8
+    weight = 1
+
+[[itemTables]]
+  id = "military_parts_case"
+  name = "武器庫の部品箱"
+
+  [[itemTables.entries]]
+    id = "escape_repair_parts"
     maxDanger = 100
     minDanger = 1
     weight = 1
@@ -17298,6 +17622,50 @@
     b = 230
     g = 200
     r = 120
+
+[[mapGlyphs]]
+  glyph = "K"
+  id = "military_checkpoint"
+  name = "Checkpoint"
+  order = 22
+  [mapGlyphs.color]
+    a = 255
+    b = 90
+    g = 160
+    r = 150
+
+[[mapGlyphs]]
+  glyph = "W"
+  id = "military_barracks"
+  name = "Barracks"
+  order = 23
+  [mapGlyphs.color]
+    a = 255
+    b = 70
+    g = 140
+    r = 110
+
+[[mapGlyphs]]
+  glyph = "P"
+  id = "military_yard"
+  name = "Drill Yard"
+  order = 24
+  [mapGlyphs.color]
+    a = 255
+    b = 100
+    g = 150
+    r = 170
+
+[[mapGlyphs]]
+  glyph = "X"
+  id = "military_armory"
+  name = "Armory"
+  order = 25
+  [mapGlyphs.color]
+    a = 255
+    b = 60
+    g = 90
+    r = 200
 
 [[materials]]
   heatPerKg = 200

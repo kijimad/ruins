@@ -6535,3 +6535,15 @@ msgstr "銃砲店"
 
 msgid "Comms Station"
 msgstr "通信施設"
+
+msgid "Checkpoint"
+msgstr "検問所"
+
+msgid "Barracks"
+msgstr "兵舎"
+
+msgid "Drill Yard"
+msgstr "練兵場"
+
+msgid "Armory"
+msgstr "武器庫"

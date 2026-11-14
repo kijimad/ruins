@@ -108,12 +108,12 @@ func TestItemTables_施設の表が序盤の道具を出しうる(t *testing.T) 
 	}
 }
 
-func TestItemTables_通信施設の鍵と研究所の部品から脱出の装置を直せる(t *testing.T) {
+func TestItemTables_通信施設の鍵と軍基地の部品から脱出の装置を直せる(t *testing.T) {
 	t.Parallel()
 	raws := loadTestRaws(t)
 
 	key := tableItemIDs(raws, "comms_console")
-	parts := tableItemIDs(raws, "classified_case")
+	parts := tableItemIDs(raws, "military_parts_case")
 	assert.ElementsMatch(t, []string{"broken_escape_core", "electric_wire", "cable_bundle", "ferrite_core", "energy_cell"}, key)
 	assert.ElementsMatch(t, []string{"signal_amplifier", "power_cell"}, parts)
 

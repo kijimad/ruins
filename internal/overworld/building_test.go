@@ -250,6 +250,7 @@ func TestGolden_Building(t *testing.T) {
 	}{
 		{"lab_main_3x3", buildingLot{facility: "lab_main", w: 3, h: 3, interior: rawschema.FacilityInteriorRooms, seed: 1}},
 		{"lab_main_4x3", buildingLot{facility: "lab_main", w: 4, h: 3, interior: rawschema.FacilityInteriorRooms, seed: 2}},
+		{"military_armory_4x1", buildingLot{facility: "military_armory", w: 4, h: 1, interior: rawschema.FacilityInteriorRooms, seed: 3}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
@@ -285,7 +286,7 @@ func TestLotsOf_目玉の施設は区域に1つだけ地区の真ん中へ一番
 				}
 			}
 			require.Len(t, got, 1, "seed=%d", seed)
-			assert.GreaterOrEqual(t, got[0].w*got[0].h, consts.Chunk(9), "seed=%d 一番大きい候補から収まるものを選ぶ", seed)
+			assert.Equal(t, largestFittingFootprint(raws, r, *d.row.Landmark), got[0].w*got[0].h, "%s seed=%d 一番大きい候補から収まるものを選ぶ", d.row.Id, seed)
 		}
 	}
 }
@@ -311,4 +312,25 @@ func TestFacilities_2チャンク以上になりうる施設は部屋の絵を�
 		}
 	}
 	assert.Equal(t, want, got)
+}
+
+// largestFittingFootprint は施設 fac の大きさの候補のうち、施設が建つ地区を囲む矩形に収まる一番大きい面積を返す
+func largestFittingFootprint(raws rawschema.Raws, r districtRegion, fac string) consts.Chunk {
+	f, _ := raw.GetFacility(raws, fac)
+	minC, maxC := consts.Coord[consts.Chunk]{X: r.w, Y: r.h}, consts.Coord[consts.Chunk]{X: -1, Y: -1}
+	for y := range r.h {
+		for x := range r.w {
+			if r.zoneAt(consts.Coord[consts.Chunk]{X: x, Y: y}) == f.Zones[0].Zone {
+				minC = consts.Coord[consts.Chunk]{X: min(minC.X, x), Y: min(minC.Y, y)}
+				maxC = consts.Coord[consts.Chunk]{X: max(maxC.X, x), Y: max(maxC.Y, y)}
+			}
+		}
+	}
+	var best consts.Chunk
+	for _, fp := range raw.PtrSlice(f.Footprints) {
+		if consts.Chunk(fp.W) <= maxC.X-minC.X+1 && consts.Chunk(fp.H) <= maxC.Y-minC.Y+1 {
+			best = max(best, consts.Chunk(fp.W*fp.H))
+		}
+	}
+	return best
 }
