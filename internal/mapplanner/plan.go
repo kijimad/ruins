@@ -71,6 +71,7 @@ func BuildChain(world w.World, width, height consts.Tile, seed uint64, plannerTy
 	// 危険度を成果物 MetaPlan にも記録する。生成後に loot を撒く mapspawner は
 	// 完成した MetaPlan だけを受け取り plannerType を持たないため、危険度を成果物側へ載せておく。
 	chain.PlanData.Danger = plannerType.Danger
+	chain.PlanData.Ground = plannerType.Ground
 
 	chain.With(NewHostileNPCPlanner(world, plannerType))
 	chain.With(NewItemPlanner(world, plannerType))

@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"errors"
 	"fmt"
 	"math"
 
@@ -45,6 +46,8 @@ type scatterCatalog struct {
 	Grass        []scatterEntry // 草と灌木の種類と重み
 	Soil         []scatterEntry // 土の飾りの種類と重み
 }
+
+var errScatterZoneMissing = errors.New("scatter zone not found")
 
 // outdoorZone は wasteland チャンクの人の手の残り具合。近傍の集落・市街地までの距離で決まる。
 // 実体は文字列にし、%v やログで数値でなく種別名が出て読みやすい。iota の連番は割に合わないので使わない。
@@ -97,7 +100,7 @@ func earthTilesOf(raws rawschema.Raws) earthTiles {
 func scatterCatalogFrom(raws rawschema.Raws, zone outdoorZone) (scatterCatalog, error) {
 	sz, ok := raw.GetScatterZone(raws, string(zone))
 	if !ok {
-		return scatterCatalog{}, fmt.Errorf("scatter zone %q not found", zone)
+		return scatterCatalog{}, fmt.Errorf("scatter zone %q: %w", zone, errScatterZoneMissing)
 	}
 	entries := make([]scatterEntry, len(sz.Entries))
 	for i, e := range sz.Entries {

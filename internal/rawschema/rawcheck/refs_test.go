@@ -54,7 +54,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			{Id: "hut", Weight: 1, Drawer: rawschema.Hut, Props: []rawschema.PropSpot{{Name: "bed"}}, HutFloor: new(rawschema.EntityID("floor")), HutWall: new(rawschema.EntityID("wall"))},
 		},
 		ScatterZones: &[]rawschema.ScatterZone{{
-			Id: "meadow", LootGroup: "junk",
+			Id: "meadow", Ground: "floor", LootGroup: "junk",
 			Entries: []rawschema.ScatterEntry{
 				{Ref: "", Weight: 1},
 				{Ref: "bed", Weight: 1, Satellites: &[]rawschema.PropSpot{{Name: "bed"}}},
@@ -128,6 +128,7 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"ドロップテーブルの素材", func(r *rawschema.Raws) { (*r.DropTables)[0].Entries[0].Id = "none" }, "dropTables.0.entries.0.id_ref"},
 		{"施設の敵テーブル", func(r *rawschema.Raws) { (*r.Facilities)[0].EnemyTable = "none" }, "facilities.0.enemyTable_ref"},
 		{"ランドマークの prop", func(r *rawschema.Raws) { (*r.Landmarks)[0].Props[0].Name = "none" }, "landmarks.0.props_ref.0"},
+		{"散布ゾーンの下地のタイル", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Ground = "none" }, "scatterZones.0.ground_ref"},
 		{"散布ゾーンの戦利品グループ", func(r *rawschema.Raws) { (*r.ScatterZones)[0].LootGroup = "none" }, "scatterZones.0.lootGroup_ref"},
 		{"区域の目玉の施設", func(r *rawschema.Raws) { (*r.Districts)[0].Landmark = new(rawschema.EntityID("none")) }, "districts.0.landmark_ref"},
 		{"区域の街路のタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Street = "none" }, "districts.0.street_ref"},

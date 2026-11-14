@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/stage"
 	"github.com/kijimaD/ruins/internal/worldstream"
@@ -33,7 +34,13 @@ func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {
 // cols は帯の列数で当選列の抽選に使う。
 func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, cols consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {
 	return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error {
-		plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), planner)
+		zone, ok := raw.GetScatterZone(world.Resources.RawMaster, string(outdoorZoneAt(world.Resources.RawMaster, runSeed, c, cols)))
+		if !ok {
+			return fmt.Errorf("chunk (x=%d, y=%d): %w", c.X, c.Y, errScatterZoneMissing)
+		}
+		zoned := planner
+		zoned.Ground = zone.Ground
+		plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), zoned)
 		if err != nil {
 			return fmt.Errorf("failed to generate chunk (x=%d, y=%d): %w", c.X, c.Y, err)
 		}

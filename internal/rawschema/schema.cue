@@ -1131,7 +1131,10 @@ import "strings"
 
 // 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
 #ScatterZone: {
-	id!:           #EntityID
+	id!: #EntityID
+	// チャンクの全面を埋める下地のタイル
+	ground!:       #EntityID
+	ground_ref:    _tileIDs[ground] @rawgen(-)
 	grassDensity!: number
 	soilDensity!:  number
 	propDensity!:  number

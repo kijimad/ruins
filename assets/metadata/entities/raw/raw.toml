@@ -21244,6 +21244,7 @@
 
 [[scatterZones]]
   grassDensity = 0.09
+  ground = "dirt"
   id = "roadside"
   lootGroup = "scrap_of_paper"
   propDensity = 0.015
@@ -21323,6 +21324,7 @@
 
 [[scatterZones]]
   grassDensity = 0.19
+  ground = "dirt"
   id = "wild"
   lootGroup = "junk"
   propDensity = 0.035

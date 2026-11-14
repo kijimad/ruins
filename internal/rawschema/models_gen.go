@@ -2125,6 +2125,9 @@ type ScatterZone struct {
 
 	GrassDensity float64 `json:"grassDensity"`
 
+	// Ground チャンクの全面を埋める下地のタイル
+	Ground EntityID `json:"ground"`
+
 	Id EntityID `json:"id"`
 
 	LootGroup EntityID `json:"lootGroup"`

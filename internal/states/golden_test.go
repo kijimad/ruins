@@ -59,6 +59,7 @@ func collectPlannerTypes(t *testing.T) []mapplanner.PlannerType {
 			result[i].ItemTableName = info.ItemTableName
 		}
 		result[i].Danger = 1
+		result[i].Ground = consts.TileNameDirt
 	}
 	return result
 }
