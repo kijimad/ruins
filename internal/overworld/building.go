@@ -203,17 +203,17 @@ func edgeKey(a, b consts.Coord[consts.Chunk]) [2]consts.Coord[consts.Chunk] {
 }
 
 // roomChunkCells は区画 b の中の座標 l のチャンクの部屋の絵を引き、北と西の帯と合わせてチャンク全体のマスを組む。
-// 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする。屋内のマスを判定する関数も返す
-func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, verge bool) ([][]maptemplate.MapCell, func(x, y int) bool, error) {
+// 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする
+func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, verge bool) ([][]maptemplate.MapCell, error) {
 	edges := b.roomEdges(l)
 	_, room, err := loader.FacilityRoom(b.facility, edges, ChunkSeed2D(b.seed, l.X, l.Y))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	s := int(urbanStreetW)
 	w, h := int(chunkW), int(chunkH)
 	if len(room) != h-s || len(room[0]) != w-s {
-		return nil, nil, fmt.Errorf("facility %q room %dx%d, chunk %dx%d: %w", b.facility, len(room[0]), len(room), w, h, errRoomSizeMismatch)
+		return nil, fmt.Errorf("facility %q room %dx%d, chunk %dx%d: %w", b.facility, len(room[0]), len(room), w, h, errRoomSizeMismatch)
 	}
 
 	cells := make([][]maptemplate.MapCell, h)
@@ -227,7 +227,7 @@ func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.
 		copy(cells[y+s][s:], row)
 	}
 	drawRoomStrips(cells, room, b, l, edges)
-	return cells, roomIndoor(l, s), nil
+	return cells, nil
 }
 
 // drawRoomStrips は区画の内側に面するチャンクの北と西の帯を、隣の部屋との繋ぎとして描く。区画の外周の帯は街路のまま残す
@@ -271,16 +271,6 @@ func drawRoomStrips(cells, room [][]maptemplate.MapCell, b buildingLot, l consts
 				cells[y][x] = corner
 			}
 		}
-	}
-}
-
-// roomIndoor は区画の中の座標 l のチャンクで、部屋と、区画の内側に面する帯を屋内とする判定を返す
-func roomIndoor(l consts.Coord[consts.Chunk], s int) func(x, y int) bool {
-	return func(x, y int) bool {
-		inRoom := x >= s && y >= s
-		northStrip := y < s && l.Y > 0 && (x >= s || l.X > 0)
-		westStrip := x < s && l.X > 0 && (y >= s || l.Y > 0)
-		return inRoom || northStrip || westStrip
 	}
 }
 

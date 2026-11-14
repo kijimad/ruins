@@ -34,7 +34,6 @@ type EntitySpec struct {
 	LocationStowed     *LocationStowed
 	LocationInstalled  *LocationInstalled
 	Tile               *Tile
-	Snowable           *Snowable
 	SoloAI             *SoloAI
 	Camera             *Camera
 	Position           *Position
@@ -131,7 +130,6 @@ type Components struct {
 	LocationStowed     *ecs.Map[LocationStowed]
 	LocationInstalled  *ecs.Map[LocationInstalled]
 	Tile               *ecs.Map[Tile]
-	Snowable           *ecs.Map[Snowable]
 	SoloAI             *ecs.Map[SoloAI]
 	Camera             *ecs.Map[Camera]
 	Position           *ecs.Map[Position]
@@ -228,7 +226,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.LocationStowed = ecs.NewMap[LocationStowed](world)
 	c.LocationInstalled = ecs.NewMap[LocationInstalled](world)
 	c.Tile = ecs.NewMap[Tile](world)
-	c.Snowable = ecs.NewMap[Snowable](world)
 	c.SoloAI = ecs.NewMap[SoloAI](world)
 	c.Camera = ecs.NewMap[Camera](world)
 	c.Position = ecs.NewMap[Position](world)
@@ -327,7 +324,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.LocationStowed, entity, spec.LocationStowed)
 	addComp(c.LocationInstalled, entity, spec.LocationInstalled)
 	addComp(c.Tile, entity, spec.Tile)
-	addComp(c.Snowable, entity, spec.Snowable)
 	addComp(c.SoloAI, entity, spec.SoloAI)
 	addComp(c.Camera, entity, spec.Camera)
 	addComp(c.Position, entity, spec.Position)

@@ -5,7 +5,7 @@ description = "骨董品店"
 [palette.terrain]
 "#" = "wall"
 "," = "dirt"
-"=" = "floor_concrete"
+"=" = "pavement"
 "." = "floor_wood"
 ":" = "floor_tatami"
 "_" = "floor_linoleum"

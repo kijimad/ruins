@@ -11,6 +11,7 @@ func CreateTestRawMaster() *rawschema.Raws {
 	testTiles := []rawschema.Tile{
 		{Id: "wall", Name: "wall", BlockPass: true, Spawn: &rawschema.TileSpawn{Tile: new("dwall"), Autotile: true}},
 		{Id: "floor", Name: "floor", BlockPass: false, Spawn: autotile},
+		{Id: "road", Name: "road", BlockPass: false, Spawn: autotile},
 		{Id: "dirt", Name: "dirt", BlockPass: false, Spawn: autotile},
 		{Id: "void", Name: "void", BlockPass: true, Spawn: &rawschema.TileSpawn{}},
 		{Id: "bridge_a", Name: "bridge_a", BlockPass: false, Spawn: autotile},

@@ -2,7 +2,7 @@ package mapplanner
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/geometry"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
@@ -10,17 +10,12 @@ import (
 type EnvironmentPlanner struct{}
 
 // PlanMeta はタイルごとの環境を計算して MetaPlan.Environments に入れる。
-// 囲われと水の影響は周りのタイルから導き、植生はタイルの行の値をそのまま使う
+// 囲われと植生はタイルの行の値をそのまま使い、水の影響は周りのタイルから導く
 func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
-	outdoor := p.floodFillOutdoor(mp)
-
 	mp.Environments = make([]gc.TileEnvironment, len(mp.Tiles))
 	for i := range mp.Tiles {
 		env := &mp.Environments[i]
-		env.Shelter = rawschema.Outdoor
-		if !outdoor[i] {
-			env.Shelter = rawschema.Indoor
-		}
+		env.Shelter = raw.TileShelter(mp.Tiles[i])
 		env.Water = p.calcWater(mp, i)
 		if mp.Tiles[i].Foliage != nil {
 			env.Foliage = *mp.Tiles[i].Foliage
@@ -28,28 +23,6 @@ func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
 	}
 
 	return nil
-}
-
-// floodFillOutdoor はマップ外周に達する連結領域を屋外としてマークする。
-// 囲われの判定は geometry.EnclosedRegion に集約し、扉開閉時の再計算と意味論を共有する
-func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool {
-	width := int(mp.Level.TileWidth)
-	height := int(mp.Level.TileHeight)
-	blocked := func(x, y int) bool { return mp.Tiles[y*width+x].BlockPass }
-
-	outdoor := make([]bool, len(mp.Tiles))
-	visited := make([]bool, len(mp.Tiles))
-	for i := range mp.Tiles {
-		if visited[i] || mp.Tiles[i].BlockPass {
-			continue
-		}
-		cells, touchesEdge := geometry.EnclosedRegion(width, height, blocked, i%width, i/width)
-		for _, c := range cells {
-			visited[c] = true
-			outdoor[c] = touchesEdge
-		}
-	}
-	return outdoor
 }
 
 // calcWater は水の影響を計算する。水のタイルの上なら水中、隣が水のタイルなら水辺、どちらでもなければゼロ値

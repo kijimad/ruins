@@ -247,21 +247,23 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 	assert.Equal(t, int(gc.DepthNumDecal), quads[0].depth)
 }
 
-func TestSnowLayer_屋根の無い雪が積もる地面にだけ量を重ねる(t *testing.T) {
+func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *testing.T) {
 	t.Parallel()
 
+	const winter = 24*1500 + 500
 	tests := []struct {
 		name    string
 		turns   consts.Turn
 		tile    string
-		shelter rawschema.Shelter
+		shelter *rawschema.Shelter
 		want    float64
 	}{
-		{"冬の屋外の土は全面に積もる", 24*1500 + 500, "dirt", rawschema.Outdoor, 1},
-		{"冬でも屋根のある屋内には積もらない", 24*1500 + 500, "dirt", rawschema.Indoor, 0},
-		{"冬でも屋根のある半屋外には積もらない", 24*1500 + 500, "dirt", rawschema.Partial, 0},
-		{"冬でも雪が積もらない床には積もらない", 24*1500 + 500, "floor_tile", rawschema.Outdoor, 0},
-		{"春は積もらない", 0, "dirt", rawschema.Outdoor, 0},
+		{"冬の屋外の土は全面に積もる", winter, consts.TileNameDirt, nil, 1},
+		{"冬の屋外の道は全面に積もる", winter, consts.TileNameRoad, nil, 1},
+		{"冬でも屋内の床には積もらない", winter, "floor_tile", nil, 0},
+		{"冬でも通れない壁には積もらない", winter, consts.TileNameDWall, nil, 0},
+		{"冬でも屋根のある半屋外には積もらない", winter, consts.TileNameDirt, new(rawschema.Partial), 0},
+		{"春は積もらない", 0, consts.TileNameDirt, nil, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -272,7 +274,9 @@ func TestSnowLayer_屋根の無い雪が積もる地面にだけ量を重ねる(
 			query.EnsureSeamlessBand(world)
 			tile, err := lifecycle.SpawnTile(world, tt.tile, 3, 3, nil)
 			require.NoError(t, err)
-			world.Components.TileEnvironment.Get(tile).Shelter = tt.shelter
+			if tt.shelter != nil {
+				world.Components.TileEnvironment.Get(tile).Shelter = *tt.shelter
+			}
 
 			layer := (&Render3DSystem{}).newSnowLayer(world)
 			assert.InDelta(t, tt.want, layer.amount(world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}), 1e-9)

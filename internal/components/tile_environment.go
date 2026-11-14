@@ -18,7 +18,7 @@ type ShelterDef struct {
 	Name             i18n.Msgid // 表示名
 	AnchorTemp       int        // 世界温度を引き寄せる先の温度
 	InfluencePercent int        // 世界温度を受ける割合。100 なら世界温度をそのまま受ける
-	Covered          bool       // 屋根か壁に覆われているか
+	Covered          bool       // 屋根に覆われているか。覆われないタイルには雪が積もる
 }
 
 // TileEnvDefs は囲われの受け方と、水と植生がタイルの気温に足す補正の表。読み込み時に raw から1度だけ組み立て、以後は変えない
