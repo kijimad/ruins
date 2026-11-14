@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/geometry"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -15,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // debugEnterPlanners はデバッグでプランナー単位に生成して試すフロアプランナーの一覧。
@@ -111,6 +113,8 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 			md.BackgroundKey = "hospital1"
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(md) }}}, nil
 		}},
+		Choice{Label: "Toggle invincible", Run: popAfter(debugToggleInvincible)},
+		Choice{Label: "Kill nearby enemies", Run: popAfter(debugKillNearbyEnemies)},
 		Choice{Label: "Toggle debug display", Run: popAfter(func(world w.World) error {
 			world.Resources.Config.ShowMapDebug = !world.Resources.Config.ShowMapDebug
 			world.Resources.Config.ShowAIDebug = !world.Resources.Config.ShowAIDebug
@@ -297,4 +301,57 @@ func spawnEnemyNearPlayer(world w.World, name string) error {
 	}
 	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: playerGrid.X + 8, Y: playerGrid.Y}, name)
 	return err
+}
+
+// debugKillNearbyEnemiesRange はデバッグで倒す敵の、プレイヤーからのチェビシェフ距離の上限
+const debugKillNearbyEnemiesRange consts.Tile = 30
+
+// debugKillNearbyEnemies はデバッグでプレイヤーの近くの敵を倒す。囲まれずに周りを見て回るため
+func debugKillNearbyEnemies(world w.World) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	center := world.Components.GridElement.Get(player).Coord
+	var targets []ecs.Entity
+	q := query.ActiveFilter3[gc.FactionEnemy, gc.GridElement, gc.HP](world).Query()
+	for q.Next() {
+		p := world.Components.GridElement.Get(q.Entity()).Coord
+		if max(geometry.Abs(p.X-center.X), geometry.Abs(p.Y-center.Y)) <= debugKillNearbyEnemiesRange {
+			targets = append(targets, q.Entity())
+		}
+	}
+	for _, e := range targets {
+		gameaction.ApplyDamage(world, e, world.Components.HP.Get(e).Current, player)
+	}
+	return nil
+}
+
+// debugToggleInvincible はデバッグでプレイヤーの無敵を切り替える。無敵にするときは HP・体温・空腹・疲労を
+// 正常へ戻し、すでに凍えたり飢えたりした状態から探索を続けられるようにする
+func debugToggleInvincible(world w.World) error {
+	cfg := world.Resources.Config
+	cfg.DebugInvincible = !cfg.DebugInvincible
+	if !cfg.DebugInvincible {
+		return nil
+	}
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	if world.Components.HP.Has(player) {
+		hp := world.Components.HP.Get(player)
+		hp.Current = hp.Max
+	}
+	if world.Components.HealthStatus.Has(player) {
+		world.Components.HealthStatus.Get(player).BodyTempOffset = 0
+	}
+	if world.Components.Hunger.Has(player) {
+		hunger := world.Components.Hunger.Get(player)
+		hunger.Current = hunger.Max
+	}
+	if world.Components.Fatigue.Has(player) {
+		world.Components.Fatigue.Get(player).Current = 0
+	}
+	return nil
 }

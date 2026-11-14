@@ -399,3 +399,26 @@ func TestLogTemperatureChange(t *testing.T) {
 		assert.Equal(t, 0, query.GetGameLog(world).Count())
 	})
 }
+
+func TestSurvival_デバッグの無敵ではプレイヤーの体温と空腹と疲労が進まない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	setStage(world, gc.NewDungeonStage(coldDungeonName, 1))
+	world.Resources.Config.DebugInvincible = true
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
+	require.NoError(t, err)
+	world.Components.Hunger.Get(player).Current = 500
+	world.Components.Fatigue.Get(player).Current = 100
+
+	sys := &TemperatureSystem{}
+	for range 50 {
+		require.NoError(t, sys.Update(world))
+		progressTurnHunger(world)
+		progressTurnFatigue(world)
+		query.GetTurnState(world).TurnNumber++
+	}
+	assert.Zero(t, world.Components.HealthStatus.Get(player).BodyTempOffset)
+	assert.Equal(t, 500, world.Components.Hunger.Get(player).Current)
+	assert.Equal(t, 100, world.Components.Fatigue.Get(player).Current)
+}

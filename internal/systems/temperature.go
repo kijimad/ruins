@@ -52,6 +52,9 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 	for healthQuery.Next() {
 		entity := healthQuery.Entity()
 		hs := world.Components.HealthStatus.Get(entity)
+		if query.IsDebugInvincible(world, entity) {
+			continue
+		}
 
 		// 体温を環境レートぶん動かす
 		rate := bodyTempRate(world, entity)
