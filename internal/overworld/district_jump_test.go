@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -40,4 +41,19 @@ func TestDriver_JumpToDistrict_北で一番近い区域の南の門の前へ行�
 	}
 
 	require.ErrorIs(t, s.JumpToDistrict(world, "no_such"), errDistrictNotFound)
+}
+
+func TestNearestDistrictNorth_先の種類に重なって出ない区域しか無ければ見つからない(t *testing.T) {
+	t.Parallel()
+
+	// 先の種類が帯の全幅でリージョンの縦をほぼ埋めるので、後の種類の区域は必ず重なって出ない
+	raws := rawschema.Raws{Districts: &[]rawschema.District{
+		{Id: "wall", Spacing: 3, Separation: 0, Layout: rawschema.DistrictLayoutTown, Sizes: []rawschema.DistrictSize{{W: 2, H: 3, Weight: 1}}},
+		{Id: "town", Spacing: 3, Separation: 0, Layout: rawschema.DistrictLayoutTown, Sizes: []rawschema.DistrictSize{{W: 1, H: 1, Weight: 1}}},
+	}}
+	ds := districtsFrom(raws)
+	_, ok := nearestDistrictNorth(raws, ds[1], 1, 0, 2)
+	assert.False(t, ok)
+	_, ok = nearestDistrictNorth(raws, ds[0], 1, 0, 2)
+	assert.True(t, ok, "先の種類は見つかる")
 }

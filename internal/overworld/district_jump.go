@@ -82,10 +82,9 @@ func (dr *Driver) JumpToDistrict(world w.World, id string) error {
 // nearestDistrictNorth は絶対チャンク行 playerRow より北にある種類 d の区域のうち、一番近いものを返す。
 // 種類の違う区域との重なりで出ない区域は飛ばす
 func nearestDistrictNorth(raws rawschema.Raws, d district, runSeed uint64, playerRow, cols consts.Chunk) (districtRegion, bool) {
-	ry := consts.FloorDiv(playerRow, consts.Chunk(d.row.Spacing))
-	for range districtJumpSearch {
-		r := d.regionIn(runSeed, ry, cols)
-		ry--
+	start := consts.FloorDiv(playerRow, consts.Chunk(d.row.Spacing))
+	for i := range consts.Chunk(districtJumpSearch) {
+		r := d.regionIn(runSeed, start-i, cols)
 		if r.anchor.Y+r.h >= playerRow {
 			continue
 		}
