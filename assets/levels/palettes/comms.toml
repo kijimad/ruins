@@ -5,7 +5,7 @@ description = "通信施設"
 [palette.terrain]
 "#" = "wall"
 "," = "dirt"
-"=" = "floor_concrete"
+"=" = "pavement"
 "." = "floor_tile"
 
 [palette.props."+"]

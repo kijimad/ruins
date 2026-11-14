@@ -6,6 +6,7 @@ description = "発電施設"
 "#" = "wall"
 "," = "dirt"
 "." = "floor_concrete"
+"=" = "pavement"
 
 [palette.props."+"]
 tile = "floor_concrete"
@@ -47,6 +48,11 @@ tile = "floor_concrete"
 id = "wooden_crate"
 lootTable = "power_fuel"
 
+[palette.props."F"]
+tile = "dirt"
+id = "wooden_crate"
+lootTable = "power_fuel"
+
 [palette.props."r"]
 tile = "dirt"
 id = "rubble"
@@ -66,4 +72,8 @@ chance = 50
 
 [palette.beings."z"]
 tile = "floor_concrete"
+chance = 35
+
+[palette.beings."y"]
+tile = "pavement"
 chance = 35

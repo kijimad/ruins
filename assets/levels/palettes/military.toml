@@ -6,6 +6,7 @@ description = "軍基地"
 "#" = "wall"
 "," = "dirt"
 "." = "floor_concrete"
+"=" = "pavement"
 
 [palette.props."+"]
 tile = "floor_concrete"
@@ -70,22 +71,26 @@ tile = "dirt"
 id = "construction_sign"
 
 [palette.props."P"]
-tile = "floor_concrete"
+tile = "pavement"
 id = "pallet"
 
 [palette.props."c"]
-tile = "floor_concrete"
+tile = "pavement"
 id = "crate"
 
 [palette.props."k"]
-tile = "floor_concrete"
+tile = "pavement"
 id = "forklift"
 
 [palette.items."o"]
 itemGroup = "military_ammo"
-tile = "floor_concrete"
+tile = "pavement"
 chance = 40
 
 [palette.beings."z"]
 tile = "floor_concrete"
+chance = 35
+
+[palette.beings."y"]
+tile = "pavement"
 chance = 35
