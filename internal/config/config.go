@@ -46,7 +46,7 @@ type Config struct {
 	ShowMapDebug bool `env:"RUINS_SHOW_MAP_DEBUG"`
 	// エンカウントを無効化するかどうか
 	NoEncounter bool `env:"RUINS_NO_ENCOUNTER"`
-	// プレイヤーを無敵にするかどうか。HP が減らず、体温・空腹・疲労が進まない。デバッグで探索を確かめるため
+	// プレイヤーを無敵にするかどうか。毎フレーム HP・体温・空腹・疲労を満たし、倒れても起こす
 	DebugInvincible bool `env:"RUINS_DEBUG_INVINCIBLE"`
 
 	// オープニング演出をスキップするかどうか

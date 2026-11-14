@@ -400,25 +400,24 @@ func TestLogTemperatureChange(t *testing.T) {
 	})
 }
 
-func TestSurvival_デバッグの無敵ではプレイヤーの体温と空腹と疲労が進まない(t *testing.T) {
+func TestSurvival_デバッグの無敵ではターンの終わりにプレイヤーの体温と空腹と疲労が満ちている(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	setStage(world, gc.NewDungeonStage(coldDungeonName, 1))
 	world.Resources.Config.DebugInvincible = true
+	world.Updaters, world.Renderers = InitializeSystems(world)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 	require.NoError(t, err)
-	world.Components.Hunger.Get(player).Current = 500
-	world.Components.Fatigue.Get(player).Current = 100
 
-	sys := &TemperatureSystem{}
 	for range 50 {
-		require.NoError(t, sys.Update(world))
 		progressTurnHunger(world)
 		progressTurnFatigue(world)
+		require.NoError(t, runTurnEndSystems(world))
 		query.GetTurnState(world).TurnNumber++
 	}
+	hunger := world.Components.Hunger.Get(player)
 	assert.Zero(t, world.Components.HealthStatus.Get(player).BodyTempOffset)
-	assert.Equal(t, 500, world.Components.Hunger.Get(player).Current)
-	assert.Equal(t, 100, world.Components.Fatigue.Get(player).Current)
+	assert.Equal(t, hunger.Max, hunger.Current)
+	assert.Zero(t, world.Components.Fatigue.Get(player).Current)
 }

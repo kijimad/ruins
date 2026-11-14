@@ -339,31 +339,9 @@ func debugKillNearbyEnemies(world w.World) error {
 	return nil
 }
 
-// debugToggleInvincible はデバッグでプレイヤーの無敵を切り替える。無敵にするときは HP・体温・空腹・疲労を
-// 正常へ戻し、すでに凍えたり飢えたりした状態から探索を続けられるようにする
+// debugToggleInvincible はデバッグでプレイヤーの無敵を切り替える。無敵の間は DebugInvincibleSystem がプレイヤーを満たす
 func debugToggleInvincible(world w.World) error {
 	cfg := world.Resources.Config
 	cfg.DebugInvincible = !cfg.DebugInvincible
-	if !cfg.DebugInvincible {
-		return nil
-	}
-	player, err := query.GetPlayerEntity(world)
-	if err != nil {
-		return err
-	}
-	if world.Components.HP.Has(player) {
-		hp := world.Components.HP.Get(player)
-		hp.Current = hp.Max
-	}
-	if world.Components.HealthStatus.Has(player) {
-		world.Components.HealthStatus.Get(player).BodyTempOffset = 0
-	}
-	if world.Components.Hunger.Has(player) {
-		hunger := world.Components.Hunger.Get(player)
-		hunger.Current = hunger.Max
-	}
-	if world.Components.Fatigue.Has(player) {
-		world.Components.Fatigue.Get(player).Current = 0
-	}
 	return nil
 }

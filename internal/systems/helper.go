@@ -22,6 +22,9 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	deadCleanupSystem := &DeadCleanupSystem{}
 	updaters[deadCleanupSystem.String()] = deadCleanupSystem
 
+	debugInvincibleSystem := &DebugInvincibleSystem{}
+	updaters[debugInvincibleSystem.String()] = debugInvincibleSystem
+
 	autoInteractionSystem := &AutoInteractionSystem{}
 	updaters[autoInteractionSystem.String()] = autoInteractionSystem
 
