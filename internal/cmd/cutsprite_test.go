@@ -66,6 +66,7 @@ func TestWritePNG_作成できないパスはエラー(t *testing.T) {
 
 // cutSpriteApp は runCutSprite を Action に持つ単体の cli.Command を返す。
 // パッケージ変数 CmdCutSprite を直接 Run すると実行ごとの状態が共有されるため、テストごとに新規に作る。
+// フラグ定義は CmdCutSprite と手で揃えているので、本体でフラグを変えたらここも合わせる。
 func cutSpriteApp() *cli.Command {
 	return &cli.Command{
 		Name:      "cutsprite",
@@ -135,4 +136,35 @@ func TestRunCutSprite_透明なマスを除いてスプライトを書き出す(
 	require.NoError(t, err)
 	require.Len(t, entries, 1)
 	assert.Equal(t, "chip_0_0_.png", entries[0].Name())
+
+	wf, err := os.Open(filepath.Join(outDir, entries[0].Name()))
+	require.NoError(t, err)
+	defer func() { _ = wf.Close() }()
+	wrote, err := png.Decode(wf)
+	require.NoError(t, err)
+	assert.Equal(t, image.Rect(0, 0, 32, 32), wrote.Bounds())
+	r, g, b, a := wrote.At(0, 0).RGBA()
+	assert.Equal(t, [4]uint32{0xffff, 0, 0, 0xffff}, [4]uint32{r, g, b, a})
+}
+
+func TestRunCutSprite_書き出し先が無いとエラー(t *testing.T) {
+	t.Parallel()
+
+	src := image.NewNRGBA(image.Rect(0, 0, 32, 32))
+	red := color.NRGBA{R: 255, A: 255}
+	for y := range 32 {
+		for x := range 32 {
+			src.Set(x, y, red)
+		}
+	}
+
+	srcPath := filepath.Join(t.TempDir(), "sheet.png")
+	f, err := os.Create(srcPath)
+	require.NoError(t, err)
+	require.NoError(t, png.Encode(f, src))
+	require.NoError(t, f.Close())
+
+	outDir := filepath.Join(t.TempDir(), "no-such-dir")
+	err = cutSpriteApp().Run(context.Background(), []string{"cutsprite", "--prefix", "chip", "--out", outDir, srcPath})
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }
