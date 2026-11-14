@@ -1,8 +1,10 @@
 package raw
 
 import (
+	"io/fs"
 	"testing"
 
+	"github.com/kijimaD/ruins/assets"
 	"github.com/kijimaD/ruins/internal/i18n"
 
 	"github.com/BurntSushi/toml"
@@ -1179,10 +1181,57 @@ func TestTileSpawn_実データ(t *testing.T) {
 		}
 	}
 	assert.Equal(t, map[string]rawschema.TileSpawn{
-		"dirt":        {Autotile: true},
-		"floor":       {Autotile: true},
-		"grass_green": {Autotile: true},
-		"wall":        {Tile: new("dwall"), Autotile: true},
-		"void":        {Autotile: false},
+		"dirt":             {Autotile: true},
+		"floor":            {Autotile: true},
+		"grass_green":      {Autotile: true},
+		"dwall":            {Autotile: true},
+		"brick_cyan":       {Autotile: true},
+		"cobble_teal":      {Autotile: true},
+		"cobble_gold":      {Autotile: true},
+		"brick_gray":       {Autotile: true},
+		"cobble_cream":     {Autotile: true},
+		"brick_blue":       {Autotile: true},
+		"grass_olive":      {Autotile: true},
+		"cobble_red":       {Autotile: true},
+		"brick_navy":       {Autotile: true},
+		"cobble_purple":    {Autotile: true},
+		"cobble_slate":     {Autotile: true},
+		"sand_pink":        {Autotile: true},
+		"brick_amber":      {Autotile: true},
+		"smooth_cream":     {Autotile: true},
+		"sand_orange":      {Autotile: true},
+		"brick_terracotta": {Autotile: true},
+		"smooth_white":     {Autotile: true},
+		"sand_red":         {Autotile: true},
+		"brick_beige":      {Autotile: true},
+		"smooth_teal":      {Autotile: true},
+		"sand_slate":       {Autotile: true},
+		"brick_rust":       {Autotile: true},
+		"smooth_bluegray":  {Autotile: true},
+		"plank_orange":     {Autotile: true},
+		"plank_brown":      {Autotile: true},
+		"plank_navy":       {Autotile: true},
+		"plank_blue":       {Autotile: true},
+		"wall":             {Tile: new("dwall"), Autotile: true},
+		"void":             {Autotile: false},
 	}, got)
+}
+
+func TestTiles_オートタイルの絵しか無いタイルは生成でオートタイルにする(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	exists := func(name string) bool {
+		_, err := fs.Stat(assets.FS, "file/textures/tiles/"+name+"_.png")
+		return err == nil
+	}
+	var missing []string
+	for _, tl := range PtrSlice(raws.Tiles) {
+		key := tl.SpriteRender.SpriteKey
+		if exists(key+"_0") && !exists(key) && (tl.Spawn == nil || !tl.Spawn.Autotile) {
+			missing = append(missing, tl.Id)
+		}
+	}
+	assert.Empty(t, missing)
 }

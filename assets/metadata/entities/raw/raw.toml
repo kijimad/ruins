@@ -21729,6 +21729,8 @@
   description = "濃灰のダンジョン壁のオートタイル。通行不可"
   id = "dwall"
   name = "Dungeon Wall"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 3
     spriteKey = "dwall"
@@ -21835,6 +21837,8 @@
   description = "シアン色の煉瓦を敷いた床のオートタイル"
   id = "brick_cyan"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_cyan"
@@ -21846,6 +21850,8 @@
   description = "青緑の丸石を敷いた床のオートタイル"
   id = "cobble_teal"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_teal"
@@ -21857,6 +21863,8 @@
   description = "金色の丸石を敷いた床のオートタイル"
   id = "cobble_gold"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_gold"
@@ -21868,6 +21876,8 @@
   description = "灰色の煉瓦を敷いた床のオートタイル"
   id = "brick_gray"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_gray"
@@ -21892,6 +21902,8 @@
   description = "クリーム色の丸石を敷いた床のオートタイル"
   id = "cobble_cream"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_cream"
@@ -21903,6 +21915,8 @@
   description = "青灰色の煉瓦を敷いた床のオートタイル"
   id = "brick_blue"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_blue"
@@ -21914,6 +21928,8 @@
   description = "オリーブ色の草地のオートタイル床"
   id = "grass_olive"
   name = "Grass Field"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "grass_olive"
@@ -21925,6 +21941,8 @@
   description = "赤い丸石を敷いた床のオートタイル"
   id = "cobble_red"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_red"
@@ -21936,6 +21954,8 @@
   description = "紺色の煉瓦を敷いた床のオートタイル"
   id = "brick_navy"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_navy"
@@ -21947,6 +21967,8 @@
   description = "紫がかった砂利の床のオートタイル"
   id = "cobble_purple"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_purple"
@@ -21958,6 +21980,8 @@
   description = "石板色の砂利の床のオートタイル"
   id = "cobble_slate"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_slate"
@@ -21969,6 +21993,8 @@
   description = "桃色の砂の床のオートタイル"
   id = "sand_pink"
   name = "Sand"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_pink"
@@ -21980,6 +22006,8 @@
   description = "琥珀色の煉瓦を敷いた床のオートタイル"
   id = "brick_amber"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_amber"
@@ -21991,6 +22019,8 @@
   description = "クリーム色の滑らかな床のオートタイル"
   id = "smooth_cream"
   name = "Smooth Floor"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_cream"
@@ -22002,6 +22032,8 @@
   description = "橙色の砂の床のオートタイル"
   id = "sand_orange"
   name = "Sand"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_orange"
@@ -22013,6 +22045,8 @@
   description = "テラコッタ色の煉瓦を敷いた床のオートタイル"
   id = "brick_terracotta"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_terracotta"
@@ -22024,6 +22058,8 @@
   description = "白い滑らかな床のオートタイル"
   id = "smooth_white"
   name = "Smooth Floor"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_white"
@@ -22035,6 +22071,8 @@
   description = "赤茶の砂の床のオートタイル"
   id = "sand_red"
   name = "Sand"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_red"
@@ -22046,6 +22084,8 @@
   description = "ベージュの煉瓦を敷いた床のオートタイル"
   id = "brick_beige"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_beige"
@@ -22057,6 +22097,8 @@
   description = "青緑の滑らかな床や水面のオートタイル"
   id = "smooth_teal"
   name = "Smooth Floor"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_teal"
@@ -22068,6 +22110,8 @@
   description = "石板色の砂の床のオートタイル"
   id = "sand_slate"
   name = "Sand"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_slate"
@@ -22079,6 +22123,8 @@
   description = "錆色の煉瓦を敷いた床のオートタイル"
   id = "brick_rust"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_rust"
@@ -22090,6 +22136,8 @@
   description = "青灰の滑らかな床のオートタイル"
   id = "smooth_bluegray"
   name = "Smooth Floor"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_bluegray"
@@ -22101,6 +22149,8 @@
   description = "橙色の板を張った床のオートタイル"
   id = "plank_orange"
   name = "Planks"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_orange"
@@ -22112,6 +22162,8 @@
   description = "茶色の板を張った床のオートタイル"
   id = "plank_brown"
   name = "Planks"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_brown"
@@ -22123,6 +22175,8 @@
   description = "紺色の板を張った床のオートタイル"
   id = "plank_navy"
   name = "Planks"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_navy"
@@ -22134,6 +22188,8 @@
   description = "青い板を張った床のオートタイル"
   id = "plank_blue"
   name = "Planks"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_blue"
