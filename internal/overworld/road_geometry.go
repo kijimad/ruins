@@ -56,7 +56,7 @@ func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chun
 	x, y := vertical.fixed, vertical.lo
 	out := []roadSeg{segs[0]}
 	for _, r := range fencedDistrictsBetween(raws, runSeed, min(a.Y, b.Y), max(a.Y, b.Y), cols) {
-		north, south := gateColumns(raws, r)
+		north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r))
 		top := r.anchor.Y.Tiles(chunkH)
 		bottom := (r.anchor.Y + r.h).Tiles(chunkH) - 1
 		lane := func(col consts.Chunk) consts.Tile { return col.Tiles(chunkW) + urbanStreetW/2 }

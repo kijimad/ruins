@@ -146,20 +146,20 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 		return nil
 	}
 	l := r.local(c)
-	lot := lotAt(lotsOf(raws, zoneCatalogFrom(raws), r), l)
+	lots := lotsOf(raws, zoneCatalogFrom(raws), r)
+	lot := lotAt(lots, l)
 	var fence []consts.Coord[consts.Tile]
 	if r.kind.Fence != nil && *r.kind.Fence {
-		north, south := gateColumns(raws, r)
+		north, south := gateColumns(r, lots)
 		fence = districtFence(r, l, g.chunkW, g.chunkH, north-r.anchor.X, south-r.anchor.X)
 	}
 	verge := r.kind.Verge != nil && *r.kind.Verge
 	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, verge)
 }
 
-// gateColumns は塀を巡らせる区域の、北と南の門を開ける絶対チャンク列を返す。真ん中の列を覆う区画の西の端の列で、
-// 区画の西の帯は街路なので、門から区域の中の街路へ入れる
-func gateColumns(raws rawschema.Raws, r districtRegion) (north, south consts.Chunk) {
-	lots := lotsOf(raws, zoneCatalogFrom(raws), r)
+// gateColumns は塀を巡らせる区域 r の、北と南の門を開ける絶対チャンク列を、区域を埋めた区画 lots から返す。
+// 真ん中の列を覆う区画の西の端の列で、区画の西の帯は街路なので、門から区域の中の街路へ入れる
+func gateColumns(r districtRegion, lots []buildingLot) (north, south consts.Chunk) {
 	north = lotAt(lots, consts.Coord[consts.Chunk]{X: r.w / 2, Y: 0}).anchor.X
 	south = lotAt(lots, consts.Coord[consts.Chunk]{X: r.w / 2, Y: r.h - 1}).anchor.X
 	return r.anchor.X + north, r.anchor.X + south
