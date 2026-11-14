@@ -350,9 +350,8 @@ func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector
 	return quads
 }
 
-// groundSprite は屋根の無い土の地面 e を、雪の積もり方に合わせた絵で返す。雪に覆われていれば雪の絵、
-// そうでなければ土の絵にする。添字は、土の添字がつながる向きのうち隣の覆いが自分と同じ向きだけをつなぐので、
-// 雪と土の境目に両側から縁が付き、雪がまとまった吹き溜まりの形になる。絵が変わらなければ ok は false。
+// groundSprite は屋根の無い土の地面 e を、雪の積もり方に合わせた絵で返す。添字は、土の添字がつながる向きのうち
+// 隣の覆いが自分と同じ向きだけをつなぐので、雪と土の境目に両側から縁が付く。絵が変わらなければ ok は false。
 // fractions は1回の描画の中で行ごとの雪の割合を使い回す
 func groundSprite(world w.World, e ecs.Entity, fractions map[consts.Tile]float64) (*gc.SpriteRender, bool) {
 	if !world.Components.SnowCover.Has(e) || !world.Components.TileEnvironment.Has(e) ||

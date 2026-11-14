@@ -75,7 +75,7 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 }
 
 // ClimateTemperatureAt は屋外のその日の平均気温を返す。ステージの基本気温と季節と緯度の和で、
-// 時間帯・天候・屋内外・熱源を含まないので1日の中では変わらない。地面の雪はこの値から導く
+// 時間帯・天候・屋内外・熱源を含まないので1日の中では変わらない
 func ClimateTemperatureAt(world w.World, y consts.Tile) int {
 	return stageBaseTemperature(world) + climateWorldTemperatureAt(world, y)
 }
@@ -116,7 +116,7 @@ const (
 )
 
 // SnowRankAt は帯ローカル座標 (x, y) のマスが雪に覆われる順位を 0 以上 1 未満で返す。割合がこれを上回れば覆われる。
-// 帯がずれても同じ場所で同じ値になるよう絶対座標から決め、寒くなるほど同じマスに雪が残ったまま広がる
+// 帯がずれても同じ場所で同じ値になるよう絶対座標から決める
 func SnowRankAt(world w.World, x, y consts.Tile) float64 {
 	absY := int(y)
 	if sb := GetSeamlessBand(world); sb != nil {
