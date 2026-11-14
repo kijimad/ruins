@@ -1,0 +1,125 @@
+label: ItemPlanner
+tiles:
+  '.' = "floor"
+  '#' = "wall"
+|##...............................................#|
+|#................................................#|
+|#..................#.............................#|
+|#...........#....................................#|
+|#....#..#........................................#|
+|#...................#............................#|
+|#.............#..................................#|
+|#................................................#|
+|#............................#...................#|
+|#....#...........................................#|
+|#..........#.....................................#|
+|#................................................#|
+|#................#...............................#|
+|#................................................#|
+|#.....................................#..........#|
+|#..............................................#.#|
+|#................................................#|
+|#....................................#...........#|
+|#.......#............#...........................#|
+|#....................#...........................#|
+|#................................................#|
+|#..........#.....................................#|
+|#................................................#|
+|#............................................#...#|
+|#................................................#|
+|#..#.................#...........................#|
+|#.....#.....#............................#...#...#|
+|#....#.....#...........................#.........#|
+|#................................................#|
+|#............................#...................#|
+|#................................................#|
+|#......................#.........................#|
+|#................................................#|
+|#................................................#|
+|#................................................#|
+|#....................................#.......#...#|
+|#........................................#.......#|
+|#..........................................#.....#|
+|#................................................#|
+|#................................................#|
+|#..............................#.................#|
+|#................................................#|
+|#................................................#|
+|#................................................#|
+|#...............................#..............#.#|
+|#....................................#.......#...#|
+|#.........#......................................#|
+|#.............................#..................#|
+|#................................................#|
+|####.............................................#|
+environments shelter/water/foliage:
+  'a' = "indoor//"
+  'b' = "outdoor//"
+|aabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbabbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbba|
+|abbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbba|
+|abbbbbbbabbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbabbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbabbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbabbba|
+|abbbbabbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbabbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbaba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbabbba|
+|abbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|aaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+room: 1,0-48,49
+npc: 19,9 slime
+npc: 18,8 slime
+npc: 29,49 slime
+npc: 27,49 slime
+npc: 48,36 slime
+npc: 47,35 slime
+npc: 25,47 slime
+item: 1,45 nunchaku x1
+item: 31,24 tool_vest x1
+item: 40,36 field_dressing x1
+item: 23,34 lemon_soda x1
+item: 10,34 smoked_fish x1
+item: 13,0 fried_chicken x1
+item: 39,21 salmon x1
+item: 3,24 cookie x1
+item: 45,3 dummy_medkit x1
+item: 38,23 winter_gloves x1

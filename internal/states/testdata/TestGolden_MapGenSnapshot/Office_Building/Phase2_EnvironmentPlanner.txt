@@ -1,0 +1,40 @@
+label: EnvironmentPlanner
+tiles:
+  '.' = "floor"
+  '#' = "wall"
+|...............|
+|...............|
+|...............|
+|...............|
+|...............|
+|######...######|
+|.....#...#.....|
+|...............|
+|.....#...#.....|
+|.....#...#.....|
+environments shelter/water/foliage:
+  'a' = "indoor//"
+  'b' = "outdoor//"
+|bbbbbbbbbbbbbbb|
+|bbbbbbbbbbbbbbb|
+|bbbbbbbbbbbbbbb|
+|bbbbbbbbbbbbbbb|
+|bbbbbbbbbbbbbbb|
+|aaaaaabbbaaaaaa|
+|bbbbbabbbabbbbb|
+|bbbbbbbbbbbbbbb|
+|bbbbbabbbabbbbb|
+|bbbbbabbbabbbbb|
+prop: 1,2 chair
+prop: 2,2 table
+prop: 3,2 chair
+prop: 11,2 chair
+prop: 12,2 table
+prop: 13,2 chair
+prop: 1,7 desk
+prop: 2,7 chair
+prop: 5,7 door
+prop: 9,7 door
+prop: 1,8 desk
+prop: 2,8 chair
+prop: 12,8 bed

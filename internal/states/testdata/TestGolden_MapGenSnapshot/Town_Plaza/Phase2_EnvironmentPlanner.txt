@@ -1,0 +1,62 @@
+label: EnvironmentPlanner
+tiles:
+  ',' = "dirt"
+  '.' = "floor"
+  '#' = "wall"
+|#,,,,,,,,,,,...,,,,,,,,,,,,,,,,,,,...,,,,,,,,,,,,#|
+|#,,,,,,,,,,,...,,,,,,,,,,,,,,,,,,,...,,,,,,,,,,,,#|
+|#,,,,,,,,,,,...,,,,,,,,,,,,,,,,,,,...,,,,,,,,,,,,#|
+|#,,,.,,,,,,,...,,,,,,,,,.,,,,,,,,,...,,,,,,.,,,,,#|
+|#,,,,,,,,,,,...,,,,,,,,,,,,,,,,,,,...,,,,,,,,,,,,#|
+|#,,,,,,,,,,,.....,,,,,,,,,,,,,,,.....,,,,,,,,,,,,#|
+|#,,,,,,,,,,.......,,,,,,,,,,,,,.......,,,,,,,,,,,#|
+|#,,,,,,,,,.........,,,,,,,,,,,.........,,,,,,,,,,#|
+|#................................................#|
+|#................................................#|
+|#................................................#|
+|#,,,,,,,,,.............................,,,,,,,,,,#|
+|#,,,,,,,,,,.......,,,,,,,,,,,,,.......,,,,,,,,,,,#|
+|#,,,,,,,,,,,.....,,,,,,,,,,,,,,,.....,,,,,,,,,,,,#|
+|#,,,,,,,,,,,...,,,,,,,,,,,,,,,,,,,...,,,,,,,,,,,,#|
+|#,,,.,,,,,,,...,,,,,,.,,,,,.,,,,,,...,,,,,,.,,,,,#|
+|#,,,,,,,,,,,...,,,,,,,,,,,,,,,,,,,...,,,,,,,,,,,,#|
+|#,,,,,,,,,,,...,,,,,,.,...,.,,,,,,...,,,,,,,,,,,,#|
+|#,,,,,,,,,,,...,,,,,,,,...,,,,,,,,...,,,,,,,,,,,,#|
+|#,,,,,,,,,,,...,,,,,,.,...,.,,,,,,...,,,,,,,,,,,,#|
+environments shelter/water/foliage:
+  'a' = "indoor//"
+  'b' = "outdoor//"
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+|abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbba|
+spawn: 24,10
+npc: 3,5 merchant
+npc: 4,13 old_soldier
+prop: 4,3 lantern
+prop: 24,3 lantern
+prop: 43,3 lantern
+prop: 4,15 lantern
+prop: 21,15 stone_pillar
+prop: 27,15 stone_pillar
+prop: 43,15 lantern
+prop: 21,17 stone_pillar
+prop: 27,17 stone_pillar
+prop: 21,19 stone_pillar
+prop: 27,19 stone_pillar
