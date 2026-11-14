@@ -189,6 +189,51 @@ func TestValidateDisassemblies(t *testing.T) {
 	}
 }
 
+func TestValidateSnowableTiles(t *testing.T) {
+	t.Parallel()
+
+	shelters := &[]rawschema.ShelterEffect{
+		{Id: rawschema.Outdoor, Covered: false},
+		{Id: rawschema.Partial, Covered: true},
+		{Id: rawschema.Indoor, Covered: true},
+	}
+	tests := []struct {
+		name    string
+		tile    rawschema.Tile
+		wantErr error
+	}{
+		{
+			name: "囲われを省いた雪が積もるタイルは通る",
+			tile: rawschema.Tile{Id: "dirt", Snowable: new(true)},
+		},
+		{
+			name: "屋内で雪が積もらないタイルは通る",
+			tile: rawschema.Tile{Id: "floor", Shelter: new(rawschema.Indoor)},
+		},
+		{
+			name:    "屋内で雪が積もるタイルはエラー",
+			tile:    rawschema.Tile{Id: "floor", Snowable: new(true), Shelter: new(rawschema.Indoor)},
+			wantErr: errSnowableCovered,
+		},
+		{
+			name:    "半屋外で雪が積もるタイルはエラー",
+			tile:    rawschema.Tile{Id: "carport", Snowable: new(true), Shelter: new(rawschema.Partial)},
+			wantErr: errSnowableCovered,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := validateSnowableTiles(rawschema.Raws{ShelterEffects: shelters, Tiles: &[]rawschema.Tile{tt.tile}})
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
 func TestValidateZoneBaseFacilities(t *testing.T) {
 	t.Parallel()
 

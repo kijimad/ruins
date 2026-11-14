@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -70,4 +71,25 @@ func TestWildernessLandmark_原野の当選チャンクに小構造物が決定�
 	b := build()
 	assert.NotEmpty(t, a, "ランドマークの prop が置かれる")
 	assert.Equal(t, a, b, "ランドマークの配置は決定的で再生成しても一致する")
+}
+
+func TestDrawHut_小屋の床は屋内になる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	g := chunkGeom{chunkW: 8, chunkH: 8, tiles: &tileIndex{world: world, loX: 0, hiX: 8}}
+	require.NoError(t, drawHut(world, g, rand.New(rand.NewPCG(1, 0)), consts.Coord[consts.Tile]{X: 1, Y: 1}, 4, 4, nil))
+
+	got := map[string]map[rawschema.Shelter]int{}
+	for _, e := range g.tiles.get() {
+		id := world.Components.RawID.Get(e).ID
+		if got[id] == nil {
+			got[id] = map[rawschema.Shelter]int{}
+		}
+		got[id][world.Components.TileEnvironment.Get(e).Shelter]++
+	}
+	assert.Equal(t, map[string]map[rawschema.Shelter]int{
+		consts.TileNameFloor: {rawschema.Indoor: 5},
+		consts.TileNameDWall: {rawschema.Outdoor: 11},
+	}, got)
 }

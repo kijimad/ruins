@@ -35,6 +35,7 @@ var (
 	errNeedStageNoZero               = errors.New("need stages have no stage from zero")
 	errEnumRowMissing                = errors.New("enum value has no raw row")
 	errTableMissing                  = errors.New("table required by code is missing")
+	errSnowableCovered               = errors.New("snowable tile has a covered shelter")
 )
 
 // validateRules は行の間の決まりのうち、CUE のスキーマで書かないものを検証する。
@@ -47,6 +48,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateConditions,
 		validateWeathers,
 		validateTileEffects,
+		validateSnowableTiles,
 		validateNeedStages,
 	}
 	for _, v := range validators {
@@ -440,6 +442,23 @@ func validateWeathers(raws rawschema.Raws) error {
 		}
 	}
 	return validateEnumRows("WeatherId", enumStrings(rawschema.WeatherIdValues()), rowIDs(weathers, func(w rawschema.Weather) rawschema.WeatherId { return w.Id }))
+}
+
+// validateSnowableTiles は雪が積もるタイルの囲われが、屋根の無い行を指すことを検証する。
+// 屋根の下には雪を描かないので、両方を書いた行は黙って雪が積もらなくなる
+func validateSnowableTiles(raws rawschema.Raws) error {
+	covered := map[rawschema.Shelter]bool{}
+	for _, s := range PtrSlice(raws.ShelterEffects) {
+		covered[s.Id] = s.Covered
+	}
+	tiles := PtrSlice(raws.Tiles)
+	for i := range tiles {
+		t := &tiles[i]
+		if t.Snowable != nil && *t.Snowable && covered[TileShelter(*t)] {
+			return fmt.Errorf("tile %q shelter %q: %w", t.Id, TileShelter(*t), errSnowableCovered)
+		}
+	}
+	return nil
 }
 
 // validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する
