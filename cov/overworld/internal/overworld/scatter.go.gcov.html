@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.1&nbsp;%</td>
+            <td class="headerCovTableEntryHi">90.7&nbsp;%</td>
             <td class="headerCovTableEntry">172</td>
-            <td class="headerCovTableEntry">155</td>
+            <td class="headerCovTableEntry">156</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 01:14:59</td>
+            <td class="headerValue">2026-11-14 12:55:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -187,9 +187,9 @@
 <span id="L125"><span class="lineNum">     125</span>              : // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で</span>
 <span id="L126"><span class="lineNum">     126</span>              : // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。</span>
 <span id="L127"><span class="lineNum">     127</span>              : func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool, error) {</span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(runSeed, c, cols) {</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(raws, runSeed, c, cols) {</span></span>
 <span id="L129"><span class="lineNum">     129</span>              :         case chunkWasteland:</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 cat, err := scatterCatalogFrom(raws, outdoorZoneAt(runSeed, c, cols))</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 cat, err := scatterCatalogFrom(raws, outdoorZoneAt(raws, runSeed, c, cols))</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 return cat, err == nil, err</span></span>
 <span id="L132"><span class="lineNum">     132</span>              :         default:</span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 return scatterCatalog{}, false, nil</span></span>
@@ -257,7 +257,7 @@
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)</span></span>
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, propCount) {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 bigAllowed := onBigPhase(rel) &amp;&amp; !onScatterRoute(runSeed, c, cols, g, absTile(rel))</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 bigAllowed := onBigPhase(rel) &amp;&amp; !onScatterRoute(world.Resources.RawMaster, runSeed, c, cols, g, absTile(rel))</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 roll := hashTileCoord(selSeed, rel)</span></span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 entry := pickScatterEntry(cat.Entries, bigAllowed, roll)</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 if entry.Ref == &quot;&quot; {</span></span>
@@ -292,9 +292,9 @@
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 pos := consts.Coord[consts.Tile]{X: origin.X + s.dx, Y: origin.Y + s.dy}</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 key := gc.GridElement{Coord: pos}</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 if occupied[key] || !isEarthTile(world, tiles, pos) {</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L234"><span class="lineNum">     234</span>              :                 }</span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC tlaBgGNC">           1 :                 if _, err := lifecycle.SpawnProp(world, s.name, pos.X, pos.Y); err != nil {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 if _, err := lifecycle.SpawnProp(world, s.name, pos.X, pos.Y); err != nil {</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place scatter satellite (%s): %w&quot;, s.name, err)</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC tlaBgGNC">           1 :                 occupied[key] = true</span></span>
@@ -320,7 +320,7 @@
 <span id="L258"><span class="lineNum">     258</span>              : // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、</span>
 <span id="L259"><span class="lineNum">     259</span>              : // それ以外を奥地にする。道は集落間を結ぶので、集落・市街の近傍が道沿いの帯を兼ねる。近傍地物の</span>
 <span id="L260"><span class="lineNum">     260</span>              : // 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。</span>
-<span id="L261"><span class="lineNum">     261</span>              : func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {</span>
+<span id="L261"><span class="lineNum">     261</span>              : func outdoorZoneAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {</span>
 <span id="L262"><span class="lineNum">     262</span>              :         // 集落・市街は Y 方向のリージョンに並ぶので region は c.Y から引く</span>
 <span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         sr := consts.FloorDiv(c.Y, settlementPlacement.Spacing)</span></span>
 <span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         for _, pr := range []consts.Chunk{sr - 1, sr, sr + 1} {</span></span>
@@ -328,39 +328,39 @@
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                         return zoneRoadside</span></span>
 <span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L268"><span class="lineNum">     268</span>              :         }</span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         ur := consts.FloorDiv(c.Y, urbanPlacement.Spacing)</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         for _, pr := range []consts.Chunk{ur - 1, ur, ur + 1} {</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 if chunkChebyshev(c, urbanPlacement.WinnerOf(runSeed, pr, cols)) &lt;= scatterRoadsideRange {</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                         return zoneRoadside</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L274"><span class="lineNum">     274</span>              :         }</span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         return zoneWild</span></span>
-<span id="L276"><span class="lineNum">     276</span>              : }</span>
-<span id="L277"><span class="lineNum">     277</span>              : </span>
-<span id="L278"><span class="lineNum">     278</span>              : // onBigPhase は相対タイルが大物を乗せる位相かを返す。パリティ格子 (x+y)%2 を一般の P 位相へ広げたもの。</span>
-<span id="L279"><span class="lineNum">     279</span>              : // 相対座標で判定するのでチャンクごとに同じ格子が並び、帯の整列に依らず決定的になる。</span>
-<span id="L280"><span class="lineNum">     280</span>              : // 負の座標でも周期が途切れないよう剰余を床方向へ寄せる。</span>
-<span id="L281"><span class="lineNum">     281</span>              : func onBigPhase(rel consts.Coord[consts.Tile]) bool {</span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         m := (rel.X + scatterBigPhaseK*rel.Y) % scatterBigPhaseMod</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         if m &lt; 0 {</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 m += scatterBigPhaseMod</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         return m == 0</span></span>
-<span id="L287"><span class="lineNum">     287</span>              : }</span>
-<span id="L288"><span class="lineNum">     288</span>              : </span>
-<span id="L289"><span class="lineNum">     289</span>              : // onScatterRoute は絶対タイル pos が近傍集落間の道の直線からバッファ以内かを返す。実際の道タイルを</span>
-<span id="L290"><span class="lineNum">     290</span>              : // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、</span>
-<span id="L291"><span class="lineNum">     291</span>              : // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。</span>
-<span id="L292"><span class="lineNum">     292</span>              : func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {</span>
-<span id="L293"><span class="lineNum">     293</span>              :         // 道の結線は roadSegments を唯一の出典にし、舗装 road.go と同じ経路への距離を測る</span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         for _, pair := range crossingRoads(runSeed, c, cols) {</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                 for _, seg := range roadSegments(pair[0], pair[1]) {</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                         fixed, lo, hi := seg.tileSpan(g.chunkW, g.chunkH)</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         for _, d := range districtsFrom(raws) {</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 ry := consts.FloorDiv(c.Y, consts.Chunk(d.row.Spacing))</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 for _, pr := range []consts.Chunk{ry - 1, ry, ry + 1} {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                         if d.regionIn(runSeed, pr, cols).distance(c) &lt;= scatterRoadsideRange {</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                                 return zoneRoadside</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L275"><span class="lineNum">     275</span>              :                 }</span>
+<span id="L276"><span class="lineNum">     276</span>              :         }</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         return zoneWild</span></span>
+<span id="L278"><span class="lineNum">     278</span>              : }</span>
+<span id="L279"><span class="lineNum">     279</span>              : </span>
+<span id="L280"><span class="lineNum">     280</span>              : // onBigPhase は相対タイルが大物を乗せる位相かを返す。パリティ格子 (x+y)%2 を一般の P 位相へ広げたもの。</span>
+<span id="L281"><span class="lineNum">     281</span>              : // 相対座標で判定するのでチャンクごとに同じ格子が並び、帯の整列に依らず決定的になる。</span>
+<span id="L282"><span class="lineNum">     282</span>              : // 負の座標でも周期が途切れないよう剰余を床方向へ寄せる。</span>
+<span id="L283"><span class="lineNum">     283</span>              : func onBigPhase(rel consts.Coord[consts.Tile]) bool {</span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         m := (rel.X + scatterBigPhaseK*rel.Y) % scatterBigPhaseMod</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         if m &lt; 0 {</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                 m += scatterBigPhaseMod</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         return m == 0</span></span>
+<span id="L289"><span class="lineNum">     289</span>              : }</span>
+<span id="L290"><span class="lineNum">     290</span>              : </span>
+<span id="L291"><span class="lineNum">     291</span>              : // onScatterRoute は絶対タイル pos が近傍集落間の道の直線からバッファ以内かを返す。実際の道タイルを</span>
+<span id="L292"><span class="lineNum">     292</span>              : // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、</span>
+<span id="L293"><span class="lineNum">     293</span>              : // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。</span>
+<span id="L294"><span class="lineNum">     294</span>              : func onScatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {</span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         for _, pair := range crossingRoads(runSeed, c, cols) {</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 for _, seg := range roadPath(raws, runSeed, pair[0], pair[1], cols, g.chunkW, g.chunkH) {</span></span>
 <span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                         var d consts.Tile</span></span>
 <span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                         if seg.orient == orientHorizontal {</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                                 d = chebToHSeg(pos, fixed, lo, hi)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                                 d = chebToHSeg(pos, seg.fixed, seg.lo, seg.hi)</span></span>
 <span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                         } else {</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                                 d = chebToVSeg(pos, fixed, lo, hi)</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                                 d = chebToVSeg(pos, seg.fixed, seg.lo, seg.hi)</span></span>
 <span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                         if d &lt;= scatterRouteBuffer {</span></span>
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                                 return true</span></span>

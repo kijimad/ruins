@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 01:14:59</td>
+            <td class="headerValue">2026-11-14 12:55:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -153,8 +153,8 @@
 <span id="L91"><span class="lineNum">      91</span>              : // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に</span>
 <span id="L92"><span class="lineNum">      92</span>              : // 荒れ地を返す。優先度は市街地 &gt; 遺跡入口 &gt; 集落 &gt; 点在ランドマーク &gt; 荒れ地。地図も生成もこの</span>
 <span id="L93"><span class="lineNum">      93</span>              : // 分類を唯一の源にするので、地図の記号と実体が食い違わない。</span>
-<span id="L94"><span class="lineNum">      94</span>              : func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {</span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         if _, ok := urbanChunkAt(runSeed, c, cols); ok {</span></span>
+<span id="L94"><span class="lineNum">      94</span>              : func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         if _, ok := districtAt(raws, runSeed, c, cols); ok {</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 return chunkUrban</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         if dungeonEntrancePlacement.At(runSeed, c, cols) {</span></span>
@@ -171,10 +171,10 @@
 <span id="L109"><span class="lineNum">     109</span>              : </span>
 <span id="L110"><span class="lineNum">     110</span>              : // chunkPlace は1チャンクの種別を地図記号で返す純関数。</span>
 <span id="L111"><span class="lineNum">     111</span>              : func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {</span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(runSeed, c, cols) {</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(raws, runSeed, c, cols) {</span></span>
 <span id="L113"><span class="lineNum">     113</span>              :         case chunkUrban:</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 kind, _ := urbanFacilityAt(cat, runSeed, c, cols)</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, kind); ok {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 r, _ := districtAt(raws, runSeed, c, cols)</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c)); ok {</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                 return placeUnknownGlyph</span></span>
