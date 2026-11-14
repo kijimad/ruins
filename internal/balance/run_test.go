@@ -17,7 +17,6 @@ func TestAddFloorLoot(t *testing.T) {
 		t.Parallel()
 		result := &floorLoot{}
 		addFloorLoot(result, master, raw.DrawnItem{Name: "healing_potion", Count: 2}, 80)
-		// healing_potion は最大HPの50%回復。playerMaxHP 80 の半分40が Count 分積まれる
 		assert.Equal(t, 80, result.healing)
 	})
 
@@ -26,7 +25,6 @@ func TestAddFloorLoot(t *testing.T) {
 		result := &floorLoot{}
 		addFloorLoot(result, master, raw.DrawnItem{Name: "ice_cream", Count: 3}, 80)
 		assert.Equal(t, 225, result.nutrition)
-		// value 20 の売却額は半分の10。Count 分積まれる
 		assert.Equal(t, 30, result.income)
 	})
 
@@ -37,7 +35,6 @@ func TestAddFloorLoot(t *testing.T) {
 		require.NotNil(t, result.weapon)
 		assert.Equal(t, "torch", result.weaponName)
 		assert.Equal(t, 5, result.weapon.Damage)
-		// torch の value 15 の売却額は半分の7
 		assert.Equal(t, 7, result.income)
 
 		addFloorLoot(result, master, raw.DrawnItem{Name: "bare_hands", Count: 1}, 80)
