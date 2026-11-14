@@ -10,109 +10,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
+func TestEnvironmentPlanner_PlanMeta_囲われはタイルの行の値を使う(t *testing.T) {
 	t.Parallel()
 
-	t.Run("壁で囲まれた領域は屋内になる", func(t *testing.T) {
-		t.Parallel()
+	partial := rawschema.Partial
+	indoor := rawschema.Indoor
+	mp := &MetaPlan{
+		Level: newTestLevel(3, 1),
+		Tiles: []rawschema.Tile{
+			{Id: "dirt", Name: "dirt"},
+			{Id: "carport", Name: "carport", Shelter: &partial},
+			{Id: "floor", Name: "floor", Shelter: &indoor},
+		},
+	}
+	require.NoError(t, EnvironmentPlanner{}.PlanMeta(mp))
 
-		// 5x5 のマップを作成
-		// W W W W W
-		// W . . . W
-		// W . . . W
-		// W . . . W
-		// W W W W W
-		mp := &MetaPlan{
-			Level: newTestLevel(5, 5),
-			Tiles: make([]rawschema.Tile, 25),
-		}
-
-		// 壁で囲む
-		for i := range 25 {
-			x, y := i%5, i/5
-			if x == 0 || x == 4 || y == 0 || y == 4 {
-				mp.Tiles[i] = rawschema.Tile{Id: "wall", Name: "wall", BlockPass: true}
-			} else {
-				mp.Tiles[i] = rawschema.Tile{Id: "floor", Name: "floor", BlockPass: false}
-			}
-		}
-
-		planner := EnvironmentPlanner{}
-		err := planner.PlanMeta(mp)
-		require.NoError(t, err)
-
-		// 中央の床タイルは屋内
-		centerIdx := 2*5 + 2 // (2, 2)
-		assert.Equal(t, rawschema.Indoor, mp.Environments[centerIdx].Shelter, "中央は屋内であるべき")
-
-		// 壁タイルは屋内（壁は通過できないので屋外判定されない）
-		wallIdx := 0 // (0, 0)
-		assert.Equal(t, rawschema.Indoor, mp.Environments[wallIdx].Shelter, "壁は屋内扱い")
-	})
-
-	t.Run("マップ端から到達可能な領域は屋外になる", func(t *testing.T) {
-		t.Parallel()
-
-		// 5x5 の全て床のマップ
-		mp := &MetaPlan{
-			Level: newTestLevel(5, 5),
-			Tiles: make([]rawschema.Tile, 25),
-		}
-
-		for i := range 25 {
-			mp.Tiles[i] = rawschema.Tile{Id: "floor", Name: "floor", BlockPass: false}
-		}
-
-		planner := EnvironmentPlanner{}
-		err := planner.PlanMeta(mp)
-		require.NoError(t, err)
-
-		// 全てのタイルが屋外
-		for i := range 25 {
-			assert.Equal(t, rawschema.Outdoor, mp.Environments[i].Shelter, "全て屋外であるべき")
-		}
-	})
-
-	t.Run("部分的に囲まれた領域", func(t *testing.T) {
-		t.Parallel()
-
-		// 7x5 のマップ
-		// . . . . . . .
-		// . W W W W . .
-		// . W . . W . .
-		// . W W W W . .
-		// . . . . . . .
-		mp := &MetaPlan{
-			Level: newTestLevel(7, 5),
-			Tiles: make([]rawschema.Tile, 35),
-		}
-
-		for i := range 35 {
-			mp.Tiles[i] = rawschema.Tile{Id: "floor", Name: "floor", BlockPass: false}
-		}
-
-		// 壁を配置
-		wallPositions := []int{
-			1*7 + 1, 1*7 + 2, 1*7 + 3, 1*7 + 4, // 上の壁
-			2*7 + 1, 2*7 + 4, // 左右の壁
-			3*7 + 1, 3*7 + 2, 3*7 + 3, 3*7 + 4, // 下の壁
-		}
-		for _, idx := range wallPositions {
-			mp.Tiles[idx] = rawschema.Tile{Id: "wall", Name: "wall", BlockPass: true}
-		}
-
-		planner := EnvironmentPlanner{}
-		err := planner.PlanMeta(mp)
-		require.NoError(t, err)
-
-		// 囲まれた内部は屋内
-		insideIdx := 2*7 + 2 // (2, 2)
-		assert.Equal(t, rawschema.Indoor, mp.Environments[insideIdx].Shelter, "囲まれた内部は屋内")
-
-		// 外部は屋外
-		outsideIdx := 0 // (0, 0)
-		assert.Equal(t, rawschema.Outdoor, mp.Environments[outsideIdx].Shelter, "外部は屋外")
-	})
+	assert.Equal(t, []rawschema.Shelter{rawschema.Outdoor, rawschema.Partial, rawschema.Indoor},
+		[]rawschema.Shelter{mp.Environments[0].Shelter, mp.Environments[1].Shelter, mp.Environments[2].Shelter})
 }
 
 func TestEnvironmentPlanner_calcWater(t *testing.T) {

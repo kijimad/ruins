@@ -80,7 +80,7 @@ func assertFacilityGolden(t *testing.T, fac string, names []string, cells [][][]
 	tiles := &tileIndex{world: world, loX: 0, hiX: lot * cols}
 	for i, c := range cells {
 		g := chunkGeom{offsetX: lot * consts.Tile(i%cols), offsetY: lot * consts.Tile(i/cols), chunkW: lot, chunkH: lot, tiles: tiles}
-		_, _, err := spawnFacility(world, g, c, 0, 0, fac, 1, uint64(i+1), nil)
+		_, _, err := spawnFacility(world, g, c, 0, 0, fac, 1, uint64(i+1))
 		require.NoError(t, err)
 	}
 	img := renderOverworldRegion(t, world, 0, 0, int(lot)*cols, int(lot)*rows)
