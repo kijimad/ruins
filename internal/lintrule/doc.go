@@ -17,4 +17,5 @@
 //   - 同じ Logger への隣接 Markup 呼び出し禁止
 //   - 画面へ描く文字列への英字の直書き禁止
 //   - depguard 設定が指すパスの実在
+//   - workflow の action の ref が版か SHA であること
 package lintrule
