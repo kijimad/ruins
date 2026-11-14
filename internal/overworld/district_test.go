@@ -3,7 +3,9 @@ package overworld
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -120,7 +122,9 @@ func TestDistricts_通信施設は起点から北へ60チャンク以内に建�
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	cat := zoneCatalogFrom(raws)
-	const cols, spawnRow, within consts.Chunk = 7, 4, 60
+	const within consts.Chunk = 60
+	_, _, cols, rows := dungeon.DungeonOverworld.BandShape()
+	spawnRow := gc.SeamlessBand{Rows: rows}.SpawnChunkY()
 	for seed := range uint64(100) {
 		found := false
 		for depth := consts.Chunk(0); depth <= within && !found; depth++ {
