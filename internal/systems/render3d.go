@@ -4,6 +4,8 @@ import (
 	"image"
 	"image/color"
 	"sort"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -315,6 +317,8 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 // collectTiles は床と壁のクアッドを quads へ追記して返す。
 func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
 	walls := render3d.WallTileSet(world)
+	// その日の平均気温は行ごとに同じなので、雪に覆われるかは行ごとに1回だけ求める
+	snowRows := map[consts.Tile]bool{}
 	tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
 	for tileQ.Next() {
 		e := tileQ.Entity()
@@ -325,6 +329,9 @@ func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector
 			continue
 		}
 		sr := world.Components.SpriteRender.Get(e)
+		if snowKey, ok := snowCoverKey(world, e, snowRows); ok {
+			sr = withSpriteBase(sr, snowKey)
+		}
 		atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)
 		if !ok {
 			continue
@@ -340,6 +347,35 @@ func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector
 		}
 	}
 	return quads
+}
+
+// snowCoverKey は屋根の無い土の地面 e が雪に覆われていれば、代わりに描く雪の絵のキーを返す。
+// rows は1回の描画の中で行ごとの判定を使い回す
+func snowCoverKey(world w.World, e ecs.Entity, rows map[consts.Tile]bool) (string, bool) {
+	if !world.Components.SnowCover.Has(e) || !world.Components.TileEnvironment.Has(e) ||
+		world.Resources.TileEnvDefs.Shelters[world.Components.TileEnvironment.Get(e).Shelter].Covered {
+		return "", false
+	}
+	y := world.Components.GridElement.Get(e).Y
+	covered, ok := rows[y]
+	if !ok {
+		covered = query.IsSnowCoveredAt(world, y)
+		rows[y] = covered
+	}
+	return world.Components.SnowCover.Get(e).SpriteKey, covered
+}
+
+// withSpriteBase は sr の絵の基を base に替えた写しを返す。autotile の添字は保ち、無ければ全方向がつながる添字にする
+func withSpriteBase(sr *gc.SpriteRender, base string) *gc.SpriteRender {
+	out := *sr
+	suffix := "15"
+	if i := strings.LastIndex(sr.SpriteKey, "_"); i >= 0 {
+		if _, err := strconv.Atoi(sr.SpriteKey[i+1:]); err == nil {
+			suffix = sr.SpriteKey[i+1:]
+		}
+	}
+	out.SpriteKey = base + "_" + suffix
+	return &out
 }
 
 // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。

@@ -2395,6 +2395,9 @@ type Tile struct {
 
 	Name EntityName `json:"name"`
 
+	// SnowCover その日の平均気温が雪の閾値以下のとき、代わりに絵を描くタイルの id。屋外の土の地面だけに付ける
+	SnowCover *EntityID `json:"snowCover,omitempty"`
+
 	// Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
 	Spawn *TileSpawn `json:"spawn,omitempty"`
 

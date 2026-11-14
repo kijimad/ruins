@@ -62,17 +62,35 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	baseTemp := stageBaseTemperature(world)
 
 	gt := GetGameTime(world)
-	// 屋外の世界温度。季節+時間帯+天候から緯度勾配を引く。天候の寒さも worldTemp の一項なので
+	// 屋外の世界温度。その日の季節と緯度の分に、時間帯と天候を足す。天候の寒さも worldTemp の一項なので
 	// 屋内は ShelteredWorldTemp で緩和される。末尾で引くと屋内外が同じだけ寒くなってしまう
-	calendar := world.Resources.CalendarDefs
-	worldTemp := calendar.SeasonalTemperatureForDay(gt.GetDayNumber()) + calendar.TimesOfDay[gt.GetTimeOfDay()].TempModifier +
-		world.Resources.WeatherDefs.Kinds[GetWeather(world).Current].Effect.TempModifier - latitudeCold(world, y)
+	worldTemp := climateWorldTemperatureAt(world, y) + world.Resources.CalendarDefs.TimesOfDay[gt.GetTimeOfDay()].TempModifier +
+		world.Resources.WeatherDefs.Kinds[GetWeather(world).Current].Effect.TempModifier
 	shelter, tileModifier := TileEnvironmentAt(world, x, y)
 
 	return baseTemp +
 		world.Resources.TileEnvDefs.ShelteredWorldTemp(shelter, worldTemp) +
 		tileModifier +
 		ambientHeatAt(world, x, y), nil
+}
+
+// ClimateTemperatureAt は屋外のその日の平均気温を返す。ステージの基本気温と季節と緯度の和で、
+// 時間帯・天候・屋内外・熱源を含まないので1日の中では変わらない。地面の雪はこの値から導く
+func ClimateTemperatureAt(world w.World, y consts.Tile) int {
+	return stageBaseTemperature(world) + climateWorldTemperatureAt(world, y)
+}
+
+// climateWorldTemperatureAt は世界温度のうち、その日の中で変わらない季節と緯度の分を返す
+func climateWorldTemperatureAt(world w.World, y consts.Tile) int {
+	return world.Resources.CalendarDefs.SeasonalTemperatureForDay(GetGameTime(world).GetDayNumber()) - latitudeCold(world, y)
+}
+
+// snowCoverTemperature はその日の平均気温がこれ以下なら屋外の土の地面が雪に覆われる℃
+const snowCoverTemperature = 0
+
+// IsSnowCoveredAt は帯ローカル座標 y の屋外の土の地面が雪に覆われているかを返す
+func IsSnowCoveredAt(world w.World, y consts.Tile) bool {
+	return ClimateTemperatureAt(world, y) <= snowCoverTemperature
 }
 
 // 奥地ほど寒い緯度勾配のパラメータ。奥へ進んだチャンク距離が増えるほど世界温度を下げる。値は実プレイで調整する。

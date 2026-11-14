@@ -7,10 +7,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -243,4 +245,60 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 		render3d.At(25, 0, 25), render3d.At(26, 0, 25), render3d.At(26, 0, 26), render3d.At(25, 0, 26),
 	}, quads[0].p)
 	assert.Equal(t, int(gc.DepthNumDecal), quads[0].depth)
+}
+
+func TestWithSpriteBase_autotileの添字を保って絵の基を替える(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		key  string
+		want string
+	}{
+		{"添字を保つ", "dirt_6", "smooth_white_6"},
+		{"添字が無ければ全方向がつながる添字にする", "sand_orange", "smooth_white_15"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			sr := &gc.SpriteRender{SpriteSheetName: "tile", SpriteKey: tt.key}
+			got := withSpriteBase(sr, "smooth_white")
+			assert.Equal(t, tt.want, got.SpriteKey)
+			assert.Equal(t, tt.key, sr.SpriteKey, "元の絵は書き換えない")
+		})
+	}
+}
+
+func TestSnowCoverKey_寒いとき屋根の無い土だけを雪で描く(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		turns   consts.Turn
+		shelter rawschema.Shelter
+		wantKey string
+		wantOK  bool
+	}{
+		{"冬の屋外の土は雪", 24*1500 + 500, rawschema.Outdoor, "smooth_white", true},
+		{"冬でも屋根のある屋内の土は雪にしない", 24*1500 + 500, rawschema.Indoor, "", false},
+		{"冬でも屋根のある半屋外の土は雪にしない", 24*1500 + 500, rawschema.Partial, "", false},
+		{"春の屋外の土は雪にしない", 0, rawschema.Outdoor, "smooth_white", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			query.GetGameTime(world).TotalTurns = tt.turns
+			query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+			query.EnsureSeamlessBand(world)
+			idx := 15
+			tile, err := lifecycle.SpawnTile(world, "dirt", 0, 0, &idx)
+			require.NoError(t, err)
+			world.Components.TileEnvironment.Get(tile).Shelter = tt.shelter
+
+			key, ok := snowCoverKey(world, tile, map[consts.Tile]bool{})
+			assert.Equal(t, tt.wantOK, ok)
+			assert.Equal(t, tt.wantKey, key)
+		})
+	}
 }
