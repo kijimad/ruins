@@ -27,7 +27,7 @@ func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Ch
 	}
 	tiles := g.tiles.get()
 	for _, pair := range crossingRoads(runSeed, c, cols) {
-		segs := roadPath(world.Resources.RawMaster, runSeed, pair[0], pair[1], cols, g.chunkW, g.chunkH)
+		segs := roadPath(world.Resources.RawMaster, runSeed, pair[0], pair[1], cols, spawnRowOf(world), g.chunkW, g.chunkH)
 		if err := drawRoadSegments(world, tiles, segs, c, g); err != nil {
 			return err
 		}

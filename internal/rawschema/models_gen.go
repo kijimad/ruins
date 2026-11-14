@@ -972,6 +972,9 @@ func FacilityInteriorValues() []FacilityInterior {
 
 // FacilityZone 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
 type FacilityZone struct {
+	// MinDanger 区域の北の端の危険度がこの値以上のときだけ抽選する。省けば1で、どの深さでも抽選する
+	MinDanger *DangerLevel `json:"minDanger,omitempty"`
+
 	// MinSpan 区域の長い方の辺がこのチャンク数以上のときだけ抽選する
 	MinSpan int32 `json:"minSpan"`
 

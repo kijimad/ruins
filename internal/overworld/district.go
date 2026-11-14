@@ -7,6 +7,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
+	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // district は区域の1種類。raw の districts の行から作る
@@ -23,6 +25,15 @@ type districtRegion struct {
 	w, h   consts.Chunk
 	// seed は区域の中の地区と施設を引く種
 	seed uint64
+}
+
+// spawnRowOf は world の帯の深さの起点の行を返す。帯が無ければ0
+func spawnRowOf(world w.World) consts.Chunk {
+	sb := query.GetSeamlessBand(world)
+	if sb == nil {
+		return 0
+	}
+	return sb.SpawnChunkY()
 }
 
 // districtsFrom は raw の districts の行を、行の順に区域の種類にする

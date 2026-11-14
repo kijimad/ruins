@@ -153,7 +153,7 @@ func TestLotsOf_区域を同じ地区の中の区画で隙間なく埋める(t *
 		for seed := range uint64(40) {
 			r := d.regionIn(seed, 0, 7)
 			covered := map[consts.Coord[consts.Chunk]]int{}
-			for _, b := range lotsOf(raws, cat, r) {
+			for _, b := range lotsOf(raws, cat, r, 0) {
 				if b.w*b.h > 1 {
 					big++
 				}
@@ -279,7 +279,7 @@ func TestLotsOf_目玉の施設は区域に1つだけ地区の真ん中へ一番
 		for seed := range uint64(40) {
 			r := d.regionIn(seed, 0, 7)
 			var got []buildingLot
-			for _, b := range lotsOf(raws, cat, r) {
+			for _, b := range lotsOf(raws, cat, r, 0) {
 				if b.facility == *d.row.Landmark {
 					got = append(got, b)
 				}

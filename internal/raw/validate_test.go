@@ -225,6 +225,19 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 			require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility)
 		})
 	}
+
+	t.Run("深い所にしか建たない施設は基本施設に数えない", func(t *testing.T) {
+		t.Parallel()
+		zones := make([]rawschema.FacilityZone, 0, len(baseZones))
+		for _, z := range baseZones {
+			if z.Zone == rawschema.Downtown {
+				z.MinDanger = new(2)
+			}
+			zones = append(zones, z)
+		}
+		raws := rawschema.Raws{Districts: towns, Facilities: &[]rawschema.Facility{{Id: "comms", Zones: zones}}}
+		require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility)
+	})
 }
 
 func TestValidateZoneBaseFacilities_研究所の敷地は門と中ほどと奥の地区に施設が要る(t *testing.T) {

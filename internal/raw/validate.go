@@ -116,8 +116,8 @@ func DistrictZones(d rawschema.District) []rawschema.Zone {
 	return out
 }
 
-// validateZoneBaseFacilities は、どの区域でも一番小さい大きさのときに、割り振る全ての地区に建てられる施設があることを検証する。
-// 施設は区域の長い方の辺が minSpan 以上のときだけ建つので、一番小さい大きさの辺で足切りを越える施設が要る
+// validateZoneBaseFacilities は、どの区域でも一番小さく一番浅いときに、割り振る全ての地区に建てられる施設があることを検証する。
+// 施設は区域の長い方の辺が minSpan 以上で、危険度が minDanger 以上のときだけ建つので、一番小さい大きさの辺と危険度1で足切りを越える施設が要る
 func validateZoneBaseFacilities(raws rawschema.Raws) error {
 	facilities := PtrSlice(raws.Facilities)
 	for _, d := range PtrSlice(raws.Districts) {
@@ -134,11 +134,11 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 					return false
 				}
 				return slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool {
-					return z.Zone == zone && int(z.MinSpan) <= baseSpan
+					return z.Zone == zone && int(z.MinSpan) <= baseSpan && (z.MinDanger == nil || *z.MinDanger <= 1)
 				})
 			})
 			if !hasBase {
-				return fmt.Errorf("district %q zone %q has no facility with minSpan<=%d: %w", d.Id, zone, baseSpan, errZoneNoBaseFacility)
+				return fmt.Errorf("district %q zone %q has no facility with minSpan<=%d and minDanger<=1: %w", d.Id, zone, baseSpan, errZoneNoBaseFacility)
 			}
 		}
 	}

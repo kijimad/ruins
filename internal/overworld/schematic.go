@@ -108,11 +108,11 @@ func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chun
 }
 
 // chunkPlace は1チャンクの種別を地図記号で返す純関数。
-func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
+func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) rune {
 	switch chunkTypeAt(raws, runSeed, c, cols) {
 	case chunkUrban:
 		r, _ := districtAt(raws, runSeed, c, cols)
-		if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c)); ok {
+		if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c, spawnRow)); ok {
 			return g.Label
 		}
 		return placeUnknownGlyph

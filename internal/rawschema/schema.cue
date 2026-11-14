@@ -484,6 +484,8 @@ import "strings"
 	weight!: int32 & >=1
 	// 区域の長い方の辺がこのチャンク数以上のときだけ抽選する
 	minSpan!: int32
+	// 区域の北の端の危険度がこの値以上のときだけ抽選する。省けば1で、どの深さでも抽選する
+	minDanger?: #DangerLevel
 }
 
 // 派閥タイプ

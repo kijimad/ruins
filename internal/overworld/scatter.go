@@ -195,7 +195,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 	selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
 	propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
 	for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, propCount) {
-		bigAllowed := onBigPhase(rel) && !onScatterRoute(world.Resources.RawMaster, runSeed, c, cols, g, absTile(rel))
+		bigAllowed := onBigPhase(rel) && !onScatterRoute(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world), g, absTile(rel))
 		roll := hashTileCoord(selSeed, rel)
 		entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
 		if entry.Ref == "" {
@@ -291,9 +291,9 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 // onScatterRoute は絶対タイル pos が近傍集落間の道の直線からバッファ以内かを返す。実際の道タイルを
 // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、
 // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
-func onScatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
+func onScatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
 	for _, pair := range crossingRoads(runSeed, c, cols) {
-		for _, seg := range roadPath(raws, runSeed, pair[0], pair[1], cols, g.chunkW, g.chunkH) {
+		for _, seg := range roadPath(raws, runSeed, pair[0], pair[1], cols, spawnRow, g.chunkW, g.chunkH) {
 			var d consts.Tile
 			if seg.orient == orientHorizontal {
 				d = chebToHSeg(pos, seg.fixed, seg.lo, seg.hi)

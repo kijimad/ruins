@@ -70,7 +70,7 @@ type MacroView struct {
 func BuildMacroView(
 	raws rawschema.Raws,
 	runSeed uint64,
-	northIndex consts.Chunk,
+	northIndex, spawnRow consts.Chunk,
 	chunkW, chunkH consts.Tile,
 	area MacroRange,
 	playerTile consts.Coord[consts.Tile],
@@ -83,7 +83,7 @@ func BuildMacroView(
 
 	// 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数。
 	// chunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
-	roads := buildRoadOverlay(raws, runSeed, area, cols, chunkW, chunkH)
+	roads := buildRoadOverlay(raws, runSeed, area, cols, spawnRow, chunkW, chunkH)
 
 	colorOf := glyphColorMap(raws)
 	cat := zoneCatalogFrom(raws)
@@ -93,7 +93,7 @@ func BuildMacroView(
 		cells[cy] = make([]MacroCell, cols)
 		for i := range cols {
 			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
-			glyph := chunkPlace(raws, cat, runSeed, c, cols)
+			glyph := chunkPlace(raws, cat, runSeed, c, cols, spawnRow)
 			col, hasCol := colorOf[glyph]
 			cells[cy][i] = MacroCell{
 				Glyph:      glyph,

@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // errRoomSizeMismatch は部屋の絵の大きさがチャンクから帯を引いた大きさと一致しないときに返す
@@ -25,8 +26,10 @@ type buildingLot struct {
 }
 
 // lotsOf は区域 r を建物の区画で埋める。左上のチャンクから順に、未割り当てのチャンクの地区で施設を引き、
-// 施設の大きさの候補を重みで引く。区画は同じ地区で未割り当てのチャンクだけに収まるまで小さくする
-func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion) []buildingLot {
+// 施設の大きさの候補を重みで引く。区画は同じ地区で未割り当てのチャンクだけに収まるまで小さくする。
+// 施設の深さの足切りには、深さの起点の行 spawnRow から測った区域の北の端の危険度を使う
+func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow consts.Chunk) []buildingLot {
+	danger := query.DangerLevelForDepth(spawnRow - r.anchor.Y)
 	facilities := map[string]rawschema.Facility{}
 	for _, f := range raw.PtrSlice(raws.Facilities) {
 		facilities[f.Id] = f
@@ -75,7 +78,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion) []buildingLo
 			// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
 			// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
 			frng := rand.New(rand.NewPCG(ChunkSeed2D(r.seed, x, y), 0x1))
-			f := facilities[rollFacilityInZone(frng, cat, z, r.span(), r.landmark())]
+			f := facilities[rollFacilityInZone(frng, cat, z, r.span(), danger, r.landmark())]
 			w, h := consts.Chunk(1), consts.Chunk(1)
 			if fps := raw.PtrSlice(f.Footprints); len(fps) > 0 {
 				i, _ := consts.Pick(frng, fps, func(fp rawschema.FacilityFootprint) float64 { return float64(fp.Weight) })
