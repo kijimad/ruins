@@ -537,6 +537,7 @@ type District struct {
 	// Fence 外周に塀を巡らせ、北と南に門を開ける。道は門を通って区域を抜ける
 	Fence *bool `json:"fence,omitempty"`
 
+	// Id 区域の種類の id。行の順が優先で、重なった後の種類の区域は出さない
 	Id EntityID `json:"id"`
 
 	// Landmark 区域に1つだけ建てる目玉の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
@@ -551,6 +552,7 @@ type District struct {
 	// Separation 隣のリージョンの区域との最小の空き。チャンク数
 	Separation int `json:"separation"`
 
+	// Sizes 大きさの候補。区域ごとに重みで1つ選ぶ
 	Sizes []DistrictSize `json:"sizes"`
 
 	// Spacing 当選の間隔。チャンク数
@@ -565,6 +567,7 @@ type DistrictLayer struct {
 	// Rows rows の並べ方で、この層が占める行の数
 	Rows *int `json:"rows,omitempty"`
 
+	// Zones 候補の地区
 	Zones []Zone `json:"zones"`
 }
 
@@ -597,10 +600,13 @@ func DistrictPatternValues() []DistrictPattern {
 
 // DistrictSize 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める
 type DistrictSize struct {
+	// H 南北の高さ。チャンク数
 	H int `json:"h"`
 
+	// W 東西の幅。チャンク数
 	W int `json:"w"`
 
+	// Weight 抽選の重み
 	Weight int `json:"weight"`
 }
 
@@ -907,11 +913,13 @@ type EscapeDevice = map[string]interface{}
 
 // Facility 市街地の施設1種
 type Facility struct {
+	// EnemyTable 施設に湧く敵の表
 	EnemyTable EntityID `json:"enemyTable"`
 
 	// Footprints 建物の大きさの候補。チャンク数で、区画に収まらなければ小さくする。省けば 1×1
 	Footprints *[]FacilityFootprint `json:"footprints,omitempty"`
 
+	// Id 施設の id。施設の絵の facility が指す
 	Id EntityID `json:"id"`
 
 	// Interior 2チャンク以上の建物の中の繋がり。省けば rooms
@@ -920,15 +928,19 @@ type Facility struct {
 	// LootedChance 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
 	LootedChance *int32 `json:"lootedChance,omitempty"`
 
+	// Zones 施設が建つ地区と抽選の重み
 	Zones []FacilityZone `json:"zones"`
 }
 
 // FacilityFootprint 建物の大きさの候補
 type FacilityFootprint struct {
+	// H 南北の高さ。チャンク数
 	H int `json:"h"`
 
+	// W 東西の幅。チャンク数
 	W int `json:"w"`
 
+	// Weight 抽選の重み
 	Weight int `json:"weight"`
 }
 
@@ -960,10 +972,13 @@ func FacilityInteriorValues() []FacilityInterior {
 
 // FacilityZone 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
 type FacilityZone struct {
+	// MinSpan 区域の長い方の辺がこのチャンク数以上のときだけ抽選する
 	MinSpan int32 `json:"minSpan"`
 
+	// Weight 地区の中での抽選の重み
 	Weight int32 `json:"weight"`
 
+	// Zone 施設が建つ地区
 	Zone Zone `json:"zone"`
 }
 

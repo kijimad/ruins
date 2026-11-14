@@ -292,7 +292,6 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、
 // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
 func onScatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
-	// 道の結線は roadPath を唯一の出典にし、舗装 road.go と同じ経路への距離を測る
 	for _, pair := range crossingRoads(runSeed, c, cols) {
 		for _, seg := range roadPath(raws, runSeed, pair[0], pair[1], cols, g.chunkW, g.chunkH) {
 			var d consts.Tile

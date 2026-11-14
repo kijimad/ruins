@@ -36,7 +36,7 @@ func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Ch
 }
 
 // drawRoadSegments は道の辺 segs のうち、チャンク c に含まれるマスだけを舗装する。既存タイルが土のマスだけを
-// 置き換え、市街地の壁や床、集落は壊さない。経路は roadPath を唯一の出典とし、地図・散布と一致させる。
+// 置き換え、市街地の壁や床、集落は壊さない。
 func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs []roadSeg, c consts.Coord[consts.Chunk], g chunkGeom) error {
 	pave := func(px, py consts.Tile) error {
 		loX := c.X.Tiles(g.chunkW)

@@ -312,11 +312,13 @@ import "strings"
 // 区域の種類。複数のチャンクにまたがる施設の集まり。リージョンごとに大きさを重みで1つ選び、
 // 余った縦の範囲から位置を選ぶ。区域はリージョンの縦の範囲 spacing - separation からはみ出さない
 #District: {
+	// 区域の種類の id。行の順が優先で、重なった後の種類の区域は出さない
 	id!: #EntityID
 	// 当選の間隔。チャンク数
 	spacing!: int & >=1
 	// 隣のリージョンの区域との最小の空き。チャンク数
 	separation!: int & >=0
+	// 大きさの候補。区域ごとに重みで1つ選ぶ
 	sizes!: [...#DistrictSize] & [_, ...]
 	// 地区の並べ方
 	pattern!: #DistrictPattern
@@ -336,8 +338,11 @@ import "strings"
 
 // 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める
 #DistrictSize: {
-	w!:      int & >=1
-	h!:      int & >=1
+	// 東西の幅。チャンク数
+	w!: int & >=1
+	// 南北の高さ。チャンク数
+	h!: int & >=1
+	// 抽選の重み
 	weight!: int & >=1
 }
 
@@ -347,6 +352,7 @@ import "strings"
 
 // 地区の層。候補の地区から区域の seed で1つ選ぶ
 #DistrictLayer: {
+	// 候補の地区
 	zones!: [...#Zone] & [_, ...]
 	// rows の並べ方で、この層が占める行の数
 	rows?: int & >=1
@@ -439,9 +445,12 @@ import "strings"
 
 // 市街地の施設1種
 #Facility: {
-	id!:            #EntityID
+	// 施設の id。施設の絵の facility が指す
+	id!: #EntityID
+	// 施設に湧く敵の表
 	enemyTable!:    #EntityID
 	enemyTable_ref: _enemyTableIDs[enemyTable] @rawgen(-)
+	// 施設が建つ地区と抽選の重み
 	zones!: [...#FacilityZone]
 
 	// 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
@@ -456,8 +465,11 @@ import "strings"
 
 // 建物の大きさの候補
 #FacilityFootprint: {
-	w!:      int & >=1
-	h!:      int & >=1
+	// 東西の幅。チャンク数
+	w!: int & >=1
+	// 南北の高さ。チャンク数
+	h!: int & >=1
+	// 抽選の重み
 	weight!: int & >=1
 }
 
@@ -466,8 +478,11 @@ import "strings"
 
 // 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
 #FacilityZone: {
-	zone!:    #Zone
-	weight!:  int32 & >=1
+	// 施設が建つ地区
+	zone!: #Zone
+	// 地区の中での抽選の重み
+	weight!: int32 & >=1
+	// 区域の長い方の辺がこのチャンク数以上のときだけ抽選する
 	minSpan!: int32
 }
 

@@ -16,8 +16,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 市街地は区域の1種類で、建物チャンクの2次元格子。1チャンク = 1建物とし、街路で区切る。
-// 各チャンクは自分の建物を、区域の seed と区域の中の座標から独立に決める。
+// 区域の各チャンクは、自分の建物を区域の seed と区域の中の座標から独立に決める。
 // 街路は各チャンクの北辺・西辺に敷き、隣接チャンクと連続して格子状の街並みになる。
 const urbanStreetW consts.Tile = 4 // チャンクの北辺・西辺の街路の幅。2車線+歩道ぶん
 
@@ -78,7 +77,6 @@ func (r districtRegion) layerAt(l consts.Coord[consts.Chunk]) int {
 	case rawschema.DistrictPatternRows:
 		return rowsLayer(r.kind.Layers, l.Y, r.h)
 	}
-	// raw の列挙の外の並べ方は1つ目の層にする
 	return 0
 }
 
@@ -204,9 +202,7 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 	return danger
 }
 
-// renderUrbanChunk は1チャンクに街路と施設の絵と塀を置き、規模に応じた敵を湧かせる。塀はチャンク内の座標で受け、
-// verge なら街路の両端を植え込みにする。
-// 部屋の絵を持つ施設は区画の中の座標 l の部屋と帯を組み、それ以外は1棟の絵を描く
+// renderUrbanChunk は1チャンクに街路と施設の絵と塀を置き、規模に応じた敵を湧かせる。塀はチャンク内の座標で受ける
 func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, lot buildingLot, l consts.Coord[consts.Chunk], danger consts.Danger, fence []consts.Coord[consts.Tile], verge bool) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、施設の絵の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
@@ -250,7 +246,7 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
 		if err != nil {
 			return nil, 0, nil, fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
 		}
-		// チャンクの北と西の外、区画の内側の東と南の外は隣の部屋の壁か扉の帯なので壁と数える。区画の東と南の外は隣の区画の街路
+		// 区画の東と南の外だけが隣の区画の街路で、ほかの外は隣の部屋の壁か帯
 		w, h := int(chunkW), int(chunkH)
 		voidEnclosedWalls(cells, tileBlocksPass(raws), func(x, y int) bool {
 			return x >= w && l.X == lot.w-1 || y >= h && l.Y == lot.h-1

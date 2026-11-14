@@ -328,8 +328,6 @@ func TestDebug_プランナー指定は選ぶたびにフロアを作り直す(t
 	assert.Equal(t, gc.NewOverworldStage(), query.GetDungeon(world).CurrentStage, "戻り先はオーバーワールド")
 }
 
-// TestDebug_区域へ飛ぶイベントで北の区域の手前まで帯を進める は、デバッグの区域へ飛ぶ項目が
-// DebugJumpToDistrict→Driver.JumpToDistrict を通り、帯を北へ進めることを固定する。
 func TestDebug_区域へ飛ぶイベントで北の区域の手前まで帯を進める(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
