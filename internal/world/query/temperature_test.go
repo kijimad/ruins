@@ -387,3 +387,90 @@ func TestHeatSourceWarmthAt_複数の熱源を加算する(t *testing.T) {
 	// (5,5) は両熱源の半径内なので満額どうしを加算する
 	assert.InDelta(t, 0.8, query.HeatSourceWarmthAt(world, 5, 5), 1e-9)
 }
+
+func TestClimateTemperatureAt_時間帯を含まないその日の平均気温で雪を決める(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		turns       consts.Turn
+		wantClimate int
+		wantAmbient int
+		wantSnow    bool
+	}{
+		{"冬の昼は昼の補正を除いた冬の底で雪に覆われる", 24*1500 + 500, -30, -20, true},
+		{"春の始まりは雪に覆われない", 0, 5, 5, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			query.GetGameTime(world).TotalTurns = tt.turns
+			query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+			query.EnsureSeamlessBand(world)
+
+			ambient, err := query.AmbientTemperatureAt(world, 0, 0)
+			require.NoError(t, err)
+			assert.Equal(t, tt.wantAmbient, ambient)
+			assert.Equal(t, tt.wantClimate, query.ClimateTemperatureAt(world, 0))
+			assert.Equal(t, tt.wantSnow, query.IsSnowCoveredAt(world, 0, 0))
+		})
+	}
+}
+
+func TestSnowFraction(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		temp int
+		want float64
+	}{
+		{10, 0},
+		{5, 0},
+		{0, 0.5},
+		{-5, 1},
+		{-20, 1},
+	}
+	for _, tt := range tests {
+		assert.InDelta(t, tt.want, query.SnowFraction(tt.temp), 1e-9, "%d℃", tt.temp)
+	}
+}
+
+func TestSnowFractionAt_春でも北へ進むほど雪の割合が増える(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		northIndex consts.Chunk
+		want       float64
+	}{
+		{"北へ4チャンクは1℃で4割", 4, 0.4},
+		{"北へ5チャンクは0℃で5割", 5, 0.5},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			query.GetGameTime(world).TotalTurns = 0
+			query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+			sb := query.EnsureSeamlessBand(world)
+			sb.ChunkH, sb.Rows, sb.NorthIndex = 30, 3, tt.northIndex
+
+			assert.InDelta(t, tt.want, query.SnowFractionAt(world, 45), 1e-9)
+		})
+	}
+}
+
+func TestSnowRankAt_帯がずれても同じ場所は同じ順位になる(t *testing.T) {
+	t.Parallel()
+
+	rankAt := func(northIndex consts.Chunk, y consts.Tile) float64 {
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		sb := query.EnsureSeamlessBand(world)
+		sb.ChunkH, sb.Rows, sb.NorthIndex = 30, 3, northIndex
+		return query.SnowRankAt(world, 7, y)
+	}
+	// 帯が1チャンク北へずれると、同じ絶対座標は帯ローカルで1チャンクぶん南に来る
+	assert.InDelta(t, rankAt(0, 15), rankAt(1, 45), 1e-12)
+}

@@ -21615,6 +21615,7 @@
   description = "茶色の土のオートタイル床。屋外や地面の歩行可能タイル"
   id = "dirt"
   name = "Dirt"
+  snowCover = "snow"
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -21866,6 +21867,7 @@
   description = "桃色の砂の床のオートタイル"
   id = "sand_pink"
   name = "Sand"
+  snowCover = "snow"
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_pink"
@@ -21899,6 +21901,7 @@
   description = "橙色の砂の床のオートタイル"
   id = "sand_orange"
   name = "Sand"
+  snowCover = "snow"
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_orange"
@@ -21932,6 +21935,7 @@
   description = "赤茶の砂の床のオートタイル"
   id = "sand_red"
   name = "Sand"
+  snowCover = "snow"
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_red"
@@ -22034,6 +22038,17 @@
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_blue"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "雪に覆われた地面。屋根の無い土の地面に、その日の平均気温に応じてまだらに積もって描かれる"
+  id = "snow"
+  name = "Snow"
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "snow"
     spriteSheetName = "tile"
 
 [[timesOfDay]]

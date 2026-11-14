@@ -1,16 +1,19 @@
 package systems
 
 import (
+	"fmt"
 	"image/color"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -243,4 +246,53 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 		render3d.At(25, 0, 25), render3d.At(26, 0, 25), render3d.At(26, 0, 26), render3d.At(25, 0, 26),
 	}, quads[0].p)
 	assert.Equal(t, int(gc.DepthNumDecal), quads[0].depth)
+}
+
+func TestSplitAutoTileKey(t *testing.T) {
+	t.Parallel()
+
+	base, bits := splitAutoTileKey("sand_orange_6")
+	assert.Equal(t, "sand_orange", base)
+	assert.Equal(t, 6, bits)
+	base, bits = splitAutoTileKey("dirt")
+	assert.Equal(t, "dirt", base)
+	assert.Equal(t, 15, bits, "添字が無ければ全方向がつながる")
+}
+
+func TestGroundSprite_寒いとき屋根の無い土を雪の添字で描く(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		turns   consts.Turn
+		earth   int
+		shelter rawschema.Shelter
+		wantKey string
+		wantOK  bool
+	}{
+		{"冬は全面が雪なので土の添字のまま雪でつなぐ", 24*1500 + 500, 15, rawschema.Outdoor, "snow_15", true},
+		{"土がつながらない向きは雪でもつながない", 24*1500 + 500, 6, rawschema.Outdoor, "snow_6", true},
+		{"冬でも屋根のある屋内の土は描き替えない", 24*1500 + 500, 15, rawschema.Indoor, "", false},
+		{"冬でも屋根のある半屋外の土は描き替えない", 24*1500 + 500, 15, rawschema.Partial, "", false},
+		{"春は雪が無いので土のまま描き替えない", 0, 15, rawschema.Outdoor, "", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			query.GetGameTime(world).TotalTurns = tt.turns
+			query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+			query.EnsureSeamlessBand(world)
+			tile, err := lifecycle.SpawnTile(world, "dirt", 3, 3, &tt.earth)
+			require.NoError(t, err)
+			world.Components.TileEnvironment.Get(tile).Shelter = tt.shelter
+
+			sr, ok := groundSprite(world, tile, map[consts.Tile]float64{})
+			require.Equal(t, tt.wantOK, ok)
+			if ok {
+				assert.Equal(t, tt.wantKey, sr.SpriteKey)
+				assert.Equal(t, fmt.Sprintf("dirt_%d", tt.earth), world.Components.SpriteRender.Get(tile).SpriteKey, "エンティティの絵は書き換えない")
+			}
+		})
+	}
 }

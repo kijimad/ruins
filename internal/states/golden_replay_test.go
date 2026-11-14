@@ -407,6 +407,10 @@ var goldenCases = []struct {
 	{name: "Overworld_4_Night", build: overworldAtTurn(1125), steps: []replayStep{{shot: true}}},    // 夜の中心。寒色で暗い
 	{name: "Overworld_5_Midnight", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}}, // 深夜の中心。最も暗い
 	{name: "Overworld_6_Dawn", build: overworldAtTurn(125), steps: []replayStep{{shot: true}}},      // 夜明けの中心。次の朝へ続く
+	// Overworld_Snowfall は秋の終わりの17日目の昼を撮る。その日の平均気温が0℃で、屋根の無い土の地面の半分がまだらに雪に覆われる
+	{name: "Overworld_Snowfall", build: overworldAtTurn(16*1500 + 625), steps: []replayStep{{shot: true}}},
+	// Overworld_Winter は冬の底の25日目の昼を撮る。屋根の無い土の地面の全てが雪に覆われる
+	{name: "Overworld_Winter", build: overworldAtTurn(24*1500 + 625), steps: []replayStep{{shot: true}}},
 	// Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
 	// プレイヤーは上り階段の上に湧く実スポーンのまま撮る。
 	{

@@ -758,6 +758,14 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 
 	entitySpec.Tile = &gc.Tile{}
 
+	if tileRaw.SnowCover != nil {
+		snow, err := GetTile(raws, *tileRaw.SnowCover)
+		if err != nil {
+			return gc.EntitySpec{}, err
+		}
+		entitySpec.SnowCover = &gc.SnowCover{SpriteKey: snow.SpriteRender.SpriteKey}
+	}
+
 	// タイル種別によらないので、ここでは初期化するだけ
 	entitySpec.TileEnvironment = &gc.TileEnvironment{Shelter: rawschema.Outdoor}
 
