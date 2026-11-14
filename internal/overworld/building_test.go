@@ -18,8 +18,8 @@ import (
 
 const testChunkSide consts.Tile = 24
 
-// composeBuilding は区画 b の全てのチャンクのマスを組んで、区画全体の1枚のマスにする
-func composeBuilding(t *testing.T, loader *maptemplate.TemplateLoader, b buildingLot) [][]maptemplate.MapCell {
+// composeBuilding は区画 b の全てのチャンクのマスを生成と同じ planUrbanChunk で組んで、区画全体の1枚のマスにする
+func composeBuilding(t *testing.T, raws rawschema.Raws, loader *maptemplate.TemplateLoader, b buildingLot) [][]maptemplate.MapCell {
 	t.Helper()
 	side := int(testChunkSide)
 	cells := make([][]maptemplate.MapCell, int(b.h)*side)
@@ -28,7 +28,7 @@ func composeBuilding(t *testing.T, loader *maptemplate.TemplateLoader, b buildin
 	}
 	for ly := range b.h {
 		for lx := range b.w {
-			c, _, err := roomChunkCells(loader, b, consts.Coord[consts.Chunk]{X: lx, Y: ly}, testChunkSide, testChunkSide, true)
+			c, _, _, err := planUrbanChunk(raws, loader, b, consts.Coord[consts.Chunk]{X: lx, Y: ly}, testChunkSide, testChunkSide, b.seed, nil, true)
 			require.NoError(t, err)
 			for y, row := range c {
 				copy(cells[int(ly)*side+y][int(lx)*side:], row)
@@ -64,7 +64,7 @@ func TestBuilding_部屋で組む建物は入口から全ての部屋へ入れ�
 			for h := consts.Chunk(1); h <= 4; h++ {
 				for seed := range uint64(30) {
 					b := buildingLot{facility: fac, w: w, h: h, interior: rawschema.FacilityInteriorRooms, seed: seed}
-					cells := composeBuilding(t, loader, b)
+					cells := composeBuilding(t, raws, loader, b)
 					name := fmt.Sprintf("%s %dx%d seed=%d", fac, w, h, seed)
 					assert.Empty(t, unreachableCells(cells, blockedTile, blockedProp), name)
 					for y, row := range cells {
@@ -229,7 +229,7 @@ func TestGolden_Building(t *testing.T) {
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			cells := composeBuilding(t, loader, tt.lot)
+			cells := composeBuilding(t, testutil.InitTestWorld(t).Resources.RawMaster, loader, tt.lot)
 			world := testutil.InitTestWorld(t)
 			w, h := tt.lot.w.Tiles(testChunkSide), tt.lot.h.Tiles(testChunkSide)
 			g := chunkGeom{chunkW: w, chunkH: h, tiles: &tileIndex{world: world, loX: 0, hiX: w}}

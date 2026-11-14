@@ -205,22 +205,13 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 	if err != nil {
 		return fmt.Errorf("failed to load facility templates: %w", err)
 	}
-	var cells [][]maptemplate.MapCell
-	var indoor func(x, y int) bool
-	origin := urbanStreetW
-	if loader.HasRooms(lot.facility) {
-		cells, indoor, err = roomChunkCells(loader, lot, l, g.chunkW, g.chunkH, verge)
-		if err != nil {
-			return fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
-		}
-		origin = 0
-	} else {
+	cells, origin, indoor, err := planUrbanChunk(world.Resources.RawMaster, loader, lot, l, g.chunkW, g.chunkH, seed, rng, verge)
+	if err != nil {
+		return err
+	}
+	if origin != 0 {
 		if err := drawUrbanStreets(world, g, verge); err != nil {
 			return err
-		}
-		cells, err = planFacility(loader, lot.facility, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
-		if err != nil {
-			return fmt.Errorf("failed to plan facility %q: %w", lot.facility, err)
 		}
 	}
 	isWall, occupied, err := spawnFacility(world, g, cells, origin, origin, lot.facility, danger, seed, indoor)
@@ -240,6 +231,27 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 		}
 	}
 	return spawnUrbanEnemies(world, g, rng, size, fac, danger, isWall, occupied)
+}
+
+// planUrbanChunk は区画 lot の中の座標 l のチャンクに置くマスと、マスを置くチャンク内の原点を返す。部屋の絵を持つ施設は
+// 部屋と帯でチャンク全体を組み、それ以外は街路の帯の内側に1棟の絵を置く。厚い壁の塊の内側は虚空にする
+func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, verge bool) ([][]maptemplate.MapCell, consts.Tile, func(x, y int) bool, error) {
+	if loader.HasRooms(lot.facility) {
+		cells, indoor, err := roomChunkCells(loader, lot, l, chunkW, chunkH, verge)
+		if err != nil {
+			return nil, 0, nil, fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
+		}
+		// 部屋の絵はチャンク全体を覆い、チャンクの外は隣の部屋の外壁なので壁として数える
+		voidEnclosedWalls(cells, tileBlocksPass(raws), true)
+		return cells, 0, indoor, nil
+	}
+	cells, err := planFacility(loader, lot.facility, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
+	if err != nil {
+		return nil, 0, nil, fmt.Errorf("failed to plan facility %q: %w", lot.facility, err)
+	}
+	// 1棟の絵は街路の帯に囲まれるので、絵の外は通れるものとして数える
+	voidEnclosedWalls(cells, tileBlocksPass(raws), false)
+	return cells, urbanStreetW, nil, nil
 }
 
 // drawUrbanStreets はチャンクの北辺と西辺に街路を描く。建物区画のタイルは建物の生成が描くので触らない

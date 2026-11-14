@@ -222,3 +222,71 @@ func TestEnclosedCells_壁と扉で囲まれたマスだけを屋内にする(t 
 		{6, 2}: true, {7, 2}: true, {6, 3}: true, {7, 3}: true,
 	}, enclosedCells(cells, wallAt))
 }
+
+func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空にする(t *testing.T) {
+	t.Parallel()
+
+	parse := func(rows []string) [][]maptemplate.MapCell {
+		cells := make([][]maptemplate.MapCell, len(rows))
+		for y, row := range rows {
+			cells[y] = make([]maptemplate.MapCell, len(row))
+			for x, ch := range row {
+				switch ch {
+				case '#':
+					cells[y][x] = maptemplate.MapCell{Terrain: consts.TileNameWall}
+				case 'w':
+					cells[y][x] = maptemplate.MapCell{Terrain: consts.TileNameWall, Prop: "window"}
+				default:
+					cells[y][x] = maptemplate.MapCell{Terrain: consts.TileNameFloor}
+				}
+			}
+		}
+		return cells
+	}
+	render := func(cells [][]maptemplate.MapCell) []string {
+		out := make([]string, len(cells))
+		for y, row := range cells {
+			for _, c := range row {
+				switch {
+				case c.Terrain == consts.TileNameVoid:
+					out[y] += " "
+				case c.Prop != "":
+					out[y] += "w"
+				case c.Terrain == consts.TileNameWall:
+					out[y] += "#"
+				default:
+					out[y] += "."
+				}
+			}
+		}
+		return out
+	}
+	blocks := func(terrain string) bool { return terrain == consts.TileNameWall || terrain == consts.TileNameVoid }
+	rows := []string{
+		"######",
+		"######",
+		"##w###",
+		"######",
+		"#....#",
+	}
+
+	walled := parse(rows)
+	voidEnclosedWalls(walled, blocks, true)
+	assert.Equal(t, []string{
+		"      ",
+		"      ",
+		"  w   ",
+		"######",
+		"#....#",
+	}, render(walled), "マスの外を壁と数えると、外周の壁も床に接しなければ虚空になる")
+
+	open := parse(rows)
+	voidEnclosedWalls(open, blocks, false)
+	assert.Equal(t, []string{
+		"######",
+		"#    #",
+		"# w  #",
+		"######",
+		"#....#",
+	}, render(open), "マスの外を通れると数えると、外周の壁は残る")
+}
