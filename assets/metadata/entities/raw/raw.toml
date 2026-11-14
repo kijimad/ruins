@@ -1092,7 +1092,8 @@
   pattern = "rows"
   separation = 4
   spacing = 30
-  verge = true
+  street = "road"
+  verge = "grass_green"
 
   [[districts.layers]]
     rows = 1
@@ -1120,6 +1121,7 @@
   pattern = "rings"
   separation = 2
   spacing = 7
+  street = "road"
 
   [[districts.layers]]
     zones = ["residential", "industrial"]
@@ -16732,8 +16734,10 @@
 
 [[landmarks]]
   drawer = "hut"
+  hutFloor = "floor"
   hutH = 5
   hutW = 6
+  hutWall = "dwall"
   id = "abandoned_hut"
   weight = 30
 
@@ -16749,8 +16753,10 @@
 
 [[landmarks]]
   drawer = "hut"
+  hutFloor = "floor"
   hutH = 5
   hutW = 7
+  hutWall = "dwall"
   id = "farmstead"
   weight = 25
 
@@ -21901,6 +21907,7 @@
   blockPass = false
   blockView = false
   description = "茶色の土のオートタイル床。屋外や地面の歩行可能タイル"
+  earth = true
   id = "dirt"
   name = "Dirt"
   [tiles.spawn]
@@ -22184,6 +22191,7 @@
   blockPass = false
   blockView = false
   description = "桃色の砂の床のオートタイル"
+  earth = true
   id = "sand_pink"
   name = "Sand"
   [tiles.spawn]
@@ -22224,6 +22232,7 @@
   blockPass = false
   blockView = false
   description = "橙色の砂の床のオートタイル"
+  earth = true
   id = "sand_orange"
   name = "Sand"
   [tiles.spawn]
@@ -22264,6 +22273,7 @@
   blockPass = false
   blockView = false
   description = "赤茶の砂の床のオートタイル"
+  earth = true
   id = "sand_red"
   name = "Sand"
   [tiles.spawn]

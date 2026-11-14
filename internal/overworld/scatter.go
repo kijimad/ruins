@@ -65,7 +65,7 @@ const (
 	scatterBigPhaseK   consts.Tile = 2
 	// scatterRouteBuffer は経路マスクのバッファ幅。隊商の横断レーンを確保するため、算出した経路の
 	// 直線からこのタイル数以内では Big の大物を置かない。road.go の roadWidth とは独立で、舗装済みの道は
-	// floor 化されて isEarthTile で弾かれ散布対象外になる。ここが守るのは舗装されない wasteland 内の横断レーン。
+	// 道のタイルになり土の地面でなくなるので散布対象外になる。ここが守るのは舗装されない wasteland 内の横断レーン。
 	scatterRouteBuffer consts.Tile = 2
 	// scatterRoadsideRange は道沿いゾーンの半径。集落・市街の当選チャンクからこのチャンク数以内を
 	// 道沿いにする。道は集落間を結ぶので、集落の近傍が道沿いの帯を兼ねる。
@@ -78,10 +78,19 @@ const (
 	scatterSoilChannel uint64 = 0x736f696c5f5f7072 // "soil__pr"
 )
 
-// scatterEarthTiles は自然物を立てられる土系タイル。草の prop もこの上に撒く。dirt が基調で、砂土は
-// 将来ムラを足すときの受け皿として許す。
-var scatterEarthTiles = map[string]bool{
-	consts.TileNameDirt: true, "sand_orange": true, "sand_red": true, "sand_pink": true,
+// earthTiles は土の地面のタイルの id の集合。草や木を立てられ、道で上書きしてよい
+type earthTiles map[string]bool
+
+// earthTilesOf はタイルの行の earth 欄から土の地面の集合を組む
+func earthTilesOf(raws rawschema.Raws) earthTiles {
+	set := earthTiles{}
+	tiles := raw.PtrSlice(raws.Tiles)
+	for i := range tiles {
+		if tiles[i].Earth != nil && *tiles[i].Earth {
+			set[tiles[i].Id] = true
+		}
+	}
+	return set
 }
 
 // scatterCatalogFrom は zone の散布定義を scatterZones 行から組み立てる。未登録 zone は error。
@@ -150,6 +159,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 
 	tiles := g.tiles.get()
 	occupied := blockedTilesInChunk(world, g)
+	earth := earthTilesOf(world.Resources.RawMaster)
 
 	loX, loY := c.X.Tiles(g.chunkW), c.Y.Tiles(g.chunkH)
 	bandLocal := func(rel consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
@@ -161,7 +171,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 	// 候補は土系の地面かつ非占有。占有は BlockPass の壁と、先に撒いた草・prop を含む
 	accept := func(rel consts.Coord[consts.Tile]) bool {
 		bl := bandLocal(rel)
-		return isEarthTile(world, tiles, bl) && !occupied[gc.GridElement{Coord: bl}]
+		return earth.at(world, tiles, bl) && !occupied[gc.GridElement{Coord: bl}]
 	}
 
 	// まず草と土の飾りを撒く。透明 prop なのでオートタイルの縁が出ず、地面へ自然に重なる。歩行可能なので
@@ -201,7 +211,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 		if entry.Ref == "" {
 			continue // null 重み。ここは置かない
 		}
-		if err := placeScatterEntry(world, tiles, occupied, entry, bandLocal(rel)); err != nil {
+		if err := placeScatterEntry(world, tiles, earth, occupied, entry, bandLocal(rel)); err != nil {
 			return err
 		}
 	}
@@ -216,7 +226,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 // placeScatterEntry は anchor へ prop を1個置き、Satellites を anchor 相対へ順に置く。anchor が
 // 先に占有されていれば丸ごと諦める。衛星は土系の地面かつ非占有のタイルにだけ置き、収まらない衛星は
 // 落とす。anchor だけ置いて衛星を諦める「尽きたら諦める」方針にする。
-func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occupied map[gc.GridElement]bool, entry scatterEntry, origin consts.Coord[consts.Tile]) error {
+func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, earth earthTiles, occupied map[gc.GridElement]bool, entry scatterEntry, origin consts.Coord[consts.Tile]) error {
 	// scatterTiles は選定時点の occupied で候補を絞るが、その後この関数が衛星を置いて occupied を更新する。
 	// 同じ scatterTiles が返した後続の anchor が、先の entry の衛星に占有されうるので入口で再確認する。
 	if occupied[gc.GridElement{Coord: origin}] {
@@ -229,7 +239,7 @@ func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occup
 	for _, s := range entry.Satellites {
 		pos := consts.Coord[consts.Tile]{X: origin.X + s.dx, Y: origin.Y + s.dy}
 		key := gc.GridElement{Coord: pos}
-		if occupied[key] || !isEarthTile(world, tiles, pos) {
+		if occupied[key] || !earth.at(world, tiles, pos) {
 			continue
 		}
 		if _, err := lifecycle.SpawnProp(world, s.name, pos.X, pos.Y); err != nil {
@@ -324,10 +334,9 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
 	return blocked
 }
 
-// isEarthTile は帯ローカル座標 pos が土系タイル、dirt か砂土、かを返す。道の floor や壁、他フィーチャの
-// 生成物は土系でないので散布から外れる。
-func isEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
-	return scatterEarthTiles[tileIDAt(world, tiles, pos)]
+// at は帯ローカル座標 pos のタイルが土の地面かを返す。道や壁、他の地物が置いたタイルは土でない
+func (e earthTiles) at(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
+	return e[tileIDAt(world, tiles, pos)]
 }
 
 // hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ

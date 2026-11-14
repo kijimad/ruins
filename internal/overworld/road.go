@@ -38,6 +38,7 @@ func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Ch
 // drawRoadSegments は道の辺 segs のうち、チャンク c に含まれるマスだけを舗装する。既存タイルが土のマスだけを
 // 置き換え、市街地の壁や床、集落は壊さない。
 func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs []roadSeg, c consts.Coord[consts.Chunk], g chunkGeom) error {
+	earth := earthTilesOf(world.Resources.RawMaster)
 	pave := func(px, py consts.Tile) error {
 		loX := c.X.Tiles(g.chunkW)
 		loY := c.Y.Tiles(g.chunkH)
@@ -46,14 +47,14 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs [
 		}
 		wx := g.offsetX + (px - loX)
 		wy := g.offsetY + (py - loY)
-		if err := replaceDirtTile(world, tiles, consts.Coord[consts.Tile]{X: wx, Y: wy}); err != nil {
+		if err := paveEarthTile(world, tiles, earth, consts.Coord[consts.Tile]{X: wx, Y: wy}); err != nil {
 			return fmt.Errorf("failed to pave road (x=%d, y=%d): %w", wx, wy, err)
 		}
 		return nil
 	}
 
 	// 各辺を幅 roadWidth のバンドで敷く。進行軸に沿って可変軸を進め、垂直に roadWidth ぶん広げる。
-	// 角付近は両辺のバンドが重なるが replaceDirtTile は冪等なので二重舗装は無害。
+	// 角付近は両辺のバンドが重なるが paveEarthTile は冪等なので二重舗装は無害。
 	for _, seg := range segs {
 		for v := seg.lo; v <= seg.hi; v++ {
 			for w := range roadWidth {
@@ -71,15 +72,10 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs [
 	return nil
 }
 
-// replaceDirtTile は座標のタイルが土のときだけ道へ置き換える。土以外は他の地物の
+// paveEarthTile は座標のタイルが土の地面のときだけ道へ置き換える。土でないタイルは他の地物の
 // 生成物なので触らない。
-func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) error {
-	g := gc.GridElement{Coord: pos}
-	e, ok := tiles[g]
-	if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {
-		return nil
-	}
-	if world.Components.RawID.Get(e).ID != consts.TileNameDirt {
+func paveEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, earth earthTiles, pos consts.Coord[consts.Tile]) error {
+	if !earth.at(world, tiles, pos) {
 		return nil
 	}
 	_, err := replaceTile(world, tiles, pos, consts.TileNameRoad)

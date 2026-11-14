@@ -150,7 +150,7 @@ func TestScatterFeature_土系の空きにだけ置く(t *testing.T) {
 	props := collectProps(world)
 	require.NotEmpty(t, props)
 	for _, p := range props {
-		assert.True(t, isEarthTile(world, tiles, p.pos), "散布は土系の地面の上にだけ置く: %v", p)
+		assert.True(t, earthTilesOf(world.Resources.RawMaster).at(world, tiles, p.pos), "散布は土の地面の上にだけ置く: %v", p)
 		key := gc.GridElement{Coord: p.pos}
 		assert.False(t, seen[key], "2つの prop が同じタイルへ重ならない: %v", p)
 		seen[key] = true

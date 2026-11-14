@@ -28,7 +28,7 @@ func composeBuilding(t *testing.T, raws rawschema.Raws, loader *maptemplate.Temp
 	}
 	for ly := range b.h {
 		for lx := range b.w {
-			c, _, err := planUrbanChunk(raws, loader, b, consts.Coord[consts.Chunk]{X: lx, Y: ly}, testChunkSide, testChunkSide, b.seed, nil, true)
+			c, _, err := planUrbanChunk(raws, loader, b, consts.Coord[consts.Chunk]{X: lx, Y: ly}, testChunkSide, testChunkSide, b.seed, nil, streetTiles{street: consts.TileNameRoad, verge: "grass_green"})
 			require.NoError(t, err)
 			for y, row := range c {
 				copy(cells[int(ly)*side+y][int(lx)*side:], row)

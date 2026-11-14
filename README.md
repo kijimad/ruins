@@ -108,6 +108,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 9/17（見送り1） | worldgen, item, gamedesign |
+| in-progress | [地上の生成が置くタイルを、行の欄と性質から決める](docs/design/261115001534.md) | 3/4 | worldgen, refactor |
 
 
 ## Reference
