@@ -43,9 +43,10 @@ func newDirtChunk(t *testing.T, world w.World) chunkGeom {
 // firstWastelandChunk は scatterTestSeed のもとで最初に見つかる wasteland チャンク座標を返す。
 func firstWastelandChunk(t *testing.T) consts.Coord[consts.Chunk] {
 	t.Helper()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	for cx := range consts.Chunk(200) {
 		c := consts.Coord[consts.Chunk]{X: cx, Y: 0}
-		if chunkTypeAt(scatterTestSeed, c, scatterTestRows) == chunkWasteland {
+		if chunkTypeAt(raws, scatterTestSeed, c, scatterTestRows) == chunkWasteland {
 			return c
 		}
 	}
@@ -56,9 +57,10 @@ func firstWastelandChunk(t *testing.T) consts.Coord[consts.Chunk] {
 // firstNonWastelandChunk は scatterTestSeed のもとで最初に見つかる wasteland 以外のチャンク座標を返す。
 func firstNonWastelandChunk(t *testing.T) consts.Coord[consts.Chunk] {
 	t.Helper()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	for cx := range consts.Chunk(200) {
 		c := consts.Coord[consts.Chunk]{X: cx, Y: 0}
-		if chunkTypeAt(scatterTestSeed, c, scatterTestRows) != chunkWasteland {
+		if chunkTypeAt(raws, scatterTestSeed, c, scatterTestRows) != chunkWasteland {
 			return c
 		}
 	}
@@ -306,14 +308,15 @@ func TestOnBigPhase_位相0のタイルだけ真(t *testing.T) {
 // wasteland が別ゾーンになることを固定する。
 func TestOutdoorZoneAt_集落近傍は道沿い(t *testing.T) {
 	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	// 集落の当選チャンクそのものは距離0で必ず道沿い
 	winner := settlementPlacement.WinnerOf(scatterTestSeed, 2, scatterTestRows)
-	assert.Equal(t, zoneRoadside, outdoorZoneAt(scatterTestSeed, winner, scatterTestRows), "集落の当選チャンクは道沿い")
+	assert.Equal(t, zoneRoadside, outdoorZoneAt(raws, scatterTestSeed, winner, scatterTestRows), "集落の当選チャンクは道沿い")
 
 	// 奥地ゾーンのチャンクが少なくとも1つ存在し、関数がゾーンを識別できる。奥地は北へ進んだ Y に現れる
 	foundWild := false
 	for cy := range consts.Chunk(100) {
-		if outdoorZoneAt(scatterTestSeed, consts.Coord[consts.Chunk]{X: 0, Y: cy}, scatterTestRows) == zoneWild {
+		if outdoorZoneAt(raws, scatterTestSeed, consts.Coord[consts.Chunk]{X: 0, Y: cy}, scatterTestRows) == zoneWild {
 			foundWild = true
 			break
 		}

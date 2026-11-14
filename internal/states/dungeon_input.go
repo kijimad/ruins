@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/i18n"
+	gs "github.com/kijimaD/ruins/internal/systems"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
@@ -313,6 +314,18 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return NewFeedFuelMenuState(FireFuelSink(p.FireEntity)) },
 		}}, nil
+	case gc.DebugJumpToDistrict:
+		if st.driver == nil || !query.IsOnOverworld(world) {
+			return es.Transition[w.World]{}, fmt.Errorf("jumping to a district requires the overworld")
+		}
+		if err := st.driver.JumpToDistrict(world, p.DistrictID); err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		// 帯を進めるとプレイヤーが動くので、カメラを合わせ直す
+		if err := (&gs.CameraSystem{}).Update(world); err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.Escape:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunClearState}}, nil
 	case gc.OpenCubeMenu:

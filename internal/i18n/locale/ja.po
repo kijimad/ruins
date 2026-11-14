@@ -1677,8 +1677,23 @@ msgstr "骨董品店"
 msgid "Clinic"
 msgstr "診療所"
 
-msgid "Research Facility"
-msgstr "研究施設"
+msgid "Laboratory"
+msgstr "実験棟"
+
+msgid "Admin Block"
+msgstr "管理棟"
+
+msgid "Lecture Hall"
+msgstr "講義棟"
+
+msgid "Quarantine"
+msgstr "閉鎖区画"
+
+msgid "Main Lab"
+msgstr "研究本館"
+
+msgid "Courtyard"
+msgstr "中庭"
 
 msgid "Wasteland"
 msgstr "荒れ地"

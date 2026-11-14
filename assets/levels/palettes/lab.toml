@@ -103,3 +103,25 @@ chance = 20
 [palette.beings."z"]
 tile = "floor_tile"
 chance = 35
+
+[palette.props."l"]
+tile = "floor_tile"
+id = "locker"
+lootTable = "office_storage"
+
+[palette.props."r"]
+tile = "floor_tile"
+id = "printer"
+
+[palette.props."b"]
+tile = "floor_tile"
+id = "bookshelf"
+lootTable = "office_storage"
+
+[palette.props."X"]
+tile = "floor_tile"
+id = "poison_barrel"
+
+[palette.props."E"]
+tile = "floor_tile"
+id = "exam_bed"

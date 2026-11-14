@@ -24,7 +24,6 @@ func TestPlacements_全登録配置はSpacingがSeparationより大きい(t *tes
 
 	for name, p := range map[string]Placement{
 		"settlement":       settlementPlacement,
-		"urban":            urbanPlacement,
 		"dungeon_entrance": dungeonEntrancePlacement,
 		"landmark":         landmarkPlacement,
 	} {

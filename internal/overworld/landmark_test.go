@@ -26,13 +26,14 @@ func TestDrawers_全DrawerKeyに実装がある(t *testing.T) {
 func findLandmarkChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
 	t.Helper()
 	const rows = 1
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	for s := uint64(1); s < 200; s++ {
 		for x := range consts.Chunk(30) {
 			c := consts.Coord[consts.Chunk]{X: x}
 			if !landmarkPlacement.At(s, c, rows) || settlementPlacement.At(s, c, rows) || dungeonEntrancePlacement.At(s, c, rows) {
 				continue
 			}
-			if _, _, _, ok := urbanRegionOf(s, c, rows); ok {
+			if _, ok := districtAt(raws, s, c, rows); ok {
 				continue
 			}
 			return s, c

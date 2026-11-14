@@ -73,7 +73,7 @@ func features() []feature {
 // 足す。途中へ挿入すると後続の salt 値がずれ、既存地物の配置が変わって再訪一致が壊れる。
 const (
 	settlementSalt uint64 = iota + 1
-	urbanSalt
+	districtSalt
 	dungeonEntranceSalt
 	landmarkSalt
 	scatterSalt
@@ -83,7 +83,6 @@ const (
 // 地物ごとのリージョン配置。salt と対で地物の疎密を決める。
 var (
 	settlementPlacement      = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
-	urbanPlacement           = Placement{Spacing: 6, Separation: 2, Salt: urbanSalt}
 	dungeonEntrancePlacement = Placement{Spacing: 4, Separation: 1, Salt: dungeonEntranceSalt}
 	landmarkPlacement        = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
 )

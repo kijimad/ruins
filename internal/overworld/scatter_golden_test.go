@@ -31,7 +31,7 @@ const (
 
 // TestGolden_Scatter は wasteland チャンクの生成結果を生成の実経路 NewChunkGen で作り、タイルと prop を
 // 直接 PNG へ描いて固定する。草・低木・岩の散布と幅を持たせた道が視界に入る。State を経由しない生成レベルの
-// VRT なので、HUD やカメラでなくマップそのものの退行を捕らえる。散布は決定的な純関数なので RunSeed 66 で
+// VRT なので、HUD やカメラでなくマップそのものの退行を捕らえる。散布は決定的な純関数なので RunSeed 67 で
 // golden が安定する。散布・道の見た目や密度を変えると退行する。
 func TestGolden_Scatter(t *testing.T) {
 	t.Parallel()
@@ -39,7 +39,7 @@ func TestGolden_Scatter(t *testing.T) {
 	const chunkW, chunkH consts.Tile = 24, 24
 	const cols consts.Chunk = 3
 	world := testutil.InitTestWorld(t)
-	gen := NewChunkGen(world, 66, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
+	gen := NewChunkGen(world, 67, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	for i := range cols {
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: i}, i.Tiles(chunkW), 0))
 	}

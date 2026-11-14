@@ -1085,6 +1085,68 @@
   id = "merchant_greeting"
   pages = ["Want to make a deal?\n\nI've got good stuff."]
 
+[[districts]]
+  fence = true
+  id = "lab_campus"
+  landmark = "lab_main"
+  pattern = "rows"
+  separation = 4
+  spacing = 30
+  verge = true
+
+  [[districts.layers]]
+    rows = 1
+    zones = ["campus_gate"]
+
+  [[districts.layers]]
+    zones = ["campus_inner"]
+
+  [[districts.layers]]
+    rows = 1
+    zones = ["campus_quarantine"]
+
+  [[districts.sizes]]
+    h = 6
+    w = 7
+    weight = 1
+
+  [[districts.sizes]]
+    h = 8
+    w = 7
+    weight = 1
+
+[[districts]]
+  id = "town"
+  pattern = "rings"
+  separation = 2
+  spacing = 7
+
+  [[districts.layers]]
+    zones = ["residential", "industrial"]
+
+  [[districts.layers]]
+    zones = ["downtown"]
+
+  [[districts.sizes]]
+    h = 2
+    w = 2
+    weight = 6
+
+  [[districts.sizes]]
+    h = 3
+    w = 3
+    weight = 4
+
+  [[districts.sizes]]
+    h = 3
+    w = 4
+    weight = 2
+
+  [[districts.sizes]]
+    h = 5
+    w = 5
+    weight = 1
+
 [[dropTables]]
   id = "bat"
   name = "コウモリ"
@@ -2940,6 +3002,45 @@
     pack = "1d1"
     weight = 0.5
 
+[[enemyTables]]
+  id = "lab_quarantine_enemies"
+  name = "研究施設の閉鎖区画"
+
+  [[enemyTables.entries]]
+    id = "spark_wisp"
+    maxDanger = 6
+    minDanger = 1
+    pack = "1d3"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "prism_eye"
+    maxDanger = 12
+    minDanger = 3
+    pack = "1d2"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "shock_orb"
+    maxDanger = 22
+    minDanger = 6
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "crystal_wraith"
+    maxDanger = 25
+    minDanger = 6
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "shadow_priest"
+    maxDanger = 25
+    minDanger = 10
+    pack = "1d1"
+    weight = 0.7
+
 [[facilities]]
   enemyTable = "house_enemies"
   id = "house"
@@ -3022,13 +3123,121 @@
 
 [[facilities]]
   enemyTable = "lab_enemies"
-  id = "lab"
+  id = "lab_experiment"
   lootedChance = 30
 
   [[facilities.zones]]
-    minSpan = 3
-    weight = 15
-    zone = "downtown"
+    minSpan = 1
+    weight = 2
+    zone = "campus_inner"
+
+[[facilities]]
+  enemyTable = "lab_enemies"
+  id = "lab_admin"
+  interior = "rooms"
+  lootedChance = 30
+
+  [[facilities.footprints]]
+    h = 1
+    w = 2
+    weight = 2
+
+  [[facilities.footprints]]
+    h = 1
+    w = 3
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "campus_gate"
+
+[[facilities]]
+  enemyTable = "lab_enemies"
+  id = "lab_lecture"
+  interior = "rooms"
+  lootedChance = 30
+
+  [[facilities.footprints]]
+    h = 1
+    w = 2
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 2
+    w = 2
+    weight = 2
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "campus_inner"
+
+[[facilities]]
+  enemyTable = "lab_quarantine_enemies"
+  id = "lab_quarantine"
+  interior = "rooms"
+  lootedChance = 10
+
+  [[facilities.footprints]]
+    h = 1
+    w = 3
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 1
+    w = 4
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 1
+    w = 7
+    weight = 2
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "campus_quarantine"
+
+[[facilities]]
+  enemyTable = "lab_enemies"
+  id = "lab_main"
+  interior = "rooms"
+  lootedChance = 20
+
+  [[facilities.footprints]]
+    h = 3
+    w = 3
+    weight = 2
+
+  [[facilities.footprints]]
+    h = 4
+    w = 3
+    weight = 1
+
+  [[facilities.footprints]]
+    h = 3
+    w = 4
+    weight = 1
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 3
+    zone = "campus_inner"
+
+[[facilities]]
+  enemyTable = "lab_enemies"
+  id = "lab_yard"
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 2
+    zone = "campus_inner"
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "campus_gate"
 
 [[fatigueStages]]
   canSleep = false
@@ -16757,14 +16966,69 @@
 
 [[mapGlyphs]]
   glyph = "L"
-  id = "lab"
-  name = "Research Facility"
+  id = "lab_experiment"
+  name = "Laboratory"
   order = 14
   [mapGlyphs.color]
     a = 255
     b = 208
     g = 106
     r = 160
+
+[[mapGlyphs]]
+  glyph = "B"
+  id = "lab_admin"
+  name = "Admin Block"
+  order = 15
+  [mapGlyphs.color]
+    a = 255
+    b = 200
+    g = 150
+    r = 120
+
+[[mapGlyphs]]
+  glyph = "E"
+  id = "lab_lecture"
+  name = "Lecture Hall"
+  order = 16
+  [mapGlyphs.color]
+    a = 255
+    b = 210
+    g = 130
+    r = 140
+
+[[mapGlyphs]]
+  glyph = "Q"
+  id = "lab_quarantine"
+  name = "Quarantine"
+  order = 17
+  [mapGlyphs.color]
+    a = 255
+    b = 120
+    g = 70
+    r = 210
+
+[[mapGlyphs]]
+  glyph = "M"
+  id = "lab_main"
+  name = "Main Lab"
+  order = 18
+  [mapGlyphs.color]
+    a = 255
+    b = 210
+    g = 190
+    r = 100
+
+[[mapGlyphs]]
+  glyph = "Y"
+  id = "lab_yard"
+  name = "Courtyard"
+  order = 19
+  [mapGlyphs.color]
+    a = 255
+    b = 90
+    g = 180
+    r = 120
 
 [[materials]]
   heatPerKg = 200
@@ -21628,6 +21892,8 @@
   description = "濃灰のダンジョン壁のオートタイル。通行不可"
   id = "dwall"
   name = "Dungeon Wall"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 3
     spriteKey = "dwall"
@@ -21734,6 +22000,8 @@
   description = "シアン色の煉瓦を敷いた床のオートタイル"
   id = "brick_cyan"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_cyan"
@@ -21745,6 +22013,8 @@
   description = "青緑の丸石を敷いた床のオートタイル"
   id = "cobble_teal"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_teal"
@@ -21756,6 +22026,8 @@
   description = "金色の丸石を敷いた床のオートタイル"
   id = "cobble_gold"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_gold"
@@ -21767,6 +22039,8 @@
   description = "灰色の煉瓦を敷いた床のオートタイル"
   id = "brick_gray"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_gray"
@@ -21778,6 +22052,8 @@
   description = "緑の草地のオートタイル床"
   id = "grass_green"
   name = "Grass Field"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "grass_green"
@@ -21789,6 +22065,8 @@
   description = "クリーム色の丸石を敷いた床のオートタイル"
   id = "cobble_cream"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_cream"
@@ -21800,6 +22078,8 @@
   description = "青灰色の煉瓦を敷いた床のオートタイル"
   id = "brick_blue"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_blue"
@@ -21811,6 +22091,8 @@
   description = "オリーブ色の草地のオートタイル床"
   id = "grass_olive"
   name = "Grass Field"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "grass_olive"
@@ -21822,6 +22104,8 @@
   description = "赤い丸石を敷いた床のオートタイル"
   id = "cobble_red"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_red"
@@ -21833,6 +22117,8 @@
   description = "紺色の煉瓦を敷いた床のオートタイル"
   id = "brick_navy"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_navy"
@@ -21844,6 +22130,8 @@
   description = "紫がかった砂利の床のオートタイル"
   id = "cobble_purple"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_purple"
@@ -21855,6 +22143,8 @@
   description = "石板色の砂利の床のオートタイル"
   id = "cobble_slate"
   name = "Cobblestone"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "cobble_slate"
@@ -21866,6 +22156,8 @@
   description = "桃色の砂の床のオートタイル"
   id = "sand_pink"
   name = "Sand"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_pink"
@@ -21877,6 +22169,8 @@
   description = "琥珀色の煉瓦を敷いた床のオートタイル"
   id = "brick_amber"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_amber"
@@ -21888,6 +22182,8 @@
   description = "クリーム色の滑らかな床のオートタイル"
   id = "smooth_cream"
   name = "Smooth Floor"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_cream"
@@ -21899,6 +22195,8 @@
   description = "橙色の砂の床のオートタイル"
   id = "sand_orange"
   name = "Sand"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_orange"
@@ -21910,6 +22208,8 @@
   description = "テラコッタ色の煉瓦を敷いた床のオートタイル"
   id = "brick_terracotta"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_terracotta"
@@ -21921,6 +22221,8 @@
   description = "白い滑らかな床のオートタイル"
   id = "smooth_white"
   name = "Smooth Floor"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_white"
@@ -21932,6 +22234,8 @@
   description = "赤茶の砂の床のオートタイル"
   id = "sand_red"
   name = "Sand"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_red"
@@ -21943,6 +22247,8 @@
   description = "ベージュの煉瓦を敷いた床のオートタイル"
   id = "brick_beige"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_beige"
@@ -21954,6 +22260,8 @@
   description = "青緑の滑らかな床や水面のオートタイル"
   id = "smooth_teal"
   name = "Smooth Floor"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_teal"
@@ -21965,6 +22273,8 @@
   description = "石板色の砂の床のオートタイル"
   id = "sand_slate"
   name = "Sand"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "sand_slate"
@@ -21976,6 +22286,8 @@
   description = "錆色の煉瓦を敷いた床のオートタイル"
   id = "brick_rust"
   name = "Brick"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "brick_rust"
@@ -21987,6 +22299,8 @@
   description = "青灰の滑らかな床のオートタイル"
   id = "smooth_bluegray"
   name = "Smooth Floor"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "smooth_bluegray"
@@ -21998,6 +22312,8 @@
   description = "橙色の板を張った床のオートタイル"
   id = "plank_orange"
   name = "Planks"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_orange"
@@ -22009,6 +22325,8 @@
   description = "茶色の板を張った床のオートタイル"
   id = "plank_brown"
   name = "Planks"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_brown"
@@ -22020,6 +22338,8 @@
   description = "紺色の板を張った床のオートタイル"
   id = "plank_navy"
   name = "Planks"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_navy"
@@ -22031,6 +22351,8 @@
   description = "青い板を張った床のオートタイル"
   id = "plank_blue"
   name = "Planks"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "plank_blue"

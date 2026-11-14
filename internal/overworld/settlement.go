@@ -25,8 +25,8 @@ func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[con
 	if !settlementPlacement.At(runSeed, c, cols) {
 		return nil
 	}
-	// 市街地と重なった当選は市街地へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ
-	if _, _, _, ok := urbanRegionOf(runSeed, c, cols); ok {
+	// 区域と重なった当選は区域へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ
+	if _, ok := districtAt(world.Resources.RawMaster, runSeed, c, cols); ok {
 		return nil
 	}
 	center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}

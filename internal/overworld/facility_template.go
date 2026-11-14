@@ -37,9 +37,9 @@ func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, r
 }
 
 // spawnFacility は施設の絵のマスを、チャンク内の区画の左上 (ox, oy) から実体として置く。
-// 屋内の床は屋内として扱い、扉は左右か上下の壁から向きを決める。
+// 屋内のマスは indoorAt で受け、nil なら壁と扉の囲いから決める。扉は左右か上下の壁から向きを決める。
 // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする
-func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox, oy consts.Tile, fac string, danger consts.Danger, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
+func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox, oy consts.Tile, fac string, danger consts.Danger, seed uint64, indoorAt func(x, y int) bool) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
 	if len(cells) != int(g.chunkH-oy) || len(cells[0]) != int(g.chunkW-ox) {
 		return nil, nil, fmt.Errorf("facility %q %dx%d, lot %dx%d: %w", fac, len(cells[0]), len(cells), g.chunkW-ox, g.chunkH-oy, errFacilityLotSizeMismatch)
 	}
@@ -64,7 +64,10 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		return err == nil && t.BlockPass
 	}
 
-	indoor := enclosedCells(cells, wallAt)
+	if indoorAt == nil {
+		indoor := enclosedCells(cells, wallAt)
+		indoorAt = func(x, y int) bool { return indoor[[2]int{x, y}] }
+	}
 	tiles := g.tiles.get()
 	occupied := make(map[consts.Coord[consts.Tile]]bool)
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
@@ -78,11 +81,15 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 			if err != nil {
 				return nil, nil, fmt.Errorf("facility %q tile at %d,%d: %w", fac, x, y, err)
 			}
-			if err := spawnFacilityTile(world, tiles, pos, t, indoor[[2]int{x, y}]); err != nil {
+			if err := spawnFacilityTile(world, tiles, pos, t, indoorAt(x, y)); err != nil {
 				return nil, nil, err
 			}
 			orientation := gc.DoorOrientationHorizontal
-			if wallAt(x-1, y) && wallAt(x+1, y) {
+			// 2マスの扉は隣が扉になるので、扉も壁と同じく向きを決める側に数える
+			blocks := func(x, y int) bool {
+				return wallAt(x, y) || y >= 0 && y < len(cells) && x >= 0 && x < len(cells[y]) && cells[y][x].Prop == "door"
+			}
+			if blocks(x-1, y) && blocks(x+1, y) {
 				orientation = gc.DoorOrientationVertical
 			}
 			if err := spawnFacilityCell(world, cell, pos, orientation, fac, danger, lootRNG, beingRNG); err != nil {
@@ -179,4 +186,48 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 		}
 	}
 	return nil
+}
+
+// voidEnclosedWalls は、直交と斜めの近傍8マスに通れる地形が無い壁を虚空にする。壁のオートタイルは部屋を囲む細い輪郭を
+// 前提にするので、厚い壁の塊の内側を虚空にして描き崩れを防ぐ。マスの外は outsidePassable が通れると返す座標だけを通れるものとして
+// 数える。家具の乗った壁は残す
+func voidEnclosedWalls(cells [][]maptemplate.MapCell, blocks func(terrain string) bool, outsidePassable func(x, y int) bool) {
+	passable := func(x, y int) bool {
+		if y < 0 || y >= len(cells) || x < 0 || x >= len(cells[y]) {
+			return outsidePassable(x, y)
+		}
+		return !blocks(cells[y][x].Terrain)
+	}
+	var enclosed [][2]int
+	for y, row := range cells {
+		for x, c := range row {
+			if c.Terrain != consts.TileNameWall || c.Prop != "" {
+				continue
+			}
+			open := false
+			for dy := -1; dy <= 1 && !open; dy++ {
+				for dx := -1; dx <= 1 && !open; dx++ {
+					open = (dx != 0 || dy != 0) && passable(x+dx, y+dy)
+				}
+			}
+			if !open {
+				enclosed = append(enclosed, [2]int{x, y})
+			}
+		}
+	}
+	for _, p := range enclosed {
+		cells[p[1]][p[0]] = maptemplate.MapCell{Terrain: consts.TileNameVoid}
+	}
+}
+
+// tileBlocksPass は地形 terrain が通れないかを raw のタイルの行から返す。行の無い地形は通れないとする
+func tileBlocksPass(raws rawschema.Raws) func(terrain string) bool {
+	blocks := map[string]bool{}
+	for _, t := range raw.PtrSlice(raws.Tiles) {
+		blocks[t.Id] = t.BlockPass
+	}
+	return func(terrain string) bool {
+		b, ok := blocks[terrain]
+		return !ok || b
+	}
 }

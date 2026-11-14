@@ -20,7 +20,7 @@ const (
 	facilityLootAll = "all"
 )
 
-// GenerateFacilityLoot は各施設の絵を trials 回展開し、収納と床の loot を実際の抽選経路で materialize して、絵ごとに
+// GenerateFacilityLoot は各施設の絵を trials 回展開し、部屋の絵で組む施設は部屋1つを1試行として、収納と床の loot を実際の抽選経路で materialize して、絵ごとに
 // アイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで抽選の相互作用をそのまま反映する。同一 seed で同一結果。
 // 集計対象の施設は raw.toml の facilities 行から導出する。
 func GenerateFacilityLoot(master rawschema.Raws, trials int, seed uint64) ([]FacilityLoot, error) {
@@ -40,7 +40,7 @@ func GenerateFacilityLoot(master rawschema.Raws, trials int, seed uint64) ([]Fac
 		for i := range trials {
 			trialSeed := seed + uint64(i)
 			rng := rand.New(rand.NewPCG(trialSeed, facilityLootStream))
-			chunk, cells, err := loader.FacilityChunk(fac, trialSeed)
+			chunk, cells, err := facilityTrialChunk(loader, fac, i, trialSeed)
 			if err != nil {
 				return nil, fmt.Errorf("facility %q: %w", fac, err)
 			}
@@ -78,6 +78,23 @@ func GenerateFacilityLoot(master rawschema.Raws, trials int, seed uint64) ([]Fac
 		})
 	}
 	return result, nil
+}
+
+// roomEdgeTrials は部屋の絵で組む施設の試行で、順に使う辺の組。迷路の部屋の5通りの形を1つずつ持つ
+var roomEdgeTrials = [][4]maptemplate.EdgeKind{
+	{maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeWall, maptemplate.EdgeWall},
+	{maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeWall},
+	{maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeDoor, maptemplate.EdgeWall},
+	{maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeDoor},
+	{maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeDoor},
+}
+
+// facilityTrialChunk は施設 fac の i 回目の試行の絵を引く。部屋の絵で組む施設は、試行ごとに部屋1つを引く
+func facilityTrialChunk(loader *maptemplate.TemplateLoader, fac string, i int, seed uint64) (*maptemplate.ChunkTemplate, [][]maptemplate.MapCell, error) {
+	if loader.HasRooms(fac) {
+		return loader.FacilityRoom(fac, roomEdgeTrials[i%len(roomEdgeTrials)], seed)
+	}
+	return loader.FacilityChunk(fac, seed)
 }
 
 // drawnLoot は materialize した1種のアイテムと個数。
