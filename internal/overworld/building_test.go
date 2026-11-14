@@ -211,8 +211,32 @@ func TestBuildingLot_roomEdges_外周は壁で入口と迷路の扉を開ける(
 	}
 	assert.Equal(t, int(b.w*b.h)-1, doors, "迷路の扉は全域木の辺の数")
 
-	hall := buildingLot{w: 2, h: 2, interior: rawschema.FacilityInteriorHall, seed: 7}
-	assert.Equal(t, [4]maptemplate.EdgeKind{maptemplate.EdgeOpen, maptemplate.EdgeOpen, maptemplate.EdgeWall, maptemplate.EdgeWall}, hall.roomEdges(consts.Coord[consts.Chunk]{X: 0, Y: 1}))
+}
+
+func TestBuildingLot_roomEdges_吹き抜けは外周が壁で内側の辺が全て吹き抜け(t *testing.T) {
+	t.Parallel()
+
+	const (
+		W = maptemplate.EdgeWall
+		D = maptemplate.EdgeDoor
+		O = maptemplate.EdgeOpen
+	)
+	hall := buildingLot{w: 3, h: 2, interior: rawschema.FacilityInteriorHall, seed: 7}
+	got := map[consts.Coord[consts.Chunk]][4]maptemplate.EdgeKind{}
+	for ly := range hall.h {
+		for lx := range hall.w {
+			l := consts.Coord[consts.Chunk]{X: lx, Y: ly}
+			got[l] = hall.roomEdges(l)
+		}
+	}
+	assert.Equal(t, map[consts.Coord[consts.Chunk]][4]maptemplate.EdgeKind{
+		{X: 0, Y: 0}: {W, O, O, W},
+		{X: 1, Y: 0}: {D, O, O, O},
+		{X: 2, Y: 0}: {W, W, O, O},
+		{X: 0, Y: 1}: {O, O, W, W},
+		{X: 1, Y: 1}: {O, O, W, O},
+		{X: 2, Y: 1}: {O, W, W, O},
+	}, got, "北・東・南・西の順。入口は北の辺の真ん中の列")
 }
 
 func TestGolden_Building(t *testing.T) {
