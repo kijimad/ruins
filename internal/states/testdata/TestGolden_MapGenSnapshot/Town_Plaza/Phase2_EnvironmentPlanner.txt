@@ -1,0 +1,63 @@
+label: EnvironmentPlanner
+tiles:
+  ',' = "dirt"
+  '.' = "floor"
+  'a' = "road"
+  '#' = "wall"
+|#,,,,,,,,,,,aaa,,,,,,,,,,,,,,,,,,,aaa,,,,,,,,,,,,#|
+|#,,,,,,,,,,,aaa,,,,,,,,,,,,,,,,,,,aaa,,,,,,,,,,,,#|
+|#,,,,,,,,,,,aaa,,,,,,,,,,,,,,,,,,,aaa,,,,,,,,,,,,#|
+|#,,,.,,,,,,,aaa,,,,,,,,,.,,,,,,,,,aaa,,,,,,.,,,,,#|
+|#,,,,,,,,,,,aaa,,,,,,,,,,,,,,,,,,,aaa,,,,,,,,,,,,#|
+|#,,,,,,,,,,,aaaaa,,,,,,,,,,,,,,,aaaaa,,,,,,,,,,,,#|
+|#,,,,,,,,,,aaaaaaa,,,,,,,,,,,,,aaaaaaa,,,,,,,,,,,#|
+|#,,,,,,,,,aaaaaaaaa,,,,,,,,,,,aaaaaaaaa,,,,,,,,,,#|
+|#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#|
+|#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#|
+|#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#|
+|#,,,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,,,,,,,,#|
+|#,,,,,,,,,,aaaaaaa,,,,,,,,,,,,,aaaaaaa,,,,,,,,,,,#|
+|#,,,,,,,,,,,aaaaa,,,,,,,,,,,,,,,aaaaa,,,,,,,,,,,,#|
+|#,,,,,,,,,,,aaa,,,,,,,,,,,,,,,,,,,aaa,,,,,,,,,,,,#|
+|#,,,.,,,,,,,aaa,,,,,,.,,,,,.,,,,,,aaa,,,,,,.,,,,,#|
+|#,,,,,,,,,,,aaa,,,,,,,,,,,,,,,,,,,aaa,,,,,,,,,,,,#|
+|#,,,,,,,,,,,aaa,,,,,,.,aaa,.,,,,,,aaa,,,,,,,,,,,,#|
+|#,,,,,,,,,,,aaa,,,,,,,,aaa,,,,,,,,aaa,,,,,,,,,,,,#|
+|#,,,,,,,,,,,aaa,,,,,,.,aaa,.,,,,,,aaa,,,,,,,,,,,,#|
+environments shelter/water/foliage:
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|ooooioooooooooooooooooooiooooooooooooooooooioooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|ooooiooooooooooooooooioooooioooooooooooooooioooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooioooooioooooooooooooooooooooo|
+|oooooooooooooooooooooooooooooooooooooooooooooooooo|
+|oooooooooooooooooooooioooooioooooooooooooooooooooo|
+spawn: 24,10
+npc: 3,5 merchant
+npc: 4,13 old_soldier
+prop: 4,3 lantern
+prop: 24,3 lantern
+prop: 43,3 lantern
+prop: 4,15 lantern
+prop: 21,15 stone_pillar
+prop: 27,15 stone_pillar
+prop: 43,15 lantern
+prop: 21,17 stone_pillar
+prop: 27,17 stone_pillar
+prop: 21,19 stone_pillar
+prop: 27,19 stone_pillar

@@ -3,6 +3,7 @@ package states
 import (
 	"fmt"
 	"math/rand/v2"
+	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -11,7 +12,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -32,6 +32,7 @@ type MapGenVisualizerState struct {
 
 	mapWidth  consts.Tile
 	mapHeight consts.Tile
+	danger    consts.Danger
 }
 
 var _ es.State[w.World] = &MapGenVisualizerState{}
@@ -62,6 +63,7 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error {
 	// チェーン実行後の実際のマップサイズを使用する。テンプレートベースのPlannerは引数のwidth/heightを無視するため
 	st.mapWidth = chain.PlanData.Level.TileWidth
 	st.mapHeight = chain.PlanData.Level.TileHeight
+	st.danger = chain.PlanData.Danger
 
 	st.snapshots = chain.Snapshots
 	if st.SnapshotIndex < 0 || st.SnapshotIndex >= len(st.snapshots) {
@@ -143,18 +145,10 @@ func (st *MapGenVisualizerState) setupCamera(world w.World) {
 func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 	snap := st.snapshots[st.SnapshotIndex]
 
-	// SnapshotからMetaPlanを再構築する。
-	// 未初期化タイル（Name が空）は void として扱う
-	tiles := make([]rawschema.Tile, len(snap.Tiles))
-	copy(tiles, snap.Tiles)
-	for i := range tiles {
-		if tiles[i].Name == "" {
-			tiles[i].Name = "void"
-			tiles[i].BlockPass = true
-		}
-	}
-
+	tiles := slices.Clone(snap.Tiles)
 	plan := &mapplanner.MetaPlan{
+		Danger:    st.danger,
+		RawMaster: &world.Resources.RawMaster,
 		Level: gc.Level{
 			TileWidth:  st.mapWidth,
 			TileHeight: st.mapHeight,
@@ -171,8 +165,11 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 		// 収納の中身の抽選が乱数を引くので、シードから決まる乱数を渡して描画を毎回同じにする
 		RNG: rand.New(rand.NewPCG(st.Seed, st.Seed)),
 	}
-	if world.Resources != nil {
-		plan.RawMaster = &world.Resources.RawMaster
+	// 計画の前のフェーズの空のタイルは void で描く
+	for i := range tiles {
+		if tiles[i].Id == "" {
+			tiles[i] = plan.GetTile("void")
+		}
 	}
 
 	if _, err := mapspawner.Spawn(world, plan); err != nil {
