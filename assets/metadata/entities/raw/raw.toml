@@ -22043,12 +22043,12 @@
 [[tiles]]
   blockPass = false
   blockView = false
-  description = "雪に覆われた地面。屋外の土の地面がその日の平均気温が雪の閾値以下のときにこの絵で描かれる"
+  description = "雪に覆われた地面。屋根の無い土の地面に、その日の平均気温に応じてまだらに積もって描かれる"
   id = "snow"
   name = "Snow"
   [tiles.spriteRender]
     depth = 0
-    spriteKey = "smooth_white"
+    spriteKey = "snow"
     spriteSheetName = "tile"
 
 [[timesOfDay]]

@@ -69,8 +69,8 @@ func TestLoadSpriteSheets(t *testing.T) {
 		_, exists := tileSheet.Sprites["void"]
 		assert.True(t, exists, "void が存在すること")
 
-		// 合計518個のスプライトがあることを確認。基本65 と床材ダミー5 に、DawnLike フロアオートタイル28素材×16=448 を加えた数
-		assert.Len(t, tileSheet.Sprites, 518, "518個のタイルスプライトが存在すること")
+		// 合計534個のスプライトがあることを確認。基本65 と床材ダミー5 に、DawnLike フロアオートタイル28素材×16=448 と、土の色を置き換えた雪16を加えた数
+		assert.Len(t, tileSheet.Sprites, 534, "534個のタイルスプライトが存在すること")
 	})
 
 	t.Run("存在しないパスを指定するとエラー", func(t *testing.T) {
@@ -138,8 +138,8 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, sheet)
 
-		// 518個のタイルスプライトが存在することを確認。基本65・床材ダミー5・DawnLike オートタイル448の合計
-		assert.Len(t, sheet.Sprites, 518, "518個のタイルスプライトが存在すること")
+		// 534個のタイルスプライトが存在することを確認。基本65・床材ダミー5・DawnLike オートタイル448・雪16の合計
+		assert.Len(t, sheet.Sprites, 534, "534個のタイルスプライトが存在すること")
 	})
 
 	t.Run("singleスプライトシートを正常に読み込める", func(t *testing.T) {

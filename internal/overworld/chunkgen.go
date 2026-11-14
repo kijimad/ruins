@@ -24,13 +24,7 @@ import (
 // 奇数を掛けるのは 2^64 を法として可逆で座標の情報を落とさないため。定数を変えると同じ runSeed
 // でも別の世界になる。
 func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {
-	x := runSeed + uint64(cx)*0x9E3779B97F4A7C15 + uint64(cy)*0xC2B2AE3D27D4EB4F
-	x ^= x >> 30
-	x *= 0xBF58476D1CE4E5B9
-	x ^= x >> 27
-	x *= 0x94D049BB133111EB
-	x ^= x >> 31
-	return x
+	return consts.Mix64(runSeed + uint64(cx)*0x9E3779B97F4A7C15 + uint64(cy)*0xC2B2AE3D27D4EB4F)
 }
 
 // NewChunkGen は Band に渡す worldstream.ChunkGen を返す。

@@ -85,12 +85,66 @@ func climateWorldTemperatureAt(world w.World, y consts.Tile) int {
 	return world.Resources.CalendarDefs.SeasonalTemperatureForDay(GetGameTime(world).GetDayNumber()) - latitudeCold(world, y)
 }
 
-// snowCoverTemperature はその日の平均気温がこれ以下なら屋外の土の地面が雪に覆われる℃
-const snowCoverTemperature = 0
+// 雪がまだらに積もる気温の幅。その日の平均気温が snowStartTemperature で積もり始め、
+// snowFullTemperature で屋根の無い土の地面の全てを覆う
+const (
+	snowStartTemperature = 5
+	snowFullTemperature  = -5
+)
 
-// IsSnowCoveredAt は帯ローカル座標 y の屋外の土の地面が雪に覆われているかを返す
-func IsSnowCoveredAt(world w.World, y consts.Tile) bool {
-	return ClimateTemperatureAt(world, y) <= snowCoverTemperature
+// SnowFraction はその日の平均気温 temp から、雪に覆われる地面のマスの割合を 0 から 1 で返す
+func SnowFraction(temp int) float64 {
+	switch {
+	case temp >= snowStartTemperature:
+		return 0
+	case temp <= snowFullTemperature:
+		return 1
+	}
+	return float64(snowStartTemperature-temp) / float64(snowStartTemperature-snowFullTemperature)
+}
+
+// SnowFractionAt は帯ローカル座標 y の行で、雪に覆われる地面のマスの割合を返す
+func SnowFractionAt(world w.World, y consts.Tile) float64 {
+	return SnowFraction(ClimateTemperatureAt(world, y))
+}
+
+// 雪の積もり方のむら。snowPatchSize マスほどの大きさでなめらかに変わる値を主にし、マスごとの揺らぎを
+// snowJitterWeight だけ混ぜる。雪は塊で積もり始め、寒くなるほど塊が広がってつながる
+const (
+	snowPatchSize    = 6
+	snowJitterWeight = 0.2
+)
+
+// SnowRankAt は帯ローカル座標 (x, y) のマスが雪に覆われる順位を 0 以上 1 未満で返す。割合がこれを上回れば覆われる。
+// 帯がずれても同じ場所で同じ値になるよう絶対座標から決め、寒くなるほど同じマスに雪が残ったまま広がる
+func SnowRankAt(world w.World, x, y consts.Tile) float64 {
+	absY := int(y)
+	if sb := GetSeamlessBand(world); sb != nil {
+		absY = int(sb.LocalToAbsY(y))
+	}
+	ax := int(x)
+	gx, gy := consts.FloorDiv(ax, snowPatchSize), consts.FloorDiv(absY, snowPatchSize)
+	fx := smoothstep(float64(ax-gx*snowPatchSize) / snowPatchSize)
+	fy := smoothstep(float64(absY-gy*snowPatchSize) / snowPatchSize)
+	top := lerp(unitHash(gx, gy), unitHash(gx+1, gy), fx)
+	bottom := lerp(unitHash(gx, gy+1), unitHash(gx+1, gy+1), fx)
+	patch := lerp(top, bottom, fy)
+	return (1-snowJitterWeight)*patch + snowJitterWeight*unitHash(ax*snowPatchSize+1, absY*snowPatchSize+1)
+}
+
+// unitHash は格子点 (x, y) から 0 以上 1 未満の決定的な値を返す
+func unitHash(x, y int) float64 {
+	h := consts.Mix64(uint64(int64(x))*0x9E3779B97F4A7C15 + uint64(int64(y))*0xC2B2AE3D27D4EB4F)
+	return float64(h>>11) / (1 << 53)
+}
+
+func smoothstep(t float64) float64 { return t * t * (3 - 2*t) }
+
+func lerp(a, b, t float64) float64 { return a + (b-a)*t }
+
+// IsSnowCoveredAt は帯ローカル座標 (x, y) の屋根の無い土の地面が雪に覆われているかを返す
+func IsSnowCoveredAt(world w.World, x, y consts.Tile) bool {
+	return SnowRankAt(world, x, y) < SnowFractionAt(world, y)
 }
 
 // 奥地ほど寒い緯度勾配のパラメータ。奥へ進んだチャンク距離が増えるほど世界温度を下げる。値は実プレイで調整する。
