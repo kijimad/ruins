@@ -25,10 +25,10 @@
 | <img src="internal/states/testdata/TestGolden_LoadMenu.png" width="200" /><br>LoadMenu | <img src="internal/states/testdata/TestGolden_LookAround.png" width="200" /><br>LookAround | <img src="internal/states/testdata/TestGolden_LookAround_Away.png" width="200" /><br>LookAround_Away | <img src="internal/states/testdata/TestGolden_MainMenu.png" width="200" /><br>MainMenu |
 | <img src="internal/states/testdata/TestGolden_MainMenuOpenSettings.png" width="200" /><br>MainMenuOpenSettings | <img src="internal/states/testdata/TestGolden_Message.png" width="200" /><br>Message | <img src="internal/states/testdata/TestGolden_Overworld.png" width="200" /><br>Overworld | <img src="internal/states/testdata/TestGolden_OverworldMap.png" width="200" /><br>OverworldMap |
 | <img src="internal/states/testdata/TestGolden_Overworld_1_Morning.png" width="200" /><br>Overworld_1_Morning | <img src="internal/states/testdata/TestGolden_Overworld_2_Day.png" width="200" /><br>Overworld_2_Day | <img src="internal/states/testdata/TestGolden_Overworld_3_Evening.png" width="200" /><br>Overworld_3_Evening | <img src="internal/states/testdata/TestGolden_Overworld_4_Night.png" width="200" /><br>Overworld_4_Night |
-| <img src="internal/states/testdata/TestGolden_Overworld_5_Midnight.png" width="200" /><br>Overworld_5_Midnight | <img src="internal/states/testdata/TestGolden_Overworld_6_Dawn.png" width="200" /><br>Overworld_6_Dawn | <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_RunStats_Environment.png" width="200" /><br>RunStats_Environment |
-| <img src="internal/states/testdata/TestGolden_RunStats_Table.png" width="200" /><br>RunStats_Table | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu | <img src="internal/states/testdata/TestGolden_SettingsMenuClose.png" width="200" /><br>SettingsMenuClose |
-| <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu_Buy.png" width="200" /><br>ShopMenu_Buy | <img src="internal/states/testdata/TestGolden_ShopMenu_Sell.png" width="200" /><br>ShopMenu_Sell | <img src="internal/states/testdata/TestGolden_StatusBadges.png" width="200" /><br>StatusBadges |
-| <img src="internal/states/testdata/TestGolden_StorageMenu_Retrieve.png" width="200" /><br>StorageMenu_Retrieve | <img src="internal/states/testdata/TestGolden_StorageMenu_Store.png" width="200" /><br>StorageMenu_Store | | |
+| <img src="internal/states/testdata/TestGolden_Overworld_5_Midnight.png" width="200" /><br>Overworld_5_Midnight | <img src="internal/states/testdata/TestGolden_Overworld_6_Dawn.png" width="200" /><br>Overworld_6_Dawn | <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_RunClear.png" width="200" /><br>RunClear |
+| <img src="internal/states/testdata/TestGolden_RunStats_Environment.png" width="200" /><br>RunStats_Environment | <img src="internal/states/testdata/TestGolden_RunStats_Table.png" width="200" /><br>RunStats_Table | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu |
+| <img src="internal/states/testdata/TestGolden_SettingsMenuClose.png" width="200" /><br>SettingsMenuClose | <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu_Buy.png" width="200" /><br>ShopMenu_Buy | <img src="internal/states/testdata/TestGolden_ShopMenu_Sell.png" width="200" /><br>ShopMenu_Sell |
+| <img src="internal/states/testdata/TestGolden_StatusBadges.png" width="200" /><br>StatusBadges | <img src="internal/states/testdata/TestGolden_StorageMenu_Retrieve.png" width="200" /><br>StorageMenu_Retrieve | <img src="internal/states/testdata/TestGolden_StorageMenu_Store.png" width="200" /><br>StorageMenu_Store | |
 
 
 各画像はゴールデンテストで自動生成される。
@@ -106,8 +106,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [施設の多様化](docs/design/261108165219.md) | 9/15（見送り1） | worldgen, item, gamedesign |
-| in-progress | [脱出の鍵・作る段・アイテムの分解を足し、世界をオーバーワールドに一本化してゲームループを閉じる](docs/design/261111002908.md) | 5/18 | gamedesign, item, worldgen, refactor |
+| in-progress | [施設の多様化](docs/design/261108165219.md) | 9/17（見送り1） | worldgen, item, gamedesign |
 
 
 ## Reference

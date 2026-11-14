@@ -59,7 +59,11 @@ func (ShowDialog) isStatePayload()          {}
 func (OpenStorage) isStatePayload()         {}
 func (OpenFeedFuel) isStatePayload()        {}
 func (OpenCubeMenu) isStatePayload()        {}
+func (Escape) isStatePayload()              {}
 func (DebugJumpToDistrict) isStatePayload() {}
+
+// Escape は惑星を脱出してクリアの画面へ移る
+type Escape struct{}
 
 // StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。
 // Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。
@@ -84,6 +88,9 @@ func WarpDungeonEnterEvent(definitionName string) StateChangeRequest {
 func WarpDungeonEnterWithPlannerEvent(definitionName, plannerName string) StateChangeRequest {
 	return StateChangeRequest{Payload: WarpDungeonEnter{DefinitionName: definitionName, PlannerName: plannerName}}
 }
+
+// EscapeEvent は脱出のリクエストを生成する
+func EscapeEvent() StateChangeRequest { return StateChangeRequest{Payload: Escape{}} }
 
 // ShowDialogEvent は会話メッセージ表示リクエストを生成する
 func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {

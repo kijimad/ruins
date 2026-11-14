@@ -57,6 +57,11 @@ id = "desktop_pc"
 tile = "floor_tile"
 id = "chair"
 
+[palette.props."K"]
+tile = "floor_tile"
+id = "classified_case"
+lootTable = "classified_case"
+
 [palette.props."M"]
 tile = "floor_tile"
 id = "gauge_machine"

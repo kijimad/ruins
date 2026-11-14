@@ -884,6 +884,9 @@ func EquipmentCategoryValues() []EquipmentCategory {
 	return []EquipmentCategory{EquipmentCategoryHEAD, EquipmentCategoryTORSO, EquipmentCategoryARMS, EquipmentCategoryHANDS, EquipmentCategoryLEGS, EquipmentCategoryFEET, EquipmentCategoryJEWELRY}
 }
 
+// EscapeDevice 脱出の装置。使うと惑星を脱出してクリアになる
+type EscapeDevice = map[string]interface{}
+
 // Facility 市街地の施設1種
 type Facility struct {
 	EnemyTable EntityID `json:"enemyTable"`
@@ -1308,6 +1311,9 @@ type Item struct {
 	Description EntityDescription `json:"description"`
 
 	EquipBonus *EquipBonus `json:"equipBonus,omitempty"`
+
+	// EscapeDevice 脱出の装置。使うとクリアになる
+	EscapeDevice *EscapeDevice `json:"escapeDevice,omitempty"`
 
 	Fire *Fire `json:"fire,omitempty"`
 
