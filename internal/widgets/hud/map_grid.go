@@ -39,6 +39,7 @@ func DrawMapGrid(cv uicore.Canvas, view overworld.MacroView, style MapGridStyle)
 			if cell.HasColor {
 				cellColor = cell.Color
 			}
+			cellColor = theme.LerpColor(cellColor, theme.OverworldMapSnow, cell.Snow)
 			cv.FillRect(image.Rect(x, y, x+style.CellPx, y+style.CellPx), cellColor, uicore.RectOptions{})
 			if cell.Road.Any() {
 				drawMapRoad(cv, x, y, style.CellPx, cell.Road)

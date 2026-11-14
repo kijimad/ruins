@@ -23,6 +23,7 @@ type GlyphInfo struct {
 	Label rune
 	Name  string
 	Color color.RGBA
+	Snowy bool // 雪が積もるとセルを白へ寄せる
 }
 
 // 俯瞰図の記号は尺度の違う2層の語彙でできている。両者は対等な兄弟ではなく、市街地以外の粗い層と
@@ -40,7 +41,7 @@ const placeUnknownGlyph rune = '?'
 // toGlyphInfo は mapGlyphs 行を GlyphInfo へ変換する。
 func toGlyphInfo(mg rawschema.MapGlyph) GlyphInfo {
 	label, _ := utf8.DecodeRuneInString(mg.Glyph)
-	return GlyphInfo{Label: label, Name: mg.Name, Color: color.RGBA{R: mg.Color.R, G: mg.Color.G, B: mg.Color.B, A: mg.Color.A}}
+	return GlyphInfo{Label: label, Name: mg.Name, Color: color.RGBA{R: mg.Color.R, G: mg.Color.G, B: mg.Color.B, A: mg.Color.A}, Snowy: mg.Snowy != nil && *mg.Snowy}
 }
 
 // glyphByID は種別 id から地図記号を引く。
@@ -65,12 +66,12 @@ func LegendGlyphs(raws rawschema.Raws) []GlyphInfo {
 	return out
 }
 
-// glyphColorMap は記号 rune から色への表を返す。
-func glyphColorMap(raws rawschema.Raws) map[rune]color.RGBA {
+// glyphInfoMap は記号 rune から記号の表示情報への表を返す。
+func glyphInfoMap(raws rawschema.Raws) map[rune]GlyphInfo {
 	glyphs := LegendGlyphs(raws)
-	table := make(map[rune]color.RGBA, len(glyphs))
+	table := make(map[rune]GlyphInfo, len(glyphs))
 	for _, g := range glyphs {
-		table[g.Label] = g.Color
+		table[g.Label] = g
 	}
 	return table
 }

@@ -82,7 +82,12 @@ func ClimateTemperatureAt(world w.World, y consts.Tile) int {
 
 // climateWorldTemperatureAt は世界温度のうち、その日の中で変わらない季節と緯度の分を返す
 func climateWorldTemperatureAt(world w.World, y consts.Tile) int {
-	return world.Resources.CalendarDefs.SeasonalTemperatureForDay(GetGameTime(world).GetDayNumber()) - latitudeCold(world, y)
+	return climateWorldTemperatureForDepth(world, NorthDepthChunks(world, y))
+}
+
+// climateWorldTemperatureForDepth は湧き位置から北へ chunksDeep チャンク進んだ行の、季節と緯度の世界温度を返す
+func climateWorldTemperatureForDepth(world w.World, chunksDeep int) int {
+	return world.Resources.CalendarDefs.SeasonalTemperatureForDay(GetGameTime(world).GetDayNumber()) - latitudeColdForDepth(chunksDeep)
 }
 
 // 雪がまだらに積もる気温の幅。その日の平均気温が snowStartTemperature で積もり始め、
@@ -106,6 +111,17 @@ func SnowFraction(temp int) float64 {
 // SnowFractionAt は帯ローカル座標 y の行で、雪に覆われる地面のマスの割合を返す
 func SnowFractionAt(world w.World, y consts.Tile) float64 {
 	return SnowFraction(ClimateTemperatureAt(world, y))
+}
+
+// SnowFractionAtChunkRow は絶対チャンク行 row で、雪に覆われる地面のマスの割合を返す。
+// マクロ地図は帯の外の行も描くので、帯ローカル座標でなく絶対チャンク行で受ける
+func SnowFractionAtChunkRow(world w.World, row consts.Chunk) float64 {
+	sb := GetSeamlessBand(world)
+	depth := 0
+	if sb != nil {
+		depth = max(int(sb.SpawnChunkY()-row), 0)
+	}
+	return SnowFraction(stageBaseTemperature(world) + climateWorldTemperatureForDepth(world, depth))
 }
 
 // 雪の積もり方のむら。snowPatchSize マスほどの大きさでなめらかに変わる値を主にし、マスごとの揺らぎを
@@ -182,12 +198,6 @@ func NorthDepthChunks(world w.World, y consts.Tile) int {
 		return depth
 	}
 	return 0
-}
-
-// latitudeCold は帯ローカル座標 y の緯度勾配の寒さ、すなわち世界温度から差し引く℃を返す。
-// 基礎的な寒さはステージの基本気温が担い、緯度勾配は北ほど寒い加算分だけを表す。
-func latitudeCold(world w.World, y consts.Tile) int {
-	return latitudeColdForDepth(NorthDepthChunks(world, y))
 }
 
 // latitudeColdForDepth は湧き位置から奥へ進んだチャンク距離から差し引く℃を返す純粋計算。

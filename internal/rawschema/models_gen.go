@@ -1519,6 +1519,9 @@ type MapGlyph struct {
 	Name string `json:"name"`
 
 	Order int32 `json:"order"`
+
+	// Snowy 雪が積もると、この記号のセルを雪の割合だけ白へ寄せる
+	Snowy *bool `json:"snowy,omitempty"`
 }
 
 // Material 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。

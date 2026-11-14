@@ -96,6 +96,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	st.view = overworld.BuildMacroView(
 		world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.SpawnChunkY(), sb.ChunkW, sb.ChunkH,
 		area, playerTile, hasPlayer, query.CubeTiles(world), query.DiscoveredChunks(world, sb),
+		func(row consts.Chunk) float64 { return query.SnowFractionAtChunkRow(world, row) },
 	)
 
 	// カメラ不在時は北を既定にする

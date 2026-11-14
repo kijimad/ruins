@@ -17562,6 +17562,7 @@
   id = "field"
   name = "Wasteland"
   order = 0
+  snowy = true
   [mapGlyphs.color]
     a = 255
     b = 46

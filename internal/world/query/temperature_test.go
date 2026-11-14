@@ -483,6 +483,39 @@ func TestSnowFractionAt_春でも北へ進むほど雪の割合が増える(t *t
 	}
 }
 
+func TestSnowFractionAtChunkRow_帯ローカルの行と同じ割合を返す(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		row  consts.Chunk
+		want float64
+	}{
+		{"湧き位置から北へ4チャンクは1℃で4割", -3, 0.4},
+		{"湧き位置から北へ5チャンクは0℃で5割", -4, 0.5},
+		{"湧き位置より南は緯度の寒さが無く積もらない", 5, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			query.GetGameTime(world).TotalTurns = 0
+			query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+			sb := query.EnsureSeamlessBand(world)
+			sb.ChunkH, sb.Rows = 30, 3
+
+			assert.InDelta(t, tt.want, query.SnowFractionAtChunkRow(world, tt.row), 1e-9)
+		})
+	}
+
+	world := testutil.InitTestWorld(t)
+	query.GetGameTime(world).TotalTurns = 0
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	sb := query.EnsureSeamlessBand(world)
+	sb.ChunkH, sb.Rows, sb.NorthIndex = 30, 3, 4
+	assert.InDelta(t, query.SnowFractionAt(world, 45), query.SnowFractionAtChunkRow(world, sb.AbsChunkRow(45)), 1e-9)
+}
+
 func TestSnowRankAt_帯がずれても同じ場所は同じ順位になる(t *testing.T) {
 	t.Parallel()
 

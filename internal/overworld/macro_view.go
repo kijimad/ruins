@@ -52,6 +52,7 @@ type MacroCell struct {
 	HasColor   bool       // 記号の色が mapGlyphs にあったか
 	Discovered bool       // このチャンクが探索で開放済みか。未開放は伏せてフォグにする
 	Road       RoadDir    // このチャンクを通る道の接続方角。0 なら道なし。線分描画でセル中央から辺へ引く
+	Snow       float64    // セルを雪の色へ寄せる割合。0 なら記号の色のまま
 }
 
 // MacroView はマクロ地図の描画モデル。表示範囲内のチャンク格子と、マーカーの表示範囲ローカル座標を持つ。
@@ -67,6 +68,7 @@ type MacroView struct {
 // discovered は開放済みチャンクの集合で、絶対チャンク座標をキーにする。含まれるチャンクだけを開放し、
 // 残りはフォグで伏せる。nil や空集合は「まだ何も開放していない」を表す。Go の nil マップ読み取りは
 // 安全に false を返すので、nil でも全チャンクがフォグになる。
+// snowAt は絶対チャンク行の雪の割合を返す。雪が積もる記号のセルにだけ入れる。世界の状態は呼ぶ側が読む。
 func BuildMacroView(
 	raws rawschema.Raws,
 	runSeed uint64,
@@ -77,6 +79,7 @@ func BuildMacroView(
 	hasPlayer bool,
 	cubeTiles []consts.Coord[consts.Tile],
 	discovered map[consts.Coord[consts.Chunk]]bool,
+	snowAt func(row consts.Chunk) float64,
 ) MacroView {
 	cols := max(area.Cols, 1)
 	rows := max(area.Rows, 1)
@@ -85,7 +88,7 @@ func BuildMacroView(
 	// chunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
 	roads := buildRoadOverlay(raws, runSeed, area, cols, spawnRow, chunkW, chunkH)
 
-	colorOf := glyphColorMap(raws)
+	infoOf := glyphInfoMap(raws)
 	cat := zoneCatalogFrom(raws)
 
 	cells := make([][]MacroCell, rows)
@@ -94,13 +97,16 @@ func BuildMacroView(
 		for i := range cols {
 			c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
 			glyph := chunkPlace(raws, cat, runSeed, c, cols, spawnRow)
-			col, hasCol := colorOf[glyph]
+			info, hasCol := infoOf[glyph]
 			cells[cy][i] = MacroCell{
 				Glyph:      glyph,
-				Color:      col,
+				Color:      info.Color,
 				HasColor:   hasCol,
 				Discovered: discovered[c],
 				Road:       roads[c],
+			}
+			if info.Snowy {
+				cells[cy][i].Snow = snowAt(c.Y)
 			}
 		}
 	}
