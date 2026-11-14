@@ -6759,6 +6759,97 @@
     pack = "1d2"
     weight = 2
 
+[[itemGroups]]
+  id = "civilian_firearms"
+  name = "民間の銃と弓"
+
+  [[itemGroups.entries]]
+    id = "handgun"
+    pack = "1d1"
+    weight = 4
+
+  [[itemGroups.entries]]
+    id = "hunter_bow"
+    pack = "1d1"
+    weight = 3
+
+  [[itemGroups.entries]]
+    id = "iron_crossbow"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "flame_gun"
+    pack = "1d1"
+    weight = 1
+
+[[itemGroups]]
+  id = "civilian_ammo"
+  name = "拳銃の弾と矢"
+
+  [[itemGroups.entries]]
+    id = "9mm_fmj"
+    pack = "2d6"
+    weight = 4
+
+  [[itemGroups.entries]]
+    id = "9mm_hp"
+    pack = "1d6"
+    weight = 2
+
+  [[itemGroups.entries]]
+    id = "9mm_ap"
+    pack = "1d6"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "small_caliber_round_gray"
+    pack = "2d6"
+    weight = 2
+
+  [[itemGroups.entries]]
+    id = "wooden_arrow"
+    pack = "2d6"
+    weight = 3
+
+  [[itemGroups.entries]]
+    id = "iron_arrow"
+    pack = "1d6"
+    weight = 1
+
+[[itemGroups]]
+  id = "electronic_parts"
+  name = "電子部品"
+
+  [[itemGroups.entries]]
+    id = "electric_wire"
+    pack = "1d3"
+    weight = 4
+
+  [[itemGroups.entries]]
+    id = "cable_bundle"
+    pack = "1d2"
+    weight = 2
+
+  [[itemGroups.entries]]
+    id = "ferrite_core"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "energy_cell"
+    pack = "1d4"
+    weight = 2
+
+[[itemGroups]]
+  id = "escape_core"
+  name = "脱出の装置の鍵"
+
+  [[itemGroups.entries]]
+    id = "broken_escape_core"
+    pack = "1d1"
+    weight = 1
+
 [[itemTables]]
   id = "ruins_area"
   name = "廃墟"
@@ -7249,6 +7340,64 @@
 
   [[itemTables.entries]]
     id = "escape_device_parts"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "gunshop_rack"
+  name = "銃砲店の銃架"
+
+  [[itemTables.entries]]
+    id = "civilian_firearms"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "civilian_ammo"
+    maxDanger = 100
+    minDanger = 1
+    weight = 2
+
+[[itemTables]]
+  id = "ammo_crate"
+  name = "弾薬箱"
+
+  [[itemTables.entries]]
+    id = "civilian_ammo"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "comms_console"
+  name = "通信施設の無線機"
+
+  [[itemTables.entries]]
+    id = "escape_core"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "electronic_parts"
+    maxDanger = 100
+    minDanger = 1
+    weight = 2
+
+[[itemTables]]
+  id = "power_control"
+  name = "発電施設の制御盤"
+
+  [[itemTables.entries]]
+    id = "electronic_parts"
+    maxDanger = 100
+    minDanger = 1
+    weight = 3
+
+  [[itemTables.entries]]
+    id = "industrial_materials"
     maxDanger = 100
     minDanger = 1
     weight = 1
@@ -21075,6 +21224,106 @@
     lootCount = "1d2"
     lootTableId = "classified_case"
     maxWeight = "20 kg"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "[dummy] 銃を立てて並べる銃架。実アート未実装の仮素材"
+  hp = 40
+  id = "gun_rack"
+  name = "Gun Rack"
+  [props.disassembly]
+    toolCategory = "prying"
+
+    [[props.disassembly.yields]]
+      count = "1d2"
+      id = "scrap_iron"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "gun_rack"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d2"
+    lootTableId = "gunshop_rack"
+    maxWeight = "60 kg"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "[dummy] 弾薬を詰めた金属の箱。実アート未実装の仮素材"
+  hp = 30
+  id = "ammo_crate"
+  name = "Ammo Crate"
+  [props.disassembly]
+    toolCategory = "prying"
+
+    [[props.disassembly.yields]]
+      count = "1d2"
+      id = "scrap_iron"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "ammo_crate"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d2"
+    lootTableId = "ammo_crate"
+    maxWeight = "40 kg"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "[dummy] 机に据えた無線機。引き出しに部品が残っている。実アート未実装の仮素材"
+  hp = 30
+  id = "radio_console"
+  name = "Radio Console"
+  [props.disassembly]
+    toolCategory = "prying"
+
+    [[props.disassembly.yields]]
+      count = "1d2"
+      id = "electric_wire"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "radio_console"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d1"
+    lootTableId = "comms_console"
+    maxWeight = "20 kg"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "[dummy] 鉄骨を組んだ無線塔。実アート未実装の仮素材"
+  hp = 80
+  id = "radio_mast"
+  name = "Radio Mast"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "radio_mast"
+    spriteSheetName = "field"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "[dummy] 計器とスイッチの並ぶ制御盤。実アート未実装の仮素材"
+  hp = 40
+  id = "control_panel"
+  name = "Control Panel"
+  [props.disassembly]
+    toolCategory = "prying"
+
+    [[props.disassembly.yields]]
+      count = "1d2"
+      id = "electric_wire"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "control_panel"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d2"
+    lootTableId = "power_control"
+    maxWeight = "30 kg"
 
 [[recipes]]
   id = "ray_gun"

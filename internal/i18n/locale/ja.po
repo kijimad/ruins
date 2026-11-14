@@ -6517,3 +6517,15 @@ msgstr "革切れ"
 
 msgid "A scrap of leather cut from old leather goods. Useful as material."
 msgstr "古い革製品から切り取った革の切れ端。素材として使える"
+
+msgid "Gun Rack"
+msgstr "銃架"
+
+msgid "Ammo Crate"
+msgstr "弾薬箱"
+
+msgid "Radio Console"
+msgstr "無線機"
+
+msgid "Radio Mast"
+msgstr "無線塔"
