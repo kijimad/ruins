@@ -210,7 +210,7 @@ func TestDistrictFence_外周を巡り門の列の南北に門を開ける(t *te
 func TestStreetTerrain_植え込みは帯の両端で角は道(t *testing.T) {
 	t.Parallel()
 
-	render := func(verge bool) []string {
+	render := func(s streetTiles) []string {
 		out := make([]string, 0, 6)
 		for y := range consts.Tile(6) {
 			row := ""
@@ -218,7 +218,7 @@ func TestStreetTerrain_植え込みは帯の両端で角は道(t *testing.T) {
 				switch {
 				case x >= urbanStreetW && y >= urbanStreetW:
 					row += " "
-				case streetTerrain(x, y, verge) == streetVergeTile:
+				case streetTerrain(x, y, s) == "grass_green":
 					row += ","
 				default:
 					row += "."
@@ -235,7 +235,7 @@ func TestStreetTerrain_植え込みは帯の両端で角は道(t *testing.T) {
 		"....,,",
 		",..,  ",
 		",..,  ",
-	}, render(true))
+	}, render(streetTiles{street: consts.TileNameRoad, verge: "grass_green"}))
 	assert.Equal(t, []string{
 		"......",
 		"......",
@@ -243,5 +243,12 @@ func TestStreetTerrain_植え込みは帯の両端で角は道(t *testing.T) {
 		"......",
 		"....  ",
 		"....  ",
-	}, render(false))
+	}, render(streetTiles{street: consts.TileNameRoad}))
+}
+
+func TestStreetTilesOf_植え込みを省くと植え込みを置かない(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, streetTiles{street: "road"}, streetTilesOf(&rawschema.District{Street: "road"}))
+	assert.Equal(t, streetTiles{street: "road", verge: "grass_green"}, streetTilesOf(&rawschema.District{Street: "road", Verge: new(rawschema.EntityID("grass_green"))}))
 }

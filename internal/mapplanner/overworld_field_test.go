@@ -14,9 +14,28 @@ import (
 func planField(t *testing.T, w, h consts.Tile, seed uint64) *mapplanner.MetaPlan {
 	t.Helper()
 	world := testutil.InitTestWorld(t)
-	plan, err := mapplanner.Plan(world, w, h, seed, mapplanner.PlannerTypeOverworldField)
+	pt := mapplanner.PlannerTypeOverworldField
+	pt.Ground = consts.TileNameDirt
+	plan, err := mapplanner.Plan(world, w, h, seed, pt)
 	require.NoError(t, err)
 	return plan
+}
+
+func TestOverworldFieldPlanner_下地を省くとエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := mapplanner.Plan(world, 10, 10, 1, mapplanner.PlannerTypeOverworldField)
+	require.ErrorIs(t, err, mapplanner.ErrGroundNotSet)
+}
+
+func TestOverworldFieldPlanner_全面を下地で埋める(t *testing.T) {
+	t.Parallel()
+	plan := planField(t, 10, 10, 1)
+	ids := map[string]int{}
+	for _, tl := range plan.Tiles {
+		ids[tl.Id]++
+	}
+	assert.Equal(t, map[string]int{consts.TileNameDirt: 100}, ids)
 }
 
 // eastWestConnected は西端列(x=0)の通行可能タイルから4連結で東端列(x=w-1)に到達できるかを返す。

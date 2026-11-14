@@ -34,6 +34,8 @@ type MetaPlan struct {
 	// Danger はこのプランに適用する危険度。敵やアイテムの湧きフィルタに使う。1以上であること。
 	// 呼び出し側が世界の現在地から確定して渡す。
 	Danger consts.Danger
+	// Ground は全面を埋める下地のタイル。地上の計画だけが使う
+	Ground string
 	// 階層情報
 	Level gc.Level
 	// 部屋群。部屋は長方形の移動可能な空間のことをいう。
@@ -331,6 +333,8 @@ type PlannerType struct {
 	ItemTableName string
 	// 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。
 	Danger consts.Danger
+	// 全面を埋める下地のタイル。地上の計画だけが使い、空ならエラーにする
+	Ground string
 	// プランナー関数
 	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }
@@ -375,6 +379,7 @@ var (
 	// 通行可能がデフォルトで障壁は例外。チャンクを継いでも東西通行が保証される。
 	// UseFixedPortalPos=true はフロア降り/帰還ポータルを持たないため、
 	// 手続き的なポータル配置をスキップさせる意味で使う。
+	// 下地は区分ごとに決まるので持たない。使う側が Ground を補わないと ErrGroundNotSet になる。
 	PlannerTypeOverworldField = PlannerType{
 		Name:              "Overworld Field",
 		UseFixedPortalPos: true,
@@ -419,7 +424,7 @@ var (
 		},
 	}
 
-	// AllPlannerTypes はPlannerFuncを持つ全PlannerTypeの一覧。
+	// AllPlannerTypes はPlannerFuncを持つ全PlannerTypeの一覧。地上の計画は Ground を補って使う。
 	// ランダム選択用のPlannerTypeRandomは含まない
 	AllPlannerTypes = []PlannerType{
 		PlannerTypeSmallRoom,

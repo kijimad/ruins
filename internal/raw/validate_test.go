@@ -189,6 +189,31 @@ func TestValidateDisassemblies(t *testing.T) {
 	}
 }
 
+func TestValidateScatterZoneGrounds(t *testing.T) {
+	t.Parallel()
+
+	tiles := &[]rawschema.Tile{{Id: "dirt", Earth: new(true)}, {Id: "floor"}}
+	tests := []struct {
+		name    string
+		ground  rawschema.EntityID
+		wantErr error
+	}{
+		{name: "土の地面の下地は通る", ground: "dirt"},
+		{name: "土でない下地はエラー", ground: "floor", wantErr: errGroundNotEarth},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := validateScatterZoneGrounds(rawschema.Raws{Tiles: tiles, ScatterZones: &[]rawschema.ScatterZone{{Id: "wild", Ground: tt.ground}}})
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
 func TestValidateZoneBaseFacilities(t *testing.T) {
 	t.Parallel()
 
@@ -282,7 +307,7 @@ func TestValidateDistrictLayers(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			err := validateDistrictLayers(rawschema.District{Id: "d", Pattern: tt.pattern, Layers: tt.layers})
+			err := validateDistrictLayers(&rawschema.District{Id: "d", Pattern: tt.pattern, Layers: tt.layers})
 			if tt.wantErr == nil {
 				require.NoError(t, err)
 				return

@@ -1,4 +1,4 @@
-label: FillAll
+label: FillGround
 tiles:
   ',' = "dirt"
 |,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,|

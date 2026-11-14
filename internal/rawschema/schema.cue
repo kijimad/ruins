@@ -326,8 +326,14 @@ import "strings"
 	layers!: [...#DistrictLayer] & [_, ...]
 	// 外周に塀を巡らせ、北と南に門を開ける。道は門を通って区域を抜ける
 	fence?: bool
-	// 街路の両端を植え込みにして、建物と道の間を空ける
-	verge?: bool
+	// 街路のタイル
+	street!:    #EntityID
+	street_ref: _tileIDs[street] @rawgen(-)
+	// 街路の両端に置く植え込みのタイル。省くと植え込みを置かず、建物と道の間を空けない
+	verge?: #EntityID
+	if verge != _|_ {
+		verge_ref: _tileIDs[verge] @rawgen(-)
+	}
 
 	// 区域に1つだけ建てる目玉の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
 	landmark?: #EntityID
@@ -753,6 +759,16 @@ import "strings"
 	hutH!:   int32
 	props!: [...#PropSpot]
 	props_ref: [for x in props {_propIDs[x.name]}] @rawgen(-)
+
+	// 小屋の床と壁のタイル。drawer=hut のときだけ使い、そのとき必須
+	hutFloor?: #EntityID
+	hutWall?:  #EntityID
+	if drawer == "hut" {
+		hutFloor!:    _                  @rawgen(-)
+		hutWall!:     _                  @rawgen(-)
+		hutFloor_ref: _tileIDs[hutFloor] @rawgen(-)
+		hutWall_ref:  _tileIDs[hutWall]  @rawgen(-)
+	}
 }
 
 // 光源が有効かどうか
@@ -1115,7 +1131,10 @@ import "strings"
 
 // 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
 #ScatterZone: {
-	id!:           #EntityID
+	id!: #EntityID
+	// チャンクの全面を埋める下地のタイル
+	ground!:       #EntityID
+	ground_ref:    _tileIDs[ground] @rawgen(-)
 	grassDensity!: number
 	soilDensity!:  number
 	propDensity!:  number
@@ -1297,6 +1316,9 @@ import "strings"
 
 	// 囲われの度合い。省くと屋外
 	shelter?: #Shelter
+
+	// 草や木を立てられ、道で上書きしてよい土の地面か
+	earth?: bool
 }
 
 // 計画のタイルを実体化する仕様

@@ -558,8 +558,11 @@ type District struct {
 	// Spacing 当選の間隔。チャンク数
 	Spacing int `json:"spacing"`
 
-	// Verge 街路の両端を植え込みにして、建物と道の間を空ける
-	Verge *bool `json:"verge,omitempty"`
+	// Street 街路のタイル
+	Street EntityID `json:"street"`
+
+	// Verge 街路の両端に置く植え込みのタイル。省くと植え込みを置かず、建物と道の間を空けない
+	Verge *EntityID `json:"verge,omitempty"`
 }
 
 // DistrictLayer 地区の層。候補の地区から区域の seed で1つ選ぶ
@@ -1462,9 +1465,14 @@ type ItemValue = int
 type Landmark struct {
 	Drawer DrawerKey `json:"drawer"`
 
+	// HutFloor 小屋の床と壁のタイル。drawer=hut のときだけ使い、そのとき必須
+	HutFloor *EntityID `json:"hutFloor,omitempty"`
+
 	HutH int32 `json:"hutH"`
 
 	HutW int32 `json:"hutW"`
+
+	HutWall *EntityID `json:"hutWall,omitempty"`
 
 	Id EntityID `json:"id"`
 
@@ -2117,6 +2125,9 @@ type ScatterZone struct {
 
 	GrassDensity float64 `json:"grassDensity"`
 
+	// Ground チャンクの全面を埋める下地のタイル
+	Ground EntityID `json:"ground"`
+
 	Id EntityID `json:"id"`
 
 	LootGroup EntityID `json:"lootGroup"`
@@ -2518,6 +2529,9 @@ type Tile struct {
 	BlockView BlocksView `json:"blockView"`
 
 	Description EntityDescription `json:"description"`
+
+	// Earth 草や木を立てられ、道で上書きしてよい土の地面か
+	Earth *bool `json:"earth,omitempty"`
 
 	// Foliage 植生。省くと植生なし
 	Foliage *Foliage `json:"foliage,omitempty"`

@@ -89,8 +89,8 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 	if !query.IsOnOverworld(world) {
 		districts = nil
 	}
-	for _, d := range districts {
-		id := d.Id
+	for i := range districts {
+		id := districts[i].Id
 		choices = append(choices, Choice{Label: "Jump to next district " + id, Run: popAfter(func(world w.World) error {
 			return lifecycle.RequestStateChange(world, gc.DebugJumpToDistrictEvent(id))
 		})})

@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"errors"
 	"fmt"
 	"math/rand/v2"
 
@@ -32,6 +33,8 @@ type wildernessLandmarkFeature struct{}
 // landmarkDrawer はランドマーク1種を描く関数。
 type landmarkDrawer func(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error
 
+var errHutTilesMissing = errors.New("hut landmark has no floor or wall tile")
+
 // drawers は drawer キーから描画関数を引く。
 var drawers = map[rawschema.DrawerKey]landmarkDrawer{
 	rawschema.Hut:  drawHutLandmark,
@@ -44,7 +47,10 @@ func drawHutLandmark(world w.World, g chunkGeom, rng *rand.Rand, origin consts.C
 	for i, p := range lm.Props {
 		names[i] = p.Name
 	}
-	return drawHut(world, g, rng, origin, consts.Tile(lm.HutW), consts.Tile(lm.HutH), names)
+	if lm.HutFloor == nil || lm.HutWall == nil {
+		return fmt.Errorf("landmark %q: %w", lm.Id, errHutTilesMissing)
+	}
+	return drawHut(world, g, rng, origin, consts.Tile(lm.HutW), consts.Tile(lm.HutH), *lm.HutFloor, *lm.HutWall, names)
 }
 
 // drawOpenLandmark は prop を相対座標で露天に置く。
@@ -88,16 +94,16 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 
 // drawHut は外周壁・内側床・南辺出入口の小屋を置き、内装 prop を屋内へ順に配置する。
 // 市街地の街区と同じ構法だが、単チャンク完結なので断片クリップは不要。
-func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], hw, hh consts.Tile, props []string) error {
+func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], hw, hh consts.Tile, floor, wall string, props []string) error {
 	tiles := g.tiles.get()
 	ox, oy := origin.X, origin.Y
 	door := ox + 1 + consts.Tile(rng.IntN(int(hw-2)))
 	for ly := oy; ly < oy+hh; ly++ {
 		for lx := ox; lx < ox+hw; lx++ {
-			name := consts.TileNameFloor
+			name := floor
 			perimeter := lx == ox || lx == ox+hw-1 || ly == oy || ly == oy+hh-1
 			if perimeter && (ly != oy+hh-1 || lx != door) {
-				name = consts.TileNameDWall
+				name = wall
 			}
 			if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil {
 				return fmt.Errorf("failed to place landmark hut (x=%d, y=%d): %w", lx, ly, err)

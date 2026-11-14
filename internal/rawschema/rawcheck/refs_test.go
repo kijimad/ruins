@@ -46,11 +46,15 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		}},
 		Districts: &[]rawschema.District{{
 			Id: "town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{{Zones: []rawschema.Zone{rawschema.Residential}}, {Zones: []rawschema.Zone{rawschema.Downtown}}}, Landmark: new(rawschema.EntityID("house")),
+			Street: "floor", Verge: new(rawschema.EntityID("floor")),
 			Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}},
 		}},
-		Landmarks: &[]rawschema.Landmark{{Id: "shrine", Weight: 1, Drawer: rawschema.Open, Props: []rawschema.PropSpot{{Name: "bed"}}}},
+		Landmarks: &[]rawschema.Landmark{
+			{Id: "shrine", Weight: 1, Drawer: rawschema.Open, Props: []rawschema.PropSpot{{Name: "bed"}}},
+			{Id: "hut", Weight: 1, Drawer: rawschema.Hut, Props: []rawschema.PropSpot{{Name: "bed"}}, HutFloor: new(rawschema.EntityID("floor")), HutWall: new(rawschema.EntityID("wall"))},
+		},
 		ScatterZones: &[]rawschema.ScatterZone{{
-			Id: "meadow", LootGroup: "junk",
+			Id: "meadow", Ground: "floor", LootGroup: "junk",
 			Entries: []rawschema.ScatterEntry{
 				{Ref: "", Weight: 1},
 				{Ref: "bed", Weight: 1, Satellites: &[]rawschema.PropSpot{{Name: "bed"}}},
@@ -124,8 +128,13 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"ドロップテーブルの素材", func(r *rawschema.Raws) { (*r.DropTables)[0].Entries[0].Id = "none" }, "dropTables.0.entries.0.id_ref"},
 		{"施設の敵テーブル", func(r *rawschema.Raws) { (*r.Facilities)[0].EnemyTable = "none" }, "facilities.0.enemyTable_ref"},
 		{"ランドマークの prop", func(r *rawschema.Raws) { (*r.Landmarks)[0].Props[0].Name = "none" }, "landmarks.0.props_ref.0"},
+		{"散布ゾーンの下地のタイル", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Ground = "none" }, "scatterZones.0.ground_ref"},
 		{"散布ゾーンの戦利品グループ", func(r *rawschema.Raws) { (*r.ScatterZones)[0].LootGroup = "none" }, "scatterZones.0.lootGroup_ref"},
 		{"区域の目玉の施設", func(r *rawschema.Raws) { (*r.Districts)[0].Landmark = new(rawschema.EntityID("none")) }, "districts.0.landmark_ref"},
+		{"区域の街路のタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Street = "none" }, "districts.0.street_ref"},
+		{"区域の植え込みのタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Verge = new(rawschema.EntityID("none")) }, "districts.0.verge_ref"},
+		{"小屋の床のタイル", func(r *rawschema.Raws) { (*r.Landmarks)[1].HutFloor = new(rawschema.EntityID("none")) }, "landmarks.1.hutFloor_ref"},
+		{"小屋の壁のタイル", func(r *rawschema.Raws) { (*r.Landmarks)[1].HutWall = new(rawschema.EntityID("none")) }, "landmarks.1.hutWall_ref"},
 		{"散布の prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Entries[1].Ref = "none" }, "scatterZones.0.entries.1.ref_ref"},
 		{"散布の衛星の prop", func(r *rawschema.Raws) { (*(*r.ScatterZones)[0].Entries[1].Satellites)[0].Name = "none" }, "scatterZones.0.entries.1.satellites_ref.0"},
 		{"草の prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Grass[0].Ref = "none" }, "scatterZones.0.grass_ref.0"},
