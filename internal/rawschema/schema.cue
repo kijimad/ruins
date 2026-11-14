@@ -752,25 +752,35 @@ import "strings"
 // 売買価格
 #ItemValue: int & >=0 & <=99999
 
-// 原野の点在ランドマーク1種。hutW/hutH は drawer=hut のときだけ使う
+// 原野の点在ランドマーク1種
 #Landmark: {
 	id!:     #EntityID
 	weight!: int32 & >=1
 	drawer!: #DrawerKey
-	hutW!:   int32
-	hutH!:   int32
 	props!: [...#PropSpot]
 	props_ref: [for x in props {_propIDs[x.name]}] @rawgen(-)
 
-	// 小屋の床と壁のタイル。drawer=hut のときだけ使い、そのとき必須
-	hutFloor?: #EntityID
-	hutWall?:  #EntityID
+	// 小屋の形。drawer=hut のときだけ書き、そのとき必須
+	hut?: #LandmarkHut
 	if drawer == "hut" {
-		hutFloor!:    _                  @rawgen(-)
-		hutWall!:     _                  @rawgen(-)
-		hutFloor_ref: _tileIDs[hutFloor] @rawgen(-)
-		hutWall_ref:  _tileIDs[hutWall]  @rawgen(-)
+		hut!: _ @rawgen(-)
 	}
+	if drawer != "hut" {
+		// _|_ で禁じると違反の位置が残らないので、オブジェクトと両立しない null で禁じる
+		hut?: null @rawgen(-)
+	}
+}
+
+// 外周を壁で囲い、南辺に出入口を開けた小屋
+#LandmarkHut: {
+	// 外周の壁を含む幅と高さ。タイル数
+	w!: int32 & >=3
+	h!: int32 & >=3
+	// 床と壁のタイル
+	floor!:    #EntityID
+	floor_ref: _tileIDs[floor] @rawgen(-)
+	wall!:     #EntityID
+	wall_ref:  _tileIDs[wall] @rawgen(-)
 }
 
 // 光源が有効かどうか

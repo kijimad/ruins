@@ -1464,24 +1464,31 @@ type ItemTableEntry struct {
 // ItemValue 売買価格
 type ItemValue = int
 
-// Landmark 原野の点在ランドマーク1種。hutW/hutH は drawer=hut のときだけ使う
+// Landmark 原野の点在ランドマーク1種
 type Landmark struct {
 	Drawer DrawerKey `json:"drawer"`
 
-	// HutFloor 小屋の床と壁のタイル。drawer=hut のときだけ使い、そのとき必須
-	HutFloor *EntityID `json:"hutFloor,omitempty"`
-
-	HutH int32 `json:"hutH"`
-
-	HutW int32 `json:"hutW"`
-
-	HutWall *EntityID `json:"hutWall,omitempty"`
+	// Hut 小屋の形。drawer=hut のときだけ書き、そのとき必須
+	Hut *LandmarkHut `json:"hut,omitempty"`
 
 	Id EntityID `json:"id"`
 
 	Props []PropSpot `json:"props"`
 
 	Weight int32 `json:"weight"`
+}
+
+// LandmarkHut 外周を壁で囲い、南辺に出入口を開けた小屋
+type LandmarkHut struct {
+	// Floor 床と壁のタイル
+	Floor EntityID `json:"floor"`
+
+	H int32 `json:"h"`
+
+	// W 外周の壁を含む幅と高さ。タイル数
+	W int32 `json:"w"`
+
+	Wall EntityID `json:"wall"`
 }
 
 // LightEnabled 光源が有効かどうか

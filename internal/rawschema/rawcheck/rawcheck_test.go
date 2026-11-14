@@ -35,6 +35,28 @@ func TestValidate_ダイス表記の違反を位置で返す(t *testing.T) {
 	assert.Equal(t, []string{"enemyTables.0.entries.0.pack"}, ce.Paths())
 }
 
+func TestValidate_小屋の形は小屋の目印だけが持つ(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		mutate func(*rawschema.Raws)
+		want   []string
+	}{
+		{"小屋の目印に形が無い", func(r *rawschema.Raws) { (*r.Landmarks)[1].Hut = nil }, []string{"landmarks.1.hut"}},
+		{"露天の目印に形がある", func(r *rawschema.Raws) {
+			(*r.Landmarks)[0].Hut = &rawschema.LandmarkHut{W: 4, H: 4, Floor: "floor", Wall: "wall"}
+		}, []string{"landmarks.0.hut"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var ce *rawcheck.Error
+			require.ErrorAs(t, rawcheck.Validate(makeRefRaws(tt.mutate)), &ce)
+			assert.Equal(t, tt.want, ce.Paths())
+		})
+	}
+}
+
 func TestError_Paths_位置を並べて重複を除く(t *testing.T) {
 	t.Parallel()
 

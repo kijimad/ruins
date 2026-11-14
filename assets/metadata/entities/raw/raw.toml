@@ -17476,12 +17476,13 @@
 
 [[landmarks]]
   drawer = "hut"
-  hutFloor = "floor"
-  hutH = 5
-  hutW = 6
-  hutWall = "dwall"
   id = "abandoned_hut"
   weight = 30
+  [landmarks.hut]
+    floor = "floor"
+    h = 5
+    w = 6
+    wall = "dwall"
 
   [[landmarks.props]]
     dx = 0
@@ -17495,12 +17496,13 @@
 
 [[landmarks]]
   drawer = "hut"
-  hutFloor = "floor"
-  hutH = 5
-  hutW = 7
-  hutWall = "dwall"
   id = "farmstead"
   weight = 25
+  [landmarks.hut]
+    floor = "floor"
+    h = 5
+    w = 7
+    wall = "dwall"
 
   [[landmarks.props]]
     dx = 0
@@ -17514,8 +17516,6 @@
 
 [[landmarks]]
   drawer = "open"
-  hutH = 0
-  hutW = 0
   id = "shrine"
   weight = 20
 
@@ -17536,8 +17536,6 @@
 
 [[landmarks]]
   drawer = "open"
-  hutH = 0
-  hutW = 0
   id = "campsite"
   weight = 25
 
