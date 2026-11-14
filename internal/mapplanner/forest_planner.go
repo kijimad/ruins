@@ -48,12 +48,10 @@ type ForestTerrain struct{}
 
 // PlanMeta は森の基本地形をタイルに描画する
 func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {
-	// まず全体を床で埋める（森の地面）
 	for i := range planData.Tiles {
 		planData.Tiles[i] = planData.GetTile(consts.TileNameRoad)
 	}
 
-	// 空き地を床として確保
 	for _, clearing := range planData.Rooms {
 		f.createCircularClearing(planData, clearing)
 	}
@@ -199,7 +197,7 @@ func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, hei
 
 	// 上から下まで確実に通路を作る
 	for y := range height {
-		// 通路とその左右1タイルを床にする（幅3の通路）
+		// 通路とその左右1タイルを道にし、幅3の通路にする
 		for dx := -1; dx <= 1; dx++ {
 			x := pathX + dx
 			if x >= 0 && x < width {

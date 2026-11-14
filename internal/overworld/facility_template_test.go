@@ -264,3 +264,74 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 		"#....#",
 	}, render(east), "通れる外に面する辺の壁だけが残る")
 }
+
+// TestFacilityTemplates_囲いの外の床は屋外で内は屋内 は施設の絵で、区画の縁から壁と扉を越えずにたどれる床が屋外のタイルを、
+// たどれない床が屋内のタイルを指すことを確かめる。屋内外はタイルの種類で決まるので、絵が置き場所に合うタイルを選ぶ必要がある
+func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+
+	rows := map[string]rawschema.Tile{}
+	for _, tl := range raw.PtrSlice(raws.Tiles) {
+		rows[tl.Id] = tl
+	}
+
+	for _, fac := range loader.Facilities() {
+		for _, name := range loader.FacilityChunkNames(fac) {
+			for seed := range uint64(20) {
+				_, _, cells, err := loader.LoadTemplateByName(name, seed)
+				require.NoError(t, err)
+				outside := reachableFromEdge(cells, func(x, y int) bool {
+					return rows[cells[y][x].Terrain].BlockPass || cells[y][x].Prop == "door"
+				})
+				var bad []string
+				for y, row := range cells {
+					for x, c := range row {
+						if rows[c.Terrain].BlockPass || c.Prop == "door" {
+							continue
+						}
+						want := rawschema.Indoor
+						if outside[[2]int{x, y}] {
+							want = rawschema.Outdoor
+						}
+						if got := raw.TileShelter(rows[c.Terrain]); got != want {
+							bad = append(bad, fmt.Sprintf("%d,%d %s is %s, want %s", x, y, c.Terrain, got, want))
+						}
+					}
+				}
+				assert.Empty(t, bad, "%s seed=%d", name, seed)
+			}
+		}
+	}
+}
+
+// reachableFromEdge は縁のマスから、blocks のマスを越えずに4方向でたどれるマスを返す
+func reachableFromEdge(cells [][]maptemplate.MapCell, blocks func(x, y int) bool) map[[2]int]bool {
+	h, w := len(cells), len(cells[0])
+	seen := map[[2]int]bool{}
+	var queue [][2]int
+	for y := range h {
+		for x := range w {
+			if (x == 0 || y == 0 || x == w-1 || y == h-1) && !blocks(x, y) {
+				seen[[2]int{x, y}] = true
+				queue = append(queue, [2]int{x, y})
+			}
+		}
+	}
+	for len(queue) > 0 {
+		c := queue[0]
+		queue = queue[1:]
+		for _, d := range [][2]int{{1, 0}, {-1, 0}, {0, 1}, {0, -1}} {
+			n := [2]int{c[0] + d[0], c[1] + d[1]}
+			if n[0] < 0 || n[1] < 0 || n[0] >= w || n[1] >= h || seen[n] || blocks(n[0], n[1]) {
+				continue
+			}
+			seen[n] = true
+			queue = append(queue, n)
+		}
+	}
+	return seen
+}

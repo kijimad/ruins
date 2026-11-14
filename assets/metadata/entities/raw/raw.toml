@@ -22289,7 +22289,7 @@
 [[tiles]]
   blockPass = false
   blockView = false
-  description = "青緑の滑らかな床や水面のオートタイル"
+  description = "青緑の滑らかな床のオートタイル"
   id = "smooth_teal"
   name = "Smooth Floor"
   shelter = "indoor"
@@ -22399,7 +22399,7 @@
 [[tiles]]
   blockPass = false
   blockView = false
-  description = "地面に重ねて描く雪の層の絵。snowable の地面に、その日の平均気温に応じた濃さで重ねる"
+  description = "地面に重ねて描く雪の層の絵。屋根が無く通れる地面に、その日の平均気温に応じた濃さで重ねる"
   id = "snow"
   name = "Snow"
   [tiles.spriteRender]
