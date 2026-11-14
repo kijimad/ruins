@@ -115,6 +115,20 @@ func TestLotsOf_施設の深さは起点の行から測った区域の北の端�
 	assert.Equal(t, []string{"comms"}, facilities(1))
 }
 
+func TestRollFacilityInZone_実データの通信施設は危険度6から都心に混ざる(t *testing.T) {
+	t.Parallel()
+
+	cat := zoneCatalogFrom(testutil.InitTestWorld(t).Resources.RawMaster)
+	seen := func(danger consts.Danger) []string {
+		got := map[string]bool{}
+		for s := range uint64(300) {
+			got[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 3, danger, "")] = true
+		}
+		return slices.Sorted(maps.Keys(got))
+	}
+	assert.Equal(t, slices.Sorted(slices.Values(append(seen(5), "comms"))), seen(6))
+}
+
 // TestRollFacilityInZone_決定的 は、同じ rng 状態から同じ施設が出て、必ず有効な種別を返すことを固定する。
 func TestRollFacilityInZone_決定的(t *testing.T) {
 	t.Parallel()

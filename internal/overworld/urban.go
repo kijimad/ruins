@@ -52,7 +52,7 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 	cat := make(zoneCatalog)
 	for _, f := range raw.PtrSlice(raws.Facilities) {
 		for _, z := range f.Zones {
-			minDanger := consts.Danger(1)
+			minDanger := consts.MinDanger
 			if z.MinDanger != nil {
 				minDanger = consts.Danger(*z.MinDanger)
 			}

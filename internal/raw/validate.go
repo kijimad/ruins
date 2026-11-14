@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
@@ -134,7 +135,7 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 					return false
 				}
 				return slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool {
-					return z.Zone == zone && int(z.MinSpan) <= baseSpan && (z.MinDanger == nil || *z.MinDanger <= 1)
+					return z.Zone == zone && int(z.MinSpan) <= baseSpan && (z.MinDanger == nil || consts.Danger(*z.MinDanger) <= consts.MinDanger)
 				})
 			})
 			if !hasBase {

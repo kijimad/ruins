@@ -29,7 +29,7 @@ type buildingLot struct {
 // 施設の大きさの候補を重みで引く。区画は同じ地区で未割り当てのチャンクだけに収まるまで小さくする。
 // 施設の深さの足切りには、深さの起点の行 spawnRow から測った区域の北の端の危険度を使う
 func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow consts.Chunk) []buildingLot {
-	danger := query.DangerLevelForDepth(spawnRow - r.anchor.Y)
+	danger := query.DangerLevelForDepth(consts.NorthDepth(spawnRow, r.anchor.Y))
 	facilities := map[string]rawschema.Facility{}
 	for _, f := range raw.PtrSlice(raws.Facilities) {
 		facilities[f.Id] = f
