@@ -93,3 +93,13 @@ func TestDrawHut_小屋の床は屋内になる(t *testing.T) {
 		consts.TileNameDWall: {rawschema.Outdoor: 11},
 	}, got)
 }
+
+func TestDrawHutLandmark_床か壁のタイルが無いとエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	g := chunkGeom{chunkW: 8, chunkH: 8, tiles: &tileIndex{world: world, loX: 0, hiX: 8}}
+	lm := rawschema.Landmark{Id: "hut", Drawer: rawschema.Hut, HutW: 4, HutH: 4, HutWall: new(rawschema.EntityID(consts.TileNameDWall))}
+	err := drawHutLandmark(world, g, rand.New(rand.NewPCG(1, 0)), consts.Coord[consts.Tile]{X: 1, Y: 1}, lm)
+	require.ErrorIs(t, err, errHutTilesMissing)
+}
