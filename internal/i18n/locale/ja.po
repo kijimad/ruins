@@ -6490,3 +6490,15 @@ msgstr "機密ケース"
 
 msgid "You escaped the planet."
 msgstr "惑星を脱出した。"
+
+msgid "Rag"
+msgstr "布切れ"
+
+msgid "A scrap of cloth torn from old clothes. Useful as material."
+msgstr "古着から裂いた布の切れ端。素材として使える"
+
+msgid "Leather Scrap"
+msgstr "革切れ"
+
+msgid "A scrap of leather cut from old leather goods. Useful as material."
+msgstr "古い革製品から切り取った革の切れ端。素材として使える"

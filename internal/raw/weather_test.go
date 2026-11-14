@@ -209,8 +209,8 @@ func TestNewMaterialDefs_実データ(t *testing.T) {
 	assert.Equal(t, gc.MaterialDefs{
 		rawschema.WOOD:    {Name: "Wood", HeatPerKg: 200, Disassembly: disassembly("branch", 300*consts.MilligramPerGram)},
 		rawschema.PAPER:   {Name: "Paper", HeatPerKg: 300},
-		rawschema.CLOTH:   {Name: "Cloth", HeatPerKg: 160},
-		rawschema.LEATHER: {Name: "Leather", HeatPerKg: 120},
+		rawschema.CLOTH:   {Name: "Cloth", HeatPerKg: 160, Disassembly: disassembly("rag", 100*consts.MilligramPerGram)},
+		rawschema.LEATHER: {Name: "Leather", HeatPerKg: 120, Disassembly: disassembly("leather_scrap", 200*consts.MilligramPerGram)},
 		rawschema.PLANT:   {Name: "Plant fiber", HeatPerKg: 120},
 		rawschema.FOOD:    {Name: "Food", HeatPerKg: 60},
 		rawschema.BONE:    {Name: "Bone", HeatPerKg: 40, Disassembly: disassembly("ancient_bone", 200*consts.MilligramPerGram)},

@@ -16501,6 +16501,26 @@
     usableScene = "ANY"
   [items.escapeDevice]
 
+[[items]]
+  description = "A scrap of cloth torn from old clothes. Useful as material."
+  id = "rag"
+  material = "CLOTH"
+  name = "Rag"
+  spriteKey = "towel_hunger"
+  spriteSheetName = "field"
+  value = 2
+  weight = "100 g"
+
+[[items]]
+  description = "A scrap of leather cut from old leather goods. Useful as material."
+  id = "leather_scrap"
+  material = "LEATHER"
+  name = "Leather Scrap"
+  spriteKey = "leather_belt"
+  spriteSheetName = "field"
+  value = 8
+  weight = "200 g"
+
 [[landmarks]]
   drawer = "hut"
   hutH = 5
@@ -16763,11 +16783,17 @@
   heatPerKg = 160
   id = "CLOTH"
   name = "Cloth"
+  [materials.disassembly]
+    item = "rag"
+    perWeight = "100 g"
 
 [[materials]]
   heatPerKg = 120
   id = "LEATHER"
   name = "Leather"
+  [materials.disassembly]
+    item = "leather_scrap"
+    perWeight = "200 g"
 
 [[materials]]
   heatPerKg = 120
@@ -20915,8 +20941,8 @@
   name = "革のブーツ"
 
   [[recipes.inputs]]
-    amount = 2
-    id = "iron"
+    amount = 5
+    id = "leather_scrap"
 
 [[recipes]]
   id = "escape_core"
@@ -20937,6 +20963,14 @@
   [[recipes.inputs]]
     amount = 4
     id = "electric_wire"
+
+[[recipes]]
+  id = "bandage"
+  name = "Bandage"
+
+  [[recipes.inputs]]
+    amount = 2
+    id = "rag"
 
 [[scatterZones]]
   grassDensity = 0.09

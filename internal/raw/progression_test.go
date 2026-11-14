@@ -7,6 +7,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // craftableFrom は have の素材から、レシピを繰り返し作って得られる物の id を作った順に返す
@@ -119,4 +120,27 @@ func TestItemTables_研究所の機密ケースの表から脱出の装置を直
 		have[id] = true
 	}
 	assert.Equal(t, []string{"escape_core"}, craftableFrom(raws, have))
+}
+
+func TestRecipes_布と革の製品を分解した素材から包帯と革のブーツを作れる(t *testing.T) {
+	t.Parallel()
+	raws := loadTestRaws(t)
+	defs, err := NewMaterialDefs(raws)
+	require.NoError(t, err)
+
+	type yield struct {
+		id    string
+		count int
+	}
+	got := map[string]yield{}
+	for _, item := range []string{"cloth_shirt", "leather_gloves"} {
+		spec, err := NewItemSpec(raws, item)
+		require.NoError(t, err)
+		id, count, ok := defs.DisassemblyOf(item, spec.Material.Kind, spec.Weight.Milligram)
+		require.True(t, ok)
+		got[item] = yield{id, count}
+	}
+	assert.Equal(t, map[string]yield{"cloth_shirt": {"rag", 3}, "leather_gloves": {"leather_scrap", 2}}, got)
+
+	assert.Equal(t, []string{"leather_boots", "bandage"}, craftableFrom(raws, map[string]bool{"rag": true, "leather_scrap": true}))
 }
