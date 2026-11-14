@@ -1086,11 +1086,24 @@
   pages = ["Want to make a deal?\n\nI've got good stuff."]
 
 [[districts]]
+  fence = true
   id = "lab_campus"
   landmark = "lab_main"
-  layout = "campus"
+  pattern = "rows"
   separation = 4
   spacing = 30
+  verge = true
+
+  [[districts.layers]]
+    rows = 1
+    zones = ["campus_gate"]
+
+  [[districts.layers]]
+    zones = ["campus_inner"]
+
+  [[districts.layers]]
+    rows = 1
+    zones = ["campus_quarantine"]
 
   [[districts.sizes]]
     h = 6
@@ -1104,9 +1117,15 @@
 
 [[districts]]
   id = "town"
-  layout = "town"
+  pattern = "rings"
   separation = 2
   spacing = 7
+
+  [[districts.layers]]
+    zones = ["residential", "industrial"]
+
+  [[districts.layers]]
+    zones = ["downtown"]
 
   [[districts.sizes]]
     h = 2

@@ -14,14 +14,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestZoneOf_大きい街ほど中心の都心が広い(t *testing.T) {
+func TestInCore_大きい区域ほど中心が広い(t *testing.T) {
 	t.Parallel()
 
 	downtowns := func(w, h consts.Chunk) []consts.Coord[consts.Chunk] {
 		var out []consts.Coord[consts.Chunk]
 		for ly := range h {
 			for lx := range w {
-				if zoneOf(lx, ly, w, h, 0) == rawschema.Downtown {
+				if inCore(lx, ly, w, h) {
 					out = append(out, consts.Coord[consts.Chunk]{X: lx, Y: ly})
 				}
 			}
@@ -39,13 +39,16 @@ func TestZoneOf_大きい街ほど中心の都心が広い(t *testing.T) {
 	}, downtowns(5, 5))
 }
 
-// TestZoneOf_都心以外はビットで産業区と住宅地に分かれる は、都心でないマスが市街地の性格ビットで
-// 産業区と住宅地に排他的に振り分けられることを固定する。
-func TestZoneOf_都心以外はビットで産業区と住宅地に分かれる(t *testing.T) {
+func TestDistrictRegion_zoneAt_層の候補を区域のseedで1つ選ぶ(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, rawschema.Industrial, zoneOf(0, 0, 3, 3, industrialUrbanBit), "ビット立ちは産業区")
-	assert.Equal(t, rawschema.Residential, zoneOf(0, 0, 3, 3, 0), "ビット無しは住宅地")
+	town := &rawschema.District{Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers}
+	zones := func(seed uint64) []rawschema.Zone {
+		r := districtRegion{kind: town, w: 3, h: 3, seed: seed}
+		return []rawschema.Zone{r.zoneAt(consts.Coord[consts.Chunk]{X: 0, Y: 0}), r.zoneAt(consts.Coord[consts.Chunk]{X: 1, Y: 1})}
+	}
+	assert.Equal(t, []rawschema.Zone{rawschema.Residential, rawschema.Downtown}, zones(0))
+	assert.Equal(t, []rawschema.Zone{rawschema.Industrial, rawschema.Downtown}, zones(1<<zoneChoiceShift))
 }
 
 // TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出る は、規模 gate が効いて小さな市街地に
@@ -134,28 +137,39 @@ func TestUrbanZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 	assert.Greater(t, observed, expected+0.05, "ゾーニングで隣接同種率が独立期待を有意に上回る")
 }
 
-func TestCampusZoneOf_南の門から北の奥へ地区が並ぶ(t *testing.T) {
+func TestRowsLayer_行の数を書いた層が南と北の端から並び残りを1つの層が占める(t *testing.T) {
 	t.Parallel()
 
-	got := make([]rawschema.Zone, 6)
-	for ly := range consts.Chunk(6) {
-		got[ly] = campusZoneOf(ly, 6)
+	layers := func(rows ...int) []rawschema.DistrictLayer {
+		out := make([]rawschema.DistrictLayer, len(rows))
+		for i, n := range rows {
+			if n > 0 {
+				out[i].Rows = new(n)
+			}
+		}
+		return out
 	}
-	assert.Equal(t, []rawschema.Zone{
-		rawschema.CampusQuarantine,
-		rawschema.CampusInner, rawschema.CampusInner, rawschema.CampusInner, rawschema.CampusInner,
-		rawschema.CampusGate,
-	}, got)
+	got := func(ls []rawschema.DistrictLayer, h consts.Chunk) []int {
+		out := make([]int, h)
+		for ly := range h {
+			out[ly] = rowsLayer(ls, ly, h)
+		}
+		return out
+	}
+	assert.Equal(t, []int{2, 1, 1, 1, 1, 0}, got(layers(1, 0, 1), 6), "研究所の敷地。北の行から順に並べる")
+	assert.Equal(t, []int{3, 3, 2, 2, 1, 0}, got(layers(1, 1, 0, 2), 6))
+	assert.Equal(t, []int{1, 1, 0}, got(layers(0, 2), 3), "残りの層が南の端に来る")
 }
 
-func TestDistrictRegion_zoneAt_区域の作りが割り振る地区はrawの地区の一覧に収まる(t *testing.T) {
+func TestDistrictRegion_zoneAt_区域が割り振る地区はrawの地区の一覧に収まる(t *testing.T) {
 	t.Parallel()
 
-	for _, layout := range rawschema.DistrictLayoutValues() {
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	for _, d := range districtsFrom(raws) {
 		got := map[rawschema.Zone]bool{}
-		for _, size := range [][2]consts.Chunk{{2, 2}, {3, 3}, {4, 3}, {5, 5}, {7, 8}} {
+		for _, size := range d.row.Sizes {
 			for seed := range uint64(4) {
-				r := districtRegion{layout: layout, w: size[0], h: size[1], seed: seed << 32}
+				r := districtRegion{kind: d.row, w: consts.Chunk(size.W), h: consts.Chunk(size.H), seed: seed << zoneChoiceShift}
 				for ly := range r.h {
 					for lx := range r.w {
 						got[r.zoneAt(consts.Coord[consts.Chunk]{X: lx, Y: ly})] = true
@@ -163,21 +177,21 @@ func TestDistrictRegion_zoneAt_区域の作りが割り振る地区はrawの地�
 				}
 			}
 		}
-		assert.ElementsMatch(t, raw.DistrictZones(layout), slices.Collect(maps.Keys(got)), layout)
+		assert.ElementsMatch(t, raw.DistrictZones(*d.row), slices.Collect(maps.Keys(got)), d.row.Id)
 	}
 }
 
-func TestCampusFence_外周を巡り門の列の南北に門を開ける(t *testing.T) {
+func TestDistrictFence_外周を巡り門の列の南北に門を開ける(t *testing.T) {
 	t.Parallel()
 
 	const w, h consts.Tile = 6, 5
-	r := districtRegion{layout: rawschema.DistrictLayoutCampus, w: 3, h: 2}
+	r := districtRegion{w: 3, h: 2}
 	render := func(l consts.Coord[consts.Chunk]) []string {
 		rows := make([][]byte, h)
 		for y := range rows {
 			rows[y] = []byte("......")
 		}
-		for _, p := range campusFence(r, l, w, h, 1, 1) {
+		for _, p := range districtFence(r, l, w, h, 1, 1) {
 			rows[p.Y][p.X] = 'f'
 		}
 		out := make([]string, h)

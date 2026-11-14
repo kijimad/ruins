@@ -48,8 +48,8 @@ func TestNearestDistrictNorth_先の種類に重なって出ない区域しか�
 
 	// 先の種類が帯の全幅でリージョンの縦をほぼ埋めるので、後の種類の区域は必ず重なって出ない
 	raws := rawschema.Raws{Districts: &[]rawschema.District{
-		{Id: "wall", Spacing: 3, Separation: 0, Layout: rawschema.DistrictLayoutTown, Sizes: []rawschema.DistrictSize{{W: 2, H: 3, Weight: 1}}},
-		{Id: "town", Spacing: 3, Separation: 0, Layout: rawschema.DistrictLayoutTown, Sizes: []rawschema.DistrictSize{{W: 1, H: 1, Weight: 1}}},
+		{Id: "wall", Spacing: 3, Separation: 0, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 2, H: 3, Weight: 1}}},
+		{Id: "town", Spacing: 3, Separation: 0, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 1, H: 1, Weight: 1}}},
 	}}
 	ds := districtsFrom(raws)
 	_, ok := nearestDistrictNorth(raws, ds[1], 1, 0, 2)

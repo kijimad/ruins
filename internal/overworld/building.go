@@ -60,7 +60,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion) []buildingLo
 		}
 		lots = append(lots, buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: ChunkSeed2D(r.seed, anchor.X, anchor.Y)})
 	}
-	if f, ok := facilities[r.landmark]; ok {
+	if f, ok := facilities[r.landmark()]; ok {
 		if anchor, w, h, ok := landmarkLot(r, f, fits); ok {
 			place(f, anchor, w, h)
 		}
@@ -75,7 +75,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion) []buildingLo
 			// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
 			// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
 			frng := rand.New(rand.NewPCG(ChunkSeed2D(r.seed, x, y), 0x1))
-			f := facilities[rollFacilityInZone(frng, cat, z, r.span(), r.landmark)]
+			f := facilities[rollFacilityInZone(frng, cat, z, r.span(), r.landmark())]
 			w, h := consts.Chunk(1), consts.Chunk(1)
 			if fps := raw.PtrSlice(f.Footprints); len(fps) > 0 {
 				i, _ := consts.Pick(frng, fps, func(fp rawschema.FacilityFootprint) float64 { return float64(fp.Weight) })

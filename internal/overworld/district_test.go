@@ -9,11 +9,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// ringsLayers と rowsLayers は、今の町と研究所の敷地と同じ層
+var (
+	ringsLayers = []rawschema.DistrictLayer{
+		{Zones: []rawschema.Zone{rawschema.Residential, rawschema.Industrial}},
+		{Zones: []rawschema.Zone{rawschema.Downtown}},
+	}
+	rowsLayers = []rawschema.DistrictLayer{
+		{Zones: []rawschema.Zone{rawschema.CampusGate}, Rows: new(1)},
+		{Zones: []rawschema.Zone{rawschema.CampusInner}},
+		{Zones: []rawschema.Zone{rawschema.CampusQuarantine}, Rows: new(1)},
+	}
+)
+
 func TestDistrict_regionIn_大きさの候補から選び自分のリージョンに収める(t *testing.T) {
 	t.Parallel()
 
 	d := districtsFrom(rawschema.Raws{Districts: &[]rawschema.District{{
-		Id: "town", Spacing: 7, Separation: 2, Layout: rawschema.DistrictLayoutTown,
+		Id: "town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers,
 		Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}, {W: 9, H: 5, Weight: 1}},
 	}}})[0]
 	const cols consts.Chunk = 7
@@ -36,7 +49,7 @@ func TestDistrictAt_チャンクを含む区域を返す(t *testing.T) {
 	t.Parallel()
 
 	raws := rawschema.Raws{Districts: &[]rawschema.District{{
-		Id: "town", Spacing: 7, Separation: 2, Layout: rawschema.DistrictLayoutTown,
+		Id: "town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers,
 		Sizes: []rawschema.DistrictSize{{W: 3, H: 3, Weight: 1}},
 	}}}
 	const cols consts.Chunk = 7
@@ -77,8 +90,8 @@ func TestDistrictAt_先の種類の区域と重なる後の種類の区域は丸
 
 	// 研究所の敷地は帯の全幅で縦の範囲が広く、町と必ず重なる
 	raws := rawschema.Raws{Districts: &[]rawschema.District{
-		{Id: "lab_campus", Spacing: 9, Separation: 1, Layout: rawschema.DistrictLayoutCampus, Sizes: []rawschema.DistrictSize{{W: 7, H: 8, Weight: 1}}},
-		{Id: "town", Spacing: 3, Separation: 1, Layout: rawschema.DistrictLayoutTown, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}},
+		{Id: "lab_campus", Spacing: 9, Separation: 1, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(true), Sizes: []rawschema.DistrictSize{{W: 7, H: 8, Weight: 1}}},
+		{Id: "town", Spacing: 3, Separation: 1, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}},
 	}}
 	const cols consts.Chunk = 7
 	ds := districtsFrom(raws)
@@ -91,7 +104,7 @@ func TestDistrictAt_先の種類の区域と重なる後の種類の区域は丸
 				r, ok := districtAt(raws, seed, c, cols)
 				if campus.contains(c) {
 					require.True(t, ok)
-					assert.Equal(t, rawschema.DistrictLayoutCampus, r.layout, "seed=%d %v", seed, c)
+					assert.Equal(t, "lab_campus", r.kind.Id, "seed=%d %v", seed, c)
 					continue
 				}
 				town := ds[1].regionIn(seed, consts.FloorDiv(y, 3), cols)

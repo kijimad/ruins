@@ -45,7 +45,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			Zones: []rawschema.FacilityZone{{Zone: rawschema.Residential, Weight: 1}},
 		}},
 		Districts: &[]rawschema.District{{
-			Id: "town", Spacing: 7, Separation: 2, Layout: rawschema.DistrictLayoutTown, Landmark: new(rawschema.EntityID("house")),
+			Id: "town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{{Zones: []rawschema.Zone{rawschema.Residential}}, {Zones: []rawschema.Zone{rawschema.Downtown}}}, Landmark: new(rawschema.EntityID("house")),
 			Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}},
 		}},
 		Landmarks: &[]rawschema.Landmark{{Id: "shrine", Weight: 1, Drawer: rawschema.Open, Props: []rawschema.PropSpot{{Name: "bed"}}}},

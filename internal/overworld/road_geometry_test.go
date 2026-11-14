@@ -34,7 +34,7 @@ func TestRoadPath_塀に囲まれた区域は南北の門を通る(t *testing.T)
 
 	raws := rawschema.Raws{
 		Districts: &[]rawschema.District{{
-			Id: "lab_campus", Spacing: 20, Separation: 1, Layout: rawschema.DistrictLayoutCampus,
+			Id: "lab_campus", Spacing: 20, Separation: 1, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(true),
 			Sizes: []rawschema.DistrictSize{{W: 3, H: 4, Weight: 1}},
 		}},
 		Facilities: &[]rawschema.Facility{
@@ -48,7 +48,7 @@ func TestRoadPath_塀に囲まれた区域は南北の門を通る(t *testing.T)
 	r := districtsFrom(raws)[0].regionIn(1, 0, cols)
 	a := consts.Coord[consts.Chunk]{X: 0, Y: r.anchor.Y - 3}
 	b := consts.Coord[consts.Chunk]{X: 2, Y: r.anchor.Y + r.h + 2}
-	north, south := campusGateColumns(raws, r)
+	north, south := gateColumns(raws, r)
 	lane := func(col consts.Chunk) consts.Tile { return col.Tiles(size) + urbanStreetW/2 }
 	top, bottom := r.anchor.Y.Tiles(size), (r.anchor.Y+r.h).Tiles(size)-1
 	before, after := chunkCenter(r.anchor.Y-1, size), chunkCenter(r.anchor.Y+r.h, size)

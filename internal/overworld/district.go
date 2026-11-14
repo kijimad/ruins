@@ -11,29 +11,28 @@ import (
 
 // district は区域の1種類。raw の districts の行から作る
 type district struct {
-	row  rawschema.District
+	row  *rawschema.District
 	salt uint64
 }
 
 // districtRegion は区域の1つの当選。左上 anchor から東と南へ w×h チャンク広がる
 type districtRegion struct {
-	layout rawschema.DistrictLayout
+	// kind は区域の種類の行。raw の表の要素を指すので、同じ raw から引いた当選どうしを == で比べられる
+	kind   *rawschema.District
 	anchor consts.Coord[consts.Chunk]
 	w, h   consts.Chunk
 	// seed は区域の中の地区と施設を引く種
 	seed uint64
-	// landmark は区域に1つだけ建てる目玉の施設。無ければ空
-	landmark string
 }
 
 // districtsFrom は raw の districts の行を、行の順に区域の種類にする
 func districtsFrom(raws rawschema.Raws) []district {
 	rows := raw.PtrSlice(raws.Districts)
 	out := make([]district, len(rows))
-	for i, r := range rows {
+	for i := range rows {
 		h := fnv.New64a()
-		_, _ = h.Write([]byte(r.Id))
-		out[i] = district{row: r, salt: districtSalt ^ h.Sum64()}
+		_, _ = h.Write([]byte(rows[i].Id))
+		out[i] = district{row: &rows[i], salt: districtSalt ^ h.Sum64()}
 	}
 	return out
 }
@@ -54,17 +53,12 @@ func (d district) regionIn(runSeed uint64, ry, cols consts.Chunk) districtRegion
 		X: consts.Chunk(rng.IntN(int(cols-w) + 1)),
 		Y: ry*consts.Chunk(d.row.Spacing) + consts.Chunk(rng.IntN(d.row.Spacing-d.row.Separation-size.H+1)),
 	}
-	landmark := ""
-	if d.row.Landmark != nil {
-		landmark = *d.row.Landmark
-	}
 	return districtRegion{
-		landmark: landmark,
-		layout:   d.row.Layout,
-		anchor:   anchor,
-		w:        w,
-		h:        consts.Chunk(size.H),
-		seed:     ChunkSeed2D(runSeed^d.salt, anchor.X, anchor.Y),
+		kind:   d.row,
+		anchor: anchor,
+		w:      w,
+		h:      consts.Chunk(size.H),
+		seed:   ChunkSeed2D(runSeed^d.salt, anchor.X, anchor.Y),
 	}
 }
 
@@ -113,6 +107,14 @@ func (r districtRegion) contains(c consts.Coord[consts.Chunk]) bool {
 // local は c の区域の中の座標を返す
 func (r districtRegion) local(c consts.Coord[consts.Chunk]) consts.Coord[consts.Chunk] {
 	return c.Sub(r.anchor)
+}
+
+// landmark は区域に1つだけ建てる目玉の施設を返す。無ければ空
+func (r districtRegion) landmark() string {
+	if r.kind.Landmark == nil {
+		return ""
+	}
+	return *r.kind.Landmark
 }
 
 // span は区域の長い方の辺のチャンク数。施設の規模の足切りと敵の数に使う

@@ -14,7 +14,8 @@ import (
 var (
 	errZoneNoBaseFacility            = errors.New("zone has no base facility")
 	errDistrictSizeOutOfRegion       = errors.New("district size does not fit in its region")
-	errCampusTooShort                = errors.New("campus is shorter than its zones")
+	errDistrictTooShort              = errors.New("district is shorter than its layers")
+	errDistrictLayers                = errors.New("district layers do not fit its pattern")
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
 	errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
 	errMapGlyphMissing               = errors.New("map glyph is missing")
@@ -56,32 +57,63 @@ func validateRules(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateDistricts は区域の全ての大きさの候補が、自分のリージョンの縦の範囲 spacing - separation に収まることを検証する。
+// validateDistricts は区域の層が並べ方に合い、全ての大きさの候補が自分のリージョンの縦の範囲 spacing - separation に収まることを検証する。
 // 区域がリージョンからはみ出すと、チャンクを含む区域を1つのリージョンだけ見て決められなくなる。
-// 研究所の敷地は門、中ほど、奥の3つの地区を1行ずつ並べるので、高さを3以上にする
+// rows の区域は、行の数を書いた層を並べたうえで残りの行を占める層に1行以上を残す
 func validateDistricts(raws rawschema.Raws) error {
 	for _, d := range PtrSlice(raws.Districts) {
+		if err := validateDistrictLayers(d); err != nil {
+			return err
+		}
+		fixed := 0
+		for _, l := range d.Layers {
+			fixed += deref(l.Rows)
+		}
 		for _, size := range d.Sizes {
 			if size.H > d.Spacing-d.Separation {
 				return fmt.Errorf("district %q size %dx%d, spacing %d, separation %d: %w", d.Id, size.W, size.H, d.Spacing, d.Separation, errDistrictSizeOutOfRegion)
 			}
-			if d.Layout == rawschema.DistrictLayoutCampus && size.H < len(DistrictZones(d.Layout)) {
-				return fmt.Errorf("district %q size %dx%d: %w", d.Id, size.W, size.H, errCampusTooShort)
+			if d.Pattern == rawschema.DistrictPatternRows && size.H < fixed+1 {
+				return fmt.Errorf("district %q size %dx%d, layer rows %d: %w", d.Id, size.W, size.H, fixed, errDistrictTooShort)
 			}
 		}
 	}
 	return nil
 }
 
-// DistrictZones は区域の作り l が割り振る地区を返す
-func DistrictZones(l rawschema.DistrictLayout) []rawschema.Zone {
-	switch l {
-	case rawschema.DistrictLayoutTown:
-		return []rawschema.Zone{rawschema.Downtown, rawschema.Residential, rawschema.Industrial}
-	case rawschema.DistrictLayoutCampus:
-		return []rawschema.Zone{rawschema.CampusGate, rawschema.CampusInner, rawschema.CampusQuarantine}
+// validateDistrictLayers は区域 d の層の数と行の数の書き方が、並べ方に合うことを検証する。
+// rings は外側と中心の2層で行の数を書かず、rows は2層以上で行の数を省いた層がちょうど1つある
+func validateDistrictLayers(d rawschema.District) error {
+	rest := 0
+	for _, l := range d.Layers {
+		if l.Rows == nil {
+			rest++
+		}
+	}
+	switch d.Pattern {
+	case rawschema.DistrictPatternRings:
+		if len(d.Layers) != 2 || rest != len(d.Layers) {
+			return fmt.Errorf("district %q rings has %d layers, %d with rows: %w", d.Id, len(d.Layers), len(d.Layers)-rest, errDistrictLayers)
+		}
+	case rawschema.DistrictPatternRows:
+		if len(d.Layers) < 2 || rest != 1 {
+			return fmt.Errorf("district %q rows has %d layers, %d without rows: %w", d.Id, len(d.Layers), rest, errDistrictLayers)
+		}
 	}
 	return nil
+}
+
+// DistrictZones は区域 d が割り振る地区を、層の順に重複なく返す
+func DistrictZones(d rawschema.District) []rawschema.Zone {
+	var out []rawschema.Zone
+	for _, l := range d.Layers {
+		for _, z := range l.Zones {
+			if !slices.Contains(out, z) {
+				out = append(out, z)
+			}
+		}
+	}
+	return out
 }
 
 // validateZoneBaseFacilities は、どの区域でも一番小さい大きさのときに、割り振る全ての地区に建てられる施設があることを検証する。
@@ -95,7 +127,7 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 				baseSpan = span
 			}
 		}
-		for _, zone := range DistrictZones(d.Layout) {
+		for _, zone := range DistrictZones(d) {
 			hasBase := slices.ContainsFunc(facilities, func(f rawschema.Facility) bool {
 				// 目玉の施設は区域に1つだけで、残りのチャンクの抽選からは外す
 				if d.Landmark != nil && f.Id == *d.Landmark {

@@ -534,12 +534,19 @@ type DisassemblyYield struct {
 // District 区域の種類。複数のチャンクにまたがる施設の集まり。リージョンごとに大きさを重みで1つ選び、
 // 余った縦の範囲から位置を選ぶ。区域はリージョンの縦の範囲 spacing - separation からはみ出さない
 type District struct {
+	// Fence 外周に塀を巡らせ、北と南に門を開ける。道は門を通って区域を抜ける
+	Fence *bool `json:"fence,omitempty"`
+
 	Id EntityID `json:"id"`
 
 	// Landmark 区域に1つだけ建てる目玉の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
 	Landmark *EntityID `json:"landmark,omitempty"`
 
-	Layout DistrictLayout `json:"layout"`
+	// Layers 地区の層。プレイヤーが入ってくる側から順に並べる。rings は外から内へ、rows は南から北へ
+	Layers []DistrictLayer `json:"layers"`
+
+	// Pattern 地区の並べ方
+	Pattern DistrictPattern `json:"pattern"`
 
 	// Separation 隣のリージョンの区域との最小の空き。チャンク数
 	Separation int `json:"separation"`
@@ -548,33 +555,44 @@ type District struct {
 
 	// Spacing 当選の間隔。チャンク数
 	Spacing int `json:"spacing"`
+
+	// Verge 街路の両端を植え込みにして、建物と道の間を空ける
+	Verge *bool `json:"verge,omitempty"`
 }
 
-// DistrictLayout 区域の作り。town は各チャンクの北辺と西辺に街路を敷き、中心を都心にする。
-// campus は街路に加えて外周に塀を巡らせて南北に門を開け、南の門の列、中ほど、北の奥の列で地区を分ける
-type DistrictLayout string
+// DistrictLayer 地区の層。候補の地区から区域の seed で1つ選ぶ
+type DistrictLayer struct {
+	// Rows rows の並べ方で、この層が占める行の数
+	Rows *int `json:"rows,omitempty"`
 
-// Defines values for DistrictLayout.
+	Zones []Zone `json:"zones"`
+}
+
+// DistrictPattern 地区の並べ方。rings は層を2つ持ち、1つ目を外側、2つ目を中心にする。
+// rows は層を行で分け、rows を省いた層がちょうど1つあって残りの行を占める
+type DistrictPattern string
+
+// Defines values for DistrictPattern.
 const (
-	DistrictLayoutCampus DistrictLayout = "campus"
-	DistrictLayoutTown   DistrictLayout = "town"
+	DistrictPatternRings DistrictPattern = "rings"
+	DistrictPatternRows  DistrictPattern = "rows"
 )
 
-// Valid indicates whether the value is a known member of the DistrictLayout enum.
-func (e DistrictLayout) Valid() bool {
+// Valid indicates whether the value is a known member of the DistrictPattern enum.
+func (e DistrictPattern) Valid() bool {
 	switch e {
-	case DistrictLayoutCampus:
+	case DistrictPatternRings:
 		return true
-	case DistrictLayoutTown:
+	case DistrictPatternRows:
 		return true
 	default:
 		return false
 	}
 }
 
-// DistrictLayoutValues は DistrictLayout の値を、スキーマに書いた順に返す。
-func DistrictLayoutValues() []DistrictLayout {
-	return []DistrictLayout{DistrictLayoutTown, DistrictLayoutCampus}
+// DistrictPatternValues は DistrictPattern の値を、スキーマに書いた順に返す。
+func DistrictPatternValues() []DistrictPattern {
+	return []DistrictPattern{DistrictPatternRings, DistrictPatternRows}
 }
 
 // DistrictSize 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める

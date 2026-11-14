@@ -58,12 +58,32 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 	return cat
 }
 
-// industrialUrbanBit は市街地の性格を住宅地寄りか産業区寄りかに振る、区域の seed のビット。
-const industrialUrbanBit = uint64(1) << 32
+// zoneChoiceShift は層の候補から地区を選ぶ、区域の seed のビットの位置
+const zoneChoiceShift = 32
 
-// zoneOf は市街地内のローカルチャンク座標から地区を決める純関数。中心からの2倍座標のチェビシェフ距離が
-// 短い辺から3を引いた値以下なら都心、それ以外は市街地の性格で住宅地か産業区にする
-func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) rawschema.Zone {
+// zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ
+func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.Zone {
+	zones := r.kind.Layers[r.layerAt(l)].Zones
+	return zones[(r.seed>>zoneChoiceShift)%uint64(len(zones))]
+}
+
+// layerAt は区域の中の座標 l が属する層の添字を、区域の並べ方に従って返す
+func (r districtRegion) layerAt(l consts.Coord[consts.Chunk]) int {
+	switch r.kind.Pattern {
+	case rawschema.DistrictPatternRings:
+		if inCore(l.X, l.Y, r.w, r.h) {
+			return 1
+		}
+		return 0
+	case rawschema.DistrictPatternRows:
+		return rowsLayer(r.kind.Layers, l.Y, r.h)
+	}
+	// raw の列挙の外の並べ方は1つ目の層にする
+	return 0
+}
+
+// inCore は区域の中の座標が中心の層に入るかを返す。中心からの2倍座標のチェビシェフ距離が、短い辺から3を引いた値以下なら中心
+func inCore(lx, ly, cw, ch consts.Chunk) bool {
 	dx := int(lx)*2 - int(cw-1)
 	dy := int(ly)*2 - int(ch-1)
 	if dx < 0 {
@@ -72,38 +92,28 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) rawschema.Zone {
 	if dy < 0 {
 		dy = -dy
 	}
-	if max(dx, dy) <= int(min(cw, ch))-3 {
-		return rawschema.Downtown
-	}
-	if urbanSeed&industrialUrbanBit != 0 {
-		return rawschema.Industrial
-	}
-	return rawschema.Residential
+	return max(dx, dy) <= int(min(cw, ch))-3
 }
 
-// campusZoneOf は研究所の敷地の中の行 ly から地区を決める。南の端の列を門、北の端の列を奥の閉鎖区画、
-// 残りを中ほどにする。プレイヤーは南から北へ進むので、門から入って奥ほど危険になる
-func campusZoneOf(ly, ch consts.Chunk) rawschema.Zone {
-	switch ly {
-	case ch - 1:
-		return rawschema.CampusGate
-	case 0:
-		return rawschema.CampusQuarantine
-	default:
-		return rawschema.CampusInner
+// rowsLayer は高さ ch の区域の行 ly が属する層の添字を返す。行の数を省いた層より前の層は南の端から、
+// 後ろの層は北の端から順に行を占め、残りの行を行の数を省いた層が占める
+func rowsLayer(layers []rawschema.DistrictLayer, ly, ch consts.Chunk) int {
+	rest := slices.IndexFunc(layers, func(l rawschema.DistrictLayer) bool { return l.Rows == nil })
+	fromSouth := int(ch - 1 - ly)
+	for i := range rest {
+		if fromSouth < *layers[i].Rows {
+			return i
+		}
+		fromSouth -= *layers[i].Rows
 	}
-}
-
-// zoneAt は区域の中の座標 l の地区を、区域の作りに従って返す
-func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.Zone {
-	switch r.layout {
-	case rawschema.DistrictLayoutTown:
-		return zoneOf(l.X, l.Y, r.w, r.h, r.seed)
-	case rawschema.DistrictLayoutCampus:
-		return campusZoneOf(l.Y, r.h)
+	fromNorth := int(ly)
+	for i := len(layers) - 1; i > rest; i-- {
+		if fromNorth < *layers[i].Rows {
+			return i
+		}
+		fromNorth -= *layers[i].Rows
 	}
-	// raw の列挙の外の作りは町として扱う
-	return zoneOf(l.X, l.Y, r.w, r.h, r.seed)
+	return rest
 }
 
 // rollFacilityInZone は地区の重み表から規模 gate を通った施設 id を重みで抽選する。exclude の施設は引かない
@@ -138,28 +148,27 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	l := r.local(c)
 	lot := lotAt(lotsOf(raws, zoneCatalogFrom(raws), r), l)
 	var fence []consts.Coord[consts.Tile]
-	if r.layout == rawschema.DistrictLayoutCampus {
-		north, south := campusGateColumns(raws, r)
-		fence = campusFence(r, l, g.chunkW, g.chunkH, north-r.anchor.X, south-r.anchor.X)
+	if r.kind.Fence != nil && *r.kind.Fence {
+		north, south := gateColumns(raws, r)
+		fence = districtFence(r, l, g.chunkW, g.chunkH, north-r.anchor.X, south-r.anchor.X)
 	}
-	// 研究所の敷地の建物は庭を持たない部屋の絵で組むので、街路の両端を植え込みにして建物と道を分ける
-	verge := r.layout == rawschema.DistrictLayoutCampus
+	verge := r.kind.Verge != nil && *r.kind.Verge
 	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, verge)
 }
 
-// campusGateColumns は研究所の敷地の北と南の門を開ける絶対チャンク列を返す。真ん中の列を覆う区画の西の端の列で、
-// 区画の西の帯は街路なので、門から構内の街路へ入れる
-func campusGateColumns(raws rawschema.Raws, r districtRegion) (north, south consts.Chunk) {
+// gateColumns は塀を巡らせる区域の、北と南の門を開ける絶対チャンク列を返す。真ん中の列を覆う区画の西の端の列で、
+// 区画の西の帯は街路なので、門から区域の中の街路へ入れる
+func gateColumns(raws rawschema.Raws, r districtRegion) (north, south consts.Chunk) {
 	lots := lotsOf(raws, zoneCatalogFrom(raws), r)
 	north = lotAt(lots, consts.Coord[consts.Chunk]{X: r.w / 2, Y: 0}).anchor.X
 	south = lotAt(lots, consts.Coord[consts.Chunk]{X: r.w / 2, Y: r.h - 1}).anchor.X
 	return r.anchor.X + north, r.anchor.X + south
 }
 
-// campusFence は研究所の敷地の中のチャンク l に置く塀のマスを、チャンク内の座標で返す。塀は敷地の外周を巡り、
+// districtFence は区域の中のチャンク l に置く塀のマスを、チャンク内の座標で返す。塀は区域の外周を巡り、
 // 区域の中の列 northGate と southGate の北と南の端に、街路の幅だけ門を開ける。東と南の辺には街路が無いので、
 // 建物の区画の外側の1列に置く
-func campusFence(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, northGate, southGate consts.Chunk) []consts.Coord[consts.Tile] {
+func districtFence(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, northGate, southGate consts.Chunk) []consts.Coord[consts.Tile] {
 	northOpen := l.X == northGate && l.Y == 0
 	southOpen := l.X == southGate && l.Y == r.h-1
 	var out []consts.Coord[consts.Tile]
@@ -227,7 +236,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 			continue
 		}
 		if _, err := lifecycle.SpawnProp(world, "fence", pos.X, pos.Y); err != nil {
-			return fmt.Errorf("failed to place campus fence at %d,%d: %w", pos.X, pos.Y, err)
+			return fmt.Errorf("failed to place district fence at %d,%d: %w", pos.X, pos.Y, err)
 		}
 	}
 	return spawnUrbanEnemies(world, g, rng, size, fac, danger, isWall, occupied)

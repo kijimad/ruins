@@ -317,8 +317,15 @@ import "strings"
 	spacing!: int & >=1
 	// 隣のリージョンの区域との最小の空き。チャンク数
 	separation!: int & >=0
-	layout!:     #DistrictLayout
 	sizes!: [...#DistrictSize] & [_, ...]
+	// 地区の並べ方
+	pattern!: #DistrictPattern
+	// 地区の層。プレイヤーが入ってくる側から順に並べる。rings は外から内へ、rows は南から北へ
+	layers!: [...#DistrictLayer] & [_, ...]
+	// 外周に塀を巡らせ、北と南に門を開ける。道は門を通って区域を抜ける
+	fence?: bool
+	// 街路の両端を植え込みにして、建物と道の間を空ける
+	verge?: bool
 
 	// 区域に1つだけ建てる目玉の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
 	landmark?: #EntityID
@@ -334,9 +341,16 @@ import "strings"
 	weight!: int & >=1
 }
 
-// 区域の作り。town は各チャンクの北辺と西辺に街路を敷き、中心を都心にする。
-// campus は街路に加えて外周に塀を巡らせて南北に門を開け、南の門の列、中ほど、北の奥の列で地区を分ける
-#DistrictLayout: "town" | "campus" @rawgen(prefix)
+// 地区の並べ方。rings は層を2つ持ち、1つ目を外側、2つ目を中心にする。
+// rows は層を行で分け、rows を省いた層がちょうど1つあって残りの行を占める
+#DistrictPattern: "rings" | "rows" @rawgen(prefix)
+
+// 地区の層。候補の地区から区域の seed で1つ選ぶ
+#DistrictLayer: {
+	zones!: [...#Zone] & [_, ...]
+	// rows の並べ方で、この層が占める行の数
+	rows?: int & >=1
+}
 
 // フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
 #Dungeon: {
