@@ -23,7 +23,7 @@ func TestNewChunkGen_隣接する小集落が道で結ばれる(t *testing.T) {
 
 	const chunkW, chunkH consts.Tile = 24, 24
 	world := testutil.InitTestWorld(t)
-	gen := overworld.NewChunkGen(world, 321, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
+	gen := overworld.NewChunkGen(world, 27, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	// 集落は Y 方向のリージョンに並ぶので Y 方向に生成する
 	for i := range 16 {
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))

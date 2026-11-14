@@ -34,6 +34,10 @@ func TestFacilityTemplates_扉が塞がらず全ての床へ入れる(t *testing
 	}
 
 	for _, fac := range loader.Facilities() {
+		// 部屋の絵を組む建物は building_test.go で確かめる
+		if loader.HasRooms(fac) {
+			continue
+		}
 		for seed := range uint64(200) {
 			_, base, err := loader.FacilityChunk(fac, seed)
 			require.NoError(t, err)
@@ -120,6 +124,10 @@ func TestFacilityTemplates_収納家具は戦利品表を持つ(t *testing.T) {
 		storage[p.Id] = p.Storage != nil
 	}
 	for _, fac := range loader.Facilities() {
+		// 部屋の絵を組む建物は building_test.go で確かめる
+		if loader.HasRooms(fac) {
+			continue
+		}
 		for seed := range uint64(200) {
 			_, cells, err := loader.FacilityChunk(fac, seed)
 			require.NoError(t, err)
@@ -158,7 +166,7 @@ func TestSpawnFacility_畳は屋内で土は屋外(t *testing.T) {
 	_, cells, err := loader.FacilityChunk("house", 1)
 	require.NoError(t, err)
 	g := chunkGeom{chunkW: facilityLot, chunkH: facilityLot, tiles: &tileIndex{world: world, loX: 0, hiX: facilityLot}}
-	_, _, err = spawnFacility(world, g, cells, 0, 0, "house", raw.MinDanger, 1)
+	_, _, err = spawnFacility(world, g, cells, 0, 0, "house", raw.MinDanger, 1, nil)
 	require.NoError(t, err)
 
 	got := map[string]map[rawschema.Shelter]int{}
@@ -213,4 +221,82 @@ func TestEnclosedCells_壁と扉で囲まれたマスだけを屋内にする(t 
 		{2, 2}: true, {2, 3}: true,
 		{6, 2}: true, {7, 2}: true, {6, 3}: true, {7, 3}: true,
 	}, enclosedCells(cells, wallAt))
+}
+
+func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空にする(t *testing.T) {
+	t.Parallel()
+
+	parse := func(rows []string) [][]maptemplate.MapCell {
+		cells := make([][]maptemplate.MapCell, len(rows))
+		for y, row := range rows {
+			cells[y] = make([]maptemplate.MapCell, len(row))
+			for x, ch := range row {
+				switch ch {
+				case '#':
+					cells[y][x] = maptemplate.MapCell{Terrain: consts.TileNameWall}
+				case 'w':
+					cells[y][x] = maptemplate.MapCell{Terrain: consts.TileNameWall, Prop: "window"}
+				default:
+					cells[y][x] = maptemplate.MapCell{Terrain: consts.TileNameFloor}
+				}
+			}
+		}
+		return cells
+	}
+	render := func(cells [][]maptemplate.MapCell) []string {
+		out := make([]string, len(cells))
+		for y, row := range cells {
+			for _, c := range row {
+				switch {
+				case c.Terrain == consts.TileNameVoid:
+					out[y] += " "
+				case c.Prop != "":
+					out[y] += "w"
+				case c.Terrain == consts.TileNameWall:
+					out[y] += "#"
+				default:
+					out[y] += "."
+				}
+			}
+		}
+		return out
+	}
+	blocks := func(terrain string) bool { return terrain == consts.TileNameWall || terrain == consts.TileNameVoid }
+	rows := []string{
+		"######",
+		"######",
+		"##w###",
+		"######",
+		"#....#",
+	}
+
+	walled := parse(rows)
+	voidEnclosedWalls(walled, blocks, func(int, int) bool { return false })
+	assert.Equal(t, []string{
+		"      ",
+		"      ",
+		"  w   ",
+		"######",
+		"#....#",
+	}, render(walled), "マスの外を壁と数えると、外周の壁も床に接しなければ虚空になる")
+
+	open := parse(rows)
+	voidEnclosedWalls(open, blocks, func(int, int) bool { return true })
+	assert.Equal(t, []string{
+		"######",
+		"#    #",
+		"# w  #",
+		"######",
+		"#....#",
+	}, render(open), "マスの外を通れると数えると、外周の壁は残る")
+
+	east := parse(rows)
+	voidEnclosedWalls(east, blocks, func(x, _ int) bool { return x >= 6 })
+	assert.Equal(t, []string{
+		"     #",
+		"     #",
+		"  w  #",
+		"######",
+		"#....#",
+	}, render(east), "通れる外に面する辺の壁だけが残る")
 }

@@ -379,6 +379,21 @@ map = """
 				wantErr: errMapRowLengthMismatch,
 			},
 			{
+				name: "部屋の辺の種類が不正ならエラー",
+				content: `[[chunk]]
+name = "3x3_部屋"
+weight = 100
+palettes = ["standard"]
+edges = { north = "door", east = "gate", south = "wall", west = "wall" }
+map = """
+###
+#.#
+###
+"""
+`,
+				wantErr: errInvalidEdge,
+			},
+			{
 				name: "マップにASCIIでない文字があればエラー",
 				content: `[[chunk]]
 name = "3x3_全角"
@@ -1097,4 +1112,63 @@ func TestTemplateLoader_施設の絵の一覧(t *testing.T) {
 
 	assert.Equal(t, []string{"house", "store"}, l.Facilities())
 	assert.Equal(t, []string{"1x1_house_a", "1x1_house_b"}, l.FacilityChunkNames("house"))
+}
+
+func TestTransformEdges_セルの回転と反転と同じく辺が移る(t *testing.T) {
+	t.Parallel()
+
+	// 北・東・南・西の辺の真ん中に辺の名前を置いた 3×3 の絵を回し、回した後の各辺の真ん中を読む
+	cells := [][]MapCell{
+		{{}, {Terrain: "n"}, {}},
+		{{Terrain: "w"}, {}, {Terrain: "e"}},
+		{{}, {Terrain: "s"}, {}},
+	}
+	edgesOf := func(c [][]MapCell) [4]EdgeKind {
+		return [4]EdgeKind{EdgeKind(c[0][1].Terrain), EdgeKind(c[1][2].Terrain), EdgeKind(c[2][1].Terrain), EdgeKind(c[1][0].Terrain)}
+	}
+	for _, mirror := range []bool{false, true} {
+		for turns := range 4 {
+			assert.Equal(t, edgesOf(TransformCells(cells, turns, mirror)), transformEdges(edgesOf(cells), turns, mirror), "turns=%d mirror=%v", turns, mirror)
+		}
+	}
+}
+
+func TestTemplateLoader_FacilityRoom_辺に合う絵を向きを合わせて選ぶ(t *testing.T) {
+	t.Parallel()
+
+	l := NewTemplateLoader()
+	l.RegisterPalette(&Palette{ID: "base", Terrain: map[string]string{".": "floor", "#": "wall", "+": "door"}})
+	l.RegisterChunk(&ChunkTemplate{Name: "3x3_room", Facility: "lab", Weight: 1, Size: Size{W: 3, H: 3}, Palettes: []string{"base"},
+		Edges: &ChunkEdges{North: EdgeDoor, East: EdgeDoor, South: EdgeWall, West: EdgeWall}, Map: "#+#\n#.+\n###"})
+	l.RegisterChunk(&ChunkTemplate{Name: "3x3_single", Facility: "lab", Weight: 1, Size: Size{W: 3, H: 3}, Palettes: []string{"base"}, Map: "#+#\n#.#\n###"})
+
+	for _, want := range [][4]EdgeKind{
+		{EdgeDoor, EdgeDoor, EdgeWall, EdgeWall},
+		{EdgeWall, EdgeDoor, EdgeDoor, EdgeWall},
+		{EdgeWall, EdgeWall, EdgeDoor, EdgeDoor},
+		{EdgeDoor, EdgeWall, EdgeWall, EdgeDoor},
+	} {
+		for seed := range uint64(8) {
+			chunk, cells, err := l.FacilityRoom("lab", want, seed)
+			require.NoError(t, err)
+			assert.Equal(t, "3x3_room", chunk.Name, "1棟の絵は選ばない")
+			got := [4]EdgeKind{EdgeKind(cells[0][1].Terrain), EdgeKind(cells[1][2].Terrain), EdgeKind(cells[2][1].Terrain), EdgeKind(cells[1][0].Terrain)}
+			for i := range got {
+				if got[i] != "door" {
+					got[i] = EdgeWall
+				} else {
+					got[i] = EdgeDoor
+				}
+			}
+			assert.Equal(t, want, got, "seed=%d", seed)
+		}
+	}
+
+	_, _, err := l.FacilityRoom("lab", [4]EdgeKind{EdgeDoor, EdgeDoor, EdgeDoor, EdgeWall}, 1)
+	require.ErrorIs(t, err, errNoChunkCandidate)
+	assert.True(t, l.HasRooms("lab"))
+
+	chunk, _, err := l.FacilityChunk("lab", 1)
+	require.NoError(t, err)
+	assert.Equal(t, "3x3_single", chunk.Name, "1棟の絵だけから選ぶ")
 }

@@ -47,14 +47,20 @@ type OpenCubeMenu struct {
 	Cube ecs.Entity // メニューを開くキューブ
 }
 
-func (WarpDescend) isStatePayload()      {}
-func (WarpAscend) isStatePayload()       {}
-func (WarpDungeonEnter) isStatePayload() {}
-func (ShowDialog) isStatePayload()       {}
-func (OpenStorage) isStatePayload()      {}
-func (OpenFeedFuel) isStatePayload()     {}
-func (OpenCubeMenu) isStatePayload()     {}
-func (Escape) isStatePayload()           {}
+// DebugJumpToDistrict はデバッグで、プレイヤーの北で一番近い種類 DistrictID の区域の手前まで帯を進める
+type DebugJumpToDistrict struct {
+	DistrictID string
+}
+
+func (WarpDescend) isStatePayload()         {}
+func (WarpAscend) isStatePayload()          {}
+func (WarpDungeonEnter) isStatePayload()    {}
+func (ShowDialog) isStatePayload()          {}
+func (OpenStorage) isStatePayload()         {}
+func (OpenFeedFuel) isStatePayload()        {}
+func (OpenCubeMenu) isStatePayload()        {}
+func (Escape) isStatePayload()              {}
+func (DebugJumpToDistrict) isStatePayload() {}
 
 // Escape は惑星を脱出してクリアの画面へ移る
 type Escape struct{}
@@ -104,4 +110,9 @@ func OpenFeedFuelEvent(fire ecs.Entity) StateChangeRequest {
 // OpenCubeMenuEvent は移動拠点キューブのメニューを開くリクエストを生成する
 func OpenCubeMenuEvent(cube ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: OpenCubeMenu{Cube: cube}}
+}
+
+// DebugJumpToDistrictEvent は区域の手前まで帯を進めるデバッグのリクエストを生成する
+func DebugJumpToDistrictEvent(districtID string) StateChangeRequest {
+	return StateChangeRequest{Payload: DebugJumpToDistrict{DistrictID: districtID}}
 }

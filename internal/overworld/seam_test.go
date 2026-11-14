@@ -74,12 +74,11 @@ func TestRecalcChunkSeams_帯端は自己スキップ(t *testing.T) {
 
 // spriteKeyAtOrEmpty は指定座標のタイルの SpriteKey を返す。無ければ空文字。
 func spriteKeyAtOrEmpty(world w.World, x, y consts.Tile) string {
-	q := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.ECS).Query()
+	q := ecs.NewFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world.ECS).Query()
 	for q.Next() {
-		e := q.Entity()
-		g := world.Components.GridElement.Get(e)
+		g, sr, _ := q.Get()
 		if g.X == x && g.Y == y {
-			key := world.Components.SpriteRender.Get(e).SpriteKey
+			key := sr.SpriteKey
 			q.Close()
 			return key
 		}
@@ -273,12 +272,11 @@ func TestRecalcChunkSeams_座標0近傍の境界でも破綻しない(t *testing
 // spriteKeyAt は指定座標のタイルの SpriteKey を返す。
 func spriteKeyAt(t *testing.T, world w.World, x, y consts.Tile) string {
 	t.Helper()
-	q := ecs.NewFilter2[gc.GridElement, gc.SpriteRender](world.ECS).Query()
+	q := ecs.NewFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world.ECS).Query()
 	for q.Next() {
-		e := q.Entity()
-		g := world.Components.GridElement.Get(e)
+		g, sr, _ := q.Get()
 		if g.X == x && g.Y == y {
-			key := world.Components.SpriteRender.Get(e).SpriteKey
+			key := sr.SpriteKey
 			q.Close()
 			return key
 		}
