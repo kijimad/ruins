@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/rawschema"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -111,5 +112,26 @@ func TestDistrictAt_先の種類の区域と重なる後の種類の区域は丸
 				assert.Equal(t, town.contains(c) && !town.overlaps(campus), ok, "seed=%d %v", seed, c)
 			}
 		}
+	}
+}
+
+func TestDistricts_通信施設は起点から北へ60チャンク以内に建つ(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	cat := zoneCatalogFrom(raws)
+	const cols, spawnRow, within consts.Chunk = 7, 4, 60
+	for seed := range uint64(100) {
+		found := false
+		for depth := consts.Chunk(0); depth <= within && !found; depth++ {
+			for x := range cols {
+				c := consts.Coord[consts.Chunk]{X: x, Y: spawnRow - depth}
+				if r, ok := districtAt(raws, seed, c, cols); ok && urbanFacilityAt(raws, cat, r, c, spawnRow) == "comms" {
+					found = true
+					break
+				}
+			}
+		}
+		assert.True(t, found, "seed=%d", seed)
 	}
 }

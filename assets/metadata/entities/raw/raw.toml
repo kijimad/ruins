@@ -3534,6 +3534,18 @@
     weight = 4
     zone = "industrial"
 
+  [[facilities.zones]]
+    minDanger = 6
+    minSpan = 1
+    weight = 2
+    zone = "military_inner"
+
+  [[facilities.zones]]
+    minDanger = 6
+    minSpan = 1
+    weight = 4
+    zone = "campus_quarantine"
+
 [[facilities]]
   enemyTable = "military_enemies"
   id = "military_checkpoint"
