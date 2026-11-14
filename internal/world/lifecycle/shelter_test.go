@@ -54,15 +54,15 @@ func buildShelterRoom(world w.World, doorOpen, withOutdoorFloor bool) (door, ind
 	return door, indoorFloor, outdoorFloor
 }
 
-func TestOpenDoor_扉を開けると屋内が屋外に繋がり冷気が入る(t *testing.T) {
+func TestOpenDoor_扉を開けると屋内が外気に繋がり屋根を残して半屋外になる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	door, indoorFloor, outdoorFloor := buildShelterRoom(world, false, true)
 
 	require.NoError(t, lifecycle.OpenDoor(world, door))
 
-	assert.Equal(t, rawschema.Outdoor, world.Components.TileEnvironment.Get(indoorFloor).Shelter,
-		"扉が開くと屋内の床は屋外扱いになる")
+	assert.Equal(t, rawschema.Partial, world.Components.TileEnvironment.Get(indoorFloor).Shelter,
+		"扉が開くと屋内の床は半屋外になる")
 	assert.Equal(t, rawschema.Outdoor, world.Components.TileEnvironment.Get(outdoorFloor).Shelter,
 		"屋外の床は屋外のまま")
 }
@@ -74,7 +74,7 @@ func TestCloseDoor_扉を閉じると屋内が囲われに戻る(t *testing.T) {
 
 	// 開いた状態の囲われへ揃えてから閉じる。屋内は冷気が入った状態から始まる
 	indoor := world.Components.TileEnvironment.Get(indoorFloor)
-	indoor.Shelter = rawschema.Outdoor
+	indoor.Shelter = rawschema.Partial
 
 	require.NoError(t, lifecycle.CloseDoor(world, door))
 
