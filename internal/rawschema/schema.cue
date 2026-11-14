@@ -309,6 +309,49 @@ import "strings"
 	weight!: #EntryWeight
 }
 
+// 区域の種類。複数のチャンクにまたがる施設の集まり。リージョンごとに大きさを重みで1つ選び、
+// 余った縦の範囲から位置を選ぶ。区域はリージョンの縦の範囲 spacing - separation からはみ出さない
+#District: {
+	id!: #EntityID
+	// 当選の間隔。チャンク数
+	spacing!: int & >=1
+	// 隣のリージョンの区域との最小の空き。チャンク数
+	separation!: int & >=0
+	sizes!: [...#DistrictSize] & [_, ...]
+	// 地区の並べ方
+	pattern!: #DistrictPattern
+	// 地区の層。プレイヤーが入ってくる側から順に並べる。rings は外から内へ、rows は南から北へ
+	layers!: [...#DistrictLayer] & [_, ...]
+	// 外周に塀を巡らせ、北と南に門を開ける。道は門を通って区域を抜ける
+	fence?: bool
+	// 街路の両端を植え込みにして、建物と道の間を空ける
+	verge?: bool
+
+	// 区域に1つだけ建てる目玉の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
+	landmark?: #EntityID
+	if landmark != _|_ {
+		landmark_ref: _facilityIDs[landmark] @rawgen(-)
+	}
+}
+
+// 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める
+#DistrictSize: {
+	w!:      int & >=1
+	h!:      int & >=1
+	weight!: int & >=1
+}
+
+// 地区の並べ方。rings は層を2つ持ち、1つ目を外側、2つ目を中心にする。
+// rows は層を行で分け、rows を省いた層がちょうど1つあって残りの行を占める
+#DistrictPattern: "rings" | "rows" @rawgen(prefix)
+
+// 地区の層。候補の地区から区域の seed で1つ選ぶ
+#DistrictLayer: {
+	zones!: [...#Zone] & [_, ...]
+	// rows の並べ方で、この層が占める行の数
+	rows?: int & >=1
+}
+
 // フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
 #Dungeon: {
 	id!:          #EntityID
@@ -403,7 +446,23 @@ import "strings"
 
 	// 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
 	lootedChance?: int32 & >=0 & <=100
+
+	// 建物の大きさの候補。チャンク数で、区画に収まらなければ小さくする。省けば 1×1
+	footprints?: [...#FacilityFootprint]
+
+	// 2チャンク以上の建物の中の繋がり。省けば rooms
+	interior?: #FacilityInterior
 }
+
+// 建物の大きさの候補
+#FacilityFootprint: {
+	w!:      int & >=1
+	h!:      int & >=1
+	weight!: int & >=1
+}
+
+// 2チャンク以上の建物の中の繋がり。rooms は部屋を扉で繋ぐ迷路、hall はチャンクの境に壁の無い広い空間
+#FacilityInterior: "rooms" | "hall" @rawgen(prefix)
 
 // 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
 #FacilityZone: {
@@ -933,6 +992,7 @@ import "strings"
 	itemTables?: [...#ItemTable]
 	enemyTables?: [...#EnemyTable]
 	facilities?: [...#Facility]
+	districts?: [...#District]
 	landmarks?: [...#Landmark]
 	scatterZones?: [...#ScatterZone]
 	mapGlyphs?: [...#MapGlyph]
@@ -962,6 +1022,7 @@ import "strings"
 
 	// id は表ごとに一意にする。重複すると同じ id に別の行番号が入り、値が食い違う
 	facilityIds_unique: {if facilities != _|_ for i, x in facilities {(x.id): i}} @rawgen(-)
+	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	scatterZoneIds_unique: {if scatterZones != _|_ for i, x in scatterZones {(x.id): i}} @rawgen(-)
 	mapGlyphIds_unique: {if mapGlyphs != _|_ for i, x in mapGlyphs {(x.id): i}} @rawgen(-)
@@ -1331,5 +1392,5 @@ import "strings"
 // 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 #Weight: string & =~"^[0-9]+(\\.[0-9]+)? (mg|g|kg)$"
 
-// 市街地の地区
-#Zone: "downtown" | "residential" | "industrial"
+// 区域の地区。campus_ で始まる地区は研究所の敷地の門の列、中ほど、北の奥の列
+#Zone: "downtown" | "residential" | "industrial" | "campus_gate" | "campus_inner" | "campus_quarantine"

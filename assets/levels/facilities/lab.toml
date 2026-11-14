@@ -1,6 +1,6 @@
 [[chunk]]
 name = "20x20_lab_research"
-facility = "lab"
+facility = "lab_experiment"
 weight = 100
 palettes = ["lab"]
 map = """

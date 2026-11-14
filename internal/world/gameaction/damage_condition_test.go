@@ -113,3 +113,23 @@ func TestApplyDamage_戦闘死はkilledを記録する(t *testing.T) {
 		assert.Empty(t, rs.Cause)
 	})
 }
+
+func TestApplyDamage_デバッグの無敵ではプレイヤーのHPが減らない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.Config.DebugInvincible = true
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "bat")
+	require.NoError(t, err)
+	before := world.Components.HP.Get(player).Current
+
+	ApplyDamage(world, player, before+100, enemy)
+	ApplyConditionDamage(world, player, before+100, gc.CauseFrozen)
+	assert.Equal(t, before, world.Components.HP.Get(player).Current)
+	assert.False(t, world.Components.Dead.Has(player))
+
+	ApplyDamage(world, enemy, 1, player)
+	assert.Less(t, world.Components.HP.Get(enemy).Current, world.Components.HP.Get(enemy).Max, "敵は無敵にならない")
+}

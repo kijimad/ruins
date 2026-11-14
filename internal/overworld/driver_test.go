@@ -224,12 +224,13 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 	const chunkW, chunkH consts.Tile = 24, 24
 	const cols consts.Chunk = 1
 	// chunkTypeAt が集落と分類するチャンクを探す。集落は Y リージョンなので Y を振る
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	var seed uint64
 	var c consts.Coord[consts.Chunk]
 	found := false
 	for s := uint64(1); s < 500 && !found; s++ {
 		for y := range consts.Chunk(12) {
-			if chunkTypeAt(s, consts.Coord[consts.Chunk]{Y: y}, cols) == chunkSettlement {
+			if chunkTypeAt(raws, s, consts.Coord[consts.Chunk]{Y: y}, cols) == chunkSettlement {
 				seed, c, found = s, consts.Coord[consts.Chunk]{Y: y}, true
 				break
 			}
@@ -313,12 +314,12 @@ func TestDriver_3行帯の通し(t *testing.T) {
 		assert.Positivef(t, c, "行%d にタイルが生成されている", r)
 	}
 
-	// プレイヤーは中央チャンク・中央行に立つ
+	// プレイヤーは中央チャンク・中央行に立つ。中央のマスが塞がっていれば近くの歩けるマスへずれる
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	pg := world.Components.GridElement.Get(player)
-	assert.Equal(t, (testCols/2).Tiles(testChunkW)+testChunkW/2, pg.X, "中央チャンクの中央 X")
-	assert.Equal(t, (rows/2).Tiles(testChunkH)+testChunkH/2, pg.Y, "中央行の中央 Y")
+	assert.Equal(t, testCols/2, consts.Chunk(pg.X/testChunkW), "中央チャンク")
+	assert.Equal(t, rows/2, consts.Chunk(pg.Y/testChunkH), "中央行")
 
 	// 北シフトは行単位で全列を入れ替え、3行とも埋まったまま
 	pg.Y = 0
@@ -355,9 +356,10 @@ func TestDriver_シフト後もタイルは座標ごとに1枚(t *testing.T) {
 	t.Parallel()
 
 	// 初期帯の視界内に市街地の断片が入る seed を選ぶ。市街地は Y リージョンに並ぶ。開始チャンク(行1)は避ける
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	var seed uint64
 	for s := uint64(1); s < 500; s++ {
-		if urbanPlacement.At(s, consts.Coord[consts.Chunk]{Y: 2}, testCols) {
+		if _, ok := districtAt(raws, s, consts.Coord[consts.Chunk]{Y: 2}, testCols); ok {
 			seed = s
 			break
 		}

@@ -20,6 +20,9 @@ func progressTurnHunger(world w.World) {
 	q := query.ActiveFilter1[gc.Hunger](world).Query()
 	for q.Next() {
 		entity := q.Entity()
+		if query.IsDebugInvincible(world, entity) {
+			continue
+		}
 		hungerPct := int(query.ProficiencyValue(world, entity, rawschema.ProficiencyIdHungerProgress))
 		// 睡眠中は代謝が下がり腹が減りにくい。進行を半分に抑える
 		if world.Components.Sleeping.Has(entity) {

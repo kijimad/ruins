@@ -23,6 +23,9 @@ func progressTurnFatigue(world w.World) {
 	q := query.ActiveFilter1[gc.Fatigue](world).Query()
 	for q.Next() {
 		entity := q.Entity()
+		if query.IsDebugInvincible(world, entity) {
+			continue
+		}
 		fatigue := world.Components.Fatigue.Get(entity)
 
 		if world.Components.Sleeping.Has(entity) {

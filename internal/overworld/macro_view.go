@@ -83,7 +83,7 @@ func BuildMacroView(
 
 	// 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数。
 	// chunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
-	roads := buildRoadOverlay(runSeed, area, cols)
+	roads := buildRoadOverlay(raws, runSeed, area, cols, chunkW, chunkH)
 
 	colorOf := glyphColorMap(raws)
 	cat := zoneCatalogFrom(raws)

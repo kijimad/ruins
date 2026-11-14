@@ -1,0 +1,40 @@
+[palette]
+id = "lab_yard"
+description = "研究所の中庭"
+
+[palette.terrain]
+"," = "grass_green"
+"." = "floor_concrete"
+
+[palette.props."T"]
+tile = "grass_green"
+candidates = [{ id = "big_tree", weight = 1 }, { id = "tree_a", weight = 2 }, { id = "tree_b", weight = 2 }]
+
+[palette.props."b"]
+tile = "grass_green"
+id = "bush"
+
+[palette.props."r"]
+tile = "grass_green"
+id = "rock"
+
+[palette.props."g"]
+tile = "grass_green"
+id = "grass_lush"
+
+[palette.props."P"]
+tile = "floor_concrete"
+id = "plant"
+
+[palette.props."n"]
+tile = "grass_green"
+id = "bench"
+
+[palette.props."S"]
+tile = "floor_concrete"
+id = "stone_pillar"
+
+[palette.items."o"]
+tile = "grass_green"
+itemGroup = "junk"
+chance = 40

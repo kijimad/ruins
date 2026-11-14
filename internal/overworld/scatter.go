@@ -125,9 +125,9 @@ func groundCoverEntries(rows []rawschema.GroundCoverEntry) []scatterEntry {
 // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
 func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool, error) {
-	switch chunkTypeAt(runSeed, c, cols) {
+	switch chunkTypeAt(raws, runSeed, c, cols) {
 	case chunkWasteland:
-		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(runSeed, c, cols))
+		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(raws, runSeed, c, cols))
 		return cat, err == nil, err
 	default:
 		return scatterCatalog{}, false, nil
@@ -195,7 +195,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 	selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
 	propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
 	for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, propCount) {
-		bigAllowed := onBigPhase(rel) && !onScatterRoute(runSeed, c, cols, g, absTile(rel))
+		bigAllowed := onBigPhase(rel) && !onScatterRoute(world.Resources.RawMaster, runSeed, c, cols, g, absTile(rel))
 		roll := hashTileCoord(selSeed, rel)
 		entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
 		if entry.Ref == "" {
@@ -258,7 +258,7 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、
 // それ以外を奥地にする。道は集落間を結ぶので、集落・市街の近傍が道沿いの帯を兼ねる。近傍地物の
 // 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。
-func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {
+func outdoorZoneAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {
 	// 集落・市街は Y 方向のリージョンに並ぶので region は c.Y から引く
 	sr := consts.FloorDiv(c.Y, settlementPlacement.Spacing)
 	for _, pr := range []consts.Chunk{sr - 1, sr, sr + 1} {
@@ -266,10 +266,12 @@ func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chu
 			return zoneRoadside
 		}
 	}
-	ur := consts.FloorDiv(c.Y, urbanPlacement.Spacing)
-	for _, pr := range []consts.Chunk{ur - 1, ur, ur + 1} {
-		if chunkChebyshev(c, urbanPlacement.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
-			return zoneRoadside
+	for _, d := range districtsFrom(raws) {
+		ry := consts.FloorDiv(c.Y, consts.Chunk(d.row.Spacing))
+		for _, pr := range []consts.Chunk{ry - 1, ry, ry + 1} {
+			if d.regionIn(runSeed, pr, cols).distance(c) <= scatterRoadsideRange {
+				return zoneRoadside
+			}
 		}
 	}
 	return zoneWild
@@ -289,16 +291,15 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 // onScatterRoute は絶対タイル pos が近傍集落間の道の直線からバッファ以内かを返す。実際の道タイルを
 // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、
 // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
-func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
-	// 道の結線は roadSegments を唯一の出典にし、舗装 road.go と同じ経路への距離を測る
+func onScatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
+	// 道の結線は roadPath を唯一の出典にし、舗装 road.go と同じ経路への距離を測る
 	for _, pair := range crossingRoads(runSeed, c, cols) {
-		for _, seg := range roadSegments(pair[0], pair[1]) {
-			fixed, lo, hi := seg.tileSpan(g.chunkW, g.chunkH)
+		for _, seg := range roadPath(raws, runSeed, pair[0], pair[1], cols, g.chunkW, g.chunkH) {
 			var d consts.Tile
 			if seg.orient == orientHorizontal {
-				d = chebToHSeg(pos, fixed, lo, hi)
+				d = chebToHSeg(pos, seg.fixed, seg.lo, seg.hi)
 			} else {
-				d = chebToVSeg(pos, fixed, lo, hi)
+				d = chebToVSeg(pos, seg.fixed, seg.lo, seg.hi)
 			}
 			if d <= scatterRouteBuffer {
 				return true

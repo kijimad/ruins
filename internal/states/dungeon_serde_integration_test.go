@@ -327,3 +327,21 @@ func TestDebug_プランナー指定は選ぶたびにフロアを作り直す(t
 	assert.True(t, handled, "作り直した階からオーバーワールドへ戻れる")
 	assert.Equal(t, gc.NewOverworldStage(), query.GetDungeon(world).CurrentStage, "戻り先はオーバーワールド")
 }
+
+// TestDebug_区域へ飛ぶイベントで北の区域の手前まで帯を進める は、デバッグの区域へ飛ぶ項目が
+// DebugJumpToDistrict→Driver.JumpToDistrict を通り、帯を北へ進めることを固定する。
+func TestDebug_区域へ飛ぶイベントで北の区域の手前まで帯を進める(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 24, 24, 7, 9), &overworld.NewGameParams{RunSeed: 5})
+	require.NoError(t, drv.Start(world))
+	before := drv.NorthIndex()
+
+	require.NoError(t, lifecycle.RequestStateChange(world, gc.DebugJumpToDistrictEvent("lab_campus")))
+	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name(), driver: drv}
+	_, err := st.handleStateChangeRequest(world)
+	require.NoError(t, err)
+
+	assert.Greater(t, drv.NorthIndex(), before, "帯が北へ進む")
+	assert.Equal(t, drv.NorthIndex(), query.GetSeamlessBand(world).NorthIndex, "セーブへ残す帯の位置も進む")
+}

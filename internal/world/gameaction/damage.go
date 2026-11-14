@@ -12,6 +12,9 @@ import (
 // dealHP は HP を damage ぶん削り、致死なら Dead を付けて died を返す。
 // ログや死因記録は呼び出し側が状況に応じて行う。
 func dealHP(world w.World, target ecs.Entity, damage int) (died bool) {
+	if query.IsDebugInvincible(world, target) {
+		return false
+	}
 	hp := world.Components.HP.Get(target)
 
 	beforeHP := hp.Current

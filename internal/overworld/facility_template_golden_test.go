@@ -47,6 +47,10 @@ func TestGolden_FacilityVariants(t *testing.T) {
 	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
 	for _, fac := range loader.Facilities() {
+		// 部屋の絵を組む建物は building_test.go で確かめる
+		if loader.HasRooms(fac) {
+			continue
+		}
 		t.Run(fac, func(t *testing.T) {
 			t.Parallel()
 			const n = 6
@@ -76,7 +80,7 @@ func assertFacilityGolden(t *testing.T, fac string, names []string, cells [][][]
 	tiles := &tileIndex{world: world, loX: 0, hiX: lot * cols}
 	for i, c := range cells {
 		g := chunkGeom{offsetX: lot * consts.Tile(i%cols), offsetY: lot * consts.Tile(i/cols), chunkW: lot, chunkH: lot, tiles: tiles}
-		_, _, err := spawnFacility(world, g, c, 0, 0, fac, 1, uint64(i+1))
+		_, _, err := spawnFacility(world, g, c, 0, 0, fac, 1, uint64(i+1), nil)
 		require.NoError(t, err)
 	}
 	img := renderOverworldRegion(t, world, 0, 0, int(lot)*cols, int(lot)*rows)

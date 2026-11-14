@@ -9,6 +9,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// ringsLayers と rowsLayers は、今の町と研究所の敷地と同じ層
+var (
+	ringsLayers = []rawschema.DistrictLayer{
+		{Zones: []rawschema.Zone{rawschema.Residential, rawschema.Industrial}},
+		{Zones: []rawschema.Zone{rawschema.Downtown}},
+	}
+	rowsLayers = []rawschema.DistrictLayer{
+		{Zones: []rawschema.Zone{rawschema.CampusGate}, Rows: new(1)},
+		{Zones: []rawschema.Zone{rawschema.CampusInner}},
+		{Zones: []rawschema.Zone{rawschema.CampusQuarantine}, Rows: new(1)},
+	}
+)
+
 func TestRealData_HasLandmarks(t *testing.T) {
 	t.Parallel()
 
@@ -185,13 +198,15 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 		{Zone: rawschema.Industrial, Weight: 10, MinSpan: 2},
 	}
 
+	towns := &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 3, H: 3, Weight: 1}, {W: 2, H: 2, Weight: 1}}}}
+
 	t.Run("全地区に基本施設があれば通る", func(t *testing.T) {
 		t.Parallel()
-		raws := rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "house", Zones: baseZones}}}
+		raws := rawschema.Raws{Districts: towns, Facilities: &[]rawschema.Facility{{Id: "house", Zones: baseZones}}}
 		require.NoError(t, validateZoneBaseFacilities(raws))
 	})
 
-	t.Run("施設を持たない raw は通る", func(t *testing.T) {
+	t.Run("区域を持たない raw は通る", func(t *testing.T) {
 		t.Parallel()
 		require.NoError(t, validateZoneBaseFacilities(rawschema.Raws{}))
 	})
@@ -206,8 +221,73 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 				}
 				zones = append(zones, z)
 			}
-			raws := rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "clinic", Zones: zones}}}
+			raws := rawschema.Raws{Districts: towns, Facilities: &[]rawschema.Facility{{Id: "clinic", Zones: zones}}}
 			require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility)
+		})
+	}
+}
+
+func TestValidateZoneBaseFacilities_研究所の敷地は門と中ほどと奥の地区に施設が要る(t *testing.T) {
+	t.Parallel()
+
+	campus := &[]rawschema.District{{Id: "lab_campus", Spacing: 30, Separation: 4, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(true), Sizes: []rawschema.DistrictSize{{W: 7, H: 6, Weight: 1}}}}
+	zones := []rawschema.FacilityZone{
+		{Zone: rawschema.CampusGate, Weight: 1, MinSpan: 1},
+		{Zone: rawschema.CampusInner, Weight: 1, MinSpan: 1},
+	}
+	raws := rawschema.Raws{Districts: campus, Facilities: &[]rawschema.Facility{{Id: "lab", Zones: zones}}}
+	require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility, "閉鎖区画の施設が無い")
+
+	raws.Facilities = &[]rawschema.Facility{{Id: "lab", Zones: zones}, {Id: "lab_quarantine", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusQuarantine, Weight: 1, MinSpan: 1}}}}
+	require.NoError(t, validateZoneBaseFacilities(raws))
+	landmark := rawschema.EntityID("lab_quarantine")
+	(*raws.Districts)[0].Landmark = &landmark
+	require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility, "目玉の施設は地区の基本施設に数えない")
+}
+
+func TestValidateDistricts(t *testing.T) {
+	t.Parallel()
+
+	district := func(h int) rawschema.Raws {
+		return rawschema.Raws{Districts: &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}, {W: 5, H: h, Weight: 1}}}}}
+	}
+	require.NoError(t, validateDistricts(district(5)), "高さが spacing - separation ちょうどなら収まる")
+	require.ErrorIs(t, validateDistricts(district(6)), errDistrictSizeOutOfRegion)
+
+	campus := func(h int) rawschema.Raws {
+		return rawschema.Raws{Districts: &[]rawschema.District{{Id: "lab_campus", Spacing: 30, Separation: 4, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(true), Sizes: []rawschema.DistrictSize{{W: 7, H: h, Weight: 1}}}}}
+	}
+	require.NoError(t, validateDistricts(campus(3)), "門、中ほど、奥が1行ずつ並ぶ")
+	require.ErrorIs(t, validateDistricts(campus(2)), errDistrictTooShort, "残りの行を占める層に1行も残らない")
+}
+
+func TestValidateDistrictLayers(t *testing.T) {
+	t.Parallel()
+
+	zone := []rawschema.Zone{rawschema.Downtown}
+	tests := []struct {
+		name    string
+		pattern rawschema.DistrictPattern
+		layers  []rawschema.DistrictLayer
+		wantErr error
+	}{
+		{"ringsは2層", rawschema.DistrictPatternRings, ringsLayers, nil},
+		{"ringsの層が3つ", rawschema.DistrictPatternRings, []rawschema.DistrictLayer{{Zones: zone}, {Zones: zone}, {Zones: zone}}, errDistrictLayers},
+		{"ringsが行の数を書く", rawschema.DistrictPatternRings, []rawschema.DistrictLayer{{Zones: zone, Rows: new(1)}, {Zones: zone}}, errDistrictLayers},
+		{"rowsは残りの層が1つ", rawschema.DistrictPatternRows, rowsLayers, nil},
+		{"rowsが1層", rawschema.DistrictPatternRows, []rawschema.DistrictLayer{{Zones: zone}}, errDistrictLayers},
+		{"rowsに残りの層が無い", rawschema.DistrictPatternRows, []rawschema.DistrictLayer{{Zones: zone, Rows: new(1)}, {Zones: zone, Rows: new(1)}}, errDistrictLayers},
+		{"rowsに残りの層が2つ", rawschema.DistrictPatternRows, []rawschema.DistrictLayer{{Zones: zone}, {Zones: zone}}, errDistrictLayers},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := validateDistrictLayers(rawschema.District{Id: "d", Pattern: tt.pattern, Layers: tt.layers})
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
 		})
 	}
 }
@@ -247,8 +327,13 @@ func TestValidateRules_各検証の失敗を伝播する(t *testing.T) {
 	}{
 		{
 			name:    "地区の基本施設が無い",
-			raws:    rawschema.Raws{Facilities: &[]rawschema.Facility{{Id: "f1", Zones: []rawschema.FacilityZone{{Zone: rawschema.Downtown, Weight: 1, MinSpan: 3}}}}},
+			raws:    rawschema.Raws{Districts: &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}}}, Facilities: &[]rawschema.Facility{{Id: "f1", Zones: []rawschema.FacilityZone{{Zone: rawschema.Downtown, Weight: 1, MinSpan: 3}}}}},
 			wantErr: errZoneNoBaseFacility,
+		},
+		{
+			name:    "区域の大きさがリージョンに収まらない",
+			raws:    rawschema.Raws{Districts: &[]rawschema.District{{Id: "town", Spacing: 3, Separation: 2, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}}}},
+			wantErr: errDistrictSizeOutOfRegion,
 		},
 		{
 			name:    "地図記号が1文字でない",

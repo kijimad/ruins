@@ -107,6 +107,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 9/17（見送り1） | worldgen, item, gamedesign |
+| accepted | [区域の作りを、地区の並べ方・地区の層・塀・植え込みの組み合わせにする](docs/design/261114201513.md) | 0/4 | worldgen, refactor |
 
 
 ## Reference

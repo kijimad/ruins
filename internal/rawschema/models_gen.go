@@ -531,6 +531,79 @@ type DisassemblyYield struct {
 	Id EntityID `json:"id"`
 }
 
+// District 区域の種類。複数のチャンクにまたがる施設の集まり。リージョンごとに大きさを重みで1つ選び、
+// 余った縦の範囲から位置を選ぶ。区域はリージョンの縦の範囲 spacing - separation からはみ出さない
+type District struct {
+	// Fence 外周に塀を巡らせ、北と南に門を開ける。道は門を通って区域を抜ける
+	Fence *bool `json:"fence,omitempty"`
+
+	Id EntityID `json:"id"`
+
+	// Landmark 区域に1つだけ建てる目玉の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
+	Landmark *EntityID `json:"landmark,omitempty"`
+
+	// Layers 地区の層。プレイヤーが入ってくる側から順に並べる。rings は外から内へ、rows は南から北へ
+	Layers []DistrictLayer `json:"layers"`
+
+	// Pattern 地区の並べ方
+	Pattern DistrictPattern `json:"pattern"`
+
+	// Separation 隣のリージョンの区域との最小の空き。チャンク数
+	Separation int `json:"separation"`
+
+	Sizes []DistrictSize `json:"sizes"`
+
+	// Spacing 当選の間隔。チャンク数
+	Spacing int `json:"spacing"`
+
+	// Verge 街路の両端を植え込みにして、建物と道の間を空ける
+	Verge *bool `json:"verge,omitempty"`
+}
+
+// DistrictLayer 地区の層。候補の地区から区域の seed で1つ選ぶ
+type DistrictLayer struct {
+	// Rows rows の並べ方で、この層が占める行の数
+	Rows *int `json:"rows,omitempty"`
+
+	Zones []Zone `json:"zones"`
+}
+
+// DistrictPattern 地区の並べ方。rings は層を2つ持ち、1つ目を外側、2つ目を中心にする。
+// rows は層を行で分け、rows を省いた層がちょうど1つあって残りの行を占める
+type DistrictPattern string
+
+// Defines values for DistrictPattern.
+const (
+	DistrictPatternRings DistrictPattern = "rings"
+	DistrictPatternRows  DistrictPattern = "rows"
+)
+
+// Valid indicates whether the value is a known member of the DistrictPattern enum.
+func (e DistrictPattern) Valid() bool {
+	switch e {
+	case DistrictPatternRings:
+		return true
+	case DistrictPatternRows:
+		return true
+	default:
+		return false
+	}
+}
+
+// DistrictPatternValues は DistrictPattern の値を、スキーマに書いた順に返す。
+func DistrictPatternValues() []DistrictPattern {
+	return []DistrictPattern{DistrictPatternRings, DistrictPatternRows}
+}
+
+// DistrictSize 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める
+type DistrictSize struct {
+	H int `json:"h"`
+
+	W int `json:"w"`
+
+	Weight int `json:"weight"`
+}
+
 // DoorRaw 扉ローデータ
 type DoorRaw struct {
 	HorizontalClosed SpriteKey `json:"horizontalClosed"`
@@ -836,12 +909,53 @@ type EscapeDevice = map[string]interface{}
 type Facility struct {
 	EnemyTable EntityID `json:"enemyTable"`
 
+	// Footprints 建物の大きさの候補。チャンク数で、区画に収まらなければ小さくする。省けば 1×1
+	Footprints *[]FacilityFootprint `json:"footprints,omitempty"`
+
 	Id EntityID `json:"id"`
+
+	// Interior 2チャンク以上の建物の中の繋がり。省けば rooms
+	Interior *FacilityInterior `json:"interior,omitempty"`
 
 	// LootedChance 収納家具が荒らされて空になっている確率。0から100の百分率で、省略は0
 	LootedChance *int32 `json:"lootedChance,omitempty"`
 
 	Zones []FacilityZone `json:"zones"`
+}
+
+// FacilityFootprint 建物の大きさの候補
+type FacilityFootprint struct {
+	H int `json:"h"`
+
+	W int `json:"w"`
+
+	Weight int `json:"weight"`
+}
+
+// FacilityInterior 2チャンク以上の建物の中の繋がり。rooms は部屋を扉で繋ぐ迷路、hall はチャンクの境に壁の無い広い空間
+type FacilityInterior string
+
+// Defines values for FacilityInterior.
+const (
+	FacilityInteriorHall  FacilityInterior = "hall"
+	FacilityInteriorRooms FacilityInterior = "rooms"
+)
+
+// Valid indicates whether the value is a known member of the FacilityInterior enum.
+func (e FacilityInterior) Valid() bool {
+	switch e {
+	case FacilityInteriorHall:
+		return true
+	case FacilityInteriorRooms:
+		return true
+	default:
+		return false
+	}
+}
+
+// FacilityInteriorValues は FacilityInterior の値を、スキーマに書いた順に返す。
+func FacilityInteriorValues() []FacilityInterior {
+	return []FacilityInterior{FacilityInteriorRooms, FacilityInteriorHall}
 }
 
 // FacilityZone 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
@@ -1846,6 +1960,8 @@ type Raws struct {
 
 	Dialogues *[]Dialogue `json:"dialogues,omitempty"`
 
+	Districts *[]District `json:"districts,omitempty"`
+
 	DropTables *[]DropTable `json:"dropTables,omitempty"`
 
 	Dungeons *[]Dungeon `json:"dungeons,omitempty"`
@@ -2684,19 +2800,28 @@ type WeatherVisionDelta = int
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string
 
-// Zone 市街地の地区
+// Zone 区域の地区。campus_ で始まる地区は研究所の敷地の門の列、中ほど、北の奥の列
 type Zone string
 
 // Defines values for Zone.
 const (
-	Downtown    Zone = "downtown"
-	Industrial  Zone = "industrial"
-	Residential Zone = "residential"
+	CampusGate       Zone = "campus_gate"
+	CampusInner      Zone = "campus_inner"
+	CampusQuarantine Zone = "campus_quarantine"
+	Downtown         Zone = "downtown"
+	Industrial       Zone = "industrial"
+	Residential      Zone = "residential"
 )
 
 // Valid indicates whether the value is a known member of the Zone enum.
 func (e Zone) Valid() bool {
 	switch e {
+	case CampusGate:
+		return true
+	case CampusInner:
+		return true
+	case CampusQuarantine:
+		return true
 	case Downtown:
 		return true
 	case Industrial:
@@ -2710,5 +2835,5 @@ func (e Zone) Valid() bool {
 
 // ZoneValues は Zone の値を、スキーマに書いた順に返す。
 func ZoneValues() []Zone {
-	return []Zone{Downtown, Residential, Industrial}
+	return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine}
 }
