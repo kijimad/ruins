@@ -27,17 +27,17 @@ func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Ch
 	}
 	tiles := g.tiles.get()
 	for _, pair := range crossingRoads(runSeed, c, cols) {
-		if err := drawRoadSegments(world, tiles, pair[0], pair[1], c, g); err != nil {
+		segs := roadPath(world.Resources.RawMaster, runSeed, pair[0], pair[1], cols, g.chunkW, g.chunkH)
+		if err := drawRoadSegments(world, tiles, segs, c, g); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// drawRoadSegments は集落 a の中心から b の中心への L 字経路のうち、チャンク c に
-// 含まれるマスだけを舗装する。既存タイルが土のマスだけを置き換え、市街地の壁や床、
-// 集落は壊さない。経路の分解は roadSegments を唯一の出典とし、地図・散布と一致させる。
-func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, c consts.Coord[consts.Chunk], g chunkGeom) error {
+// drawRoadSegments は道の辺 segs のうち、チャンク c に含まれるマスだけを舗装する。既存タイルが土のマスだけを
+// 置き換え、市街地の壁や床、集落は壊さない。経路は roadPath を唯一の出典とし、地図・散布と一致させる。
+func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs []roadSeg, c consts.Coord[consts.Chunk], g chunkGeom) error {
 	pave := func(px, py consts.Tile) error {
 		loX := c.X.Tiles(g.chunkW)
 		loY := c.Y.Tiles(g.chunkH)
@@ -54,14 +54,13 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, 
 
 	// 各辺を幅 roadWidth のバンドで敷く。進行軸に沿って可変軸を進め、垂直に roadWidth ぶん広げる。
 	// 角付近は両辺のバンドが重なるが replaceDirtTile は冪等なので二重舗装は無害。
-	for _, seg := range roadSegments(a, b) {
-		fixed, lo, hi := seg.tileSpan(g.chunkW, g.chunkH)
-		for v := lo; v <= hi; v++ {
+	for _, seg := range segs {
+		for v := seg.lo; v <= seg.hi; v++ {
 			for w := range roadWidth {
 				off := w - roadWidth/2
-				px, py := v, fixed+off
+				px, py := v, seg.fixed+off
 				if seg.orient == orientVertical {
-					px, py = fixed+off, v
+					px, py = seg.fixed+off, v
 				}
 				if err := pave(px, py); err != nil {
 					return err

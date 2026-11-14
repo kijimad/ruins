@@ -1,9 +1,12 @@
 package overworld
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
+)
 
-// マクロ地図に道を重ねるための算出。道タイルを生成せず、road_geometry.go の roadSegments を
-// 唯一の出典として道の L 字をチャンク空間で解釈する。舗装 road.go・散布 scatter.go と同じ分解を
+// マクロ地図に道を重ねるための算出。道タイルを生成せず、road_geometry.go の roadPath を
+// 唯一の出典として道の辺をチャンク空間で解釈する。舗装 road.go・散布 scatter.go と同じ分解を
 // 共有するので、地図に出る道と実際の道が構造的に一致する。各チャンクをどの方角へ抜けるかをビット集合で表す。
 
 // RoadDir はチャンクを通る道が接続する方角のビット集合。線分描画で、セル中央からどの辺の
@@ -27,9 +30,9 @@ func (d RoadDir) Any() bool {
 }
 
 // buildRoadOverlay は表示範囲に重なる範囲の道の接続方角を、絶対チャンク座標をキーに算出する。
-// road.go と同じく隣接リージョンの当選集落どうしを L 字で結ぶ。生成を伴わない純関数で、
+// road.go と同じく隣接リージョンの当選集落どうしを roadPath で結ぶ。生成を伴わない純関数で、
 // 表示範囲外へはみ出すチャンクも含みうるが、読み手が表示範囲内だけを引くので無害。
-func buildRoadOverlay(runSeed uint64, area MacroRange, cols consts.Chunk) map[consts.Coord[consts.Chunk]]RoadDir {
+func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols consts.Chunk, chunkW, chunkH consts.Tile) map[consts.Coord[consts.Chunk]]RoadDir {
 	overlay := map[consts.Coord[consts.Chunk]]RoadDir{}
 	cols = max(cols, 1)
 	// 道 (pr, pr+1) が占めるチャンク列は当選集落 a.X..b.X で、a.X は pr*Spacing 以上、b.X は
@@ -44,37 +47,43 @@ func buildRoadOverlay(runSeed uint64, area MacroRange, cols consts.Chunk) map[co
 	for pr := rLo; pr <= rHi; pr++ {
 		a := settlementPlacement.WinnerOf(runSeed, pr, cols)
 		b := settlementPlacement.WinnerOf(runSeed, pr+1, cols)
-		markRoadLShape(overlay, a, b)
+		markRoadPath(overlay, roadPath(raws, runSeed, a, b, cols, chunkW, chunkH), chunkW, chunkH)
 	}
 	return overlay
 }
 
-// markRoadLShape は当選集落 a から b への L 字経路のチャンクへ接続方角を積む。分解は roadSegments を
-// 唯一の出典にする。角 (b.X, a.Y) は両辺の端点なので両方のビットが積まれて折れになり、複数の道が
-// 重なる交差はビットが増えて T・十字になる。
-func markRoadLShape(overlay map[consts.Coord[consts.Chunk]]RoadDir, a, b consts.Coord[consts.Chunk]) {
-	for _, seg := range roadSegments(a, b) {
-		for v := seg.lo; v <= seg.hi; v++ {
+// markRoadPath は道の辺 segs が通るチャンクへ接続方角を積む。辺の端のチャンクには端の側のビットを積まないので、
+// 辺どうしが接する折れは両方のビットが積まれて L 字になり、複数の道が重なる交差はビットが増えて T・十字になる。
+func markRoadPath(overlay map[consts.Coord[consts.Chunk]]RoadDir, segs []roadSeg, chunkW, chunkH consts.Tile) {
+	for _, seg := range segs {
+		alongSize, acrossSize := chunkW, chunkH
+		if seg.orient == orientVertical {
+			alongSize, acrossSize = chunkH, chunkW
+		}
+		fixed := consts.Chunk(consts.FloorDiv(seg.fixed, acrossSize))
+		lo := consts.Chunk(consts.FloorDiv(seg.lo, alongSize))
+		hi := consts.Chunk(consts.FloorDiv(seg.hi, alongSize))
+		for v := lo; v <= hi; v++ {
 			var cell consts.Coord[consts.Chunk]
 			var bits RoadDir
 			if seg.orient == orientHorizontal {
-				cell = consts.Coord[consts.Chunk]{X: v, Y: seg.fixed}
-				if v > seg.lo {
+				cell = consts.Coord[consts.Chunk]{X: v, Y: fixed}
+				if v > lo {
 					bits |= RoadW
 				}
-				if v < seg.hi {
+				if v < hi {
 					bits |= RoadE
 				}
 			} else {
-				cell = consts.Coord[consts.Chunk]{X: seg.fixed, Y: v}
-				if v > seg.lo {
+				cell = consts.Coord[consts.Chunk]{X: fixed, Y: v}
+				if v > lo {
 					bits |= RoadN
 				}
-				if v < seg.hi {
+				if v < hi {
 					bits |= RoadS
 				}
 			}
-			// 退化辺、a==b や集落が同じ行/列、はビットが 0。空の道キーを作らないよう積まない
+			// 退化辺、すなわち1チャンクに収まる辺はビットが 0。空の道キーを作らないよう積まない
 			if bits.Any() {
 				overlay[cell] |= bits
 			}

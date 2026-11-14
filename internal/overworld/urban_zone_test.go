@@ -167,7 +167,7 @@ func TestDistrictRegion_zoneAt_区域の作りが割り振る地区はrawの地�
 	}
 }
 
-func TestCampusFence_外周を巡り真ん中の列の南北に門を開ける(t *testing.T) {
+func TestCampusFence_外周を巡り門の列の南北に門を開ける(t *testing.T) {
 	t.Parallel()
 
 	const w, h consts.Tile = 6, 5
@@ -177,7 +177,7 @@ func TestCampusFence_外周を巡り真ん中の列の南北に門を開ける(t
 		for y := range rows {
 			rows[y] = []byte("......")
 		}
-		for _, p := range campusFence(r, l, w, h) {
+		for _, p := range campusFence(r, l, w, h, 1, 1) {
 			rows[p.Y][p.X] = 'f'
 		}
 		out := make([]string, h)
@@ -186,7 +186,7 @@ func TestCampusFence_外周を巡り真ん中の列の南北に門を開ける(t
 		}
 		return out
 	}
-	// 街路の幅 urbanStreetW は4。真ん中の列 lx=1 の北の端の行と南の端の行だけ、西の4マスを開ける
+	// 街路の幅 urbanStreetW は4。門の列 lx=1 の北の端の行と南の端の行だけ、西の4マスを開ける
 	assert.Equal(t, []string{"ffffff", "f.....", "f.....", "f.....", "f....."}, render(consts.Coord[consts.Chunk]{X: 0, Y: 0}))
 	assert.Equal(t, []string{"....ff", "......", "......", "......", "......"}, render(consts.Coord[consts.Chunk]{X: 1, Y: 0}))
 	assert.Equal(t, []string{"......", "......", "......", "......", "....ff"}, render(consts.Coord[consts.Chunk]{X: 1, Y: 1}))

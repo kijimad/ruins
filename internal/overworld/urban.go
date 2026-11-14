@@ -139,19 +139,30 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	lot := lotAt(lotsOf(raws, zoneCatalogFrom(raws), r), l)
 	var fence []consts.Coord[consts.Tile]
 	if r.layout == rawschema.DistrictLayoutCampus {
-		fence = campusFence(r, l, g.chunkW, g.chunkH)
+		north, south := campusGateColumns(raws, r)
+		fence = campusFence(r, l, g.chunkW, g.chunkH, north-r.anchor.X, south-r.anchor.X)
 	}
 	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence)
 }
 
+// campusGateColumns は研究所の敷地の北と南の門を開ける絶対チャンク列を返す。真ん中の列を覆う区画の西の端の列で、
+// 区画の西の帯は街路なので、門から構内の街路へ入れる
+func campusGateColumns(raws rawschema.Raws, r districtRegion) (north, south consts.Chunk) {
+	lots := lotsOf(raws, zoneCatalogFrom(raws), r)
+	north = lotAt(lots, consts.Coord[consts.Chunk]{X: r.w / 2, Y: 0}).anchor.X
+	south = lotAt(lots, consts.Coord[consts.Chunk]{X: r.w / 2, Y: r.h - 1}).anchor.X
+	return r.anchor.X + north, r.anchor.X + south
+}
+
 // campusFence は研究所の敷地の中のチャンク l に置く塀のマスを、チャンク内の座標で返す。塀は敷地の外周を巡り、
-// 真ん中の列の北と南の端に、構内の縦の街路の幅だけ門を開ける。東と南の辺には街路が無いので、建物の区画の外側の
-// 1列に置く
-func campusFence(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) []consts.Coord[consts.Tile] {
-	gate := l.X == r.w/2
+// 区域の中の列 northGate と southGate の北と南の端に、街路の幅だけ門を開ける。東と南の辺には街路が無いので、
+// 建物の区画の外側の1列に置く
+func campusFence(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, northGate, southGate consts.Chunk) []consts.Coord[consts.Tile] {
+	northOpen := l.X == northGate && l.Y == 0
+	southOpen := l.X == southGate && l.Y == r.h-1
 	var out []consts.Coord[consts.Tile]
 	add := func(x, y consts.Tile) {
-		if gate && ((y == 0 && l.Y == 0) || (y == chunkH-1 && l.Y == r.h-1)) && x < urbanStreetW {
+		if ((northOpen && y == 0) || (southOpen && y == chunkH-1)) && x < urbanStreetW {
 			return
 		}
 		out = append(out, consts.Coord[consts.Tile]{X: x, Y: y})
