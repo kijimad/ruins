@@ -1692,6 +1692,9 @@ msgstr "閉鎖区画"
 msgid "Main Lab"
 msgstr "研究本館"
 
+msgid "Courtyard"
+msgstr "中庭"
+
 msgid "Wasteland"
 msgstr "荒れ地"
 

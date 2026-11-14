@@ -3206,6 +3206,20 @@
     weight = 3
     zone = "campus_inner"
 
+[[facilities]]
+  enemyTable = "lab_enemies"
+  id = "lab_yard"
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 2
+    zone = "campus_inner"
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "campus_gate"
+
 [[fatigueStages]]
   canSleep = false
   from = 0.0
@@ -16892,6 +16906,17 @@
     g = 190
     r = 100
 
+[[mapGlyphs]]
+  glyph = "Y"
+  id = "lab_yard"
+  name = "Courtyard"
+  order = 19
+  [mapGlyphs.color]
+    a = 255
+    b = 90
+    g = 180
+    r = 120
+
 [[materials]]
   heatPerKg = 200
   id = "WOOD"
@@ -21854,6 +21879,8 @@
   description = "緑の草地のオートタイル床"
   id = "grass_green"
   name = "Grass Field"
+  [tiles.spawn]
+    autotile = true
   [tiles.spriteRender]
     depth = 0
     spriteKey = "grass_green"
