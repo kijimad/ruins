@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -378,11 +379,13 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 			var number string
 			var prefix string
 			if base, n, ok := strings.CutLast(spriteRender.SpriteKey, "_"); ok {
-				switch {
-				case base == "dirt" || strings.HasPrefix(base, "dirt_"):
-					number, prefix = n, "d"
-				case base == "dwall":
-					number, prefix = n, "w"
+				if _, err := strconv.Atoi(n); err == nil {
+					switch {
+					case strings.HasPrefix(base, "dirt_"):
+						number, prefix = n, "d"
+					case base == "dwall":
+						number, prefix = n, "w"
+					}
 				}
 			}
 
