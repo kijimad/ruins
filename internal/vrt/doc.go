@@ -16,6 +16,7 @@
 //
 //   - AssertScreenGolden: 任意の画面描画を固定する
 //   - AssertFrameGolden: 描画済みの screen を固定する。再生ドライバが撮ったフレームに使う。screen は解放しない
+//   - NewScreen: golden を撮る描き先を作る。AssertFrameGolden に渡す screen はこれで作る
 //
 // # 画像生成。比較はせず保存用のPNGを返す
 //
