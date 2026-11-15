@@ -110,7 +110,8 @@ func newLayoutChain(raws rawschema.Raws, id string, width, height consts.Tile, s
 	return chain, nil
 }
 
-// newStart は絵でない最初の段の行 id を表から引き、間取りのタイル tiles を渡して段を作る
+// newStart は絵でない最初の段の行 id を表から引き、間取りのタイル tiles を渡して段を作る。
+// 段の表を足すときは、schema.cue の表と startIds_unique、refs.cue の _startIDs、この分岐、TestNewStart の表の列挙を揃える
 func newStart(raws rawschema.Raws, id string, tiles rawschema.LayoutTiles) (InitialMapPlanner, error) {
 	if r, ok := raw.FindByKey(raws.RectRoomStarts, func(r rawschema.RectRoomStart) string { return r.Id }, id); ok {
 		return RectRoomPlanner{Row: r}, nil
@@ -133,7 +134,8 @@ func newStart(raws rawschema.Raws, id string, tiles rawschema.LayoutTiles) (Init
 	return nil, fmt.Errorf("%w: %s", ErrUnknownStep, id)
 }
 
-// newStep は中の段の行 id を表から引き、間取りのタイル tiles を渡して段を作る
+// newStep は中の段の行 id を表から引き、間取りのタイル tiles を渡して段を作る。
+// 段の表を足すときは、schema.cue の表と stepIds_unique、refs.cue の _stepIDs、この分岐、TestNewStep の表の列挙を揃える
 func newStep(raws rawschema.Raws, id string, tiles rawschema.LayoutTiles) (MetaMapPlanner, error) {
 	if r, ok := raw.FindByKey(raws.CorridorSteps, func(r rawschema.CorridorStep) string { return r.Id }, id); ok {
 		return LineCorridorPlanner{FloorTile: tiles.Floor, WallTile: tiles.Wall, Width: r.Width}, nil
