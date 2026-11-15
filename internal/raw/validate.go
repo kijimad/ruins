@@ -549,6 +549,7 @@ func validateNeedStages(raws rawschema.Raws) error {
 }
 
 // validateReachableDungeon はダンジョンの行があるとき、遺跡の入口から入れる行が1つ以上あることを検証する。
+// ダンジョンの行が無い raw は地上を生成しないテスト用の最小の raw なので通す。
 // 地図は入口の重みを見ずにチャンクを遺跡の入口に分けるので、引ける行が無いと記号だけが出て入口が無くなる
 func validateReachableDungeon(raws rawschema.Raws) error {
 	dungeons := PtrSlice(raws.Dungeons)

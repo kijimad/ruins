@@ -44,7 +44,7 @@ func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols
 		if f.Road == nil {
 			continue
 		}
-		p := placementOf(raws, f.Id)
+		p := placementFrom(f)
 		topRegion := consts.FloorDiv(area.OriginY, p.Spacing)
 		botRegion := consts.FloorDiv(area.OriginY+area.Rows-1, p.Spacing)
 		rLo := topRegion - 1 - scanMargin // 1つ北のリージョンの道が南へ食い込みうる
