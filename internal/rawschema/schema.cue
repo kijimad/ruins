@@ -771,16 +771,19 @@ import "strings"
 	}
 }
 
-// 外周を壁で囲い、南辺に出入口を開けた小屋
+// 外周を壁で囲い、南辺に出入口を開けた小屋。幅と高さは外周の壁を含むタイル数。
+// 下限は出入口を置く内側の1マス、上限は小屋をチャンクの内側へ収める原野の目印の配置の余白で決まる
 #LandmarkHut: {
-	// 外周の壁を含む幅と高さ。タイル数
-	w!: int32 & >=3
-	h!: int32 & >=3
-	// 床と壁のタイル
+	// 幅
+	w!: int32 & >=3 & <=7
+	// 高さ
+	h!: int32 & >=3 & <=7
+	// 床のタイル
 	floor!:    #EntityID
 	floor_ref: _tileIDs[floor] @rawgen(-)
-	wall!:     #EntityID
-	wall_ref:  _tileIDs[wall] @rawgen(-)
+	// 壁のタイル
+	wall!:    #EntityID
+	wall_ref: _tileIDs[wall] @rawgen(-)
 }
 
 // 光源が有効かどうか

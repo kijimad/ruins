@@ -71,8 +71,8 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 	}
 
 	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y), 0))
-	// 構造物がチャンク境界をはみ出さないよう内側に収める。maxHut は最大の小屋の幅 7 に壁1枚分の
-	// 余白を足した値で、原点をどこへずらしても外壁と南辺の扉が境界へ接しない
+	// 構造物がチャンク境界をはみ出さないよう内側に収める。maxHut はスキーマの #LandmarkHut が許す
+	// 最大の幅 7 に壁1枚分の余白を足した値で、原点をどこへずらしても外壁と南辺の扉が境界へ接しない
 	const margin, maxHut = 2, 8
 	spanX := max(1, int(g.chunkW)-2*margin-maxHut)
 	spanY := max(1, int(g.chunkH)-2*margin-maxHut)

@@ -35,7 +35,7 @@ func TestValidate_ダイス表記の違反を位置で返す(t *testing.T) {
 	assert.Equal(t, []string{"enemyTables.0.entries.0.pack"}, ce.Paths())
 }
 
-func TestValidate_小屋の形は小屋の目印だけが持つ(t *testing.T) {
+func TestValidate_小屋の形は小屋の目印だけが持ち大きさに上下限がある(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name   string
@@ -46,6 +46,8 @@ func TestValidate_小屋の形は小屋の目印だけが持つ(t *testing.T) {
 		{"露天の目印に形がある", func(r *rawschema.Raws) {
 			(*r.Landmarks)[0].Hut = &rawschema.LandmarkHut{W: 4, H: 4, Floor: "floor", Wall: "wall"}
 		}, []string{"landmarks.0.hut"}},
+		{"小屋の幅が出入口を置けないほど狭い", func(r *rawschema.Raws) { (*r.Landmarks)[1].Hut.W = 2 }, []string{"landmarks.1.hut.w"}},
+		{"小屋の高さがチャンクの内側に収まらない", func(r *rawschema.Raws) { (*r.Landmarks)[1].Hut.H = 8 }, []string{"landmarks.1.hut.h"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

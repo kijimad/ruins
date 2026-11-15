@@ -1478,16 +1478,19 @@ type Landmark struct {
 	Weight int32 `json:"weight"`
 }
 
-// LandmarkHut 外周を壁で囲い、南辺に出入口を開けた小屋
+// LandmarkHut 外周を壁で囲い、南辺に出入口を開けた小屋。幅と高さは外周の壁を含むタイル数。
+// 下限は出入口を置く内側の1マス、上限は小屋をチャンクの内側へ収める原野の目印の配置の余白で決まる
 type LandmarkHut struct {
-	// Floor 床と壁のタイル
+	// Floor 床のタイル
 	Floor EntityID `json:"floor"`
 
+	// H 高さ
 	H int32 `json:"h"`
 
-	// W 外周の壁を含む幅と高さ。タイル数
+	// W 幅
 	W int32 `json:"w"`
 
+	// Wall 壁のタイル
 	Wall EntityID `json:"wall"`
 }
 
