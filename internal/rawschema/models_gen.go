@@ -2806,6 +2806,9 @@ type Tile struct {
 
 	BlockView BlocksView `json:"blockView"`
 
+	// Box 3D で高さのある箱として描く。箱のオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い箱の内側は虚空にする
+	Box *bool `json:"box,omitempty"`
+
 	Description EntityDescription `json:"description"`
 
 	// Earth 草や木を立てられ、道で上書きしてよい土の地面か
@@ -2824,9 +2827,6 @@ type Tile struct {
 
 	// SnowMeltPercent 積もる雪を減らす割合。省くと減らさない
 	SnowMeltPercent *SnowMeltPercent `json:"snowMeltPercent,omitempty"`
-
-	// Solid 高さのある塊で描く。塊のオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い塊の内側は虚空にする
-	Solid *bool `json:"solid,omitempty"`
 
 	// Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
 	Spawn *TileSpawn `json:"spawn,omitempty"`

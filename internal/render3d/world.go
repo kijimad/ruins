@@ -46,14 +46,14 @@ func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {
 
 // IsWallTile はそのタイルが高さのある箱として描かれるかを返す。
 //
-// 箱になるのは Tile と Solid を併せ持つエンティティだけである。扉やキューブは通行を
+// 箱になるのは Tile と Box を併せ持つエンティティだけである。扉やキューブは通行を
 // 塞ぐが箱にはならないので、通れるかで代わりに判定してはいけない。全てのエンティティでなく
-// 塊のタイルだけを走査する。
+// 箱のタイルだけを走査する。
 //
 // 内部でエンティティ検索のクエリを開くので、クエリ反復中には呼ばない。呼び出し元は Draw の
 // カーソル描画で、その時点でアクティブなクエリは無い。
 func IsWallTile(world w.World, c consts.Coord[consts.Tile]) bool {
-	q := query.ActiveFilter2[gc.GridElement, gc.Solid](world).With(ecs.C[gc.Tile]()).Query()
+	q := query.ActiveFilter2[gc.GridElement, gc.Box](world).With(ecs.C[gc.Tile]()).Query()
 	for q.Next() {
 		if world.Components.GridElement.Get(q.Entity()).Coord == c {
 			q.Close()
@@ -68,13 +68,13 @@ func IsWallTile(world w.World, c consts.Coord[consts.Tile]) bool {
 // Has を見るだけでクエリを開かないので、WallTileSet のクエリ反復中から呼んでも安全。
 // 座標からエンティティを引く IsWallTile とはこの点が異なる。
 func IsWallTileEntity(world w.World, e ecs.Entity) bool {
-	return world.Components.Tile.Has(e) && world.Components.Solid.Has(e)
+	return world.Components.Tile.Has(e) && world.Components.Box.Has(e)
 }
 
 // WallTileSet は箱として描かれるタイルの集合を組む。壁の側面を隣と突き合わせて省くのに使う
 func WallTileSet(world w.World) map[consts.Coord[consts.Tile]]bool {
 	walls := map[consts.Coord[consts.Tile]]bool{}
-	wallQ := query.ActiveFilter2[gc.GridElement, gc.Solid](world).With(ecs.C[gc.Tile]()).Query()
+	wallQ := query.ActiveFilter2[gc.GridElement, gc.Box](world).With(ecs.C[gc.Tile]()).Query()
 	for wallQ.Next() {
 		walls[world.Components.GridElement.Get(wallQ.Entity()).Coord] = true
 	}

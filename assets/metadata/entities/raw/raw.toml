@@ -23377,10 +23377,10 @@
 [[tiles]]
   blockPass = true
   blockView = true
+  box = true
   description = "濃灰のダンジョン壁のオートタイル。通行不可"
   id = "dwall"
   name = "Dungeon Wall"
-  solid = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -23418,10 +23418,10 @@
 [[tiles]]
   blockPass = true
   blockView = true
+  box = true
   description = "灰色の石壁のオートタイル。通行不可"
   id = "wall"
   name = "Wall"
-  solid = true
   [tiles.spawn]
     autotile = true
     tile = "dwall"

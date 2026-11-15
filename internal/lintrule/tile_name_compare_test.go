@@ -16,7 +16,7 @@ import (
 )
 
 // TestNoTileNameCompare はタイルの名前の定数 consts.TileName* と比べることを禁止する。タイルが何かは
-// 名前でなく、行の欄 solid・blockPass・earth などの性質で判定する。名前で比べると、同じ性質の別のタイルを
+// 名前でなく、行の欄 box・blockPass・earth などの性質で判定する。名前で比べると、同じ性質の別のタイルを
 // 足したときに Go を直す必要が出る。定数でタイルを置いたり引いたりするのは判定でないので対象外。
 func TestNoTileNameCompare(t *testing.T) {
 	t.Parallel()

@@ -47,7 +47,7 @@ var Registry = []Def{
 	{Field: "SpriteRender"},    // スプライト描画情報を保持する
 	{Field: "BlockView"},       // 視界を遮ることを示す
 	{Field: "BlockPass"},       // 通行不可であることを示す
-	{Field: "Solid"},           // 高さのある塊で描くタイルであることを示す
+	{Field: "Box"},             // 3D で高さのある箱として描くタイルであることを示す
 	{Field: "PassCost"},        // タイルの移動コスト修正を保持する
 	{Field: "Door"},            // 開閉可能な扉であることを表す
 	{Field: "Item"},            // 可搬アイテムであることを示す

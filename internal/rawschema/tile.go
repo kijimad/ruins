@@ -1,6 +1,6 @@
 package rawschema
 
-// IsSolid はタイルを高さのある塊で描くかを返す
-func (t Tile) IsSolid() bool {
-	return t.Solid != nil && *t.Solid
+// IsBox はタイルを 3D で高さのある箱として描くかを返す
+func (t Tile) IsBox() bool {
+	return t.Box != nil && *t.Box
 }

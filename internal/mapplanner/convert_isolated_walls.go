@@ -4,7 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 )
 
-// ConvertIsolatedWalls は通れるマスに隣接しない塊のタイルを指定したタイルに変換するプランナー
+// ConvertIsolatedWalls は通れるマスに隣接しない箱のタイルを指定したタイルに変換するプランナー
 // オートタイル計算前に実行することで、正しい接続パターンで壁タイルを生成する
 type ConvertIsolatedWalls struct {
 	// ReplacementTile は孤立した壁を置き換えるタイル名
@@ -27,7 +27,7 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 			continue
 		}
 
-		if tile.IsSolid() && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
+		if tile.IsBox() && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
 			tilesToConvert = append(tilesToConvert, i)
 		}
 	}
