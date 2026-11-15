@@ -38,9 +38,7 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 	t.Helper()
 
 	drawFn := setupFn()
-	// 描き先も unmanaged にする。共有アトラス上の配置は並行テストの生成順で変わり、
-	// linear で引き伸ばす画像のサンプル行がずれる。機構は components.Texture を参照
-	screen := ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), &ebiten.NewImageOptions{Unmanaged: true})
+	screen := NewScreen(width, height)
 	drawFn(screen)
 	img := captureScreen(screen)
 
@@ -56,6 +54,12 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 func AssertFrameGolden(t *testing.T, name string, screen *ebiten.Image) {
 	t.Helper()
 	assertPNGGolden(t, name, encodePNG(t, readScreen(screen)))
+}
+
+// NewScreen は golden を撮る描き先を作る。共有アトラスに載せると配置が並行テストの生成順で変わり、
+// 引き伸ばす画像のサンプル位置がずれるので unmanaged にする。機構は components.Texture を参照
+func NewScreen(width, height int) *ebiten.Image {
+	return ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), &ebiten.NewImageOptions{Unmanaged: true})
 }
 
 // encodePNG はimage.Imageをpngバイト列にエンコードする

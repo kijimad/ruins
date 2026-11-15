@@ -59,7 +59,7 @@ func PlayScenario(
 		if capture == nil {
 			continue
 		}
-		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+		screen := vrt.NewScreen(consts.GameWidth, consts.GameHeight)
 		game.Draw(screen)
 		capture(frame, world, screen)
 	}
