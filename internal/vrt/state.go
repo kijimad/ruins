@@ -6,7 +6,6 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -40,7 +39,7 @@ func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World]) *
 	sm := SetupStateMachine(t, world, buildStates)
 	game, err := maingame.NewMainGame(world, sm)
 	require.NoError(t, err)
-	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+	screen := newScreen(consts.GameWidth, consts.GameHeight)
 	game.Draw(screen)
 	return captureScreen(screen)
 }
