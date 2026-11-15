@@ -2807,6 +2807,8 @@ const (
 	CampusInner      Zone = "campus_inner"
 	CampusQuarantine Zone = "campus_quarantine"
 	Downtown         Zone = "downtown"
+	FarmField        Zone = "farm_field"
+	FarmYard         Zone = "farm_yard"
 	Industrial       Zone = "industrial"
 	MilitaryArmory   Zone = "military_armory"
 	MilitaryGate     Zone = "military_gate"
@@ -2826,6 +2828,10 @@ func (e Zone) Valid() bool {
 	case CampusQuarantine:
 		return true
 	case Downtown:
+		return true
+	case FarmField:
+		return true
+	case FarmYard:
 		return true
 	case Industrial:
 		return true
@@ -2848,5 +2854,5 @@ func (e Zone) Valid() bool {
 
 // ZoneValues は Zone の値を、スキーマに書いた順に返す。
 func ZoneValues() []Zone {
-	return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore}
+	return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore, FarmYard, FarmField}
 }

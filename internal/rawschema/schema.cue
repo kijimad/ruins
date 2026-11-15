@@ -1420,4 +1420,4 @@ import "strings"
 #Weight: string & =~"^[0-9]+(\\.[0-9]+)? (mg|g|kg)$"
 
 // 区域の地区。区域の層が候補として持ち、施設は建つ地区として持つ
-#Zone: "downtown" | "residential" | "industrial" | "campus_gate" | "campus_inner" | "campus_quarantine" | "military_gate" | "military_inner" | "military_armory" | "plant_outer" | "plant_core"
+#Zone: "downtown" | "residential" | "industrial" | "campus_gate" | "campus_inner" | "campus_quarantine" | "military_gate" | "military_inner" | "military_armory" | "plant_outer" | "plant_core" | "farm_yard" | "farm_field"

@@ -8,7 +8,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/overworld"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
@@ -86,12 +85,12 @@ func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) 
 	cv.FillTriangle(rot(back), rot(left), rot(right), theme.OverworldMapMarkerBack) // 後方=シルバー
 }
 
-// DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
+// DrawMapLegend は記号 glyphs の色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
 // 地図上の1文字から凡例を引けるようにする。全画面図の下部 chrome。top は並べ始める y ピクセル。
-func DrawMapLegend(cv uicore.Canvas, raws rawschema.Raws, translate func(msgid string) string, face, glyphFace text.Face, top int) {
+func DrawMapLegend(cv uicore.Canvas, glyphs []overworld.GlyphInfo, translate func(msgid string) string, face, glyphFace text.Face, top int) {
 	const swatch = 14
 	x, y := 8, top
-	for _, g := range overworld.LegendGlyphs(raws) {
+	for _, g := range glyphs {
 		cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), g.Color, uicore.RectOptions{})
 		drawCenteredGlyph(cv, string(g.Label), glyphFace, x, y, swatch, theme.OverworldMapGlyphText)
 		cv.DrawText(image.Pt(x+20, y-2), translate(g.Name), face, theme.TextPrimary)

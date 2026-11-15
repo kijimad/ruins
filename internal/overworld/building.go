@@ -97,7 +97,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 	return lots
 }
 
-// landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、
+// landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、
 // 地区に収まるものを選ぶ。区域の作りがその地区を割り振らなければ置かない
 func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.Zone) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
 	for _, fz := range f.Zones {
@@ -118,6 +118,9 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
 			maxC = consts.Coord[consts.Chunk]{X: max(maxC.X, c.X), Y: max(maxC.Y, c.Y)}
 		}
 		fps := slices.Clone(raw.PtrSlice(f.Footprints))
+		if len(fps) == 0 {
+			fps = []rawschema.FacilityFootprint{{W: 1, H: 1, Weight: 1}}
+		}
 		slices.SortStableFunc(fps, func(a, b rawschema.FacilityFootprint) int { return b.W*b.H - a.W*a.H })
 		for _, fp := range fps {
 			w, h := consts.Chunk(fp.W), consts.Chunk(fp.H)

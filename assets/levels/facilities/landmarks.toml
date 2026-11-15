@@ -14,21 +14,6 @@ map = """
 """
 
 [[chunk]]
-name = "9x7_farmstead"
-facility = "farmstead"
-weight = 100
-palettes = ["landmark"]
-map = """
-,,,,,,,,,
-,#######,
-,#Bk...#,
-,#.....#,
-,#.....#,
-,####+##,
-,,,,,,,,,
-"""
-
-[[chunk]]
 name = "5x4_shrine"
 facility = "shrine"
 weight = 100

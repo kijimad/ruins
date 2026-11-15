@@ -1710,8 +1710,8 @@ msgstr "遺跡入口"
 msgid "Abandoned Hut"
 msgstr "廃屋"
 
-msgid "Old Farmstead"
-msgstr "農家跡"
+msgid "Farmhouse"
+msgstr "農家"
 
 msgid "Shrine"
 msgstr "祠"
@@ -6562,3 +6562,15 @@ msgstr "制御棟"
 
 msgid "Coal Yard"
 msgstr "貯炭場"
+
+msgid "Barn"
+msgstr "納屋"
+
+msgid "Field"
+msgstr "畑"
+
+msgid "Pen"
+msgstr "家畜の囲い"
+
+msgid "Crops"
+msgstr "作物"
