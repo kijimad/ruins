@@ -3,10 +3,16 @@ package mapplanner
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // RectRoomPlanner は長方形の部屋を作成する
-type RectRoomPlanner struct{}
+type RectRoomPlanner struct {
+	// Rooms は上端と下端の部屋のほかに置く部屋の数
+	Rooms rawschema.RandInt
+	// RoomSize は部屋の幅と高さ
+	RoomSize rawschema.RandInt
+}
 
 // PlanInitial は初期プランを行う
 func (b RectRoomPlanner) PlanInitial(planData *MetaPlan) error {
@@ -26,13 +32,13 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) {
 	rooms = append(rooms, topRoom)
 
 	// 下端に必ず1つの部屋を配置（Y2=height-1に密着）
-	bottomW := 2 + planData.RNG.IntN(8)
-	bottomH := 2 + planData.RNG.IntN(8)
+	bottomW := b.RoomSize.Base + planData.RNG.IntN(b.RoomSize.Spread)
+	bottomH := b.RoomSize.Base + planData.RNG.IntN(b.RoomSize.Spread)
 	bottomX := planData.RNG.IntN(width)
 	rooms = append(rooms, gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(bottomX), Y: consts.Tile(max(height-bottomH, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(bottomX+bottomW, width) - 1), Y: consts.Tile(height - 1)}})
 
 	// 残りの部屋はランダム配置
-	maxRooms := 4 + planData.RNG.IntN(10)
+	maxRooms := b.Rooms.Base + planData.RNG.IntN(b.Rooms.Spread)
 	for range maxRooms {
 		y := planData.RNG.IntN(height)
 		rooms = append(rooms, b.createRoom(planData, width, height, y))
@@ -44,8 +50,8 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) {
 // createRoom は指定のY座標から部屋を生成する
 func (b RectRoomPlanner) createRoom(planData *MetaPlan, width, height, y int) gc.Rect {
 	x := planData.RNG.IntN(width)
-	w := 2 + planData.RNG.IntN(8)
-	h := 2 + planData.RNG.IntN(8)
+	w := b.RoomSize.Base + planData.RNG.IntN(b.RoomSize.Spread)
+	h := b.RoomSize.Base + planData.RNG.IntN(b.RoomSize.Spread)
 	return gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(max(y, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(x+w, width) - 1), Y: consts.Tile(min(y+h, height) - 1)}}
 
 }

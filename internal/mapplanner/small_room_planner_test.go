@@ -17,7 +17,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 		width := consts.Tile(20)
 		height := consts.Tile(20)
 
-		chain, err := NewSmallRoomPlanner(width, height, 12345)
+		chain, err := NewSmallRoomPlanner(testRoomLayout, width, height, 12345)
 		require.NoError(t, err)
 
 		// チェーンが作成されていることを確認
@@ -30,7 +30,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 		width := consts.Tile(30)
 		height := consts.Tile(30)
 
-		chain, err := NewSmallRoomPlanner(width, height, 12345)
+		chain, err := NewSmallRoomPlanner(testRoomLayout, width, height, 12345)
 		require.NoError(t, err)
 
 		// ビルド実行
@@ -70,7 +70,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 		width := consts.Tile(25)
 		height := consts.Tile(25)
 
-		chain, err := NewSmallRoomPlanner(width, height, 12345)
+		chain, err := NewSmallRoomPlanner(testRoomLayout, width, height, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -98,7 +98,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 		width := consts.Tile(20)
 		height := consts.Tile(20)
 
-		chain, err := NewSmallRoomPlanner(width, height, 12345)
+		chain, err := NewSmallRoomPlanner(testRoomLayout, width, height, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -139,7 +139,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 		for _, tc := range testCases {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
-				chain, err := NewSmallRoomPlanner(tc.width, tc.height, 12345)
+				chain, err := NewSmallRoomPlanner(testRoomLayout, tc.width, tc.height, 12345)
 				require.NoError(t, err)
 
 				chain.PlanData.RawMaster = CreateTestRawMaster()
@@ -184,7 +184,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 		width := consts.Tile(30)
 		height := consts.Tile(30)
 
-		chain, err := NewSmallRoomPlanner(width, height, 12345)
+		chain, err := NewSmallRoomPlanner(testRoomLayout, width, height, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()

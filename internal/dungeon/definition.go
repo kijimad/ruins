@@ -39,8 +39,8 @@ type DungeonDefinition struct {
 	displayName i18n.Msgid
 	enemyTable  string
 	itemTable   string
-	enemyCount  rawschema.FloorCount
-	itemCount   rawschema.FloorCount
+	enemyCount  rawschema.RandInt
+	itemCount   rawschema.RandInt
 	plannerPool []PlannerWeight
 	baseTemp    int
 }
@@ -61,10 +61,10 @@ func (d *DungeonDefinition) EnemyTableName() string { return d.enemyTable }
 func (d *DungeonDefinition) ItemTableName() string { return d.itemTable }
 
 // EnemyCount はフロアに置く敵の数を返す
-func (d *DungeonDefinition) EnemyCount() rawschema.FloorCount { return d.enemyCount }
+func (d *DungeonDefinition) EnemyCount() rawschema.RandInt { return d.enemyCount }
 
 // ItemCount はフロアに置くアイテムの数を返す
-func (d *DungeonDefinition) ItemCount() rawschema.FloorCount { return d.itemCount }
+func (d *DungeonDefinition) ItemCount() rawschema.RandInt { return d.itemCount }
 
 // PlannerPool は使用するマップ種類と重みの一覧を返す。表示や検証での読み取り用。
 func (d *DungeonDefinition) PlannerPool() []PlannerWeight { return d.plannerPool }

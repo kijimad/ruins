@@ -416,23 +416,115 @@ import "strings"
 	// 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ない
 	entranceWeight!: int & >=0
 	// フロアに置く敵の数
-	enemyCount!: #FloorCount
+	enemyCount!: #RandInt
 	// フロアに置くアイテムの数
-	itemCount!: #FloorCount
+	itemCount!: #RandInt
 }
 
-// フロアに置く数。base に 0 以上 spread 未満の乱数を足す
-#FloorCount: {
+// 乱数で決める数。base に 0 以上 spread 未満の乱数を足す
+#RandInt: {
 	base!:   int & >=0
 	spread!: int & >=1
 }
 
-// ダンジョンのフロアを生成する間取りの種類
-#DungeonPlanner: "small_room" | "big_room" | "cave" | "ruins" | "forest" @rawgen(prefix)
+// 確率
+#Chance: number & >=0 & <=1
 
-// ダンジョンの間取りの種類と、フロアごとに選ばれる重み
+// 間取りが置くタイル
+#LayoutTiles: {
+	floor!:    #EntityID
+	floor_ref: _tileIDs[floor] @rawgen(-)
+	wall!:     #EntityID
+	wall_ref:  _tileIDs[wall] @rawgen(-)
+	// 床に接しない壁を置き換えるタイル
+	void!:    #EntityID
+	void_ref: _tileIDs[void] @rawgen(-)
+}
+
+// 矩形の小部屋を廊下で結ぶ間取り。上端と下端に1部屋ずつ置き、残りを rooms の数だけ置く
+#RoomLayout: {
+	id!:    #EntityID
+	tiles!: #LayoutTiles
+	rooms!: #RandInt
+	// 部屋の幅と高さ。それぞれ引く
+	roomSize!:      #RandInt
+	corridorWidth!: int & >=1
+	// 部屋の入口に扉を置く確率
+	doorChance!: #Chance
+}
+
+// 全面を1つの部屋にし、柱・障害物・迷路・台座のどれかを足す間取り
+#BigRoomLayout: {
+	id!:            #EntityID
+	tiles!:         #LayoutTiles
+	pillarSpacing!: #RandInt
+	// 障害物1つあたりの部屋の面積
+	obstacleArea!: int & >=1
+	// 迷路の壁に穴が開く確率
+	mazeGapChance!:  #Chance
+	platformRadius!: #RandInt
+}
+
+// セルラーオートマトンで削る洞窟の間取り
+#CaveLayout: {
+	id!:    #EntityID
+	tiles!: #LayoutTiles
+	// 初めに壁を置く確率
+	wallChance!: #Chance
+	iterations!: int & >=1
+	// 周囲9マスの壁がこの数以上なら壁にする
+	wallNeighbors!: int & >=1 & <=9
+	// 部屋とみなす床の連結の最小のマス数
+	minRoomTiles!: int & >=1
+	// 床に2マス以上接する壁を床にする確率
+	widenChance!: #Chance
+	// 床に鍾乳石の壁を置く確率
+	stalactiteChance!: #Chance
+}
+
+// 木の間に空き地と小道を通す森の間取り
+#ForestLayout: {
+	id!:        #EntityID
+	tiles!:     #LayoutTiles
+	path!:      #EntityID
+	path_ref:   _tileIDs[path] @rawgen(-)
+	clearings!: #RandInt
+	// 空き地の幅と高さ。それぞれ引く
+	clearingSize!: #RandInt
+	// 空き地から遠い床に木を置く確率
+	treeDensity!: #Chance
+	// 木の周りにも木を足す確率
+	largeTreeChance!: #Chance
+	wildlifeSpots!:   #RandInt
+}
+
+// 崩れた建物の残骸が散る廃墟の間取り
+#RuinsLayout: {
+	id!:             #EntityID
+	tiles!:          #LayoutTiles
+	buildings!:      #RandInt
+	buildingWidth!:  #RandInt
+	buildingHeight!: #RandInt
+	// 外壁に穴が開く確率
+	wallGapChance!: #Chance
+	// 仕切りの壁に穴が開く確率
+	partitionGapChance!: #Chance
+	// 2つの建物を通路で結ぶ確率
+	pathChance!: #Chance
+}
+
+// 施設の絵をそのまま置く間取り
+#TemplateLayout: {
+	id!: #EntityID
+	// levels の絵の名前
+	template!: #EntityID
+}
+
+// ダンジョンの間取りと、フロアごとに選ばれる重み
 #DungeonPlannerWeight: {
-	id!:     #DungeonPlanner
+	// 間取りの表の行の id
+	id!:     #EntityID
+	id_ref:  _layoutIDs[id] @rawgen(-)
 	weight!: #EntryWeight
 }
 
@@ -1080,6 +1172,12 @@ import "strings"
 	timesOfDay?: [...#TimeOfDay]
 	seasons?: [...#Season]
 	dungeons?: [...#Dungeon]
+	roomLayouts?: [...#RoomLayout]
+	bigRoomLayouts?: [...#BigRoomLayout]
+	caveLayouts?: [...#CaveLayout]
+	forestLayouts?: [...#ForestLayout]
+	ruinsLayouts?: [...#RuinsLayout]
+	templateLayouts?: [...#TemplateLayout]
 	settlements?: [...#Settlement]
 	dialogues?: [...#Dialogue]
 
@@ -1099,6 +1197,16 @@ import "strings"
 	skillCategoryIds_unique: {if skillCategories != _|_ for i, x in skillCategories {(x.id): i}} @rawgen(-)
 	dialogueIds_unique: {if dialogues != _|_ for i, x in dialogues {(x.id): i}} @rawgen(-)
 	dungeonIds_unique: {if dungeons != _|_ for i, x in dungeons {(x.id): i}} @rawgen(-)
+
+	// 間取りの id は表をまたいで一意にする
+	layoutIds_unique: {
+		if roomLayouts != _|_ for i, x in roomLayouts {(x.id): "roomLayouts.\(i)"}
+		if bigRoomLayouts != _|_ for i, x in bigRoomLayouts {(x.id): "bigRoomLayouts.\(i)"}
+		if caveLayouts != _|_ for i, x in caveLayouts {(x.id): "caveLayouts.\(i)"}
+		if forestLayouts != _|_ for i, x in forestLayouts {(x.id): "forestLayouts.\(i)"}
+		if ruinsLayouts != _|_ for i, x in ruinsLayouts {(x.id): "ruinsLayouts.\(i)"}
+		if templateLayouts != _|_ for i, x in templateLayouts {(x.id): "templateLayouts.\(i)"}
+	} @rawgen(-)
 
 	// アイテムグループとアイテムコレクションは同じ id の空間で参照される
 	itemGroupIds_unique: {

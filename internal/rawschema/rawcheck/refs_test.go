@@ -92,12 +92,17 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		}},
 		Dungeons: &[]rawschema.Dungeon{{
 			Id: "forest", Name: "Forest", Description: "Forest", ImageKey: "forest", EnemyTable: "wild", ItemTable: "chest",
-			Planners:   []rawschema.DungeonPlannerWeight{{Id: rawschema.DungeonPlannerCave, Weight: 1}},
-			EnemyCount: rawschema.FloorCount{Base: 1, Spread: 1}, ItemCount: rawschema.FloorCount{Base: 1, Spread: 1},
+			Planners:   []rawschema.DungeonPlannerWeight{{Id: "cave", Weight: 1}},
+			EnemyCount: rawschema.RandInt{Base: 1, Spread: 1}, ItemCount: rawschema.RandInt{Base: 1, Spread: 1},
 		}},
 		Settlements: &[]rawschema.Settlement{{Id: "village", Weight: 1, Members: []rawschema.PropSpot{{Name: "slime"}}, Props: []rawschema.PropSpot{{Name: "bed"}}}},
 		Dialogues:   &[]rawschema.Dialogue{{Id: "greeting", Pages: []rawschema.DialoguePage{"Hi."}}},
 		Tiles:       &[]rawschema.Tile{tile("floor", &rawschema.TileSpawn{Tile: new("wall")}), tile("wall", nil)},
+		CaveLayouts: &[]rawschema.CaveLayout{{
+			Id: "cave", Tiles: rawschema.LayoutTiles{Floor: "floor", Wall: "wall", Void: "wall"},
+			WallChance: 0.3, Iterations: 1, WallNeighbors: 6, MinRoomTiles: 1,
+		}},
+		TemplateLayouts: &[]rawschema.TemplateLayout{{Id: "town", Template: "town"}},
 	}
 	mutate(&raws)
 	return raws
@@ -162,6 +167,8 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"職業のスキル", func(r *rawschema.Raws) { (*(*r.Professions)[0].Skills)[0].Id = rawschema.SkillIdSpear }, "professions.0.skills.0.id_ref"},
 		{"ダンジョンの敵テーブル", func(r *rawschema.Raws) { (*r.Dungeons)[0].EnemyTable = "none" }, "dungeons.0.enemyTable_ref"},
 		{"ダンジョンのアイテムテーブル", func(r *rawschema.Raws) { (*r.Dungeons)[0].ItemTable = "none" }, "dungeons.0.itemTable_ref"},
+		{"ダンジョンの間取り", func(r *rawschema.Raws) { (*r.Dungeons)[0].Planners[0].Id = "none" }, "dungeons.0.planners.0.id_ref"},
+		{"間取りのタイル", func(r *rawschema.Raws) { (*r.CaveLayouts)[0].Tiles.Void = "none" }, "caveLayouts.0.tiles.void_ref"},
 		{"集落の住人", func(r *rawschema.Raws) { (*r.Settlements)[0].Members[0].Name = "none" }, "settlements.0.members_ref.0"},
 		{"集落の prop", func(r *rawschema.Raws) { (*r.Settlements)[0].Props[0].Name = "none" }, "settlements.0.props_ref.0"},
 		{"タイルの生成の仕様", func(r *rawschema.Raws) { (*r.Tiles)[0].Spawn.Tile = new("none") }, "tileSpawns_ref.floor"},
@@ -206,6 +213,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"会話", func(r *rawschema.Raws) { *r.Dialogues = append(*r.Dialogues, (*r.Dialogues)[0]) }, "dialogueIds_unique.greeting"},
 		{"ダンジョン", func(r *rawschema.Raws) { *r.Dungeons = append(*r.Dungeons, (*r.Dungeons)[0]) }, "dungeonIds_unique.forest"},
 		{"アイテムグループとアイテムコレクション", func(r *rawschema.Raws) { (*r.ItemCollections)[0].Id = "junk" }, "itemGroupIds_unique.junk"},
+		{"間取りが表をまたぐ", func(r *rawschema.Raws) { (*r.TemplateLayouts)[0].Id = "cave" }, "layoutIds_unique.cave"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

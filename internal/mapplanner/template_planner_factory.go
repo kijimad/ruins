@@ -6,24 +6,8 @@ import (
 	"github.com/kijimaD/ruins/internal/maptemplate"
 )
 
-// TemplateType はテンプレートの種類を表す
-type TemplateType int
-
-const (
-	// TemplateTypeSmallRoom は小部屋テンプレート
-	TemplateTypeSmallRoom TemplateType = iota
-	// TemplateTypeOfficeBuilding は事務所ビルテンプレート
-	TemplateTypeOfficeBuilding
-	// TemplateTypeSmallTown は小さな町
-	TemplateTypeSmallTown
-	// TemplateTypeTownPlaza は町の広場
-	TemplateTypeTownPlaza
-	// TemplateTypeDebugTown は街用NPCと収納箱をスポーン地点の隣に固定配置したデバッグ用の部屋
-	TemplateTypeDebugTown
-)
-
-// NewPlannerChainByTemplateType は指定されたテンプレートタイプでプランナーチェーンを作成する
-func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*PlannerChain, error) {
+// NewPlannerChainByTemplateName は levels の絵 templateName でプランナーチェーンを作成する
+func NewPlannerChainByTemplateName(templateName string, seed uint64) (*PlannerChain, error) {
 	// テンプレートローダーを作成
 	templateLoader := maptemplate.NewTemplateLoader()
 
@@ -41,23 +25,6 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 		"levels/palettes",
 	}); err != nil {
 		return nil, fmt.Errorf("palette registration error: %w", err)
-	}
-
-	// テンプレート名を決定
-	var templateName string
-	switch templateType {
-	case TemplateTypeSmallRoom:
-		templateName = "10x10_small_room"
-	case TemplateTypeOfficeBuilding:
-		templateName = "15x10_office_building"
-	case TemplateTypeSmallTown:
-		templateName = "50x50_small_town"
-	case TemplateTypeTownPlaza:
-		templateName = "50x20_town_plaza"
-	case TemplateTypeDebugTown:
-		templateName = "20x20_debug_town"
-	default:
-		return nil, fmt.Errorf("unknown template type: %d", templateType)
 	}
 
 	// テンプレート名を指定して展開済みテンプレートとセル配列を取得

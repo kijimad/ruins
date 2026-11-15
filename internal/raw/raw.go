@@ -33,8 +33,8 @@ func deref[T any](p *T) T {
 	return *p
 }
 
-// findByKey はスライスからキー関数でマッチする要素を線形検索する
-func findByKey[T any](slice *[]T, keyFn func(T) string, target string) (T, bool) {
+// FindByKey はスライスからキー関数でマッチする要素を線形検索する
+func FindByKey[T any](slice *[]T, keyFn func(T) string, target string) (T, bool) {
 	for _, item := range PtrSlice(slice) {
 		if keyFn(item) == target {
 			return item, true
@@ -90,7 +90,7 @@ func DecodeRaws(content string) (rawschema.Raws, error) {
 
 // FindItem は指定された名前のアイテム定義を検索する
 func FindItem(raws rawschema.Raws, name string) (rawschema.Item, error) {
-	item, ok := findByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
+	item, ok := FindByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
 	if !ok {
 		return rawschema.Item{}, NewKeyNotFoundError(name, "Items")
 	}
@@ -108,7 +108,7 @@ func ItemName(raws rawschema.Raws, id string) i18n.Msgid {
 
 // FindMember は指定された名前のメンバー定義を検索する
 func FindMember(raws rawschema.Raws, name string) (rawschema.Member, error) {
-	member, ok := findByKey(raws.Members, func(m rawschema.Member) string { return m.Id }, name)
+	member, ok := FindByKey(raws.Members, func(m rawschema.Member) string { return m.Id }, name)
 	if !ok {
 		return rawschema.Member{}, NewKeyNotFoundError(name, "Members")
 	}
@@ -117,7 +117,7 @@ func FindMember(raws rawschema.Raws, name string) (rawschema.Member, error) {
 
 // FindSpriteSheet は指定された名前のスプライトシートを検索する
 func FindSpriteSheet(raws rawschema.Raws, name string) (rawschema.SpriteSheet, error) {
-	sheet, ok := findByKey(raws.SpriteSheets, func(s rawschema.SpriteSheet) string { return s.Name }, name)
+	sheet, ok := FindByKey(raws.SpriteSheets, func(s rawschema.SpriteSheet) string { return s.Name }, name)
 	if !ok {
 		return rawschema.SpriteSheet{}, NewKeyNotFoundError(name, "SpriteSheets")
 	}
@@ -432,7 +432,7 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name 
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する
 func NewRecipeSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
-	recipe, ok := findByKey(raws.Recipes, func(r rawschema.Recipe) string { return r.Id }, name)
+	recipe, ok := FindByKey(raws.Recipes, func(r rawschema.Recipe) string { return r.Id }, name)
 	if !ok {
 		return gc.EntitySpec{}, NewKeyNotFoundError(name, "Recipes")
 	}
@@ -505,7 +505,7 @@ func PlayerMemberID(raws rawschema.Raws) (string, error) {
 
 // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する
 func NewMemberSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
-	member, ok := findByKey(raws.Members, func(m rawschema.Member) string { return m.Id }, name)
+	member, ok := FindByKey(raws.Members, func(m rawschema.Member) string { return m.Id }, name)
 	if !ok {
 		return gc.EntitySpec{}, NewKeyNotFoundError(name, "Members")
 	}
@@ -617,7 +617,7 @@ func NewEnemySpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 
 // GetCommandTable は指定された名前のコマンドテーブルを取得する
 func GetCommandTable(raws rawschema.Raws, name string) (rawschema.CommandTable, error) {
-	ct, ok := findByKey(raws.CommandTables, func(c rawschema.CommandTable) string { return c.Id }, name)
+	ct, ok := FindByKey(raws.CommandTables, func(c rawschema.CommandTable) string { return c.Id }, name)
 	if !ok {
 		return rawschema.CommandTable{}, NewKeyNotFoundError(name, "CommandTables")
 	}
@@ -626,7 +626,7 @@ func GetCommandTable(raws rawschema.Raws, name string) (rawschema.CommandTable, 
 
 // GetDropTable は指定された名前のドロップテーブルを取得する
 func GetDropTable(raws rawschema.Raws, name string) (rawschema.DropTable, error) {
-	dt, ok := findByKey(raws.DropTables, func(d rawschema.DropTable) string { return d.Id }, name)
+	dt, ok := FindByKey(raws.DropTables, func(d rawschema.DropTable) string { return d.Id }, name)
 	if !ok {
 		return rawschema.DropTable{}, NewKeyNotFoundError(name, "DropTables")
 	}
@@ -638,7 +638,7 @@ var errItemGroupNotExist = errors.New("item group does not exist")
 
 // GetItemGroup は指定された名前のアイテムグループを取得する
 func GetItemGroup(raws rawschema.Raws, name string) (rawschema.ItemGroup, error) {
-	ig, ok := findByKey(raws.ItemGroups, func(g rawschema.ItemGroup) string { return g.Id }, name)
+	ig, ok := FindByKey(raws.ItemGroups, func(g rawschema.ItemGroup) string { return g.Id }, name)
 	if !ok {
 		return rawschema.ItemGroup{}, fmt.Errorf("%w: %s", errItemGroupNotExist, name)
 	}
@@ -647,7 +647,7 @@ func GetItemGroup(raws rawschema.Raws, name string) (rawschema.ItemGroup, error)
 
 // GetItemCollection は指定された id のアイテムコレクションを取得する
 func GetItemCollection(raws rawschema.Raws, id string) (rawschema.ItemCollection, error) {
-	c, ok := findByKey(raws.ItemCollections, func(c rawschema.ItemCollection) string { return c.Id }, id)
+	c, ok := FindByKey(raws.ItemCollections, func(c rawschema.ItemCollection) string { return c.Id }, id)
 	if !ok {
 		return rawschema.ItemCollection{}, NewKeyNotFoundError(id, "ItemCollections")
 	}
@@ -656,7 +656,7 @@ func GetItemCollection(raws rawschema.Raws, id string) (rawschema.ItemCollection
 
 // GetItemTable は指定された名前のアイテムテーブルを取得する
 func GetItemTable(raws rawschema.Raws, name string) (rawschema.ItemTable, error) {
-	it, ok := findByKey(raws.ItemTables, func(t rawschema.ItemTable) string { return t.Id }, name)
+	it, ok := FindByKey(raws.ItemTables, func(t rawschema.ItemTable) string { return t.Id }, name)
 	if !ok {
 		return rawschema.ItemTable{}, NewKeyNotFoundError(name, "ItemTables")
 	}
@@ -665,7 +665,7 @@ func GetItemTable(raws rawschema.Raws, name string) (rawschema.ItemTable, error)
 
 // GetEnemyTable は指定された名前の敵テーブルを取得する
 func GetEnemyTable(raws rawschema.Raws, name string) (rawschema.EnemyTable, error) {
-	et, ok := findByKey(raws.EnemyTables, func(t rawschema.EnemyTable) string { return t.Id }, name)
+	et, ok := FindByKey(raws.EnemyTables, func(t rawschema.EnemyTable) string { return t.Id }, name)
 	if !ok {
 		return rawschema.EnemyTable{}, NewKeyNotFoundError(name, "EnemyTables")
 	}
@@ -674,7 +674,7 @@ func GetEnemyTable(raws rawschema.Raws, name string) (rawschema.EnemyTable, erro
 
 // GetDungeon は id のダンジョンの行を返す
 func GetDungeon(raws rawschema.Raws, id string) (rawschema.Dungeon, error) {
-	d, ok := findByKey(raws.Dungeons, func(d rawschema.Dungeon) string { return d.Id }, id)
+	d, ok := FindByKey(raws.Dungeons, func(d rawschema.Dungeon) string { return d.Id }, id)
 	if !ok {
 		return rawschema.Dungeon{}, NewKeyNotFoundError(id, "Dungeons")
 	}
@@ -683,7 +683,7 @@ func GetDungeon(raws rawschema.Raws, id string) (rawschema.Dungeon, error) {
 
 // GetFacility は id の施設宣言を返す。未登録は false。
 func GetFacility(raws rawschema.Raws, id string) (rawschema.Facility, bool) {
-	return findByKey(raws.Facilities, func(f rawschema.Facility) string { return f.Id }, id)
+	return FindByKey(raws.Facilities, func(f rawschema.Facility) string { return f.Id }, id)
 }
 
 // FacilityLootedChance は施設 fac の収納家具が荒らされて空になっている確率を百分率で返す。省略は0。
@@ -700,17 +700,17 @@ func FacilityLootedChance(raws rawschema.Raws, fac string) (int, error) {
 
 // GetLandmark は id のランドマーク宣言を返す。未登録は false。
 func GetLandmark(raws rawschema.Raws, id string) (rawschema.Landmark, bool) {
-	return findByKey(raws.Landmarks, func(l rawschema.Landmark) string { return l.Id }, id)
+	return FindByKey(raws.Landmarks, func(l rawschema.Landmark) string { return l.Id }, id)
 }
 
 // GetScatterZone は id の散布ゾーン宣言を返す。未登録は false。
 func GetScatterZone(raws rawschema.Raws, id string) (rawschema.ScatterZone, bool) {
-	return findByKey(raws.ScatterZones, func(z rawschema.ScatterZone) string { return z.Id }, id)
+	return FindByKey(raws.ScatterZones, func(z rawschema.ScatterZone) string { return z.Id }, id)
 }
 
 // GetMapGlyph は id の地図記号宣言を返す。未登録は false。
 func GetMapGlyph(raws rawschema.Raws, id string) (rawschema.MapGlyph, bool) {
-	return findByKey(raws.MapGlyphs, func(m rawschema.MapGlyph) string { return m.Id }, id)
+	return FindByKey(raws.MapGlyphs, func(m rawschema.MapGlyph) string { return m.Id }, id)
 }
 
 // GetChunkGlyph は持ち主の行を持たないチャンクの種類 chunk を描く地図記号の行を返す
@@ -726,7 +726,7 @@ func GetChunkGlyph(raws rawschema.Raws, chunk rawschema.GlyphChunk) (rawschema.M
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
 func GetTile(raws rawschema.Raws, id string) (rawschema.Tile, error) {
-	tile, ok := findByKey(raws.Tiles, func(t rawschema.Tile) string { return t.Id }, id)
+	tile, ok := FindByKey(raws.Tiles, func(t rawschema.Tile) string { return t.Id }, id)
 	if !ok {
 		return rawschema.Tile{}, NewKeyNotFoundError(id, "Tiles")
 	}
@@ -782,7 +782,7 @@ func TileShelter(t rawschema.Tile) rawschema.Shelter {
 
 // GetProp は指定された名前の置物の設定を取得する
 func GetProp(raws rawschema.Raws, name string) (rawschema.Prop, error) {
-	prop, ok := findByKey(raws.Props, func(p rawschema.Prop) string { return p.Id }, name)
+	prop, ok := FindByKey(raws.Props, func(p rawschema.Prop) string { return p.Id }, name)
 	if !ok {
 		return rawschema.Prop{}, NewKeyNotFoundError(name, "Props")
 	}
@@ -868,7 +868,7 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 
 // FindDisassembly は指定された名前の prop の分解定義を返す
 func FindDisassembly(raws rawschema.Raws, name string) (*rawschema.Disassembly, bool) {
-	prop, ok := findByKey(raws.Props, func(p rawschema.Prop) string { return p.Id }, name)
+	prop, ok := FindByKey(raws.Props, func(p rawschema.Prop) string { return p.Id }, name)
 	if !ok || prop.Disassembly == nil {
 		return nil, false
 	}
@@ -877,7 +877,7 @@ func FindDisassembly(raws rawschema.Raws, name string) (*rawschema.Disassembly, 
 
 // FindTool は指定された名前のアイテムの道具の性質を返す
 func FindTool(raws rawschema.Raws, name string) (*rawschema.Tool, bool) {
-	item, ok := findByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
+	item, ok := FindByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
 	if !ok || item.Tool == nil {
 		return nil, false
 	}
@@ -886,7 +886,7 @@ func FindTool(raws rawschema.Raws, name string) (*rawschema.Tool, bool) {
 
 // GetProfession は指定されたIDの職業データを返す
 func GetProfession(raws rawschema.Raws, id string) (rawschema.Profession, error) {
-	prof, ok := findByKey(raws.Professions, func(p rawschema.Profession) string { return p.Id }, id)
+	prof, ok := FindByKey(raws.Professions, func(p rawschema.Profession) string { return p.Id }, id)
 	if !ok {
 		return rawschema.Profession{}, NewKeyNotFoundError(id, "Professions")
 	}

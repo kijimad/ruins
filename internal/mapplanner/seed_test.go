@@ -19,7 +19,7 @@ func TestSeedReproducibility(t *testing.T) {
 	width, height := consts.Tile(20), consts.Tile(20)
 
 	// 1回目の生成
-	chain1, err := NewSmallRoomPlanner(width, height, testSeed)
+	chain1, err := NewSmallRoomPlanner(testRoomLayout, width, height, testSeed)
 	require.NoError(t, err)
 	chain1.PlanData.RawMaster = CreateTestRawMaster()
 	err = chain1.Plan()
@@ -30,7 +30,7 @@ func TestSeedReproducibility(t *testing.T) {
 	copy(rooms1, chain1.PlanData.Rooms)
 
 	// 2回目の生成（同じシード）
-	chain2, err := NewSmallRoomPlanner(width, height, testSeed)
+	chain2, err := NewSmallRoomPlanner(testRoomLayout, width, height, testSeed)
 	require.NoError(t, err)
 	chain2.PlanData.RawMaster = CreateTestRawMaster()
 	err = chain2.Plan()
@@ -59,14 +59,14 @@ func TestDifferentSeeds(t *testing.T) {
 	width, height := consts.Tile(20), consts.Tile(20)
 
 	// シード1で生成
-	chain1, err := NewSmallRoomPlanner(width, height, 11111)
+	chain1, err := NewSmallRoomPlanner(testRoomLayout, width, height, 11111)
 	require.NoError(t, err)
 	chain1.PlanData.RawMaster = CreateTestRawMaster()
 	err = chain1.Plan()
 	require.NoError(t, err)
 
 	// シード2で生成
-	chain2, err := NewSmallRoomPlanner(width, height, 22222)
+	chain2, err := NewSmallRoomPlanner(testRoomLayout, width, height, 22222)
 	require.NoError(t, err)
 	chain2.PlanData.RawMaster = CreateTestRawMaster()
 	err = chain2.Plan()

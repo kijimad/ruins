@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -52,18 +53,14 @@ func Plan(world w.World, width, height consts.Tile, seed uint64, plannerType Pla
 // BuildChain はPlannerChainを構築して返す。
 // チェーンの構築ロジックを共有するために公開している
 func BuildChain(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*PlannerChain, error) {
-	var chain *PlannerChain
-	var err error
-	if plannerType.Name == PlannerTypeRandom.Name {
-		chain, err = NewRandomPlanner(width, height, seed)
-	} else {
-		chain, err = plannerType.PlannerFunc(width, height, seed)
+	var raws rawschema.Raws
+	if world.Resources != nil {
+		raws = world.Resources.RawMaster
 	}
+	chain, err := plannerType.PlannerFunc(raws, width, height, seed)
 	if err != nil {
 		return nil, err
 	}
-
-	// RawMasterを設定
 	if world.Resources != nil {
 		chain.PlanData.RawMaster = &world.Resources.RawMaster
 	}

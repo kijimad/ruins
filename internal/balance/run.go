@@ -160,7 +160,7 @@ type floorLoot struct {
 
 // rollFloorLoot はフロアで拾えるアイテムを計算する。
 // 回復アイテムと武器の両方を処理し、武器はフロア内で最も強いものを返す
-func rollFloorLoot(master rawschema.Raws, tableName string, count rawschema.FloorCount, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {
+func rollFloorLoot(master rawschema.Raws, tableName string, count rawschema.RandInt, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {
 	result := floorLoot{}
 
 	itemTable, err := raw.GetItemTable(master, tableName)

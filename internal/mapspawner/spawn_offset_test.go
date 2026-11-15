@@ -21,7 +21,7 @@ func TestSpawnAt_オフセット配置(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	const wdt, hgt consts.Tile = 20, 20
-	plan, err := mapplanner.Plan(world, wdt, hgt, 1, mapplanner.PlannerTypeSmallRoom)
+	plan, err := mapplanner.Plan(world, wdt, hgt, 1, mapplanner.LayoutPlannerType("small_room"))
 	require.NoError(t, err)
 
 	const offX, offY consts.Tile = 100, 50
@@ -47,7 +47,7 @@ func TestSpawn_オフセットなしは原点配置(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	const wdt, hgt consts.Tile = 20, 20
-	plan, err := mapplanner.Plan(world, wdt, hgt, 1, mapplanner.PlannerTypeSmallRoom)
+	plan, err := mapplanner.Plan(world, wdt, hgt, 1, mapplanner.LayoutPlannerType("small_room"))
 	require.NoError(t, err)
 
 	_, err = Spawn(world, plan)

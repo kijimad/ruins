@@ -21,6 +21,7 @@ func (OverworldFieldPlanner) PlanInitial(_ *MetaPlan) error { return nil }
 // NewOverworldFieldPlanner は開けた地形のチェーンを作る。全面を下地で埋めるだけで障壁は置かない。
 func NewOverworldFieldPlanner(width, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
+	chain.PlanData.FixedPortals = true
 	chain.StartWith(OverworldFieldPlanner{})
 	chain.With(FillGround{})
 	return chain, nil

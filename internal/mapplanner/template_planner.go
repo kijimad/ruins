@@ -92,6 +92,7 @@ func NewTemplatePlannerChain(template *maptemplate.ChunkTemplate, resolvedMap []
 	height := consts.Tile(template.Size.H)
 
 	chain := NewPlannerChain(width, height, seed)
+	chain.PlanData.FixedPortals = true
 	planner := NewTemplatePlanner(template, resolvedMap)
 	chain.StartWith(planner)
 	chain.With(planner) // PlanMeta用

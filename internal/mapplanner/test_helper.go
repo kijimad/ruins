@@ -4,6 +4,35 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
+// テスト用の間取りの行
+var (
+	testLayoutTiles = rawschema.LayoutTiles{Floor: "floor", Wall: "wall", Void: "void"}
+	testRoomLayout  = rawschema.RoomLayout{
+		Id: "small_room", Tiles: testLayoutTiles,
+		Rooms: rawschema.RandInt{Base: 4, Spread: 10}, RoomSize: rawschema.RandInt{Base: 2, Spread: 8},
+		CorridorWidth: 3, DoorChance: 0.8,
+	}
+	testBigRoomLayout = rawschema.BigRoomLayout{
+		Id: "big_room", Tiles: testLayoutTiles,
+		PillarSpacing: rawschema.RandInt{Base: 3, Spread: 4}, ObstacleArea: 30, MazeGapChance: 0.3,
+		PlatformRadius: rawschema.RandInt{Base: 2, Spread: 3},
+	}
+	testCaveLayout = rawschema.CaveLayout{
+		Id: "cave", Tiles: testLayoutTiles,
+		WallChance: 0.3, Iterations: 3, WallNeighbors: 6, MinRoomTiles: 10, WidenChance: 0.3, StalactiteChance: 0.02,
+	}
+	testRuinsLayout = rawschema.RuinsLayout{
+		Id: "ruins", Tiles: testLayoutTiles,
+		Buildings: rawschema.RandInt{Base: 3, Spread: 3}, BuildingWidth: rawschema.RandInt{Base: 8, Spread: 10},
+		BuildingHeight: rawschema.RandInt{Base: 6, Spread: 8}, WallGapChance: 0.3, PartitionGapChance: 0.4, PathChance: 0.3,
+	}
+	testForestLayout = rawschema.ForestLayout{
+		Id: "forest", Tiles: rawschema.LayoutTiles{Floor: "dirt", Wall: "wall", Void: "dirt"}, Path: "road",
+		Clearings: rawschema.RandInt{Base: 3, Spread: 4}, ClearingSize: rawschema.RandInt{Base: 4, Spread: 6},
+		TreeDensity: 0.6, LargeTreeChance: 0.2, WildlifeSpots: rawschema.RandInt{Base: 2, Spread: 4},
+	}
+)
+
 // CreateTestRawMaster はテスト用の rawschema.Raws インスタンスを作成する
 func CreateTestRawMaster() *rawschema.Raws {
 	// テスト用の基本的なタイルデータを定義
@@ -134,5 +163,11 @@ func CreateTestRawMaster() *rawschema.Raws {
 		ItemCollections: &testItemCollections,
 		ItemTables:      &testItemTables,
 		EnemyTables:     &testEnemyTables,
+		RoomLayouts:     &[]rawschema.RoomLayout{testRoomLayout},
+		BigRoomLayouts:  &[]rawschema.BigRoomLayout{testBigRoomLayout},
+		CaveLayouts:     &[]rawschema.CaveLayout{testCaveLayout},
+		RuinsLayouts:    &[]rawschema.RuinsLayout{testRuinsLayout},
+		ForestLayouts:   &[]rawschema.ForestLayout{testForestLayout},
+		TemplateLayouts: &[]rawschema.TemplateLayout{{Id: "town_plaza", Template: "50x20_town_plaza"}, {Id: "debug_town", Template: "20x20_debug_town"}},
 	}
 }

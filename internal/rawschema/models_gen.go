@@ -229,6 +229,23 @@ type Bedding struct {
 // BeddingQuality 寝具の睡眠効率。100が基準で、高いほど短く深く眠れる
 type BeddingQuality = int
 
+// BigRoomLayout 全面を1つの部屋にし、柱・障害物・迷路・台座のどれかを足す間取り
+type BigRoomLayout struct {
+	Id EntityID `json:"id"`
+
+	// MazeGapChance 迷路の壁に穴が開く確率
+	MazeGapChance Chance `json:"mazeGapChance"`
+
+	// ObstacleArea 障害物1つあたりの部屋の面積
+	ObstacleArea int `json:"obstacleArea"`
+
+	PillarSpacing RandInt `json:"pillarSpacing"`
+
+	PlatformRadius RandInt `json:"platformRadius"`
+
+	Tiles LayoutTiles `json:"tiles"`
+}
+
 // BlocksPassage 通行を妨げるかどうか
 type BlocksPassage = bool
 
@@ -254,6 +271,33 @@ type Book struct {
 
 	TotalEffort ReadingEffort `json:"totalEffort"`
 }
+
+// CaveLayout セルラーオートマトンで削る洞窟の間取り
+type CaveLayout struct {
+	Id EntityID `json:"id"`
+
+	Iterations int `json:"iterations"`
+
+	// MinRoomTiles 部屋とみなす床の連結の最小のマス数
+	MinRoomTiles int `json:"minRoomTiles"`
+
+	// StalactiteChance 床に鍾乳石の壁を置く確率
+	StalactiteChance Chance `json:"stalactiteChance"`
+
+	Tiles LayoutTiles `json:"tiles"`
+
+	// WallChance 初めに壁を置く確率
+	WallChance Chance `json:"wallChance"`
+
+	// WallNeighbors 周囲9マスの壁がこの数以上なら壁にする
+	WallNeighbors int `json:"wallNeighbors"`
+
+	// WidenChance 床に2マス以上接する壁を床にする確率
+	WidenChance Chance `json:"widenChance"`
+}
+
+// Chance 確率
+type Chance = float64
 
 // ColorChannel RGBA色チャネル値 (0-255)
 type ColorChannel = uint8
@@ -654,7 +698,7 @@ type Dungeon struct {
 	Description EntityDescription `json:"description"`
 
 	// EnemyCount フロアに置く敵の数
-	EnemyCount FloorCount `json:"enemyCount"`
+	EnemyCount RandInt `json:"enemyCount"`
 
 	// EnemyTable 敵を引く enemyTables の id
 	EnemyTable EntityID `json:"enemyTable"`
@@ -668,7 +712,7 @@ type Dungeon struct {
 	ImageKey EntityID `json:"imageKey"`
 
 	// ItemCount フロアに置くアイテムの数
-	ItemCount FloorCount `json:"itemCount"`
+	ItemCount RandInt `json:"itemCount"`
 
 	// ItemTable アイテムを引く itemTables の id
 	ItemTable EntityID `json:"itemTable"`
@@ -679,44 +723,10 @@ type Dungeon struct {
 	Planners []DungeonPlannerWeight `json:"planners"`
 }
 
-// DungeonPlanner ダンジョンのフロアを生成する間取りの種類
-type DungeonPlanner string
-
-// Defines values for DungeonPlanner.
-const (
-	DungeonPlannerBigRoom   DungeonPlanner = "big_room"
-	DungeonPlannerCave      DungeonPlanner = "cave"
-	DungeonPlannerForest    DungeonPlanner = "forest"
-	DungeonPlannerRuins     DungeonPlanner = "ruins"
-	DungeonPlannerSmallRoom DungeonPlanner = "small_room"
-)
-
-// Valid indicates whether the value is a known member of the DungeonPlanner enum.
-func (e DungeonPlanner) Valid() bool {
-	switch e {
-	case DungeonPlannerBigRoom:
-		return true
-	case DungeonPlannerCave:
-		return true
-	case DungeonPlannerForest:
-		return true
-	case DungeonPlannerRuins:
-		return true
-	case DungeonPlannerSmallRoom:
-		return true
-	default:
-		return false
-	}
-}
-
-// DungeonPlannerValues は DungeonPlanner の値を、スキーマに書いた順に返す。
-func DungeonPlannerValues() []DungeonPlanner {
-	return []DungeonPlanner{DungeonPlannerSmallRoom, DungeonPlannerBigRoom, DungeonPlannerCave, DungeonPlannerRuins, DungeonPlannerForest}
-}
-
-// DungeonPlannerWeight ダンジョンの間取りの種類と、フロアごとに選ばれる重み
+// DungeonPlannerWeight ダンジョンの間取りと、フロアごとに選ばれる重み
 type DungeonPlannerWeight struct {
-	Id DungeonPlanner `json:"id"`
+	// Id 間取りの表の行の id
+	Id EntityID `json:"id"`
 
 	Weight EntryWeight `json:"weight"`
 }
@@ -1075,13 +1085,6 @@ type Fire struct {
 // FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 type FireStarter = map[string]interface{}
 
-// FloorCount フロアに置く数。base に 0 以上 spread 未満の乱数を足す
-type FloorCount struct {
-	Base int `json:"base"`
-
-	Spread int `json:"spread"`
-}
-
 // Foliage タイルの植生
 type Foliage string
 
@@ -1113,6 +1116,28 @@ type FoliageEffect struct {
 	Id Foliage `json:"id"`
 
 	TempModifier TileTempModifier `json:"tempModifier"`
+}
+
+// ForestLayout 木の間に空き地と小道を通す森の間取り
+type ForestLayout struct {
+	// ClearingSize 空き地の幅と高さ。それぞれ引く
+	ClearingSize RandInt `json:"clearingSize"`
+
+	Clearings RandInt `json:"clearings"`
+
+	Id EntityID `json:"id"`
+
+	// LargeTreeChance 木の周りにも木を足す確率
+	LargeTreeChance Chance `json:"largeTreeChance"`
+
+	Path EntityID `json:"path"`
+
+	Tiles LayoutTiles `json:"tiles"`
+
+	// TreeDensity 空き地から遠い床に木を置く確率
+	TreeDensity Chance `json:"treeDensity"`
+
+	WildlifeSpots RandInt `json:"wildlifeSpots"`
 }
 
 // FreshnessStage 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合
@@ -1464,6 +1489,16 @@ type Landmark struct {
 
 	// Weight 原野のランドマークの当選チャンクで、この施設を引く重み
 	Weight int32 `json:"weight"`
+}
+
+// LayoutTiles 間取りが置くタイル
+type LayoutTiles struct {
+	Floor EntityID `json:"floor"`
+
+	// Void 床に接しない壁を置き換えるタイル
+	Void EntityID `json:"void"`
+
+	Wall EntityID `json:"wall"`
 }
 
 // LightEnabled 光源が有効かどうか
@@ -1994,6 +2029,13 @@ type RGBAColor struct {
 	R ColorChannel `json:"r"`
 }
 
+// RandInt 乱数で決める数。base に 0 以上 spread 未満の乱数を足す
+type RandInt struct {
+	Base int `json:"base"`
+
+	Spread int `json:"spread"`
+}
+
 // RangeBonus キューブ展開範囲の伸び幅。縦横を一律に広げるタイル数
 type RangeBonus = int
 
@@ -2007,7 +2049,11 @@ type RangeTiles = int
 type Raws struct {
 	AttackTypes *[]AttackType `json:"attackTypes,omitempty"`
 
+	BigRoomLayouts *[]BigRoomLayout `json:"bigRoomLayouts,omitempty"`
+
 	BodyParts *[]BodyPart `json:"bodyParts,omitempty"`
+
+	CaveLayouts *[]CaveLayout `json:"caveLayouts,omitempty"`
 
 	CommandTables *[]CommandTable `json:"commandTables,omitempty"`
 
@@ -2028,6 +2074,8 @@ type Raws struct {
 	FatigueStages *[]FatigueStage `json:"fatigueStages,omitempty"`
 
 	FoliageEffects *[]FoliageEffect `json:"foliageEffects,omitempty"`
+
+	ForestLayouts *[]ForestLayout `json:"forestLayouts,omitempty"`
 
 	FreshnessStages *[]FreshnessStage `json:"freshnessStages,omitempty"`
 
@@ -2057,6 +2105,10 @@ type Raws struct {
 
 	Recipes *[]Recipe `json:"recipes,omitempty"`
 
+	RoomLayouts *[]RoomLayout `json:"roomLayouts,omitempty"`
+
+	RuinsLayouts *[]RuinsLayout `json:"ruinsLayouts,omitempty"`
+
 	ScatterZones *[]ScatterZone `json:"scatterZones,omitempty"`
 
 	Seasons *[]Season `json:"seasons,omitempty"`
@@ -2070,6 +2122,8 @@ type Raws struct {
 	Skills *[]Skill `json:"skills,omitempty"`
 
 	SpriteSheets *[]SpriteSheet `json:"spriteSheets,omitempty"`
+
+	TemplateLayouts *[]TemplateLayout `json:"templateLayouts,omitempty"`
 
 	Tiles *[]Tile `json:"tiles,omitempty"`
 
@@ -2147,6 +2201,45 @@ type Road struct {
 
 	// Width 道の幅。タイル数
 	Width int `json:"width"`
+}
+
+// RoomLayout 矩形の小部屋を廊下で結ぶ間取り。上端と下端に1部屋ずつ置き、残りを rooms の数だけ置く
+type RoomLayout struct {
+	CorridorWidth int `json:"corridorWidth"`
+
+	// DoorChance 部屋の入口に扉を置く確率
+	DoorChance Chance `json:"doorChance"`
+
+	Id EntityID `json:"id"`
+
+	// RoomSize 部屋の幅と高さ。それぞれ引く
+	RoomSize RandInt `json:"roomSize"`
+
+	Rooms RandInt `json:"rooms"`
+
+	Tiles LayoutTiles `json:"tiles"`
+}
+
+// RuinsLayout 崩れた建物の残骸が散る廃墟の間取り
+type RuinsLayout struct {
+	BuildingHeight RandInt `json:"buildingHeight"`
+
+	BuildingWidth RandInt `json:"buildingWidth"`
+
+	Buildings RandInt `json:"buildings"`
+
+	Id EntityID `json:"id"`
+
+	// PartitionGapChance 仕切りの壁に穴が開く確率
+	PartitionGapChance Chance `json:"partitionGapChance"`
+
+	// PathChance 2つの建物を通路で結ぶ確率
+	PathChance Chance `json:"pathChance"`
+
+	Tiles LayoutTiles `json:"tiles"`
+
+	// WallGapChance 外壁に穴が開く確率
+	WallGapChance Chance `json:"wallGapChance"`
 }
 
 // ScatterEntry 散布 prop 1種。ref の空文字は置かないことを表す
@@ -2566,6 +2659,14 @@ func (e TargetNum) Valid() bool {
 // TargetNumValues は TargetNum の値を、スキーマに書いた順に返す。
 func TargetNumValues() []TargetNum {
 	return []TargetNum{SINGLE, ALL}
+}
+
+// TemplateLayout 施設の絵をそのまま置く間取り
+type TemplateLayout struct {
+	Id EntityID `json:"id"`
+
+	// Template levels の絵の名前
+	Template EntityID `json:"template"`
 }
 
 // Tile タイル

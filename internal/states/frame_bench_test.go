@@ -22,9 +22,9 @@ var benchDungeons = []struct {
 	name string
 	bt   mapplanner.PlannerType
 }{
-	{"SmallRoom", mapplanner.PlannerTypeSmallRoom},
-	{"BigRoom", mapplanner.PlannerTypeBigRoom},
-	{"Cave", mapplanner.PlannerTypeCave},
+	{"SmallRoom", mapplanner.LayoutPlannerType("small_room")},
+	{"BigRoom", mapplanner.LayoutPlannerType("big_room")},
+	{"Cave", mapplanner.LayoutPlannerType("cave")},
 }
 
 // BenchmarkDungeonFrame は実ダンジョンの1フレームを Update / Draw に分けて実時間を計測する。

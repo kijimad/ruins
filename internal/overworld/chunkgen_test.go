@@ -50,7 +50,7 @@ func TestNewChunkGen_オフセット配置(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 24, 24
-	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
+	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.LayoutPlannerType("small_room"))
 
 	require.NoError(t, gen(consts.Coord[consts.Chunk]{X: 2}, 60, 0)) // X=2 を offsetX=60 へ
 
@@ -75,7 +75,7 @@ func TestNewChunkGen_生成物をオーバーワールドへ束縛する(t *test
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
+	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.LayoutPlannerType("small_room"))
 	require.NoError(t, gen(consts.Coord[consts.Chunk]{}, 0, 0))
 
 	overworldKey := gc.NewOverworldStage()
@@ -104,7 +104,7 @@ func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 
 	collect := func() []gc.GridElement {
 		world := testutil.InitTestWorld(t)
-		gen := overworld.NewChunkGen(world, 999, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
+		gen := overworld.NewChunkGen(world, 999, chunkW, chunkH, 1, mapplanner.LayoutPlannerType("small_room"))
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: 7}, 0, 0))
 
 		var walls []gc.GridElement
@@ -137,7 +137,7 @@ func TestShiftNorth_実チャンク生成との統合(t *testing.T) {
 	const cols = 1
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: chunkW, TileHeight: chunkH * rows}))
 
-	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, cols, mapplanner.PlannerTypeSmallRoom)
+	gen := overworld.NewChunkGen(world, 555, chunkW, chunkH, cols, mapplanner.LayoutPlannerType("small_room"))
 	// 初期帯: rows チャンクを各行スロットへ生成
 	for cy := range consts.Chunk(rows) {
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: cy}, 0, cy.Tiles(chunkH)))
@@ -195,7 +195,7 @@ func TestNewChunkGen_小集落はリージョンにちょうど1つ生成され�
 	const chunkW, chunkH consts.Tile = 24, 24
 	const regionSpan = 5 // settlementPlacement の Spacing。1リージョンぶんを生成する
 	world := testutil.InitTestWorld(t)
-	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
+	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.LayoutPlannerType("small_room"))
 	// 集落は Y リージョンに並ぶので、1リージョンぶんを Y 方向に生成する
 	for i := range regionSpan {
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
@@ -219,7 +219,7 @@ func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T)
 	const chunkW, chunkH consts.Tile = 24, 24
 	// まず当選チャンクを探し、外れチャンクを1つ確定させる。集落は Y リージョンなので Y 方向に生成する
 	scout := testutil.InitTestWorld(t)
-	genScout := overworld.NewChunkGen(scout, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
+	genScout := overworld.NewChunkGen(scout, 123, chunkW, chunkH, 1, mapplanner.LayoutPlannerType("small_room"))
 	const regionSpan = 5 // settlementPlacement の Spacing。1リージョンぶんを生成する
 	for i := range regionSpan {
 		require.NoError(t, genScout(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
@@ -230,7 +230,7 @@ func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T)
 
 	// 外れチャンク単体では小集落が出ない
 	plain := testutil.InitTestWorld(t)
-	genPlain := overworld.NewChunkGen(plain, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
+	genPlain := overworld.NewChunkGen(plain, 123, chunkW, chunkH, 1, mapplanner.LayoutPlannerType("small_room"))
 	require.NoError(t, genPlain(loser, 0, 0))
 	_, plainOK := settlementBucket(plain)
 	assert.False(t, plainOK, "外れチャンクに小集落は出ない")
@@ -248,7 +248,7 @@ func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 	collect := func(advanceTurns consts.Turn) ([]gc.GridElement, int, bool) {
 		world := testutil.InitTestWorld(t)
 		query.GetGameTime(world).TotalTurns += advanceTurns
-		gen := overworld.NewChunkGen(world, 999, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
+		gen := overworld.NewChunkGen(world, 999, chunkW, chunkH, 1, mapplanner.LayoutPlannerType("small_room"))
 		require.NoError(t, gen(c, 0, 0))
 
 		var walls []gc.GridElement

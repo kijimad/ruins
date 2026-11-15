@@ -19,15 +19,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// debugEnterPlanners はデバッグでプランナー単位に生成して試すフロアプランナーの一覧。
-// マップ生成の見た目を試す用途なので、遺跡定義でなくプランナー、すなわち大部屋・小部屋などで選ぶ。
-var debugEnterPlanners = []mapplanner.PlannerType{
-	mapplanner.PlannerTypeBigRoom,
-	mapplanner.PlannerTypeSmallRoom,
-	mapplanner.PlannerTypeCave,
-	mapplanner.PlannerTypeRuins,
-	mapplanner.PlannerTypeForest,
-}
+// debugTownLayout はデバッグの町の間取りの行の id
+const debugTownLayout = "debug_town"
 
 // NewDebugMenuState はデバッグメニューを選択メニューとして作る
 func NewDebugMenuState() (es.State[w.World], error) {
@@ -76,9 +69,9 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 		}},
 	}
 
-	// プランナー単位でデバッグ遺跡へ入る選択肢を平坦に追加する。TransReplace ではなく TransPop で
-	// ゲームへ戻し、DungeonState.Update が enterDungeonWith を指定プランナーで通す
-	for _, pt := range debugEnterPlanners {
+	// 絵を使わない間取りごとにデバッグ遺跡へ入る選択肢を平坦に追加する。マップ生成の見た目を試す用途。
+	// TransReplace ではなく TransPop でゲームへ戻し、DungeonState.Update が enterDungeonWith を指定プランナーで通す
+	for _, pt := range mapplanner.ProceduralPlannerTypes(world.Resources.RawMaster) {
 		choices = append(choices, Choice{Label: "Generate debug dungeon " + pt.Name, Run: popAfter(func(world w.World) error {
 			return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(debugName, pt.Name))
 		})})
@@ -99,7 +92,7 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 	// 街用NPC・収納箱をスポーン地点の隣に固定配置したデバッグステージへ入る。
 	// 街の会話・売買・収納を入ってすぐテストできる
 	choices = append(choices, Choice{Label: "Generate debug stage", Run: popAfter(func(world w.World) error {
-		return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DungeonDebugTown.Name(), mapplanner.PlannerTypeDebugTown.Name))
+		return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DungeonDebugTown.Name(), debugTownLayout))
 	})})
 
 	choices = append(choices,

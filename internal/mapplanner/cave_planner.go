@@ -9,16 +9,17 @@ import (
 // CavePlanner は洞窟風レイアウトを生成するビルダー
 // セルラーオートマトンを使用して有機的な洞窟形状を作成
 // TODO: 全然わかってないので理解する
-type CavePlanner struct{}
+type CavePlanner struct {
+	Layout rawschema.CaveLayout
+}
 
 // PlanInitial は初期洞窟マップをプランする
 func (c CavePlanner) PlanInitial(planData *MetaPlan) error {
-	// 初期状態をランダムに設定（30%の確率で壁、より広い空間を確保）
 	for i := range planData.Tiles {
-		if planData.RNG.Float64() < 0.30 {
-			planData.Tiles[i] = planData.GetTile("wall")
+		if planData.RNG.Float64() < c.Layout.WallChance {
+			planData.Tiles[i] = planData.GetTile(c.Layout.Tiles.Wall)
 		} else {
-			planData.Tiles[i] = planData.GetTile("floor")
+			planData.Tiles[i] = planData.GetTile(c.Layout.Tiles.Floor)
 		}
 	}
 
@@ -27,22 +28,16 @@ func (c CavePlanner) PlanInitial(planData *MetaPlan) error {
 
 // CaveCellularAutomata はセルラーオートマトンによる洞窟生成
 type CaveCellularAutomata struct {
-	// 反復回数
-	Iterations int
+	Layout rawschema.CaveLayout
 }
 
 // PlanMeta はセルラーオートマトンで洞窟を生成する
 func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error {
-	iterations := c.Iterations
-	if iterations <= 0 {
-		iterations = 5 // デフォルト反復回数
-	}
-
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)
 
 	// セルラーオートマトンを指定回数実行
-	for range iterations {
+	for range c.Layout.Iterations {
 		newTiles := make([]rawschema.Tile, len(planData.Tiles))
 
 		for x := range width {
@@ -52,18 +47,17 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error {
 				// 左右端は壁にする
 				// 上下端はオートマトンのルールに任せる
 				if x == 0 || x == width-1 {
-					newTiles[idx] = planData.GetTile("wall")
+					newTiles[idx] = planData.GetTile(c.Layout.Tiles.Wall)
 					continue
 				}
 
 				// 周囲の壁の数を数える
 				wallCount := c.countWallsInRadius(planData, x, y, 1)
 
-				// ルール：周囲に6つ以上の壁があれば壁、そうでなければ床（より通路を確保）
-				if wallCount >= 6 {
-					newTiles[idx] = planData.GetTile("wall")
+				if wallCount >= c.Layout.WallNeighbors {
+					newTiles[idx] = planData.GetTile(c.Layout.Tiles.Wall)
 				} else {
-					newTiles[idx] = planData.GetTile("floor")
+					newTiles[idx] = planData.GetTile(c.Layout.Tiles.Floor)
 				}
 			}
 		}
@@ -116,7 +110,7 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) {
 				floorTiles := c.floodFill(planData, x, y, visited)
 
 				// 十分な大きさの領域のみ部屋として認識
-				if len(floorTiles) >= 10 {
+				if len(floorTiles) >= c.Layout.MinRoomTiles {
 					// 境界ボックスを計算
 					minX, maxX := x, x
 					minY, maxY := y, y
@@ -188,7 +182,9 @@ func (c CaveCellularAutomata) floodFill(planData *MetaPlan, startX, startY int, 
 }
 
 // CavePathWidener は通路を広げる
-type CavePathWidener struct{}
+type CavePathWidener struct {
+	Layout rawschema.CaveLayout
+}
 
 // PlanMeta は狭い通路を広げる
 func (c CavePathWidener) PlanMeta(planData *MetaPlan) error {
@@ -207,9 +203,8 @@ func (c CavePathWidener) PlanMeta(planData *MetaPlan) error {
 			if planData.Tiles[idx].BlockPass {
 				adjacentFloorCount := c.countAdjacentFloors(planData, x, y)
 
-				// 隣接する床が2個以上ある場合、30%の確率で床にする
-				if adjacentFloorCount >= 2 && planData.RNG.Float64() < 0.3 {
-					newTiles[idx] = planData.GetTile("floor")
+				if adjacentFloorCount >= 2 && planData.RNG.Float64() < c.Layout.WidenChance {
+					newTiles[idx] = planData.GetTile(c.Layout.Tiles.Floor)
 				}
 			}
 		}
@@ -243,7 +238,9 @@ func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, center
 }
 
 // CaveStalactites は鍾乳石や岩の障害物を配置する
-type CaveStalactites struct{}
+type CaveStalactites struct {
+	Layout rawschema.CaveLayout
+}
 
 // PlanMeta は洞窟内に鍾乳石を配置する
 func (c CaveStalactites) PlanMeta(planData *MetaPlan) error {
@@ -256,9 +253,8 @@ func (c CaveStalactites) PlanMeta(planData *MetaPlan) error {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 			if !planData.Tiles[idx].BlockPass {
-				// 2%の確率で鍾乳石を配置（確率を下げてより通行可能に）
-				if planData.RNG.Float64() < 0.02 {
-					planData.Tiles[idx] = planData.GetTile("wall")
+				if planData.RNG.Float64() < c.Layout.StalactiteChance {
+					planData.Tiles[idx] = planData.GetTile(c.Layout.Tiles.Wall)
 				}
 			}
 		}
@@ -267,7 +263,9 @@ func (c CaveStalactites) PlanMeta(planData *MetaPlan) error {
 }
 
 // CaveConnector は隔離された洞窟領域を接続する
-type CaveConnector struct{}
+type CaveConnector struct {
+	Layout rawschema.CaveLayout
+}
 
 // PlanMeta は隔離された洞窟領域を接続する
 func (c CaveConnector) PlanMeta(planData *MetaPlan) error {
@@ -312,7 +310,7 @@ func (c CaveConnector) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect
 			y := currentY + dy
 			if y >= 1 && y < height-1 && currentX >= 1 && currentX < width-1 {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(currentX), Y: consts.Tile(y)})
-				planData.Tiles[idx] = planData.GetTile("floor")
+				planData.Tiles[idx] = planData.GetTile(c.Layout.Tiles.Floor)
 			}
 		}
 	}
@@ -330,23 +328,21 @@ func (c CaveConnector) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect
 			x := currentX + dx
 			if x >= 1 && x < width-1 && currentY >= 1 && currentY < height-1 {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(currentY)})
-				planData.Tiles[idx] = planData.GetTile("floor")
+				planData.Tiles[idx] = planData.GetTile(c.Layout.Tiles.Floor)
 			}
 		}
 	}
 }
 
-// NewCavePlanner は洞窟ビルダーを作成する
-func NewCavePlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
+// NewCavePlanner は間取りの行 l の洞窟ビルダーを作成する
+func NewCavePlanner(l rawschema.CaveLayout, width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
-	chain.StartWith(CavePlanner{})
-	chain.With(CaveCellularAutomata{Iterations: 3}) // セルラーオートマトン
-	chain.With(CavePathWidener{})                   // 通路を広げる
-	chain.With(CaveConnector{})                     // 隔離領域を接続
-	chain.With(CaveStalactites{})                   // 鍾乳石配置
-	chain.With(ConvertIsolatedWalls{                // 床に隣接しない壁をvoidに変換
-		ReplacementTile: consts.TileNameVoid,
-	})
+	chain.StartWith(CavePlanner{Layout: l})
+	chain.With(CaveCellularAutomata{Layout: l})
+	chain.With(CavePathWidener{Layout: l})
+	chain.With(CaveConnector{Layout: l})
+	chain.With(CaveStalactites{Layout: l})
+	chain.With(ConvertIsolatedWalls{WallTile: l.Tiles.Wall, ReplacementTile: l.Tiles.Void})
 	chain.With(EnvironmentPlanner{})
 
 	return chain, nil

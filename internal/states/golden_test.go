@@ -37,11 +37,12 @@ func collectPlannerTypes(t *testing.T) []mapplanner.PlannerType {
 	type tableInfo struct {
 		EnemyTableName string
 		ItemTableName  string
-		EnemyCount     rawschema.FloorCount
-		ItemCount      rawschema.FloorCount
+		EnemyCount     rawschema.RandInt
+		ItemCount      rawschema.RandInt
 	}
 	tableMap := map[string]tableInfo{}
-	dungeons := dungeon.GetAllDungeons(testutil.InitTestWorld(t).Resources.RawMaster)
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	dungeons := dungeon.GetAllDungeons(raws)
 	for i := range dungeons {
 		def := dungeons[i]
 		pool := def.PlannerPool()
@@ -58,8 +59,7 @@ func collectPlannerTypes(t *testing.T) []mapplanner.PlannerType {
 		}
 	}
 
-	result := make([]mapplanner.PlannerType, len(mapplanner.AllPlannerTypes))
-	copy(result, mapplanner.AllPlannerTypes)
+	result := append(mapplanner.LayoutPlannerTypes(raws), mapplanner.PlannerTypeOverworldField)
 	for i := range result {
 		if info, ok := tableMap[result[i].Name]; ok {
 			result[i].EnemyTableName = info.EnemyTableName
@@ -147,8 +147,8 @@ func TestMapGenVisualizerState_空のタイルと収納の中身を描ける(t *
 		planner string
 		label   string
 	}{
-		{"Small Room", "Initial"},
-		{"Small Town", "TemplatePlanner"},
+		{"small_room", "Initial"},
+		{"small_town", "TemplatePlanner"},
 	}
 	plannerTypes := collectPlannerTypes(t)
 	for _, tt := range tests {

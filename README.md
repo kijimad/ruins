@@ -107,7 +107,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [マップ生成の種類ごとの値を raw へ移す](docs/design/261115150337.md) | 3/6 | worldgen, refactor |
+| in-progress | [マップ生成の種類ごとの値を raw へ移す](docs/design/261115150337.md) | 5/6 | worldgen, refactor |
 
 
 ## Reference

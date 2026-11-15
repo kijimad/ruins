@@ -20,6 +20,12 @@ bodyParts?:       _
 skills?:          _
 skillCategories?: _
 dialogues?:       _
+roomLayouts?:     _
+bigRoomLayouts?:  _
+caveLayouts?:     _
+forestLayouts?:   _
+ruinsLayouts?:    _
+templateLayouts?: _
 
 _itemIDs: {if items != _|_ for x in items {(x.id): true}}
 _memberIDs: {if members != _|_ for x in members {(x.id): true}}
@@ -35,6 +41,16 @@ _bodyPartIDs: {if bodyParts != _|_ for x in bodyParts {(x.id): true}}
 _skillIDs: {if skills != _|_ for x in skills {(x.id): true}}
 _skillCategoryIDs: {if skillCategories != _|_ for x in skillCategories {(x.id): true}}
 _dialogueIDs: {if dialogues != _|_ for x in dialogues {(x.id): true}}
+
+// 間取りの表はどれも同じ id の空間で参照される
+_layoutIDs: {
+	if roomLayouts != _|_ for x in roomLayouts {(x.id): true}
+	if bigRoomLayouts != _|_ for x in bigRoomLayouts {(x.id): true}
+	if caveLayouts != _|_ for x in caveLayouts {(x.id): true}
+	if forestLayouts != _|_ for x in forestLayouts {(x.id): true}
+	if ruinsLayouts != _|_ for x in ruinsLayouts {(x.id): true}
+	if templateLayouts != _|_ for x in templateLayouts {(x.id): true}
+}
 
 // アイテムグループとアイテムコレクションは同じ id の空間で参照される
 _itemGroupIDs: {

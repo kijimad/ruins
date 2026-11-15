@@ -40,9 +40,9 @@ func TestGetAllDungeons_実データ(t *testing.T) {
 		got = append(got, v)
 	}
 	assert.Equal(t, []view{
-		{Name: "dead_forest", EnemyTable: "forest", ItemTable: "forest", BaseTemp: 0, Planners: []planner{{"Forest", 5}, {"Small Room", 2}, {"Big Room", 1}}},
-		{Name: "ash_cave", EnemyTable: "cave", ItemTable: "cave", BaseTemp: 5, Planners: []planner{{"Cave", 6}, {"Small Room", 1}, {"Big Room", 2}}},
-		{Name: "forgotten_ruins", EnemyTable: "ruins_area", ItemTable: "ruins_area", BaseTemp: 15, Planners: []planner{{"Small Room", 4}, {"Ruins", 3}, {"Big Room", 2}}},
+		{Name: "dead_forest", EnemyTable: "forest", ItemTable: "forest", BaseTemp: 0, Planners: []planner{{"forest", 5}, {"small_room", 2}, {"big_room", 1}}},
+		{Name: "ash_cave", EnemyTable: "cave", ItemTable: "cave", BaseTemp: 5, Planners: []planner{{"cave", 6}, {"small_room", 1}, {"big_room", 2}}},
+		{Name: "forgotten_ruins", EnemyTable: "ruins_area", ItemTable: "ruins_area", BaseTemp: 15, Planners: []planner{{"small_room", 4}, {"ruins", 3}, {"big_room", 2}}},
 	}, got)
 }
 

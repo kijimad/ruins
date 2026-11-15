@@ -11,26 +11,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPlannerTypeByName_通常プランナーを名前で引ける(t *testing.T) {
+func TestPlannerTypeByName_絵を使わない間取りを名前で引ける(t *testing.T) {
 	t.Parallel()
 
-	pt, ok := PlannerTypeByName("Small Room")
+	pt, ok := PlannerTypeByName(*CreateTestRawMaster(), "small_room")
 	assert.True(t, ok)
-	assert.Equal(t, PlannerTypeSmallRoom.Name, pt.Name)
+	assert.Equal(t, "small_room", pt.Name)
 }
 
-func TestPlannerTypeByName_デバッグ用プランナーも名前で引ける(t *testing.T) {
+func TestPlannerTypeByName_絵の間取りも名前で引ける(t *testing.T) {
 	t.Parallel()
 
-	pt, ok := PlannerTypeByName("Debug Town")
+	pt, ok := PlannerTypeByName(*CreateTestRawMaster(), "debug_town")
 	assert.True(t, ok)
-	assert.Equal(t, PlannerTypeDebugTown.Name, pt.Name)
+	assert.Equal(t, "debug_town", pt.Name)
 }
 
 func TestPlannerTypeByName_存在しない名前はfalseを返す(t *testing.T) {
 	t.Parallel()
 
-	pt, ok := PlannerTypeByName("存在しないプランナー")
+	pt, ok := PlannerTypeByName(*CreateTestRawMaster(), "存在しないプランナー")
 	assert.False(t, ok)
 	assert.Equal(t, PlannerType{}, pt)
 }

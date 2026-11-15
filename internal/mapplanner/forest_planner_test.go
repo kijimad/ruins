@@ -14,7 +14,7 @@ func TestForestPlanner(t *testing.T) {
 
 	t.Run("ForestPlannerが正常に作成される", func(t *testing.T) {
 		t.Parallel()
-		chain, err := NewForestPlanner(30, 30, 12345)
+		chain, err := NewForestPlanner(testForestLayout, 30, 30, 12345)
 		require.NoError(t, err)
 		assert.NotNil(t, chain)
 		assert.NotNil(t, chain.Starter)
@@ -22,7 +22,7 @@ func TestForestPlanner(t *testing.T) {
 
 	t.Run("ForestPlannerでマップを生成", func(t *testing.T) {
 		t.Parallel()
-		chain, err := NewForestPlanner(30, 30, 12345)
+		chain, err := NewForestPlanner(testForestLayout, 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -48,7 +48,7 @@ func TestForestPlanner(t *testing.T) {
 	t.Run("生成された空き地が有効な範囲内にある", func(t *testing.T) {
 		t.Parallel()
 		width, height := consts.Tile(30), consts.Tile(30)
-		chain, err := NewForestPlanner(width, height, 12345)
+		chain, err := NewForestPlanner(testForestLayout, width, height, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -84,7 +84,7 @@ func TestForestPlanner(t *testing.T) {
 		for _, tc := range testCases {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
-				chain, err := NewForestPlanner(tc.width, tc.height, 12345)
+				chain, err := NewForestPlanner(testForestLayout, tc.width, tc.height, 12345)
 				require.NoError(t, err)
 				chain.PlanData.RawMaster = CreateTestRawMaster()
 				err = chain.Plan()

@@ -9,7 +9,7 @@ import (
 
 func TestPlannerTypeDebugTown_テンプレが読めて街用NPCと収納箱を配置する(t *testing.T) {
 	t.Parallel()
-	chain, err := PlannerTypeDebugTown.PlannerFunc(0, 0, 12345)
+	chain, err := LayoutPlannerType("debug_town").PlannerFunc(*CreateTestRawMaster(), 0, 0, 12345)
 	require.NoError(t, err)
 	chain.PlanData.RawMaster = CreateTestRawMaster()
 	require.NoError(t, chain.Plan())

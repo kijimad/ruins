@@ -58,7 +58,7 @@ func TestRollFloorLoot(t *testing.T) {
 	t.Run("存在しないテーブル名はゼロ値を返す", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(1, 0))
-		got := rollFloorLoot(master, "存在しないテーブル", rawschema.FloorCount{Base: 8, Spread: 5}, 1, 80, rng)
+		got := rollFloorLoot(master, "存在しないテーブル", rawschema.RandInt{Base: 8, Spread: 5}, 1, 80, rng)
 		assert.Equal(t, floorLoot{}, got)
 	})
 
@@ -66,7 +66,7 @@ func TestRollFloorLoot(t *testing.T) {
 		t.Parallel()
 		for seed := range 20 {
 			rng := rand.New(rand.NewPCG(uint64(seed), 0))
-			got := rollFloorLoot(master, "ruins_area", rawschema.FloorCount{Base: 8, Spread: 5}, 1, 80, rng)
+			got := rollFloorLoot(master, "ruins_area", rawschema.RandInt{Base: 8, Spread: 5}, 1, 80, rng)
 			assert.GreaterOrEqual(t, got.healing, 0)
 			assert.GreaterOrEqual(t, got.nutrition, 0)
 			assert.GreaterOrEqual(t, got.income, 0)

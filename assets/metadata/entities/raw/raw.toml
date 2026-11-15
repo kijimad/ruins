@@ -73,6 +73,21 @@
   range = "ranged"
   skill = "cannon"
 
+[[bigRoomLayouts]]
+  id = "big_room"
+  mazeGapChance = 0.3
+  obstacleArea = 30
+  [bigRoomLayouts.pillarSpacing]
+    base = 3
+    spread = 4
+  [bigRoomLayouts.platformRadius]
+    base = 2
+    spread = 3
+  [bigRoomLayouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
 [[bodyParts]]
   hitWeight = 2.0
   id = "head"
@@ -107,6 +122,19 @@
   hitWeight = 0.0
   id = "whole_body"
   name = "Whole body"
+
+[[caveLayouts]]
+  id = "cave"
+  iterations = 3
+  minRoomTiles = 10
+  stalactiteChance = 0.02
+  wallChance = 0.3
+  wallNeighbors = 6
+  widenChance = 0.3
+  [caveLayouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
 
 [[commandTables]]
   id = "bat"
@@ -3852,6 +3880,25 @@
 [[foliageEffects]]
   id = "forest"
   tempModifier = -3
+
+[[forestLayouts]]
+  id = "forest"
+  largeTreeChance = 0.2
+  path = "road"
+  treeDensity = 0.6
+  [forestLayouts.clearingSize]
+    base = 4
+    spread = 6
+  [forestLayouts.clearings]
+    base = 3
+    spread = 4
+  [forestLayouts.tiles]
+    floor = "dirt"
+    void = "dirt"
+    wall = "wall"
+  [forestLayouts.wildlifeSpots]
+    base = 2
+    spread = 4
 
 [[freshnessStages]]
   eatLog = "%s ate fresh %s."
@@ -22331,6 +22378,40 @@
     amount = 2
     id = "rag"
 
+[[roomLayouts]]
+  corridorWidth = 3
+  doorChance = 0.8
+  id = "small_room"
+  [roomLayouts.roomSize]
+    base = 2
+    spread = 8
+  [roomLayouts.rooms]
+    base = 4
+    spread = 10
+  [roomLayouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[ruinsLayouts]]
+  id = "ruins"
+  partitionGapChance = 0.4
+  pathChance = 0.3
+  wallGapChance = 0.3
+  [ruinsLayouts.buildingHeight]
+    base = 6
+    spread = 8
+  [ruinsLayouts.buildingWidth]
+    base = 8
+    spread = 10
+  [ruinsLayouts.buildings]
+    base = 3
+    spread = 3
+  [ruinsLayouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
 [[scatterZones]]
   grassDensity = 0.09
   ground = "dirt"
@@ -22971,6 +23052,22 @@
 [[spriteSheets]]
   name = "tile"
   path = "file/textures/dist/tiles.json"
+
+[[templateLayouts]]
+  id = "office_building"
+  template = "15x10_office_building"
+
+[[templateLayouts]]
+  id = "small_town"
+  template = "50x50_small_town"
+
+[[templateLayouts]]
+  id = "town_plaza"
+  template = "50x20_town_plaza"
+
+[[templateLayouts]]
+  id = "debug_town"
+  template = "20x20_debug_town"
 
 [[tiles]]
   blockPass = false

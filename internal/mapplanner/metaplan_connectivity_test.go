@@ -23,11 +23,11 @@ func TestConnectivity_AllPlannerTypes(t *testing.T) {
 		name        string
 		plannerType PlannerType
 	}{
-		{"小部屋", PlannerTypeSmallRoom},
-		{"大部屋", PlannerTypeBigRoom},
-		{"洞窟", PlannerTypeCave},
-		{"廃墟", PlannerTypeRuins},
-		{"森", PlannerTypeForest},
+		{"小部屋", LayoutPlannerType("small_room")},
+		{"大部屋", LayoutPlannerType("big_room")},
+		{"洞窟", LayoutPlannerType("cave")},
+		{"廃墟", LayoutPlannerType("ruins")},
+		{"森", LayoutPlannerType("forest")},
 	}
 
 	seedCount := 30
@@ -61,7 +61,7 @@ func TestConnectivity_TemplatePlanners(t *testing.T) {
 		name        string
 		plannerType PlannerType
 	}{
-		{"広場", PlannerTypeTownPlaza},
+		{"広場", LayoutPlannerType("town_plaza")},
 	}
 
 	for _, tc := range templatePlanners {

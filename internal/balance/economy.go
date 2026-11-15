@@ -105,7 +105,7 @@ func ExpectedNetLootValue(master rawschema.Raws, itemTableName string, danger in
 }
 
 // expectedFloorCount はフロアに置く数の期待値
-func expectedFloorCount(c rawschema.FloorCount) float64 {
+func expectedFloorCount(c rawschema.RandInt) float64 {
 	return float64(c.Base) + float64(c.Spread-1)/2
 }
 

@@ -290,7 +290,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		// オーバーワールドから遺跡へ入る。同一 State 内 swapTo で帯を退避し遺跡へ切り替える。
 		// プランナー名の指定があれば固定して生成する。デバッグのプランナー単位進入で使う
 		if p.PlannerName != "" {
-			builderType, ok := mapplanner.PlannerTypeByName(p.PlannerName)
+			builderType, ok := mapplanner.PlannerTypeByName(world.Resources.RawMaster, p.PlannerName)
 			if !ok {
 				return es.Transition[w.World]{}, fmt.Errorf("unknown planner name: %s", p.PlannerName)
 			}

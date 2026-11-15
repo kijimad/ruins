@@ -15,11 +15,11 @@ var (
 		displayName: "Debug",
 		enemyTable:  "forest",
 		itemTable:   "forest",
-		enemyCount:  rawschema.FloorCount{Base: 5, Spread: 4},
-		itemCount:   rawschema.FloorCount{Base: 8, Spread: 5},
+		enemyCount:  rawschema.RandInt{Base: 5, Spread: 4},
+		itemCount:   rawschema.RandInt{Base: 8, Spread: 5},
 		baseTemp:    10,
 		plannerPool: []PlannerWeight{
-			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
+			{PlannerType: mapplanner.LayoutPlannerType("small_room"), Weight: 1},
 		},
 	}
 
@@ -32,7 +32,7 @@ var (
 		itemTable:   "",
 		baseTemp:    20,
 		plannerPool: []PlannerWeight{
-			{PlannerType: mapplanner.PlannerTypeDebugTown, Weight: 1},
+			{PlannerType: mapplanner.LayoutPlannerType("debug_town"), Weight: 1},
 		},
 	}
 
@@ -44,15 +44,6 @@ var (
 	// この形状はマスタの設定で、RunSeed だけがプレイごとに変わる。
 	DungeonOverworld = NewOverworldDefinition("Overworld", 0, 24, 24, 7, 9)
 )
-
-// plannerTypes は raw のダンジョンの間取りの種類が指すプランナー
-var plannerTypes = map[rawschema.DungeonPlanner]mapplanner.PlannerType{
-	rawschema.DungeonPlannerSmallRoom: mapplanner.PlannerTypeSmallRoom,
-	rawschema.DungeonPlannerBigRoom:   mapplanner.PlannerTypeBigRoom,
-	rawschema.DungeonPlannerCave:      mapplanner.PlannerTypeCave,
-	rawschema.DungeonPlannerRuins:     mapplanner.PlannerTypeRuins,
-	rawschema.DungeonPlannerForest:    mapplanner.PlannerTypeForest,
-}
 
 // GetAllDungeons は raw の dungeons の行から、遺跡の入口が指す全ダンジョン定義を行の順に返す。
 // オーバーワールドやデバッグなどの内部用の定義は含まない。
@@ -69,7 +60,7 @@ func GetAllDungeons(raws rawschema.Raws) []*DungeonDefinition {
 func newDungeonDefinition(row *rawschema.Dungeon) *DungeonDefinition {
 	pool := make([]PlannerWeight, 0, len(row.Planners))
 	for _, p := range row.Planners {
-		pool = append(pool, PlannerWeight{PlannerType: plannerTypes[p.Id], Weight: p.Weight})
+		pool = append(pool, PlannerWeight{PlannerType: mapplanner.LayoutPlannerType(p.Id), Weight: p.Weight})
 	}
 	return &DungeonDefinition{
 		name:        row.Id,

@@ -52,7 +52,7 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	planData.Tiles[centerIdx] = planData.GetTile("wall")
 
 	// プランナーを実行（floorに変換）
-	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameFloor}
+	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameFloor}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -109,7 +109,7 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 	}
 
 	// プランナーを実行（voidに変換）
-	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
+	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -148,7 +148,7 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 	}
 
 	// プランナーを実行
-	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
+	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
