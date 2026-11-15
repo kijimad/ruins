@@ -257,7 +257,7 @@ func TestBodyTempRate_冷えた体は熱源のそばで温まる(t *testing.T) {
 func TestBodyTempRate_平熱以上では熱源が効かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	setStage(world, gc.NewDungeonStage("Debug town", 1))
+	setStage(world, gc.NewDungeonStage("debug_town", 1))
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
@@ -270,7 +270,7 @@ func TestBodyTempRate_平熱以上では熱源が効かない(t *testing.T) {
 func TestBodyTempRate_外因が無ければ平熱へ戻る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	setStage(world, gc.NewDungeonStage("Debug town", 1))
+	setStage(world, gc.NewDungeonStage("debug_town", 1))
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 	hs := world.Components.HealthStatus.Get(player)

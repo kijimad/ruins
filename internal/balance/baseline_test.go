@@ -66,3 +66,12 @@ func TestRenderBaselineMarkdown_全区画とテーブル順を含む(t *testing.
 	day1Curve := regexp.MustCompile(`\|\s+1 \|\s+1 \|\s+\d+\.\d+ \|\s+\d+\.\d+ \|\s+[内外]`)
 	assert.Len(t, day1Curve.FindAllString(md, -1), len(raw.PtrSlice(master.EnemyTables)), "全テーブルの day1 難易度カーブ行が1本ずつ出る")
 }
+
+// TestBaseline_基準の表は基準のダンジョンの表と同じ は、表の名前で試算する指標と、ダンジョンの行で試算する
+// 指標が同じ廃墟を見ていることを固定する。片方の行の表を差し替えると落ちる
+func TestBaseline_基準の表は基準のダンジョンの表と同じ(t *testing.T) {
+	t.Parallel()
+	d, err := raw.GetDungeon(loadTestMaster(t), BaselineDungeon)
+	require.NoError(t, err)
+	assert.Equal(t, []string{BaselineAreaTable, BaselineAreaTable}, []string{d.EnemyTable, d.ItemTable})
+}

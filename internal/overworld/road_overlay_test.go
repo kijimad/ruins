@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -70,7 +71,7 @@ func TestBuildRoadOverlay_表示範囲に道が現れ端点が集落に一致す
 	const runSeed uint64 = 12345
 	const cols consts.Chunk = 5
 	// 集落は Spacing チャンクごとに1つ当たる。数リージョン跨ぐ表示範囲なら必ず道が出る。道は Y に沿って走る
-	area := MacroRange{OriginX: 0, OriginY: 0, Cols: cols, Rows: 3 * settlementPlacement.Spacing}
+	area := MacroRange{OriginX: 0, OriginY: 0, Cols: cols, Rows: 3 * placementOf(testutil.InitTestWorld(t).Resources.RawMaster, rawschema.PointFeatureKindSettlement).Spacing}
 	overlay := buildRoadOverlay(testutil.InitTestWorld(t).Resources.RawMaster, runSeed, area, cols, 0, 24, 24)
 
 	assert.NotEmpty(t, overlay, "複数リージョンを覆う表示範囲には道が出る")
@@ -82,7 +83,7 @@ func TestBuildRoadOverlay_表示範囲に道が現れ端点が集落に一致す
 	}
 
 	// 当選集落の当該チャンクは端点として道に含まれる。隣接リージョンを結ぶので道の端に来る
-	a := settlementPlacement.WinnerOf(runSeed, 1, cols)
+	a := placementOf(testutil.InitTestWorld(t).Resources.RawMaster, rawschema.PointFeatureKindSettlement).WinnerOf(runSeed, 1, cols)
 	assert.NotZero(t, overlay[a], "当選集落チャンクには街道が届く")
 }
 

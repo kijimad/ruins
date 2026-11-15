@@ -6,7 +6,9 @@ import (
 )
 
 // RoomDraw は部屋を描画するビルダー
-type RoomDraw struct{}
+type RoomDraw struct {
+	FloorTile string
+}
 
 // PlanMeta はメタデータをビルドする
 func (b RoomDraw) PlanMeta(planData *MetaPlan) error {
@@ -25,7 +27,7 @@ func (b RoomDraw) rectangle(planData *MetaPlan, room gc.Rect) {
 		for y := room.Min.Y; y <= room.Max.Y; y++ {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
 			if isValidTileIdx(planData, idx) {
-				planData.Tiles[idx] = planData.GetTile("floor")
+				planData.Tiles[idx] = planData.GetTile(b.FloorTile)
 			}
 		}
 	}

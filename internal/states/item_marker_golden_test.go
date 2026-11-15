@@ -20,7 +20,7 @@ import (
 func TestGolden_ItemMarker(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitReplayWorld(t)
-	sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: mapplanner.PlannerTypeSmallRoom}, world)
+	sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DebugID, BuilderType: mapplanner.LayoutPlannerType("small_room")}, world)
 	require.NoError(t, err)
 	// プレイヤー生成と視界確定のため数フレーム回す
 	for range 5 {

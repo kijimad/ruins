@@ -272,7 +272,7 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 func TestValidateZoneBaseFacilities_研究所の敷地は門と中ほどと奥の地区に施設が要る(t *testing.T) {
 	t.Parallel()
 
-	campus := &[]rawschema.District{{Id: "lab_campus", Spacing: 30, Separation: 4, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(true), Sizes: []rawschema.DistrictSize{{W: 7, H: 6, Weight: 1}}}}
+	campus := &[]rawschema.District{{Id: "lab_campus", Spacing: 30, Separation: 4, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(rawschema.EntityID("fence")), Sizes: []rawschema.DistrictSize{{W: 7, H: 6, Weight: 1}}}}
 	zones := []rawschema.FacilityZone{
 		{Zone: rawschema.CampusGate, Weight: 1, MinSpan: 1},
 		{Zone: rawschema.CampusInner, Weight: 1, MinSpan: 1},
@@ -297,7 +297,7 @@ func TestValidateDistricts(t *testing.T) {
 	require.ErrorIs(t, validateDistricts(district(6)), errDistrictSizeOutOfRegion)
 
 	campus := func(h int) rawschema.Raws {
-		return rawschema.Raws{Districts: &[]rawschema.District{{Id: "lab_campus", Spacing: 30, Separation: 4, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(true), Sizes: []rawschema.DistrictSize{{W: 7, H: h, Weight: 1}}}}}
+		return rawschema.Raws{Districts: &[]rawschema.District{{Id: "lab_campus", Spacing: 30, Separation: 4, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(rawschema.EntityID("fence")), Sizes: []rawschema.DistrictSize{{W: 7, H: h, Weight: 1}}}}}
 	}
 	require.NoError(t, validateDistricts(campus(3)), "門、中ほど、奥が1行ずつ並ぶ")
 	require.ErrorIs(t, validateDistricts(campus(2)), errDistrictTooShort, "残りの行を占める層に1行も残らない")
@@ -357,6 +357,18 @@ func TestSchema_抽選重みは1以上(t *testing.T) {
 			assert.Equal(t, []string{c.wantPath}, ce.Paths())
 		})
 	}
+}
+
+func TestSchema_地物の空きは間隔より小さい(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	f := &(*raws.PointFeatures)[0]
+	f.Separation = f.Spacing
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"pointFeatures.0.separation"}, ce.Paths())
 }
 
 func TestValidateRules_各検証の失敗を伝播する(t *testing.T) {

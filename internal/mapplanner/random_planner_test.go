@@ -16,14 +16,14 @@ func TestNewRandomPlanner(t *testing.T) {
 	// 同じシードで複数回実行して同じビルダータイプが選択されることを確認
 	seed := uint64(12345)
 
-	chain1, err := NewRandomPlanner(width, height, seed)
+	chain1, err := NewRandomPlanner(*CreateTestRawMaster(), width, height, seed)
 	require.NoError(t, err)
 	chain1.PlanData.RawMaster = CreateTestRawMaster()
 	chain1.PlanData.Ground = "dirt"
 	err = chain1.Plan()
 	require.NoError(t, err)
 
-	chain2, err := NewRandomPlanner(width, height, seed)
+	chain2, err := NewRandomPlanner(*CreateTestRawMaster(), width, height, seed)
 	require.NoError(t, err)
 	chain2.PlanData.RawMaster = CreateTestRawMaster()
 	chain2.PlanData.Ground = "dirt"
@@ -58,7 +58,7 @@ func TestRandomPlannerTypes(t *testing.T) {
 	testSeeds := []uint64{1, 2, 3, 4, 5, 10, 20, 30, 100, 200}
 
 	for _, seed := range testSeeds {
-		chain, err := NewRandomPlanner(width, height, seed)
+		chain, err := NewRandomPlanner(*CreateTestRawMaster(), width, height, seed)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		chain.PlanData.Ground = "dirt"

@@ -9,8 +9,12 @@ import (
 )
 
 // LineCorridorPlanner は直線廊下を生成するビルダー。
-// 廊下は3タイル幅で生成され、部屋との接続部は1タイル幅に狭まる
-type LineCorridorPlanner struct{}
+// 廊下は Width の幅で生成され、部屋との接続部は1タイル幅に狭まる
+type LineCorridorPlanner struct {
+	FloorTile string
+	WallTile  string
+	Width     int
+}
 
 // PlanMeta はメタデータをビルドする
 func (b LineCorridorPlanner) PlanMeta(planData *MetaPlan) error {
@@ -52,7 +56,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			centerPoints := createLShapedCorridor(centerStart, centerEnd)
 
 			// サイドのL字型廊下を生成する
-			const corridorWidth = 3
+			corridorWidth := b.Width
 			var sidePoints []consts.Coord[consts.Tile]
 			for offsetX := -(corridorWidth / 2); offsetX <= corridorWidth/2; offsetX++ {
 				for offsetY := -(corridorWidth / 2); offsetY <= corridorWidth/2; offsetY++ {
@@ -70,8 +74,8 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			// 中心線は無条件に床に変換する
 			for _, p := range centerPoints {
 				idx := planData.Level.CoordToIndex(p)
-				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Id == consts.TileNameWall {
-					planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)
+				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Id == b.WallTile {
+					planData.Tiles[idx] = planData.GetTile(b.FloorTile)
 				}
 				corridor = append(corridor, idx)
 			}
@@ -79,11 +83,11 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			// サイドは部屋に隣接するタイルをスキップして、接続部を1タイル幅に狭める
 			for _, p := range sidePoints {
 				idx := planData.Level.CoordToIndex(p)
-				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Id == consts.TileNameWall {
+				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Id == b.WallTile {
 					if isAdjacentToRoom(planData.Rooms, int(p.X), int(p.Y)) {
 						continue
 					}
-					planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)
+					planData.Tiles[idx] = planData.GetTile(b.FloorTile)
 				}
 				corridor = append(corridor, idx)
 			}

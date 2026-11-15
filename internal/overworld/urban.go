@@ -152,11 +152,17 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	lots := lotsOf(raws, zoneCatalogFrom(raws), r, spawnRowOf(world))
 	lot := lotAt(lots, l)
 	var fence []consts.Coord[consts.Tile]
-	if r.kind.Fence != nil && *r.kind.Fence {
+	fenceProp := ""
+	if r.kind.Fence != nil {
 		north, south := gateColumns(r, lots)
 		fence = districtFence(r, l, g.chunkW, g.chunkH, north-r.anchor.X, south-r.anchor.X)
+		fenceProp = *r.kind.Fence
 	}
-	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), r.span(), lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, streetTilesOf(r.kind))
+	enemies, err := consts.ParseDice(r.kind.StreetEnemies)
+	if err != nil {
+		return fmt.Errorf("district %q street enemies: %w", r.kind.Id, err)
+	}
+	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), enemies, lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, fenceProp, streetTilesOf(r.kind))
 }
 
 // gateColumns は塀を巡らせる区域 r の、北と南の門を開ける絶対チャンク列を、区域を埋めた区画 lots から返す。
@@ -206,8 +212,8 @@ func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
 	return danger
 }
 
-// renderUrbanChunk は1チャンクに街路と施設の絵と塀を置き、規模に応じた敵を湧かせる。塀はチャンク内の座標で受ける
-func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, lot buildingLot, l consts.Coord[consts.Chunk], danger consts.Danger, fence []consts.Coord[consts.Tile], streets streetTiles) error {
+// renderUrbanChunk は1チャンクに街路と施設の絵と塀を置き、街路に enemies 体の敵を湧かせる。塀はチャンク内の座標と家具 fenceProp で受ける
+func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Dice, lot buildingLot, l consts.Coord[consts.Chunk], danger consts.Danger, fence []consts.Coord[consts.Tile], fenceProp string, streets streetTiles) error {
 	// ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、施設の絵の 0x3 と分けて相互干渉を避ける
 	rng := rand.New(rand.NewPCG(seed, 0x2))
 	loader, err := maptemplate.FacilityTemplates()
@@ -235,11 +241,11 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk
 		if isWall(p.X, p.Y) || slices.ContainsFunc(query.GetEntitiesAt(world, pos.X, pos.Y), world.Components.Prop.Has) {
 			continue
 		}
-		if _, err := lifecycle.SpawnProp(world, "fence", pos.X, pos.Y); err != nil {
+		if _, err := lifecycle.SpawnProp(world, fenceProp, pos.X, pos.Y); err != nil {
 			return fmt.Errorf("failed to place district fence at %d,%d: %w", pos.X, pos.Y, err)
 		}
 	}
-	return spawnUrbanEnemies(world, g, rng, size, fac, danger, isWall, occupied)
+	return spawnUrbanEnemies(world, g, rng, enemies, fac, danger, isWall, occupied)
 }
 
 // planUrbanChunk は区画 lot の中の座標 l のチャンクに置くマスと、マスを置くチャンク内の原点を返す。部屋の絵を持つ施設は
@@ -310,15 +316,15 @@ func streetTerrain(x, y consts.Tile, s streetTiles) string {
 	return s.street
 }
 
-// spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから
-// 危険度で重み抽選する。壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
-func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, fac string, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
+// spawnUrbanEnemies はチャンクに敵を enemies 体湧かせる。種類は敵テーブルから危険度で重み抽選する。
+// 壁マスに埋まる位置は避ける。危険度は呼び出し側が北進度と日数から決める。
+func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, enemies consts.Dice, fac string, danger consts.Danger, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
 	enemyTable, err := urbanEnemyTableFor(world.Resources.RawMaster, fac)
 	if err != nil {
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
 	}
-	// 湧き数は街の規模で決める。敵種別は危険度でフィルタし、北へ進むほど・日が進むほど強敵が出る。
-	count := 1 + rng.IntN(int(size))
+	// 敵種別は危険度でフィルタし、北へ進むほど・日が進むほど強敵が出る。
+	count := enemies.Roll(rng)
 	for range count {
 		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(danger))
 		if err != nil {

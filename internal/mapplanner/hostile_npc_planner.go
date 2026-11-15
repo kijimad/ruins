@@ -2,6 +2,7 @@
 package mapplanner
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -53,7 +54,10 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 		return nil
 	}
 
-	total := consts.FloorEnemyBase + planData.RNG.IntN(consts.FloorEnemyRandom)
+	if n.plannerType.EnemyCount.Spread < 1 {
+		return fmt.Errorf("%w: enemy table %s", ErrFloorCountUnset, n.plannerType.EnemyTableName)
+	}
+	total := n.plannerType.EnemyCount.Roll(planData.RNG)
 
 	// 部屋がある場合は部屋ベースでクラスタ配置
 	if len(planData.Rooms) > 0 {

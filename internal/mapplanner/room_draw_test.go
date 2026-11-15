@@ -52,7 +52,7 @@ func TestRoomDraw_マップ角に接する部屋の角タイルもfloor化する
 				planData.Tiles[i] = planData.GetTile("wall")
 			}
 
-			require.NoError(t, RoomDraw{}.PlanMeta(planData))
+			require.NoError(t, RoomDraw{FloorTile: consts.TileNameFloor}.PlanMeta(planData))
 
 			assert.Equal(t, consts.TileNameFloor, planData.Tiles[tt.cornerIdx].Id)
 		})

@@ -17,10 +17,10 @@ func TestRectRoomPlanner_RoomsWithinBounds(t *testing.T) {
 
 	width, height := consts.Tile(10), consts.Tile(10)
 	for seed := range uint64(100) {
-		chain, err := NewSmallRoomPlanner(width, height, seed)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", width, height, seed)
 		require.NoError(t, err)
 
-		RectRoomPlanner{}.PlanRooms(&chain.PlanData)
+		RectRoomPlanner{Row: (*CreateTestRawMaster().RectRoomStarts)[0]}.PlanRooms(&chain.PlanData)
 
 		for i, room := range chain.PlanData.Rooms {
 			assert.Lessf(t, int(room.Max.X), int(width),

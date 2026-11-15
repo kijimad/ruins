@@ -13,37 +13,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestConnectivity_AllPlannerTypes は全プランナータイプで接続性を検証する。
-// 多数のシードで生成し、全ポータルに到達可能なことを確認する
+// TestConnectivity_AllPlannerTypes は raw の絵を使わない全ての間取りの行で接続性を検証する。
+// 段を組み替えた行も、多数のシードで全ポータルに到達可能な地図を作ることを確かめる
 func TestConnectivity_AllPlannerTypes(t *testing.T) {
 	t.Parallel()
 
-	// プロシージャルマップのプランナータイプ（ポータルを動的配置するもの）
-	proceduralPlanners := []struct {
-		name        string
-		plannerType PlannerType
-	}{
-		{"小部屋", PlannerTypeSmallRoom},
-		{"大部屋", PlannerTypeBigRoom},
-		{"洞窟", PlannerTypeCave},
-		{"廃墟", PlannerTypeRuins},
-		{"森", forestWithGround()},
-	}
-
 	seedCount := 30
 
-	for _, tc := range proceduralPlanners {
-		t.Run(tc.name, func(t *testing.T) {
+	for _, pt := range ProceduralPlannerTypes(testutil.InitTestWorld(t).Resources.RawMaster) {
+		// 下地を使う間取りがあるので、どの間取りにも下地を渡す
+		pt.Ground = consts.TileNameDirt
+		t.Run(pt.Name, func(t *testing.T) {
 			t.Parallel()
 
 			for seed := range uint64(seedCount) {
 				t.Run(fmt.Sprintf("seed=%d", seed), func(t *testing.T) {
 					t.Parallel()
 					world := testutil.InitTestWorld(t)
-					world.Resources.RawMaster = *CreateTestRawMaster()
 					query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage("テスト遺跡", 5)})
 
-					plan, err := Plan(world, 50, 50, seed, tc.plannerType)
+					plan, err := Plan(world, 50, 50, seed, pt)
 					require.NoError(t, err, "Plan失敗")
 
 					assertMapConnectivity(t, plan)
@@ -61,7 +50,7 @@ func TestConnectivity_TemplatePlanners(t *testing.T) {
 		name        string
 		plannerType PlannerType
 	}{
-		{"広場", PlannerTypeTownPlaza},
+		{"広場", LayoutPlannerType("town_plaza")},
 	}
 
 	for _, tc := range templatePlanners {
@@ -118,11 +107,4 @@ func assertMapConnectivity(t *testing.T, plan *MetaPlan) {
 // countReachableTiles はBFSで指定位置から到達可能な歩行可能タイル数を返す
 func countReachableTiles(pf *PathFinder, start consts.Coord[consts.Tile]) int {
 	return pf.countReachableFrom(start)
-}
-
-// forestWithGround は下地を持たせた森の間取り。森の間取りは計画の下地で地面を埋める
-func forestWithGround() PlannerType {
-	pt := PlannerTypeForest
-	pt.Ground = "dirt"
-	return pt
 }

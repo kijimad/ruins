@@ -9,7 +9,7 @@ import (
 
 func TestPlannerTypeDebugTown_テンプレが読めて街用NPCと収納箱を配置する(t *testing.T) {
 	t.Parallel()
-	chain, err := PlannerTypeDebugTown.PlannerFunc(0, 0, 12345)
+	chain, err := LayoutPlannerType("debug_town").PlannerFunc(*CreateTestRawMaster(), 0, 0, 12345)
 	require.NoError(t, err)
 	chain.PlanData.RawMaster = CreateTestRawMaster()
 	require.NoError(t, chain.Plan())
@@ -24,7 +24,7 @@ func TestPlannerTypeDebugTown_テンプレが読めて街用NPCと収納箱を�
 	for _, p := range chain.PlanData.Props {
 		propNames = append(propNames, p.Name)
 	}
-	assert.Contains(t, propNames, "wooden_crate", "収納箱が配置される")
+	assert.Contains(t, propNames, "debug_crate", "デバッグの品目の収納箱が配置される")
 	assert.Contains(t, propNames, "hearth", "焚き火の石組が配置される")
 
 	assert.NotEmpty(t, chain.PlanData.SpawnPoints, "スポーン地点がある")

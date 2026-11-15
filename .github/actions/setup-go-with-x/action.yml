@@ -8,6 +8,8 @@ runs:
       run: |
         sudo apt update -y
         sudo apt install -y libc6-dev libglu1-mesa-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config
+        # Mesa は apt で最新を入れるので、同じイメージでも上がりうる。golden のずれを切り分けられるよう版を残す
+        dpkg-query -W -f='${Package} ${Version}\n' 'libgl1-mesa-dri' 'libglx-mesa0' 'mesa-libgallium*' || true
         # 仮想ディスプレイはここでは起動しない。make の各ターゲットが xvfb-run -a で
         # その都度立てるため、ここでも Xvfb :99 を立てると画面が二重になり、xvfb-run が
         # 別ディスプレイ :100 を新規起動する。その一斉接続で稀に "Failed to open display" になる。

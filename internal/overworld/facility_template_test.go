@@ -162,8 +162,8 @@ func TestSpawnFacility_畳は屋内で庭は下地のまま屋外(t *testing.T) 
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	for y := range facilityLot {
-		for x := range facilityLot {
+	for y := range testChunkSide - urbanStreetW {
+		for x := range testChunkSide - urbanStreetW {
 			_, err := lifecycle.SpawnTile(world, "dirt_tundra", x, y, new(15))
 			require.NoError(t, err)
 		}
@@ -172,7 +172,8 @@ func TestSpawnFacility_畳は屋内で庭は下地のまま屋外(t *testing.T) 
 	require.NoError(t, err)
 	_, cells, err := loader.FacilityChunk("house", 1)
 	require.NoError(t, err)
-	g := chunkGeom{chunkW: facilityLot, chunkH: facilityLot, tiles: &tileIndex{world: world, loX: 0, hiX: facilityLot}}
+	lot := testChunkSide - urbanStreetW
+	g := chunkGeom{chunkW: lot, chunkH: lot, tiles: &tileIndex{world: world, loX: 0, hiX: lot}}
 	_, _, err = spawnFacility(world, g, cells, 0, 0, "house", raw.MinDanger, 1)
 	require.NoError(t, err)
 

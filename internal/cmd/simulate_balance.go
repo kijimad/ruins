@@ -57,8 +57,8 @@ func printRunIncomeSummary(master rawschema.Raws) {
 	if err != nil {
 		return
 	}
-	stats := balance.RunSimulations(master, "ruins_area", player, weapon, simMaxDepth, simTrials, simSeed)
-	fmt.Printf("ruins_area %d trials: median depth=%d, median loot income=%d (p10=%d, p90=%d)\n",
-		simTrials, stats.MedianDepth(), stats.MedianLootIncome(),
+	stats := balance.RunSimulations(master, balance.BaselineDungeon, player, weapon, simMaxDepth, simTrials, simSeed)
+	fmt.Printf("%s %d trials: median depth=%d, median loot income=%d (p10=%d, p90=%d)\n",
+		balance.BaselineDungeon, simTrials, stats.MedianDepth(), stats.MedianLootIncome(),
 		stats.LootIncomePercentile(0.1), stats.LootIncomePercentile(0.9))
 }

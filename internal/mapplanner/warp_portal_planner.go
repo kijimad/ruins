@@ -29,8 +29,7 @@ func NewPortalPlanner(world w.World, plannerType PlannerType) *PortalPlanner {
 
 // PlanMeta はポータルをMetaPlanに追加する
 func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
-	// テンプレートベースのマップではポータルは固定位置なのでスキップ
-	if p.plannerType.UseFixedPortalPos {
+	if planData.FixedPortals {
 		return nil
 	}
 

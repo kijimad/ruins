@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
@@ -36,27 +37,35 @@ func collectPlannerTypes(t *testing.T) []mapplanner.PlannerType {
 	type tableInfo struct {
 		EnemyTableName string
 		ItemTableName  string
+		EnemyCount     rawschema.RandInt
+		ItemCount      rawschema.RandInt
 	}
 	tableMap := map[string]tableInfo{}
-	dungeons := dungeon.GetAllDungeons(testutil.InitTestWorld(t).Resources.RawMaster)
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	dungeons := dungeon.GetAllDungeons(raws)
 	for i := range dungeons {
 		def := dungeons[i]
-		for _, pw := range def.PlannerPool() {
+		pool := def.PlannerPool()
+		for j := range pool {
+			pw := &pool[j]
 			if _, exists := tableMap[pw.PlannerType.Name]; !exists {
 				tableMap[pw.PlannerType.Name] = tableInfo{
 					EnemyTableName: def.EnemyTableName(),
 					ItemTableName:  def.ItemTableName(),
+					EnemyCount:     def.EnemyCount(),
+					ItemCount:      def.ItemCount(),
 				}
 			}
 		}
 	}
 
-	result := make([]mapplanner.PlannerType, len(mapplanner.AllPlannerTypes))
-	copy(result, mapplanner.AllPlannerTypes)
+	result := append(mapplanner.LayoutPlannerTypes(raws), mapplanner.PlannerTypeOverworldField)
 	for i := range result {
 		if info, ok := tableMap[result[i].Name]; ok {
 			result[i].EnemyTableName = info.EnemyTableName
 			result[i].ItemTableName = info.ItemTableName
+			result[i].EnemyCount = info.EnemyCount
+			result[i].ItemCount = info.ItemCount
 		}
 		result[i].Danger = 1
 		result[i].Ground = consts.TileNameDirt
@@ -138,8 +147,8 @@ func TestMapGenVisualizerState_空のタイルと収納の中身を描ける(t *
 		planner string
 		label   string
 	}{
-		{"Small Room", "Initial"},
-		{"Small Town", "TemplatePlanner"},
+		{"small_room", "Initial"},
+		{"small_town", "TemplatePlanner"},
 	}
 	plannerTypes := collectPlannerTypes(t)
 	for _, tt := range tests {

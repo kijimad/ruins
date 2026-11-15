@@ -36,6 +36,10 @@ type MetaPlan struct {
 	Danger consts.Danger
 	// Ground は計画の下地のタイル。地上の計画は全面を埋め、森は孤立した壁を、絵は下地を残す地形のマスをこれで置く
 	Ground string
+	// NeedsGround は間取りのタイルが下地 ground を指すか。立っていて Ground が空なら計画できない
+	NeedsGround bool
+	// FixedPortals はポータルを手続きで置かないか。絵がポータルを持つ計画と、ポータルを持たない地上の計画で立てる
+	FixedPortals bool
 	// 階層情報
 	Level gc.Level
 	// 部屋群。部屋は長方形の移動可能な空間のことをいう。
@@ -241,6 +245,9 @@ func (b *PlannerChain) Plan() error {
 	if b.Starter == nil {
 		return fmt.Errorf("empty starter planner")
 	}
+	if b.PlanData.NeedsGround && b.PlanData.Ground == "" {
+		return ErrGroundNotSet
+	}
 	if err := (*b.Starter).PlanInitial(&b.PlanData); err != nil {
 		return fmt.Errorf("PlanInitial failed: %w", err)
 	}
@@ -275,40 +282,6 @@ type MetaMapPlanner interface {
 	PlanMeta(*MetaPlan) error
 }
 
-// NewSmallRoomPlanner はシンプルな小部屋プランナーを作成する
-func NewSmallRoomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
-	chain := NewPlannerChain(width, height, seed)
-	chain.StartWith(RectRoomPlanner{})
-	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
-	chain.With(RoomDraw{})                      // 部屋を描画
-	chain.With(LineCorridorPlanner{})           // 廊下を作成
-	chain.With(DoorPlanner{DoorChance: 0.8})    // 入口にランダムにドアを配置
-	chain.With(ConvertIsolatedWalls{            // 床に隣接しない壁をvoidに変換
-		ReplacementTile: consts.TileNameVoid,
-	})
-	chain.With(EnvironmentPlanner{})
-
-	return chain, nil
-}
-
-// NewBigRoomPlanner は大部屋プランナーを作成する
-// ランダムにバリエーションを適用する統合版
-func NewBigRoomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
-	chain := NewPlannerChain(width, height, seed)
-	chain.StartWith(BigRoomPlanner{})
-	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
-	chain.With(BigRoomDraw{
-		FloorTile: consts.TileNameFloor,
-		WallTile:  consts.TileNameWall,
-	}) // 大部屋を描画（バリエーション込み）
-	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をvoidに変換
-		ReplacementTile: consts.TileNameVoid,
-	})
-	chain.With(EnvironmentPlanner{})
-
-	return chain, nil
-}
-
 // SpawnEntry はスポーン対象のエントリを表す。
 type SpawnEntry struct {
 	Name   string
@@ -325,166 +298,52 @@ func (e SpawnEntry) PackSize(rng *rand.Rand) int {
 type PlannerType struct {
 	// プランナー名
 	Name string
-	// ポータル位置を固定するか
-	UseFixedPortalPos bool
 	// 敵テーブル名。RawMasterから敵エントリを解決する際に使用する
 	EnemyTableName string
 	// アイテムテーブル名。RawMasterからアイテムエントリを解決する際に使用する
 	ItemTableName string
+	// フロアに置く敵の数
+	EnemyCount rawschema.RandInt
+	// フロアに置くアイテムの数
+	ItemCount rawschema.RandInt
 	// 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。
 	Danger consts.Danger
 	// 地面を埋める下地のタイル。地上と森の間取りが使い、空ならエラーにする
 	Ground string
-	// プランナー関数
-	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
+	// プランナー関数。間取りの行は raws から引く
+	PlannerFunc func(raws rawschema.Raws, width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }
 
 var (
 	// PlannerTypeRandom はランダム選択用のプランナータイプ
 	PlannerTypeRandom = PlannerType{
-		Name: "Random",
-	}
-
-	// PlannerTypeSmallRoom は小部屋ダンジョンのプランナータイプ
-	PlannerTypeSmallRoom = PlannerType{
-		Name:        "Small Room",
-		PlannerFunc: NewSmallRoomPlanner,
-	}
-
-	// PlannerTypeBigRoom は大部屋ダンジョンのプランナータイプ
-	PlannerTypeBigRoom = PlannerType{
-		Name:        "Big Room",
-		PlannerFunc: NewBigRoomPlanner,
-	}
-
-	// PlannerTypeCave は洞窟ダンジョンのプランナータイプ
-	PlannerTypeCave = PlannerType{
-		Name:        "Cave",
-		PlannerFunc: NewCavePlanner,
-	}
-
-	// PlannerTypeRuins は廃墟ダンジョンのプランナータイプ
-	PlannerTypeRuins = PlannerType{
-		Name:        "Ruins",
-		PlannerFunc: NewRuinsPlanner,
-	}
-
-	// PlannerTypeForest は森ダンジョンのプランナータイプ
-	PlannerTypeForest = PlannerType{
-		Name:        "Forest",
-		PlannerFunc: NewForestPlanner,
+		Name:        "Random",
+		PlannerFunc: NewRandomPlanner,
 	}
 
 	// PlannerTypeOverworldField はシームレスワールドの開けた地形チャンクのプランナータイプ。
 	// 通行可能がデフォルトで障壁は例外。チャンクを継いでも東西通行が保証される。
-	// UseFixedPortalPos=true はフロア降り/帰還ポータルを持たないため、
-	// 手続き的なポータル配置をスキップさせる意味で使う。
 	// 下地は区分ごとに決まるので持たない。使う側が Ground を補わないと ErrGroundNotSet になる。
 	PlannerTypeOverworldField = PlannerType{
-		Name:              "Overworld Field",
-		UseFixedPortalPos: true,
-		PlannerFunc:       NewOverworldFieldPlanner,
-	}
-
-	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
-	PlannerTypeOfficeBuilding = PlannerType{
-		Name:              "Office Building",
-		UseFixedPortalPos: true,
-		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
-			return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)
+		Name: "Overworld Field",
+		PlannerFunc: func(_ rawschema.Raws, width, height consts.Tile, seed uint64) (*PlannerChain, error) {
+			return NewOverworldFieldPlanner(width, height, seed)
 		},
-	}
-
-	// PlannerTypeSmallTown は小さな町（複数の建物を配置）
-	PlannerTypeSmallTown = PlannerType{
-		Name:              "Small Town",
-		UseFixedPortalPos: true,
-		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
-			return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)
-		},
-	}
-
-	// PlannerTypeTownPlaza は町の広場
-	PlannerTypeTownPlaza = PlannerType{
-		Name:              "Town Plaza",
-		UseFixedPortalPos: true,
-		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
-			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
-		},
-	}
-
-	// PlannerTypeDebugTown は街用NPCと収納箱をスポーン地点の隣に固定配置したデバッグ用テンプレート。
-	// 狭い部屋なので入ってすぐデバッグ物へ触れられる。敵の抑止は敵テーブルの無い DungeonDebugTown 側で
-	// 行うため、ここに特別扱いは要らない。UseFixedPortalPos で手続き的なポータル配置はしない
-	PlannerTypeDebugTown = PlannerType{
-		Name:              "Debug Town",
-		UseFixedPortalPos: true,
-		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
-			return NewPlannerChainByTemplateType(TemplateTypeDebugTown, seed)
-		},
-	}
-
-	// AllPlannerTypes はPlannerFuncを持つ全PlannerTypeの一覧。地上の計画は Ground を補って使う。
-	// ランダム選択用のPlannerTypeRandomは含まない
-	AllPlannerTypes = []PlannerType{
-		PlannerTypeSmallRoom,
-		PlannerTypeBigRoom,
-		PlannerTypeCave,
-		PlannerTypeRuins,
-		PlannerTypeForest,
-		PlannerTypeOverworldField,
-		PlannerTypeOfficeBuilding,
-		PlannerTypeSmallTown,
-		PlannerTypeTownPlaza,
-	}
-
-	// debugPlannerTypes は名前指定でのみ使うデバッグ専用プランナー。ランダム選択や
-	// マップ生成ギャラリーの対象にはせず、PlannerTypeByName の解決だけで使えるようにする
-	debugPlannerTypes = []PlannerType{
-		PlannerTypeDebugTown,
 	}
 )
 
-// PlannerTypeByName は名前から PlannerType を引く。対象は PlannerFunc を持つ AllPlannerTypes で、
-// 見つからなければ ok=false を返す。デバッグでプランナー名を指定してフロアを生成するときに使う。
-func PlannerTypeByName(name string) (PlannerType, bool) {
-	for _, pt := range AllPlannerTypes {
-		if pt.Name == name {
-			return pt, true
-		}
-	}
-	// デバッグ専用プランナーも名前で引けるようにする。ギャラリーやランダム選択には含めない
-	for _, pt := range debugPlannerTypes {
-		if pt.Name == name {
-			return pt, true
-		}
-	}
-	return PlannerType{}, false
-}
-
-// NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する
-func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
+// NewRandomPlanner は絵を使わない間取りの行からシード値で1つ選び、その間取りのチェーンを作成する
+func NewRandomPlanner(raws rawschema.Raws, width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	// シードが0の場合はランダムなシードを生成する。後続のビルダーに渡される
 	if seed == 0 {
 		seed = uint64(time.Now().UnixNano())
 	}
-
-	// シード値からランダムソースを作成（ビルダー選択用）
-	rng := rand.New(rand.NewPCG(seed, 0))
-
-	// ランダム選択対象のプランナータイプ（街は除外）
-	candidateTypes := []PlannerType{
-		PlannerTypeSmallRoom,
-		PlannerTypeBigRoom,
-		PlannerTypeCave,
-		PlannerTypeRuins,
-		PlannerTypeForest,
+	candidates := proceduralLayoutIDs(raws)
+	if len(candidates) == 0 {
+		return nil, fmt.Errorf("random planner selection error: %w", ErrNoLayout)
 	}
-
-	// ランダムに選択
-	selectedType := candidateTypes[rng.IntN(len(candidateTypes))]
-
-	chain, err := selectedType.PlannerFunc(width, height, seed)
+	rng := rand.New(rand.NewPCG(seed, 0))
+	chain, err := newLayoutChain(raws, candidates[rng.IntN(len(candidates))], width, height, seed)
 	if err != nil {
 		return nil, fmt.Errorf("random planner selection error: %w", err)
 	}
@@ -554,6 +413,9 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 // GetTile はタイルを生成する
 // TODO: エラーを潰しているだけなので直す
 func (bm *MetaPlan) GetTile(name string) rawschema.Tile {
+	if name == maptemplate.GroundTerrain {
+		name = bm.Ground
+	}
 	if bm.RawMaster == nil {
 		panic("RawMaster is not set; tile generation from TOML is required")
 	}

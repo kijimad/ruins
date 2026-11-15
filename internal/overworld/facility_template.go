@@ -17,9 +17,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// facilityLot は施設の絵の1辺の長さ。チャンク 24×24 から北と西の街路を引いた区画の大きさ
-const facilityLot consts.Tile = 20
-
 var (
 	// errFacilityOutOfChunk は施設の絵が置く原点からチャンクに収まらないときに返す
 	errFacilityOutOfChunk = errors.New("facility template does not fit in the chunk")

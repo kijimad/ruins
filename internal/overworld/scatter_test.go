@@ -310,7 +310,7 @@ func TestOutdoorZoneAt_集落近傍は道沿い(t *testing.T) {
 	t.Parallel()
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	// 集落の当選チャンクそのものは距離0で必ず道沿い
-	winner := settlementPlacement.WinnerOf(scatterTestSeed, 2, scatterTestRows)
+	winner := placementOf(testutil.InitTestWorld(t).Resources.RawMaster, rawschema.PointFeatureKindSettlement).WinnerOf(scatterTestSeed, 2, scatterTestRows)
 	assert.Equal(t, zoneRoadside, outdoorZoneAt(raws, scatterTestSeed, winner, scatterTestRows), "集落の当選チャンクは道沿い")
 
 	// 奥地ゾーンのチャンクが少なくとも1つ存在し、関数がゾーンを識別できる。奥地は北へ進んだ Y に現れる

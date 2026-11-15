@@ -1,4 +1,4 @@
-label: CavePathWidener
+label: ConnectRooms
 tiles:
   '.' = "floor"
   '#' = "wall"

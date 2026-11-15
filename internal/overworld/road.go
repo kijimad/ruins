@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -15,29 +16,24 @@ import (
 // リージョン順に正規化されているので、どちらのチャンクから生成しても同じ道になる。
 type roadFeature struct{}
 
-// roadWidth は舗装路の幅。中心線に対し進行方向と垂直へこのタイル数だけ広げる。1タイルだと
-// 隊商の街道として細すぎるので幅を持たせる。幅は偶数なので中心は定まらず、オフセットを
-// -roadWidth/2 から始めてわずかに片側へ寄せる。
-const roadWidth consts.Tile = 4
-
 func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
 	// 区域の中は区域が街路を敷くので、道を描かない
 	if _, ok := districtAt(world.Resources.RawMaster, runSeed, c, cols); ok {
 		return nil
 	}
 	tiles := g.tiles.get()
-	for _, pair := range crossingRoads(runSeed, c, cols) {
-		segs := roadPath(world.Resources.RawMaster, runSeed, pair[0], pair[1], cols, spawnRowOf(world), g.chunkW, g.chunkH)
-		if err := drawRoadSegments(world, tiles, segs, c, g); err != nil {
+	for _, link := range crossingRoads(world.Resources.RawMaster, runSeed, c, cols) {
+		segs := roadPath(world.Resources.RawMaster, runSeed, link.a, link.b, cols, spawnRowOf(world), g.chunkW, g.chunkH)
+		if err := drawRoadSegments(world, tiles, segs, link.road, c, g); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// drawRoadSegments は道の辺 segs のうち、チャンク c に含まれるマスだけを舗装する。既存タイルが土のマスだけを
-// 置き換え、市街地の壁や床、集落は壊さない。
-func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs []roadSeg, c consts.Coord[consts.Chunk], g chunkGeom) error {
+// drawRoadSegments は道の辺 segs のうち、チャンク c に含まれるマスだけを道 road のタイルで舗装する。既存タイルが土のマスだけを
+// 置き換え、市街地の壁や床、集落は壊さない。幅は中心線に対し進行方向と垂直へ広げ、偶数なら中心からわずかに片側へ寄せる
+func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs []roadSeg, road rawschema.Road, c consts.Coord[consts.Chunk], g chunkGeom) error {
 	earth := earthTilesOf(world.Resources.RawMaster)
 	pave := func(px, py consts.Tile) error {
 		loX := c.X.Tiles(g.chunkW)
@@ -47,18 +43,19 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs [
 		}
 		wx := g.offsetX + (px - loX)
 		wy := g.offsetY + (py - loY)
-		if err := paveEarthTile(world, tiles, earth, consts.Coord[consts.Tile]{X: wx, Y: wy}); err != nil {
+		if err := paveEarthTile(world, tiles, earth, consts.Coord[consts.Tile]{X: wx, Y: wy}, road.Tile); err != nil {
 			return fmt.Errorf("failed to pave road (x=%d, y=%d): %w", wx, wy, err)
 		}
 		return nil
 	}
 
-	// 各辺を幅 roadWidth のバンドで敷く。進行軸に沿って可変軸を進め、垂直に roadWidth ぶん広げる。
+	// 各辺を道の幅のバンドで敷く。進行軸に沿って可変軸を進め、垂直に幅ぶん広げる。
 	// 角付近は両辺のバンドが重なるが paveEarthTile は冪等なので二重舗装は無害。
+	width := consts.Tile(road.Width)
 	for _, seg := range segs {
 		for v := seg.lo; v <= seg.hi; v++ {
-			for w := range roadWidth {
-				off := w - roadWidth/2
+			for w := range width {
+				off := w - width/2
 				px, py := v, seg.fixed+off
 				if seg.orient == orientVertical {
 					px, py = seg.fixed+off, v
@@ -72,12 +69,12 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs [
 	return nil
 }
 
-// paveEarthTile は座標のタイルが土の地面のときだけ道へ置き換える。土でないタイルは他の地物の
+// paveEarthTile は座標のタイルが土の地面のときだけ道のタイル tile へ置き換える。土でないタイルは他の地物の
 // 生成物なので触らない。
-func paveEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, earth earthTiles, pos consts.Coord[consts.Tile]) error {
+func paveEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, earth earthTiles, pos consts.Coord[consts.Tile], tile string) error {
 	if !earth.at(world, tiles, pos) {
 		return nil
 	}
-	_, err := replaceTile(world, tiles, pos, consts.TileNameRoad)
+	_, err := replaceTile(world, tiles, pos, tile)
 	return err
 }

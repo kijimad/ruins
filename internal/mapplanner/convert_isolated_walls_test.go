@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -52,7 +53,7 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	planData.Tiles[centerIdx] = planData.GetTile("wall")
 
 	// プランナーを実行（floorに変換）
-	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameFloor}
+	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameFloor}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -109,7 +110,7 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 	}
 
 	// プランナーを実行（voidに変換）
-	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
+	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -148,7 +149,7 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 	}
 
 	// プランナーを実行
-	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
+	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -158,7 +159,7 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 	}
 }
 
-func TestConvertIsolatedWalls_UseGround(t *testing.T) {
+func TestConvertIsolatedWalls_置き換え先のgroundは計画の下地(t *testing.T) {
 	t.Parallel()
 
 	// 5x5 を全て壁にすると、端でない中央の壁は床に接しない孤立した壁になる
@@ -180,12 +181,7 @@ func TestConvertIsolatedWalls_UseGround(t *testing.T) {
 	t.Run("孤立した壁を計画の下地にする", func(t *testing.T) {
 		t.Parallel()
 		planData := newPlan("dirt")
-		require.NoError(t, ConvertIsolatedWalls{UseGround: true}.PlanMeta(planData))
+		require.NoError(t, ConvertIsolatedWalls{WallTile: "wall", ReplacementTile: maptemplate.GroundTerrain}.PlanMeta(planData))
 		assert.Equal(t, "dirt", planData.Tiles[center].Id)
-	})
-
-	t.Run("下地が無ければエラー", func(t *testing.T) {
-		t.Parallel()
-		require.ErrorIs(t, ConvertIsolatedWalls{UseGround: true}.PlanMeta(newPlan("")), ErrGroundNotSet)
 	})
 }
