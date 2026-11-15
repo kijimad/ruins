@@ -15,7 +15,8 @@
 // # ゴールデン比較。ピクセル差分で pass/fail を判定する
 //
 //   - AssertScreenGolden: 任意の画面描画を固定する
-//   - AssertFrameGolden: 描画済みの screen を固定する。再生ドライバが撮ったフレームに使う。screen は解放しない
+//   - DrawFrame: vrt が作った描き先に描いた画を返す。Frame.AssertGolden で名前を付けて固定する。
+//     描き先は外から受け取らない。再生ドライバが撮るフレームもこの Frame で渡る
 //
 // # 画像生成。比較はせず保存用のPNGを返す
 //

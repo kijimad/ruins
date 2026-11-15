@@ -38,9 +38,7 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 	t.Helper()
 
 	drawFn := setupFn()
-	// 描き先も unmanaged にする。共有アトラス上の配置は並行テストの生成順で変わり、
-	// linear で引き伸ばす画像のサンプル行がずれる。機構は components.Texture を参照
-	screen := ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), &ebiten.NewImageOptions{Unmanaged: true})
+	screen := newScreen(width, height)
 	drawFn(screen)
 	img := captureScreen(screen)
 
@@ -48,14 +46,29 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 	assertPNGGolden(t, t.Name(), pngData)
 }
 
-// AssertFrameGolden は描画済みの screen を name のゴールデン画像 testdata/name.png と比較する。
-// 再生ドライバが各フレームで撮った画をそのまま渡す用途で、レイアウトも描画も呼び出し側が済ませている。
-// state の組み立てと駆動は replay.PlayScenario が担う。GOLDIE_UPDATE=1 で更新する。
-//
-// screen は読むだけで解放しない。所有権は渡した側にある
-func AssertFrameGolden(t *testing.T, name string, screen *ebiten.Image) {
+// Frame は vrt が作った描き先に描き終えた1枚の画。描き先を外から受け取らないので、golden に撮る画は
+// 必ず newScreen の描き先に描かれる
+type Frame struct {
+	screen *ebiten.Image
+}
+
+// DrawFrame は width×height の描き先を作って draw で描き、その画を返す
+func DrawFrame(width, height int, draw func(screen *ebiten.Image)) Frame {
+	screen := newScreen(width, height)
+	draw(screen)
+	return Frame{screen: screen}
+}
+
+// AssertGolden は画を name のゴールデン画像 testdata/name.png と比較する。GOLDIE_UPDATE=1 で更新する
+func (f Frame) AssertGolden(t *testing.T, name string) {
 	t.Helper()
-	assertPNGGolden(t, name, encodePNG(t, readScreen(screen)))
+	assertPNGGolden(t, name, encodePNG(t, readScreen(f.screen)))
+}
+
+// newScreen は golden を撮る描き先を作る。共有アトラスに載せると配置が並行テストの生成順で変わり、
+// 引き伸ばす画像のサンプル位置がずれるので unmanaged にする。機構は components.Texture を参照
+func newScreen(width, height int) *ebiten.Image {
+	return ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), &ebiten.NewImageOptions{Unmanaged: true})
 }
 
 // encodePNG はimage.Imageをpngバイト列にエンコードする
