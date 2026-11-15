@@ -37,6 +37,7 @@ PR 本文は次の項目で構成する。GitHub は ```mermaid フェンスを�
 - `new-design-doc`: 設計ドキュメント作成（採番・雛形・必須セクション・進捗）
 - `manage-skill`: 学びから skill を新規作成・更新する（下記「フィードバックの昇格」を実行する手順）
 - `post-merge`: PRマージ後の後片付け（worktree破棄・コード知識グラフの更新）
+- `review-response`: PR のレビュー指摘への対応（指摘ごとの判断・対応した項目と対応しない項目を理由付きで PR の description に追記）
 
 ## フィードバックの昇格
 
