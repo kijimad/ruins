@@ -6,6 +6,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -58,6 +59,7 @@ func TestManagedGoldenScreens(t *testing.T) {
 	}{
 		{"NewImage で作った描き先を渡すと違反", "screen := ebiten.NewImage(2, 2)\nvrt.AssertFrameGolden(t, \"x\", screen)", 1},
 		{"NewImageWithOptions も違反", "screen := ebiten.NewImageWithOptions(r, nil)\nvrt.AssertFrameGolden(t, \"x\", screen)", 1},
+		{"NewImageFromImage も違反", "screen := ebiten.NewImageFromImage(src)\nvrt.AssertFrameGolden(t, \"x\", screen)", 1},
 		{"引数で直に作っても違反", "vrt.AssertFrameGolden(t, \"x\", ebiten.NewImage(2, 2))", 1},
 		{"var で宣言しても違反", "var screen = ebiten.NewImage(2, 2)\nvrt.AssertFrameGolden(t, \"x\", screen)", 1},
 		{"NewScreen は適合", "screen := vrt.NewScreen(2, 2)\nvrt.AssertFrameGolden(t, \"x\", screen)", 0},
@@ -123,17 +125,20 @@ func isAssertFrameGolden(e ast.Expr) bool {
 	if id, ok := e.(*ast.Ident); ok {
 		return id.Name == "AssertFrameGolden"
 	}
-	return isSelector(e, "vrt", "AssertFrameGolden")
+	return goldenSelector(e, "vrt", "AssertFrameGolden")
 }
 
-// isNewImageCall は式が ebiten.NewImage か ebiten.NewImageWithOptions の呼び出しかを返す
+// newImageFuncs は ebiten の画像を作る関数の名前
+var newImageFuncs = []string{"NewImage", "NewImageWithOptions", "NewImageFromImage", "NewImageFromImageWithOptions"}
+
+// isNewImageCall は式が newImageFuncs のどれかの呼び出しかを返す
 func isNewImageCall(e ast.Expr) bool {
 	call, ok := e.(*ast.CallExpr)
-	return ok && (isSelector(call.Fun, "ebiten", "NewImage") || isSelector(call.Fun, "ebiten", "NewImageWithOptions"))
+	return ok && slices.ContainsFunc(newImageFuncs, func(name string) bool { return goldenSelector(call.Fun, "ebiten", name) })
 }
 
-// isSelector は式が pkg.name の形かを返す
-func isSelector(e ast.Expr, pkg, name string) bool {
+// goldenSelector は式が pkg.name の形かを返す
+func goldenSelector(e ast.Expr, pkg, name string) bool {
 	sel, ok := e.(*ast.SelectorExpr)
 	if !ok || sel.Sel.Name != name {
 		return false
