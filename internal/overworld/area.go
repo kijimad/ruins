@@ -21,15 +21,17 @@ type Area struct {
 // AreaAt はチャンク c のエリアを返す。区域の Key は種類と原点から作り、同じ種類の別の区域と区別する。
 // 集落・目印・遺跡の入口は1チャンクの小さな場所なので、荒れ地と同じく Key を持たない
 func AreaAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) Area {
-	kind := chunkTypeAt(raws, runSeed, c, cols)
-	switch kind {
-	case chunkUrban:
-		r, _ := districtAt(raws, runSeed, c, cols)
+	if r, ok := districtAt(raws, runSeed, c, cols); ok {
 		return Area{
-			Key:      fmt.Sprintf("%s:%s:%d,%d", kind, r.kind.Id, r.anchor.X, r.anchor.Y),
+			Key:      fmt.Sprintf("%s:%d,%d", r.kind.Id, r.anchor.X, r.anchor.Y),
 			Name:     i18n.Msgid(r.kind.Name),
 			Building: glyphName(raws, urbanFacilityAt(raws, zoneCatalogFrom(raws), r, c, spawnRow)),
 		}
+	}
+	kind := chunkTypeAt(raws, runSeed, c, cols)
+	switch kind {
+	case chunkUrban:
+		panic("district chunk has no district")
 	case chunkSettlement:
 		return Area{Name: glyphName(raws, settlementAt(raws, runSeed, c).Id)}
 	case chunkLandmark:

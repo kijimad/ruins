@@ -501,7 +501,15 @@ func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA 
 // areaLabel は地上の現在地を「エリア名 / 建物名」で返す。建物が無ければエリア名だけ、地上でなければ空
 func areaLabel(world w.World) string {
 	area, ok := overworld.PlayerArea(world)
-	if !ok || area.Name == "" {
+	if !ok {
+		return ""
+	}
+	return formatAreaLabel(world, area)
+}
+
+// formatAreaLabel はエリアを「エリア名 / 建物名」に訳して組む。建物が無ければエリア名だけ
+func formatAreaLabel(world w.World, area overworld.Area) string {
+	if area.Name == "" {
 		return ""
 	}
 	label := query.T(world, area.Name)

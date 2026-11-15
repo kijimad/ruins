@@ -3,8 +3,13 @@ package systems
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
+	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAreaEntrySystem_observe_別の区域に入ったときだけ入ったとみなす(t *testing.T) {
@@ -18,8 +23,8 @@ func TestAreaEntrySystem_observe_別の区域に入ったときだけ入った�
 	sys := &AreaEntrySystem{}
 	seq := []overworld.Area{townA, townA, wasteland, townA, townB, wasteland, shrine, townB}
 	got := make([]bool, 0, len(seq))
-	for _, a := range seq {
-		got = append(got, sys.observe(a))
+	for i, a := range seq {
+		got = append(got, sys.observe(a, consts.Turn(100+i)))
 	}
 	assert.Equal(t, []bool{
 		false, // 最初に見たエリアは記憶するだけ
@@ -31,4 +36,42 @@ func TestAreaEntrySystem_observe_別の区域に入ったときだけ入った�
 		false, // 小さな場所に入った
 		true,  // 小さな場所から区域に戻った
 	}, got)
+}
+
+func TestAreaEntrySystem_observe_ターンが続いていなければ別の区域でも入ったとみなさない(t *testing.T) {
+	t.Parallel()
+
+	townA := overworld.Area{Key: "urban:town:0,0", Name: "Town"}
+	townB := overworld.Area{Key: "urban:town:9,9", Name: "Town"}
+
+	sys := &AreaEntrySystem{}
+	got := []bool{
+		sys.observe(townA, 100),
+		sys.observe(townB, 500), // 別のセーブを読み込んだ、あるいはダンジョンから戻った
+		sys.observe(townA, 501),
+	}
+	assert.Equal(t, []bool{false, false, true}, got)
+}
+
+func TestAreaLabel_地上でなければ空(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	assert.Empty(t, areaLabel(world))
+}
+
+func TestAreaLabel_地上では現在地の名前を出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 24, 24, 3, 1), &overworld.NewGameParams{RunSeed: 42})
+	require.NoError(t, drv.Start(world))
+	assert.Equal(t, "Wasteland", areaLabel(world), "開始地点は荒れ地")
+}
+
+func TestFormatAreaLabel(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	assert.Equal(t, []string{"Town / Clinic", "Shrine"}, []string{
+		formatAreaLabel(world, overworld.Area{Key: "town:0,0", Name: "Town", Building: "Clinic"}),
+		formatAreaLabel(world, overworld.Area{Name: "Shrine"}),
+	})
 }
