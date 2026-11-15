@@ -5,6 +5,7 @@ import (
 	"context"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/png"
 	"io/fs"
 	"os"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/urfave/cli/v3"
 )
 
 func TestCutCells_透明なマスを除いて行と列の順に返す(t *testing.T) {
@@ -64,25 +64,24 @@ func TestWritePNG_作成できないパスはエラー(t *testing.T) {
 	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
-// cutSpriteApp は runCutSprite を Action に持つ単体の cli.Command を返す。
-// パッケージ変数 CmdCutSprite を直接 Run すると実行ごとの状態が共有されるため、テストごとに新規に作る。
-// フラグ定義は CmdCutSprite と手で揃えているので、本体でフラグを変えたらここも合わせる。
-func cutSpriteApp() *cli.Command {
-	return &cli.Command{
-		Name:      "cutsprite",
-		ArgsUsage: "<image.png>",
-		Flags: []cli.Flag{
-			&cli.StringFlag{Name: "prefix", Usage: "file name prefix of the sprites", Required: true},
-			&cli.StringFlag{Name: outFlag, Usage: "output directory", Value: "assets/file/textures/single"},
-		},
-		Action: runCutSprite,
-	}
+// writeSheet は w×h の透明な画像の opaque の範囲を赤で塗り、PNG に書き出してパスを返す
+func writeSheet(t *testing.T, w, h int, opaque image.Rectangle) string {
+	t.Helper()
+	src := image.NewNRGBA(image.Rect(0, 0, w, h))
+	draw.Draw(src, opaque, image.NewUniform(color.NRGBA{R: 255, A: 255}), image.Point{}, draw.Src)
+
+	path := filepath.Join(t.TempDir(), "sheet.png")
+	f, err := os.Create(path)
+	require.NoError(t, err)
+	require.NoError(t, png.Encode(f, src))
+	require.NoError(t, f.Close())
+	return path
 }
 
 func TestRunCutSprite_画像引数がないとエラー(t *testing.T) {
 	t.Parallel()
 
-	err := cutSpriteApp().Run(context.Background(), []string{"cutsprite", "--prefix", "p"})
+	err := newCutSpriteCmd().Run(context.Background(), []string{"cutsprite", "--prefix", "p"})
 	require.ErrorIs(t, err, errNoImageArg)
 }
 
@@ -90,7 +89,7 @@ func TestRunCutSprite_存在しない画像はエラー(t *testing.T) {
 	t.Parallel()
 
 	path := filepath.Join(t.TempDir(), "missing.png")
-	err := cutSpriteApp().Run(context.Background(), []string{"cutsprite", "--prefix", "p", path})
+	err := newCutSpriteCmd().Run(context.Background(), []string{"cutsprite", "--prefix", "p", path})
 	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
@@ -100,7 +99,7 @@ func TestRunCutSprite_不正なpngはエラー(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "broken.png")
 	require.NoError(t, os.WriteFile(path, []byte("not a png"), 0o644))
 
-	err := cutSpriteApp().Run(context.Background(), []string{"cutsprite", "--prefix", "p", path})
+	err := newCutSpriteCmd().Run(context.Background(), []string{"cutsprite", "--prefix", "p", path})
 	var fe png.FormatError
 	require.ErrorAs(t, err, &fe)
 }
@@ -108,34 +107,22 @@ func TestRunCutSprite_不正なpngはエラー(t *testing.T) {
 func TestRunCutSprite_透明なマスを除いてスプライトを書き出す(t *testing.T) {
 	t.Parallel()
 
-	// 64x32の画像を32角で切ると2マス。左は不透明、右は未設定のまま透明に残す
-	src := image.NewNRGBA(image.Rect(0, 0, 64, 32))
-	red := color.NRGBA{R: 255, A: 255}
-	for y := range 32 {
-		for x := range 32 {
-			src.Set(x, y, red)
-		}
-	}
-
-	srcPath := filepath.Join(t.TempDir(), "sheet.png")
-	f, err := os.Create(srcPath)
-	require.NoError(t, err)
-	require.NoError(t, png.Encode(f, src))
-	require.NoError(t, f.Close())
+	// 2行2列のうち0行1列だけを不透明にし、ファイル名の行と列の順まで確かめる
+	srcPath := writeSheet(t, 64, 64, image.Rect(32, 0, 64, 32))
 
 	outDir := t.TempDir()
 	var buf bytes.Buffer
-	app := cutSpriteApp()
+	app := newCutSpriteCmd()
 	app.Writer = &buf
 
-	err = app.Run(context.Background(), []string{"cutsprite", "--prefix", "chip", "--out", outDir, srcPath})
+	err := app.Run(context.Background(), []string{"cutsprite", "--prefix", "chip", "--out", outDir, srcPath})
 	require.NoError(t, err)
 	assert.Equal(t, "wrote 1 sprites\n", buf.String())
 
 	entries, err := os.ReadDir(outDir)
 	require.NoError(t, err)
 	require.Len(t, entries, 1)
-	assert.Equal(t, "chip_0_0_.png", entries[0].Name())
+	assert.Equal(t, "chip_0_1_.png", entries[0].Name())
 
 	wf, err := os.Open(filepath.Join(outDir, entries[0].Name()))
 	require.NoError(t, err)
@@ -150,21 +137,8 @@ func TestRunCutSprite_透明なマスを除いてスプライトを書き出す(
 func TestRunCutSprite_書き出し先が無いとエラー(t *testing.T) {
 	t.Parallel()
 
-	src := image.NewNRGBA(image.Rect(0, 0, 32, 32))
-	red := color.NRGBA{R: 255, A: 255}
-	for y := range 32 {
-		for x := range 32 {
-			src.Set(x, y, red)
-		}
-	}
-
-	srcPath := filepath.Join(t.TempDir(), "sheet.png")
-	f, err := os.Create(srcPath)
-	require.NoError(t, err)
-	require.NoError(t, png.Encode(f, src))
-	require.NoError(t, f.Close())
-
+	srcPath := writeSheet(t, 32, 32, image.Rect(0, 0, 32, 32))
 	outDir := filepath.Join(t.TempDir(), "no-such-dir")
-	err = cutSpriteApp().Run(context.Background(), []string{"cutsprite", "--prefix", "chip", "--out", outDir, srcPath})
+	err := newCutSpriteCmd().Run(context.Background(), []string{"cutsprite", "--prefix", "chip", "--out", outDir, srcPath})
 	require.ErrorIs(t, err, fs.ErrNotExist)
 }
