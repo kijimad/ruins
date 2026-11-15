@@ -29,6 +29,25 @@ func TestEnvironmentPlanner_PlanMeta_囲われはタイルの行の値を使う(
 		[]rawschema.Shelter{mp.Environments[0].Shelter, mp.Environments[1].Shelter, mp.Environments[2].Shelter})
 }
 
+func TestEnvironmentPlanner_PlanMeta_植生と雪の解けやすさはタイルの行の値を使う(t *testing.T) {
+	t.Parallel()
+
+	forest := rawschema.FoliageForest
+	mp := &MetaPlan{
+		Level: newTestLevel(2, 1),
+		Tiles: []rawschema.Tile{
+			{Id: "grass", Name: "grass", Foliage: &forest},
+			{Id: "road", Name: "road", SnowMeltPercent: new(60)},
+		},
+	}
+	require.NoError(t, EnvironmentPlanner{}.PlanMeta(mp))
+
+	assert.Equal(t, []gc.TileEnvironment{
+		{Shelter: rawschema.Outdoor, Foliage: rawschema.FoliageForest},
+		{Shelter: rawschema.Outdoor, SnowMeltPercent: 60},
+	}, mp.Environments)
+}
+
 func TestEnvironmentPlanner_calcWater(t *testing.T) {
 	t.Parallel()
 

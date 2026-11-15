@@ -256,14 +256,15 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 		turns   consts.Turn
 		tile    string
 		shelter *rawschema.Shelter
+		melt    int
 		want    float64
 	}{
-		{"冬の屋外の土は全面に積もる", winter, consts.TileNameDirt, nil, 1},
-		{"冬の屋外の道は解けやすさの分だけ薄く積もる", winter, consts.TileNameRoad, nil, 0.4},
-		{"冬でも屋内の床には積もらない", winter, "floor_tile", nil, 0},
-		{"冬でも通れない壁には積もらない", winter, consts.TileNameDWall, nil, 0},
-		{"冬でも屋根のある半屋外には積もらない", winter, consts.TileNameDirt, new(rawschema.Partial), 0},
-		{"春は積もらない", 0, consts.TileNameDirt, nil, 0},
+		{"冬の屋外の土は全面に積もる", winter, consts.TileNameDirt, nil, 0, 1},
+		{"冬の屋外でも解けやすさの分だけ薄く積もる", winter, consts.TileNameDirt, nil, 75, 0.25},
+		{"冬でも屋内の床には積もらない", winter, "floor_tile", nil, 0, 0},
+		{"冬でも通れない壁には積もらない", winter, consts.TileNameDWall, nil, 0, 0},
+		{"冬でも屋根のある半屋外には積もらない", winter, consts.TileNameDirt, new(rawschema.Partial), 0, 0},
+		{"春は積もらない", 0, consts.TileNameDirt, nil, 0, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -277,6 +278,7 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 			if tt.shelter != nil {
 				world.Components.TileEnvironment.Get(tile).Shelter = *tt.shelter
 			}
+			world.Components.TileEnvironment.Get(tile).SnowMeltPercent = tt.melt
 
 			layer := (&Render3DSystem{}).newSnowLayer(world)
 			assert.InDelta(t, tt.want, layer.amount(world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}), 1e-9)

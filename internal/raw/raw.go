@@ -758,12 +758,22 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 
 	entitySpec.Tile = &gc.Tile{}
 
-	entitySpec.TileEnvironment = &gc.TileEnvironment{Shelter: TileShelter(tileRaw)}
-	if tileRaw.SnowMeltPercent != nil {
-		entitySpec.TileEnvironment.SnowMeltPercent = *tileRaw.SnowMeltPercent
-	}
+	env := TileEnvironmentOf(tileRaw)
+	entitySpec.TileEnvironment = &env
 
 	return entitySpec, nil
+}
+
+// TileEnvironmentOf はタイルの行だけから決まる環境属性を返す。水の影響は周りのタイルで決まるので含まない
+func TileEnvironmentOf(t rawschema.Tile) gc.TileEnvironment {
+	env := gc.TileEnvironment{Shelter: TileShelter(t)}
+	if t.Foliage != nil {
+		env.Foliage = *t.Foliage
+	}
+	if t.SnowMeltPercent != nil {
+		env.SnowMeltPercent = *t.SnowMeltPercent
+	}
+	return env
 }
 
 // TileShelter はタイルの行の囲われを返す。行が省けば屋外

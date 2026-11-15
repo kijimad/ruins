@@ -57,7 +57,7 @@ var Registry = []Def{
 	{Field: "LightSource"},     // 光源であることを表す
 	{Field: "Interactable"},    // 相互作用可能であることを示す
 	{Field: "VisualEffects"},   // 紐づくビジュアルエフェクトを管理する
-	{Field: "TileEnvironment"}, // タイルの環境属性。囲われ・水辺・植生
+	{Field: "TileEnvironment"}, // タイルの環境属性。囲われ・水・植生・雪の解けやすさ
 	{Field: "HeatSource"},      // 近接するキャラの低体温を回復する熱源の設定を保持する
 	{Field: "Burning"},         // 燃えている状態と残りの燃焼ターン数を保持する。暖房のゲートを兼ねる
 

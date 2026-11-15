@@ -10,16 +10,12 @@ import (
 type EnvironmentPlanner struct{}
 
 // PlanMeta はタイルごとの環境を計算して MetaPlan.Environments に入れる。
-// 囲われと植生はタイルの行の値をそのまま使い、水の影響は周りのタイルから導く
+// タイルの行から決まる値はそのまま使い、水の影響は周りのタイルから導く
 func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
 	mp.Environments = make([]gc.TileEnvironment, len(mp.Tiles))
 	for i := range mp.Tiles {
-		env := &mp.Environments[i]
-		env.Shelter = raw.TileShelter(mp.Tiles[i])
-		env.Water = p.calcWater(mp, i)
-		if mp.Tiles[i].Foliage != nil {
-			env.Foliage = *mp.Tiles[i].Foliage
-		}
+		mp.Environments[i] = raw.TileEnvironmentOf(mp.Tiles[i])
+		mp.Environments[i].Water = p.calcWater(mp, i)
 	}
 
 	return nil
