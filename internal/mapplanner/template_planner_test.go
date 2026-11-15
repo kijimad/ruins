@@ -228,3 +228,26 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 		require.ErrorIs(t, err, errUndefinedCellTerrain)
 	})
 }
+
+func TestTemplatePlanner_PlanInitial_下地を残す地形は計画の下地で埋める(t *testing.T) {
+	t.Parallel()
+
+	template := &maptemplate.ChunkTemplate{Name: "test", Weight: 100, Size: maptemplate.Size{W: 3, H: 1}, Palettes: []string{"p"}, Map: `#g#`}
+	palette := &maptemplate.Palette{ID: "p", Terrain: map[string]string{"#": "wall", "g": maptemplate.GroundTerrain}, Props: map[string]maptemplate.PaletteEntry{}}
+	resolved := maptemplate.ResolveMapCells(template.Map, palette, rand.New(rand.NewPCG(1, 1)))
+
+	plan := func(ground string) (*MetaPlan, error) {
+		chain, err := NewTemplatePlannerChain(template, resolved, 12345)
+		require.NoError(t, err)
+		chain.PlanData.RawMaster = CreateTestRawMaster()
+		chain.PlanData.Ground = ground
+		return &chain.PlanData, NewTemplatePlanner(template, resolved).PlanInitial(&chain.PlanData)
+	}
+
+	mp, err := plan("dirt")
+	require.NoError(t, err)
+	assert.Equal(t, []string{"wall", "dirt", "wall"}, []string{mp.Tiles[0].Id, mp.Tiles[1].Id, mp.Tiles[2].Id})
+
+	_, err = plan("")
+	require.ErrorIs(t, err, ErrGroundNotSet)
+}

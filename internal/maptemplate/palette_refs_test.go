@@ -25,6 +25,8 @@ func TestPalettes_rawの行を参照するidは全て実在する(t *testing.T) 
 	for _, x := range raw.PtrSlice(raws.Tiles) {
 		tileIDs[x.Id] = true
 	}
+	// 下地を残す地形は raw の行を持たない
+	tileIDs[GroundTerrain] = true
 	for _, x := range raw.PtrSlice(raws.Props) {
 		propIDs[x.Id] = true
 	}

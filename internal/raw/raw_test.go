@@ -1182,6 +1182,10 @@ func TestTileSpawn_実データ(t *testing.T) {
 	}
 	assert.Equal(t, map[string]rawschema.TileSpawn{
 		"dirt":             {Autotile: true},
+		"dirt_orange":      {Autotile: true},
+		"dirt_tundra":      {Autotile: true},
+		"dirt_peat":        {Autotile: true},
+		"dirt_ash":         {Autotile: true},
 		"floor":            {Autotile: true},
 		"road":             {Autotile: true},
 		"grass_green":      {Autotile: true},

@@ -4,7 +4,7 @@ description = "骨董品店"
 
 [palette.terrain]
 "#" = "wall"
-"," = "dirt"
+"," = "ground"
 "=" = "pavement"
 "." = "floor_wood"
 ":" = "floor_tatami"
@@ -60,7 +60,7 @@ id = "refrigerator"
 lootTable = "house_kitchen"
 
 [palette.props."p"]
-tile = "dirt"
+tile = "ground"
 candidates = [{ id = "plant", weight = 2 }, { id = "bush", weight = 1 }, { id = "rock", weight = 1 }]
 
 [palette.items."o"]

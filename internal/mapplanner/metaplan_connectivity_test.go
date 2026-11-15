@@ -27,7 +27,7 @@ func TestConnectivity_AllPlannerTypes(t *testing.T) {
 		{"大部屋", PlannerTypeBigRoom},
 		{"洞窟", PlannerTypeCave},
 		{"廃墟", PlannerTypeRuins},
-		{"森", PlannerTypeForest},
+		{"森", forestWithGround()},
 	}
 
 	seedCount := 30
@@ -118,4 +118,11 @@ func assertMapConnectivity(t *testing.T, plan *MetaPlan) {
 // countReachableTiles はBFSで指定位置から到達可能な歩行可能タイル数を返す
 func countReachableTiles(pf *PathFinder, start consts.Coord[consts.Tile]) int {
 	return pf.countReachableFrom(start)
+}
+
+// forestWithGround は下地を持たせた森の間取り。森の間取りは計画の下地で地面を埋める
+func forestWithGround() PlannerType {
+	pt := PlannerTypeForest
+	pt.Ground = "dirt"
+	return pt
 }

@@ -157,3 +157,35 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 		assert.Equal(t, "floor", tile.Name, "タイル%dは床のまま", i)
 	}
 }
+
+func TestConvertIsolatedWalls_UseGround(t *testing.T) {
+	t.Parallel()
+
+	// 5x5 を全て壁にすると、端でない中央の壁は床に接しない孤立した壁になる
+	newPlan := func(ground string) *MetaPlan {
+		planData := &MetaPlan{
+			Level:     gc.Level{TileWidth: 5, TileHeight: 5},
+			Tiles:     make([]rawschema.Tile, 25),
+			RawMaster: CreateTestRawMaster(),
+			Ground:    ground,
+		}
+		for i := range planData.Tiles {
+			planData.Tiles[i] = planData.GetTile("wall")
+		}
+		return planData
+	}
+	// 5x5 の中央は添字 2*5+2
+	const center = 12
+
+	t.Run("孤立した壁を計画の下地にする", func(t *testing.T) {
+		t.Parallel()
+		planData := newPlan("dirt")
+		require.NoError(t, ConvertIsolatedWalls{UseGround: true}.PlanMeta(planData))
+		assert.Equal(t, "dirt", planData.Tiles[center].Id)
+	})
+
+	t.Run("下地が無ければエラー", func(t *testing.T) {
+		t.Parallel()
+		require.ErrorIs(t, ConvertIsolatedWalls{UseGround: true}.PlanMeta(newPlan("")), ErrGroundNotSet)
+	})
+}

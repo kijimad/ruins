@@ -1912,6 +1912,7 @@
   baseTemp = 0
   description = "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone."
   enemyTable = "forest"
+  ground = "dirt"
   id = "dead_forest"
   imageKey = "forest1"
   itemTable = "forest"
@@ -22291,7 +22292,7 @@
 
 [[scatterZones]]
   grassDensity = 0.09
-  ground = "dirt"
+  ground = "dirt_tundra"
   id = "roadside"
   lootGroup = "scrap_of_paper"
   propDensity = 0.015
@@ -22371,7 +22372,7 @@
 
 [[scatterZones]]
   grassDensity = 0.19
-  ground = "dirt"
+  ground = "dirt_tundra"
   id = "wild"
   lootGroup = "junk"
   propDensity = 0.035
@@ -22931,6 +22932,62 @@
 [[tiles]]
   blockPass = false
   blockView = false
+  description = "橙の赤土のオートタイル床。屋外の歩行可能タイル"
+  earth = true
+  id = "dirt_orange"
+  name = "Red Clay"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "dirt_orange"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "灰色がかった凍土のオートタイル床。屋外の歩行可能タイル"
+  earth = true
+  id = "dirt_tundra"
+  name = "Frozen Soil"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "dirt_tundra"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "暗い泥炭のオートタイル床。屋外の歩行可能タイル"
+  earth = true
+  id = "dirt_peat"
+  name = "Peat"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "dirt_peat"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "灰色の荒れた土のオートタイル床。屋外の歩行可能タイル"
+  earth = true
+  id = "dirt_ash"
+  name = "Ashen Soil"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "dirt_ash"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
   description = "灰色の石を敷いた道のオートタイル。街路や森の小道の屋外の歩行可能タイル"
   id = "road"
   name = "Road"
@@ -22964,7 +23021,7 @@
     autotile = true
   [tiles.spriteRender]
     depth = 0
-    spriteKey = "dirt"
+    spriteKey = "dirt_loam"
     spriteSheetName = "tile"
 
 [[tiles]]
