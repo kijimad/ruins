@@ -70,11 +70,10 @@ func writeSheet(t *testing.T, w, h int, opaque image.Rectangle) string {
 	src := image.NewNRGBA(image.Rect(0, 0, w, h))
 	draw.Draw(src, opaque, image.NewUniform(color.NRGBA{R: 255, A: 255}), image.Point{}, draw.Src)
 
+	var buf bytes.Buffer
+	require.NoError(t, png.Encode(&buf, src))
 	path := filepath.Join(t.TempDir(), "sheet.png")
-	f, err := os.Create(path)
-	require.NoError(t, err)
-	require.NoError(t, png.Encode(f, src))
-	require.NoError(t, f.Close())
+	require.NoError(t, os.WriteFile(path, buf.Bytes(), 0o644))
 	return path
 }
 

@@ -25,7 +25,7 @@ var errNoImageArg = errors.New("image path is required")
 // CmdCutSprite は画像を32ピクセル角のマスに切り、単体のスプライトとして書き出すサブコマンド
 var CmdCutSprite = newCutSpriteCmd()
 
-// newCutSpriteCmd は cutsprite のコマンドを作る。フラグは実行の値を持つので、テストは実行ごとに作り直す
+// newCutSpriteCmd は cutsprite のコマンドを作る。Command はフラグの値を持つので、実行ごとに新しく作る
 func newCutSpriteCmd() *cli.Command {
 	return &cli.Command{
 		Name:      "cutsprite",
