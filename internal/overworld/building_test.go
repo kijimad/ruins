@@ -396,12 +396,14 @@ func TestRoomWall_部屋の絵の高さのある地形を帯の壁にする(t *t
 	isTall := func(terrain string) bool { return terrain == "wall_brick_1" }
 	brick := [][]maptemplate.MapCell{{{Terrain: "floor"}, {Terrain: "wall_brick_1"}}}
 	open := [][]maptemplate.MapCell{{{Terrain: "floor"}, {Terrain: "floor"}}}
-	assert.Equal(t, []string{"wall_brick_1", consts.TileNameWall}, []string{roomWall(brick, isTall), roomWall(open, isTall)})
+	assert.Equal(t, "wall_brick_1", roomWall(brick, isTall))
+	assert.Equal(t, consts.TileNameWall, roomWall(open, isTall))
 }
 
-// TestFacilityRooms_部屋の絵は高さのある地形を1種類だけ使う は、帯の壁を部屋の絵から選ぶ roomWall の前提を固定する。
-// 部屋の絵に別の高さのある地形が混ざると、帯の壁がどれになるかが走査の順で決まってしまう
-func TestFacilityRooms_部屋の絵は高さのある地形を1種類だけ使う(t *testing.T) {
+// TestFacilityTemplates_施設の絵は高さのある地形を1種類だけ使う は、施設の壁を1つの素材でそろえる前提を固定する。
+// 部屋の絵に別の地形が混ざると帯の壁が走査の順で決まり、窓の下の地形が壁と違うとオートタイルが窓で切れる。
+// 部屋の絵で組む施設は帯の壁に使うので必ず1種類持ち、屋外の施設は壁を持たなくてよい
+func TestFacilityTemplates_施設の絵は高さのある地形を1種類だけ使う(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
@@ -409,30 +411,26 @@ func TestFacilityRooms_部屋の絵は高さのある地形を1種類だけ使�
 	require.NoError(t, err)
 	isTall := tileIsTall(raws)
 	for _, fac := range loader.Facilities() {
-		if !loader.HasRooms(fac) {
-			continue
-		}
 		tall := map[string]bool{}
-		for _, b := range roomLots(raws, fac) {
-			if b.seed != 0 {
-				continue
-			}
-			for ly := range b.h {
-				for lx := range b.w {
-					for _, edges := range possibleRoomEdges(b, consts.Coord[consts.Chunk]{X: lx, Y: ly}) {
-						_, cells, err := loader.FacilityRoom(fac, edges, 1)
-						require.NoError(t, err, "%s %v", fac, edges)
-						for _, row := range cells {
-							for _, c := range row {
-								if isTall(c.Terrain) {
-									tall[c.Terrain] = true
-								}
-							}
+		for _, name := range loader.FacilityChunkNames(fac) {
+			chunks, err := loader.GetChunks(name)
+			require.NoError(t, err)
+			for _, c := range chunks {
+				cells, err := c.ExpandWithPlacements(loader, 1)
+				require.NoError(t, err, name)
+				for _, row := range cells {
+					for _, cell := range row {
+						if isTall(cell.Terrain) {
+							tall[cell.Terrain] = true
 						}
 					}
 				}
 			}
 		}
-		assert.Len(t, tall, 1, "%s の部屋の絵の高さのある地形 %v", fac, slices.Collect(maps.Keys(tall)))
+		if loader.HasRooms(fac) {
+			assert.Len(t, tall, 1, "%s の絵の高さのある地形 %v", fac, slices.Collect(maps.Keys(tall)))
+		} else {
+			assert.LessOrEqual(t, len(tall), 1, "%s の絵の高さのある地形 %v", fac, slices.Collect(maps.Keys(tall)))
+		}
 	}
 }
