@@ -107,7 +107,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [施設の多様化](docs/design/261108165219.md) | 15/17（見送り1） | worldgen, item, gamedesign |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference

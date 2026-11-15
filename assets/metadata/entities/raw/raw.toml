@@ -3315,7 +3315,7 @@
 
   [[facilities.zones]]
     minSpan = 2
-    weight = 65
+    weight = 50
     zone = "residential"
 
   [[facilities.zones]]
@@ -3360,7 +3360,7 @@
 
   [[facilities.zones]]
     minSpan = 2
-    weight = 65
+    weight = 45
     zone = "industrial"
 
 [[facilities]]
@@ -3373,6 +3373,11 @@
     weight = 20
     zone = "downtown"
 
+  [[facilities.zones]]
+    minSpan = 2
+    weight = 8
+    zone = "residential"
+
 [[facilities]]
   enemyTable = "clinic_enemies"
   id = "clinic"
@@ -3384,9 +3389,14 @@
     zone = "downtown"
 
   [[facilities.zones]]
-    minSpan = 3
-    weight = 10
+    minSpan = 2
+    weight = 12
     zone = "residential"
+
+  [[facilities.zones]]
+    minSpan = 2
+    weight = 6
+    zone = "industrial"
 
 [[facilities]]
   enemyTable = "lab_enemies"
@@ -3518,8 +3528,13 @@
 
   [[facilities.zones]]
     minSpan = 2
-    weight = 8
+    weight = 12
     zone = "industrial"
+
+  [[facilities.zones]]
+    minSpan = 2
+    weight = 6
+    zone = "residential"
 
 [[facilities]]
   enemyTable = "comms_enemies"
