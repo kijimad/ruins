@@ -7,11 +7,11 @@ import (
 // ConvertIsolatedWalls は通れるマスに隣接しない箱のタイルを指定したタイルに変換するプランナー
 // オートタイル計算前に実行することで、正しい接続パターンで壁タイルを生成する
 type ConvertIsolatedWalls struct {
-	// ReplacementTile は孤立した壁を置き換えるタイル名
+	// ReplacementTile は孤立した箱を置き換えるタイル名
 	ReplacementTile string
 }
 
-// PlanMeta は床に隣接しない壁タイルを指定したタイルに変換する
+// PlanMeta は通れるマスに隣接しない箱のタイルを指定したタイルに変換する
 func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)

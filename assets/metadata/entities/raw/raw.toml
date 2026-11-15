@@ -23405,6 +23405,7 @@
 [[tiles]]
   blockPass = true
   blockView = false
+  box = true
   description = "暗闇。単一絵柄の通行不可タイル"
   id = "void"
   name = "Void"

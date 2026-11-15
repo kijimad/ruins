@@ -186,7 +186,7 @@ func TestConvertIsolatedWalls_置き換え先のgroundは計画の下地(t *test
 	})
 }
 
-func TestConvertIsolatedWalls_壁でない通れないタイルは置き換えない(t *testing.T) {
+func TestConvertIsolatedWalls_箱でない通れないタイルは置き換えない(t *testing.T) {
 	t.Parallel()
 
 	// 5x5 の中央は添字 2*5+2。全てを同じタイルにすると、中央は通れるマスに接しない
@@ -196,7 +196,7 @@ func TestConvertIsolatedWalls_壁でない通れないタイルは置き換え�
 		want string
 	}{
 		{"wall", "floor"},
-		{"void", "void"},
+		{"deep_water", "deep_water"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.fill, func(t *testing.T) {

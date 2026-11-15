@@ -972,6 +972,31 @@ BlockView = true
 	assert.NotNil(t, spec.BlockView, "壁タイルにはBlockViewがある")
 }
 
+func TestNewTileSpec_箱の行なら箱の印を付ける(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Tiles]]
+Name = "test_box"
+id = "test_box"
+Description = "テスト箱"
+Box = true
+
+[[Tiles]]
+Name = "test_flat"
+id = "test_flat"
+Description = "テスト平ら"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	box, err := NewTileSpec(raws, "test_box", 0, 0, nil)
+	require.NoError(t, err)
+	flat, err := NewTileSpec(raws, "test_flat", 0, 0, nil)
+	require.NoError(t, err)
+	assert.Equal(t, []bool{true, false}, []bool{box.Box != nil, flat.Box != nil})
+}
+
 func TestNewTileSpec_WithAutoTileIndex(t *testing.T) {
 	t.Parallel()
 
