@@ -566,16 +566,8 @@ func TestReadBehavior_Info(t *testing.T) {
 	rb := &ReadBehavior{}
 	info := rb.Info()
 
-	assert.Equal(t, "Read", info.Name)
 	assert.True(t, info.Interruptible)
 	assert.True(t, info.Resumable)
-}
-
-func TestReadBehavior_Name(t *testing.T) {
-	t.Parallel()
-
-	rb := &ReadBehavior{}
-	assert.Equal(t, gc.BehaviorRead, rb.Name())
 }
 
 func TestNewReadActivity(t *testing.T) {

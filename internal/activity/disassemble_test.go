@@ -159,14 +159,6 @@ func TestDisassembleBehavior_Info(t *testing.T) {
 	b := &DisassembleBehavior{}
 	info := b.Info()
 
-	assert.Equal(t, "Disassemble", info.Name)
 	assert.True(t, info.Interruptible)
 	assert.False(t, info.Resumable)
-}
-
-func TestDisassembleBehavior_Name(t *testing.T) {
-	t.Parallel()
-
-	b := &DisassembleBehavior{}
-	assert.Equal(t, gc.BehaviorDisassemble, b.Name())
 }

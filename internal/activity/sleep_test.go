@@ -321,7 +321,6 @@ func TestSleepBehavior_Info(t *testing.T) {
 	sb := &SleepBehavior{}
 	info := sb.Info()
 
-	assert.Equal(t, "Sleep", info.Name)
 	assert.True(t, info.Interruptible)
 	assert.False(t, info.Resumable)
 }

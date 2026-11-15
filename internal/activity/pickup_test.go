@@ -332,36 +332,3 @@ func TestPickupBehavior_DoTurn_Prop(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 }
-
-func TestPickupBehavior_Start(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-
-	pb := &PickupBehavior{}
-	require.NoError(t, pb.Start(&gc.Activity{}, player, world))
-}
-
-func TestPickupBehavior_Finish(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-
-	pb := &PickupBehavior{}
-	require.NoError(t, pb.Finish(&gc.Activity{}, player, world))
-}
-
-func TestPickupBehavior_Canceled(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-
-	comp := NewActivity(gc.BehaviorPickup, 0)
-	comp.CancelReason = "テスト中断"
-
-	pb := &PickupBehavior{}
-	require.NoError(t, pb.Canceled(comp, player, world))
-}

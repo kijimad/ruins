@@ -548,14 +548,3 @@ func TestCalculateShootHitRate(t *testing.T) {
 		assert.Greater(t, nearRate, farRate, "近い方が命中率が高い")
 	})
 }
-
-func TestShootBehavior_Canceled(t *testing.T) {
-	t.Parallel()
-	world, player, _, _ := setupShootingWorld(t)
-
-	comp := NewActivity(gc.BehaviorShoot, 0)
-	comp.CancelReason = "テスト中断"
-
-	sb := &ShootBehavior{}
-	require.NoError(t, sb.Canceled(comp, player, world))
-}

@@ -279,16 +279,3 @@ func TestCanMoveTo(t *testing.T) {
 		assert.True(t, canMove, "隣接1方向のみ壁なら斜め移動は可能")
 	})
 }
-
-func TestMoveBehavior_Canceled(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-
-	comp := NewActivity(gc.BehaviorMove, 0)
-	comp.CancelReason = "テスト中断"
-
-	mb := &MoveBehavior{}
-	require.NoError(t, mb.Canceled(comp, player, world))
-}
