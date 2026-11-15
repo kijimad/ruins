@@ -28,7 +28,7 @@ type GlyphInfo struct {
 // 俯瞰図の記号は尺度の違う2層の語彙でできている。両者は対等な兄弟ではなく、市街地以外の粗い層と
 // 市街地の中の細かい層という入れ子の関係にある。地図はチャンクの種別に応じてどちらかの記号を1つ選ぶ。
 //   - チャンク尺度。市街地以外のチャンクを1記号で表す。集落とランドマークは raw の行の id を記号の id に使い、
-//     持ち主の行を持たない荒れ地と遺跡入口は、記号の行の chunk が指す。地図の表示専用で、生成には関与しない。
+//     持ち主の行を持たない荒れ地は、記号の行の chunk が指す。地図の表示専用で、生成には関与しない。
 //   - 施設 id: 建物尺度。市街地チャンクの中の1建物の種別。住宅・商店・診療所など。表示だけでなく
 //     市街地生成の重み抽選にも使う。
 // 地図は市街地チャンクを施設 id の記号で、それ以外をチャンク尺度の記号で描く。凡例 LegendGlyphs は
@@ -81,15 +81,14 @@ func glyphColorMap(raws rawschema.Raws) map[rune]color.RGBA {
 type chunkType string
 
 const (
-	chunkWasteland       chunkType = "wasteland"        // 荒れ地。特徴的な地物が無い開けた地形
-	chunkSettlement      chunkType = "settlement"       // 集落。村・一軒家
-	chunkUrban           chunkType = "urban"            // 市街地。建物チャンク
-	chunkDungeonEntrance chunkType = "dungeon_entrance" // 遺跡入口
-	chunkLandmark        chunkType = "landmark"         // 自然の点在ランドマーク
+	chunkWasteland  chunkType = "wasteland"  // 荒れ地。特徴的な地物が無い開けた地形
+	chunkSettlement chunkType = "settlement" // 集落。村・一軒家
+	chunkUrban      chunkType = "urban"      // 市街地。建物チャンク
+	chunkLandmark   chunkType = "landmark"   // 自然の点在ランドマーク
 )
 
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
-// 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在ランドマーク > 荒れ地。地図も生成もこの
+// 荒れ地を返す。優先度は市街地 > 集落 > 点在ランドマーク > 荒れ地。地図も生成もこの
 // 分類を唯一の源にするので、地図の記号と実体が食い違わない。
 func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
 	kind, _ := classifyChunk(raws, runSeed, c, cols)
@@ -106,9 +105,6 @@ func classifyChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Ch
 
 // openChunkTypeAt は市街地でない c の種別を返す
 func openChunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
-	if dungeonEntrancePlacement.At(runSeed, c, cols) {
-		return chunkDungeonEntrance
-	}
 	if settlementPlacement.At(runSeed, c, cols) {
 		return chunkSettlement
 	}
@@ -127,8 +123,6 @@ func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.C
 			return g.Label
 		}
 		return placeUnknownGlyph
-	case chunkDungeonEntrance:
-		return chunkGlyph(raws, rawschema.DungeonEntrance)
 	case chunkSettlement:
 		if g, ok := glyphByID(raws, settlementAt(raws, runSeed, c).Id); ok {
 			return g.Label

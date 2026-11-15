@@ -63,7 +63,7 @@ func features() []feature {
 	// 点在ランドマークは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に
 	// 評価する。散布は占有と道の実状態を読むため最後に評価する
 	return []feature{
-		settlementFeature{}, urbanFeature{}, dungeonEntranceFeature{}, wildernessLandmarkFeature{},
+		settlementFeature{}, urbanFeature{}, wildernessLandmarkFeature{},
 		roadFeature{}, openTerrainFeature{},
 	}
 }
@@ -75,7 +75,7 @@ func features() []feature {
 const (
 	settlementSalt uint64 = iota + 1
 	districtSalt
-	dungeonEntranceSalt
+	_ // 使わない値。詰めると後続の salt がずれる
 	landmarkSalt
 	scatterSalt
 	outdoorLootSalt
@@ -83,9 +83,8 @@ const (
 
 // 地物ごとのリージョン配置。salt と対で地物の疎密を決める。
 var (
-	settlementPlacement      = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
-	dungeonEntrancePlacement = Placement{Spacing: 4, Separation: 1, Salt: dungeonEntranceSalt}
-	landmarkPlacement        = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
+	settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
+	landmarkPlacement   = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
 )
 
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
