@@ -340,6 +340,7 @@ func validateCodeRows(raws rawschema.Raws) error {
 		{"ToolCategory", enumStrings(rawschema.ToolCategoryValues()), rowIDs(PtrSlice(raws.ToolCategories), func(r rawschema.ToolCategoryDef) rawschema.ToolCategory { return r.Id })},
 		{"TimeOfDayId", enumStrings(rawschema.TimeOfDayIdValues()), rowIDs(PtrSlice(raws.TimesOfDay), func(r rawschema.TimeOfDay) rawschema.TimeOfDayId { return r.Id })},
 		{"SeasonId", enumStrings(rawschema.SeasonIdValues()), rowIDs(PtrSlice(raws.Seasons), func(r rawschema.Season) rawschema.SeasonId { return r.Id })},
+		{"PointFeatureKind", enumStrings(rawschema.PointFeatureKindValues()), rowIDs(PtrSlice(raws.PointFeatures), func(r rawschema.PointFeature) rawschema.PointFeatureKind { return r.Id })},
 	}
 	for _, e := range enumRows {
 		if err := validateEnumRows(e.schema, e.values, e.ids); err != nil {

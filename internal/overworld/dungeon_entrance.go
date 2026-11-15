@@ -5,7 +5,8 @@ import (
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/dungeon"
+	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 )
@@ -17,21 +18,21 @@ import (
 // dungeonEntranceFeature は遺跡入口の feature 実装。
 type dungeonEntranceFeature struct{}
 
-// place は当選チャンクの中心付近へ遺跡入口を置く。進入先の遺跡定義は登録済み一覧から
+// place は当選チャンクの中心付近へ遺跡入口を置く。進入先のダンジョンは raw の行の入口の重みから
 // チャンク座標のシードで決定的に選ぶ。開始チャンクには driver が歩いて届く入口を別途
 // 置くため、ここでは重複を避けてスキップする。
 func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	if !dungeonEntrancePlacement.At(runSeed, c, cols) {
+	if !placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindDungeonEntrance).At(runSeed, c, cols) {
 		return nil
 	}
-	defs := dungeon.GetAllDungeons(world.Resources.RawMaster)
-	if len(defs) == 0 {
+	rows := raw.PtrSlice(world.Resources.RawMaster.Dungeons)
+	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindDungeonEntrance).Salt, c.X, c.Y), 0))
+	i, ok := consts.Pick(rng, rows, func(d rawschema.Dungeon) float64 { return float64(d.EntranceWeight) })
+	if !ok {
 		return nil
 	}
-	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^dungeonEntranceSalt, c.X, c.Y), 0))
-	def := defs[rng.IntN(len(defs))]
 	pos := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}
-	if _, err := lifecycle.SpawnDungeonEntrance(world, pos.X, pos.Y, def.Name()); err != nil {
+	if _, err := lifecycle.SpawnDungeonEntrance(world, pos.X, pos.Y, rows[i].Id); err != nil {
 		return fmt.Errorf("failed to place ruins entrance (x=%d, y=%d): %w", c.X, c.Y, err)
 	}
 	return nil

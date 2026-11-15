@@ -41,6 +41,7 @@ type scatterCatalog struct {
 	GrassDensity float64
 	SoilDensity  float64
 	PropDensity  float64
+	LootDensity  float64
 	LootGroup    string // 屋外 loot の item group id
 	Entries      []scatterEntry
 	Grass        []scatterEntry // 草と灌木の種類と重み
@@ -115,6 +116,7 @@ func scatterCatalogFrom(raws rawschema.Raws, zone outdoorZone) (scatterCatalog, 
 		GrassDensity: sz.GrassDensity,
 		SoilDensity:  sz.SoilDensity,
 		PropDensity:  sz.PropDensity,
+		LootDensity:  sz.LootDensity,
 		LootGroup:    sz.LootGroup,
 		Entries:      entries,
 		Grass:        groundCoverEntries(sz.Grass),
@@ -274,9 +276,10 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 // 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。
 func outdoorZoneAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {
 	// 集落・市街は Y 方向のリージョンに並ぶので region は c.Y から引く
-	sr := consts.FloorDiv(c.Y, settlementPlacement.Spacing)
+	settlements := placementOf(raws, rawschema.PointFeatureKindSettlement)
+	sr := consts.FloorDiv(c.Y, settlements.Spacing)
 	for _, pr := range []consts.Chunk{sr - 1, sr, sr + 1} {
-		if chunkChebyshev(c, settlementPlacement.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
+		if chunkChebyshev(c, settlements.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
 			return zoneRoadside
 		}
 	}
@@ -306,8 +309,8 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、
 // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
 func onScatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
-	for _, pair := range crossingRoads(runSeed, c, cols) {
-		for _, seg := range roadPath(raws, runSeed, pair[0], pair[1], cols, spawnRow, g.chunkW, g.chunkH) {
+	for _, link := range crossingRoads(raws, runSeed, c, cols) {
+		for _, seg := range roadPath(raws, runSeed, link.a, link.b, cols, spawnRow, g.chunkW, g.chunkH) {
 			var d consts.Tile
 			if seg.orient == orientHorizontal {
 				d = chebToHSeg(pos, seg.fixed, seg.lo, seg.hi)

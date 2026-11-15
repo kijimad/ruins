@@ -1086,13 +1086,14 @@
   pages = ["Want to make a deal?\n\nI've got good stuff."]
 
 [[districts]]
-  fence = true
+  fence = "fence"
   id = "lab_campus"
   landmark = "lab_main"
   pattern = "rows"
   separation = 4
   spacing = 30
   street = "road"
+  streetEnemies = "1d6"
   verge = "grass_green"
 
   [[districts.layers]]
@@ -1117,13 +1118,14 @@
     weight = 1
 
 [[districts]]
-  fence = true
+  fence = "fence"
   id = "military_base"
   landmark = "military_armory"
   pattern = "rows"
   separation = 4
   spacing = 36
   street = "road"
+  streetEnemies = "2d4"
   verge = "grass_green"
 
   [[districts.layers]]
@@ -1148,13 +1150,14 @@
     weight = 1
 
 [[districts]]
-  fence = true
+  fence = "fence"
   id = "power_plant"
   landmark = "power_turbine"
   pattern = "rings"
   separation = 4
   spacing = 40
   street = "road"
+  streetEnemies = "1d6"
 
   [[districts.layers]]
     zones = ["plant_outer"]
@@ -1178,6 +1181,7 @@
   separation = 2
   spacing = 7
   street = "road"
+  streetEnemies = "1d4"
 
   [[districts.layers]]
     zones = ["residential", "industrial"]
@@ -1206,13 +1210,14 @@
     weight = 1
 
 [[districts]]
-  fence = true
+  fence = "fence"
   id = "farm"
   landmark = "farmhouse"
   pattern = "rows"
   separation = 2
   spacing = 12
   street = "dirt"
+  streetEnemies = "1d2"
 
   [[districts.layers]]
     zones = ["farm_field"]
@@ -1907,6 +1912,7 @@
   baseTemp = 0
   description = "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone."
   enemyTable = "forest"
+  entranceWeight = 1
   id = "dead_forest"
   imageKey = "forest1"
   itemTable = "forest"
@@ -1928,6 +1934,7 @@
   baseTemp = 5
   description = "Frost crystals run like veins through the gray rock.\nThe deeper you go, the quieter it grows."
   enemyTable = "cave"
+  entranceWeight = 1
   id = "ash_cave"
   imageKey = "cave1"
   itemTable = "cave"
@@ -1949,6 +1956,7 @@
   baseTemp = 15
   description = "An ancient city stands frozen in place.\nWho forgot what, no one remembers now."
   enemyTable = "ruins_area"
+  entranceWeight = 1
   id = "forgotten_ruins"
   imageKey = "city1"
   itemTable = "ruins_area"
@@ -19629,6 +19637,27 @@
     strength = 11
     vitality = 2
 
+[[pointFeatures]]
+  id = "settlement"
+  salt = 1
+  separation = 1
+  spacing = 5
+  [pointFeatures.road]
+    tile = "road"
+    width = 4
+
+[[pointFeatures]]
+  id = "dungeon_entrance"
+  salt = 3
+  separation = 1
+  spacing = 4
+
+[[pointFeatures]]
+  id = "landmark"
+  salt = 4
+  separation = 1
+  spacing = 3
+
 [[professions]]
   description = "An ordinary person who fled the collapse."
   id = "evacuee"
@@ -22288,6 +22317,7 @@
   grassDensity = 0.09
   ground = "dirt"
   id = "roadside"
+  lootDensity = 0.002
   lootGroup = "scrap_of_paper"
   propDensity = 0.015
   soilDensity = 0.03
@@ -22368,6 +22398,7 @@
   grassDensity = 0.19
   ground = "dirt"
   id = "wild"
+  lootDensity = 0.002
   lootGroup = "junk"
   propDensity = 0.035
   soilDensity = 0.03

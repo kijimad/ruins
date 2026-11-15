@@ -321,8 +321,14 @@ import "strings"
 	pattern!: #DistrictPattern
 	// 地区の層。プレイヤーが入ってくる側から順に並べる。rings は外から内へ、rows は南から北へ
 	layers!: [...#DistrictLayer] & [_, ...]
-	// 外周に塀を巡らせ、北と南に門を開ける。道は門を通って区域を抜ける
-	fence?: bool
+	// 外周に巡らせる塀の家具。北と南に門を開け、道は門を通って区域を抜ける。省けば塀を巡らせない
+	fence?: #EntityID
+	if fence != _|_ {
+		fence_ref: _propIDs[fence] @rawgen(-)
+	}
+
+	// チャンクごとに街路へ湧かせる敵の数
+	streetEnemies!: #Dice
 	// 街路のタイル
 	street!:    #EntityID
 	street_ref: _tileIDs[street] @rawgen(-)
@@ -337,6 +343,32 @@ import "strings"
 	if landmark != _|_ {
 		landmark_ref: _facilityIDs[landmark] @rawgen(-)
 	}
+}
+
+// 区域でない地物の置き方。南北に spacing チャンクの帯ごとに1つの当選を置き、隣の帯の当選と separation チャンク以上離す
+#PointFeature: {
+	// 地物の種類
+	id!: #PointFeatureKind
+	// 当選の間隔。チャンク数
+	spacing!: int & >=2
+	// 隣の帯の当選との最小の空き。チャンク数
+	separation!: int & >=0 & <spacing
+	// 乱数の種を地物ごとにずらす値。行ごとに違う値にする。変えると同じ run の seed でも別の世界になる
+	salt!: int & >=1
+	// この地物の当選どうしを結ぶ道。省けば道を引かない
+	road?: #Road
+}
+
+// 区域でない地物の種類
+#PointFeatureKind: "settlement" | "dungeon_entrance" | "landmark" @rawgen(prefix)
+
+// 地物の当選どうしを結ぶ道
+#Road: {
+	// 道のタイル
+	tile!:    #EntityID
+	tile_ref: _tileIDs[tile] @rawgen(-)
+	// 道の幅。タイル数
+	width!: int & >=1
 }
 
 // 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める
@@ -381,6 +413,8 @@ import "strings"
 
 	// フロアの間取りの抽選表。行の順に重みを積む
 	planners!: [...#DungeonPlannerWeight] & [_, ...]
+	// 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ない
+	entranceWeight!: int & >=0
 }
 
 // ダンジョンのフロアを生成する間取りの種類
@@ -1011,6 +1045,7 @@ import "strings"
 	enemyTables?: [...#EnemyTable]
 	facilities?: [...#Facility]
 	districts?: [...#District]
+	pointFeatures?: [...#PointFeature]
 	landmarks?: [...#Landmark]
 	scatterZones?: [...#ScatterZone]
 	mapGlyphs?: [...#MapGlyph]
@@ -1045,6 +1080,8 @@ import "strings"
 	scatterZoneIds_unique: {if scatterZones != _|_ for i, x in scatterZones {(x.id): i}} @rawgen(-)
 	mapGlyphIds_unique: {if mapGlyphs != _|_ for i, x in mapGlyphs {(x.id): i}} @rawgen(-)
 	settlementIds_unique: {if settlements != _|_ for i, x in settlements {(x.id): i}} @rawgen(-)
+	pointFeatureIds_unique: {if pointFeatures != _|_ for i, x in pointFeatures {(x.id): i}} @rawgen(-)
+	pointFeatureSalts_unique: {if pointFeatures != _|_ for i, x in pointFeatures {"\(x.salt)": i}} @rawgen(-)
 	bodyPartIds_unique: {if bodyParts != _|_ for i, x in bodyParts {(x.id): i}} @rawgen(-)
 	conditionIds_unique: {if conditions != _|_ for i, x in conditions {(x.id): i}} @rawgen(-)
 	attackTypeIds_unique: {if attackTypes != _|_ for i, x in attackTypes {(x.id): i}} @rawgen(-)
@@ -1125,6 +1162,8 @@ import "strings"
 	grassDensity!: number
 	soilDensity!:  number
 	propDensity!:  number
+	// 屋外の戦利品を置くタイルの、チャンクの面積あたりの割合
+	lootDensity!:  number & >=0
 	lootGroup!:    #EntityID
 	lootGroup_ref: _itemGroupIDs[lootGroup] @rawgen(-)
 	entries!: [...#ScatterEntry]

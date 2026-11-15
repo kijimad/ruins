@@ -105,10 +105,8 @@ const (
 // ========== タイル名 ==========
 
 const (
-	// TileNameWall は壁タイル名。プランナーが出力する論理名で、生成時のスプライトは TileNameDWall になる
+	// TileNameWall は壁タイル名。プランナーが出力する論理名で、生成時のスプライトはタイルの行の生成の仕様が決める
 	TileNameWall = "wall"
-	// TileNameDWall は壁の生成スプライト名。TileNameWall のプランを実体化するときに使う
-	TileNameDWall = "dwall"
 	// TileNameFloor は床タイル名
 	TileNameFloor = "floor"
 	// TileNameRoad は屋外の道のタイル名

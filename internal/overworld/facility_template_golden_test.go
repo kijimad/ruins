@@ -74,7 +74,7 @@ func TestGolden_FacilityVariants(t *testing.T) {
 func assertFacilityGolden(t *testing.T, fac string, names []string, cells [][][]maptemplate.MapCell) {
 	t.Helper()
 	const cols = 3
-	const lot = facilityLot
+	const lot = testChunkSide - urbanStreetW
 	rows := (len(cells) + cols - 1) / cols
 	world := testutil.InitTestWorld(t)
 	tiles := &tileIndex{world: world, loX: 0, hiX: lot * cols}

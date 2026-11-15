@@ -93,7 +93,7 @@ func TestDistrictAt_先の種類の区域と重なる後の種類の区域は丸
 
 	// 研究所の敷地は帯の全幅で縦の範囲が広く、町と必ず重なる
 	raws := rawschema.Raws{Districts: &[]rawschema.District{
-		{Id: "lab_campus", Spacing: 9, Separation: 1, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(true), Sizes: []rawschema.DistrictSize{{W: 7, H: 8, Weight: 1}}},
+		{Id: "lab_campus", Spacing: 9, Separation: 1, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(rawschema.EntityID("fence")), Sizes: []rawschema.DistrictSize{{W: 7, H: 8, Weight: 1}}},
 		{Id: "town", Spacing: 3, Separation: 1, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}},
 	}}
 	const cols consts.Chunk = 7

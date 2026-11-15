@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -88,7 +89,7 @@ func TestBuildMacroView_道の接続方角をセルに埋める(t *testing.T) {
 	const runSeed uint64 = 12345
 	const rows consts.Chunk = 9
 	// 複数リージョンを覆う表示範囲なら街道が必ず通る。道セルは Road のビットが立つ
-	area := MacroRange{OriginX: 0, Cols: 3 * settlementPlacement.Spacing, Rows: rows}
+	area := MacroRange{OriginX: 0, Cols: 3 * placementOf(testutil.InitTestWorld(t).Resources.RawMaster, rawschema.PointFeatureKindSettlement).Spacing, Rows: rows}
 	view := BuildMacroView(testutil.InitTestWorld(t).Resources.RawMaster, runSeed, 0, 0, 10, 10, area, consts.Coord[consts.Tile]{}, false, nil, nil)
 
 	found := false

@@ -95,13 +95,13 @@ func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chun
 	if _, ok := districtAt(raws, runSeed, c, cols); ok {
 		return chunkUrban
 	}
-	if dungeonEntrancePlacement.At(runSeed, c, cols) {
+	if placementOf(raws, rawschema.PointFeatureKindDungeonEntrance).At(runSeed, c, cols) {
 		return chunkDungeonEntrance
 	}
-	if settlementPlacement.At(runSeed, c, cols) {
+	if placementOf(raws, rawschema.PointFeatureKindSettlement).At(runSeed, c, cols) {
 		return chunkSettlement
 	}
-	if landmarkPlacement.At(runSeed, c, cols) {
+	if placementOf(raws, rawschema.PointFeatureKindLandmark).At(runSeed, c, cols) {
 		return chunkLandmark
 	}
 	return chunkWasteland

@@ -34,7 +34,7 @@ func TestRoadPath_塀に囲まれた区域は南北の門を通る(t *testing.T)
 
 	raws := rawschema.Raws{
 		Districts: &[]rawschema.District{{
-			Id: "lab_campus", Spacing: 20, Separation: 1, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(true),
+			Id: "lab_campus", Spacing: 20, Separation: 1, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(rawschema.EntityID("fence")),
 			Sizes: []rawschema.DistrictSize{{W: 3, H: 4, Weight: 1}},
 		}},
 		Facilities: &[]rawschema.Facility{

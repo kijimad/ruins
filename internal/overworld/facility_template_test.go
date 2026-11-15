@@ -165,7 +165,8 @@ func TestSpawnFacility_畳は屋内で土は屋外(t *testing.T) {
 	require.NoError(t, err)
 	_, cells, err := loader.FacilityChunk("house", 1)
 	require.NoError(t, err)
-	g := chunkGeom{chunkW: facilityLot, chunkH: facilityLot, tiles: &tileIndex{world: world, loX: 0, hiX: facilityLot}}
+	lot := testChunkSide - urbanStreetW
+	g := chunkGeom{chunkW: lot, chunkH: lot, tiles: &tileIndex{world: world, loX: 0, hiX: lot}}
 	_, _, err = spawnFacility(world, g, cells, 0, 0, "house", raw.MinDanger, 1)
 	require.NoError(t, err)
 

@@ -534,8 +534,8 @@ type DisassemblyYield struct {
 // District 区域の種類。複数のチャンクにまたがる施設の集まり。リージョンごとに大きさを重みで1つ選び、
 // 余った縦の範囲から位置を選ぶ。区域はリージョンの縦の範囲 spacing - separation からはみ出さない
 type District struct {
-	// Fence 外周に塀を巡らせ、北と南に門を開ける。道は門を通って区域を抜ける
-	Fence *bool `json:"fence,omitempty"`
+	// Fence 外周に巡らせる塀の家具。北と南に門を開け、道は門を通って区域を抜ける。省けば塀を巡らせない
+	Fence *EntityID `json:"fence,omitempty"`
 
 	// Id 区域の種類の id。行の順が優先で、重なった後の種類の区域は出さない
 	Id EntityID `json:"id"`
@@ -560,6 +560,9 @@ type District struct {
 
 	// Street 街路のタイル
 	Street EntityID `json:"street"`
+
+	// StreetEnemies チャンクごとに街路へ湧かせる敵の数
+	StreetEnemies Dice `json:"streetEnemies"`
 
 	// Verge 街路の両端に置く植え込みのタイル。省くと植え込みを置かず、建物と道の間を空けない
 	Verge *EntityID `json:"verge,omitempty"`
@@ -652,6 +655,9 @@ type Dungeon struct {
 
 	// EnemyTable 敵を引く enemyTables の id
 	EnemyTable EntityID `json:"enemyTable"`
+
+	// EntranceWeight 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ない
+	EntranceWeight int `json:"entranceWeight"`
 
 	Id EntityID `json:"id"`
 
@@ -1698,6 +1704,53 @@ type NutritionPercent = int
 // PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
 type PassCost = int
 
+// PointFeature 区域でない地物の置き方。南北に spacing チャンクの帯ごとに1つの当選を置き、隣の帯の当選と separation チャンク以上離す
+type PointFeature struct {
+	// Id 地物の種類
+	Id PointFeatureKind `json:"id"`
+
+	// Road この地物の当選どうしを結ぶ道。省けば道を引かない
+	Road *Road `json:"road,omitempty"`
+
+	// Salt 乱数の種を地物ごとにずらす値。行ごとに違う値にする。変えると同じ run の seed でも別の世界になる
+	Salt int `json:"salt"`
+
+	// Separation 隣の帯の当選との最小の空き。チャンク数
+	Separation int `json:"separation"`
+
+	// Spacing 当選の間隔。チャンク数
+	Spacing int `json:"spacing"`
+}
+
+// PointFeatureKind 区域でない地物の種類
+type PointFeatureKind string
+
+// Defines values for PointFeatureKind.
+const (
+	PointFeatureKindDungeonEntrance PointFeatureKind = "dungeon_entrance"
+	PointFeatureKindLandmark        PointFeatureKind = "landmark"
+	PointFeatureKindSettlement      PointFeatureKind = "settlement"
+)
+
+// Valid indicates whether the value is a known member of the PointFeatureKind enum.
+func (e PointFeatureKind) Valid() bool {
+	switch e {
+	case PointFeatureKindDungeonEntrance:
+		return true
+	case PointFeatureKindLandmark:
+		return true
+	case PointFeatureKindSettlement:
+		return true
+	default:
+		return false
+	}
+}
+
+// PointFeatureKindValues は PointFeatureKind の値を、スキーマに書いた順に返す。
+func PointFeatureKindValues() []PointFeatureKind {
+	return []PointFeatureKind{PointFeatureKindSettlement, PointFeatureKindDungeonEntrance, PointFeatureKindLandmark}
+}
+
 // Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍
 type Potency = int
 
@@ -1983,6 +2036,8 @@ type Raws struct {
 
 	Members *[]Member `json:"members,omitempty"`
 
+	PointFeatures *[]PointFeature `json:"pointFeatures,omitempty"`
+
 	Professions *[]Profession `json:"professions,omitempty"`
 
 	Props *[]Prop `json:"props,omitempty"`
@@ -2072,6 +2127,15 @@ type Remedy struct {
 	Treats []ConditionTypeName `json:"treats"`
 }
 
+// Road 地物の当選どうしを結ぶ道
+type Road struct {
+	// Tile 道のタイル
+	Tile EntityID `json:"tile"`
+
+	// Width 道の幅。タイル数
+	Width int `json:"width"`
+}
+
 // ScatterEntry 散布 prop 1種。ref の空文字は置かないことを表す
 type ScatterEntry struct {
 	Big bool `json:"big"`
@@ -2095,6 +2159,9 @@ type ScatterZone struct {
 	Ground EntityID `json:"ground"`
 
 	Id EntityID `json:"id"`
+
+	// LootDensity 屋外の戦利品を置くタイルの、チャンクの面積あたりの割合
+	LootDensity float64 `json:"lootDensity"`
 
 	LootGroup EntityID `json:"lootGroup"`
 

@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -23,7 +24,7 @@ func findLandmarkChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
 	for s := uint64(1); s < 200; s++ {
 		for x := range consts.Chunk(30) {
 			c := consts.Coord[consts.Chunk]{X: x}
-			if !landmarkPlacement.At(s, c, rows) || settlementPlacement.At(s, c, rows) || dungeonEntrancePlacement.At(s, c, rows) {
+			if !placementOf(raws, rawschema.PointFeatureKindLandmark).At(s, c, rows) || placementOf(raws, rawschema.PointFeatureKindSettlement).At(s, c, rows) || placementOf(raws, rawschema.PointFeatureKindDungeonEntrance).At(s, c, rows) {
 				continue
 			}
 			if _, ok := districtAt(raws, s, c, rows); ok {
