@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -73,6 +74,26 @@ func TestLandmarks_全てのランドマークの施設が施設の絵を持つ(
 	for _, lm := range raw.PtrSlice(raws.Landmarks) {
 		_, _, err := loader.FacilityChunk(lm.Id, 1)
 		require.NoError(t, err, lm.Id)
+	}
+}
+
+func TestLandmarks_全ての絵が余白を空けてチャンクに収まる(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	chunkW, chunkH, _, _ := dungeon.DungeonOverworld.BandShape()
+	// 絵は回転して置くので、幅と高さの大きい方が短い辺に収まる必要がある
+	limit := int(min(chunkW, chunkH) - 2*landmarkMargin)
+	for _, lm := range raw.PtrSlice(raws.Landmarks) {
+		names := loader.FacilityChunkNames(lm.Id)
+		require.NotEmpty(t, names, lm.Id)
+		for _, name := range names {
+			_, _, cells, err := loader.LoadTemplateByName(name, 1)
+			require.NoError(t, err, name)
+			assert.LessOrEqual(t, max(len(cells), len(cells[0])), limit, name)
+		}
 	}
 }
 

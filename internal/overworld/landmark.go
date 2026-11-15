@@ -43,6 +43,7 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 		return fmt.Errorf("failed to load facility templates: %w", err)
 	}
 	seed := ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y)
+	// ストリーム 0 は絵と原点の抽選。spawnFacility が戦利品と敵に使う 0x4 と 0x5 と分ける
 	rng := rand.New(rand.NewPCG(seed, 0))
 	fac := landmarkKindAt(world.Resources.RawMaster, runSeed, c)
 	cells, err := planFacility(loader, fac, rng.Uint64(), rng)

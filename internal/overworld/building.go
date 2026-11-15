@@ -79,11 +79,9 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 			// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
 			frng := rand.New(rand.NewPCG(ChunkSeed2D(r.seed, x, y), 0x1))
 			f := facilities[rollFacilityInZone(frng, cat, z, r.span(), danger, r.landmark())]
-			w, h := consts.Chunk(1), consts.Chunk(1)
-			if fps := raw.PtrSlice(f.Footprints); len(fps) > 0 {
-				i, _ := consts.Pick(frng, fps, func(fp rawschema.FacilityFootprint) float64 { return float64(fp.Weight) })
-				w, h = consts.Chunk(fps[i].W), consts.Chunk(fps[i].H)
-			}
+			fps := facilityFootprints(f)
+			i, _ := consts.Pick(frng, fps, func(fp rawschema.FacilityFootprint) float64 { return float64(fp.Weight) })
+			w, h := consts.Chunk(fps[i].W), consts.Chunk(fps[i].H)
 			for !fits(x, y, w, h, z) {
 				if w >= h && w > 1 {
 					w--
@@ -117,10 +115,7 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
 			minC = consts.Coord[consts.Chunk]{X: min(minC.X, c.X), Y: min(minC.Y, c.Y)}
 			maxC = consts.Coord[consts.Chunk]{X: max(maxC.X, c.X), Y: max(maxC.Y, c.Y)}
 		}
-		fps := slices.Clone(raw.PtrSlice(f.Footprints))
-		if len(fps) == 0 {
-			fps = []rawschema.FacilityFootprint{{W: 1, H: 1, Weight: 1}}
-		}
+		fps := slices.Clone(facilityFootprints(f))
 		slices.SortStableFunc(fps, func(a, b rawschema.FacilityFootprint) int { return b.W*b.H - a.W*a.H })
 		for _, fp := range fps {
 			w, h := consts.Chunk(fp.W), consts.Chunk(fp.H)
@@ -292,4 +287,12 @@ func stripOpen(kind maptemplate.EdgeKind, i, mid int, end bool) bool {
 		return false
 	}
 	return false
+}
+
+// facilityFootprints は施設 f の大きさの候補を返す。行が候補を省けば1チャンクの1つだけにする
+func facilityFootprints(f rawschema.Facility) []rawschema.FacilityFootprint {
+	if fps := raw.PtrSlice(f.Footprints); len(fps) > 0 {
+		return fps
+	}
+	return []rawschema.FacilityFootprint{{W: 1, H: 1, Weight: 1}}
 }

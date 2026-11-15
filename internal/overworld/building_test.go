@@ -343,10 +343,7 @@ func largestFittingFootprint(raws rawschema.Raws, r districtRegion, fac string) 
 			break
 		}
 	}
-	fps := raw.PtrSlice(f.Footprints)
-	if len(fps) == 0 {
-		fps = []rawschema.FacilityFootprint{{W: 1, H: 1, Weight: 1}}
-	}
+	fps := facilityFootprints(f)
 	var best consts.Chunk
 	for _, fp := range fps {
 		if consts.Chunk(fp.W) <= maxC.X-minC.X+1 && consts.Chunk(fp.H) <= maxC.Y-minC.Y+1 {
