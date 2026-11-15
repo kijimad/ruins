@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 09:12:20</td>
+            <td class="headerValue">2026-11-15 10:40:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -96,7 +96,7 @@
 <span id="L34"><span class="lineNum">      34</span>              :         // Danger はこのプランに適用する危険度。敵やアイテムの湧きフィルタに使う。1以上であること。</span>
 <span id="L35"><span class="lineNum">      35</span>              :         // 呼び出し側が世界の現在地から確定して渡す。</span>
 <span id="L36"><span class="lineNum">      36</span>              :         Danger consts.Danger</span>
-<span id="L37"><span class="lineNum">      37</span>              :         // Ground は全面を埋める下地のタイル。地上の計画だけが使う</span>
+<span id="L37"><span class="lineNum">      37</span>              :         // Ground は計画の下地のタイル。地上の計画は全面を埋め、森は孤立した壁を、絵は下地を残す地形のマスをこれで置く</span>
 <span id="L38"><span class="lineNum">      38</span>              :         Ground string</span>
 <span id="L39"><span class="lineNum">      39</span>              :         // 階層情報</span>
 <span id="L40"><span class="lineNum">      40</span>              :         Level gc.Level</span>
@@ -395,7 +395,7 @@
 <span id="L333"><span class="lineNum">     333</span>              :         ItemTableName string</span>
 <span id="L334"><span class="lineNum">     334</span>              :         // 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。</span>
 <span id="L335"><span class="lineNum">     335</span>              :         Danger consts.Danger</span>
-<span id="L336"><span class="lineNum">     336</span>              :         // 全面を埋める下地のタイル。地上の計画だけが使い、空ならエラーにする</span>
+<span id="L336"><span class="lineNum">     336</span>              :         // 地面を埋める下地のタイル。地上と森の間取りが使い、空ならエラーにする</span>
 <span id="L337"><span class="lineNum">     337</span>              :         Ground string</span>
 <span id="L338"><span class="lineNum">     338</span>              :         // プランナー関数</span>
 <span id="L339"><span class="lineNum">     339</span>              :         PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)</span>

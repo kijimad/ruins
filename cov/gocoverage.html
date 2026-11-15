@@ -305,7 +305,7 @@
 				
 				<option value="file124">github.com/kijimaD/ruins/internal/designdoc/readme.go (97.1%)</option>
 				
-				<option value="file125">github.com/kijimaD/ruins/internal/dungeon/definition.go (94.1%)</option>
+				<option value="file125">github.com/kijimaD/ruins/internal/dungeon/definition.go (94.4%)</option>
 				
 				<option value="file126">github.com/kijimaD/ruins/internal/dungeon/registry.go (100.0%)</option>
 				
@@ -411,7 +411,7 @@
 				
 				<option value="file177">github.com/kijimaD/ruins/internal/mapplanner/snapshot.go (100.0%)</option>
 				
-				<option value="file178">github.com/kijimaD/ruins/internal/mapplanner/template_planner.go (97.0%)</option>
+				<option value="file178">github.com/kijimaD/ruins/internal/mapplanner/template_planner.go (97.3%)</option>
 				
 				<option value="file179">github.com/kijimaD/ruins/internal/mapplanner/template_planner_factory.go (60.0%)</option>
 				
@@ -451,7 +451,7 @@
 				
 				<option value="file197">github.com/kijimaD/ruins/internal/overworld/facility_loot.go (83.3%)</option>
 				
-				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_template.go (88.3%)</option>
+				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_template.go (88.9%)</option>
 				
 				<option value="file199">github.com/kijimaD/ruins/internal/overworld/feature.go (91.7%)</option>
 				
@@ -469,7 +469,7 @@
 				
 				<option value="file206">github.com/kijimaD/ruins/internal/overworld/road_overlay.go (100.0%)</option>
 				
-				<option value="file207">github.com/kijimaD/ruins/internal/overworld/scatter.go (94.4%)</option>
+				<option value="file207">github.com/kijimaD/ruins/internal/overworld/scatter.go (93.7%)</option>
 				
 				<option value="file208">github.com/kijimaD/ruins/internal/overworld/scatter_tiles.go (89.3%)</option>
 				
@@ -561,7 +561,7 @@
 				
 				<option value="file252">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
 				
-				<option value="file253">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (74.3%)</option>
+				<option value="file253">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (74.4%)</option>
 				
 				<option value="file254">github.com/kijimaD/ruins/internal/states/dungeon_input.go (25.6%)</option>
 				
@@ -16938,6 +16938,7 @@ type DungeonDefinition struct {
         itemTable   string
         plannerPool []PlannerWeight
         baseTemp    int
+        ground      string
 }
 
 // Name はダンジョンの識別名を返す。raw の dungeons の行の id にあたる
@@ -16971,6 +16972,9 @@ func (d *DungeonDefinition) SelectPlanner(rng *rand.Rand) (mapplanner.PlannerTyp
 </span>        }
         <span class="cov8" title="1">return d.plannerPool[i].PlannerType, nil</span>
 }
+
+// Ground は地面を下地で埋める間取りの下地のタイルを返す。持たなければ空
+func (d *DungeonDefinition) Ground() string { <span class="cov8" title="1">return d.ground }</span>
 
 // OverworldDefinition は帯をスライドし続けるオーバーワールドのマスタ。
 // フロアを生成しないので、ダンジョン専用のテーブルやプランナーを持たない。
@@ -17007,6 +17011,7 @@ func (o *OverworldDefinition) BandShape() (chunkW, chunkH consts.Tile, cols, row
 		<pre class="file" id="file126" style="display: none">package dungeon
 
 import (
+        "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/i18n"
         "github.com/kijimaD/ruins/internal/mapplanner"
         "github.com/kijimaD/ruins/internal/raw"
@@ -17022,6 +17027,8 @@ var (
                 enemyTable:  "forest",
                 itemTable:   "forest",
                 baseTemp:    10,
+                // デバッグのメニューから森の間取りを試すので下地を持たせる
+                ground: consts.TileNameDirt,
                 plannerPool: []PlannerWeight{
                         {PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
                 },
@@ -17075,7 +17082,7 @@ func newDungeonDefinition(row *rawschema.Dungeon) *DungeonDefinition {
         for _, p := range row.Planners </span>{
                 <span class="cov8" title="1">pool = append(pool, PlannerWeight{PlannerType: plannerTypes[p.Id], Weight: p.Weight})
 </span>        }
-        <span class="cov8" title="1">return &amp;DungeonDefinition{
+        <span class="cov8" title="1">def := &amp;DungeonDefinition{
                 name:        row.Id,
                 displayName: i18n.Msgid(row.Name),
                 enemyTable:  row.EnemyTable,
@@ -17083,6 +17090,10 @@ func newDungeonDefinition(row *rawschema.Dungeon) *DungeonDefinition {
                 baseTemp:    row.BaseTemp,
                 plannerPool: pool,
 </span>        }
+        <span class="cov8" title="1">if row.Ground != nil </span>{
+                <span class="cov8" title="1">def.ground = *row.Ground
+</span>        }
+        <span class="cov8" title="1">return def</span>
 }
 
 // internalDefinitions は選択画面に表示しない内部用の定義
@@ -20539,10 +20550,19 @@ import (
 type ConvertIsolatedWalls struct {
         // ReplacementTile は孤立した壁を置き換えるタイル名
         ReplacementTile string
+        // UseGround なら ReplacementTile の代わりに計画の下地 MetaPlan.Ground で置き換える
+        UseGround bool
 }
 
 // PlanMeta は床に隣接しない壁タイルを指定したタイルに変換する
 func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
+        <span class="cov8" title="1">replacement := c.ReplacementTile
+        if c.UseGround </span>{
+                <span class="cov8" title="1">if planData.Ground == "" </span>{
+                        <span class="cov8" title="1">return ErrGroundNotSet
+</span>                }
+                <span class="cov8" title="1">replacement = planData.Ground</span>
+        }
         <span class="cov8" title="1">width := int(planData.Level.TileWidth)
         height := int(planData.Level.TileHeight)
 </span>
@@ -20563,9 +20583,8 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 </span>                }
         }
 
-        // 特定したタイルを変換
         <span class="cov8" title="1">for _, i := range tilesToConvert </span>{
-                <span class="cov8" title="1">planData.Tiles[i] = planData.GetTile(c.ReplacementTile)
+                <span class="cov8" title="1">planData.Tiles[i] = planData.GetTile(replacement)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -20788,10 +20807,13 @@ func (f ForestPlanner) PlanInitial(planData *MetaPlan) error {
 // ForestTerrain は森の基本地形を生成する
 type ForestTerrain struct{}
 
-// PlanMeta は森の基本地形をタイルに描画する
+// PlanMeta は森の基本地形をタイルに描画する。下地は計画の下地 MetaPlan.Ground で、空ならエラーにする
 func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {
+        <span class="cov8" title="1">if planData.Ground == "" </span>{
+                <span class="cov8" title="1">return ErrGroundNotSet
+</span>        }
         <span class="cov8" title="1">for i := range planData.Tiles </span>{
-                <span class="cov8" title="1">planData.Tiles[i] = planData.GetTile(consts.TileNameDirt)
+                <span class="cov8" title="1">planData.Tiles[i] = planData.GetTile(planData.Ground)
 </span>        }
 
         <span class="cov8" title="1">for _, clearing := range planData.Rooms </span>{
@@ -20812,7 +20834,7 @@ func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Re
 </span>
                         <span class="cov8" title="1">if distance &lt;= radius </span>{
                                 <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                planData.Tiles[idx] = planData.GetTile(consts.TileNameDirt)
+                                planData.Tiles[idx] = planData.GetTile(planData.Ground)
 </span>                        }
                 }
         }
@@ -21051,7 +21073,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
                                         <span class="cov8" title="1">distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))
                                         if distance &lt;= float64(radius) </span>{
                                                 <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
-                                                planData.Tiles[idx] = planData.GetTile(consts.TileNameDirt)
+                                                planData.Tiles[idx] = planData.GetTile(planData.Ground)
 </span>                                        }
                                 }
                         }
@@ -21064,13 +21086,11 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 func NewForestPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
         <span class="cov8" title="1">chain := NewPlannerChain(width, height, seed)
         chain.StartWith(ForestPlanner{})
-        chain.With(ForestTerrain{})      // 基本地形を生成
-        chain.With(ForestTrees{})        // 木を配置
-        chain.With(ForestPaths{})        // 自然な通路を作成
-        chain.With(ForestWildlife{})     // 野生動物の痕跡を追加
-        chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁を土に変換
-                ReplacementTile: consts.TileNameDirt,
-        })
+        chain.With(ForestTerrain{})                       // 基本地形を生成
+        chain.With(ForestTrees{})                         // 木を配置
+        chain.With(ForestPaths{})                         // 自然な通路を作成
+        chain.With(ForestWildlife{})                      // 野生動物の痕跡を追加
+        chain.With(ConvertIsolatedWalls{UseGround: true}) // 床に隣接しない壁を下地に変換
         chain.With(EnvironmentPlanner{})
 </span>
         <span class="cov8" title="1">return chain, nil
@@ -21410,7 +21430,7 @@ type MetaPlan struct {
         // Danger はこのプランに適用する危険度。敵やアイテムの湧きフィルタに使う。1以上であること。
         // 呼び出し側が世界の現在地から確定して渡す。
         Danger consts.Danger
-        // Ground は全面を埋める下地のタイル。地上の計画だけが使う
+        // Ground は計画の下地のタイル。地上の計画は全面を埋め、森は孤立した壁を、絵は下地を残す地形のマスをこれで置く
         Ground string
         // 階層情報
         Level gc.Level
@@ -21709,7 +21729,7 @@ type PlannerType struct {
         ItemTableName string
         // 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。
         Danger consts.Danger
-        // 全面を埋める下地のタイル。地上の計画だけが使い、空ならエラーにする
+        // 地面を埋める下地のタイル。地上と森の間取りが使い、空ならエラーにする
         Ground string
         // プランナー関数
         PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
@@ -22118,7 +22138,7 @@ import (
         "github.com/kijimaD/ruins/internal/consts"
 )
 
-// ErrGroundNotSet は下地を渡さずに地上の計画を組んだときのエラー
+// ErrGroundNotSet は下地を使う計画を下地を渡さずに組んだときのエラー
 var ErrGroundNotSet = errors.New("ground tile is not set")
 
 // OverworldFieldPlanner はオーバーワールドの「開けた地形」チャンクの初期プランナー。
@@ -23110,8 +23130,14 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
                         if cell.Terrain == "" </span>{
                                 <span class="cov8" title="1">return fmt.Errorf("%w: position %d, %d", errUndefinedCellTerrain, x, y)
 </span>                        }
-                        <span class="cov8" title="1">tile := metaPlan.GetTile(cell.Terrain)
-                        metaPlan.Tiles[idx] = tile</span>
+                        <span class="cov8" title="1">name := cell.Terrain
+                        if name == maptemplate.GroundTerrain </span>{
+                                <span class="cov8" title="1">if metaPlan.Ground == "" </span>{
+                                        <span class="cov8" title="1">return fmt.Errorf("position %d, %d: %w", x, y, ErrGroundNotSet)
+</span>                                }
+                                <span class="cov8" title="1">name = metaPlan.Ground</span>
+                        }
+                        <span class="cov8" title="1">metaPlan.Tiles[idx] = metaPlan.GetTile(name)</span>
                 }
         }
 
@@ -24111,6 +24137,11 @@ const placeholderChar = '@'
 
 // placeholderStr はプレースホルダの文字列表現
 const placeholderStr = "@"
+
+// GroundTerrain はその場所の下地をそのまま残す地形。施設の庭や敷地の外に使い、置かれた区分の下地とつなげる。
+// 地上では施設より先に置く地物のタイルも残るので、施設より先の地物は土の地面以外を置かない。施設を置くときに下が土の地面かを確かめる。
+// ダンジョンのテンプレートで使うときは、そのダンジョンの行に下地 ground が要る
+const GroundTerrain = "ground"
 
 var (
         // errInvalidChunkName はチャンク名が "{幅}x{高さ}_名前" 形式でないときに返す
@@ -26969,8 +27000,12 @@ import (
 // facilityLot は施設の絵の1辺の長さ。チャンク 24×24 から北と西の街路を引いた区画の大きさ
 const facilityLot consts.Tile = 20
 
-// errFacilityOutOfChunk は施設の絵が置く原点からチャンクに収まらないときに返す
-var errFacilityOutOfChunk = errors.New("facility template does not fit in the chunk")
+var (
+        // errFacilityOutOfChunk は施設の絵が置く原点からチャンクに収まらないときに返す
+        errFacilityOutOfChunk = errors.New("facility template does not fit in the chunk")
+        // errFacilityGroundNotEarth は下地を残すマスの下が土の地面でないときに返す
+        errFacilityGroundNotEarth = errors.New("facility ground cell is not on an earth tile")
+)
 
 // planFacility は施設 fac の絵を1枚選んで展開する。絵は入口を北に向けて描いてあり、rng で半々に左へ90度回して入口を西の街路へ向ける。左右の反転も半々で選ぶ
 func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand) ([][]maptemplate.MapCell, error) {
@@ -27006,7 +27041,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
                 return t, nil</span>
         }
         <span class="cov8" title="1">wallAt := func(x, y int) bool </span>{
-                <span class="cov8" title="1">if y &lt; 0 || y &gt;= len(cells) || x &lt; 0 || x &gt;= len(cells[y]) </span>{
+                <span class="cov8" title="1">if y &lt; 0 || y &gt;= len(cells) || x &lt; 0 || x &gt;= len(cells[y]) || cells[y][x].Terrain == maptemplate.GroundTerrain </span>{
                         <span class="cov8" title="1">return false
 </span>                }
                 <span class="cov8" title="1">t, err := tileOf(cells[y][x].Terrain)
@@ -27022,13 +27057,19 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
                         <span class="cov8" title="1">pos := consts.Coord[consts.Tile]{X: g.offsetX + ox + consts.Tile(x), Y: g.offsetY + oy + consts.Tile(y)}
                         occupied[pos] = true
 </span>
-                        <span class="cov8" title="1">t, err := tileOf(cell.Terrain)
-                        if err != nil </span>{
-                                <span class="cov0" title="0">return nil, nil, fmt.Errorf("facility %q tile at %d,%d: %w", fac, x, y, err)
-</span>                        }
-                        <span class="cov8" title="1">if err := spawnFacilityTile(world, tiles, pos, t); err != nil </span>{
-                                <span class="cov0" title="0">return nil, nil, err
-</span>                        }
+                        <span class="cov8" title="1">if cell.Terrain == maptemplate.GroundTerrain </span>{
+                                <span class="cov8" title="1">if err := checkFacilityGround(world, tiles, pos, tileOf); err != nil </span>{
+                                        <span class="cov8" title="1">return nil, nil, fmt.Errorf("facility %q at %d,%d: %w", fac, x, y, err)
+</span>                                }
+                        } else {
+                                <span class="cov8" title="1">t, err := tileOf(cell.Terrain)
+                                if err != nil </span>{
+                                        <span class="cov0" title="0">return nil, nil, fmt.Errorf("facility %q tile at %d,%d: %w", fac, x, y, err)
+</span>                                }
+                                <span class="cov8" title="1">if err := spawnFacilityTile(world, tiles, pos, t); err != nil </span>{
+                                        <span class="cov0" title="0">return nil, nil, err
+</span>                                }
+                        }
                         <span class="cov8" title="1">orientation := gc.DoorOrientationHorizontal
 </span>                        // 2マスの扉は隣が扉になるので、扉も壁と同じく向きを決める側に数える
                         <span class="cov8" title="1">blocks := func(x, y int) bool </span>{
@@ -27045,6 +27086,22 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 
         <span class="cov8" title="1">isWall := func(lx, ly consts.Tile) bool </span>{ <span class="cov8" title="1">return wallAt(int(lx-ox), int(ly-oy)) }</span>
         <span class="cov8" title="1">return isWall, occupied, nil</span>
+}
+
+// checkFacilityGround は下地を残すマス pos の下に、土の地面のタイルが置かれていることを確かめる
+func checkFacilityGround(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileOf func(string) (rawschema.Tile, error)) error {
+        <span class="cov8" title="1">e, ok := tiles[gc.GridElement{Coord: pos}]
+        if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) </span>{
+                <span class="cov8" title="1">return errFacilityGroundNotEarth
+</span>        }
+        <span class="cov8" title="1">t, err := tileOf(world.Components.RawID.Get(e).ID)
+        if err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
+        <span class="cov8" title="1">if t.Earth == nil || !*t.Earth </span>{
+                <span class="cov8" title="1">return errFacilityGroundNotEarth
+</span>        }
+        <span class="cov8" title="1">return nil</span>
 }
 
 // spawnFacilityTile はタイルの行 t を pos へ置く。行の生成の仕様が別のタイルを指せばそれを置き、オートタイルしないタイルは添字を付けない
@@ -27132,9 +27189,12 @@ func tileBlocksPass(raws rawschema.Raws) func(terrain string) bool {
                 <span class="cov8" title="1">blocks[tiles[i].Id] = tiles[i].BlockPass
 </span>        }
         <span class="cov8" title="1">return func(terrain string) bool </span>{
+                <span class="cov8" title="1">if terrain == maptemplate.GroundTerrain </span>{
+                        <span class="cov8" title="1">return false
+</span>                }
                 <span class="cov8" title="1">b, ok := blocks[terrain]
-                return !ok || b
-</span>        }
+                return !ok || b</span>
+        }
 }
 </pre>
 		
@@ -27197,7 +27257,8 @@ type feature interface {
         place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error
 }
 
-// features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。
+// features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。施設の絵は下地を残す地形のマスに
+// 先に置かれたタイルを残すので、施設を置く市街地より前の地物は土の地面以外を置かない
 func features() []feature {
         // 点在ランドマークは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に
         // 評価する。散布は占有と道の実状態を読むため最後に評価する
@@ -28203,7 +28264,7 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
         for q.Next() </span>{
                 <span class="cov8" title="1">ge := *world.Components.GridElement.Get(q.Entity())
                 if ge.X &gt;= loX &amp;&amp; ge.X &lt; hiX &amp;&amp; ge.Y &gt;= loY &amp;&amp; ge.Y &lt; hiY </span>{
-                        <span class="cov8" title="1">blocked[ge] = true
+                        <span class="cov0" title="0">blocked[ge] = true
 </span>                }
         }
         <span class="cov8" title="1">return blocked</span>
@@ -30511,7 +30572,7 @@ func validateRules(raws rawschema.Raws) error {
                 validateConditions,
                 validateWeathers,
                 validateTileEffects,
-                validateScatterZoneGrounds,
+                validateGrounds,
                 validateNeedStages,
 </span>        }
         <span class="cov8" title="1">for _, v := range validators </span>{
@@ -30934,9 +30995,9 @@ func validateWeathers(raws rawschema.Raws) error {
         <span class="cov8" title="1">return validateEnumRows("WeatherId", enumStrings(rawschema.WeatherIdValues()), rowIDs(weathers, func(w rawschema.Weather) rawschema.WeatherId </span>{ <span class="cov8" title="1">return w.Id }</span>))
 }
 
-// validateScatterZoneGrounds は区分の下地が土の地面のタイルを指すことを検証する。
+// validateGrounds は区分とダンジョンの下地が土の地面のタイルを指すことを検証する。
 // 道と散布は土の地面の上にしか置かないので、土でない下地では黙って何も置かれなくなる
-func validateScatterZoneGrounds(raws rawschema.Raws) error {
+func validateGrounds(raws rawschema.Raws) error {
         <span class="cov8" title="1">earth := map[rawschema.EntityID]bool{}
         tiles := PtrSlice(raws.Tiles)
         for i := range tiles </span>{
@@ -30946,6 +31007,13 @@ func validateScatterZoneGrounds(raws rawschema.Raws) error {
         for i := range zones </span>{
                 <span class="cov8" title="1">if !earth[zones[i].Ground] </span>{
                         <span class="cov8" title="1">return fmt.Errorf("scatter zone %q ground %q: %w", zones[i].Id, zones[i].Ground, errGroundNotEarth)
+</span>                }
+        }
+        <span class="cov8" title="1">dungeons := PtrSlice(raws.Dungeons)
+        for i := range dungeons </span>{
+                <span class="cov8" title="1">d := &amp;dungeons[i]
+                if d.Ground != nil &amp;&amp; !earth[*d.Ground] </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("dungeon %q ground %q: %w", d.Id, *d.Ground, errGroundNotEarth)
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>
@@ -31656,6 +31724,9 @@ type Dungeon struct {
 
         // EnemyTable 敵を引く enemyTables の id
         EnemyTable EntityID `json:"enemyTable"`
+
+        // Ground 地面を下地で埋める間取りの下地のタイル。森の間取りは地面を下地で埋めるので、森を持つなら必須
+        Ground *EntityID `json:"ground,omitempty"`
 
         Id EntityID `json:"id"`
 
@@ -33506,6 +33577,7 @@ type Tile struct {
         // Foliage 植生。省くと植生なし
         Foliage *Foliage `json:"foliage,omitempty"`
 
+        // Id ground は施設のパレットで下地を残す地形の予約語なので、タイルの id に使わない
         Id EntityID `json:"id"`
 
         Name EntityName `json:"name"`
@@ -39876,6 +39948,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
         // 危険度は最初のフロア生成時に確定して全階で共有する。階に依らず同じ。
         <span class="cov8" title="1">builderType.EnemyTableName = def.EnemyTableName()
         builderType.ItemTableName = def.ItemTableName()
+        builderType.Ground = def.Ground()
 </span>        // 危険度は enterDungeonWith が入口深度込みで確定し全階で共有する。未設定のデバッグ経路だけ日数版で補う
         <span class="cov8" title="1">if st.Danger == 0 </span>{
                 <span class="cov8" title="1">st.Danger = query.DangerLevelAt(world)
@@ -46573,6 +46646,7 @@ import (
         "fmt"
         "image/color"
         "slices"
+        "strconv"
         "strings"
         "sync"
 
@@ -46941,17 +47015,20 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 </span>        }
 
         <span class="cov0" title="0">if world.Resources.Config.ShowMapDebug </span>{
-                // デバッグ用：スプライト番号表示(dirt, dwall)
+                // デバッグ用：土の色違いと壁のオートタイルの添字を表示する
                 <span class="cov0" title="0">if spriteRender.SpriteSheetName == "tile" </span>{
                         <span class="cov0" title="0">var number string
                         var prefix string
-                        if after, ok := strings.CutPrefix(spriteRender.SpriteKey, "dirt_"); ok </span>{
-                                <span class="cov0" title="0">number = after
-                                prefix = "d"
-</span>                        } else <span class="cov0" title="0">if after, ok := strings.CutPrefix(spriteRender.SpriteKey, "dwall_"); ok </span>{
-                                <span class="cov0" title="0">number = after
-                                prefix = "w"
-</span>                        }
+                        if base, n, ok := strings.CutLast(spriteRender.SpriteKey, "_"); ok </span>{
+                                <span class="cov0" title="0">if _, err := strconv.Atoi(n); err == nil </span>{
+                                        <span class="cov0" title="0">switch </span>{
+                                        case strings.HasPrefix(base, "dirt_"):
+                                                <span class="cov0" title="0">number, prefix = n, "d"</span>
+                                        case base == "dwall":
+                                                <span class="cov0" title="0">number, prefix = n, "w"</span>
+                                        }
+                                }
+                        }
 
                         <span class="cov0" title="0">if number != "" </span>{
                                 // カメラ変換を考慮したテキスト位置を計算

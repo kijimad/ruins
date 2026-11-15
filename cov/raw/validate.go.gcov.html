@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">96.8&nbsp;%</td>
-            <td class="headerCovTableEntry">347</td>
-            <td class="headerCovTableEntry">336</td>
+            <td class="headerCovTableEntryHi">96.9&nbsp;%</td>
+            <td class="headerCovTableEntry">353</td>
+            <td class="headerCovTableEntry">342</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 09:12:20</td>
+            <td class="headerValue">2026-11-15 10:40:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -113,7 +113,7 @@
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 validateConditions,</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 validateWeathers,</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 validateTileEffects,</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 validateScatterZoneGrounds,</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 validateGrounds,</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 validateNeedStages,</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         for _, v := range validators {</span></span>
@@ -536,9 +536,9 @@
 <span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           2 :         return validateEnumRows(&quot;WeatherId&quot;, enumStrings(rawschema.WeatherIdValues()), rowIDs(weathers, func(w rawschema.Weather) rawschema.WeatherId { return w.Id }))</span></span>
 <span id="L475"><span class="lineNum">     475</span>              : }</span>
 <span id="L476"><span class="lineNum">     476</span>              : </span>
-<span id="L477"><span class="lineNum">     477</span>              : // validateScatterZoneGrounds は区分の下地が土の地面のタイルを指すことを検証する。</span>
+<span id="L477"><span class="lineNum">     477</span>              : // validateGrounds は区分とダンジョンの下地が土の地面のタイルを指すことを検証する。</span>
 <span id="L478"><span class="lineNum">     478</span>              : // 道と散布は土の地面の上にしか置かないので、土でない下地では黙って何も置かれなくなる</span>
-<span id="L479"><span class="lineNum">     479</span>              : func validateScatterZoneGrounds(raws rawschema.Raws) error {</span>
+<span id="L479"><span class="lineNum">     479</span>              : func validateGrounds(raws rawschema.Raws) error {</span>
 <span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :         earth := map[rawschema.EntityID]bool{}</span></span>
 <span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :         tiles := PtrSlice(raws.Tiles)</span></span>
 <span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           1 :         for i := range tiles {</span></span>
@@ -550,55 +550,62 @@
 <span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;scatter zone %q ground %q: %w&quot;, zones[i].Id, zones[i].Ground, errGroundNotEarth)</span></span>
 <span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L490"><span class="lineNum">     490</span>              :         }</span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L492"><span class="lineNum">     492</span>              : }</span>
-<span id="L493"><span class="lineNum">     493</span>              : </span>
-<span id="L494"><span class="lineNum">     494</span>              : // validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する</span>
-<span id="L495"><span class="lineNum">     495</span>              : func validateTileEffects(raws rawschema.Raws) error {</span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :         if shelters := PtrSlice(raws.ShelterEffects); len(shelters) &gt; 0 {</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           2 :                 if err := validateEnumRows(&quot;Shelter&quot;, enumStrings(rawschema.ShelterValues()), rowIDs(shelters, func(s rawschema.ShelterEffect) rawschema.Shelter { return s.Id })); err != nil {</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :                         return err</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L500"><span class="lineNum">     500</span>              :         }</span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :         if water := PtrSlice(raws.WaterEffects); len(water) &gt; 0 {</span></span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           2 :                 if err := validateEnumRows(&quot;WaterExposure&quot;, enumStrings(rawschema.WaterExposureValues()), rowIDs(water, func(w rawschema.WaterEffect) rawschema.WaterExposure { return w.Id })); err != nil {</span></span>
-<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :                         return err</span></span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L505"><span class="lineNum">     505</span>              :         }</span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :         if foliage := PtrSlice(raws.FoliageEffects); len(foliage) &gt; 0 {</span></span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           2 :                 if err := validateEnumRows(&quot;Foliage&quot;, enumStrings(rawschema.FoliageValues()), rowIDs(foliage, func(f rawschema.FoliageEffect) rawschema.Foliage { return f.Id })); err != nil {</span></span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :                         return err</span></span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L510"><span class="lineNum">     510</span>              :         }</span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L512"><span class="lineNum">     512</span>              : }</span>
-<span id="L513"><span class="lineNum">     513</span>              : </span>
-<span id="L514"><span class="lineNum">     514</span>              : // validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、空腹と疲労と鮮度の段階が0から始まる段階を持つことを検証する。</span>
-<span id="L515"><span class="lineNum">     515</span>              : // 0の段階が無いと、どの段階にも当たらない割合や劣化量が生まれる</span>
-<span id="L516"><span class="lineNum">     516</span>              : func validateNeedStages(raws rawschema.Raws) error {</span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :         if hunger := PtrSlice(raws.HungerStages); len(hunger) &gt; 0 {</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           2 :                 if err := validateEnumRows(&quot;HungerStageId&quot;, enumStrings(rawschema.HungerStageIdValues()), rowIDs(hunger, func(h rawschema.HungerStage) rawschema.HungerStageId { return h.Id })); err != nil {</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                         return err</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           2 :                 if !slices.ContainsFunc(hunger, func(h rawschema.HungerStage) bool { return h.From == 0 }) {</span></span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;hunger: %w&quot;, errNeedStageNoZero)</span></span>
-<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L524"><span class="lineNum">     524</span>              :         }</span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :         if fatigue := PtrSlice(raws.FatigueStages); len(fatigue) &gt; 0 {</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           2 :                 if err := validateEnumRows(&quot;FatigueStageId&quot;, enumStrings(rawschema.FatigueStageIdValues()), rowIDs(fatigue, func(f rawschema.FatigueStage) rawschema.FatigueStageId { return f.Id })); err != nil {</span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           2 :                 if !slices.ContainsFunc(fatigue, func(f rawschema.FatigueStage) bool { return f.From == 0 }) {</span></span>
-<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;fatigue: %w&quot;, errNeedStageNoZero)</span></span>
-<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L532"><span class="lineNum">     532</span>              :         }</span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 :         if freshness := PtrSlice(raws.FreshnessStages); len(freshness) &gt; 0 {</span></span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           2 :                 if !slices.ContainsFunc(freshness, func(f rawschema.FreshnessStage) bool { return f.From == 0 }) {</span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;freshness: %w&quot;, errNeedStageNoZero)</span></span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L537"><span class="lineNum">     537</span>              :         }</span>
-<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L539"><span class="lineNum">     539</span>              : }</span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 :         dungeons := PtrSlice(raws.Dungeons)</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :         for i := range dungeons {</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 :                 d := &amp;dungeons[i]</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :                 if d.Ground != nil &amp;&amp; !earth[*d.Ground] {</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;dungeon %q ground %q: %w&quot;, d.Id, *d.Ground, errGroundNotEarth)</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L497"><span class="lineNum">     497</span>              :         }</span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L499"><span class="lineNum">     499</span>              : }</span>
+<span id="L500"><span class="lineNum">     500</span>              : </span>
+<span id="L501"><span class="lineNum">     501</span>              : // validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する</span>
+<span id="L502"><span class="lineNum">     502</span>              : func validateTileEffects(raws rawschema.Raws) error {</span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :         if shelters := PtrSlice(raws.ShelterEffects); len(shelters) &gt; 0 {</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           2 :                 if err := validateEnumRows(&quot;Shelter&quot;, enumStrings(rawschema.ShelterValues()), rowIDs(shelters, func(s rawschema.ShelterEffect) rawschema.Shelter { return s.Id })); err != nil {</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :                         return err</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L507"><span class="lineNum">     507</span>              :         }</span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :         if water := PtrSlice(raws.WaterEffects); len(water) &gt; 0 {</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           2 :                 if err := validateEnumRows(&quot;WaterExposure&quot;, enumStrings(rawschema.WaterExposureValues()), rowIDs(water, func(w rawschema.WaterEffect) rawschema.WaterExposure { return w.Id })); err != nil {</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">           1 :                         return err</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L512"><span class="lineNum">     512</span>              :         }</span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :         if foliage := PtrSlice(raws.FoliageEffects); len(foliage) &gt; 0 {</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           2 :                 if err := validateEnumRows(&quot;Foliage&quot;, enumStrings(rawschema.FoliageValues()), rowIDs(foliage, func(f rawschema.FoliageEffect) rawschema.Foliage { return f.Id })); err != nil {</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :                         return err</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L517"><span class="lineNum">     517</span>              :         }</span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L519"><span class="lineNum">     519</span>              : }</span>
+<span id="L520"><span class="lineNum">     520</span>              : </span>
+<span id="L521"><span class="lineNum">     521</span>              : // validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、空腹と疲労と鮮度の段階が0から始まる段階を持つことを検証する。</span>
+<span id="L522"><span class="lineNum">     522</span>              : // 0の段階が無いと、どの段階にも当たらない割合や劣化量が生まれる</span>
+<span id="L523"><span class="lineNum">     523</span>              : func validateNeedStages(raws rawschema.Raws) error {</span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 :         if hunger := PtrSlice(raws.HungerStages); len(hunger) &gt; 0 {</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           2 :                 if err := validateEnumRows(&quot;HungerStageId&quot;, enumStrings(rawschema.HungerStageIdValues()), rowIDs(hunger, func(h rawschema.HungerStage) rawschema.HungerStageId { return h.Id })); err != nil {</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           1 :                         return err</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           2 :                 if !slices.ContainsFunc(hunger, func(h rawschema.HungerStage) bool { return h.From == 0 }) {</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;hunger: %w&quot;, errNeedStageNoZero)</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L531"><span class="lineNum">     531</span>              :         }</span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           1 :         if fatigue := PtrSlice(raws.FatigueStages); len(fatigue) &gt; 0 {</span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           2 :                 if err := validateEnumRows(&quot;FatigueStageId&quot;, enumStrings(rawschema.FatigueStageIdValues()), rowIDs(fatigue, func(f rawschema.FatigueStage) rawschema.FatigueStageId { return f.Id })); err != nil {</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           2 :                 if !slices.ContainsFunc(fatigue, func(f rawschema.FatigueStage) bool { return f.From == 0 }) {</span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;fatigue: %w&quot;, errNeedStageNoZero)</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L539"><span class="lineNum">     539</span>              :         }</span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">           1 :         if freshness := PtrSlice(raws.FreshnessStages); len(freshness) &gt; 0 {</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           2 :                 if !slices.ContainsFunc(freshness, func(f rawschema.FreshnessStage) bool { return f.From == 0 }) {</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;freshness: %w&quot;, errNeedStageNoZero)</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L544"><span class="lineNum">     544</span>              :         }</span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L546"><span class="lineNum">     546</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">91.2&nbsp;%</td>
+            <td class="headerCovTableEntryHi">90.1&nbsp;%</td>
             <td class="headerCovTableEntry">181</td>
-            <td class="headerCovTableEntry">165</td>
+            <td class="headerCovTableEntry">163</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 09:12:20</td>
+            <td class="headerValue">2026-11-15 10:40:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -394,8 +394,8 @@
 <span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                 ge := *world.Components.GridElement.Get(q.Entity())</span></span>
 <span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                 if ge.X &gt;= loX &amp;&amp; ge.X &lt; hiX &amp;&amp; ge.Y &gt;= loY &amp;&amp; ge.Y &lt; hiY {</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                         blocked[ge] = true</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                         blocked[ge] = true</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L337"><span class="lineNum">     337</span>              :         }</span>
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         return blocked</span></span>
 <span id="L339"><span class="lineNum">     339</span>              : }</span>
