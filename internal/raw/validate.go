@@ -38,6 +38,7 @@ var (
 	errEnumRowMissing                = errors.New("enum value has no raw row")
 	errTableMissing                  = errors.New("table required by code is missing")
 	errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
+	errNoReachableDungeon            = errors.New("no dungeon has a positive entrance weight")
 )
 
 // validateRules は行の間の決まりのうち、CUE のスキーマで書かないものを検証する。
@@ -53,6 +54,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateTileEffects,
 		validateScatterZoneGrounds,
 		validateNeedStages,
+		validateReachableDungeon,
 	}
 	for _, v := range validators {
 		if err := v(raws); err != nil {
@@ -537,4 +539,19 @@ func validateNeedStages(raws rawschema.Raws) error {
 		}
 	}
 	return nil
+}
+
+// validateReachableDungeon はダンジョンの行があるとき、遺跡の入口から入れる行が1つ以上あることを検証する。
+// 地図は入口の重みを見ずにチャンクを遺跡の入口に分けるので、引ける行が無いと記号だけが出て入口が無くなる
+func validateReachableDungeon(raws rawschema.Raws) error {
+	dungeons := PtrSlice(raws.Dungeons)
+	if len(dungeons) == 0 {
+		return nil
+	}
+	for i := range dungeons {
+		if DungeonReachable(&dungeons[i]) {
+			return nil
+		}
+	}
+	return errNoReachableDungeon
 }

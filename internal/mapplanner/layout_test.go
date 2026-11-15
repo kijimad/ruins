@@ -72,3 +72,16 @@ func appendIDs[T any](ids []string, rows *[]T, id func(*T) string) []string {
 	}
 	return ids
 }
+
+// TestNewLayoutChain_全ての間取りの行からチェーンを作れる は、絵の行も含め、全ての間取りの行の段が
+// 段の表と Go の分岐に届くことを固定する。段の表を足して分岐を書き忘れると、その段を使う行で落ちる
+func TestNewLayoutChain_全ての間取りの行からチェーンを作れる(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	layouts := raw.PtrSlice(raws.Layouts)
+	require.NotEmpty(t, layouts)
+	for i := range layouts {
+		_, err := newLayoutChain(raws, layouts[i].Id, 50, 50, 1)
+		require.NoError(t, err, layouts[i].Id)
+	}
+}

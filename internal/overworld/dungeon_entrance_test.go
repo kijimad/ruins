@@ -1,7 +1,6 @@
 package overworld_test
 
 import (
-	"slices"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -37,29 +36,4 @@ func TestNewChunkGen_遺跡入口が帯全域に決定的に配置される(t *t
 	}
 	// 12チャンクは Spacing 4 のリージョン3つぶんで、各リージョンにちょうど1つずつ現れる
 	assert.Equal(t, 3, count, "リージョンごとに入口はちょうど1つ")
-}
-
-// TestNewChunkGen_全てのダンジョンの入口の重みが0なら遺跡入口を置かない は、引けるダンジョンが
-// 無いとき入口の地物が何も置かずに生成を続けることを固定する。
-func TestNewChunkGen_全てのダンジョンの入口の重みが0なら遺跡入口を置かない(t *testing.T) {
-	t.Parallel()
-
-	const chunkW, chunkH consts.Tile = 24, 24
-	world := testutil.InitTestWorld(t)
-	dungeons := slices.Clone(*world.Resources.RawMaster.Dungeons)
-	for i := range dungeons {
-		dungeons[i].EntranceWeight = 0
-	}
-	world.Resources.RawMaster.Dungeons = &dungeons
-	gen := overworld.NewChunkGen(world, 500, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
-	for i := range 12 {
-		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
-	}
-
-	count := 0
-	q := ecs.NewFilter1[gc.DungeonEntrance](world.ECS).Query()
-	for q.Next() {
-		count++
-	}
-	assert.Equal(t, 0, count, "引けるダンジョンが無いので入口は0")
 }

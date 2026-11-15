@@ -106,6 +106,7 @@ func ExpectedNetLootValue(master rawschema.Raws, itemTableName string, danger in
 
 // ExpectedRunLootIncome はダンジョンの行 d を floors 層探索して拾う loot の期待手取り総額を返す。各層で
 // アイテムの数の期待値の個数を拾い、層の深さを危険度として ExpectedNetLootValue を積む。到達層数は生存依存の scenario 入力。
+// 高い危険度の層でアイテムの配置が1個足す分は含めない。
 func ExpectedRunLootIncome(master rawschema.Raws, d rawschema.Dungeon, floors int) float64 {
 	perFloor := d.ItemCount.Mean()
 	total := 0.0

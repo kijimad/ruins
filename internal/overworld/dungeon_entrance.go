@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"errors"
 	"fmt"
 	"math/rand/v2"
 
@@ -18,6 +19,9 @@ import (
 // dungeonEntranceFeature は遺跡入口の feature 実装。
 type dungeonEntranceFeature struct{}
 
+// errNoEntranceDungeon は遺跡の入口が引けるダンジョンの行が無いときのエラー。raw の検証が1つ以上を保証する
+var errNoEntranceDungeon = errors.New("no dungeon to enter from a ruins entrance")
+
 // place は当選チャンクの中心付近へ遺跡入口を置く。進入先のダンジョンは raw の行の入口の重みから
 // チャンク座標のシードで決定的に選ぶ。開始チャンクには driver が歩いて届く入口を別途
 // 置くため、ここでは重複を避けてスキップする。
@@ -30,7 +34,7 @@ func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coor
 	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^p.Salt, c.X, c.Y), 0))
 	i, ok := consts.Pick(rng, rows, func(d rawschema.Dungeon) float64 { return float64(d.EntranceWeight) })
 	if !ok {
-		return nil
+		return errNoEntranceDungeon
 	}
 	pos := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}
 	if _, err := lifecycle.SpawnDungeonEntrance(world, pos.X, pos.Y, rows[i].Id); err != nil {

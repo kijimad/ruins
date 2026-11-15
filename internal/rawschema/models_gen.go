@@ -1511,7 +1511,7 @@ type Layout struct {
 	// Steps 中の段の表の行の id
 	Steps []EntityID `json:"steps"`
 
-	// Tiles 段が置くタイル。絵の最初の段は絵のタイルを置くので使わない
+	// Tiles 中の段が置くタイル。絵の最初の段は絵のタイルを置き、これを使うのは絵の上に重ねる中の段だけである
 	Tiles LayoutTiles `json:"tiles"`
 }
 
