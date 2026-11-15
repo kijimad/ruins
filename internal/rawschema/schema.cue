@@ -1189,10 +1189,16 @@ import (
 
 	// 屋根に覆われているか。覆われない通れるタイルには雪が積もる
 	covered!: bool
+
+	// 地上の日照を受ける割合
+	daylightPercent!: #ShelterDaylightPercent
 }
 
 // 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
 #ShelterInfluencePercent: int & >=0 & <=100
+
+// 地上の日照を受ける割合。百分率。100 なら屋外と同じ明るさ、0 ならダンジョンと同じ暗さになる
+#ShelterDaylightPercent: int & >=0 & <=100
 
 // スキル。同じカテゴリのスキルは行の順に表示する
 #Skill: {

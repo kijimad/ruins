@@ -1143,7 +1143,7 @@ var (
 func NewTileEnvDefs(raws rawschema.Raws) gc.TileEnvDefs {
 	defs := gc.TileEnvDefs{Shelters: map[rawschema.Shelter]gc.ShelterDef{}, Water: map[rawschema.WaterExposure]int{}, Foliage: map[rawschema.Foliage]int{}}
 	for _, row := range PtrSlice(raws.ShelterEffects) {
-		defs.Shelters[row.Id] = gc.ShelterDef{Name: i18n.Msgid(row.Name), AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered}
+		defs.Shelters[row.Id] = gc.ShelterDef{Name: i18n.Msgid(row.Name), AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered, DaylightPercent: row.DaylightPercent}
 	}
 	for _, row := range PtrSlice(raws.WaterEffects) {
 		defs.Water[row.Id] = row.TempModifier

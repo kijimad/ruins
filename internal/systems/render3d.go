@@ -299,15 +299,13 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 		return func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
 	}
 	renderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)
-	// 屋外の日照が強いほど明るさを 1.0 超へ持ち上げ、乗算の天井を越えて晴天を明るく見せる
-	boost := 1.0
-	if query.IsOnOverworld(world) {
-		boost = 1 + dayOverbrightMax*smoothstep(dayOverbrightLow, dayOverbrightHigh, overworldDaylight(world.Resources.CalendarDefs, query.GetGameTime(world)))
-	}
+	// タイルの受ける環境光が強いほど明るさを 1.0 超へ持ち上げ、乗算の天井を越えて晴天を明るく見せる。
+	// 屋根の下は日照を減らして受けるので持ち上がらない
 	return func(g *gc.GridElement) ([3]float64, bool, bool) {
-		s, drawable, visible := sampleOf(renderMap[*g])
-		if visible {
-			s = s.overbright(boost)
+		info := renderMap[*g]
+		s, drawable, visible := sampleOf(info)
+		if v, ok := info.(TileRenderVisible); ok {
+			s = s.overbright(1 + dayOverbrightMax*smoothstep(dayOverbrightLow, dayOverbrightHigh, v.Ambient))
 		}
 		return s.tint(), drawable, visible
 	}

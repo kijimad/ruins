@@ -5,8 +5,11 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // calendarDefs は実データの時間帯と季節の表を返す
@@ -117,4 +120,44 @@ func TestOverworldDaylight_一日を通して単調に増減する(t *testing.T)
 		assert.Less(t, daylightAt(turn), daylightAt(turn+25),
 			"深夜から翌昼へ向かう %d→%d は明るくなる", turn, turn+25)
 	}
+}
+
+func TestShelteredAmbient(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		daylight float64
+		percent  int
+		want     float64
+	}{
+		{"全て受けると日照のまま", 0.95, 100, 0.95},
+		{"受けないとダンジョンと同じ暗さ", 0.95, 0, dungeonAmbient},
+		{"4分の1だけ受けると暗さとの間の4分の1", 0.95, 25, dungeonAmbient + (0.95-dungeonAmbient)/4},
+		{"深夜は割合によらずダンジョンと同じ暗さ", dungeonAmbient, 25, dungeonAmbient},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.InDelta(t, tt.want, shelteredAmbient(tt.daylight, tt.percent), 1e-9)
+		})
+	}
+}
+
+func TestBuildDaylightPercentIndex_屋根の下のタイルだけを日照を受ける割合と集める(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnTile(world, consts.TileNameDirt, 0, 0, nil)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnTile(world, "floor_tile", 1, 0, nil)
+	require.NoError(t, err)
+	partial, err := lifecycle.SpawnTile(world, consts.TileNameDirt, 2, 0, nil)
+	require.NoError(t, err)
+	world.Components.TileEnvironment.Get(partial).Shelter = rawschema.Partial
+
+	assert.Equal(t, map[gc.GridElement]int{
+		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 0}}: 25,
+		{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}}: 60,
+	}, buildDaylightPercentIndex(world))
 }
