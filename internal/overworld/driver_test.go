@@ -390,7 +390,7 @@ func TestDriver_シフト後もタイルは座標ごとに1枚(t *testing.T) {
 	}
 }
 
-// TestWalkableSpawnNear_壁に囲まれた中心でも歩行可能タイルを返す は、開始チャンクが建物や遺跡入口で
+// TestWalkableSpawnNear_壁に囲まれた中心でも歩行可能タイルを返す は、開始チャンクが建物で
 // 中心が壁でも、プレイヤーを壁の中へ湧かせず近傍の歩行可能タイルへ逃がすことを固定する。
 func TestWalkableSpawnNear_壁に囲まれた中心でも歩行可能タイルを返す(t *testing.T) {
 	t.Parallel()
