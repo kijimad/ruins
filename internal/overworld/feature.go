@@ -91,7 +91,11 @@ func pointFeatureOf(raws rawschema.Raws, kind rawschema.PointFeatureKind) rawsch
 
 // placementOf は地物の種類 kind の配置ルールを、raw の行の間隔とソルトから作る
 func placementOf(raws rawschema.Raws, kind rawschema.PointFeatureKind) Placement {
-	f := pointFeatureOf(raws, kind)
+	return placementFrom(pointFeatureOf(raws, kind))
+}
+
+// placementFrom は地物の行 f の配置ルールを作る
+func placementFrom(f rawschema.PointFeature) Placement {
 	return Placement{Spacing: consts.Chunk(f.Spacing), Separation: consts.Chunk(f.Separation), Salt: uint64(f.Salt)}
 }
 

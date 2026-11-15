@@ -28,21 +28,22 @@ func TestGetAllDungeons_実データ(t *testing.T) {
 	type view struct {
 		Name, EnemyTable, ItemTable string
 		BaseTemp                    int
+		EnemyCount, ItemCount       rawschema.RandInt
 		Planners                    []planner
 	}
 	defs := GetAllDungeons(loadRaws(t))
 	got := make([]view, 0, len(defs))
 	for _, d := range defs {
-		v := view{Name: d.Name(), EnemyTable: d.EnemyTableName(), ItemTable: d.ItemTableName(), BaseTemp: d.BaseTemperature()}
+		v := view{Name: d.Name(), EnemyTable: d.EnemyTableName(), ItemTable: d.ItemTableName(), BaseTemp: d.BaseTemperature(), EnemyCount: d.EnemyCount(), ItemCount: d.ItemCount()}
 		for _, p := range d.PlannerPool() {
 			v.Planners = append(v.Planners, planner{Name: p.PlannerType.Name, Weight: p.Weight})
 		}
 		got = append(got, v)
 	}
 	assert.Equal(t, []view{
-		{Name: "dead_forest", EnemyTable: "forest", ItemTable: "forest", BaseTemp: 0, Planners: []planner{{"forest", 5}, {"small_room", 2}, {"big_room", 1}}},
-		{Name: "ash_cave", EnemyTable: "cave", ItemTable: "cave", BaseTemp: 5, Planners: []planner{{"cave", 6}, {"small_room", 1}, {"big_room", 2}}},
-		{Name: "forgotten_ruins", EnemyTable: "ruins_area", ItemTable: "ruins_area", BaseTemp: 15, Planners: []planner{{"small_room", 4}, {"ruins", 3}, {"big_room", 2}}},
+		{Name: "dead_forest", EnemyTable: "forest", ItemTable: "forest", BaseTemp: 0, EnemyCount: rawschema.RandInt{Base: 5, Spread: 4}, ItemCount: rawschema.RandInt{Base: 8, Spread: 5}, Planners: []planner{{"forest", 5}, {"small_room", 2}, {"big_room", 1}}},
+		{Name: "ash_cave", EnemyTable: "cave", ItemTable: "cave", BaseTemp: 5, EnemyCount: rawschema.RandInt{Base: 5, Spread: 4}, ItemCount: rawschema.RandInt{Base: 8, Spread: 5}, Planners: []planner{{"cave", 6}, {"small_room", 1}, {"big_room", 2}}},
+		{Name: "forgotten_ruins", EnemyTable: "ruins_area", ItemTable: "ruins_area", BaseTemp: 15, EnemyCount: rawschema.RandInt{Base: 5, Spread: 4}, ItemCount: rawschema.RandInt{Base: 8, Spread: 5}, Planners: []planner{{"small_room", 4}, {"ruins", 3}, {"big_room", 2}}},
 	}, got)
 }
 

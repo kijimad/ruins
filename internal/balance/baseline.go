@@ -584,7 +584,7 @@ func writeRunIncome(b *strings.Builder, master rawschema.Raws) error {
 	fmt.Fprintf(b, "総収支はこの収入から移動燃料コストを引くが、1回の移動タイル数はコードにない設計値なのでコスト側は別途与える。\n\n")
 	var runIncomeRows [][]string
 	for _, floors := range []int{1, 3, 5, 10} {
-		runIncomeRows = append(runIncomeRows, []string{fmt.Sprintf("%d", floors), fmt.Sprintf("%.0f", ExpectedRunLootIncome(master, BaselineDungeon, floors))})
+		runIncomeRows = append(runIncomeRows, []string{fmt.Sprintf("%d", floors), fmt.Sprintf("%.0f", ExpectedRunLootIncome(master, ruins, floors))})
 	}
 	writeMDTable(b, []string{"探索層数", "廃墟の期待収入"}, []tw.Align{alignR, alignR}, runIncomeRows)
 	return nil

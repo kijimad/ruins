@@ -118,7 +118,7 @@ func crossingRoads(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Ch
 		if f.Road == nil {
 			continue
 		}
-		p := placementOf(raws, f.Id)
+		p := placementFrom(f)
 		r := consts.FloorDiv(c.Y, p.Spacing)
 		for pr := r - 1; pr <= r; pr++ {
 			links = append(links, roadLink{a: p.WinnerOf(runSeed, pr, cols), b: p.WinnerOf(runSeed, pr+1, cols), road: *f.Road})

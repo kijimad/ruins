@@ -3,6 +3,7 @@ package balance
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -12,11 +13,6 @@ func TestCheapestFoodCostPerNutrition_食料なしは0(t *testing.T) {
 	t.Parallel()
 	// 食料アイテムが1つも無ければ最安費用は0に落ちる。
 	assert.Equal(t, 0.0, CheapestFoodCostPerNutrition(rawschema.Raws{}))
-}
-
-func TestExpectedRunLootIncome_ダンジョンが無ければ0(t *testing.T) {
-	t.Parallel()
-	assert.Equal(t, 0.0, ExpectedRunLootIncome(rawschema.Raws{}, BaselineDungeon, 5))
 }
 
 func TestExpectedLootValue_危険度で上がり正の値(t *testing.T) {
@@ -42,9 +38,11 @@ func TestExpectedNetLootValue_手取りは額面より小さく正(t *testing.T)
 func TestExpectedRunLootIncome_層数で単調に増える(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
-	assert.Equal(t, 0.0, ExpectedRunLootIncome(master, BaselineDungeon, 0), "0層は収入0")
-	i1 := ExpectedRunLootIncome(master, BaselineDungeon, 1)
-	i5 := ExpectedRunLootIncome(master, BaselineDungeon, 5)
+	ruins, err := raw.GetDungeon(master, BaselineDungeon)
+	require.NoError(t, err)
+	assert.Equal(t, 0.0, ExpectedRunLootIncome(master, ruins, 0), "0層は収入0")
+	i1 := ExpectedRunLootIncome(master, ruins, 1)
+	i5 := ExpectedRunLootIncome(master, ruins, 5)
 	assert.Positive(t, i1, "1層でも期待収入は正")
 	assert.Greater(t, i5, i1, "層が深いほど高危険度の loot で収入が増える")
 }
