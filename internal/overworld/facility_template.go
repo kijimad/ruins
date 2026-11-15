@@ -73,12 +73,14 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 			pos := consts.Coord[consts.Tile]{X: g.offsetX + ox + consts.Tile(x), Y: g.offsetY + oy + consts.Tile(y)}
 			occupied[pos] = true
 
-			t, err := tileOf(cell.Terrain)
-			if err != nil {
-				return nil, nil, fmt.Errorf("facility %q tile at %d,%d: %w", fac, x, y, err)
-			}
-			if err := spawnFacilityTile(world, tiles, pos, t); err != nil {
-				return nil, nil, err
+			if cell.Terrain != maptemplate.GroundTerrain {
+				t, err := tileOf(cell.Terrain)
+				if err != nil {
+					return nil, nil, fmt.Errorf("facility %q tile at %d,%d: %w", fac, x, y, err)
+				}
+				if err := spawnFacilityTile(world, tiles, pos, t); err != nil {
+					return nil, nil, err
+				}
 			}
 			orientation := gc.DoorOrientationHorizontal
 			// 2マスの扉は隣が扉になるので、扉も壁と同じく向きを決める側に数える
@@ -183,6 +185,9 @@ func tileBlocksPass(raws rawschema.Raws) func(terrain string) bool {
 		blocks[tiles[i].Id] = tiles[i].BlockPass
 	}
 	return func(terrain string) bool {
+		if terrain == maptemplate.GroundTerrain {
+			return false
+		}
 		b, ok := blocks[terrain]
 		return !ok || b
 	}

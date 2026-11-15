@@ -4,7 +4,7 @@ description = "倉庫"
 
 [palette.terrain]
 "#" = "wall"
-"," = "dirt"
+"," = "ground"
 "=" = "pavement"
 "." = "floor_concrete"
 "_" = "floor_linoleum"
@@ -63,7 +63,7 @@ tile = "floor_tile"
 id = "sink"
 
 [palette.props."g"]
-tile = "dirt"
+tile = "ground"
 candidates = [{ id = "weeds", weight = 2 }, { id = "bush", weight = 1 }]
 
 [palette.items."m"]

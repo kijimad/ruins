@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -157,10 +158,16 @@ func TestFacilityTemplates_全施設に絵がある(t *testing.T) {
 	assert.ElementsMatch(t, want, loader.Facilities())
 }
 
-func TestSpawnFacility_畳は屋内で土は屋外(t *testing.T) {
+func TestSpawnFacility_畳は屋内で庭は下地のまま屋外(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
+	for y := range facilityLot {
+		for x := range facilityLot {
+			_, err := lifecycle.SpawnTile(world, "dirt_tundra", x, y, new(15))
+			require.NoError(t, err)
+		}
+	}
 	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
 	_, cells, err := loader.FacilityChunk("house", 1)
@@ -180,11 +187,11 @@ func TestSpawnFacility_畳は屋内で土は屋外(t *testing.T) {
 		}
 		got[id][world.Components.TileEnvironment.Get(e).Shelter]++
 	}
-	for _, id := range []string{"floor_tatami", consts.TileNameDirt} {
+	for _, id := range []string{"floor_tatami", "dirt_tundra"} {
 		require.NotEmpty(t, got[id], id)
 	}
 	assert.Equal(t, []rawschema.Shelter{rawschema.Indoor}, slices.Collect(maps.Keys(got["floor_tatami"])))
-	assert.Equal(t, []rawschema.Shelter{rawschema.Outdoor}, slices.Collect(maps.Keys(got[consts.TileNameDirt])))
+	assert.Equal(t, []rawschema.Shelter{rawschema.Outdoor}, slices.Collect(maps.Keys(got["dirt_tundra"])), "庭は置かれた場所の下地のまま")
 }
 
 func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空にする(t *testing.T) {
