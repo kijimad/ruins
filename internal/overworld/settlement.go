@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
-// relSpot は基準点からの相対座標に置くエンティティの定義。ランドマークの原点や散布の起点を基準に、
+// relSpot は基準点からの相対座標に置くエンティティの定義。散布の起点を基準に、
 // prop をずらして配置するのに使う。
 type relSpot struct {
 	name string

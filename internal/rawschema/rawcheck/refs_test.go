@@ -50,8 +50,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}},
 		}},
 		Landmarks: &[]rawschema.Landmark{
-			{Id: "shrine", Weight: 1, Drawer: rawschema.Open, Props: []rawschema.PropSpot{{Name: "bed"}}},
-			{Id: "hut", Weight: 1, Drawer: rawschema.Hut, Props: []rawschema.PropSpot{{Name: "bed"}}, HutFloor: new(rawschema.EntityID("floor")), HutWall: new(rawschema.EntityID("wall"))},
+			{Id: "house", Weight: 1},
 		},
 		ScatterZones: &[]rawschema.ScatterZone{{
 			Id: "meadow", Ground: "floor", LootGroup: "junk",
@@ -127,14 +126,12 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"コマンドテーブルの武器", func(r *rawschema.Raws) { (*r.CommandTables)[0].Entries[0].Id = "none" }, "commandTables.0.entries.0.id_ref"},
 		{"ドロップテーブルの素材", func(r *rawschema.Raws) { (*r.DropTables)[0].Entries[0].Id = "none" }, "dropTables.0.entries.0.id_ref"},
 		{"施設の敵テーブル", func(r *rawschema.Raws) { (*r.Facilities)[0].EnemyTable = "none" }, "facilities.0.enemyTable_ref"},
-		{"ランドマークの prop", func(r *rawschema.Raws) { (*r.Landmarks)[0].Props[0].Name = "none" }, "landmarks.0.props_ref.0"},
+		{"ランドマークの施設", func(r *rawschema.Raws) { (*r.Landmarks)[0].Id = "none" }, "landmarks.0.id_ref"},
 		{"散布ゾーンの下地のタイル", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Ground = "none" }, "scatterZones.0.ground_ref"},
 		{"散布ゾーンの戦利品グループ", func(r *rawschema.Raws) { (*r.ScatterZones)[0].LootGroup = "none" }, "scatterZones.0.lootGroup_ref"},
 		{"区域の目玉の施設", func(r *rawschema.Raws) { (*r.Districts)[0].Landmark = new(rawschema.EntityID("none")) }, "districts.0.landmark_ref"},
 		{"区域の街路のタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Street = "none" }, "districts.0.street_ref"},
 		{"区域の植え込みのタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Verge = new(rawschema.EntityID("none")) }, "districts.0.verge_ref"},
-		{"小屋の床のタイル", func(r *rawschema.Raws) { (*r.Landmarks)[1].HutFloor = new(rawschema.EntityID("none")) }, "landmarks.1.hutFloor_ref"},
-		{"小屋の壁のタイル", func(r *rawschema.Raws) { (*r.Landmarks)[1].HutWall = new(rawschema.EntityID("none")) }, "landmarks.1.hutWall_ref"},
 		{"散布の prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Entries[1].Ref = "none" }, "scatterZones.0.entries.1.ref_ref"},
 		{"散布の衛星の prop", func(r *rawschema.Raws) { (*(*r.ScatterZones)[0].Entries[1].Satellites)[0].Name = "none" }, "scatterZones.0.entries.1.satellites_ref.0"},
 		{"草の prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Grass[0].Ref = "none" }, "scatterZones.0.grass_ref.0"},
@@ -182,7 +179,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		wantPath string
 	}{
 		{"施設", func(r *rawschema.Raws) { *r.Facilities = append(*r.Facilities, (*r.Facilities)[0]) }, "facilityIds_unique.house"},
-		{"ランドマーク", func(r *rawschema.Raws) { *r.Landmarks = append(*r.Landmarks, (*r.Landmarks)[0]) }, "landmarkIds_unique.shrine"},
+		{"ランドマーク", func(r *rawschema.Raws) { *r.Landmarks = append(*r.Landmarks, (*r.Landmarks)[0]) }, "landmarkIds_unique.house"},
 		{"散布ゾーン", func(r *rawschema.Raws) { *r.ScatterZones = append(*r.ScatterZones, (*r.ScatterZones)[0]) }, "scatterZoneIds_unique.meadow"},
 		{"地図記号", func(r *rawschema.Raws) { *r.MapGlyphs = append(*r.MapGlyphs, (*r.MapGlyphs)[0]) }, "mapGlyphIds_unique.house"},
 		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.village"},

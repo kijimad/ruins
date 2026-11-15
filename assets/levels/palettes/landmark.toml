@@ -1,0 +1,60 @@
+[palette]
+id = "landmark"
+description = "原野のランドマーク"
+
+[palette.terrain]
+"#" = "dwall"
+"," = "dirt"
+"." = "floor"
+
+[palette.props."+"]
+tile = "floor"
+id = "door"
+
+[palette.props."b"]
+tile = "floor"
+id = "bed"
+
+[palette.props."c"]
+tile = "floor"
+id = "closet"
+lootTable = "storage_box"
+
+[palette.props."B"]
+tile = "floor"
+id = "barrel"
+lootTable = "storage_box"
+
+[palette.props."k"]
+tile = "floor"
+id = "crate"
+
+[palette.props."K"]
+tile = "dirt"
+id = "crate"
+
+[palette.props."P"]
+tile = "dirt"
+id = "stone_pillar"
+
+[palette.props."i"]
+tile = "dirt"
+id = "candle"
+
+[palette.props."H"]
+tile = "dirt"
+id = "hearth"
+
+[palette.props."n"]
+tile = "dirt"
+id = "bench"
+
+[palette.items."o"]
+itemGroup = "antique_goods"
+tile = "dirt"
+chance = 50
+
+[palette.items."f"]
+itemGroup = "food"
+tile = "dirt"
+chance = 60

@@ -3679,6 +3679,30 @@
     weight = 1
     zone = "plant_core"
 
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "abandoned_hut"
+  lootedChance = 30
+  zones = []
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "farmstead"
+  lootedChance = 30
+  zones = []
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "shrine"
+  lootedChance = 0
+  zones = []
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "campsite"
+  lootedChance = 0
+  zones = []
+
 [[fatigueStages]]
   canSleep = false
   from = 0.0
@@ -17475,86 +17499,20 @@
   weight = "200 g"
 
 [[landmarks]]
-  drawer = "hut"
-  hutFloor = "floor"
-  hutH = 5
-  hutW = 6
-  hutWall = "dwall"
   id = "abandoned_hut"
   weight = 30
 
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "bed"
-
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "closet"
-
 [[landmarks]]
-  drawer = "hut"
-  hutFloor = "floor"
-  hutH = 5
-  hutW = 7
-  hutWall = "dwall"
   id = "farmstead"
   weight = 25
 
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "barrel"
-
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "crate"
-
 [[landmarks]]
-  drawer = "open"
-  hutH = 0
-  hutW = 0
   id = "shrine"
   weight = 20
 
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "stone_pillar"
-
-  [[landmarks.props]]
-    dx = -1
-    dy = 1
-    name = "candle"
-
-  [[landmarks.props]]
-    dx = 1
-    dy = 1
-    name = "candle"
-
 [[landmarks]]
-  drawer = "open"
-  hutH = 0
-  hutW = 0
   id = "campsite"
   weight = 25
-
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "hearth"
-
-  [[landmarks.props]]
-    dx = 1
-    dy = 1
-    name = "crate"
-
-  [[landmarks.props]]
-    dx = -1
-    dy = 0
-    name = "bench"
 
 [[mapGlyphs]]
   chunk = "wasteland"

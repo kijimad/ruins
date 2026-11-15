@@ -1,0 +1,53 @@
+[[chunk]]
+name = "8x7_abandoned_hut"
+facility = "abandoned_hut"
+weight = 100
+palettes = ["landmark"]
+map = """
+,,,,,,,,
+,######,
+,#bc..#,
+,#....#,
+,#....#,
+,###+##,
+,,,,,,,,
+"""
+
+[[chunk]]
+name = "9x7_farmstead"
+facility = "farmstead"
+weight = 100
+palettes = ["landmark"]
+map = """
+,,,,,,,,,
+,#######,
+,#Bk...#,
+,#.....#,
+,#.....#,
+,####+##,
+,,,,,,,,,
+"""
+
+[[chunk]]
+name = "5x4_shrine"
+facility = "shrine"
+weight = 100
+palettes = ["landmark"]
+map = """
+,,,,,
+,,P,,
+,ioi,
+,,,,,
+"""
+
+[[chunk]]
+name = "5x4_campsite"
+facility = "campsite"
+weight = 100
+palettes = ["landmark"]
+map = """
+,,,,,
+,nH,,
+,f,K,
+,,,,,
+"""
