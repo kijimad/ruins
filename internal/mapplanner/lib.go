@@ -277,32 +277,6 @@ type MetaMapPlanner interface {
 	PlanMeta(*MetaPlan) error
 }
 
-// NewSmallRoomPlanner は間取りの行 l の小部屋プランナーを作成する
-func NewSmallRoomPlanner(l rawschema.RoomLayout, width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
-	chain := NewPlannerChain(width, height, seed)
-	chain.StartWith(RectRoomPlanner{Rooms: l.Rooms, RoomSize: l.RoomSize})
-	chain.With(NewFillAll(l.Tiles.Wall))
-	chain.With(RoomDraw{FloorTile: l.Tiles.Floor})
-	chain.With(LineCorridorPlanner{FloorTile: l.Tiles.Floor, WallTile: l.Tiles.Wall, Width: l.CorridorWidth})
-	chain.With(DoorPlanner{DoorChance: l.DoorChance})
-	chain.With(ConvertIsolatedWalls{WallTile: l.Tiles.Wall, ReplacementTile: l.Tiles.Void})
-	chain.With(EnvironmentPlanner{})
-
-	return chain, nil
-}
-
-// NewBigRoomPlanner は間取りの行 l の大部屋プランナーを作成する。部屋にランダムにバリエーションを足す
-func NewBigRoomPlanner(l rawschema.BigRoomLayout, width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
-	chain := NewPlannerChain(width, height, seed)
-	chain.StartWith(BigRoomPlanner{})
-	chain.With(NewFillAll(l.Tiles.Wall))
-	chain.With(BigRoomDraw{Layout: l})
-	chain.With(ConvertIsolatedWalls{WallTile: l.Tiles.Wall, ReplacementTile: l.Tiles.Void})
-	chain.With(EnvironmentPlanner{})
-
-	return chain, nil
-}
-
 // SpawnEntry はスポーン対象のエントリを表す。
 type SpawnEntry struct {
 	Name   string

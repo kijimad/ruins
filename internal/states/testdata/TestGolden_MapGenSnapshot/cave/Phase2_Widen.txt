@@ -1,4 +1,4 @@
-label: CaveConnector
+label: Widen
 tiles:
   '.' = "floor"
   '#' = "wall"

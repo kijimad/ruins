@@ -96,7 +96,6 @@ func NewTemplatePlannerChain(template *maptemplate.ChunkTemplate, resolvedMap []
 	planner := NewTemplatePlanner(template, resolvedMap)
 	chain.StartWith(planner)
 	chain.With(planner) // PlanMeta用
-	chain.With(EnvironmentPlanner{})
 
 	return chain, nil
 }

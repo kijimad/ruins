@@ -443,22 +443,79 @@ import "strings"
 	void_ref: _tileIDs[void] @rawgen(-)
 }
 
-// 矩形の小部屋を廊下で結ぶ間取り。上端と下端に1部屋ずつ置き、残りを rooms の数だけ置く
-#RoomLayout: {
+// ダンジョンのフロアの間取り。最初の段で部屋を決め、中の段を並びの順に走らせる
+#Layout: {
 	id!:    #EntityID
 	tiles!: #LayoutTiles
-	rooms!: #RandInt
-	// 部屋の幅と高さ。それぞれ引く
-	roomSize!:      #RandInt
-	corridorWidth!: int & >=1
-	// 部屋の入口に扉を置く確率
-	doorChance!: #Chance
+	// 最初の段の表の行の id
+	start!:    #EntityID
+	start_ref: _startIDs[start] @rawgen(-)
+	// 中の段の表の行の id
+	steps!: [...#EntityID]
+	steps_ref: [for x in steps {_stepIDs[x]}] @rawgen(-)
 }
 
-// 全面を1つの部屋にし、柱・障害物・迷路・台座のどれかを足す間取り
-#BigRoomLayout: {
+// 矩形の部屋を、上端と下端に1つずつと rooms の数だけ置く最初の段
+#RectRoomStart: {
+	id!:    #EntityID
+	rooms!: #RandInt
+	// 部屋の幅と高さ。それぞれ引く
+	roomSize!: #RandInt
+}
+
+// 全面に壁を置く確率で撒く最初の段。部屋は後の段が決める
+#NoiseStart: {
+	id!:         #EntityID
+	wallChance!: #Chance
+}
+
+// 崩れた建物の矩形を部屋として置く最初の段
+#BuildingStart: {
+	id!:             #EntityID
+	buildings!:      #RandInt
+	buildingWidth!:  #RandInt
+	buildingHeight!: #RandInt
+}
+
+// 円に近い空き地を部屋として置く最初の段
+#ClearingStart: {
+	id!:        #EntityID
+	clearings!: #RandInt
+	// 空き地の幅と高さ。それぞれ引く
+	clearingSize!: #RandInt
+}
+
+// 施設の絵をそのまま置く最初の段。地図の大きさは絵が決める
+#TemplateStart: {
+	id!: #EntityID
+	// levels の絵の名前
+	template!: #EntityID
+}
+
+// 欄を持たない最初の段
+#SimpleStart: {
+	id!:   #EntityID
+	kind!: #SimpleStartKind
+}
+
+// 欄を持たない最初の段の種類。full_room は全面を1つの部屋にする
+#SimpleStartKind: "full_room" @rawgen(prefix)
+
+// 部屋どうしを直線の廊下で結ぶ段
+#CorridorStep: {
+	id!:    #EntityID
+	width!: int & >=1
+}
+
+// 部屋の入口に扉を置く段
+#DoorStep: {
+	id!:     #EntityID
+	chance!: #Chance
+}
+
+// 1つの部屋を描き、柱・障害物・迷路・台座のどれかを足す段
+#BigRoomStep: {
 	id!:            #EntityID
-	tiles!:         #LayoutTiles
 	pillarSpacing!: #RandInt
 	// 障害物1つあたりの部屋の面積
 	obstacleArea!: int & >=1
@@ -467,60 +524,76 @@ import "strings"
 	platformRadius!: #RandInt
 }
 
-// セルラーオートマトンで削る洞窟の間取り
-#CaveLayout: {
-	id!:    #EntityID
-	tiles!: #LayoutTiles
-	// 初めに壁を置く確率
-	wallChance!: #Chance
+// セルラーオートマトンで壁を均し、床の連結を部屋にする段
+#AutomataStep: {
+	id!:         #EntityID
 	iterations!: int & >=1
 	// 周囲9マスの壁がこの数以上なら壁にする
 	wallNeighbors!: int & >=1 & <=9
 	// 部屋とみなす床の連結の最小のマス数
 	minRoomTiles!: int & >=1
-	// 床に2マス以上接する壁を床にする確率
-	widenChance!: #Chance
-	// 床に鍾乳石の壁を置く確率
-	stalactiteChance!: #Chance
 }
 
-// 木の間に空き地と小道を通す森の間取り
-#ForestLayout: {
-	id!:        #EntityID
-	tiles!:     #LayoutTiles
-	path!:      #EntityID
-	path_ref:   _tileIDs[path] @rawgen(-)
-	clearings!: #RandInt
-	// 空き地の幅と高さ。それぞれ引く
-	clearingSize!: #RandInt
-	// 空き地から遠い床に木を置く確率
-	treeDensity!: #Chance
-	// 木の周りにも木を足す確率
-	largeTreeChance!: #Chance
-	wildlifeSpots!:   #RandInt
+// 床に2マス以上接する壁を床にして通路を広げる段
+#WidenStep: {
+	id!:     #EntityID
+	chance!: #Chance
 }
 
-// 崩れた建物の残骸が散る廃墟の間取り
-#RuinsLayout: {
-	id!:             #EntityID
-	tiles!:          #LayoutTiles
-	buildings!:      #RandInt
-	buildingWidth!:  #RandInt
-	buildingHeight!: #RandInt
+// 床に壁を撒く段
+#ScatterWallStep: {
+	id!:     #EntityID
+	chance!: #Chance
+}
+
+// 全面を床にし、部屋の矩形に崩れた外壁と仕切りを描く段
+#RuinedWallStep: {
+	id!: #EntityID
 	// 外壁に穴が開く確率
 	wallGapChance!: #Chance
 	// 仕切りの壁に穴が開く確率
 	partitionGapChance!: #Chance
-	// 2つの建物を通路で結ぶ確率
-	pathChance!: #Chance
 }
 
-// 施設の絵をそのまま置く間取り
-#TemplateLayout: {
+// 2つの部屋を崩れた通路で結ぶ段
+#RuinedPathStep: {
 	id!: #EntityID
-	// levels の絵の名前
-	template!: #EntityID
+	// 2つの部屋を通路で結ぶ確率
+	chance!: #Chance
 }
+
+// 部屋から遠い床ほど木を置く段
+#TreeStep: {
+	id!: #EntityID
+	// 部屋から遠い床に木を置く確率
+	density!: #Chance
+	// 木の周りにも木を足す確率
+	largeTreeChance!: #Chance
+}
+
+// 上端から下端への小道と、部屋どうしの小道を引く段
+#TrailStep: {
+	id!:      #EntityID
+	tile!:    #EntityID
+	tile_ref: _tileIDs[tile] @rawgen(-)
+}
+
+// 小さな円形の床を撒く段
+#GladeStep: {
+	id!:    #EntityID
+	spots!: #RandInt
+}
+
+// 欄を持たない中の段
+#SimpleStep: {
+	id!:   #EntityID
+	kind!: #SimpleStepKind
+}
+
+// 欄を持たない中の段の種類
+// fill_wall は全面を壁で埋める。draw_rooms は部屋を床で描く。connect_rooms は並びの隣の部屋を太いL字の通路で結ぶ。
+// debris は部屋に近い床ほど壁を撒く。forest_floor は全面を床にし部屋を円く描く。isolated_walls は床に接しない壁を void にする
+#SimpleStepKind: "fill_wall" | "draw_rooms" | "connect_rooms" | "debris" | "forest_floor" | "isolated_walls" @rawgen(prefix)
 
 // ダンジョンの間取りと、フロアごとに選ばれる重み
 #DungeonPlannerWeight: {
@@ -1174,12 +1247,25 @@ import "strings"
 	timesOfDay?: [...#TimeOfDay]
 	seasons?: [...#Season]
 	dungeons?: [...#Dungeon]
-	roomLayouts?: [...#RoomLayout]
-	bigRoomLayouts?: [...#BigRoomLayout]
-	caveLayouts?: [...#CaveLayout]
-	forestLayouts?: [...#ForestLayout]
-	ruinsLayouts?: [...#RuinsLayout]
-	templateLayouts?: [...#TemplateLayout]
+	layouts?: [...#Layout]
+	rectRoomStarts?: [...#RectRoomStart]
+	noiseStarts?: [...#NoiseStart]
+	buildingStarts?: [...#BuildingStart]
+	clearingStarts?: [...#ClearingStart]
+	templateStarts?: [...#TemplateStart]
+	simpleStarts?: [...#SimpleStart]
+	corridorSteps?: [...#CorridorStep]
+	doorSteps?: [...#DoorStep]
+	bigRoomSteps?: [...#BigRoomStep]
+	automataSteps?: [...#AutomataStep]
+	widenSteps?: [...#WidenStep]
+	scatterWallSteps?: [...#ScatterWallStep]
+	ruinedWallSteps?: [...#RuinedWallStep]
+	ruinedPathSteps?: [...#RuinedPathStep]
+	treeSteps?: [...#TreeStep]
+	trailSteps?: [...#TrailStep]
+	gladeSteps?: [...#GladeStep]
+	simpleSteps?: [...#SimpleStep]
 	settlements?: [...#Settlement]
 	dialogues?: [...#Dialogue]
 
@@ -1200,14 +1286,32 @@ import "strings"
 	dialogueIds_unique: {if dialogues != _|_ for i, x in dialogues {(x.id): i}} @rawgen(-)
 	dungeonIds_unique: {if dungeons != _|_ for i, x in dungeons {(x.id): i}} @rawgen(-)
 
-	// 間取りの id は表をまたいで一意にする
-	layoutIds_unique: {
-		if roomLayouts != _|_ for i, x in roomLayouts {(x.id): "roomLayouts.\(i)"}
-		if bigRoomLayouts != _|_ for i, x in bigRoomLayouts {(x.id): "bigRoomLayouts.\(i)"}
-		if caveLayouts != _|_ for i, x in caveLayouts {(x.id): "caveLayouts.\(i)"}
-		if forestLayouts != _|_ for i, x in forestLayouts {(x.id): "forestLayouts.\(i)"}
-		if ruinsLayouts != _|_ for i, x in ruinsLayouts {(x.id): "ruinsLayouts.\(i)"}
-		if templateLayouts != _|_ for i, x in templateLayouts {(x.id): "templateLayouts.\(i)"}
+	layoutIds_unique: {if layouts != _|_ for i, x in layouts {(x.id): i}} @rawgen(-)
+
+	// 最初の段の id は表をまたいで一意にする
+	startIds_unique: {
+		if rectRoomStarts != _|_ for i, x in rectRoomStarts {(x.id): "rectRoomStarts.\(i)"}
+		if noiseStarts != _|_ for i, x in noiseStarts {(x.id): "noiseStarts.\(i)"}
+		if buildingStarts != _|_ for i, x in buildingStarts {(x.id): "buildingStarts.\(i)"}
+		if clearingStarts != _|_ for i, x in clearingStarts {(x.id): "clearingStarts.\(i)"}
+		if templateStarts != _|_ for i, x in templateStarts {(x.id): "templateStarts.\(i)"}
+		if simpleStarts != _|_ for i, x in simpleStarts {(x.id): "simpleStarts.\(i)"}
+	} @rawgen(-)
+
+	// 中の段の id は表をまたいで一意にする
+	stepIds_unique: {
+		if corridorSteps != _|_ for i, x in corridorSteps {(x.id): "corridorSteps.\(i)"}
+		if doorSteps != _|_ for i, x in doorSteps {(x.id): "doorSteps.\(i)"}
+		if bigRoomSteps != _|_ for i, x in bigRoomSteps {(x.id): "bigRoomSteps.\(i)"}
+		if automataSteps != _|_ for i, x in automataSteps {(x.id): "automataSteps.\(i)"}
+		if widenSteps != _|_ for i, x in widenSteps {(x.id): "widenSteps.\(i)"}
+		if scatterWallSteps != _|_ for i, x in scatterWallSteps {(x.id): "scatterWallSteps.\(i)"}
+		if ruinedWallSteps != _|_ for i, x in ruinedWallSteps {(x.id): "ruinedWallSteps.\(i)"}
+		if ruinedPathSteps != _|_ for i, x in ruinedPathSteps {(x.id): "ruinedPathSteps.\(i)"}
+		if treeSteps != _|_ for i, x in treeSteps {(x.id): "treeSteps.\(i)"}
+		if trailSteps != _|_ for i, x in trailSteps {(x.id): "trailSteps.\(i)"}
+		if gladeSteps != _|_ for i, x in gladeSteps {(x.id): "gladeSteps.\(i)"}
+		if simpleSteps != _|_ for i, x in simpleSteps {(x.id): "simpleSteps.\(i)"}
 	} @rawgen(-)
 
 	// アイテムグループとアイテムコレクションは同じ id の空間で参照される

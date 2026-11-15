@@ -37,7 +37,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 			Danger: 1,
 		}
 
-		chain, err := NewSmallRoomPlanner(testRoomLayout, 30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -61,7 +61,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 			Danger:         1,
 		}
 
-		chain, err := NewSmallRoomPlanner(testRoomLayout, 30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -85,7 +85,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 			Danger:         1,
 		}
 
-		chain, err := NewSmallRoomPlanner(testRoomLayout, 30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -114,7 +114,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 			Danger:         1,
 		}
 
-		chain, err := NewSmallRoomPlanner(testRoomLayout, 30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -138,7 +138,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 			Danger:         1,
 		}
 
-		chain, err := NewSmallRoomPlanner(testRoomLayout, 30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -175,7 +175,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 			Danger:         1,
 		}
 
-		chain, err := NewBigRoomPlanner(testBigRoomLayout, 40, 40, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "big_room", 40, 40, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -217,7 +217,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 			Danger:         1,
 		}
 
-		chain, err := NewSmallRoomPlanner(testRoomLayout, 40, 40, 100)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 40, 40, 100)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()

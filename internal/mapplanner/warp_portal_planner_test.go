@@ -32,7 +32,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{Name: "test_fixed"}
 
-		chain, err := NewSmallRoomPlanner(testRoomLayout, 30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -53,7 +53,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage("テスト遺跡", 1)})
 		world.Resources.RawMaster = *CreateTestRawMaster()
 
-		chain, err := NewSmallRoomPlanner(testRoomLayout, 30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -115,7 +115,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage("テスト遺跡", 5)})
 		world.Resources.RawMaster = *CreateTestRawMaster()
 
-		chain, err := NewSmallRoomPlanner(testRoomLayout, 30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -148,7 +148,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 			query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage("テスト遺跡", 5)})
 			world.Resources.RawMaster = *CreateTestRawMaster()
 
-			chain, err := NewSmallRoomPlanner(testRoomLayout, 40, 40, seed)
+			chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 40, 40, seed)
 			require.NoError(t, err)
 			chain.PlanData.RawMaster = CreateTestRawMaster()
 			err = chain.Plan()

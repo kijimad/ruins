@@ -4,28 +4,41 @@ package rawschema
 // 索引は隠しフィールドに置き、Go の型にもデータにも出さない。
 
 // 索引が表を名前で引けるよう、#Raws の表をパッケージの最上位にも置く。省いた表は索引を空にする
-items?:           _
-members?:         _
-commandTables?:   _
-dropTables?:      _
-itemGroups?:      _
-itemCollections?: _
-itemTables?:      _
-enemyTables?:     _
-facilities?:      _
-tiles?:           _
-props?:           _
-conditions?:      _
-bodyParts?:       _
-skills?:          _
-skillCategories?: _
-dialogues?:       _
-roomLayouts?:     _
-bigRoomLayouts?:  _
-caveLayouts?:     _
-forestLayouts?:   _
-ruinsLayouts?:    _
-templateLayouts?: _
+items?:            _
+members?:          _
+commandTables?:    _
+dropTables?:       _
+itemGroups?:       _
+itemCollections?:  _
+itemTables?:       _
+enemyTables?:      _
+facilities?:       _
+tiles?:            _
+props?:            _
+conditions?:       _
+bodyParts?:        _
+skills?:           _
+skillCategories?:  _
+dialogues?:        _
+layouts?:          _
+rectRoomStarts?:   _
+noiseStarts?:      _
+buildingStarts?:   _
+clearingStarts?:   _
+templateStarts?:   _
+simpleStarts?:     _
+corridorSteps?:    _
+doorSteps?:        _
+bigRoomSteps?:     _
+automataSteps?:    _
+widenSteps?:       _
+scatterWallSteps?: _
+ruinedWallSteps?:  _
+ruinedPathSteps?:  _
+treeSteps?:        _
+trailSteps?:       _
+gladeSteps?:       _
+simpleSteps?:      _
 
 _itemIDs: {if items != _|_ for x in items {(x.id): true}}
 _memberIDs: {if members != _|_ for x in members {(x.id): true}}
@@ -42,14 +55,32 @@ _skillIDs: {if skills != _|_ for x in skills {(x.id): true}}
 _skillCategoryIDs: {if skillCategories != _|_ for x in skillCategories {(x.id): true}}
 _dialogueIDs: {if dialogues != _|_ for x in dialogues {(x.id): true}}
 
-// 間取りの表はどれも同じ id の空間で参照される
-_layoutIDs: {
-	if roomLayouts != _|_ for x in roomLayouts {(x.id): true}
-	if bigRoomLayouts != _|_ for x in bigRoomLayouts {(x.id): true}
-	if caveLayouts != _|_ for x in caveLayouts {(x.id): true}
-	if forestLayouts != _|_ for x in forestLayouts {(x.id): true}
-	if ruinsLayouts != _|_ for x in ruinsLayouts {(x.id): true}
-	if templateLayouts != _|_ for x in templateLayouts {(x.id): true}
+_layoutIDs: {if layouts != _|_ for x in layouts {(x.id): true}}
+
+// 最初の段の表はどれも同じ id の空間で参照される
+_startIDs: {
+	if rectRoomStarts != _|_ for x in rectRoomStarts {(x.id): true}
+	if noiseStarts != _|_ for x in noiseStarts {(x.id): true}
+	if buildingStarts != _|_ for x in buildingStarts {(x.id): true}
+	if clearingStarts != _|_ for x in clearingStarts {(x.id): true}
+	if templateStarts != _|_ for x in templateStarts {(x.id): true}
+	if simpleStarts != _|_ for x in simpleStarts {(x.id): true}
+}
+
+// 中の段の表はどれも同じ id の空間で参照される
+_stepIDs: {
+	if corridorSteps != _|_ for x in corridorSteps {(x.id): true}
+	if doorSteps != _|_ for x in doorSteps {(x.id): true}
+	if bigRoomSteps != _|_ for x in bigRoomSteps {(x.id): true}
+	if automataSteps != _|_ for x in automataSteps {(x.id): true}
+	if widenSteps != _|_ for x in widenSteps {(x.id): true}
+	if scatterWallSteps != _|_ for x in scatterWallSteps {(x.id): true}
+	if ruinedWallSteps != _|_ for x in ruinedWallSteps {(x.id): true}
+	if ruinedPathSteps != _|_ for x in ruinedPathSteps {(x.id): true}
+	if treeSteps != _|_ for x in treeSteps {(x.id): true}
+	if trailSteps != _|_ for x in trailSteps {(x.id): true}
+	if gladeSteps != _|_ for x in gladeSteps {(x.id): true}
+	if simpleSteps != _|_ for x in simpleSteps {(x.id): true}
 }
 
 // アイテムグループとアイテムコレクションは同じ id の空間で参照される

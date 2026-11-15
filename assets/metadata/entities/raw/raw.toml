@@ -73,20 +73,22 @@
   range = "ranged"
   skill = "cannon"
 
-[[bigRoomLayouts]]
+[[automataSteps]]
+  id = "cave_automata"
+  iterations = 3
+  minRoomTiles = 10
+  wallNeighbors = 6
+
+[[bigRoomSteps]]
   id = "big_room"
   mazeGapChance = 0.3
   obstacleArea = 30
-  [bigRoomLayouts.pillarSpacing]
+  [bigRoomSteps.pillarSpacing]
     base = 3
     spread = 4
-  [bigRoomLayouts.platformRadius]
+  [bigRoomSteps.platformRadius]
     base = 2
     spread = 3
-  [bigRoomLayouts.tiles]
-    floor = "floor"
-    void = "void"
-    wall = "wall"
 
 [[bodyParts]]
   hitWeight = 2.0
@@ -123,18 +125,26 @@
   id = "whole_body"
   name = "Whole body"
 
-[[caveLayouts]]
-  id = "cave"
-  iterations = 3
-  minRoomTiles = 10
-  stalactiteChance = 0.02
-  wallChance = 0.3
-  wallNeighbors = 6
-  widenChance = 0.3
-  [caveLayouts.tiles]
-    floor = "floor"
-    void = "void"
-    wall = "wall"
+[[buildingStarts]]
+  id = "ruined_buildings"
+  [buildingStarts.buildingHeight]
+    base = 6
+    spread = 8
+  [buildingStarts.buildingWidth]
+    base = 8
+    spread = 10
+  [buildingStarts.buildings]
+    base = 3
+    spread = 3
+
+[[clearingStarts]]
+  id = "forest_clearings"
+  [clearingStarts.clearingSize]
+    base = 4
+    spread = 6
+  [clearingStarts.clearings]
+    base = 3
+    spread = 4
 
 [[commandTables]]
   id = "bat"
@@ -1105,6 +1115,10 @@
   onset = "hunger"
   painPerSeverity = 0
 
+[[corridorSteps]]
+  id = "line_corridor"
+  width = 3
+
 [[dialogues]]
   id = "old_soldier_greeting"
   pages = ["\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\"", "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""]
@@ -1268,6 +1282,10 @@
     h = 3
     w = 3
     weight = 1
+
+[[doorSteps]]
+  chance = 0.8
+  id = "doors"
 
 [[dropTables]]
   id = "bat"
@@ -3923,25 +3941,6 @@
   id = "forest"
   tempModifier = -3
 
-[[forestLayouts]]
-  id = "forest"
-  largeTreeChance = 0.2
-  path = "road"
-  treeDensity = 0.6
-  [forestLayouts.clearingSize]
-    base = 4
-    spread = 6
-  [forestLayouts.clearings]
-    base = 3
-    spread = 4
-  [forestLayouts.tiles]
-    floor = "dirt"
-    void = "dirt"
-    wall = "wall"
-  [forestLayouts.wildlifeSpots]
-    base = 2
-    spread = 4
-
 [[freshnessStages]]
   eatLog = "%s ate fresh %s."
   from = 0
@@ -3966,6 +3965,12 @@
   marker = true
   name = "Rotten"
   nutritionPercent = 30
+
+[[gladeSteps]]
+  id = "forest_glades"
+  [gladeSteps.spots]
+    base = 2
+    spread = 4
 
 [[hungerStages]]
   from = 0.95
@@ -17776,6 +17781,87 @@
   id = "campsite"
   weight = 25
 
+[[layouts]]
+  id = "small_room"
+  start = "rect_rooms"
+  steps = ["fill_wall", "draw_rooms", "line_corridor", "doors", "isolated_walls"]
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "big_room"
+  start = "full_room"
+  steps = ["fill_wall", "big_room", "isolated_walls"]
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "cave"
+  start = "cave_noise"
+  steps = ["cave_automata", "cave_widen", "connect_rooms", "stalactites", "isolated_walls"]
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "ruins"
+  start = "ruined_buildings"
+  steps = ["fill_wall", "ruined_walls", "debris", "ruined_paths", "isolated_walls"]
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "forest"
+  start = "forest_clearings"
+  steps = ["forest_floor", "forest_trees", "forest_trails", "forest_glades", "isolated_walls"]
+  [layouts.tiles]
+    floor = "dirt"
+    void = "dirt"
+    wall = "wall"
+
+[[layouts]]
+  id = "office_building"
+  start = "office_building"
+  steps = []
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "small_town"
+  start = "small_town"
+  steps = []
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "town_plaza"
+  start = "town_plaza"
+  steps = []
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "debug_town"
+  start = "debug_town"
+  steps = []
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
 [[mapGlyphs]]
   chunk = "wasteland"
   glyph = "."
@@ -19792,6 +19878,10 @@
     sensation = 3
     strength = 11
     vitality = 2
+
+[[noiseStarts]]
+  id = "cave_noise"
+  wallChance = 0.3
 
 [[pointFeatures]]
   id = "settlement"
@@ -22485,39 +22575,27 @@
     amount = 2
     id = "rag"
 
-[[roomLayouts]]
-  corridorWidth = 3
-  doorChance = 0.8
-  id = "small_room"
-  [roomLayouts.roomSize]
+[[rectRoomStarts]]
+  id = "rect_rooms"
+  [rectRoomStarts.roomSize]
     base = 2
     spread = 8
-  [roomLayouts.rooms]
+  [rectRoomStarts.rooms]
     base = 4
     spread = 10
-  [roomLayouts.tiles]
-    floor = "floor"
-    void = "void"
-    wall = "wall"
 
-[[ruinsLayouts]]
-  id = "ruins"
+[[ruinedPathSteps]]
+  chance = 0.3
+  id = "ruined_paths"
+
+[[ruinedWallSteps]]
+  id = "ruined_walls"
   partitionGapChance = 0.4
-  pathChance = 0.3
   wallGapChance = 0.3
-  [ruinsLayouts.buildingHeight]
-    base = 6
-    spread = 8
-  [ruinsLayouts.buildingWidth]
-    base = 8
-    spread = 10
-  [ruinsLayouts.buildings]
-    base = 3
-    spread = 3
-  [ruinsLayouts.tiles]
-    floor = "floor"
-    void = "void"
-    wall = "wall"
+
+[[scatterWallSteps]]
+  chance = 0.02
+  id = "stalactites"
 
 [[scatterZones]]
   grassDensity = 0.09
@@ -22779,6 +22857,34 @@
   id = "indoor"
   influencePercent = 50
   name = "Indoor"
+
+[[simpleStarts]]
+  id = "full_room"
+  kind = "full_room"
+
+[[simpleSteps]]
+  id = "fill_wall"
+  kind = "fill_wall"
+
+[[simpleSteps]]
+  id = "draw_rooms"
+  kind = "draw_rooms"
+
+[[simpleSteps]]
+  id = "connect_rooms"
+  kind = "connect_rooms"
+
+[[simpleSteps]]
+  id = "debris"
+  kind = "debris"
+
+[[simpleSteps]]
+  id = "forest_floor"
+  kind = "forest_floor"
+
+[[simpleSteps]]
+  id = "isolated_walls"
+  kind = "isolated_walls"
 
 [[skillCategories]]
   id = "melee"
@@ -23160,19 +23266,19 @@
   name = "tile"
   path = "file/textures/dist/tiles.json"
 
-[[templateLayouts]]
+[[templateStarts]]
   id = "office_building"
   template = "15x10_office_building"
 
-[[templateLayouts]]
+[[templateStarts]]
   id = "small_town"
   template = "50x50_small_town"
 
-[[templateLayouts]]
+[[templateStarts]]
   id = "town_plaza"
   template = "50x20_town_plaza"
 
-[[templateLayouts]]
+[[templateStarts]]
   id = "debug_town"
   template = "20x20_debug_town"
 
@@ -23792,6 +23898,15 @@
 [[toolCategories]]
   id = "mining"
 
+[[trailSteps]]
+  id = "forest_trails"
+  tile = "road"
+
+[[treeSteps]]
+  density = 0.6
+  id = "forest_trees"
+  largeTreeChance = 0.2
+
 [[waterEffects]]
   id = "nearby"
   tempModifier = -5
@@ -23949,3 +24064,7 @@
   [[weathers.seasons]]
     id = "winter"
     weight = 0.8
+
+[[widenSteps]]
+  chance = 0.3
+  id = "cave_widen"

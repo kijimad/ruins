@@ -1,4 +1,4 @@
-label: CaveStalactites
+label: ScatterWalls
 tiles:
   '.' = "floor"
   '#' = "wall"

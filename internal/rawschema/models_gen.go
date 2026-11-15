@@ -218,6 +218,19 @@ type AttackType struct {
 	Skill SkillId `json:"skill"`
 }
 
+// AutomataStep セルラーオートマトンで壁を均し、床の連結を部屋にする段
+type AutomataStep struct {
+	Id EntityID `json:"id"`
+
+	Iterations int `json:"iterations"`
+
+	// MinRoomTiles 部屋とみなす床の連結の最小のマス数
+	MinRoomTiles int `json:"minRoomTiles"`
+
+	// WallNeighbors 周囲9マスの壁がこの数以上なら壁にする
+	WallNeighbors int `json:"wallNeighbors"`
+}
+
 // BaseDamage 基本ダメージ
 type BaseDamage = int
 
@@ -229,8 +242,8 @@ type Bedding struct {
 // BeddingQuality 寝具の睡眠効率。100が基準で、高いほど短く深く眠れる
 type BeddingQuality = int
 
-// BigRoomLayout 全面を1つの部屋にし、柱・障害物・迷路・台座のどれかを足す間取り
-type BigRoomLayout struct {
+// BigRoomStep 1つの部屋を描き、柱・障害物・迷路・台座のどれかを足す段
+type BigRoomStep struct {
 	Id EntityID `json:"id"`
 
 	// MazeGapChance 迷路の壁に穴が開く確率
@@ -242,8 +255,6 @@ type BigRoomLayout struct {
 	PillarSpacing RandInt `json:"pillarSpacing"`
 
 	PlatformRadius RandInt `json:"platformRadius"`
-
-	Tiles LayoutTiles `json:"tiles"`
 }
 
 // BlocksPassage 通行を妨げるかどうか
@@ -272,32 +283,29 @@ type Book struct {
 	TotalEffort ReadingEffort `json:"totalEffort"`
 }
 
-// CaveLayout セルラーオートマトンで削る洞窟の間取り
-type CaveLayout struct {
+// BuildingStart 崩れた建物の矩形を部屋として置く最初の段
+type BuildingStart struct {
+	BuildingHeight RandInt `json:"buildingHeight"`
+
+	BuildingWidth RandInt `json:"buildingWidth"`
+
+	Buildings RandInt `json:"buildings"`
+
 	Id EntityID `json:"id"`
-
-	Iterations int `json:"iterations"`
-
-	// MinRoomTiles 部屋とみなす床の連結の最小のマス数
-	MinRoomTiles int `json:"minRoomTiles"`
-
-	// StalactiteChance 床に鍾乳石の壁を置く確率
-	StalactiteChance Chance `json:"stalactiteChance"`
-
-	Tiles LayoutTiles `json:"tiles"`
-
-	// WallChance 初めに壁を置く確率
-	WallChance Chance `json:"wallChance"`
-
-	// WallNeighbors 周囲9マスの壁がこの数以上なら壁にする
-	WallNeighbors int `json:"wallNeighbors"`
-
-	// WidenChance 床に2マス以上接する壁を床にする確率
-	WidenChance Chance `json:"widenChance"`
 }
 
 // Chance 確率
 type Chance = float64
+
+// ClearingStart 円に近い空き地を部屋として置く最初の段
+type ClearingStart struct {
+	// ClearingSize 空き地の幅と高さ。それぞれ引く
+	ClearingSize RandInt `json:"clearingSize"`
+
+	Clearings RandInt `json:"clearings"`
+
+	Id EntityID `json:"id"`
+}
 
 // ColorChannel RGBA色チャネル値 (0-255)
 type ColorChannel = uint8
@@ -488,6 +496,13 @@ type Consumable struct {
 	UsableScene UsableScene `json:"usableScene"`
 }
 
+// CorridorStep 部屋どうしを直線の廊下で結ぶ段
+type CorridorStep struct {
+	Id EntityID `json:"id"`
+
+	Width int `json:"width"`
+}
+
 // CubeModule キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる
 type CubeModule struct {
 	FuelCapacityBonus FuelCapacityBonus `json:"fuelCapacityBonus"`
@@ -669,6 +684,13 @@ type DoorRaw struct {
 	VerticalClosed SpriteKey `json:"verticalClosed"`
 
 	VerticalOpen SpriteKey `json:"verticalOpen"`
+}
+
+// DoorStep 部屋の入口に扉を置く段
+type DoorStep struct {
+	Chance Chance `json:"chance"`
+
+	Id EntityID `json:"id"`
 }
 
 // DropTable ドロップテーブル
@@ -1121,28 +1143,6 @@ type FoliageEffect struct {
 	TempModifier TileTempModifier `json:"tempModifier"`
 }
 
-// ForestLayout 木の間に空き地と小道を通す森の間取り
-type ForestLayout struct {
-	// ClearingSize 空き地の幅と高さ。それぞれ引く
-	ClearingSize RandInt `json:"clearingSize"`
-
-	Clearings RandInt `json:"clearings"`
-
-	Id EntityID `json:"id"`
-
-	// LargeTreeChance 木の周りにも木を足す確率
-	LargeTreeChance Chance `json:"largeTreeChance"`
-
-	Path EntityID `json:"path"`
-
-	Tiles LayoutTiles `json:"tiles"`
-
-	// TreeDensity 空き地から遠い床に木を置く確率
-	TreeDensity Chance `json:"treeDensity"`
-
-	WildlifeSpots RandInt `json:"wildlifeSpots"`
-}
-
 // FreshnessStage 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合
 type FreshnessStage struct {
 	// EatLog 食べたときのログの msgid。%s は食べた者と食べ物
@@ -1198,6 +1198,13 @@ func FreshnessStageIdValues() []FreshnessStageId {
 
 // FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
 type FuelCapacityBonus = int
+
+// GladeStep 小さな円形の床を撒く段
+type GladeStep struct {
+	Id EntityID `json:"id"`
+
+	Spots RandInt `json:"spots"`
+}
 
 // GlyphChunk 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す
 type GlyphChunk string
@@ -1494,6 +1501,19 @@ type Landmark struct {
 	Weight int32 `json:"weight"`
 }
 
+// Layout ダンジョンのフロアの間取り。最初の段で部屋を決め、中の段を並びの順に走らせる
+type Layout struct {
+	Id EntityID `json:"id"`
+
+	// Start 最初の段の表の行の id
+	Start EntityID `json:"start"`
+
+	// Steps 中の段の表の行の id
+	Steps []EntityID `json:"steps"`
+
+	Tiles LayoutTiles `json:"tiles"`
+}
+
 // LayoutTiles 間取りが置くタイル
 type LayoutTiles struct {
 	Floor EntityID `json:"floor"`
@@ -1745,6 +1765,13 @@ func MovementPatternTypeValues() []MovementPatternType {
 
 // NeedRatio 最大値に対する割合
 type NeedRatio = float64
+
+// NoiseStart 全面に壁を置く確率で撒く最初の段。部屋は後の段が決める
+type NoiseStart struct {
+	Id EntityID `json:"id"`
+
+	WallChance Chance `json:"wallChance"`
+}
 
 // NutritionAmount 栄養価
 type NutritionAmount = int
@@ -2052,19 +2079,27 @@ type RangeTiles = int
 type Raws struct {
 	AttackTypes *[]AttackType `json:"attackTypes,omitempty"`
 
-	BigRoomLayouts *[]BigRoomLayout `json:"bigRoomLayouts,omitempty"`
+	AutomataSteps *[]AutomataStep `json:"automataSteps,omitempty"`
+
+	BigRoomSteps *[]BigRoomStep `json:"bigRoomSteps,omitempty"`
 
 	BodyParts *[]BodyPart `json:"bodyParts,omitempty"`
 
-	CaveLayouts *[]CaveLayout `json:"caveLayouts,omitempty"`
+	BuildingStarts *[]BuildingStart `json:"buildingStarts,omitempty"`
+
+	ClearingStarts *[]ClearingStart `json:"clearingStarts,omitempty"`
 
 	CommandTables *[]CommandTable `json:"commandTables,omitempty"`
 
 	Conditions *[]Condition `json:"conditions,omitempty"`
 
+	CorridorSteps *[]CorridorStep `json:"corridorSteps,omitempty"`
+
 	Dialogues *[]Dialogue `json:"dialogues,omitempty"`
 
 	Districts *[]District `json:"districts,omitempty"`
+
+	DoorSteps *[]DoorStep `json:"doorSteps,omitempty"`
 
 	DropTables *[]DropTable `json:"dropTables,omitempty"`
 
@@ -2078,9 +2113,9 @@ type Raws struct {
 
 	FoliageEffects *[]FoliageEffect `json:"foliageEffects,omitempty"`
 
-	ForestLayouts *[]ForestLayout `json:"forestLayouts,omitempty"`
-
 	FreshnessStages *[]FreshnessStage `json:"freshnessStages,omitempty"`
+
+	GladeSteps *[]GladeStep `json:"gladeSteps,omitempty"`
 
 	HungerStages *[]HungerStage `json:"hungerStages,omitempty"`
 
@@ -2094,11 +2129,15 @@ type Raws struct {
 
 	Landmarks *[]Landmark `json:"landmarks,omitempty"`
 
+	Layouts *[]Layout `json:"layouts,omitempty"`
+
 	MapGlyphs *[]MapGlyph `json:"mapGlyphs,omitempty"`
 
 	Materials *[]MaterialDef `json:"materials,omitempty"`
 
 	Members *[]Member `json:"members,omitempty"`
+
+	NoiseStarts *[]NoiseStart `json:"noiseStarts,omitempty"`
 
 	PointFeatures *[]PointFeature `json:"pointFeatures,omitempty"`
 
@@ -2108,9 +2147,13 @@ type Raws struct {
 
 	Recipes *[]Recipe `json:"recipes,omitempty"`
 
-	RoomLayouts *[]RoomLayout `json:"roomLayouts,omitempty"`
+	RectRoomStarts *[]RectRoomStart `json:"rectRoomStarts,omitempty"`
 
-	RuinsLayouts *[]RuinsLayout `json:"ruinsLayouts,omitempty"`
+	RuinedPathSteps *[]RuinedPathStep `json:"ruinedPathSteps,omitempty"`
+
+	RuinedWallSteps *[]RuinedWallStep `json:"ruinedWallSteps,omitempty"`
+
+	ScatterWallSteps *[]ScatterWallStep `json:"scatterWallSteps,omitempty"`
 
 	ScatterZones *[]ScatterZone `json:"scatterZones,omitempty"`
 
@@ -2120,13 +2163,17 @@ type Raws struct {
 
 	ShelterEffects *[]ShelterEffect `json:"shelterEffects,omitempty"`
 
+	SimpleStarts *[]SimpleStart `json:"simpleStarts,omitempty"`
+
+	SimpleSteps *[]SimpleStep `json:"simpleSteps,omitempty"`
+
 	SkillCategories *[]SkillCategory `json:"skillCategories,omitempty"`
 
 	Skills *[]Skill `json:"skills,omitempty"`
 
 	SpriteSheets *[]SpriteSheet `json:"spriteSheets,omitempty"`
 
-	TemplateLayouts *[]TemplateLayout `json:"templateLayouts,omitempty"`
+	TemplateStarts *[]TemplateStart `json:"templateStarts,omitempty"`
 
 	Tiles *[]Tile `json:"tiles,omitempty"`
 
@@ -2134,9 +2181,15 @@ type Raws struct {
 
 	ToolCategories *[]ToolCategoryDef `json:"toolCategories,omitempty"`
 
+	TrailSteps *[]TrailStep `json:"trailSteps,omitempty"`
+
+	TreeSteps *[]TreeStep `json:"treeSteps,omitempty"`
+
 	WaterEffects *[]WaterEffect `json:"waterEffects,omitempty"`
 
 	Weathers *[]Weather `json:"weathers,omitempty"`
+
+	WidenSteps *[]WidenStep `json:"widenSteps,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量
@@ -2187,6 +2240,16 @@ func RecoveryModeValues() []RecoveryMode {
 	return []RecoveryMode{RecoverAfterTend, ProgressUntilTend, RecoverOverTime}
 }
 
+// RectRoomStart 矩形の部屋を、上端と下端に1つずつと rooms の数だけ置く最初の段
+type RectRoomStart struct {
+	Id EntityID `json:"id"`
+
+	// RoomSize 部屋の幅と高さ。それぞれ引く
+	RoomSize RandInt `json:"roomSize"`
+
+	Rooms RandInt `json:"rooms"`
+}
+
 // ReloadEffort リロードに必要な行動力
 type ReloadEffort = int
 
@@ -2206,40 +2269,20 @@ type Road struct {
 	Width int `json:"width"`
 }
 
-// RoomLayout 矩形の小部屋を廊下で結ぶ間取り。上端と下端に1部屋ずつ置き、残りを rooms の数だけ置く
-type RoomLayout struct {
-	CorridorWidth int `json:"corridorWidth"`
-
-	// DoorChance 部屋の入口に扉を置く確率
-	DoorChance Chance `json:"doorChance"`
+// RuinedPathStep 2つの部屋を崩れた通路で結ぶ段
+type RuinedPathStep struct {
+	// Chance 2つの部屋を通路で結ぶ確率
+	Chance Chance `json:"chance"`
 
 	Id EntityID `json:"id"`
-
-	// RoomSize 部屋の幅と高さ。それぞれ引く
-	RoomSize RandInt `json:"roomSize"`
-
-	Rooms RandInt `json:"rooms"`
-
-	Tiles LayoutTiles `json:"tiles"`
 }
 
-// RuinsLayout 崩れた建物の残骸が散る廃墟の間取り
-type RuinsLayout struct {
-	BuildingHeight RandInt `json:"buildingHeight"`
-
-	BuildingWidth RandInt `json:"buildingWidth"`
-
-	Buildings RandInt `json:"buildings"`
-
+// RuinedWallStep 全面を床にし、部屋の矩形に崩れた外壁と仕切りを描く段
+type RuinedWallStep struct {
 	Id EntityID `json:"id"`
 
 	// PartitionGapChance 仕切りの壁に穴が開く確率
 	PartitionGapChance Chance `json:"partitionGapChance"`
-
-	// PathChance 2つの建物を通路で結ぶ確率
-	PathChance Chance `json:"pathChance"`
-
-	Tiles LayoutTiles `json:"tiles"`
 
 	// WallGapChance 外壁に穴が開く確率
 	WallGapChance Chance `json:"wallGapChance"`
@@ -2254,6 +2297,13 @@ type ScatterEntry struct {
 	Satellites *[]PropSpot `json:"satellites,omitempty"`
 
 	Weight int32 `json:"weight"`
+}
+
+// ScatterWallStep 床に壁を撒く段
+type ScatterWallStep struct {
+	Chance Chance `json:"chance"`
+
+	Id EntityID `json:"id"`
 }
 
 // ScatterZone 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
@@ -2386,6 +2436,83 @@ type ShelterEffect struct {
 
 // ShelterInfluencePercent 世界温度を引き寄せる割合。百分率。100 なら世界温度をそのまま受ける
 type ShelterInfluencePercent = int
+
+// SimpleStart 欄を持たない最初の段
+type SimpleStart struct {
+	Id EntityID `json:"id"`
+
+	Kind SimpleStartKind `json:"kind"`
+}
+
+// SimpleStartKind 欄を持たない最初の段の種類。full_room は全面を1つの部屋にする
+type SimpleStartKind string
+
+// Defines values for SimpleStartKind.
+const (
+	SimpleStartKindFullRoom SimpleStartKind = "full_room"
+)
+
+// Valid indicates whether the value is a known member of the SimpleStartKind enum.
+func (e SimpleStartKind) Valid() bool {
+	switch e {
+	case SimpleStartKindFullRoom:
+		return true
+	default:
+		return false
+	}
+}
+
+// SimpleStartKindValues は SimpleStartKind の値を、スキーマに書いた順に返す。
+func SimpleStartKindValues() []SimpleStartKind {
+	return []SimpleStartKind{SimpleStartKindFullRoom}
+}
+
+// SimpleStep 欄を持たない中の段
+type SimpleStep struct {
+	Id EntityID `json:"id"`
+
+	Kind SimpleStepKind `json:"kind"`
+}
+
+// SimpleStepKind 欄を持たない中の段の種類
+// fill_wall は全面を壁で埋める。draw_rooms は部屋を床で描く。connect_rooms は並びの隣の部屋を太いL字の通路で結ぶ。
+// debris は部屋に近い床ほど壁を撒く。forest_floor は全面を床にし部屋を円く描く。isolated_walls は床に接しない壁を void にする
+type SimpleStepKind string
+
+// Defines values for SimpleStepKind.
+const (
+	SimpleStepKindConnectRooms  SimpleStepKind = "connect_rooms"
+	SimpleStepKindDebris        SimpleStepKind = "debris"
+	SimpleStepKindDrawRooms     SimpleStepKind = "draw_rooms"
+	SimpleStepKindFillWall      SimpleStepKind = "fill_wall"
+	SimpleStepKindForestFloor   SimpleStepKind = "forest_floor"
+	SimpleStepKindIsolatedWalls SimpleStepKind = "isolated_walls"
+)
+
+// Valid indicates whether the value is a known member of the SimpleStepKind enum.
+func (e SimpleStepKind) Valid() bool {
+	switch e {
+	case SimpleStepKindConnectRooms:
+		return true
+	case SimpleStepKindDebris:
+		return true
+	case SimpleStepKindDrawRooms:
+		return true
+	case SimpleStepKindFillWall:
+		return true
+	case SimpleStepKindForestFloor:
+		return true
+	case SimpleStepKindIsolatedWalls:
+		return true
+	default:
+		return false
+	}
+}
+
+// SimpleStepKindValues は SimpleStepKind の値を、スキーマに書いた順に返す。
+func SimpleStepKindValues() []SimpleStepKind {
+	return []SimpleStepKind{SimpleStepKindFillWall, SimpleStepKindDrawRooms, SimpleStepKindConnectRooms, SimpleStepKindDebris, SimpleStepKindForestFloor, SimpleStepKindIsolatedWalls}
+}
 
 // Skill スキル。同じカテゴリのスキルは行の順に表示する
 type Skill struct {
@@ -2664,8 +2791,8 @@ func TargetNumValues() []TargetNum {
 	return []TargetNum{SINGLE, ALL}
 }
 
-// TemplateLayout 施設の絵をそのまま置く間取り
-type TemplateLayout struct {
+// TemplateStart 施設の絵をそのまま置く最初の段。地図の大きさは絵が決める
+type TemplateStart struct {
 	Id EntityID `json:"id"`
 
 	// Template levels の絵の名前
@@ -2820,6 +2947,24 @@ type ToolCategoryDef struct {
 
 // ToolGrade 道具のグレード。高いほど速く壊し多く得る
 type ToolGrade = int
+
+// TrailStep 上端から下端への小道と、部屋どうしの小道を引く段
+type TrailStep struct {
+	Id EntityID `json:"id"`
+
+	Tile EntityID `json:"tile"`
+}
+
+// TreeStep 部屋から遠い床ほど木を置く段
+type TreeStep struct {
+	// Density 部屋から遠い床に木を置く確率
+	Density Chance `json:"density"`
+
+	Id EntityID `json:"id"`
+
+	// LargeTreeChance 木の周りにも木を足す確率
+	LargeTreeChance Chance `json:"largeTreeChance"`
+}
 
 // UsableScene 使用可能シーン
 type UsableScene string
@@ -2981,6 +3126,13 @@ type WeatherVisionDelta = int
 
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string
+
+// WidenStep 床に2マス以上接する壁を床にして通路を広げる段
+type WidenStep struct {
+	Chance Chance `json:"chance"`
+
+	Id EntityID `json:"id"`
+}
 
 // Zone 区域の地区。区域の層が候補として持ち、施設は建つ地区として持つ
 type Zone string

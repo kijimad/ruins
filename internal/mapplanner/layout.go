@@ -14,6 +14,8 @@ var (
 	ErrUnknownLayout = errors.New("unknown layout")
 	// ErrNoLayout はランダムに選べる間取りの行が無いときのエラー
 	ErrNoLayout = errors.New("no layout")
+	// ErrUnknownStep は段の表に無い id を指したときのエラー
+	ErrUnknownStep = errors.New("unknown layout step")
 )
 
 // LayoutPlannerType は raw の間取りの行 id のプランナータイプを返す。行は計画を作るときに引く
@@ -26,18 +28,19 @@ func LayoutPlannerType(id string) PlannerType {
 	}
 }
 
-// LayoutPlannerTypes は全ての間取りの行のプランナータイプを表の順に返す
+// LayoutPlannerTypes は全ての間取りの行のプランナータイプを行の順に返す
 func LayoutPlannerTypes(raws rawschema.Raws) []PlannerType {
-	ids := appendLayoutIDs(proceduralLayoutIDs(raws), raws.TemplateLayouts, func(l *rawschema.TemplateLayout) string { return l.Id })
-	return plannerTypesOf(ids)
+	layouts := raw.PtrSlice(raws.Layouts)
+	out := make([]PlannerType, 0, len(layouts))
+	for i := range layouts {
+		out = append(out, LayoutPlannerType(layouts[i].Id))
+	}
+	return out
 }
 
-// ProceduralPlannerTypes は絵を使わない間取りの行のプランナータイプを表の順に返す
+// ProceduralPlannerTypes は絵を使わない間取りの行のプランナータイプを行の順に返す
 func ProceduralPlannerTypes(raws rawschema.Raws) []PlannerType {
-	return plannerTypesOf(proceduralLayoutIDs(raws))
-}
-
-func plannerTypesOf(ids []string) []PlannerType {
+	ids := proceduralLayoutIDs(raws)
 	out := make([]PlannerType, 0, len(ids))
 	for _, id := range ids {
 		out = append(out, LayoutPlannerType(id))
@@ -47,52 +50,141 @@ func plannerTypesOf(ids []string) []PlannerType {
 
 // PlannerTypeByName は間取りの行 id のプランナータイプを返す。行が無ければ ok=false を返す
 func PlannerTypeByName(raws rawschema.Raws, name string) (PlannerType, bool) {
-	for _, pt := range LayoutPlannerTypes(raws) {
-		if pt.Name == name {
-			return pt, true
-		}
+	if _, ok := raw.FindByKey(raws.Layouts, func(l rawschema.Layout) string { return l.Id }, name); !ok {
+		return PlannerType{}, false
 	}
-	return PlannerType{}, false
+	return LayoutPlannerType(name), true
 }
 
-// proceduralLayoutIDs は絵を使わない間取りの行の id を表の順に返す。ランダムに選ぶ候補になる
+// proceduralLayoutIDs は最初の段が絵でない間取りの行の id を行の順に返す。ランダムに選ぶ候補になる
 func proceduralLayoutIDs(raws rawschema.Raws) []string {
+	layouts := raw.PtrSlice(raws.Layouts)
 	var ids []string
-	ids = appendLayoutIDs(ids, raws.RoomLayouts, func(l *rawschema.RoomLayout) string { return l.Id })
-	ids = appendLayoutIDs(ids, raws.BigRoomLayouts, func(l *rawschema.BigRoomLayout) string { return l.Id })
-	ids = appendLayoutIDs(ids, raws.CaveLayouts, func(l *rawschema.CaveLayout) string { return l.Id })
-	ids = appendLayoutIDs(ids, raws.RuinsLayouts, func(l *rawschema.RuinsLayout) string { return l.Id })
-	ids = appendLayoutIDs(ids, raws.ForestLayouts, func(l *rawschema.ForestLayout) string { return l.Id })
-	return ids
-}
-
-func appendLayoutIDs[T any](ids []string, rows *[]T, id func(*T) string) []string {
-	ls := raw.PtrSlice(rows)
-	for i := range ls {
-		ids = append(ids, id(&ls[i]))
+	for i := range layouts {
+		if _, ok := templateStart(raws, layouts[i].Start); ok {
+			continue
+		}
+		ids = append(ids, layouts[i].Id)
 	}
 	return ids
 }
 
-// newLayoutChain は間取りの行 id を表から引き、その作り方のチェーンを作成する
+func templateStart(raws rawschema.Raws, id string) (rawschema.TemplateStart, bool) {
+	return raw.FindByKey(raws.TemplateStarts, func(s rawschema.TemplateStart) string { return s.Id }, id)
+}
+
+// newLayoutChain は間取りの行 id を引き、最初の段と中の段を並べ、最後に環境の段を足したチェーンを作る。
+// 絵の最初の段は地図の大きさを絵から決めるので width と height を使わない
 func newLayoutChain(raws rawschema.Raws, id string, width, height consts.Tile, seed uint64) (*PlannerChain, error) {
-	if l, ok := raw.FindByKey(raws.RoomLayouts, func(l rawschema.RoomLayout) string { return l.Id }, id); ok {
-		return NewSmallRoomPlanner(l, width, height, seed)
+	l, ok := raw.FindByKey(raws.Layouts, func(l rawschema.Layout) string { return l.Id }, id)
+	if !ok {
+		return nil, fmt.Errorf("%w: %s", ErrUnknownLayout, id)
 	}
-	if l, ok := raw.FindByKey(raws.BigRoomLayouts, func(l rawschema.BigRoomLayout) string { return l.Id }, id); ok {
-		return NewBigRoomPlanner(l, width, height, seed)
+	var chain *PlannerChain
+	if t, ok := templateStart(raws, l.Start); ok {
+		c, err := NewPlannerChainByTemplateName(t.Template, seed)
+		if err != nil {
+			return nil, err
+		}
+		chain = c
+	} else {
+		start, err := newStart(raws, l.Start, l.Tiles)
+		if err != nil {
+			return nil, err
+		}
+		chain = NewPlannerChain(width, height, seed)
+		chain.StartWith(start)
 	}
-	if l, ok := raw.FindByKey(raws.CaveLayouts, func(l rawschema.CaveLayout) string { return l.Id }, id); ok {
-		return NewCavePlanner(l, width, height, seed)
+	for _, sid := range l.Steps {
+		step, err := newStep(raws, sid, l.Tiles)
+		if err != nil {
+			return nil, err
+		}
+		chain.With(step)
 	}
-	if l, ok := raw.FindByKey(raws.RuinsLayouts, func(l rawschema.RuinsLayout) string { return l.Id }, id); ok {
-		return NewRuinsPlanner(l, width, height, seed)
+	chain.With(EnvironmentPlanner{})
+	return chain, nil
+}
+
+// newStart は絵でない最初の段の行 id を表から引き、間取りのタイル tiles を渡して段を作る
+func newStart(raws rawschema.Raws, id string, tiles rawschema.LayoutTiles) (InitialMapPlanner, error) {
+	if r, ok := raw.FindByKey(raws.RectRoomStarts, func(r rawschema.RectRoomStart) string { return r.Id }, id); ok {
+		return RectRoomPlanner{Row: r}, nil
 	}
-	if l, ok := raw.FindByKey(raws.ForestLayouts, func(l rawschema.ForestLayout) string { return l.Id }, id); ok {
-		return NewForestPlanner(l, width, height, seed)
+	if r, ok := raw.FindByKey(raws.NoiseStarts, func(r rawschema.NoiseStart) string { return r.Id }, id); ok {
+		return CavePlanner{Row: r, Tiles: tiles}, nil
 	}
-	if l, ok := raw.FindByKey(raws.TemplateLayouts, func(l rawschema.TemplateLayout) string { return l.Id }, id); ok {
-		return NewPlannerChainByTemplateName(l.Template, seed)
+	if r, ok := raw.FindByKey(raws.BuildingStarts, func(r rawschema.BuildingStart) string { return r.Id }, id); ok {
+		return RuinsPlanner{Row: r}, nil
 	}
-	return nil, fmt.Errorf("%w: %s", ErrUnknownLayout, id)
+	if r, ok := raw.FindByKey(raws.ClearingStarts, func(r rawschema.ClearingStart) string { return r.Id }, id); ok {
+		return ForestPlanner{Row: r}, nil
+	}
+	if r, ok := raw.FindByKey(raws.SimpleStarts, func(r rawschema.SimpleStart) string { return r.Id }, id); ok {
+		if r.Kind == rawschema.SimpleStartKindFullRoom {
+			return BigRoomPlanner{}, nil
+		}
+		return nil, fmt.Errorf("%w: %s kind %s", ErrUnknownStep, id, r.Kind)
+	}
+	return nil, fmt.Errorf("%w: %s", ErrUnknownStep, id)
+}
+
+// newStep は中の段の行 id を表から引き、間取りのタイル tiles を渡して段を作る
+func newStep(raws rawschema.Raws, id string, tiles rawschema.LayoutTiles) (MetaMapPlanner, error) {
+	if r, ok := raw.FindByKey(raws.CorridorSteps, func(r rawschema.CorridorStep) string { return r.Id }, id); ok {
+		return LineCorridorPlanner{FloorTile: tiles.Floor, WallTile: tiles.Wall, Width: r.Width}, nil
+	}
+	if r, ok := raw.FindByKey(raws.DoorSteps, func(r rawschema.DoorStep) string { return r.Id }, id); ok {
+		return DoorPlanner{DoorChance: r.Chance}, nil
+	}
+	if r, ok := raw.FindByKey(raws.BigRoomSteps, func(r rawschema.BigRoomStep) string { return r.Id }, id); ok {
+		return BigRoomDraw{Row: r, Tiles: tiles}, nil
+	}
+	if r, ok := raw.FindByKey(raws.AutomataSteps, func(r rawschema.AutomataStep) string { return r.Id }, id); ok {
+		return CaveCellularAutomata{Row: r, Tiles: tiles}, nil
+	}
+	if r, ok := raw.FindByKey(raws.WidenSteps, func(r rawschema.WidenStep) string { return r.Id }, id); ok {
+		return Widen{Row: r, Tiles: tiles}, nil
+	}
+	if r, ok := raw.FindByKey(raws.ScatterWallSteps, func(r rawschema.ScatterWallStep) string { return r.Id }, id); ok {
+		return ScatterWalls{Row: r, Tiles: tiles}, nil
+	}
+	if r, ok := raw.FindByKey(raws.RuinedWallSteps, func(r rawschema.RuinedWallStep) string { return r.Id }, id); ok {
+		return RuinsDraw{Row: r, Tiles: tiles}, nil
+	}
+	if r, ok := raw.FindByKey(raws.RuinedPathSteps, func(r rawschema.RuinedPathStep) string { return r.Id }, id); ok {
+		return RuinsCorridors{Row: r, Tiles: tiles}, nil
+	}
+	if r, ok := raw.FindByKey(raws.TreeSteps, func(r rawschema.TreeStep) string { return r.Id }, id); ok {
+		return ForestTrees{Row: r, Tiles: tiles}, nil
+	}
+	if r, ok := raw.FindByKey(raws.TrailSteps, func(r rawschema.TrailStep) string { return r.Id }, id); ok {
+		return ForestPaths{Row: r}, nil
+	}
+	if r, ok := raw.FindByKey(raws.GladeSteps, func(r rawschema.GladeStep) string { return r.Id }, id); ok {
+		return ForestWildlife{Row: r, Tiles: tiles}, nil
+	}
+	if r, ok := raw.FindByKey(raws.SimpleSteps, func(r rawschema.SimpleStep) string { return r.Id }, id); ok {
+		return newSimpleStep(r, tiles)
+	}
+	return nil, fmt.Errorf("%w: %s", ErrUnknownStep, id)
+}
+
+// newSimpleStep は欄を持たない中の段を種類から作る
+func newSimpleStep(r rawschema.SimpleStep, tiles rawschema.LayoutTiles) (MetaMapPlanner, error) {
+	switch r.Kind {
+	case rawschema.SimpleStepKindFillWall:
+		return NewFillAll(tiles.Wall), nil
+	case rawschema.SimpleStepKindDrawRooms:
+		return RoomDraw{FloorTile: tiles.Floor}, nil
+	case rawschema.SimpleStepKindConnectRooms:
+		return ConnectRooms{Tiles: tiles}, nil
+	case rawschema.SimpleStepKindDebris:
+		return RuinsDebris{Tiles: tiles}, nil
+	case rawschema.SimpleStepKindForestFloor:
+		return ForestTerrain{Tiles: tiles}, nil
+	case rawschema.SimpleStepKindIsolatedWalls:
+		return ConvertIsolatedWalls{WallTile: tiles.Wall, ReplacementTile: tiles.Void}, nil
+	}
+	return nil, fmt.Errorf("%w: %s kind %s", ErrUnknownStep, r.Id, r.Kind)
 }
