@@ -706,6 +706,9 @@ type Dungeon struct {
 	// EntranceWeight 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ない
 	EntranceWeight int `json:"entranceWeight"`
 
+	// Hidden 遺跡の一覧に出さない。デバッグで名前を指して入る
+	Hidden *bool `json:"hidden,omitempty"`
+
 	Id EntityID `json:"id"`
 
 	// ImageKey 背景画像のスプライトキー

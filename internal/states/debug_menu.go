@@ -19,9 +19,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// debugTownLayout はデバッグの町の間取りの行の id
-const debugTownLayout = "debug_town"
-
 // NewDebugMenuState はデバッグメニューを選択メニューとして作る
 func NewDebugMenuState() (es.State[w.World], error) {
 	return NewChoiceMenu(debugMenuChoices), nil
@@ -29,7 +26,7 @@ func NewDebugMenuState() (es.State[w.World], error) {
 
 // debugMenuChoices はデバッグメニューの選択肢を返す。開発用のスポーンやメッセージ確認をまとめる
 func debugMenuChoices(world w.World) (string, []Choice) {
-	debugName := dungeon.DungeonDebug.Name()
+	debugName := dungeon.DebugID
 	choices := []Choice{
 		{Label: "Spawn healing potion (inventory)", Run: popAfter(func(world w.World) error {
 			_, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 1)
@@ -92,7 +89,7 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 	// 街用NPC・収納箱をスポーン地点の隣に固定配置したデバッグステージへ入る。
 	// 街の会話・売買・収納を入ってすぐテストできる
 	choices = append(choices, Choice{Label: "Generate debug stage", Run: popAfter(func(world w.World) error {
-		return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DungeonDebugTown.Name(), debugTownLayout))
+		return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DebugTownID, "debug_town"))
 	})})
 
 	choices = append(choices,

@@ -110,12 +110,10 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		upStair = e
 	}
 
-	// デバッグの街ステージには長く燃える火を hearth の上へ自動設置する。適温を確保して睡眠を入ってすぐ試せる
-	if def.Name() == dungeon.DungeonDebugTown.Name() {
+	// デバッグの街ステージには長く燃える火を hearth の上へ自動設置する。適温を確保して睡眠を入ってすぐ試せる。
+	// 火の燃える残りは実行時の状態で raw に書けないので、ここで付ける
+	if def.Name() == dungeon.DebugTownID {
 		if err := spawnDebugStageFire(world); err != nil {
-			return zero, noEntity, err
-		}
-		if err := spawnDebugStageCrateItems(world); err != nil {
 			return zero, noEntity, err
 		}
 	}
@@ -153,57 +151,6 @@ func spawnDebugStageFire(world w.World) error {
 		return fmt.Errorf("failed to spawn debug stage fire: %w", err)
 	}
 	world.Components.Burning.Add(fire, &gc.Burning{Remaining: debugStageFireBurnTurns})
-	return nil
-}
-
-// debugStageModuleCount はデバッグ街の木箱へ入れておくモジュールの種類ごとの数。全スロットを試せるよう上限に合わせる
-const debugStageModuleCount = consts.CubeModuleSlots
-
-// debugStageModules はデバッグ街の木箱へ入れておくキューブモジュールの id
-var debugStageModules = []string{"cube_range_module", "cube_fuel_module"}
-
-// debugStageFacilityCount はデバッグ街の木箱へ入れておく装着アイテムの種類ごとの数。展開空間へ装着して往復を試せるようにする
-const debugStageFacilityCount = 2
-
-// debugStageFacilityItems はデバッグ街の木箱へ入れておく装着アイテムの id。新設備はここに1行足す
-var debugStageFacilityItems = []string{"deployable_storage", "deployable_lamp", "deployable_bed", "deployable_workbench"}
-
-// debugStageTools はデバッグ街の木箱へ1つずつ入れておく道具の id
-var debugStageTools = []string{"pickaxe"}
-
-// spawnDebugStageCrateItems はテンプレートが置いた木箱の中へキューブの範囲モジュールと装着アイテムと道具を入れておく。
-// 装着 UI や道具を入ってすぐ試せるようにする。木箱はテンプレートが必ず置くので、無ければ退行として error で返す。
-func spawnDebugStageCrateItems(world w.World) error {
-	var crate ecs.Entity
-	found := false
-	q := query.ActiveFilter2[gc.RawID, gc.GridElement](world).Query()
-	for q.Next() {
-		e := q.Entity()
-		if world.Components.RawID.Get(e).ID == "wooden_crate" {
-			crate = e
-			found = true
-			q.Close()
-			break
-		}
-	}
-	if !found {
-		return fmt.Errorf("debug stage: wooden_crate not found")
-	}
-	for _, id := range debugStageModules {
-		if _, err := lifecycle.SpawnStorageItem(world, id, debugStageModuleCount, crate); err != nil {
-			return fmt.Errorf("failed to spawn debug stage module %s: %w", id, err)
-		}
-	}
-	for _, id := range debugStageFacilityItems {
-		if _, err := lifecycle.SpawnStorageItem(world, id, debugStageFacilityCount, crate); err != nil {
-			return fmt.Errorf("failed to spawn debug stage facility %s: %w", id, err)
-		}
-	}
-	for _, id := range debugStageTools {
-		if _, err := lifecycle.SpawnStorageItem(world, id, 1, crate); err != nil {
-			return fmt.Errorf("failed to spawn debug stage tool %s: %w", id, err)
-		}
-	}
 	return nil
 }
 

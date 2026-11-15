@@ -20,7 +20,11 @@ func TestGenerateReport_プレイヤーと武器と敵テーブルの結果を�
 
 	assert.Equal(t, "bare_hands", report.Weapon.Name)
 
-	require.Len(t, report.Dungeons, len(raw.PtrSlice(master.Dungeons)), "raw.tomlのdungeons数と一致する")
+	names := make([]string, 0, len(report.Dungeons))
+	for _, run := range report.Dungeons {
+		names = append(names, run.Name)
+	}
+	assert.Equal(t, []string{"Dead forest", "Ash cave", "Forgotten ruins"}, names, "一覧に出すダンジョンを行の順に試算する")
 	for _, run := range report.Dungeons {
 		assert.Equal(t, 3, run.MaxDepth)
 		assert.Equal(t, 5, run.Trials)

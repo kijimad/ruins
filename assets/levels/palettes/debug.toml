@@ -1,0 +1,8 @@
+[palette]
+id = 'debug'
+description = 'デバッグの町のパレット'
+
+[palette.props]
+[palette.props.D]
+id = 'debug_crate'
+tile = 'road'

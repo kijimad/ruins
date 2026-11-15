@@ -27,5 +27,5 @@ tiles:
 spawn: 10,10
 npc: 10,9 merchant
 npc: 11,9 old_soldier
-prop: 9,10 wooden_crate
+prop: 9,10 debug_crate
 prop: 10,13 hearth

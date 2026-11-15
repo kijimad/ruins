@@ -268,7 +268,7 @@ var goldenCases = []struct {
 		build: func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
+				DefinitionName: dungeon.DebugID,
 				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}, &gs.LookAroundState{}}, nil
 		},
@@ -310,7 +310,7 @@ var goldenCases = []struct {
 		build: func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
+				DefinitionName: dungeon.DebugID,
 				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}, &gs.ShootingState{}}, nil
 		},
@@ -417,7 +417,7 @@ var goldenCases = []struct {
 		build: func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
+				DefinitionName: dungeon.DebugID,
 				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}}, nil
 		},
@@ -438,7 +438,7 @@ var goldenCases = []struct {
 			}
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
+				DefinitionName: dungeon.DebugID,
 				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}}, nil
 		},
@@ -479,7 +479,7 @@ var goldenCases = []struct {
 		build: func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
+				DefinitionName: dungeon.DebugID,
 				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}}, nil
 		},
@@ -494,7 +494,7 @@ var goldenCases = []struct {
 		build: func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
+				DefinitionName: dungeon.DebugID,
 				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}}, nil
 		},

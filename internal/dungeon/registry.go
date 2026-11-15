@@ -7,35 +7,16 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
-// 内部用のステージのマスタ定義。遺跡の入口が指すダンジョンは raw の dungeons の行が持つ
+// デバッグで名前を指して入るダンジョンの行の id
+const (
+	// DebugID は小部屋だけのデバッグ用ダンジョン
+	DebugID = "debug"
+	// DebugTownID は街用NPCと収納箱を絵で固定配置したデバッグ用ダンジョン
+	DebugTownID = "debug_town"
+)
+
+// 内部用のステージのマスタ定義
 var (
-	// DungeonDebug はデバッグ用ダンジョン定義
-	DungeonDebug = &DungeonDefinition{
-		name:        "Debug",
-		displayName: "Debug",
-		enemyTable:  "forest",
-		itemTable:   "forest",
-		enemyCount:  rawschema.RandInt{Base: 5, Spread: 4},
-		itemCount:   rawschema.RandInt{Base: 8, Spread: 5},
-		baseTemp:    10,
-		plannerPool: []PlannerWeight{
-			{PlannerType: mapplanner.LayoutPlannerType("small_room"), Weight: 1},
-		},
-	}
-
-	// DungeonDebugTown は街用NPCと収納箱をテンプレートで固定配置するデバッグ用定義。
-	// 敵・アイテムテーブルを空にして、共通の敵配置プランナーを自然に空振りさせ、敵を湧かせない
-	DungeonDebugTown = &DungeonDefinition{
-		name:        "Debug town",
-		displayName: "Debug town",
-		enemyTable:  "",
-		itemTable:   "",
-		baseTemp:    20,
-		plannerPool: []PlannerWeight{
-			{PlannerType: mapplanner.LayoutPlannerType("debug_town"), Weight: 1},
-		},
-	}
-
 	// DungeonOverworld はオーバーワールド帯を表す定義。
 	// フロアを作り直さず帯をスライドさせ続ける。ダンジョン専用フィールドを持たない別の型。
 	// 帯形状 24x24 のチャンクを横7枚・縦9枚並べる。1チャンク=1建物=地図の1マスの縮尺。
@@ -45,12 +26,15 @@ var (
 	DungeonOverworld = NewOverworldDefinition("Overworld", 0, 24, 24, 7, 9)
 )
 
-// GetAllDungeons は raw の dungeons の行から、遺跡の入口が指す全ダンジョン定義を行の順に返す。
-// オーバーワールドやデバッグなどの内部用の定義は含まない。
+// GetAllDungeons は raw の dungeons の行から、一覧に出す全ダンジョン定義を行の順に返す。
+// オーバーワールドの定義と hidden の行は含まない。
 func GetAllDungeons(raws rawschema.Raws) []*DungeonDefinition {
 	rows := raw.PtrSlice(raws.Dungeons)
 	defs := make([]*DungeonDefinition, 0, len(rows))
 	for i := range rows {
+		if rows[i].Hidden != nil && *rows[i].Hidden {
+			continue
+		}
 		defs = append(defs, newDungeonDefinition(&rows[i]))
 	}
 	return defs
@@ -76,8 +60,6 @@ func newDungeonDefinition(row *rawschema.Dungeon) *DungeonDefinition {
 
 // internalDefinitions は選択画面に表示しない内部用の定義
 var internalDefinitions = []StageDefinition{
-	DungeonDebug,
-	DungeonDebugTown,
 	DungeonOverworld,
 }
 

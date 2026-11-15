@@ -121,7 +121,7 @@ func TestPlayScenario_ダンジョンをAction列で駆動する(t *testing.T) {
 		func(_ w.World) []es.State[w.World] {
 			return []es.State[w.World]{&states.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
+				DefinitionName: dungeon.DebugID,
 				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}}
 		},

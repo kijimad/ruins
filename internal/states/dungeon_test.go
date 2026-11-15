@@ -434,7 +434,7 @@ func TestDungeonState_OnStartResume_PreservesWorld(t *testing.T) {
 	prop, err := lifecycle.SpawnProp(world, "wooden_crate", 6, 6)
 	require.NoError(t, err)
 
-	factory := NewDungeonState(0, WithDefinitionName(dungeon.DungeonDebug.Name()), WithResume())
+	factory := NewDungeonState(0, WithDefinitionName(dungeon.DebugID), WithResume())
 	state, err := factory()
 	require.NoError(t, err)
 	require.NoError(t, state.OnStart(world))

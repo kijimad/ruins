@@ -419,6 +419,8 @@ import "strings"
 	enemyCount!: #RandInt
 	// フロアに置くアイテムの数
 	itemCount!: #RandInt
+	// 遺跡の一覧に出さない。デバッグで名前を指して入る
+	hidden?: bool
 }
 
 // 乱数で決める数。base に 0 以上 spread 未満の乱数を足す

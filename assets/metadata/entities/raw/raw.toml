@@ -2020,6 +2020,48 @@
     id = "big_room"
     weight = 2
 
+[[dungeons]]
+  baseTemp = 10
+  description = "A dungeon for debugging."
+  enemyTable = "forest"
+  entranceWeight = 0
+  hidden = true
+  id = "debug"
+  imageKey = "forest1"
+  itemTable = "forest"
+  name = "Debug"
+  [dungeons.enemyCount]
+    base = 5
+    spread = 4
+  [dungeons.itemCount]
+    base = 8
+    spread = 5
+
+  [[dungeons.planners]]
+    id = "small_room"
+    weight = 1
+
+[[dungeons]]
+  baseTemp = 20
+  description = "A town for debugging. Townsfolk and a crate stand next to the spawn point."
+  enemyTable = "forest"
+  entranceWeight = 0
+  hidden = true
+  id = "debug_town"
+  imageKey = "forest1"
+  itemTable = "forest"
+  name = "Debug town"
+  [dungeons.enemyCount]
+    base = 0
+    spread = 1
+  [dungeons.itemCount]
+    base = 0
+    spread = 1
+
+  [[dungeons.planners]]
+    id = "debug_town"
+    weight = 1
+
 [[enemyTables]]
   id = "ruins_area"
   name = "廃墟"
@@ -5120,6 +5162,45 @@
     id = "tesla_coil_orb"
     pack = "1d2"
 
+[[itemCollections]]
+  id = "debug_crate"
+  name = "Debug crate"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "cube_range_module"
+    pack = "4d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "cube_fuel_module"
+    pack = "4d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "deployable_storage"
+    pack = "2d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "deployable_lamp"
+    pack = "2d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "deployable_bed"
+    pack = "2d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "deployable_workbench"
+    pack = "2d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "pickaxe"
+    pack = "1d1"
+
 [[itemGroups]]
   id = "healing_item"
   name = "回復アイテム"
@@ -8192,6 +8273,16 @@
 
   [[itemTables.entries]]
     id = "industrial_materials"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "debug_crate"
+  name = "Debug crate"
+
+  [[itemTables.entries]]
+    id = "debug_crate"
     maxDanger = 100
     minDanger = 1
     weight = 1
@@ -22217,6 +22308,22 @@
     depth = 3
     spriteKey = "crop"
     spriteSheetName = "field"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "A crate holding items for debugging."
+  hp = 20
+  id = "debug_crate"
+  name = "Debug Crate"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "wooden_crate"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d1"
+    lootTableId = "debug_crate"
+    maxWeight = "200 kg"
 
 [[recipes]]
   id = "ray_gun"

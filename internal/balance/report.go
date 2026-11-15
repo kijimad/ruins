@@ -43,6 +43,9 @@ func GenerateReport(master rawschema.Raws, playerName string, weaponName string,
 	dungeons := raw.PtrSlice(master.Dungeons)
 	for i := range dungeons {
 		d := &dungeons[i]
+		if d.Hidden != nil && *d.Hidden {
+			continue
+		}
 		stats := RunSimulations(master, d.Id, player, weapon, maxDepth, trials, seed)
 
 		run := DungeonRun{

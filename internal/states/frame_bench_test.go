@@ -40,7 +40,7 @@ func BenchmarkDungeonFrame(b *testing.B) {
 	for i := range benchDungeons {
 		bld := &benchDungeons[i]
 		world := vrt.InitReplayWorld(b)
-		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: bld.bt}, world)
+		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DebugID, BuilderType: bld.bt}, world)
 		require.NoError(b, err)
 		for range 5 {
 			require.NoError(b, sm.Update(world))
@@ -75,7 +75,7 @@ func BenchmarkTurn(b *testing.B) {
 	for i := range benchDungeons {
 		bld := &benchDungeons[i]
 		world := vrt.InitReplayWorld(b)
-		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: bld.bt}, world)
+		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DebugID, BuilderType: bld.bt}, world)
 		require.NoError(b, err)
 		// 毎フレーム待機を供給し、プレイヤーが行動してターンが進むようにする
 		world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionWait, true }
