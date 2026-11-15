@@ -271,16 +271,21 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 	return entries[i]
 }
 
-// outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、
-// それ以外を奥地にする。道は集落間を結ぶので、集落・市街の近傍が道沿いの帯を兼ねる。近傍地物の
+// outdoorZoneAt は wasteland チャンクのゾーンを返す。道を持つ地物の当選チャンクと市街の近傍を道沿いにし、
+// それ以外を奥地にする。道は道を持つ地物の当選どうしを結ぶので、その近傍が道沿いの帯を兼ねる。近傍地物の
 // 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。
 func outdoorZoneAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {
-	// 集落・市街は Y 方向のリージョンに並ぶので region は c.Y から引く
-	settlements := placementOf(raws, rawschema.PointFeatureKindSettlement)
-	sr := consts.FloorDiv(c.Y, settlements.Spacing)
-	for _, pr := range []consts.Chunk{sr - 1, sr, sr + 1} {
-		if chunkChebyshev(c, settlements.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
-			return zoneRoadside
+	// 地物と市街は Y 方向のリージョンに並ぶので region は c.Y から引く
+	for _, f := range raw.PtrSlice(raws.PointFeatures) {
+		if f.Road == nil {
+			continue
+		}
+		p := placementFrom(f)
+		r := consts.FloorDiv(c.Y, p.Spacing)
+		for _, pr := range []consts.Chunk{r - 1, r, r + 1} {
+			if chunkChebyshev(c, p.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
+				return zoneRoadside
+			}
 		}
 	}
 	for _, d := range districtsFrom(raws) {

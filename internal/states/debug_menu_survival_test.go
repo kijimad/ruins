@@ -1,6 +1,7 @@
 package states
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -68,4 +69,29 @@ func TestDebugMenu_デバッグのダンジョンでメニューの全ての間�
 		_, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, 1, pt)
 		require.NoError(t, err, pt.Name)
 	}
+}
+
+func TestDebugTown_危険度に依らず敵もアイテムも置かない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	raws := world.Resources.RawMaster
+	stage, ok := dungeon.GetStageDefinition(raws, dungeon.DebugTownID)
+	require.True(t, ok)
+	def, ok := stage.(*dungeon.DungeonDefinition)
+	require.True(t, ok)
+	query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage(dungeon.DebugTownID, 1)})
+
+	pt, err := def.SelectPlanner(rand.New(rand.NewPCG(1, 0)))
+	require.NoError(t, err)
+	pt.EnemyTableName, pt.ItemTableName = def.EnemyTableName(), def.ItemTableName()
+	pt.EnemyCount, pt.ItemCount = def.EnemyCount(), def.ItemCount()
+	pt.Danger = 20
+	plan, err := mapplanner.Plan(world, 0, 0, 1, pt)
+	require.NoError(t, err)
+	names := make([]string, 0, len(plan.NPCs))
+	for _, n := range plan.NPCs {
+		names = append(names, n.Name)
+	}
+	assert.ElementsMatch(t, []string{"merchant", "old_soldier"}, names, "絵の住人だけで敵は湧かない")
+	assert.Empty(t, plan.Items, "床のアイテムを置かない")
 }

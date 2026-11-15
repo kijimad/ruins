@@ -2068,11 +2068,11 @@
 [[dungeons]]
   baseTemp = 20
   description = "A town for debugging. Townsfolk and a crate stand next to the spawn point."
-  enemyTable = "forest"
+  enemyTable = "none"
   entranceWeight = 0
   id = "debug_town"
   imageKey = "forest1"
-  itemTable = "forest"
+  itemTable = "none"
   name = "Debug town"
   [dungeons.enemyCount]
     base = 0
@@ -3457,6 +3457,11 @@
     minDanger = 12
     pack = "1d1"
     weight = 0.2
+
+[[enemyTables]]
+  entries = []
+  id = "none"
+  name = "None"
 
 [[facilities]]
   enemyTable = "house_enemies"
@@ -8296,6 +8301,11 @@
     maxDanger = 100
     minDanger = 1
     weight = 1
+
+[[itemTables]]
+  entries = []
+  id = "none"
+  name = "None"
 
 [[items]]
   description = "A lit torch. Serves as light, weapon, and a way to set fuel alight."
