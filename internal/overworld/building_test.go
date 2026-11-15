@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"image/png"
+	"maps"
 	"slices"
 	"testing"
 
@@ -396,4 +397,42 @@ func TestRoomWall_部屋の絵の高さのある地形を帯の壁にする(t *t
 	brick := [][]maptemplate.MapCell{{{Terrain: "floor"}, {Terrain: "wall_brick_1"}}}
 	open := [][]maptemplate.MapCell{{{Terrain: "floor"}, {Terrain: "floor"}}}
 	assert.Equal(t, []string{"wall_brick_1", consts.TileNameWall}, []string{roomWall(brick, isTall), roomWall(open, isTall)})
+}
+
+// TestFacilityRooms_部屋の絵は高さのある地形を1種類だけ使う は、帯の壁を部屋の絵から選ぶ roomWall の前提を固定する。
+// 部屋の絵に別の高さのある地形が混ざると、帯の壁がどれになるかが走査の順で決まってしまう
+func TestFacilityRooms_部屋の絵は高さのある地形を1種類だけ使う(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	isTall := tileIsTall(raws)
+	for _, fac := range loader.Facilities() {
+		if !loader.HasRooms(fac) {
+			continue
+		}
+		tall := map[string]bool{}
+		for _, b := range roomLots(raws, fac) {
+			if b.seed != 0 {
+				continue
+			}
+			for ly := range b.h {
+				for lx := range b.w {
+					for _, edges := range possibleRoomEdges(b, consts.Coord[consts.Chunk]{X: lx, Y: ly}) {
+						_, cells, err := loader.FacilityRoom(fac, edges, 1)
+						require.NoError(t, err, "%s %v", fac, edges)
+						for _, row := range cells {
+							for _, c := range row {
+								if isTall(c.Terrain) {
+									tall[c.Terrain] = true
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		assert.Len(t, tall, 1, "%s の部屋の絵の高さのある地形 %v", fac, slices.Collect(maps.Keys(tall)))
+	}
 }
