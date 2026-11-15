@@ -6,8 +6,8 @@ on:
       - main
   pull_request:
 
-# イメージは版を固定する。golden は固定した版の Mesa で撮っていて、ubuntu-26.04 では -race の
-# 終了時に描画スレッドとぶつかってヒープが壊れる
+# イメージの版を固定する。ubuntu-26.04 では -race の終了時に描画スレッドとぶつかってヒープが壊れる。
+# Mesa は apt で入れるので同じイメージでも上がりうる。版を上げるときは golden を撮り直す
 jobs:
   build:
     permissions:
