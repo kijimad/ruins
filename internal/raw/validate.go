@@ -490,8 +490,9 @@ func validateGrounds(raws rawschema.Raws) error {
 	}
 	dungeons := PtrSlice(raws.Dungeons)
 	for i := range dungeons {
-		if g := dungeons[i].Ground; g != nil && !earth[*g] {
-			return fmt.Errorf("dungeon %q ground %q: %w", dungeons[i].Id, *g, errGroundNotEarth)
+		d := &dungeons[i]
+		if d.Ground != nil && !earth[*d.Ground] {
+			return fmt.Errorf("dungeon %q ground %q: %w", d.Id, *d.Ground, errGroundNotEarth)
 		}
 	}
 	return nil

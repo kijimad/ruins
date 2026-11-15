@@ -91,6 +91,8 @@ func assertFacilityGolden(t *testing.T, fac string, names []string, cells [][][]
 		_, _, err := spawnFacility(world, g, c, 0, 0, fac, 1, uint64(i+1))
 		require.NoError(t, err)
 	}
+	// 実際の生成と同じく、置いた後にオートタイルの添字を周りから計算し直す
+	RecalcAutotileInXRange(world, 0, lot*cols)
 	img := renderOverworldRegion(t, world, 0, 0, int(lot)*cols, int(lot)*rows)
 	for i, name := range names {
 		drawLabel(img, (i%cols)*int(lot)*scatterCellPx+4, (i/cols)*int(lot)*scatterCellPx+14, name)

@@ -656,7 +656,7 @@ type Dungeon struct {
 	// EnemyTable 敵を引く enemyTables の id
 	EnemyTable EntityID `json:"enemyTable"`
 
-	// Ground 地面を下地で埋める間取りの下地のタイル。森の間取りを持つなら要る
+	// Ground 地面を下地で埋める間取りの下地のタイル。森の間取りは地面を下地で埋めるので、森を持つなら必須
 	Ground *EntityID `json:"ground,omitempty"`
 
 	Id EntityID `json:"id"`

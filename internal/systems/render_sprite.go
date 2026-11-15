@@ -377,14 +377,12 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 		if spriteRender.SpriteSheetName == "tile" {
 			var number string
 			var prefix string
-			key := spriteRender.SpriteKey
-			if i := strings.LastIndex(key, "_"); i >= 0 {
-				family, _, _ := strings.Cut(key, "_")
-				switch family {
-				case "dirt":
-					number, prefix = key[i+1:], "d"
-				case "dwall":
-					number, prefix = key[i+1:], "w"
+			if base, n, ok := strings.CutLast(spriteRender.SpriteKey, "_"); ok {
+				switch {
+				case base == "dirt" || strings.HasPrefix(base, "dirt_"):
+					number, prefix = n, "d"
+				case base == "dwall":
+					number, prefix = n, "w"
 				}
 			}
 

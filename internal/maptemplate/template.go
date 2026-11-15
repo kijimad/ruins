@@ -25,7 +25,8 @@ const placeholderChar = '@'
 // placeholderStr はプレースホルダの文字列表現
 const placeholderStr = "@"
 
-// GroundTerrain はその場所の下地をそのまま残す地形。施設の庭や敷地の外に使い、置かれた区分の下地とつなげる
+// GroundTerrain はその場所の下地をそのまま残す地形。施設の庭や敷地の外に使い、置かれた区分の下地とつなげる。
+// 地上では施設より先に置く地物のタイルも残るので、施設より先の地物は土の地面以外を置かない
 const GroundTerrain = "ground"
 
 var (

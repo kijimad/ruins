@@ -333,10 +333,8 @@ type PlannerType struct {
 	ItemTableName string
 	// 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。
 	Danger consts.Danger
-	// 地面を埋める下地のタイル。UsesGround の間取りが使い、空ならエラーにする
+	// 地面を埋める下地のタイル。地上と森の間取りが使い、空ならエラーにする
 	Ground string
-	// 下地で地面を埋める間取りか。ダンジョンの定義がこの間取りを持つなら下地が要る
-	UsesGround bool
 	// プランナー関数
 	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }
@@ -374,7 +372,6 @@ var (
 	// PlannerTypeForest は森ダンジョンのプランナータイプ
 	PlannerTypeForest = PlannerType{
 		Name:        "Forest",
-		UsesGround:  true,
 		PlannerFunc: NewForestPlanner,
 	}
 
@@ -386,7 +383,6 @@ var (
 	PlannerTypeOverworldField = PlannerType{
 		Name:              "Overworld Field",
 		UseFixedPortalPos: true,
-		UsesGround:        true,
 		PlannerFunc:       NewOverworldFieldPlanner,
 	}
 
