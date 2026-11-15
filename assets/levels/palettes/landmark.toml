@@ -4,7 +4,7 @@ description = "原野のランドマーク"
 
 [palette.terrain]
 "#" = "dwall"
-"," = "dirt"
+"," = "ground"
 "." = "floor"
 
 [palette.props."+"]
@@ -30,31 +30,31 @@ tile = "floor"
 id = "crate"
 
 [palette.props."K"]
-tile = "dirt"
+tile = "ground"
 id = "crate"
 
 [palette.props."P"]
-tile = "dirt"
+tile = "ground"
 id = "stone_pillar"
 
 [palette.props."i"]
-tile = "dirt"
+tile = "ground"
 id = "candle"
 
 [palette.props."H"]
-tile = "dirt"
+tile = "ground"
 id = "hearth"
 
 [palette.props."n"]
-tile = "dirt"
+tile = "ground"
 id = "bench"
 
 [palette.items."o"]
 itemGroup = "antique_goods"
-tile = "dirt"
+tile = "ground"
 chance = 50
 
 [palette.items."f"]
 itemGroup = "food"
-tile = "dirt"
+tile = "ground"
 chance = 60

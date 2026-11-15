@@ -4,7 +4,7 @@ description = "民家"
 
 [palette.terrain]
 "#" = "wall"
-"," = "dirt"
+"," = "ground"
 "." = "floor_wood"
 ":" = "floor_tatami"
 "=" = "pavement"
@@ -13,11 +13,11 @@ description = "民家"
 "~" = "floor_tile"
 
 [palette.props."f"]
-tile = "dirt"
+tile = "ground"
 id = "fence"
 
 [palette.props."p"]
-tile = "dirt"
+tile = "ground"
 candidates = [{ id = "plant", weight = 3 }, { id = "bush", weight = 1 }]
 
 [palette.props."+"]

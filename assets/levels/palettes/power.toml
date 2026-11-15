@@ -4,7 +4,7 @@ description = "発電施設"
 
 [palette.terrain]
 "#" = "wall"
-"," = "dirt"
+"," = "ground"
 "." = "floor_concrete"
 "=" = "pavement"
 
@@ -49,25 +49,25 @@ id = "wooden_crate"
 lootTable = "power_fuel"
 
 [palette.props."F"]
-tile = "dirt"
+tile = "ground"
 id = "wooden_crate"
 lootTable = "power_fuel"
 
 [palette.props."r"]
-tile = "dirt"
+tile = "ground"
 id = "rubble"
 
 [palette.props."Y"]
-tile = "dirt"
+tile = "ground"
 id = "generator_yellow"
 
 [palette.props."B"]
-tile = "dirt"
+tile = "ground"
 candidates = [{ id = "red_drum", weight = 1 }, { id = "green_drum", weight = 1 }, { id = "white_barrel", weight = 1 }]
 
 [palette.items."o"]
 itemGroup = "fuel"
-tile = "dirt"
+tile = "ground"
 chance = 50
 
 [palette.beings."z"]

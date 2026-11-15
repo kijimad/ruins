@@ -4,7 +4,7 @@ description = "診療所"
 
 [palette.terrain]
 "#" = "wall"
-"," = "dirt"
+"," = "ground"
 "=" = "pavement"
 "." = "floor_linoleum"
 "~" = "floor_tile"
@@ -80,7 +80,7 @@ tile = "floor_linoleum"
 id = "plant"
 
 [palette.props."p"]
-tile = "dirt"
+tile = "ground"
 candidates = [{ id = "plant", weight = 2 }, { id = "bush", weight = 1 }]
 
 [palette.items."o"]

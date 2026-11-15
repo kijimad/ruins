@@ -34,7 +34,7 @@ type MetaPlan struct {
 	// Danger はこのプランに適用する危険度。敵やアイテムの湧きフィルタに使う。1以上であること。
 	// 呼び出し側が世界の現在地から確定して渡す。
 	Danger consts.Danger
-	// Ground は全面を埋める下地のタイル。地上の計画だけが使う
+	// Ground は計画の下地のタイル。地上の計画は全面を埋め、森は孤立した壁を、絵は下地を残す地形のマスをこれで置く
 	Ground string
 	// 階層情報
 	Level gc.Level
@@ -333,7 +333,7 @@ type PlannerType struct {
 	ItemTableName string
 	// 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。
 	Danger consts.Danger
-	// 全面を埋める下地のタイル。地上の計画だけが使い、空ならエラーにする
+	// 地面を埋める下地のタイル。地上と森の間取りが使い、空ならエラーにする
 	Ground string
 	// プランナー関数
 	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)

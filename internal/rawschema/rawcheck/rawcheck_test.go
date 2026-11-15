@@ -35,6 +35,19 @@ func TestValidate_ダイス表記の違反を位置で返す(t *testing.T) {
 	assert.Equal(t, []string{"enemyTables.0.entries.0.pack"}, ce.Paths())
 }
 
+func TestValidate_森の間取りを持つダンジョンは下地を持つ(t *testing.T) {
+	t.Parallel()
+	raws := makeRefRaws(func(r *rawschema.Raws) {
+		(*r.Dungeons)[0].Planners = []rawschema.DungeonPlannerWeight{{Id: rawschema.DungeonPlannerForest, Weight: 1}}
+	})
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"dungeons.0.ground"}, ce.Paths())
+
+	(*raws.Dungeons)[0].Ground = new(rawschema.EntityID("floor"))
+	require.NoError(t, rawcheck.Validate(raws), "下地を持てば通る")
+}
+
 func TestError_Paths_位置を並べて重複を除く(t *testing.T) {
 	t.Parallel()
 
@@ -44,4 +57,16 @@ func TestError_Paths_位置を並べて重複を除く(t *testing.T) {
 		{Path: "items.1.id", Message: "z"},
 	}}
 	assert.Equal(t, []string{"items.0.id", "items.1.id"}, e.Paths())
+}
+
+func TestValidate_タイルのidに下地を残す地形の予約語を使わない(t *testing.T) {
+	t.Parallel()
+	raws := makeRefRaws(func(r *rawschema.Raws) {
+		g := (*r.Tiles)[1]
+		g.Id = "ground"
+		*r.Tiles = append(*r.Tiles, g)
+	})
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"tiles.2.id"}, ce.Paths())
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -373,16 +374,19 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	}
 
 	if world.Resources.Config.ShowMapDebug {
-		// デバッグ用：スプライト番号表示(dirt, dwall)
+		// デバッグ用：土の色違いと壁のオートタイルの添字を表示する
 		if spriteRender.SpriteSheetName == "tile" {
 			var number string
 			var prefix string
-			if after, ok := strings.CutPrefix(spriteRender.SpriteKey, "dirt_"); ok {
-				number = after
-				prefix = "d"
-			} else if after, ok := strings.CutPrefix(spriteRender.SpriteKey, "dwall_"); ok {
-				number = after
-				prefix = "w"
+			if base, n, ok := strings.CutLast(spriteRender.SpriteKey, "_"); ok {
+				if _, err := strconv.Atoi(n); err == nil {
+					switch {
+					case strings.HasPrefix(base, "dirt_"):
+						number, prefix = n, "d"
+					case base == "dwall":
+						number, prefix = n, "w"
+					}
+				}
 			}
 
 			if number != "" {

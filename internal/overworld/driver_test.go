@@ -41,7 +41,7 @@ func TestDriver_Start_プレイヤー先在でもキューブをスポーンす�
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	assert.Equal(t, 1, countCubes(world), "プレイヤーが先在してもキューブが1体スポーンする")
@@ -56,12 +56,12 @@ func TestDriver_Start_復帰経路ではキューブを生成しない(t *testin
 	world := testutil.InitTestWorld(t)
 
 	// 新規開始でキューブが1体湧き、帯が active になる
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 	require.Equal(t, 1, countCubes(world), "前提: 新規開始でキューブが1体湧く")
 
 	// 復帰を再現する。active な帯を持つ世界で params nil のドライバを起動すると restoreFromSave を通る
-	s2 := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.DungeonOverworld, nil)
+	s2 := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, nil)
 	require.NoError(t, s2.Start(world))
 	assert.Equal(t, 1, countCubes(world), "復帰経路ではドライバはキューブを生成しない")
 }
@@ -69,7 +69,7 @@ func TestDriver_Start_復帰経路ではキューブを生成しない(t *testin
 func TestDriver_MaybeShift_北へ進むとシフトする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
@@ -87,7 +87,7 @@ func TestDriver_MaybeShift_北へ進むとシフトする(t *testing.T) {
 func TestDriver_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
@@ -108,7 +108,7 @@ func TestDriver_MaybeShift_複数チャンク跨ぎで連続シフト(t *testing
 func TestDriver_MaybeShift_開始点より南へはシフトしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 	require.Equal(t, 0, int(s.NorthIndex()), "前提: 開始時 northIndex=0")
 
@@ -127,7 +127,7 @@ func TestDriver_MaybeShift_開始点より南へはシフトしない(t *testing
 func TestDriver_MaybeShift_北進後は南へ戻らない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	player, err := query.GetPlayerEntity(world)
@@ -151,7 +151,7 @@ func TestDriver_MaybeShift_北進後は南へ戻らない(t *testing.T) {
 func TestDriver_MaybeShift_中央では動かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 
 	shifted, err := s.MaybeShift(world)
@@ -239,7 +239,7 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 	require.True(t, found, "前提: 集落と分類されるチャンクが見つかる")
 
 	world := testutil.InitTestWorld(t)
-	gen := NewChunkGen(world, seed, chunkW, chunkH, cols, mapplanner.PlannerTypeSmallRoom)
+	gen := NewChunkGen(world, seed, chunkW, chunkH, cols, mapplanner.PlannerTypeOverworldField)
 	require.NoError(t, gen(c, 0, 0))
 
 	// 商人が spawn され、オーバーワールド帯へ束縛され、相互作用を持つ
@@ -264,20 +264,20 @@ func TestDriver_Rowsの書き込みと正規化(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 	require.NoError(t, s.Start(world))
 	assert.Equal(t, testRows, query.GetSeamlessBand(world).Rows, "新規開始で Rows がセーブ対象へ書き込まれる")
 
 	// Rows がゼロ値で復元される場合。1行帯へ正規化される
 	oldWorld := testutil.InitTestWorld(t)
-	drOld := NewDriver(mapplanner.PlannerTypeSmallRoom, nil, nil)
+	drOld := NewDriver(mapplanner.PlannerTypeOverworldField, nil, nil)
 	sbOld := &gc.SeamlessBand{Active: true, RunSeed: 1, ChunkW: testChunkW, ChunkH: testChunkH, Cols: testCols}
 	require.NoError(t, drOld.restoreFromSave(oldWorld, sbOld))
 	assert.Equal(t, consts.Chunk(1), drOld.band.Rows(), "旧セーブのゼロ値 Rows は 1 へ正規化される")
 
 	// Rows=3 のセーブはそのまま3行で復元される
 	world3 := testutil.InitTestWorld(t)
-	dr3 := NewDriver(mapplanner.PlannerTypeSmallRoom, nil, nil)
+	dr3 := NewDriver(mapplanner.PlannerTypeOverworldField, nil, nil)
 	sb3 := &gc.SeamlessBand{Active: true, RunSeed: 1, ChunkW: testChunkW, ChunkH: testChunkH, Cols: testCols, Rows: 3}
 	require.NoError(t, dr3.restoreFromSave(world3, sb3))
 	assert.Equal(t, consts.Chunk(3), dr3.band.Rows(), "Rows=3 のセーブは3行で復元される")
@@ -432,7 +432,7 @@ func TestDriver_MaybeShift_キューブが南端の行に入ると警告する(t
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
-			s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+			s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
 			require.NoError(t, s.Start(world))
 			cube, ok := query.ActiveCube(world)
 			require.True(t, ok)

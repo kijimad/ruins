@@ -4,7 +4,7 @@ description = "軍基地"
 
 [palette.terrain]
 "#" = "wall"
-"," = "dirt"
+"," = "ground"
 "." = "floor_concrete"
 "=" = "pavement"
 
@@ -59,15 +59,15 @@ id = "classified_case"
 lootTable = "military_parts_case"
 
 [palette.props."B"]
-tile = "dirt"
+tile = "ground"
 candidates = [{ id = "red_drum", weight = 1 }, { id = "green_drum", weight = 2 }]
 
 [palette.props."F"]
-tile = "dirt"
+tile = "ground"
 id = "flag_pot"
 
 [palette.props."S"]
-tile = "dirt"
+tile = "ground"
 id = "construction_sign"
 
 [palette.props."P"]

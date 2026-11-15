@@ -51,7 +51,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateConditions,
 		validateWeathers,
 		validateTileEffects,
-		validateScatterZoneGrounds,
+		validateGrounds,
 		validateNeedStages,
 	}
 	for _, v := range validators {
@@ -474,9 +474,9 @@ func validateWeathers(raws rawschema.Raws) error {
 	return validateEnumRows("WeatherId", enumStrings(rawschema.WeatherIdValues()), rowIDs(weathers, func(w rawschema.Weather) rawschema.WeatherId { return w.Id }))
 }
 
-// validateScatterZoneGrounds は区分の下地が土の地面のタイルを指すことを検証する。
+// validateGrounds は区分とダンジョンの下地が土の地面のタイルを指すことを検証する。
 // 道と散布は土の地面の上にしか置かないので、土でない下地では黙って何も置かれなくなる
-func validateScatterZoneGrounds(raws rawschema.Raws) error {
+func validateGrounds(raws rawschema.Raws) error {
 	earth := map[rawschema.EntityID]bool{}
 	tiles := PtrSlice(raws.Tiles)
 	for i := range tiles {
@@ -486,6 +486,13 @@ func validateScatterZoneGrounds(raws rawschema.Raws) error {
 	for i := range zones {
 		if !earth[zones[i].Ground] {
 			return fmt.Errorf("scatter zone %q ground %q: %w", zones[i].Id, zones[i].Ground, errGroundNotEarth)
+		}
+	}
+	dungeons := PtrSlice(raws.Dungeons)
+	for i := range dungeons {
+		d := &dungeons[i]
+		if d.Ground != nil && !earth[*d.Ground] {
+			return fmt.Errorf("dungeon %q ground %q: %w", d.Id, *d.Ground, errGroundNotEarth)
 		}
 	}
 	return nil

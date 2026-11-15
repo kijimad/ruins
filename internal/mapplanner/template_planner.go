@@ -46,8 +46,14 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 			if cell.Terrain == "" {
 				return fmt.Errorf("%w: position %d, %d", errUndefinedCellTerrain, x, y)
 			}
-			tile := metaPlan.GetTile(cell.Terrain)
-			metaPlan.Tiles[idx] = tile
+			name := cell.Terrain
+			if name == maptemplate.GroundTerrain {
+				if metaPlan.Ground == "" {
+					return fmt.Errorf("position %d, %d: %w", x, y, ErrGroundNotSet)
+				}
+				name = metaPlan.Ground
+			}
+			metaPlan.Tiles[idx] = metaPlan.GetTile(name)
 		}
 	}
 

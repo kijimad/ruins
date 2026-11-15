@@ -1,7 +1,10 @@
 // Package rawschema は raw のデータの形、値の制約、行の間の参照を持つ。
 package rawschema
 
-import "strings"
+import (
+	"list"
+	"strings"
+)
 
 // 能力値
 #Abilities: {
@@ -383,6 +386,15 @@ import "strings"
 
 	// フロアの間取りの抽選表。行の順に重みを積む
 	planners!: [...#DungeonPlannerWeight] & [_, ...]
+
+	// 地面を下地で埋める間取りの下地のタイル。森の間取りは地面を下地で埋めるので、森を持つなら必須
+	ground?: #EntityID
+	if list.Contains([for p in planners {p.id}], "forest") {
+		ground!: _ @rawgen(-)
+	}
+	if ground != _|_ {
+		ground_ref: _tileIDs[ground] @rawgen(-)
+	}
 }
 
 // ダンジョンのフロアを生成する間取りの種類
@@ -1287,7 +1299,8 @@ import "strings"
 
 // タイル
 #Tile: {
-	id!:           #EntityID
+	// ground は施設のパレットで下地を残す地形の予約語なので、タイルの id に使わない
+	id!:           #EntityID & !="ground"
 	name!:         #EntityName
 	description!:  #EntityDescription
 	blockPass!:    #BlocksPassage
