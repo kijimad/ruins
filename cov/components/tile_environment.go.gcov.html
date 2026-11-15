@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 13:26:47</td>
+            <td class="headerValue">2026-11-15 14:17:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,36 +82,37 @@
 <span id="L20"><span class="lineNum">      20</span>              :         AnchorTemp       int        // 世界温度を引き寄せる先の温度</span>
 <span id="L21"><span class="lineNum">      21</span>              :         InfluencePercent int        // 世界温度を受ける割合。100 なら世界温度をそのまま受ける</span>
 <span id="L22"><span class="lineNum">      22</span>              :         Covered          bool       // 屋根に覆われているか。覆われないタイルには雪が積もる</span>
-<span id="L23"><span class="lineNum">      23</span>              : }</span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              : // TileEnvDefs は囲われの受け方と、水と植生がタイルの気温に足す補正の表。読み込み時に raw から1度だけ組み立て、以後は変えない</span>
-<span id="L26"><span class="lineNum">      26</span>              : type TileEnvDefs struct {</span>
-<span id="L27"><span class="lineNum">      27</span>              :         Shelters map[rawschema.Shelter]ShelterDef</span>
-<span id="L28"><span class="lineNum">      28</span>              :         Water    map[rawschema.WaterExposure]int</span>
-<span id="L29"><span class="lineNum">      29</span>              :         Foliage  map[rawschema.Foliage]int</span>
-<span id="L30"><span class="lineNum">      30</span>              : }</span>
-<span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span>              : // ShelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す。表に無い囲われは世界温度をそのまま受ける</span>
-<span id="L33"><span class="lineNum">      33</span>              : func (d TileEnvDefs) ShelteredWorldTemp(shelter rawschema.Shelter, worldTemp int) int {</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         def, ok := d.Shelters[shelter]</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 return worldTemp</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return def.AnchorTemp + (worldTemp-def.AnchorTemp)*def.InfluencePercent/100</span></span>
-<span id="L39"><span class="lineNum">      39</span>              : }</span>
-<span id="L40"><span class="lineNum">      40</span>              : </span>
-<span id="L41"><span class="lineNum">      41</span>              : // ShelterName は囲われの度合いの表示名 msgid を返す。表に無ければ id をそのまま返す</span>
-<span id="L42"><span class="lineNum">      42</span>              : func (d TileEnvDefs) ShelterName(shelter rawschema.Shelter) i18n.Msgid {</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         if def, ok := d.Shelters[shelter]; ok {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 return def.Name</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         return i18n.Msgid(shelter)</span></span>
-<span id="L47"><span class="lineNum">      47</span>              : }</span>
-<span id="L48"><span class="lineNum">      48</span>              : </span>
-<span id="L49"><span class="lineNum">      49</span>              : // TempModifier は水と植生による加算℃の合計を返す。囲われは加算℃でなく緩和度なので含まない</span>
-<span id="L50"><span class="lineNum">      50</span>              : func (d TileEnvDefs) TempModifier(env TileEnvironment) int {</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         return d.Water[env.Water] + d.Foliage[env.Foliage]</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L23"><span class="lineNum">      23</span>              :         DaylightPercent  int        // 地上の日照を受ける割合。100 なら屋外と同じ明るさ</span>
+<span id="L24"><span class="lineNum">      24</span>              : }</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : // TileEnvDefs は囲われの受け方と、水と植生がタイルの気温に足す補正の表。読み込み時に raw から1度だけ組み立て、以後は変えない</span>
+<span id="L27"><span class="lineNum">      27</span>              : type TileEnvDefs struct {</span>
+<span id="L28"><span class="lineNum">      28</span>              :         Shelters map[rawschema.Shelter]ShelterDef</span>
+<span id="L29"><span class="lineNum">      29</span>              :         Water    map[rawschema.WaterExposure]int</span>
+<span id="L30"><span class="lineNum">      30</span>              :         Foliage  map[rawschema.Foliage]int</span>
+<span id="L31"><span class="lineNum">      31</span>              : }</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : // ShelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す。表に無い囲われは世界温度をそのまま受ける</span>
+<span id="L34"><span class="lineNum">      34</span>              : func (d TileEnvDefs) ShelteredWorldTemp(shelter rawschema.Shelter, worldTemp int) int {</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         def, ok := d.Shelters[shelter]</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return worldTemp</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return def.AnchorTemp + (worldTemp-def.AnchorTemp)*def.InfluencePercent/100</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : }</span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : // ShelterName は囲われの度合いの表示名 msgid を返す。表に無ければ id をそのまま返す</span>
+<span id="L43"><span class="lineNum">      43</span>              : func (d TileEnvDefs) ShelterName(shelter rawschema.Shelter) i18n.Msgid {</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         if def, ok := d.Shelters[shelter]; ok {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 return def.Name</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         return i18n.Msgid(shelter)</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : }</span>
+<span id="L49"><span class="lineNum">      49</span>              : </span>
+<span id="L50"><span class="lineNum">      50</span>              : // TempModifier は水と植生による加算℃の合計を返す。囲われは加算℃でなく緩和度なので含まない</span>
+<span id="L51"><span class="lineNum">      51</span>              : func (d TileEnvDefs) TempModifier(env TileEnvironment) int {</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         return d.Water[env.Water] + d.Foliage[env.Foliage]</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

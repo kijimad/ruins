@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 13:26:47</td>
+            <td class="headerValue">2026-11-15 14:17:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -1219,7 +1219,7 @@
 <span id="L1157"><span class="lineNum">    1157</span>              : func NewTileEnvDefs(raws rawschema.Raws) gc.TileEnvDefs {</span>
 <span id="L1158"><span class="lineNum">    1158</span> <span class="tlaGNC">           1 :         defs := gc.TileEnvDefs{Shelters: map[rawschema.Shelter]gc.ShelterDef{}, Water: map[rawschema.WaterExposure]int{}, Foliage: map[rawschema.Foliage]int{}}</span></span>
 <span id="L1159"><span class="lineNum">    1159</span> <span class="tlaGNC">           1 :         for _, row := range PtrSlice(raws.ShelterEffects) {</span></span>
-<span id="L1160"><span class="lineNum">    1160</span> <span class="tlaGNC">           1 :                 defs.Shelters[row.Id] = gc.ShelterDef{Name: i18n.Msgid(row.Name), AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered}</span></span>
+<span id="L1160"><span class="lineNum">    1160</span> <span class="tlaGNC">           1 :                 defs.Shelters[row.Id] = gc.ShelterDef{Name: i18n.Msgid(row.Name), AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered, DaylightPercent: row.DaylightPercent}</span></span>
 <span id="L1161"><span class="lineNum">    1161</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L1162"><span class="lineNum">    1162</span> <span class="tlaGNC">           1 :         for _, row := range PtrSlice(raws.WaterEffects) {</span></span>
 <span id="L1163"><span class="lineNum">    1163</span> <span class="tlaGNC">           1 :                 defs.Water[row.Id] = row.TempModifier</span></span>

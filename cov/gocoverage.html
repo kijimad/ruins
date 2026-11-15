@@ -635,7 +635,7 @@
 				
 				<option value="file289">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file290">github.com/kijimaD/ruins/internal/systems/render3d.go (49.1%)</option>
+				<option value="file290">github.com/kijimaD/ruins/internal/systems/render3d.go (52.7%)</option>
 				
 				<option value="file291">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.3%)</option>
 				
@@ -645,7 +645,7 @@
 				
 				<option value="file294">github.com/kijimaD/ruins/internal/systems/turn_system.go (88.7%)</option>
 				
-				<option value="file295">github.com/kijimaD/ruins/internal/systems/vision.go (68.8%)</option>
+				<option value="file295">github.com/kijimaD/ruins/internal/systems/vision.go (68.9%)</option>
 				
 				<option value="file296">github.com/kijimaD/ruins/internal/systems/visual_effect.go (19.5%)</option>
 				
@@ -12152,6 +12152,7 @@ type TileIdx int
 type LightInfo struct {
         Darkness float64
         Color    color.RGBA
+        Ambient  float64 // タイルが受ける環境光の明るさ。屋根の下ほど日照を受けず暗い
 }
 
 // SeamlessBand はオーバーワールドのアクティブ帯の永続状態を保持する。
@@ -14622,6 +14623,7 @@ type ShelterDef struct {
         AnchorTemp       int        // 世界温度を引き寄せる先の温度
         InfluencePercent int        // 世界温度を受ける割合。100 なら世界温度をそのまま受ける
         Covered          bool       // 屋根に覆われているか。覆われないタイルには雪が積もる
+        DaylightPercent  int        // 地上の日照を受ける割合。100 なら屋外と同じ明るさ
 }
 
 // TileEnvDefs は囲われの受け方と、水と植生がタイルの気温に足す補正の表。読み込み時に raw から1度だけ組み立て、以後は変えない
@@ -30453,7 +30455,7 @@ var (
 func NewTileEnvDefs(raws rawschema.Raws) gc.TileEnvDefs {
         <span class="cov8" title="1">defs := gc.TileEnvDefs{Shelters: map[rawschema.Shelter]gc.ShelterDef{}, Water: map[rawschema.WaterExposure]int{}, Foliage: map[rawschema.Foliage]int{}}
         for _, row := range PtrSlice(raws.ShelterEffects) </span>{
-                <span class="cov8" title="1">defs.Shelters[row.Id] = gc.ShelterDef{Name: i18n.Msgid(row.Name), AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered}
+                <span class="cov8" title="1">defs.Shelters[row.Id] = gc.ShelterDef{Name: i18n.Msgid(row.Name), AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered, DaylightPercent: row.DaylightPercent}
 </span>        }
         <span class="cov8" title="1">for _, row := range PtrSlice(raws.WaterEffects) </span>{
                 <span class="cov8" title="1">defs.Water[row.Id] = row.TempModifier
@@ -33528,12 +33530,18 @@ func ShelterValues() []Shelter {
         <span class="cov0" title="0">return []Shelter{Outdoor, Partial, Indoor}
 </span>}
 
+// ShelterDaylightPercent 地上の日照を受ける割合。百分率。100 なら屋外と同じ明るさ、0 ならダンジョンと同じ暗さになる
+type ShelterDaylightPercent = int
+
 // ShelterEffect 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100
 type ShelterEffect struct {
         AnchorTemp TileTempModifier `json:"anchorTemp"`
 
         // Covered 屋根に覆われているか。覆われない通れるタイルには雪が積もる
         Covered bool `json:"covered"`
+
+        // DaylightPercent 地上の日照を受ける割合
+        DaylightPercent ShelterDaylightPercent `json:"daylightPercent"`
 
         Id Shelter `json:"id"`
 
@@ -46478,10 +46486,10 @@ type r3quad struct {
         depth int
 }
 
-// dayOverbright* は屋外の日照が強いほどタイルの明るさを乗算の天井 1.0 超へ持ち上げる帯。
+// dayOverbright* はタイルが受ける環境光が強いほどタイルの明るさを乗算の天井 1.0 超へ持ち上げる帯。
 // テクスチャ本来の明るさを越えて晴天らしく明るく見せる。dayOverbrightLow 以下では持ち上げない。
-// vision.go の lightFadeHigh と同じ overworldDaylight スケールの値で、役割ごとに段階が分かれる。
-// まず日照 lightFadeHigh までに光源の寄与を消し、そこからさらに明るい dayOverbrightHigh に向けて日中の底上げが最大になる。
+// vision.go の lightFadeHigh と同じ環境光のスケールの値で、役割ごとに段階が分かれる。
+// まず環境光 lightFadeHigh までに光源の寄与を消し、そこからさらに明るい dayOverbrightHigh に向けて日中の底上げが最大になる。
 const (
         dayOverbrightMax  = 0.3
         dayOverbrightLow  = 0.6
@@ -46726,18 +46734,16 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
         <span class="cov8" title="1">if !sys.UseFOV </span>{
                 <span class="cov8" title="1">return func(*gc.GridElement) ([3]float64, bool, bool) </span>{ <span class="cov8" title="1">return [3]float64{1, 1, 1}, true, true }</span>
         }
-        <span class="cov0" title="0">renderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)
-</span>        // 屋外の日照が強いほど明るさを 1.0 超へ持ち上げ、乗算の天井を越えて晴天を明るく見せる
-        <span class="cov0" title="0">boost := 1.0
-        if query.IsOnOverworld(world) </span>{
-                <span class="cov0" title="0">boost = 1 + dayOverbrightMax*smoothstep(dayOverbrightLow, dayOverbrightHigh, overworldDaylight(world.Resources.CalendarDefs, query.GetGameTime(world)))
-</span>        }
-        <span class="cov0" title="0">return func(g *gc.GridElement) ([3]float64, bool, bool) </span>{
-                <span class="cov0" title="0">s, drawable, visible := sampleOf(renderMap[*g])
-                if visible </span>{
-                        <span class="cov0" title="0">s = s.overbright(boost)
+        <span class="cov8" title="1">renderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)
+</span>        // タイルの受ける環境光が強いほど明るさを 1.0 超へ持ち上げ、乗算の天井を越えて晴天を明るく見せる。
+        // 屋根の下は日照を減らして受けるので持ち上がらない
+        <span class="cov8" title="1">return func(g *gc.GridElement) ([3]float64, bool, bool) </span>{
+                <span class="cov8" title="1">info := renderMap[*g]
+                s, drawable, visible := sampleOf(info)
+                if v, ok := info.(TileRenderVisible); ok </span>{
+                        <span class="cov8" title="1">s = s.overbright(1 + dayOverbrightMax*smoothstep(dayOverbrightLow, dayOverbrightHigh, v.Ambient))
 </span>                }
-                <span class="cov0" title="0">return s.tint(), drawable, visible</span>
+                <span class="cov8" title="1">return s.tint(), drawable, visible</span>
         }
 }
 
@@ -48218,15 +48224,17 @@ func (sys *VisionSystem) Update(world w.World) error {
 </span>
         // 視界内タイルの光源情報を計算し、探索済みマークを行う。
         // マップ外座標はデータに含めない。
-        // 環境光は屋内なら微小、地上なら時間帯の日照。昼の屋外は全体が明るく松明が要らず、
-        // 地下や深夜は松明の届く範囲だけが見える
-        // 環境光は明るさと色を持つ。屋内は微小で無彩色、地上は時間帯の日照と色
+        // 環境光は明るさと色を持つ。ダンジョンは微小で無彩色、地上は時間帯の日照と色で、屋根の下は
+        // 囲われの日照を受ける割合だけ日照を受ける。昼の屋外は全体が明るく松明が要らず、
+        // ダンジョンと深夜と屋内は松明の届く範囲だけが見える
         <span class="cov0" title="0">ambient := dungeonAmbient
         ambientColor := [3]float64{1, 1, 1}
+        var daylightPercents map[gc.GridElement]int
         if query.IsOnOverworld(world) </span>{
                 <span class="cov0" title="0">gt := query.GetGameTime(world)
                 ambient = overworldDaylight(world.Resources.CalendarDefs, gt)
                 ambientColor = overworldAmbientColor(world.Resources.CalendarDefs, gt)
+                daylightPercents = buildDaylightPercentIndex(world)
 </span>        }
         <span class="cov0" title="0">visibleTiles := make(map[gc.GridElement]bool)
         for _, tileData := range visibilityData </span>{
@@ -48238,7 +48246,11 @@ func (sys *VisionSystem) Update(world w.World) error {
                         <span class="cov0" title="0">continue</span>
                 }
 
-                <span class="cov0" title="0">info := calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, ambient, ambientColor)
+                <span class="cov0" title="0">tileAmbient := ambient
+                if p, ok := daylightPercents[gridElement]; ok </span>{
+                        <span class="cov0" title="0">tileAmbient = shelteredAmbient(ambient, p)
+</span>                }
+                <span class="cov0" title="0">info := calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, tileAmbient, ambientColor)
 </span>                // 明るさが閾値未満なら見えない。視界を光の届く範囲へ寄せる。
                 // 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる
                 <span class="cov0" title="0">if 1.0-info.Darkness &lt; visibilityThreshold </span>{
@@ -48279,6 +48291,7 @@ type TileRenderInfo interface {
 type TileRenderVisible struct {
         Darkness   VisibleDarkness // 暗闘の強さ。0.0で完全に明るく、1.0で完全に暗い
         LightColor color.RGBA      // 光源がある場合の色
+        Ambient    float64         // タイルが受ける環境光の明るさ。光の情報が無ければ 0 で、昼の底上げを受けない
 }
 
 func (TileRenderVisible) tileRenderInfo() {<span class="cov0" title="0"></span>}
@@ -48321,6 +48334,7 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo)
                 <span class="cov8" title="1">visible := TileRenderVisible{Darkness: DarknessVisible}
                 if li, ok := lights[grid]; ok </span>{
                         <span class="cov8" title="1">visible.Darkness = VisibleDarkness(math.Min(li.Darkness, float64(DarknessRemembered)))
+                        visible.Ambient = li.Ambient
 </span>                        // 完全な暗黒には色を乗せない。描画側も無視するが、意図を明示する
                         <span class="cov8" title="1">if li.Darkness &lt; 1.0 </span>{
                                 <span class="cov8" title="1">visible.LightColor = li.Color
@@ -48473,6 +48487,26 @@ func overworldAmbientColor(defs gc.CalendarDefs, gt *gc.GameTime) [3]float64 {
         return [3]float64{a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t}
 </span>}
 
+// shelteredAmbient は日照 daylight のうち percent の割合だけを受けた環境光を返す。0 ならダンジョンと同じ暗さになる。
+// 日照がダンジョンより暗くても、屋根の下が屋外より明るくはならない
+func shelteredAmbient(daylight float64, percent int) float64 {
+        <span class="cov8" title="1">return math.Min(daylight, dungeonAmbient+(daylight-dungeonAmbient)*float64(percent)/100)
+</span>}
+
+// buildDaylightPercentIndex は日照を減らして受けるタイルの座標と、日照を受ける割合を集める。表に無い座標は日照をそのまま受ける
+func buildDaylightPercentIndex(world w.World) map[gc.GridElement]int {
+        <span class="cov8" title="1">index := make(map[gc.GridElement]int)
+        shelters := world.Resources.TileEnvDefs.Shelters
+        q := query.ActiveFilter3[gc.GridElement, gc.TileEnvironment, gc.Tile](world).Query()
+        for q.Next() </span>{
+                <span class="cov8" title="1">def, ok := shelters[world.Components.TileEnvironment.Get(q.Entity()).Shelter]
+                if ok &amp;&amp; def.DaylightPercent &lt; 100 </span>{
+                        <span class="cov8" title="1">index[*world.Components.GridElement.Get(q.Entity())] = def.DaylightPercent
+</span>                }
+        }
+        <span class="cov8" title="1">return index</span>
+}
+
 // lightAccum は環境光と光源を畳んで明るさと色を溜める。フィルタ列で順に組み立てる。
 type lightAccum struct {
         brightness       float64 // 加算した明るさ。resolve で 0..1 にクランプする
@@ -48556,7 +48590,9 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
                 <span class="cov8" title="1">acc = acc.addSource(lightSource.Color, atten*suppress)</span>
         }
 
-        <span class="cov8" title="1">return acc.resolve()</span>
+        <span class="cov8" title="1">info := acc.resolve()
+        info.Ambient = ambient
+        return info</span>
 }
 
 // 各タイル状態の暗闇の強さ
@@ -48567,7 +48603,7 @@ const (
 
 // ライティングの調整値
 const (
-        // dungeonAmbient は屋内の環境光。松明が無いと見えないくらい暗い
+        // dungeonAmbient はダンジョンの環境光。松明が無いと見えないくらい暗い
         dungeonAmbient = 0.06
         // lightFadeLow は光源のフェードの下端。これ以下の環境光では光源が満額効く
         lightFadeLow = 0.45
