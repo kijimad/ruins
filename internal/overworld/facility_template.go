@@ -166,10 +166,10 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 	return nil
 }
 
-// voidEnclosedWalls は、直交と斜めの近傍8マスに通れる地形が無い、通れない地形を虚空にする。壁のオートタイルは部屋を囲む細い輪郭を
+// voidEnclosedWalls は、直交と斜めの近傍8マスに通れる地形が無い壁を虚空にする。壁のオートタイルは部屋を囲む細い輪郭を
 // 前提にするので、厚い壁の塊の内側を虚空にして描き崩れを防ぐ。マスの外は outsidePassable が通れると返す座標だけを通れるものとして
 // 数える。家具の乗った壁は残す
-func voidEnclosedWalls(cells [][]maptemplate.MapCell, blocks func(terrain string) bool, outsidePassable func(x, y int) bool) {
+func voidEnclosedWalls(cells [][]maptemplate.MapCell, blocks, isWall func(terrain string) bool, outsidePassable func(x, y int) bool) {
 	passable := func(x, y int) bool {
 		if y < 0 || y >= len(cells) || x < 0 || x >= len(cells[y]) {
 			return outsidePassable(x, y)
@@ -179,7 +179,7 @@ func voidEnclosedWalls(cells [][]maptemplate.MapCell, blocks func(terrain string
 	var enclosed [][2]int
 	for y, row := range cells {
 		for x, c := range row {
-			if !blocks(c.Terrain) || c.Prop != "" {
+			if !isWall(c.Terrain) || c.Prop != "" {
 				continue
 			}
 			open := false
@@ -196,6 +196,16 @@ func voidEnclosedWalls(cells [][]maptemplate.MapCell, blocks func(terrain string
 	for _, p := range enclosed {
 		cells[p[1]][p[0]] = maptemplate.MapCell{Terrain: consts.TileNameVoid}
 	}
+}
+
+// tileIsWall は地形 terrain が壁かを raw のタイルの行から返す
+func tileIsWall(raws rawschema.Raws) func(terrain string) bool {
+	walls := map[string]bool{}
+	tiles := raw.PtrSlice(raws.Tiles)
+	for i := range tiles {
+		walls[tiles[i].Id] = tiles[i].IsWall()
+	}
+	return func(terrain string) bool { return walls[terrain] }
 }
 
 // tileBlocksPass は地形 terrain が通れないかを raw のタイルの行から返す。行の無い地形は通れないとする

@@ -185,3 +185,32 @@ func TestConvertIsolatedWalls_置き換え先のgroundは計画の下地(t *test
 		assert.Equal(t, "dirt", planData.Tiles[center].Id)
 	})
 }
+
+func TestConvertIsolatedWalls_壁でない通れないタイルは置き換えない(t *testing.T) {
+	t.Parallel()
+
+	// 5x5 の中央は添字 2*5+2。全てを同じタイルにすると、中央は通れるマスに接しない
+	const center = 12
+	tests := []struct {
+		fill string
+		want string
+	}{
+		{"wall", "floor"},
+		{"void", "void"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.fill, func(t *testing.T) {
+			t.Parallel()
+			planData := &MetaPlan{
+				Level:     gc.Level{TileWidth: 5, TileHeight: 5},
+				Tiles:     make([]rawschema.Tile, 25),
+				RawMaster: CreateTestRawMaster(),
+			}
+			for i := range planData.Tiles {
+				planData.Tiles[i] = planData.GetTile(tt.fill)
+			}
+			require.NoError(t, ConvertIsolatedWalls{ReplacementTile: "floor"}.PlanMeta(planData))
+			assert.Equal(t, tt.want, planData.Tiles[center].Id)
+		})
+	}
+}

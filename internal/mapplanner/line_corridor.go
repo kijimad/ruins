@@ -21,7 +21,7 @@ func (b LineCorridorPlanner) PlanMeta(planData *MetaPlan) error {
 	return nil
 }
 
-// BuildCorridors は廊下をビルドする。廊下は通れないマスだけを床にする
+// BuildCorridors は廊下をビルドする。廊下は壁だけを床にする
 func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 	// 接続済みの部屋。通路を2重に計算しないようにする
 	connected := map[int]bool{}
@@ -73,7 +73,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			// 中心線は無条件に床に変換する
 			for _, p := range centerPoints {
 				idx := planData.Level.CoordToIndex(p)
-				if isValidTileIdx(planData, idx) && planData.Tiles[idx].BlockPass {
+				if isValidTileIdx(planData, idx) && planData.Tiles[idx].IsWall() {
 					planData.Tiles[idx] = planData.GetTile(b.FloorTile)
 				}
 				corridor = append(corridor, idx)
@@ -82,7 +82,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			// サイドは部屋に隣接するタイルをスキップして、接続部を1タイル幅に狭める
 			for _, p := range sidePoints {
 				idx := planData.Level.CoordToIndex(p)
-				if isValidTileIdx(planData, idx) && planData.Tiles[idx].BlockPass {
+				if isValidTileIdx(planData, idx) && planData.Tiles[idx].IsWall() {
 					if isAdjacentToRoom(planData.Rooms, int(p.X), int(p.Y)) {
 						continue
 					}

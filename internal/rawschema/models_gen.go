@@ -2830,6 +2830,9 @@ type Tile struct {
 
 	SpriteRender SpriteRender `json:"spriteRender"`
 
+	// Wall 壁のタイル。間取りの段が掘って囲み、施設の絵の厚い内側を虚空にし、高さのある箱として描く。壁は通れない
+	Wall *bool `json:"wall,omitempty"`
+
 	// Water 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける
 	Water *bool `json:"water,omitempty"`
 }

@@ -1589,6 +1589,11 @@ import (
 
 	// 草や木を立てられ、道で上書きしてよい土の地面か
 	earth?: bool
+	// 壁のタイル。間取りの段が掘って囲み、施設の絵の厚い内側を虚空にし、高さのある箱として描く。壁は通れない
+	wall?: bool
+	if wall != _|_ if wall {
+		blockPass: true @rawgen(-)
+	}
 
 	// 積もる雪を減らす割合。省くと減らさない
 	snowMeltPercent?: #SnowMeltPercent

@@ -70,3 +70,17 @@ func TestValidate_タイルのidに下地を残す地形の予約語を使わな
 	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
 	assert.Equal(t, []string{"tiles.2.id"}, ce.Paths())
 }
+
+func TestValidate_壁のタイルは通れない(t *testing.T) {
+	t.Parallel()
+	raws := makeRefRaws(func(r *rawschema.Raws) {
+		(*r.Tiles)[0].Wall = new(true)
+		(*r.Tiles)[0].BlockPass = false
+	})
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"tiles.0.blockPass"}, ce.Paths())
+
+	(*raws.Tiles)[0].BlockPass = true
+	require.NoError(t, rawcheck.Validate(raws), "通れない壁は通る")
+}
