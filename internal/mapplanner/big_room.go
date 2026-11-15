@@ -57,7 +57,7 @@ func (b BigRoomDraw) PlanMeta(planData *MetaPlan) error {
 	return nil
 }
 
-// drawBasicBigRoom は基本の大部屋を描画する
+// drawBasicBigRoom は基本の大部屋を描画する。部屋の周りの通れないマスを壁にする
 func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
 	for _, room := range planData.Rooms {
 		// 部屋の内部を床タイルで埋める

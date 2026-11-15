@@ -98,53 +98,56 @@ func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool 
 		slices.ContainsFunc(bm.Doors, func(door DoorSpec) bool { return door.Coord == pos })
 }
 
-// UpTile は上にあるタイルを調べる。地図の外は id を持たない空のタイルを返す
+// outsideTile は地図の外を表すタイル。id を持たず、通れない
+var outsideTile = rawschema.Tile{BlockPass: true}
+
+// UpTile は上にあるタイルを調べる。地図の外は outsideTile を返す
 func (bm MetaPlan) UpTile(idx gc.TileIdx) rawschema.Tile {
 	targetIdx := gc.TileIdx(int(idx) - int(bm.Level.TileWidth))
 	if targetIdx < 0 {
-		return rawschema.Tile{}
+		return outsideTile
 	}
 
 	return bm.Tiles[targetIdx]
 }
 
-// DownTile は下にあるタイルを調べる。地図の外は id を持たない空のタイルを返す
+// DownTile は下にあるタイルを調べる。地図の外は outsideTile を返す
 func (bm MetaPlan) DownTile(idx gc.TileIdx) rawschema.Tile {
 	targetIdx := int(idx) + int(bm.Level.TileWidth)
 	if targetIdx > len(bm.Tiles)-1 {
-		return rawschema.Tile{}
+		return outsideTile
 	}
 
 	return bm.Tiles[targetIdx]
 }
 
-// LeftTile は左にあるタイルを調べる。地図の外は id を持たない空のタイルを返す
+// LeftTile は左にあるタイルを調べる。地図の外は outsideTile を返す
 func (bm MetaPlan) LeftTile(idx gc.TileIdx) rawschema.Tile {
 	pos := bm.Level.IndexToCoord(idx)
 	if pos.X == 0 {
-		return rawschema.Tile{}
+		return outsideTile
 	}
 
 	// 左のタイルが同じ行であることを確認
 	targetIdx := idx - 1
 	if bm.Level.IndexToCoord(targetIdx).Y != pos.Y {
-		return rawschema.Tile{}
+		return outsideTile
 	}
 
 	return bm.Tiles[targetIdx]
 }
 
-// RightTile は右にあるタイルを調べる。地図の外は id を持たない空のタイルを返す
+// RightTile は右にあるタイルを調べる。地図の外は outsideTile を返す
 func (bm MetaPlan) RightTile(idx gc.TileIdx) rawschema.Tile {
 	pos := bm.Level.IndexToCoord(idx)
 	if pos.X == bm.Level.TileWidth-1 {
-		return rawschema.Tile{}
+		return outsideTile
 	}
 
 	// 右のタイルが同じ行であることを確認
 	targetIdx := idx + 1
 	if bm.Level.IndexToCoord(targetIdx).Y != pos.Y {
-		return rawschema.Tile{}
+		return outsideTile
 	}
 
 	return bm.Tiles[targetIdx]

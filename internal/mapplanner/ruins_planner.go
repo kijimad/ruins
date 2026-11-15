@@ -123,7 +123,7 @@ type RuinsDebris struct {
 	Tiles rawschema.LayoutTiles
 }
 
-// PlanMeta は廃墟に瓦礫を配置する
+// PlanMeta は廃墟の通れるマスに瓦礫を配置する
 func (r RuinsDebris) PlanMeta(planData *MetaPlan) error {
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)
@@ -201,7 +201,7 @@ func (r RuinsCorridors) PlanMeta(planData *MetaPlan) error {
 	return nil
 }
 
-// createRuinedPath は破損した通路を作成する
+// createRuinedPath は破損した通路を作成する。通路は通れないマスだけを床にする
 func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rect) {
 	// 各建物の中心を計算
 	center1X := (room1.Min.X + room1.Max.X) / 2
