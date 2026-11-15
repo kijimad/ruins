@@ -3,7 +3,7 @@ id = "military"
 description = "軍基地"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_stone_3"
 "," = "ground"
 "." = "floor_concrete"
 "=" = "pavement"
@@ -13,7 +13,7 @@ tile = "floor_concrete"
 id = "door"
 
 [palette.props."w"]
-tile = "wall"
+tile = "wall_stone_3"
 id = "window"
 
 [palette.props."b"]

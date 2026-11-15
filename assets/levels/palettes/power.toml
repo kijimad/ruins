@@ -3,7 +3,7 @@ id = "power"
 description = "発電施設"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_stone_3"
 "," = "ground"
 "." = "floor_concrete"
 "=" = "pavement"

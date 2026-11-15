@@ -23877,6 +23877,678 @@
     spriteKey = "snow"
     spriteSheetName = "tile"
 
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "石を積んだ壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_stone_1"
+  name = "Stone Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_stone_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "石を積んだ壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_stone_2"
+  name = "Stone Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_stone_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "石を積んだ壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_stone_3"
+  name = "Stone Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_stone_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "石を積んだ壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_stone_4"
+  name = "Stone Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_stone_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "荒い石を積んだ壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_rubble_1"
+  name = "Rubble Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_rubble_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "荒い石を積んだ壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_rubble_2"
+  name = "Rubble Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_rubble_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "荒い石を積んだ壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_rubble_3"
+  name = "Rubble Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_rubble_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "荒い石を積んだ壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_rubble_4"
+  name = "Rubble Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_rubble_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "縦板を張った壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_siding_1"
+  name = "Siding Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_siding_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "縦板を張った壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_siding_2"
+  name = "Siding Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_siding_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "縦板を張った壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_siding_3"
+  name = "Siding Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_siding_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "縦板を張った壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_siding_4"
+  name = "Siding Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_siding_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "漆喰を塗った平らな壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_plaster_1"
+  name = "Plaster Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_plaster_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "漆喰を塗った平らな壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_plaster_2"
+  name = "Plaster Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_plaster_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "漆喰を塗った平らな壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_plaster_3"
+  name = "Plaster Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_plaster_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "漆喰を塗った平らな壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_plaster_4"
+  name = "Plaster Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_plaster_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "柱の飾りが並ぶ壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_pillar_1"
+  name = "Pillar Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_pillar_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "柱の飾りが並ぶ壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_pillar_2"
+  name = "Pillar Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_pillar_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "柱の飾りが並ぶ壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_pillar_3"
+  name = "Pillar Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_pillar_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "柱の飾りが並ぶ壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_pillar_4"
+  name = "Pillar Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_pillar_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "丸い石を積んだ壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_cobble_1"
+  name = "Cobble Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_cobble_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "丸い石を積んだ壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_cobble_2"
+  name = "Cobble Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_cobble_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "丸い石を積んだ壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_cobble_3"
+  name = "Cobble Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_cobble_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "丸い石を積んだ壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_cobble_4"
+  name = "Cobble Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_cobble_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "横板を張った壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_board_1"
+  name = "Board Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_board_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "横板を張った壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_board_2"
+  name = "Board Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_board_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "横板を張った壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_board_3"
+  name = "Board Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_board_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "横板を張った壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_board_4"
+  name = "Board Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_board_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "平らなコンクリートの壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_concrete_1"
+  name = "Concrete Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_concrete_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "平らなコンクリートの壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_concrete_2"
+  name = "Concrete Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_concrete_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "平らなコンクリートの壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_concrete_3"
+  name = "Concrete Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_concrete_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "平らなコンクリートの壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_concrete_4"
+  name = "Concrete Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_concrete_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "木の板を組んだ壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_wood_1"
+  name = "Wood Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_wood_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "木の板を組んだ壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_wood_2"
+  name = "Wood Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_wood_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "木の板を組んだ壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_wood_3"
+  name = "Wood Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_wood_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "木の板を組んだ壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_wood_4"
+  name = "Wood Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_wood_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "煉瓦を積んだ壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_brick_1"
+  name = "Brick Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_brick_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "煉瓦を積んだ壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_brick_2"
+  name = "Brick Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_brick_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "煉瓦を積んだ壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_brick_3"
+  name = "Brick Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_brick_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "煉瓦を積んだ壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_brick_4"
+  name = "Brick Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_brick_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "葦を編んだ壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_reed_1"
+  name = "Reed Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_reed_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "葦を編んだ壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_reed_2"
+  name = "Reed Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_reed_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "葦を編んだ壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_reed_3"
+  name = "Reed Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_reed_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "葦を編んだ壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_reed_4"
+  name = "Reed Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_reed_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "氷の塊を積んだ壁のオートタイル。明るさの段1。通行不可"
+  id = "wall_ice_1"
+  name = "Ice Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_ice_1"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "氷の塊を積んだ壁のオートタイル。明るさの段2。通行不可"
+  id = "wall_ice_2"
+  name = "Ice Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_ice_2"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "氷の塊を積んだ壁のオートタイル。明るさの段3。通行不可"
+  id = "wall_ice_3"
+  name = "Ice Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_ice_3"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = true
+  blockView = true
+  box = true
+  description = "氷の塊を積んだ壁のオートタイル。明るさの段4。通行不可"
+  id = "wall_ice_4"
+  name = "Ice Wall"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 3
+    spriteKey = "wall_ice_4"
+    spriteSheetName = "tile"
+
 [[timesOfDay]]
   daylight = 0.65
   id = "dawn"

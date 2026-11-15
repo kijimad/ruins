@@ -104,6 +104,7 @@ func TestFacilityRooms_区画が要る辺の組の絵を持ち辺の種類どお
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
+	isBox := tileIsBox(raws)
 	want := map[maptemplate.EdgeKind]string{
 		maptemplate.EdgeWall: "####################",
 		maptemplate.EdgeDoor: "#########++#########",
@@ -137,7 +138,7 @@ func TestFacilityRooms_区画が要る辺の組の絵を持ち辺の種類どお
 					switch {
 					case c.Prop == "door":
 						got += "+"
-					case c.Terrain == "wall":
+					case isBox(c.Terrain):
 						got += "#"
 					default:
 						got += "."
@@ -387,4 +388,12 @@ func possibleRoomEdges(b buildingLot, l consts.Coord[consts.Chunk]) [][4]maptemp
 		}
 	}
 	return out
+}
+
+func TestRoomWall_部屋の絵の箱の地形を帯の壁にする(t *testing.T) {
+	t.Parallel()
+	isBox := func(terrain string) bool { return terrain == "wall_brick_1" }
+	brick := [][]maptemplate.MapCell{{{Terrain: "floor"}, {Terrain: "wall_brick_1"}}}
+	open := [][]maptemplate.MapCell{{{Terrain: "floor"}, {Terrain: "floor"}}}
+	assert.Equal(t, []string{"wall_brick_1", consts.TileNameWall}, []string{roomWall(brick, isBox), roomWall(open, isBox)})
 }

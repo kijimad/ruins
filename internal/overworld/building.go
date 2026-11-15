@@ -204,8 +204,8 @@ func edgeKey(a, b consts.Coord[consts.Chunk]) [2]consts.Coord[consts.Chunk] {
 }
 
 // roomChunkCells は区画 b の中の座標 l のチャンクの部屋の絵を引き、北と西の帯と合わせてチャンク全体のマスを組む。
-// 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする
-func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, streets streetTiles) ([][]maptemplate.MapCell, error) {
+// 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする。isBox は箱で描く地形かを返す
+func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, streets streetTiles, isBox func(terrain string) bool) ([][]maptemplate.MapCell, error) {
 	edges := b.roomEdges(l)
 	_, room, err := loader.FacilityRoom(b.facility, edges, ChunkSeed2D(b.seed, l.X, l.Y))
 	if err != nil {
@@ -227,15 +227,29 @@ func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.
 	for y, row := range room {
 		copy(cells[y+s][s:], row)
 	}
-	drawRoomStrips(cells, room, b, l, edges)
+	drawRoomStrips(cells, room, b, l, edges, roomWall(room, isBox))
 	return cells, nil
 }
 
-// drawRoomStrips は区画の内側に面するチャンクの北と西の帯を、隣の部屋との繋ぎとして描く。区画の外周の帯は街路のまま残す
-func drawRoomStrips(cells, room [][]maptemplate.MapCell, b buildingLot, l consts.Coord[consts.Chunk], edges [4]maptemplate.EdgeKind) {
+// roomWall は部屋の絵の壁の地形を返す。部屋は1種類の壁で組むので、箱で描く地形を見つけた最初のものを使う。
+// 箱の地形が無い部屋は wall を返す
+func roomWall(room [][]maptemplate.MapCell, isBox func(terrain string) bool) string {
+	for _, row := range room {
+		for _, c := range row {
+			if isBox(c.Terrain) {
+				return c.Terrain
+			}
+		}
+	}
+	return consts.TileNameWall
+}
+
+// drawRoomStrips は区画の内側に面するチャンクの北と西の帯を、隣の部屋との繋ぎとして描く。区画の外周の帯は街路のまま残す。
+// 帯の壁は部屋の壁の地形 wallTerrain で描く
+func drawRoomStrips(cells, room [][]maptemplate.MapCell, b buildingLot, l consts.Coord[consts.Chunk], edges [4]maptemplate.EdgeKind, wallTerrain string) {
 	s := int(urbanStreetW)
 	h, w := len(cells), len(cells[0])
-	wall := maptemplate.MapCell{Terrain: consts.TileNameWall}
+	wall := maptemplate.MapCell{Terrain: wallTerrain}
 	floor := func(x, y int) maptemplate.MapCell { return maptemplate.MapCell{Terrain: room[y][x].Terrain} }
 	mid := (w - s) / 2
 

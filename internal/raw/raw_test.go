@@ -1,6 +1,7 @@
 package raw
 
 import (
+	"fmt"
 	"io/fs"
 	"testing"
 
@@ -1194,7 +1195,7 @@ func TestTileSpawn_実データ(t *testing.T) {
 			got[tl.Id] = *tl.Spawn
 		}
 	}
-	assert.Equal(t, map[string]rawschema.TileSpawn{
+	want := map[string]rawschema.TileSpawn{
 		"dirt":             {Autotile: true},
 		"dirt_orange":      {Autotile: true},
 		"dirt_tundra":      {Autotile: true},
@@ -1233,7 +1234,14 @@ func TestTileSpawn_実データ(t *testing.T) {
 		"plank_blue":       {Autotile: true},
 		"wall":             {Tile: new("dwall"), Autotile: true},
 		"void":             {Autotile: false},
-	}, got)
+	}
+	// DawnLike の壁のオートタイル。素材ごとに明るさ4段
+	for _, m := range []string{"stone", "rubble", "siding", "plaster", "pillar", "cobble", "board", "concrete", "wood", "brick", "reed", "ice"} {
+		for n := 1; n <= 4; n++ {
+			want[fmt.Sprintf("wall_%s_%d", m, n)] = rawschema.TileSpawn{Autotile: true}
+		}
+	}
+	assert.Equal(t, want, got)
 }
 
 func TestTileShelter_実データ(t *testing.T) {

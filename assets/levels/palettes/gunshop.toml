@@ -3,7 +3,7 @@ id = "gunshop"
 description = "銃砲店"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_brick_1"
 "," = "ground"
 "=" = "pavement"
 "." = "floor_wood"
@@ -13,7 +13,7 @@ tile = "floor_wood"
 id = "door"
 
 [palette.props."w"]
-tile = "wall"
+tile = "wall_brick_1"
 id = "window"
 
 [palette.props."r"]

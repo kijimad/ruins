@@ -3,7 +3,7 @@ id = "depot"
 description = "倉庫"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_board_1"
 "," = "ground"
 "=" = "pavement"
 "." = "floor_concrete"
@@ -15,7 +15,7 @@ tile = "floor_concrete"
 id = "door"
 
 [palette.props."w"]
-tile = "wall"
+tile = "wall_board_1"
 id = "window"
 
 [palette.props."B"]
