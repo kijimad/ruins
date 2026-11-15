@@ -1,27 +1,19 @@
 package overworld
 
 import (
-	"math/rand/v2"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/rawschema"
+	"github.com/kijimaD/ruins/internal/dungeon"
+	"github.com/kijimaD/ruins/internal/maptemplate"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func TestDrawers_全DrawerKeyに実装がある(t *testing.T) {
-	t.Parallel()
-
-	for _, key := range rawschema.DrawerKeyValues() {
-		_, ok := drawers[key]
-		assert.Truef(t, ok, "drawer key %q に Go 実装がある", key)
-	}
-}
 
 // findLandmarkChunk は点在ランドマークが当選し、他の地物に譲らないチャンクと seed を探す。
 func findLandmarkChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
@@ -73,33 +65,52 @@ func TestWildernessLandmark_原野の当選チャンクに小構造物が決定�
 	assert.Equal(t, a, b, "ランドマークの配置は決定的で再生成しても一致する")
 }
 
-func TestDrawHut_小屋の床は屋内になる(t *testing.T) {
+func TestLandmarks_全てのランドマークの施設が施設の絵を持つ(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	g := chunkGeom{chunkW: 8, chunkH: 8, tiles: &tileIndex{world: world, loX: 0, hiX: 8}}
-	require.NoError(t, drawHut(world, g, rand.New(rand.NewPCG(1, 0)), consts.Coord[consts.Tile]{X: 1, Y: 1}, 4, 4, consts.TileNameFloor, consts.TileNameDWall, nil))
-
-	got := map[string]map[rawschema.Shelter]int{}
-	for _, e := range g.tiles.get() {
-		id := world.Components.RawID.Get(e).ID
-		if got[id] == nil {
-			got[id] = map[rawschema.Shelter]int{}
-		}
-		got[id][world.Components.TileEnvironment.Get(e).Shelter]++
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	for _, lm := range raw.PtrSlice(raws.Landmarks) {
+		_, _, err := loader.FacilityChunk(lm.Id, 1)
+		require.NoError(t, err, lm.Id)
 	}
-	assert.Equal(t, map[string]map[rawschema.Shelter]int{
-		consts.TileNameFloor: {rawschema.Indoor: 5},
-		consts.TileNameDWall: {rawschema.Outdoor: 11},
-	}, got)
 }
 
-func TestDrawHutLandmark_床か壁のタイルが無いとエラー(t *testing.T) {
+func TestLandmarks_全ての絵が余白を空けてチャンクに収まる(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	chunkW, chunkH, _, _ := dungeon.DungeonOverworld.BandShape()
+	// 絵は回転して置くので、幅と高さの大きい方が短い辺に収まる必要がある
+	limit := int(min(chunkW, chunkH) - 2*landmarkMargin)
+	for _, lm := range raw.PtrSlice(raws.Landmarks) {
+		names := loader.FacilityChunkNames(lm.Id)
+		require.NotEmpty(t, names, lm.Id)
+		for _, name := range names {
+			_, _, cells, err := loader.LoadTemplateByName(name, 1)
+			require.NoError(t, err, name)
+			assert.LessOrEqual(t, max(len(cells), len(cells[0])), limit, name)
+		}
+	}
+}
+
+func TestSpawnFacility_絵がチャンクからはみ出すとエラー(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	g := chunkGeom{chunkW: 8, chunkH: 8, tiles: &tileIndex{world: world, loX: 0, hiX: 8}}
-	lm := rawschema.Landmark{Id: "hut", Drawer: rawschema.Hut, HutW: 4, HutH: 4, HutWall: new(rawschema.EntityID(consts.TileNameDWall))}
-	err := drawHutLandmark(world, g, rand.New(rand.NewPCG(1, 0)), consts.Coord[consts.Tile]{X: 1, Y: 1}, lm)
-	require.ErrorIs(t, err, errHutTilesMissing)
+	cells := make([][]maptemplate.MapCell, 5)
+	for y := range cells {
+		cells[y] = make([]maptemplate.MapCell, 5)
+		for x := range cells[y] {
+			cells[y][x] = maptemplate.MapCell{Terrain: consts.TileNameDirt}
+		}
+	}
+	_, _, err := spawnFacility(world, g, cells, 3, 3, "shrine", 1, 1)
+	require.NoError(t, err, "右下の端までちょうど収まる")
+	_, _, err = spawnFacility(world, g, cells, 4, 3, "shrine", 1, 1)
+	require.ErrorIs(t, err, errFacilityOutOfChunk)
 }

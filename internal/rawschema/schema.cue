@@ -288,9 +288,6 @@ import "strings"
 	verticalClosed!:   #SpriteKey
 }
 
-// ランドマークの描画関数の選択キー
-#DrawerKey: "hut" | "open"
-
 // ドロップテーブル
 #DropTable: {
 	id!:   #EntityID
@@ -752,25 +749,13 @@ import "strings"
 // 売買価格
 #ItemValue: int & >=0 & <=99999
 
-// 原野の点在ランドマーク1種。hutW/hutH は drawer=hut のときだけ使う
+// 原野の点在ランドマーク1種。施設の絵で描く施設を、原野のランドマークの当選チャンクに置く
 #Landmark: {
-	id!:     #EntityID
+	// 原野に置く施設の id。地図の記号もこの id で引く
+	id!:    #EntityID
+	id_ref: _facilityIDs[id] @rawgen(-)
+	// 原野のランドマークの当選チャンクで、この施設を引く重み
 	weight!: int32 & >=1
-	drawer!: #DrawerKey
-	hutW!:   int32
-	hutH!:   int32
-	props!: [...#PropSpot]
-	props_ref: [for x in props {_propIDs[x.name]}] @rawgen(-)
-
-	// 小屋の床と壁のタイル。drawer=hut のときだけ使い、そのとき必須
-	hutFloor?: #EntityID
-	hutWall?:  #EntityID
-	if drawer == "hut" {
-		hutFloor!:    _                  @rawgen(-)
-		hutWall!:     _                  @rawgen(-)
-		hutFloor_ref: _tileIDs[hutFloor] @rawgen(-)
-		hutWall_ref:  _tileIDs[hutWall]  @rawgen(-)
-	}
 }
 
 // 光源が有効かどうか
@@ -1435,4 +1420,4 @@ import "strings"
 #Weight: string & =~"^[0-9]+(\\.[0-9]+)? (mg|g|kg)$"
 
 // 区域の地区。区域の層が候補として持ち、施設は建つ地区として持つ
-#Zone: "downtown" | "residential" | "industrial" | "campus_gate" | "campus_inner" | "campus_quarantine" | "military_gate" | "military_inner" | "military_armory" | "plant_outer" | "plant_core"
+#Zone: "downtown" | "residential" | "industrial" | "campus_gate" | "campus_inner" | "campus_quarantine" | "military_gate" | "military_inner" | "military_armory" | "plant_outer" | "plant_core" | "farm_yard" | "farm_field"

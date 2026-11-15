@@ -1,22 +1,20 @@
 package overworld
 
 import (
-	"errors"
 	"fmt"
 	"math/rand/v2"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
 // 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・
 // 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。
 
-// landmarkKindAt は当選チャンクに置くランドマークの id を出現重みで抽選する。
+// landmarkKindAt は当選チャンクに置くランドマークの施設の id を出現重みで抽選する。
 func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
 	lms := raw.PtrSlice(raws.Landmarks)
 	i, ok := consts.Pick(consts.HashRoll(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y)), lms, func(l rawschema.Landmark) float64 { return float64(l.Weight) })
@@ -30,107 +28,35 @@ func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.C
 // wildernessLandmarkFeature は自然の点在ランドマークの feature 実装。
 type wildernessLandmarkFeature struct{}
 
-// landmarkDrawer はランドマーク1種を描く関数。
-type landmarkDrawer func(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error
+// landmarkMargin はランドマークの絵とチャンクの縁の間に空けるマス数
+const landmarkMargin consts.Tile = 2
 
-var errHutTilesMissing = errors.New("hut landmark has no floor or wall tile")
-
-// drawers は drawer キーから描画関数を引く。
-var drawers = map[rawschema.DrawerKey]landmarkDrawer{
-	rawschema.Hut:  drawHutLandmark,
-	rawschema.Open: drawOpenLandmark,
-}
-
-// drawHutLandmark は外周壁の小屋を描き、prop を北壁沿いに並べる。
-func drawHutLandmark(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error {
-	names := make([]string, len(lm.Props))
-	for i, p := range lm.Props {
-		names[i] = p.Name
-	}
-	if lm.HutFloor == nil || lm.HutWall == nil {
-		return fmt.Errorf("landmark %q: %w", lm.Id, errHutTilesMissing)
-	}
-	return drawHut(world, g, rng, origin, consts.Tile(lm.HutW), consts.Tile(lm.HutH), *lm.HutFloor, *lm.HutWall, names)
-}
-
-// drawOpenLandmark は prop を相対座標で露天に置く。
-func drawOpenLandmark(world w.World, _ chunkGeom, _ *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error {
-	spots := make([]relSpot, len(lm.Props))
-	for i, p := range lm.Props {
-		spots[i] = relSpot{name: p.Name, dx: consts.Tile(p.Dx), dy: consts.Tile(p.Dy)}
-	}
-	return spawnLandmarkProps(world, origin, spots)
-}
-
-// place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物には譲り、構図を
+// place は当選チャンクの荒れ地に、ランドマークの施設の絵を1つ置く。景色の脇役なので主役の地物には譲り、構図を
 // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が
 // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。
 func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
 	if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols) != chunkLandmark {
 		return nil
 	}
-
-	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y), 0))
-	// 構造物がチャンク境界をはみ出さないよう内側に収める。maxHut は最大の小屋の幅 7 に壁1枚分の
-	// 余白を足した値で、原点をどこへずらしても外壁と南辺の扉が境界へ接しない
-	const margin, maxHut = 2, 8
-	spanX := max(1, int(g.chunkW)-2*margin-maxHut)
-	spanY := max(1, int(g.chunkH)-2*margin-maxHut)
-	ox := g.offsetX + consts.Tile(margin+rng.IntN(spanX))
-	oy := g.offsetY + consts.Tile(margin+rng.IntN(spanY))
-	origin := consts.Coord[consts.Tile]{X: ox, Y: oy}
-
-	id := landmarkKindAt(world.Resources.RawMaster, runSeed, c)
-	lm, ok := raw.GetLandmark(world.Resources.RawMaster, id)
-	if !ok {
-		return fmt.Errorf("landmark %q not found", id)
+	loader, err := maptemplate.FacilityTemplates()
+	if err != nil {
+		return fmt.Errorf("failed to load facility templates: %w", err)
 	}
-	draw, ok := drawers[lm.Drawer]
-	if !ok {
-		return fmt.Errorf("landmark %q drawer %q not registered", id, lm.Drawer)
+	seed := ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y)
+	// ストリーム 0 は絵と原点の抽選。spawnFacility が戦利品と敵に使う 0x4 と 0x5 と分ける
+	rng := rand.New(rand.NewPCG(seed, 0))
+	fac := landmarkKindAt(world.Resources.RawMaster, runSeed, c)
+	cells, err := planFacility(loader, fac, rng.Uint64(), rng)
+	if err != nil {
+		return fmt.Errorf("failed to plan landmark %q: %w", fac, err)
 	}
-	return draw(world, g, rng, origin, lm)
-}
-
-// drawHut は外周壁・内側床・南辺出入口の小屋を置き、内装 prop を屋内へ順に配置する。
-// 市街地の街区と同じ構法だが、単チャンク完結なので断片クリップは不要。
-func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], hw, hh consts.Tile, floor, wall string, props []string) error {
-	tiles := g.tiles.get()
-	ox, oy := origin.X, origin.Y
-	door := ox + 1 + consts.Tile(rng.IntN(int(hw-2)))
-	for ly := oy; ly < oy+hh; ly++ {
-		for lx := ox; lx < ox+hw; lx++ {
-			name := floor
-			perimeter := lx == ox || lx == ox+hw-1 || ly == oy || ly == oy+hh-1
-			if perimeter && (ly != oy+hh-1 || lx != door) {
-				name = wall
-			}
-			if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil {
-				return fmt.Errorf("failed to place landmark hut (x=%d, y=%d): %w", lx, ly, err)
-			}
-		}
-	}
-	for i, name := range props {
-		// 屋内の北側の壁沿いへ左から順に並べる。出入口の導線と重ねない
-		pos := consts.Coord[consts.Tile]{X: ox + 1 + consts.Tile(i), Y: oy + 1}
-		if _, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y); err != nil {
-			return fmt.Errorf("failed to place landmark interior prop (%s): %w", name, err)
-		}
-	}
-	// 南辺の開口に見える扉を置く。壁の切れ目だけだと原野の中の謎の壁に見えるため、
-	// 廃屋としての入口を明示する。南壁は東西に走るので向きは Vertical
-	if _, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: door, Y: oy + hh - 1}, gc.DoorOrientationVertical); err != nil {
-		return fmt.Errorf("failed to place landmark hut door: %w", err)
-	}
-	return nil
-}
-
-// spawnLandmarkProps は露天ランドマークの prop 一式を基準座標からの相対で配置する。
-func spawnLandmarkProps(world w.World, origin consts.Coord[consts.Tile], spots []relSpot) error {
-	for _, s := range spots {
-		if _, err := lifecycle.SpawnProp(world, s.name, origin.X+s.dx, origin.Y+s.dy); err != nil {
-			return fmt.Errorf("failed to place landmark prop (%s): %w", s.name, err)
-		}
+	// 絵がチャンクの縁から landmarkMargin 以上離れる範囲で原点を引く
+	spanX := max(1, int(g.chunkW-2*landmarkMargin)-len(cells[0])+1)
+	spanY := max(1, int(g.chunkH-2*landmarkMargin)-len(cells)+1)
+	ox := landmarkMargin + consts.Tile(rng.IntN(spanX))
+	oy := landmarkMargin + consts.Tile(rng.IntN(spanY))
+	if _, _, err := spawnFacility(world, g, cells, ox, oy, fac, urbanDangerAt(world, c), seed); err != nil {
+		return fmt.Errorf("failed to place landmark %q: %w", fac, err)
 	}
 	return nil
 }

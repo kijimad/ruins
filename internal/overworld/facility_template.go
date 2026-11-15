@@ -20,8 +20,8 @@ import (
 // facilityLot は施設の絵の1辺の長さ。チャンク 24×24 から北と西の街路を引いた区画の大きさ
 const facilityLot consts.Tile = 20
 
-// errFacilityLotSizeMismatch は施設の絵の大きさが区画と一致しないときに返す
-var errFacilityLotSizeMismatch = errors.New("facility template size does not match the lot")
+// errFacilityOutOfChunk は施設の絵が置く原点からチャンクに収まらないときに返す
+var errFacilityOutOfChunk = errors.New("facility template does not fit in the chunk")
 
 // planFacility は施設 fac の絵を1枚選んで展開する。絵は入口を北に向けて描いてあり、rng で半々に左へ90度回して入口を西の街路へ向ける。左右の反転も半々で選ぶ
 func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand) ([][]maptemplate.MapCell, error) {
@@ -40,8 +40,8 @@ func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, r
 // 扉は左右か上下の壁から向きを決める。
 // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする
 func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox, oy consts.Tile, fac string, danger consts.Danger, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
-	if len(cells) != int(g.chunkH-oy) || len(cells[0]) != int(g.chunkW-ox) {
-		return nil, nil, fmt.Errorf("facility %q %dx%d, lot %dx%d: %w", fac, len(cells[0]), len(cells), g.chunkW-ox, g.chunkH-oy, errFacilityLotSizeMismatch)
+	if int(oy)+len(cells) > int(g.chunkH) || int(ox)+len(cells[0]) > int(g.chunkW) {
+		return nil, nil, fmt.Errorf("facility %q %dx%d at %d,%d, chunk %dx%d: %w", fac, len(cells[0]), len(cells), ox, oy, g.chunkW, g.chunkH, errFacilityOutOfChunk)
 	}
 
 	tileRows := map[string]rawschema.Tile{}

@@ -1,0 +1,95 @@
+[palette]
+id = "farm"
+description = "農場"
+
+[palette.terrain]
+"#" = "wall"
+"," = "grass_green"
+"=" = "dirt"
+"." = "floor_wood"
+
+[palette.props."+"]
+tile = "floor_wood"
+id = "door"
+
+[palette.props."b"]
+tile = "floor_wood"
+id = "bed"
+
+[palette.props."c"]
+tile = "floor_wood"
+id = "closet"
+lootTable = "house_closet"
+
+[palette.props."K"]
+tile = "floor_wood"
+id = "kitchen_sink"
+
+[palette.props."r"]
+tile = "floor_wood"
+id = "refrigerator"
+lootTable = "pantry"
+
+[palette.props."a"]
+tile = "floor_wood"
+id = "table"
+
+[palette.props."h"]
+tile = "floor_wood"
+id = "chair"
+
+[palette.props."k"]
+tile = "floor_wood"
+id = "wooden_crate"
+lootTable = "farm_barn"
+
+[palette.props."B"]
+tile = "floor_wood"
+id = "barrel"
+lootTable = "farm_barn"
+
+[palette.props."P"]
+tile = "floor_wood"
+id = "pallet"
+
+[palette.props."D"]
+tile = "grass_green"
+candidates = [{ id = "red_drum", weight = 1 }, { id = "green_drum", weight = 1 }]
+
+[palette.props."T"]
+tile = "grass_green"
+candidates = [{ id = "tree_a", weight = 1 }, { id = "tree_b", weight = 1 }]
+
+[palette.props."l"]
+tile = "grass_green"
+id = "laundry"
+
+[palette.props."F"]
+tile = "grass_green"
+id = "fence"
+
+[palette.props."v"]
+tile = "dirt"
+id = "crop"
+
+[palette.props."q"]
+tile = "grass_green"
+id = "wooden_crate"
+lootTable = "farm_barn"
+
+[palette.props."p"]
+tile = "grass_green"
+id = "pallet"
+
+[palette.items."o"]
+itemGroup = "food"
+tile = "dirt"
+chance = 50
+
+[palette.beings."z"]
+tile = "floor_wood"
+chance = 30
+
+[palette.beings."y"]
+tile = "grass_green"
+chance = 30
