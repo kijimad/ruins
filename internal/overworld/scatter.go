@@ -209,9 +209,9 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 	// 続けて樹木・岩を疎に撒く。Big の大物は位相 0 かつ経路外のタイルにだけ乗せ、二段で通行性を担保する。
 	selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
 	propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
-	spawnRow := spawnRowOf(world)
+	route := scatterRoute(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world), g)
 	for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, propCount) {
-		bigAllowed := onBigPhase(rel) && !onScatterRoute(world.Resources.RawMaster, runSeed, c, cols, spawnRow, g, absTile(rel))
+		bigAllowed := onBigPhase(rel) && !onScatterRoute(route, absTile(rel))
 		roll := hashTileCoord(selSeed, rel)
 		entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
 		if entry.Ref == "" {
@@ -305,21 +305,29 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 	return m == 0
 }
 
-// onScatterRoute は絶対タイル pos が近傍集落間の道の直線からバッファ以内かを返す。実際の道タイルを
-// 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、
-// 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
-func onScatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
-	for _, link := range crossingRoads(raws, runSeed, c, cols) {
-		for _, seg := range roadPath(raws, runSeed, link.a, link.b, cols, spawnRow, g.chunkW, g.chunkH) {
-			var d consts.Tile
-			if seg.orient == orientHorizontal {
-				d = chebToHSeg(pos, seg.fixed, seg.lo, seg.hi)
-			} else {
-				d = chebToVSeg(pos, seg.fixed, seg.lo, seg.hi)
-			}
-			if d <= scatterRouteBuffer {
-				return true
-			}
+// scatterRoute はチャンク c を横切りうる道の辺を返す。実際の道タイルを読まず WinnerOf で算出した
+// 当選どうしの経路で、散布はタイルごとに onScatterRoute でこの辺と比べる。チャンクにつき1回だけ作る
+func scatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, g chunkGeom) []roadSeg {
+	links := crossingRoads(raws, runSeed, c, cols)
+	segs := make([]roadSeg, 0, len(links)*2)
+	for _, link := range links {
+		segs = append(segs, roadPath(raws, runSeed, link.a, link.b, cols, spawnRow, g.chunkW, g.chunkH)...)
+	}
+	return segs
+}
+
+// onScatterRoute は絶対タイル pos が道の辺 route からバッファ以内かを返す。道は floor 化済みで散布は
+// 土にしか置かないので、経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
+func onScatterRoute(route []roadSeg, pos consts.Coord[consts.Tile]) bool {
+	for _, seg := range route {
+		var d consts.Tile
+		if seg.orient == orientHorizontal {
+			d = chebToHSeg(pos, seg.fixed, seg.lo, seg.hi)
+		} else {
+			d = chebToVSeg(pos, seg.fixed, seg.lo, seg.hi)
+		}
+		if d <= scatterRouteBuffer {
+			return true
 		}
 	}
 	return false

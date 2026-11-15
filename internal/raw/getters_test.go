@@ -98,13 +98,13 @@ func TestGetMapGlyph(t *testing.T) {
 	})
 }
 
-func TestDungeonListed_hiddenの行だけを一覧と入口から外す(t *testing.T) {
+func TestDungeonReachable_入口の重みが0のデバッグの行だけを外す(t *testing.T) {
 	t.Parallel()
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
 	var listed []string
 	for _, d := range PtrSlice(raws.Dungeons) {
-		if DungeonListed(&d) {
+		if DungeonReachable(&d) {
 			listed = append(listed, d.Id)
 		}
 	}

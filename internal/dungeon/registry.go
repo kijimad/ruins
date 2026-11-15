@@ -26,13 +26,13 @@ var (
 	DungeonOverworld = NewOverworldDefinition("Overworld", 0, 24, 24, 7, 9)
 )
 
-// GetAllDungeons は raw の dungeons の行から、一覧に出す全ダンジョン定義を行の順に返す。
-// オーバーワールドの定義と hidden の行は含まない。
+// GetAllDungeons は raw の dungeons の行から、遺跡の入口から入れる全ダンジョン定義を行の順に返す。
+// オーバーワールドの定義と、入口の重みが0のデバッグ用の行は含まない。
 func GetAllDungeons(raws rawschema.Raws) []*DungeonDefinition {
 	rows := raw.PtrSlice(raws.Dungeons)
 	defs := make([]*DungeonDefinition, 0, len(rows))
 	for i := range rows {
-		if !raw.DungeonListed(&rows[i]) {
+		if !raw.DungeonReachable(&rows[i]) {
 			continue
 		}
 		defs = append(defs, newDungeonDefinition(&rows[i]))
@@ -72,7 +72,7 @@ func BaseTemperatureFor(raws rawschema.Raws, name string) int {
 	return 0
 }
 
-// GetStageDefinition は名前からステージ定義のマスタを取得する。ダンジョンは raw の行の id で引く。
+// GetStageDefinition は名前からステージ定義のマスタを取得する。ダンジョンは raw の行の id で引き、入口の重みが0のデバッグ用の行も引く。
 func GetStageDefinition(raws rawschema.Raws, name string) (StageDefinition, bool) {
 	// 内部用の定義を先にチェックする
 	for _, k := range internalDefinitions {

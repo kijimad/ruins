@@ -2048,7 +2048,6 @@
   description = "A dungeon for debugging."
   enemyTable = "forest"
   entranceWeight = 0
-  hidden = true
   id = "debug"
   imageKey = "forest1"
   itemTable = "forest"
@@ -2069,7 +2068,6 @@
   description = "A town for debugging. Townsfolk and a crate stand next to the spawn point."
   enemyTable = "forest"
   entranceWeight = 0
-  hidden = true
   id = "debug_town"
   imageKey = "forest1"
   itemTable = "forest"

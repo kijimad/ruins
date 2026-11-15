@@ -28,12 +28,7 @@ func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coor
 	}
 	rows := raw.PtrSlice(world.Resources.RawMaster.Dungeons)
 	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^p.Salt, c.X, c.Y), 0))
-	i, ok := consts.Pick(rng, rows, func(d rawschema.Dungeon) float64 {
-		if !raw.DungeonListed(&d) {
-			return 0
-		}
-		return float64(d.EntranceWeight)
-	})
+	i, ok := consts.Pick(rng, rows, func(d rawschema.Dungeon) float64 { return float64(d.EntranceWeight) })
 	if !ok {
 		return nil
 	}

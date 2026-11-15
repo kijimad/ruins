@@ -728,11 +728,8 @@ type Dungeon struct {
 	// EnemyTable 敵を引く enemyTables の id
 	EnemyTable EntityID `json:"enemyTable"`
 
-	// EntranceWeight 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ない
+	// EntranceWeight 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ず、デバッグで名前を指して入るだけになる
 	EntranceWeight int `json:"entranceWeight"`
-
-	// Hidden 遺跡の一覧に出さない。デバッグで名前を指して入る
-	Hidden *bool `json:"hidden,omitempty"`
 
 	Id EntityID `json:"id"`
 

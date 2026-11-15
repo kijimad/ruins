@@ -672,9 +672,9 @@ func GetEnemyTable(raws rawschema.Raws, name string) (rawschema.EnemyTable, erro
 	return et, nil
 }
 
-// DungeonListed はダンジョンの行を遺跡の一覧と入口に出すかを返す
-func DungeonListed(d *rawschema.Dungeon) bool {
-	return d.Hidden == nil || !*d.Hidden
+// DungeonReachable はダンジョンの行に地上の遺跡の入口から入れるかを返す
+func DungeonReachable(d *rawschema.Dungeon) bool {
+	return d.EntranceWeight > 0
 }
 
 // GetDungeon は id のダンジョンの行を返す

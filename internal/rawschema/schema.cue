@@ -415,14 +415,12 @@ import "strings"
 
 	// フロアの間取りの抽選表。行の順に重みを積む
 	planners!: [...#DungeonPlannerWeight] & [_, ...]
-	// 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ない
+	// 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ず、デバッグで名前を指して入るだけになる
 	entranceWeight!: int & >=0
 	// フロアに置く敵の数
 	enemyCount!: #RandInt
 	// フロアに置くアイテムの数
 	itemCount!: #RandInt
-	// 遺跡の一覧に出さない。デバッグで名前を指して入る
-	hidden?: bool
 }
 
 // 乱数で決める数。base に 0 以上 spread 未満の乱数を足す

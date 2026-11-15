@@ -39,16 +39,16 @@ func TestNewChunkGen_遺跡入口が帯全域に決定的に配置される(t *t
 	assert.Equal(t, 3, count, "リージョンごとに入口はちょうど1つ")
 }
 
-// TestNewChunkGen_全てのダンジョンが一覧に出なければ遺跡入口を置かない は、引けるダンジョンが
+// TestNewChunkGen_全てのダンジョンの入口の重みが0なら遺跡入口を置かない は、引けるダンジョンが
 // 無いとき入口の地物が何も置かずに生成を続けることを固定する。
-func TestNewChunkGen_全てのダンジョンが一覧に出なければ遺跡入口を置かない(t *testing.T) {
+func TestNewChunkGen_全てのダンジョンの入口の重みが0なら遺跡入口を置かない(t *testing.T) {
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 24, 24
 	world := testutil.InitTestWorld(t)
 	dungeons := slices.Clone(*world.Resources.RawMaster.Dungeons)
 	for i := range dungeons {
-		dungeons[i].Hidden = new(true)
+		dungeons[i].EntranceWeight = 0
 	}
 	world.Resources.RawMaster.Dungeons = &dungeons
 	gen := overworld.NewChunkGen(world, 500, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
