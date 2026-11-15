@@ -364,7 +364,7 @@ import (
 }
 
 // 区域でない地物の種類
-#PointFeatureKind: "settlement" | "dungeon_entrance" | "landmark" @rawgen(prefix)
+#PointFeatureKind: "settlement" | "landmark" @rawgen(prefix)
 
 // 地物の当選どうしを結ぶ道
 #Road: {
@@ -417,7 +417,7 @@ import (
 
 	// フロアの間取りの抽選表。行の順に重みを積む
 	planners!: [...#DungeonPlannerWeight] & [_, ...]
-	// 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ず、デバッグで名前を指して入るだけになる
+	// 遺跡の入口がこのダンジョンを引く重み。0 はデバッグで名前を指して入るだけの行で、一覧と試算に出さない
 	entranceWeight!: int & >=0
 	// フロアに置く敵の数
 	enemyCount!: #RandInt
@@ -802,7 +802,7 @@ import (
 #FuelCapacityBonus: int & >=0
 
 // 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す
-#GlyphChunk: "wasteland" | "dungeon_entrance"
+#GlyphChunk: "wasteland"
 
 // 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
 #GroundCoverEntry: {

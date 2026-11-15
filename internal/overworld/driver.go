@@ -80,7 +80,7 @@ func (dr *Driver) restoreFromSave(world w.World, sb *gc.SeamlessBand) error {
 }
 
 // startInitialBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、
-// プレイヤーとキューブを中央チャンク付近へ置き、開始チャンクに遺跡入口を置く。帯パラメータは params から取る。
+// プレイヤーとキューブを中央チャンク付近へ置く。帯パラメータは params から取る。
 //
 // この関数は新規開始で一度だけ走る。セーブ復帰は Start が restoreFromSave の枝を選ぶのでここは走らず、
 // プレイヤー・キューブ・全エンティティは serde で復元される。したがってここでの生成に復帰時の
@@ -116,7 +116,7 @@ func (dr *Driver) startInitialBand(world w.World) error {
 	}
 
 	// プレイヤーを中央チャンク付近の歩行可能タイルへ湧かせる。開始チャンクの種別に依存せず、
-	// 建物や遺跡入口の上でも壁を避けて安全に置く。居なければ生成、居れば移動
+	// 建物の上でも壁を避けて安全に置く。居なければ生成、居れば移動
 	center := consts.Coord[consts.Tile]{
 		X: (dr.band.Cols() / 2).Tiles(chunkW) + chunkW/2,
 		Y: (dr.band.Rows() / 2).Tiles(chunkH) + chunkH/2,
@@ -150,7 +150,7 @@ func (dr *Driver) startInitialBand(world w.World) error {
 }
 
 // walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を
-// 返す。開始チャンクが荒れ地でなく建物や遺跡入口でも、プレイヤーを壁の中へ湧かせないための安全策。
+// 返す。開始チャンクが荒れ地でなく建物でも、プレイヤーを壁の中へ湧かせないための安全策。
 // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。
 func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
 	blocked := make(map[gc.GridElement]bool)

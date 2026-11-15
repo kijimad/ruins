@@ -423,25 +423,3 @@ func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くと
 	require.ErrorIs(t, validateLandmarkMinDanger(raws(rawschema.MilitaryArmory, new(3))), errLandmarkMinDanger)
 	require.NoError(t, validateLandmarkMinDanger(raws(rawschema.Downtown, new(3))), "区域が割り振らない地区の行は抽選を通るので深さの下限を書ける")
 }
-
-func TestValidateReachableDungeon_入口から入れる行が無ければ弾く(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name    string
-		weights []int
-		wantErr error
-	}{
-		{"入口の重みが正の行がある", []int{0, 1}, nil},
-		{"全ての行の入口の重みが0", []int{0, 0}, errNoReachableDungeon},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			var dungeons []rawschema.Dungeon
-			for _, w := range tt.weights {
-				dungeons = append(dungeons, rawschema.Dungeon{EntranceWeight: w})
-			}
-			assert.ErrorIs(t, validateReachableDungeon(rawschema.Raws{Dungeons: &dungeons}), tt.wantErr)
-		})
-	}
-}

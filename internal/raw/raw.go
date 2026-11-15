@@ -672,7 +672,7 @@ func GetEnemyTable(raws rawschema.Raws, name string) (rawschema.EnemyTable, erro
 	return et, nil
 }
 
-// DungeonReachable はダンジョンの行に地上の遺跡の入口から入れるかを返す
+// DungeonReachable はダンジョンの行を遺跡の入口から入れるダンジョンとして扱うかを返す。重み0の行はデバッグ用
 func DungeonReachable(d *rawschema.Dungeon) bool {
 	return d.EntranceWeight > 0
 }

@@ -31,7 +31,7 @@ func TestAreaAt_区域だけが区域ごとのキーを持つ(t *testing.T) {
 			case chunkWasteland:
 				wasteland++
 				assert.Equal(t, Area{Name: "Wasteland"}, area)
-			case chunkSettlement, chunkLandmark, chunkDungeonEntrance:
+			case chunkSettlement, chunkLandmark:
 				assert.Equal(t, AreaKey{}, area.Key, "小さな場所はスプラッシュを出さない")
 				assert.NotEmpty(t, area.Name)
 				assert.Empty(t, area.Building)

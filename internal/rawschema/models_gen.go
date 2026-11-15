@@ -728,7 +728,7 @@ type Dungeon struct {
 	// EnemyTable 敵を引く enemyTables の id
 	EnemyTable EntityID `json:"enemyTable"`
 
-	// EntranceWeight 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ず、デバッグで名前を指して入るだけになる
+	// EntranceWeight 遺跡の入口がこのダンジョンを引く重み。0 はデバッグで名前を指して入るだけの行で、一覧と試算に出さない
 	EntranceWeight int `json:"entranceWeight"`
 
 	// Ground タイルに ground を書いた間取りが使う下地のタイル。そうした間取りを持つなら必須
@@ -1214,15 +1214,12 @@ type GlyphChunk string
 
 // Defines values for GlyphChunk.
 const (
-	DungeonEntrance GlyphChunk = "dungeon_entrance"
-	Wasteland       GlyphChunk = "wasteland"
+	Wasteland GlyphChunk = "wasteland"
 )
 
 // Valid indicates whether the value is a known member of the GlyphChunk enum.
 func (e GlyphChunk) Valid() bool {
 	switch e {
-	case DungeonEntrance:
-		return true
 	case Wasteland:
 		return true
 	default:
@@ -1232,7 +1229,7 @@ func (e GlyphChunk) Valid() bool {
 
 // GlyphChunkValues は GlyphChunk の値を、スキーマに書いた順に返す。
 func GlyphChunkValues() []GlyphChunk {
-	return []GlyphChunk{Wasteland, DungeonEntrance}
+	return []GlyphChunk{Wasteland}
 }
 
 // GroundCoverEntry 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
@@ -1809,16 +1806,13 @@ type PointFeatureKind string
 
 // Defines values for PointFeatureKind.
 const (
-	PointFeatureKindDungeonEntrance PointFeatureKind = "dungeon_entrance"
-	PointFeatureKindLandmark        PointFeatureKind = "landmark"
-	PointFeatureKindSettlement      PointFeatureKind = "settlement"
+	PointFeatureKindLandmark   PointFeatureKind = "landmark"
+	PointFeatureKindSettlement PointFeatureKind = "settlement"
 )
 
 // Valid indicates whether the value is a known member of the PointFeatureKind enum.
 func (e PointFeatureKind) Valid() bool {
 	switch e {
-	case PointFeatureKindDungeonEntrance:
-		return true
 	case PointFeatureKindLandmark:
 		return true
 	case PointFeatureKindSettlement:
@@ -1830,7 +1824,7 @@ func (e PointFeatureKind) Valid() bool {
 
 // PointFeatureKindValues は PointFeatureKind の値を、スキーマに書いた順に返す。
 func PointFeatureKindValues() []PointFeatureKind {
-	return []PointFeatureKind{PointFeatureKindSettlement, PointFeatureKindDungeonEntrance, PointFeatureKindLandmark}
+	return []PointFeatureKind{PointFeatureKindSettlement, PointFeatureKindLandmark}
 }
 
 // Potency 治療の質。基準100の倍率。100が標準、150で回復1.5倍

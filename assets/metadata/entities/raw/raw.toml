@@ -17912,18 +17912,6 @@
     r = 208
 
 [[mapGlyphs]]
-  chunk = "dungeon_entrance"
-  glyph = ">"
-  id = "dungeon_entrance"
-  name = "Ruins Entrance"
-  order = 3
-  [mapGlyphs.color]
-    a = 255
-    b = 58
-    g = 69
-    r = 224
-
-[[mapGlyphs]]
   glyph = "x"
   id = "abandoned_hut"
   name = "Abandoned Hut"
@@ -19906,12 +19894,6 @@
   [pointFeatures.road]
     tile = "road"
     width = 4
-
-[[pointFeatures]]
-  id = "dungeon_entrance"
-  salt = 3
-  separation = 1
-  spacing = 4
 
 [[pointFeatures]]
   id = "landmark"

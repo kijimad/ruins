@@ -25,7 +25,7 @@ func findLandmarkChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
 	for s := uint64(1); s < 200; s++ {
 		for x := range consts.Chunk(30) {
 			c := consts.Coord[consts.Chunk]{X: x}
-			if !placementOf(raws, rawschema.PointFeatureKindLandmark).At(s, c, rows) || placementOf(raws, rawschema.PointFeatureKindSettlement).At(s, c, rows) || placementOf(raws, rawschema.PointFeatureKindDungeonEntrance).At(s, c, rows) {
+			if !placementOf(raws, rawschema.PointFeatureKindLandmark).At(s, c, rows) || placementOf(raws, rawschema.PointFeatureKindSettlement).At(s, c, rows) {
 				continue
 			}
 			if _, ok := districtAt(raws, s, c, rows); ok {
