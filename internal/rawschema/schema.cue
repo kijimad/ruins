@@ -383,6 +383,12 @@ import "strings"
 
 	// フロアの間取りの抽選表。行の順に重みを積む
 	planners!: [...#DungeonPlannerWeight] & [_, ...]
+
+	// 地面を下地で埋める間取りの下地のタイル。森の間取りを持つなら要る
+	ground?: #EntityID
+	if ground != _|_ {
+		ground_ref: _tileIDs[ground] @rawgen(-)
+	}
 }
 
 // ダンジョンのフロアを生成する間取りの種類

@@ -46,10 +46,13 @@ func (f ForestPlanner) PlanInitial(planData *MetaPlan) error {
 // ForestTerrain は森の基本地形を生成する
 type ForestTerrain struct{}
 
-// PlanMeta は森の基本地形をタイルに描画する
+// PlanMeta は森の基本地形をタイルに描画する。下地は計画の下地 MetaPlan.Ground で、空ならエラーにする
 func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {
+	if planData.Ground == "" {
+		return ErrGroundNotSet
+	}
 	for i := range planData.Tiles {
-		planData.Tiles[i] = planData.GetTile(consts.TileNameDirt)
+		planData.Tiles[i] = planData.GetTile(planData.Ground)
 	}
 
 	for _, clearing := range planData.Rooms {
@@ -70,7 +73,7 @@ func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Re
 
 			if distance <= radius {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-				planData.Tiles[idx] = planData.GetTile(consts.TileNameDirt)
+				planData.Tiles[idx] = planData.GetTile(planData.Ground)
 			}
 		}
 	}
@@ -309,7 +312,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 					distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))
 					if distance <= float64(radius) {
 						idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
-						planData.Tiles[idx] = planData.GetTile(consts.TileNameDirt)
+						planData.Tiles[idx] = planData.GetTile(planData.Ground)
 					}
 				}
 			}
@@ -322,13 +325,11 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 func NewForestPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(ForestPlanner{})
-	chain.With(ForestTerrain{})      // 基本地形を生成
-	chain.With(ForestTrees{})        // 木を配置
-	chain.With(ForestPaths{})        // 自然な通路を作成
-	chain.With(ForestWildlife{})     // 野生動物の痕跡を追加
-	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁を土に変換
-		ReplacementTile: consts.TileNameDirt,
-	})
+	chain.With(ForestTerrain{})        // 基本地形を生成
+	chain.With(ForestTrees{})          // 木を配置
+	chain.With(ForestPaths{})          // 自然な通路を作成
+	chain.With(ForestWildlife{})       // 野生動物の痕跡を追加
+	chain.With(ConvertIsolatedWalls{}) // 床に隣接しない壁を下地に変換
 	chain.With(EnvironmentPlanner{})
 
 	return chain, nil

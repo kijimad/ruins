@@ -8,7 +8,7 @@ import (
 // ConvertIsolatedWalls は床に隣接しない壁を指定したタイルに変換するプランナー
 // オートタイル計算前に実行することで、正しい接続パターンで壁タイルを生成する
 type ConvertIsolatedWalls struct {
-	// ReplacementTile は孤立した壁を置き換えるタイル名
+	// ReplacementTile は孤立した壁を置き換えるタイル名。空なら計画の下地 MetaPlan.Ground で置き換える
 	ReplacementTile string
 }
 
@@ -34,9 +34,15 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 		}
 	}
 
-	// 特定したタイルを変換
+	replacement := c.ReplacementTile
+	if replacement == "" {
+		if planData.Ground == "" {
+			return ErrGroundNotSet
+		}
+		replacement = planData.Ground
+	}
 	for _, i := range tilesToConvert {
-		planData.Tiles[i] = planData.GetTile(c.ReplacementTile)
+		planData.Tiles[i] = planData.GetTile(replacement)
 	}
 
 	return nil

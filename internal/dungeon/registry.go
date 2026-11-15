@@ -1,6 +1,7 @@
 package dungeon
 
 import (
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -16,6 +17,8 @@ var (
 		enemyTable:  "forest",
 		itemTable:   "forest",
 		baseTemp:    10,
+		// デバッグのメニューから森の間取りを試すので下地を持たせる
+		ground: consts.TileNameDirt,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
 		},
@@ -69,7 +72,7 @@ func newDungeonDefinition(row *rawschema.Dungeon) *DungeonDefinition {
 	for _, p := range row.Planners {
 		pool = append(pool, PlannerWeight{PlannerType: plannerTypes[p.Id], Weight: p.Weight})
 	}
-	return &DungeonDefinition{
+	def := &DungeonDefinition{
 		name:        row.Id,
 		displayName: i18n.Msgid(row.Name),
 		enemyTable:  row.EnemyTable,
@@ -77,6 +80,10 @@ func newDungeonDefinition(row *rawschema.Dungeon) *DungeonDefinition {
 		baseTemp:    row.BaseTemp,
 		plannerPool: pool,
 	}
+	if row.Ground != nil {
+		def.ground = *row.Ground
+	}
+	return def
 }
 
 // internalDefinitions は選択画面に表示しない内部用の定義
