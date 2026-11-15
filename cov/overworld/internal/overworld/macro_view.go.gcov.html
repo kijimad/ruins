@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">53</td>
-            <td class="headerCovTableEntry">53</td>
+            <td class="headerCovTableEntry">65</td>
+            <td class="headerCovTableEntry">65</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 03:43:52</td>
+            <td class="headerValue">2026-11-15 04:21:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -197,6 +197,25 @@
 <span id="L135"><span class="lineNum">     135</span>              :         }</span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         return view</span></span>
 <span id="L137"><span class="lineNum">     137</span>              : }</span>
+<span id="L138"><span class="lineNum">     138</span>              : </span>
+<span id="L139"><span class="lineNum">     139</span>              : // Legend は表示範囲の開放済みのチャンクに出ている記号を、凡例の順に返す。未開放のチャンクの記号は伏せる</span>
+<span id="L140"><span class="lineNum">     140</span>              : func (v MacroView) Legend(raws rawschema.Raws) []GlyphInfo {</span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         seen := map[rune]bool{}</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         for _, row := range v.Cells {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 for _, c := range row {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                         if c.Discovered {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                                 seen[c.Glyph] = true</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L147"><span class="lineNum">     147</span>              :                 }</span>
+<span id="L148"><span class="lineNum">     148</span>              :         }</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         var out []GlyphInfo</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         for _, g := range LegendGlyphs(raws) {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 if seen[g.Label] {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         out = append(out, g)</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L154"><span class="lineNum">     154</span>              :         }</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L156"><span class="lineNum">     156</span>              : }</span>
         </pre>
               </td>
             </tr>

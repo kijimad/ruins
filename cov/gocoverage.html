@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (81.9%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (89.3%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (79.7%)</option>
 				
@@ -449,13 +449,13 @@
 				
 				<option value="file196">github.com/kijimaD/ruins/internal/overworld/facility_loot.go (83.3%)</option>
 				
-				<option value="file197">github.com/kijimaD/ruins/internal/overworld/facility_template.go (87.2%)</option>
+				<option value="file197">github.com/kijimaD/ruins/internal/overworld/facility_template.go (88.3%)</option>
 				
 				<option value="file198">github.com/kijimaD/ruins/internal/overworld/feature.go (91.7%)</option>
 				
 				<option value="file199">github.com/kijimaD/ruins/internal/overworld/grass_density.go (100.0%)</option>
 				
-				<option value="file200">github.com/kijimaD/ruins/internal/overworld/landmark.go (87.3%)</option>
+				<option value="file200">github.com/kijimaD/ruins/internal/overworld/landmark.go (83.3%)</option>
 				
 				<option value="file201">github.com/kijimaD/ruins/internal/overworld/loot_scatter.go (83.3%)</option>
 				
@@ -767,7 +767,7 @@
 				
 				<option value="file355">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (71.4%)</option>
 				
-				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.2%)</option>
+				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.8%)</option>
 				
 				<option value="file357">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (91.4%)</option>
 				
@@ -1726,7 +1726,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1880,8 +1880,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -25943,12 +25943,10 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
                         // ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
                         <span class="cov8" title="1">frng := rand.New(rand.NewPCG(ChunkSeed2D(r.seed, x, y), 0x1))
                         f := facilities[rollFacilityInZone(frng, cat, z, r.span(), danger, r.landmark())]
-                        w, h := consts.Chunk(1), consts.Chunk(1)
-                        if fps := raw.PtrSlice(f.Footprints); len(fps) &gt; 0 </span>{
-                                <span class="cov8" title="1">i, _ := consts.Pick(frng, fps, func(fp rawschema.FacilityFootprint) float64 </span>{ <span class="cov8" title="1">return float64(fp.Weight) }</span>)
-                                <span class="cov8" title="1">w, h = consts.Chunk(fps[i].W), consts.Chunk(fps[i].H)</span>
-                        }
-                        <span class="cov8" title="1">for !fits(x, y, w, h, z) </span>{
+                        fps := facilityFootprints(f)
+                        i, _ := consts.Pick(frng, fps, func(fp rawschema.FacilityFootprint) float64 </span>{ <span class="cov8" title="1">return float64(fp.Weight) }</span>)
+                        <span class="cov8" title="1">w, h := consts.Chunk(fps[i].W), consts.Chunk(fps[i].H)
+                        for !fits(x, y, w, h, z) </span>{
                                 <span class="cov8" title="1">if w &gt;= h &amp;&amp; w &gt; 1 </span>{
                                         <span class="cov8" title="1">w--
 </span>                                } else {
@@ -25961,7 +25959,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
         <span class="cov8" title="1">return lots</span>
 }
 
-// landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、
+// landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、
 // 地区に収まるものを選ぶ。区域の作りがその地区を割り振らなければ置かない
 func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.Zone) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
         <span class="cov8" title="1">for _, fz := range f.Zones </span>{
@@ -25981,7 +25979,7 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
                         <span class="cov8" title="1">minC = consts.Coord[consts.Chunk]{X: min(minC.X, c.X), Y: min(minC.Y, c.Y)}
                         maxC = consts.Coord[consts.Chunk]{X: max(maxC.X, c.X), Y: max(maxC.Y, c.Y)}
 </span>                }
-                <span class="cov8" title="1">fps := slices.Clone(raw.PtrSlice(f.Footprints))
+                <span class="cov8" title="1">fps := slices.Clone(facilityFootprints(f))
                 slices.SortStableFunc(fps, func(a, b rawschema.FacilityFootprint) int </span>{ <span class="cov8" title="1">return b.W*b.H - a.W*a.H }</span>)
                 <span class="cov8" title="1">for _, fp := range fps </span>{
                         <span class="cov8" title="1">w, h := consts.Chunk(fp.W), consts.Chunk(fp.H)
@@ -26153,6 +26151,14 @@ func stripOpen(kind maptemplate.EdgeKind, i, mid int, end bool) bool {
                 <span class="cov8" title="1">return false</span>
         }
         <span class="cov0" title="0">return false</span>
+}
+
+// facilityFootprints は施設 f の大きさの候補を返す。行が候補を省けば1チャンクの1つだけにする
+func facilityFootprints(f rawschema.Facility) []rawschema.FacilityFootprint {
+        <span class="cov8" title="1">if fps := raw.PtrSlice(f.Footprints); len(fps) &gt; 0 </span>{
+                <span class="cov8" title="1">return fps
+</span>        }
+        <span class="cov8" title="1">return []rawschema.FacilityFootprint{{W: 1, H: 1, Weight: 1}}</span>
 }
 </pre>
 		
@@ -26890,8 +26896,8 @@ import (
 // facilityLot は施設の絵の1辺の長さ。チャンク 24×24 から北と西の街路を引いた区画の大きさ
 const facilityLot consts.Tile = 20
 
-// errFacilityLotSizeMismatch は施設の絵の大きさが区画と一致しないときに返す
-var errFacilityLotSizeMismatch = errors.New("facility template size does not match the lot")
+// errFacilityOutOfChunk は施設の絵が置く原点からチャンクに収まらないときに返す
+var errFacilityOutOfChunk = errors.New("facility template does not fit in the chunk")
 
 // planFacility は施設 fac の絵を1枚選んで展開する。絵は入口を北に向けて描いてあり、rng で半々に左へ90度回して入口を西の街路へ向ける。左右の反転も半々で選ぶ
 func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand) ([][]maptemplate.MapCell, error) {
@@ -26910,8 +26916,8 @@ func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, r
 // 扉は左右か上下の壁から向きを決める。
 // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする
 func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox, oy consts.Tile, fac string, danger consts.Danger, seed uint64) (func(lx, ly consts.Tile) bool, map[consts.Coord[consts.Tile]]bool, error) {
-        <span class="cov8" title="1">if len(cells) != int(g.chunkH-oy) || len(cells[0]) != int(g.chunkW-ox) </span>{
-                <span class="cov0" title="0">return nil, nil, fmt.Errorf("facility %q %dx%d, lot %dx%d: %w", fac, len(cells[0]), len(cells), g.chunkW-ox, g.chunkH-oy, errFacilityLotSizeMismatch)
+        <span class="cov8" title="1">if int(oy)+len(cells) &gt; int(g.chunkH) || int(ox)+len(cells[0]) &gt; int(g.chunkW) </span>{
+                <span class="cov8" title="1">return nil, nil, fmt.Errorf("facility %q %dx%d at %d,%d, chunk %dx%d: %w", fac, len(cells[0]), len(cells), ox, oy, g.chunkW, g.chunkH, errFacilityOutOfChunk)
 </span>        }
 
         <span class="cov8" title="1">tileRows := map[string]rawschema.Tile{}
@@ -27209,22 +27215,20 @@ func smoothstep(t float64) float64 {
 		<pre class="file" id="file200" style="display: none">package overworld
 
 import (
-        "errors"
         "fmt"
         "math/rand/v2"
 
-        gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/maptemplate"
         "github.com/kijimaD/ruins/internal/raw"
         "github.com/kijimaD/ruins/internal/rawschema"
         w "github.com/kijimaD/ruins/internal/world"
-        "github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
 // 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・
 // 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。
 
-// landmarkKindAt は当選チャンクに置くランドマークの id を出現重みで抽選する。
+// landmarkKindAt は当選チャンクに置くランドマークの施設の id を出現重みで抽選する。
 func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
         <span class="cov8" title="1">lms := raw.PtrSlice(raws.Landmarks)
         i, ok := consts.Pick(consts.HashRoll(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y)), lms, func(l rawschema.Landmark) float64 </span>{ <span class="cov8" title="1">return float64(l.Weight) }</span>)
@@ -27238,108 +27242,36 @@ func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.C
 // wildernessLandmarkFeature は自然の点在ランドマークの feature 実装。
 type wildernessLandmarkFeature struct{}
 
-// landmarkDrawer はランドマーク1種を描く関数。
-type landmarkDrawer func(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error
+// landmarkMargin はランドマークの絵とチャンクの縁の間に空けるマス数
+const landmarkMargin consts.Tile = 2
 
-var errHutTilesMissing = errors.New("hut landmark has no floor or wall tile")
-
-// drawers は drawer キーから描画関数を引く。
-var drawers = map[rawschema.DrawerKey]landmarkDrawer{
-        rawschema.Hut:  drawHutLandmark,
-        rawschema.Open: drawOpenLandmark,
-}
-
-// drawHutLandmark は外周壁の小屋を描き、prop を北壁沿いに並べる。
-func drawHutLandmark(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error {
-        <span class="cov8" title="1">names := make([]string, len(lm.Props))
-        for i, p := range lm.Props </span>{
-                <span class="cov8" title="1">names[i] = p.Name
-</span>        }
-        <span class="cov8" title="1">if lm.HutFloor == nil || lm.HutWall == nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("landmark %q: %w", lm.Id, errHutTilesMissing)
-</span>        }
-        <span class="cov8" title="1">return drawHut(world, g, rng, origin, consts.Tile(lm.HutW), consts.Tile(lm.HutH), *lm.HutFloor, *lm.HutWall, names)</span>
-}
-
-// drawOpenLandmark は prop を相対座標で露天に置く。
-func drawOpenLandmark(world w.World, _ chunkGeom, _ *rand.Rand, origin consts.Coord[consts.Tile], lm rawschema.Landmark) error {
-        <span class="cov8" title="1">spots := make([]relSpot, len(lm.Props))
-        for i, p := range lm.Props </span>{
-                <span class="cov8" title="1">spots[i] = relSpot{name: p.Name, dx: consts.Tile(p.Dx), dy: consts.Tile(p.Dy)}
-</span>        }
-        <span class="cov8" title="1">return spawnLandmarkProps(world, origin, spots)</span>
-}
-
-// place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物には譲り、構図を
+// place は当選チャンクの荒れ地に、ランドマークの施設の絵を1つ置く。景色の脇役なので主役の地物には譲り、構図を
 // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が
 // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。
 func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
         <span class="cov8" title="1">if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols) != chunkLandmark </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
-
-        <span class="cov8" title="1">rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y), 0))
-</span>        // 構造物がチャンク境界をはみ出さないよう内側に収める。maxHut は最大の小屋の幅 7 に壁1枚分の
-        // 余白を足した値で、原点をどこへずらしても外壁と南辺の扉が境界へ接しない
-        <span class="cov8" title="1">const margin, maxHut = 2, 8
-        spanX := max(1, int(g.chunkW)-2*margin-maxHut)
-        spanY := max(1, int(g.chunkH)-2*margin-maxHut)
-        ox := g.offsetX + consts.Tile(margin+rng.IntN(spanX))
-        oy := g.offsetY + consts.Tile(margin+rng.IntN(spanY))
-        origin := consts.Coord[consts.Tile]{X: ox, Y: oy}
-</span>
-        <span class="cov8" title="1">id := landmarkKindAt(world.Resources.RawMaster, runSeed, c)
-        lm, ok := raw.GetLandmark(world.Resources.RawMaster, id)
-        if !ok </span>{
-                <span class="cov0" title="0">return fmt.Errorf("landmark %q not found", id)
+        <span class="cov8" title="1">loader, err := maptemplate.FacilityTemplates()
+        if err != nil </span>{
+                <span class="cov0" title="0">return fmt.Errorf("failed to load facility templates: %w", err)
 </span>        }
-        <span class="cov8" title="1">draw, ok := drawers[lm.Drawer]
-        if !ok </span>{
-                <span class="cov0" title="0">return fmt.Errorf("landmark %q drawer %q not registered", id, lm.Drawer)
+        <span class="cov8" title="1">seed := ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y)
+</span>        // ストリーム 0 は絵と原点の抽選。spawnFacility が戦利品と敵に使う 0x4 と 0x5 と分ける
+        <span class="cov8" title="1">rng := rand.New(rand.NewPCG(seed, 0))
+        fac := landmarkKindAt(world.Resources.RawMaster, runSeed, c)
+        cells, err := planFacility(loader, fac, rng.Uint64(), rng)
+        if err != nil </span>{
+                <span class="cov0" title="0">return fmt.Errorf("failed to plan landmark %q: %w", fac, err)
 </span>        }
-        <span class="cov8" title="1">return draw(world, g, rng, origin, lm)</span>
-}
-
-// drawHut は外周壁・内側床・南辺出入口の小屋を置き、内装 prop を屋内へ順に配置する。
-// 市街地の街区と同じ構法だが、単チャンク完結なので断片クリップは不要。
-func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], hw, hh consts.Tile, floor, wall string, props []string) error {
-        <span class="cov8" title="1">tiles := g.tiles.get()
-        ox, oy := origin.X, origin.Y
-        door := ox + 1 + consts.Tile(rng.IntN(int(hw-2)))
-        for ly := oy; ly &lt; oy+hh; ly++ </span>{
-                <span class="cov8" title="1">for lx := ox; lx &lt; ox+hw; lx++ </span>{
-                        <span class="cov8" title="1">name := floor
-                        perimeter := lx == ox || lx == ox+hw-1 || ly == oy || ly == oy+hh-1
-                        if perimeter &amp;&amp; (ly != oy+hh-1 || lx != door) </span>{
-                                <span class="cov8" title="1">name = wall
-</span>                        }
-                        <span class="cov8" title="1">if _, err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil </span>{
-                                <span class="cov0" title="0">return fmt.Errorf("failed to place landmark hut (x=%d, y=%d): %w", lx, ly, err)
-</span>                        }
-                }
-        }
-        <span class="cov8" title="1">for i, name := range props </span>{
-                // 屋内の北側の壁沿いへ左から順に並べる。出入口の導線と重ねない
-                <span class="cov8" title="1">pos := consts.Coord[consts.Tile]{X: ox + 1 + consts.Tile(i), Y: oy + 1}
-                if _, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y); err != nil </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("failed to place landmark interior prop (%s): %w", name, err)
-</span>                }
-        }
-        // 南辺の開口に見える扉を置く。壁の切れ目だけだと原野の中の謎の壁に見えるため、
-        // 廃屋としての入口を明示する。南壁は東西に走るので向きは Vertical
-        <span class="cov8" title="1">if _, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: door, Y: oy + hh - 1}, gc.DoorOrientationVertical); err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to place landmark hut door: %w", err)
+        // 絵がチャンクの縁から landmarkMargin 以上離れる範囲で原点を引く
+        <span class="cov8" title="1">spanX := max(1, int(g.chunkW-2*landmarkMargin)-len(cells[0])+1)
+        spanY := max(1, int(g.chunkH-2*landmarkMargin)-len(cells)+1)
+        ox := landmarkMargin + consts.Tile(rng.IntN(spanX))
+        oy := landmarkMargin + consts.Tile(rng.IntN(spanY))
+        if _, _, err := spawnFacility(world, g, cells, ox, oy, fac, urbanDangerAt(world, c), seed); err != nil </span>{
+                <span class="cov0" title="0">return fmt.Errorf("failed to place landmark %q: %w", fac, err)
 </span>        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// spawnLandmarkProps は露天ランドマークの prop 一式を基準座標からの相対で配置する。
-func spawnLandmarkProps(world w.World, origin consts.Coord[consts.Tile], spots []relSpot) error {
-        <span class="cov8" title="1">for _, s := range spots </span>{
-                <span class="cov8" title="1">if _, err := lifecycle.SpawnProp(world, s.name, origin.X+s.dx, origin.Y+s.dy); err != nil </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("failed to place landmark prop (%s): %w", s.name, err)
-</span>                }
-        }
         <span class="cov8" title="1">return nil</span>
 }
 </pre>
@@ -27544,6 +27476,25 @@ func BuildMacroView(
 </span>                }
         }
         <span class="cov8" title="1">return view</span>
+}
+
+// Legend は表示範囲の開放済みのチャンクに出ている記号を、凡例の順に返す。未開放のチャンクの記号は伏せる
+func (v MacroView) Legend(raws rawschema.Raws) []GlyphInfo {
+        <span class="cov8" title="1">seen := map[rune]bool{}
+        for _, row := range v.Cells </span>{
+                <span class="cov8" title="1">for _, c := range row </span>{
+                        <span class="cov8" title="1">if c.Discovered </span>{
+                                <span class="cov8" title="1">seen[c.Glyph] = true
+</span>                        }
+                }
+        }
+        <span class="cov8" title="1">var out []GlyphInfo
+        for _, g := range LegendGlyphs(raws) </span>{
+                <span class="cov8" title="1">if seen[g.Label] </span>{
+                        <span class="cov8" title="1">out = append(out, g)
+</span>                }
+        }
+        <span class="cov8" title="1">return out</span>
 }
 </pre>
 		
@@ -28612,7 +28563,7 @@ import (
         "github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
-// relSpot は基準点からの相対座標に置くエンティティの定義。ランドマークの原点や散布の起点を基準に、
+// relSpot は基準点からの相対座標に置くエンティティの定義。散布の起点を基準に、
 // prop をずらして配置するのに使う。
 type relSpot struct {
         name string
@@ -31590,32 +31541,6 @@ type DoorRaw struct {
         VerticalOpen SpriteKey `json:"verticalOpen"`
 }
 
-// DrawerKey ランドマークの描画関数の選択キー
-type DrawerKey string
-
-// Defines values for DrawerKey.
-const (
-        Hut  DrawerKey = "hut"
-        Open DrawerKey = "open"
-)
-
-// Valid indicates whether the value is a known member of the DrawerKey enum.
-func (e DrawerKey) Valid() bool {
-        <span class="cov0" title="0">switch e </span>{
-        case Hut:
-                <span class="cov0" title="0">return true</span>
-        case Open:
-                <span class="cov0" title="0">return true</span>
-        default:
-                <span class="cov0" title="0">return false</span>
-        }
-}
-
-// DrawerKeyValues は DrawerKey の値を、スキーマに書いた順に返す。
-func DrawerKeyValues() []DrawerKey {
-        <span class="cov0" title="0">return []DrawerKey{Hut, Open}
-</span>}
-
 // DropTable ドロップテーブル
 type DropTable struct {
         Entries []DropTableEntry `json:"entries"`
@@ -32430,23 +32355,12 @@ type ItemTableEntry struct {
 // ItemValue 売買価格
 type ItemValue = int
 
-// Landmark 原野の点在ランドマーク1種。hutW/hutH は drawer=hut のときだけ使う
+// Landmark 原野の点在ランドマーク1種。施設の絵で描く施設を、原野のランドマークの当選チャンクに置く
 type Landmark struct {
-        Drawer DrawerKey `json:"drawer"`
-
-        // HutFloor 小屋の床と壁のタイル。drawer=hut のときだけ使い、そのとき必須
-        HutFloor *EntityID `json:"hutFloor,omitempty"`
-
-        HutH int32 `json:"hutH"`
-
-        HutW int32 `json:"hutW"`
-
-        HutWall *EntityID `json:"hutWall,omitempty"`
-
+        // Id 原野に置く施設の id。地図の記号もこの id で引く
         Id EntityID `json:"id"`
 
-        Props []PropSpot `json:"props"`
-
+        // Weight 原野のランドマークの当選チャンクで、この施設を引く重み
         Weight int32 `json:"weight"`
 }
 
@@ -33810,6 +33724,8 @@ const (
         CampusInner      Zone = "campus_inner"
         CampusQuarantine Zone = "campus_quarantine"
         Downtown         Zone = "downtown"
+        FarmField        Zone = "farm_field"
+        FarmYard         Zone = "farm_yard"
         Industrial       Zone = "industrial"
         MilitaryArmory   Zone = "military_armory"
         MilitaryGate     Zone = "military_gate"
@@ -33829,6 +33745,10 @@ func (e Zone) Valid() bool {
         case CampusQuarantine:
                 <span class="cov0" title="0">return true</span>
         case Downtown:
+                <span class="cov0" title="0">return true</span>
+        case FarmField:
+                <span class="cov0" title="0">return true</span>
+        case FarmYard:
                 <span class="cov0" title="0">return true</span>
         case Industrial:
                 <span class="cov0" title="0">return true</span>
@@ -33851,7 +33771,7 @@ func (e Zone) Valid() bool {
 
 // ZoneValues は Zone の値を、スキーマに書いた順に返す。
 func ZoneValues() []Zone {
-        <span class="cov0" title="0">return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore}
+        <span class="cov0" title="0">return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore, FarmYard, FarmField}
 </span>}
 </pre>
 		
@@ -42924,7 +42844,7 @@ func (st *OverworldMapState) renderMap(world w.World, dst *ebiten.Image) {
                 PlayerFacing: st.facing,
         })
 </span>
-        <span class="cov8" title="1">hud.DrawMapLegend(cv, world.Resources.RawMaster, func(msgid string) string </span>{ <span class="cov8" title="1">return query.T(world, i18n.Msgid(msgid)) }</span>, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
+        <span class="cov8" title="1">hud.DrawMapLegend(cv, st.view.Legend(world.Resources.RawMaster), func(msgid string) string </span>{ <span class="cov8" title="1">return query.T(world, i18n.Msgid(msgid)) }</span>, face, glyphFace, int(originY)+len(st.view.Cells)*int(cell)+16)
 }
 </pre>
 		
@@ -50411,7 +50331,6 @@ import (
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/overworld"
-        "github.com/kijimaD/ruins/internal/rawschema"
         theme "github.com/kijimaD/ruins/internal/widgets/theme"
         "github.com/kijimaD/ruins/internal/widgets/uicore"
 )
@@ -50489,12 +50408,12 @@ func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) 
         cv.FillTriangle(rot(back), rot(left), rot(right), theme.OverworldMapMarkerBack)</span> // 後方=シルバー
 }
 
-// DrawMapLegend は記号・色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
+// DrawMapLegend は記号 glyphs の色・種別名の対応を地図の下へ並べて描く。色見本に格子と同じ記号を重ね、
 // 地図上の1文字から凡例を引けるようにする。全画面図の下部 chrome。top は並べ始める y ピクセル。
-func DrawMapLegend(cv uicore.Canvas, raws rawschema.Raws, translate func(msgid string) string, face, glyphFace text.Face, top int) {
+func DrawMapLegend(cv uicore.Canvas, glyphs []overworld.GlyphInfo, translate func(msgid string) string, face, glyphFace text.Face, top int) {
         <span class="cov8" title="1">const swatch = 14
         x, y := 8, top
-        for _, g := range overworld.LegendGlyphs(raws) </span>{
+        for _, g := range glyphs </span>{
                 <span class="cov8" title="1">cv.FillRect(image.Rect(x, y, x+swatch, y+swatch), g.Color, uicore.RectOptions{})
                 drawCenteredGlyph(cv, string(g.Label), glyphFace, x, y, swatch, theme.OverworldMapGlyphText)
                 cv.DrawText(image.Pt(x+20, y-2), translate(g.Name), face, theme.TextPrimary)
@@ -55563,7 +55482,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov0" title="0">return -1</span>
+        <span class="cov8" title="1">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
