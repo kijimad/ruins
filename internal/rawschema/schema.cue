@@ -415,6 +415,16 @@ import "strings"
 	planners!: [...#DungeonPlannerWeight] & [_, ...]
 	// 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ない
 	entranceWeight!: int & >=0
+	// フロアに置く敵の数
+	enemyCount!: #FloorCount
+	// フロアに置くアイテムの数
+	itemCount!: #FloorCount
+}
+
+// フロアに置く数。base に 0 以上 spread 未満の乱数を足す
+#FloorCount: {
+	base!:   int & >=0
+	spread!: int & >=1
 }
 
 // ダンジョンのフロアを生成する間取りの種類

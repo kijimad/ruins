@@ -20,6 +20,7 @@ const (
 	BaselineWeapon    = "bare_hands"
 	BaselineDays      = 21
 	BaselineAreaTable = "ruins_area"
+	BaselineDungeon   = "forgotten_ruins"
 )
 
 // colDanger は複数の表で使う危険度列の見出し。文字列の重複を1つにまとめる。
@@ -207,11 +208,12 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string
 	}
 	writeMDTable(&b, []string{colDanger, "廃墟", "森", "洞窟"}, []tw.Align{alignR, alignR, alignR, alignR}, netLootRows)
 
-	fmt.Fprintf(&b, "探索1回の期待収入。各層で約%d個拾い層の深さを危険度として手取りを積んだ閉形式。層数は生存に依る scenario 入力。\n", expectedItemsPerFloor)
+	ruins, _ := raw.GetDungeon(master, BaselineDungeon)
+	fmt.Fprintf(&b, "探索1回の期待収入。各層で約%g個拾い層の深さを危険度として手取りを積んだ閉形式。層数は生存に依る scenario 入力。\n", expectedFloorCount(ruins.ItemCount))
 	fmt.Fprintf(&b, "総収支はこの収入から移動燃料コストを引くが、1回の移動タイル数はコードにない設計値なのでコスト側は別途与える。\n\n")
 	var runIncomeRows [][]string
 	for _, floors := range []int{1, 3, 5, 10} {
-		runIncomeRows = append(runIncomeRows, []string{fmt.Sprintf("%d", floors), fmt.Sprintf("%.0f", ExpectedRunLootIncome(master, "ruins_area", floors))})
+		runIncomeRows = append(runIncomeRows, []string{fmt.Sprintf("%d", floors), fmt.Sprintf("%.0f", ExpectedRunLootIncome(master, BaselineDungeon, floors))})
 	}
 	writeMDTable(&b, []string{"探索層数", "廃墟の期待収入"}, []tw.Align{alignR, alignR}, runIncomeRows)
 

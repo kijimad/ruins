@@ -3,6 +3,7 @@ package mapplanner
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,6 +16,7 @@ func TestNewHostileNPCPlanner(t *testing.T) {
 	plannerType := PlannerType{
 		Name:           "test",
 		EnemyTableName: "normal",
+		EnemyCount:     rawschema.FloorCount{Base: 5, Spread: 4},
 		Danger:         1,
 	}
 	planner := NewHostileNPCPlanner(world, plannerType)
@@ -55,6 +57,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_with_enemies",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.FloorCount{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
@@ -78,6 +81,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_valid_position",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.FloorCount{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
@@ -106,6 +110,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_multiple_enemies",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.FloorCount{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
@@ -129,6 +134,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_room_based",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.FloorCount{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
@@ -165,6 +171,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_big_room_cluster",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.FloorCount{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
@@ -206,6 +213,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_same_species",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.FloorCount{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 

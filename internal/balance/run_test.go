@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -57,7 +58,7 @@ func TestRollFloorLoot(t *testing.T) {
 	t.Run("存在しないテーブル名はゼロ値を返す", func(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(1, 0))
-		got := rollFloorLoot(master, "存在しないテーブル", 1, 80, rng)
+		got := rollFloorLoot(master, "存在しないテーブル", rawschema.FloorCount{Base: 8, Spread: 5}, 1, 80, rng)
 		assert.Equal(t, floorLoot{}, got)
 	})
 
@@ -65,7 +66,7 @@ func TestRollFloorLoot(t *testing.T) {
 		t.Parallel()
 		for seed := range 20 {
 			rng := rand.New(rand.NewPCG(uint64(seed), 0))
-			got := rollFloorLoot(master, "ruins_area", 1, 80, rng)
+			got := rollFloorLoot(master, "ruins_area", rawschema.FloorCount{Base: 8, Spread: 5}, 1, 80, rng)
 			assert.GreaterOrEqual(t, got.healing, 0)
 			assert.GreaterOrEqual(t, got.nutrition, 0)
 			assert.GreaterOrEqual(t, got.income, 0)
@@ -80,12 +81,12 @@ func TestSimulateRun(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 
-	t.Run("存在しない敵テーブルは0階到達で終わる", func(t *testing.T) {
+	t.Run("存在しないダンジョンは0階到達で終わる", func(t *testing.T) {
 		t.Parallel()
 		player := CombatantStats{HP: 80}
 		weapon := WeaponStats{Damage: 3, Accuracy: 100}
 		rng := rand.New(rand.NewPCG(1, 0))
-		result := SimulateRun(master, "存在しないテーブル", player, weapon, 3, rng)
+		result := SimulateRun(master, "存在しないダンジョン", player, weapon, 3, rng)
 		assert.Equal(t, 0, result.ReachedDepth)
 		assert.False(t, result.Died)
 		assert.Empty(t, result.HPByDepth)
@@ -97,7 +98,7 @@ func TestSimulateRun(t *testing.T) {
 		weapon := WeaponStats{Damage: 10000, Accuracy: 100}
 		rng := rand.New(rand.NewPCG(7, 0))
 		const maxDepth = 3
-		result := SimulateRun(master, "ruins_area", player, weapon, maxDepth, rng)
+		result := SimulateRun(master, BaselineDungeon, player, weapon, maxDepth, rng)
 
 		assert.Equal(t, maxDepth, result.ReachedDepth)
 		assert.False(t, result.Died)

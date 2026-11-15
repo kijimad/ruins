@@ -60,7 +60,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 		planData.Items = []ItemSpec{}
 	}
 
-	total := consts.FloorItemBase + planData.RNG.IntN(consts.FloorItemRandom)
+	total := i.plannerType.ItemCount.Base + planData.RNG.IntN(i.plannerType.ItemCount.Spread)
 	if i.plannerType.Danger > itemIncreaseDanger {
 		total++
 	}

@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
@@ -36,16 +37,22 @@ func collectPlannerTypes(t *testing.T) []mapplanner.PlannerType {
 	type tableInfo struct {
 		EnemyTableName string
 		ItemTableName  string
+		EnemyCount     rawschema.FloorCount
+		ItemCount      rawschema.FloorCount
 	}
 	tableMap := map[string]tableInfo{}
 	dungeons := dungeon.GetAllDungeons(testutil.InitTestWorld(t).Resources.RawMaster)
 	for i := range dungeons {
 		def := dungeons[i]
-		for _, pw := range def.PlannerPool() {
+		pool := def.PlannerPool()
+		for j := range pool {
+			pw := &pool[j]
 			if _, exists := tableMap[pw.PlannerType.Name]; !exists {
 				tableMap[pw.PlannerType.Name] = tableInfo{
 					EnemyTableName: def.EnemyTableName(),
 					ItemTableName:  def.ItemTableName(),
+					EnemyCount:     def.EnemyCount(),
+					ItemCount:      def.ItemCount(),
 				}
 			}
 		}
@@ -57,6 +64,8 @@ func collectPlannerTypes(t *testing.T) []mapplanner.PlannerType {
 		if info, ok := tableMap[result[i].Name]; ok {
 			result[i].EnemyTableName = info.EnemyTableName
 			result[i].ItemTableName = info.ItemTableName
+			result[i].EnemyCount = info.EnemyCount
+			result[i].ItemCount = info.ItemCount
 		}
 		result[i].Danger = 1
 		result[i].Ground = consts.TileNameDirt

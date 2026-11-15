@@ -15,6 +15,8 @@ var (
 		displayName: "Debug",
 		enemyTable:  "forest",
 		itemTable:   "forest",
+		enemyCount:  rawschema.FloorCount{Base: 5, Spread: 4},
+		itemCount:   rawschema.FloorCount{Base: 8, Spread: 5},
 		baseTemp:    10,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
@@ -74,6 +76,8 @@ func newDungeonDefinition(row *rawschema.Dungeon) *DungeonDefinition {
 		displayName: i18n.Msgid(row.Name),
 		enemyTable:  row.EnemyTable,
 		itemTable:   row.ItemTable,
+		enemyCount:  row.EnemyCount,
+		itemCount:   row.ItemCount,
 		baseTemp:    row.BaseTemp,
 		plannerPool: pool,
 	}

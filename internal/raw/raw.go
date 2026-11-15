@@ -672,6 +672,15 @@ func GetEnemyTable(raws rawschema.Raws, name string) (rawschema.EnemyTable, erro
 	return et, nil
 }
 
+// GetDungeon は id のダンジョンの行を返す
+func GetDungeon(raws rawschema.Raws, id string) (rawschema.Dungeon, error) {
+	d, ok := findByKey(raws.Dungeons, func(d rawschema.Dungeon) string { return d.Id }, id)
+	if !ok {
+		return rawschema.Dungeon{}, NewKeyNotFoundError(id, "Dungeons")
+	}
+	return d, nil
+}
+
 // GetFacility は id の施設宣言を返す。未登録は false。
 func GetFacility(raws rawschema.Raws, id string) (rawschema.Facility, bool) {
 	return findByKey(raws.Facilities, func(f rawschema.Facility) string { return f.Id }, id)

@@ -1917,6 +1917,12 @@
   imageKey = "forest1"
   itemTable = "forest"
   name = "Dead forest"
+  [dungeons.enemyCount]
+    base = 5
+    spread = 4
+  [dungeons.itemCount]
+    base = 8
+    spread = 5
 
   [[dungeons.planners]]
     id = "forest"
@@ -1939,6 +1945,12 @@
   imageKey = "cave1"
   itemTable = "cave"
   name = "Ash cave"
+  [dungeons.enemyCount]
+    base = 5
+    spread = 4
+  [dungeons.itemCount]
+    base = 8
+    spread = 5
 
   [[dungeons.planners]]
     id = "cave"
@@ -1961,6 +1973,12 @@
   imageKey = "city1"
   itemTable = "ruins_area"
   name = "Forgotten ruins"
+  [dungeons.enemyCount]
+    base = 5
+    spread = 4
+  [dungeons.itemCount]
+    base = 8
+    spread = 5
 
   [[dungeons.planners]]
     id = "small_room"

@@ -4,7 +4,6 @@ import (
 	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -30,7 +29,7 @@ type RunResult struct {
 }
 
 // SimulateRun はラン全体を模擬する。maxDepth まで進み死亡で終了する。フロアのドロップでより強い武器へ切り替える。
-func SimulateRun(master rawschema.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, rng *rand.Rand) RunResult {
+func SimulateRun(master rawschema.Raws, dungeonID string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, rng *rand.Rand) RunResult {
 	result := RunResult{
 		HPByDepth:           make(map[int]int),
 		HPBeforeHealByDepth: make(map[int]int),
@@ -46,7 +45,12 @@ func SimulateRun(master rawschema.Raws, enemyTableName string, player CombatantS
 	needs := raw.NewNeedDefs(master)
 	foodStock := 0 // 未消費の食料ストック（栄養値の合計）
 
-	enemyTable, err := raw.GetEnemyTable(master, enemyTableName)
+	dungeon, err := raw.GetDungeon(master, dungeonID)
+	if err != nil {
+		result.ReachedDepth = 0
+		return result
+	}
+	enemyTable, err := raw.GetEnemyTable(master, dungeon.EnemyTable)
 	if err != nil {
 		result.ReachedDepth = 0
 		return result
@@ -58,7 +62,7 @@ func SimulateRun(master rawschema.Raws, enemyTableName string, player CombatantS
 
 	for depth := 1; depth <= maxDepth; depth++ {
 		// フロアの敵数を決定
-		enemyCount := consts.FloorEnemyBase + rng.IntN(consts.FloorEnemyRandom)
+		enemyCount := dungeon.EnemyCount.Base + rng.IntN(dungeon.EnemyCount.Spread)
 		floorTotalTurns := 0
 		floorBattleCount := 0
 
@@ -114,7 +118,7 @@ func SimulateRun(master rawschema.Raws, enemyTableName string, player CombatantS
 		hunger.Decrease(steps)
 
 		// フロアのアイテムドロップから回復・武器・食料を取得する
-		loot := rollFloorLoot(master, enemyTableName, depth, player.HP, rng)
+		loot := rollFloorLoot(master, dungeon.ItemTable, dungeon.ItemCount, depth, player.HP, rng)
 		currentHP += loot.healing
 		if currentHP > player.HP {
 			currentHP = player.HP
@@ -156,7 +160,7 @@ type floorLoot struct {
 
 // rollFloorLoot はフロアで拾えるアイテムを計算する。
 // 回復アイテムと武器の両方を処理し、武器はフロア内で最も強いものを返す
-func rollFloorLoot(master rawschema.Raws, tableName string, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {
+func rollFloorLoot(master rawschema.Raws, tableName string, count rawschema.FloorCount, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {
 	result := floorLoot{}
 
 	itemTable, err := raw.GetItemTable(master, tableName)
@@ -164,7 +168,7 @@ func rollFloorLoot(master rawschema.Raws, tableName string, depth int, playerMax
 		return result
 	}
 
-	itemCount := consts.FloorItemBase + rng.IntN(consts.FloorItemRandom)
+	itemCount := count.Base + rng.IntN(count.Spread)
 
 	for range itemCount {
 		draws, err := raw.DrawFromItemTable(master, itemTable, rng, depth)
@@ -234,11 +238,11 @@ func (bs BattleStats) DPS() float64 {
 }
 
 // RunSimulations はN回のランシミュレーションを実行する
-func RunSimulations(master rawschema.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {
+func RunSimulations(master rawschema.Raws, dungeonID string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {
 	results := make([]RunResult, n)
 	for i := range n {
 		rng := rand.New(rand.NewPCG(seed+uint64(i), 0))
-		results[i] = SimulateRun(master, enemyTableName, player, playerWeapon, maxDepth, rng)
+		results[i] = SimulateRun(master, dungeonID, player, playerWeapon, maxDepth, rng)
 	}
 	return RunStats{Results: results}
 }

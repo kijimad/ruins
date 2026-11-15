@@ -104,16 +104,23 @@ func ExpectedNetLootValue(master rawschema.Raws, itemTableName string, danger in
 	return float64(query.CalculateSellPrice(int(math.Round(value))))
 }
 
-// expectedItemsPerFloor はフロアで拾える loot 個数の期待値。
-// consts.FloorItemRandom は奇数なので (consts.FloorItemRandom-1)/2 は整数除算でも厳密になる
-const expectedItemsPerFloor = consts.FloorItemBase + (consts.FloorItemRandom-1)/2
+// expectedFloorCount はフロアに置く数の期待値
+func expectedFloorCount(c rawschema.FloorCount) float64 {
+	return float64(c.Base) + float64(c.Spread-1)/2
+}
 
-// ExpectedRunLootIncome は floors 層を探索して拾う loot の期待手取り総額を返す。各層で expectedItemsPerFloor
-// 個を拾い、層の深さを危険度として ExpectedNetLootValue を積む。到達層数は生存依存の scenario 入力。
-func ExpectedRunLootIncome(master rawschema.Raws, itemTableName string, floors int) float64 {
+// ExpectedRunLootIncome はダンジョン dungeonID を floors 層探索して拾う loot の期待手取り総額を返す。各層で
+// アイテムの数の期待値の個数を拾い、層の深さを危険度として ExpectedNetLootValue を積む。到達層数は生存依存の scenario 入力。
+// ダンジョンが無ければ0を返す。
+func ExpectedRunLootIncome(master rawschema.Raws, dungeonID string, floors int) float64 {
+	d, err := raw.GetDungeon(master, dungeonID)
+	if err != nil {
+		return 0
+	}
+	perFloor := expectedFloorCount(d.ItemCount)
 	total := 0.0
 	for depth := 1; depth <= floors; depth++ {
-		total += expectedItemsPerFloor * ExpectedNetLootValue(master, itemTableName, depth)
+		total += perFloor * ExpectedNetLootValue(master, d.ItemTable, depth)
 	}
 	return total
 }

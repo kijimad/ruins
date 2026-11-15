@@ -3,6 +3,7 @@ package mapplanner
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,6 +16,7 @@ func TestNewItemPlanner(t *testing.T) {
 	plannerType := PlannerType{
 		Name:          "test",
 		ItemTableName: "normal",
+		ItemCount:     rawschema.FloorCount{Base: 8, Spread: 5},
 		Danger:        1,
 	}
 	planner := NewItemPlanner(world, plannerType)
@@ -55,6 +57,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:          "test_with_items",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.FloorCount{Base: 8, Spread: 5},
 			Danger:        1,
 		}
 
@@ -78,6 +81,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:          "test_valid_position",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.FloorCount{Base: 8, Spread: 5},
 			Danger:        1,
 		}
 
@@ -106,6 +110,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerTypeShallow := PlannerType{
 			Name:          "test_depth_shallow",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.FloorCount{Base: 8, Spread: 5},
 			Danger:        1,
 		}
 
@@ -124,6 +129,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerTypeDeep := PlannerType{
 			Name:          "test_depth_deep",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.FloorCount{Base: 8, Spread: 5},
 			Danger:        10,
 		}
 
@@ -150,6 +156,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:          "test_multiple_items",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.FloorCount{Base: 8, Spread: 5},
 			Danger:        5,
 		}
 
@@ -174,6 +181,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:          "test_stackable",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.FloorCount{Base: 8, Spread: 5},
 			Danger:        1,
 		}
 
@@ -209,6 +217,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:          "test_room_based_items",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.FloorCount{Base: 8, Spread: 5},
 			Danger:        1,
 		}
 

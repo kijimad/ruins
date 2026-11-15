@@ -37,14 +37,16 @@ func GenerateReport(master rawschema.Raws, playerName string, weaponName string,
 			Damage:   weapon.Damage,
 			Accuracy: weapon.Accuracy,
 		},
-		EnemyTables: []EnemyTableRun{},
+		Dungeons: []DungeonRun{},
 	}
 
-	for _, table := range raw.PtrSlice(master.EnemyTables) {
-		stats := RunSimulations(master, table.Id, player, weapon, maxDepth, trials, seed)
+	dungeons := raw.PtrSlice(master.Dungeons)
+	for i := range dungeons {
+		d := &dungeons[i]
+		stats := RunSimulations(master, d.Id, player, weapon, maxDepth, trials, seed)
 
-		run := EnemyTableRun{
-			Name:        table.Name,
+		run := DungeonRun{
+			Name:        d.Name,
 			MaxDepth:    maxDepth,
 			Trials:      trials,
 			MedianDepth: stats.MedianDepth(),
@@ -80,7 +82,7 @@ func GenerateReport(master rawschema.Raws, playerName string, weaponName string,
 			})
 		}
 
-		report.EnemyTables = append(report.EnemyTables, run)
+		report.Dungeons = append(report.Dungeons, run)
 	}
 
 	metrics, err := generateBattleMetrics(master, playerName, seed)

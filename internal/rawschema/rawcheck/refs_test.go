@@ -92,7 +92,8 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		}},
 		Dungeons: &[]rawschema.Dungeon{{
 			Id: "forest", Name: "Forest", Description: "Forest", ImageKey: "forest", EnemyTable: "wild", ItemTable: "chest",
-			Planners: []rawschema.DungeonPlannerWeight{{Id: rawschema.DungeonPlannerCave, Weight: 1}},
+			Planners:   []rawschema.DungeonPlannerWeight{{Id: rawschema.DungeonPlannerCave, Weight: 1}},
+			EnemyCount: rawschema.FloorCount{Base: 1, Spread: 1}, ItemCount: rawschema.FloorCount{Base: 1, Spread: 1},
 		}},
 		Settlements: &[]rawschema.Settlement{{Id: "village", Weight: 1, Members: []rawschema.PropSpot{{Name: "slime"}}, Props: []rawschema.PropSpot{{Name: "bed"}}}},
 		Dialogues:   &[]rawschema.Dialogue{{Id: "greeting", Pages: []rawschema.DialoguePage{"Hi."}}},

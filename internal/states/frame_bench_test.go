@@ -37,7 +37,8 @@ var benchDungeons = []struct {
 // 通常プレイで描画が占める割合を示す。AIスパイク自体は BenchmarkProcessAll で別途計測している。
 // custom metric "gridEnts" は GridElement を持つエンティティ数（≒タイル数）で、Draw のスケール要因。
 func BenchmarkDungeonFrame(b *testing.B) {
-	for _, bld := range benchDungeons {
+	for i := range benchDungeons {
+		bld := &benchDungeons[i]
 		world := vrt.InitReplayWorld(b)
 		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: bld.bt}, world)
 		require.NoError(b, err)
@@ -71,7 +72,8 @@ func BenchmarkDungeonFrame(b *testing.B) {
 //
 // 反復ごとにワールドが1ターン進み状態は累積する。実プレイの流れを測るため毎回リセットしない。
 func BenchmarkTurn(b *testing.B) {
-	for _, bld := range benchDungeons {
+	for i := range benchDungeons {
+		bld := &benchDungeons[i]
 		world := vrt.InitReplayWorld(b)
 		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: bld.bt}, world)
 		require.NoError(b, err)

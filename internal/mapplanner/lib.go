@@ -331,6 +331,10 @@ type PlannerType struct {
 	EnemyTableName string
 	// アイテムテーブル名。RawMasterからアイテムエントリを解決する際に使用する
 	ItemTableName string
+	// フロアに置く敵の数
+	EnemyCount rawschema.FloorCount
+	// フロアに置くアイテムの数
+	ItemCount rawschema.FloorCount
 	// 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。
 	Danger consts.Danger
 	// 全面を埋める下地のタイル。地上の計画だけが使い、空ならエラーにする

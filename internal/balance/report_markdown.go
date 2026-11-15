@@ -13,9 +13,9 @@ func (r *Report) Markdown() string {
 		r.Player.Name, r.Player.HP, r.Player.Strength, r.Player.Sensation, r.Player.Dexterity, r.Player.Agility, r.Player.Defense)
 	fmt.Fprintf(&b, "武器 %s。ダメージ %d、命中 %d。\n\n", r.Weapon.Name, r.Weapon.Damage, r.Weapon.Accuracy)
 
-	b.WriteString("## 敵テーブル\n\n")
-	for i := range r.EnemyTables {
-		run := &r.EnemyTables[i]
+	b.WriteString("## ダンジョン\n\n")
+	for i := range r.Dungeons {
+		run := &r.Dungeons[i]
 		fmt.Fprintf(&b, "### %s\n\n", run.Name)
 		fmt.Fprintf(&b, "試行 %d、最大深度 %d、到達深度の中央値 %d、死亡率 %s。\n\n", run.Trials, run.MaxDepth, run.MedianDepth, percent(run.DeathRate))
 		b.WriteString("| 深度 | HP 中央値 | HP p5 | HP p95 | 回復前 HP 中央値 | 撃破ターン中央値 | 武器ダメージ中央値 | 空腹中央値 | 被ダメージ中央値 | 回復中央値 | 急死率 |\n")

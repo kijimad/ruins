@@ -8,6 +8,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // StageDefinition はステージ種別の静的マスタ。セーブに含めず StageKey.Name で引く。
@@ -38,6 +39,8 @@ type DungeonDefinition struct {
 	displayName i18n.Msgid
 	enemyTable  string
 	itemTable   string
+	enemyCount  rawschema.FloorCount
+	itemCount   rawschema.FloorCount
 	plannerPool []PlannerWeight
 	baseTemp    int
 }
@@ -56,6 +59,12 @@ func (d *DungeonDefinition) EnemyTableName() string { return d.enemyTable }
 
 // ItemTableName はアイテムテーブル名を返す
 func (d *DungeonDefinition) ItemTableName() string { return d.itemTable }
+
+// EnemyCount はフロアに置く敵の数を返す
+func (d *DungeonDefinition) EnemyCount() rawschema.FloorCount { return d.enemyCount }
+
+// ItemCount はフロアに置くアイテムの数を返す
+func (d *DungeonDefinition) ItemCount() rawschema.FloorCount { return d.itemCount }
 
 // PlannerPool は使用するマップ種類と重みの一覧を返す。表示や検証での読み取り用。
 func (d *DungeonDefinition) PlannerPool() []PlannerWeight { return d.plannerPool }

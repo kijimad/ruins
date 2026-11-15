@@ -653,6 +653,9 @@ type Dungeon struct {
 
 	Description EntityDescription `json:"description"`
 
+	// EnemyCount フロアに置く敵の数
+	EnemyCount FloorCount `json:"enemyCount"`
+
 	// EnemyTable 敵を引く enemyTables の id
 	EnemyTable EntityID `json:"enemyTable"`
 
@@ -663,6 +666,9 @@ type Dungeon struct {
 
 	// ImageKey 背景画像のスプライトキー
 	ImageKey EntityID `json:"imageKey"`
+
+	// ItemCount フロアに置くアイテムの数
+	ItemCount FloorCount `json:"itemCount"`
 
 	// ItemTable アイテムを引く itemTables の id
 	ItemTable EntityID `json:"itemTable"`
@@ -1068,6 +1074,13 @@ type Fire struct {
 
 // FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 type FireStarter = map[string]interface{}
+
+// FloorCount フロアに置く数。base に 0 以上 spread 未満の乱数を足す
+type FloorCount struct {
+	Base int `json:"base"`
+
+	Spread int `json:"spread"`
+}
 
 // Foliage タイルの植生
 type Foliage string
