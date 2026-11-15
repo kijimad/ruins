@@ -13,7 +13,6 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -140,16 +139,10 @@ func runEndPhase(world w.World, turnState *gc.TurnState) error {
 	return nil
 }
 
-// notifyEnvironmentChange は季節や日の出入りが変わったらゲームログへ出し、日付が変わったら
-// 画面中央にスプラッシュで大書きする。生き延びた日数はこのゲームの目的の実感そのものなので、
-// ログに流さず節目として目立たせる。
+// notifyEnvironmentChange は季節や日の出入りが変わったらゲームログへ出す。
 // 変化は現在ターンと直前ターンの導出値の差で判定するので、GameTime.Advance の直後に呼ぶ。
 func notifyEnvironmentChange(world w.World) {
 	gt := query.GetGameTime(world)
-
-	if day, changed := gt.DayJustChanged(); changed {
-		lifecycle.SpawnSplashText(world, query.T(world, "Day %d", day))
-	}
 
 	if gt.SeasonJustChanged() {
 		name := query.SeasonName(world, gt.GetSeason())
@@ -249,6 +242,7 @@ func runTurnEndSystems(world w.World) error {
 		&FireSystem{},
 		&DeadCleanupSystem{},
 		&DebugInvincibleSystem{},
+		&AreaEntrySystem{},
 	} {
 		name := updater.String()
 		if sys, ok := world.Updaters[name]; ok {

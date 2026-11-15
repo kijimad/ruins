@@ -206,7 +206,7 @@ func (g *gaugeWidget) Draw(cv uicore.Canvas) {
 // Children は uicore.Widget を満たす。子は持たない。
 func (g *gaugeWidget) Children() []uicore.Widget { return nil }
 
-// drawBottomRightStack は周囲気温・所持重量・所持通貨を右下、メッセージエリアの上へ下から積んで描く。
+// drawBottomRightStack は現在地・周囲気温・所持重量・所持通貨を右下、メッセージエリアの上へ下から積んで描く。
 // 画面端からの逆算や段の手積みをせず、下寄せの FlexColumn へ流して各行を右端に揃える。先頭の Grow
 // スペーサが上の余りを吸収して全体を下端へ押し、末尾スペーサがメッセージエリアの高さを確保する。
 // 温度は場所依存なので、屋内へ入る・火に近づく効果がその場で読める。囲われラベルは白、温度は快適帯の
@@ -216,6 +216,14 @@ func (info *GameInfo) drawBottomRightStack(cv uicore.Canvas, data GameInfoData) 
 	outline := theme.HUDTextOutline
 
 	items := []uicore.FlexItem{{Grow: true}}
+
+	if data.AreaLabel != "" {
+		_, ah := uicore.MeasureText(data.AreaLabel, face)
+		items = append(items,
+			uicore.FlexItem{W: &uicore.Text{Value: data.AreaLabel, Face: face, Color: theme.TextPrimary, OutlineColor: outline, Align: uicore.AlignRight}, Height: ah},
+			uicore.FlexItem{Height: theme.Space2},
+		)
+	}
 
 	if data.AmbientTempVisible {
 		labelText := data.WeatherName + " " + data.AmbientShelterLabel + " "

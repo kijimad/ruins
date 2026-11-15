@@ -1089,6 +1089,7 @@
   fence = true
   id = "lab_campus"
   landmark = "lab_main"
+  name = "Research Campus"
   pattern = "rows"
   separation = 4
   spacing = 30
@@ -1120,6 +1121,7 @@
   fence = true
   id = "military_base"
   landmark = "military_armory"
+  name = "Military Base"
   pattern = "rows"
   separation = 4
   spacing = 36
@@ -1151,6 +1153,7 @@
   fence = true
   id = "power_plant"
   landmark = "power_turbine"
+  name = "Power Plant"
   pattern = "rings"
   separation = 4
   spacing = 40
@@ -1174,6 +1177,7 @@
 
 [[districts]]
   id = "town"
+  name = "Town"
   pattern = "rings"
   separation = 2
   spacing = 7
@@ -1209,6 +1213,7 @@
   fence = true
   id = "farm"
   landmark = "farmhouse"
+  name = "Farm"
   pattern = "rows"
   separation = 2
   spacing = 12
