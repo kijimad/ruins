@@ -672,6 +672,11 @@ func GetEnemyTable(raws rawschema.Raws, name string) (rawschema.EnemyTable, erro
 	return et, nil
 }
 
+// DungeonListed はダンジョンの行を遺跡の一覧と入口に出すかを返す
+func DungeonListed(d *rawschema.Dungeon) bool {
+	return d.Hidden == nil || !*d.Hidden
+}
+
 // GetDungeon は id のダンジョンの行を返す
 func GetDungeon(raws rawschema.Raws, id string) (rawschema.Dungeon, error) {
 	d, ok := FindByKey(raws.Dungeons, func(d rawschema.Dungeon) string { return d.Id }, id)

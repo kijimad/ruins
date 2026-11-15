@@ -17,12 +17,12 @@ func (r RuinsPlanner) PlanInitial(planData *MetaPlan) error {
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)
 
-	ruinCount := r.Layout.Buildings.Base + planData.RNG.IntN(r.Layout.Buildings.Spread)
+	ruinCount := r.Layout.Buildings.Roll(planData.RNG)
 
 	for range ruinCount {
 		// ランダムな位置とサイズで廃墟の基盤を作成
-		buildingWidth := r.Layout.BuildingWidth.Base + planData.RNG.IntN(r.Layout.BuildingWidth.Spread)
-		buildingHeight := r.Layout.BuildingHeight.Base + planData.RNG.IntN(r.Layout.BuildingHeight.Spread)
+		buildingWidth := r.Layout.BuildingWidth.Roll(planData.RNG)
+		buildingHeight := r.Layout.BuildingHeight.Roll(planData.RNG)
 
 		// IntNの引数が正であることを保証
 		maxXRange := max(1, width-buildingWidth-4)

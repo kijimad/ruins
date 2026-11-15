@@ -62,7 +62,7 @@ func SimulateRun(master rawschema.Raws, dungeonID string, player CombatantStats,
 
 	for depth := 1; depth <= maxDepth; depth++ {
 		// フロアの敵数を決定
-		enemyCount := dungeon.EnemyCount.Base + rng.IntN(dungeon.EnemyCount.Spread)
+		enemyCount := dungeon.EnemyCount.Roll(rng)
 		floorTotalTurns := 0
 		floorBattleCount := 0
 
@@ -168,7 +168,7 @@ func rollFloorLoot(master rawschema.Raws, tableName string, count rawschema.Rand
 		return result
 	}
 
-	itemCount := count.Base + rng.IntN(count.Spread)
+	itemCount := count.Roll(rng)
 
 	for range itemCount {
 		draws, err := raw.DrawFromItemTable(master, itemTable, rng, depth)

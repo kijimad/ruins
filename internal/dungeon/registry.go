@@ -32,7 +32,7 @@ func GetAllDungeons(raws rawschema.Raws) []*DungeonDefinition {
 	rows := raw.PtrSlice(raws.Dungeons)
 	defs := make([]*DungeonDefinition, 0, len(rows))
 	for i := range rows {
-		if rows[i].Hidden != nil && *rows[i].Hidden {
+		if !raw.DungeonListed(&rows[i]) {
 			continue
 		}
 		defs = append(defs, newDungeonDefinition(&rows[i]))

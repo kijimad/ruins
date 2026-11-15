@@ -19,6 +19,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// debugTownLayout はデバッグの町の間取りの行の id。入るたびに作り直すため間取りを指して入る
+const debugTownLayout = "debug_town"
+
 // NewDebugMenuState はデバッグメニューを選択メニューとして作る
 func NewDebugMenuState() (es.State[w.World], error) {
 	return NewChoiceMenu(debugMenuChoices), nil
@@ -89,7 +92,7 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 	// 街用NPC・収納箱をスポーン地点の隣に固定配置したデバッグステージへ入る。
 	// 街の会話・売買・収納を入ってすぐテストできる
 	choices = append(choices, Choice{Label: "Generate debug stage", Run: popAfter(func(world w.World) error {
-		return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DebugTownID, "debug_town"))
+		return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DebugTownID, debugTownLayout))
 	})})
 
 	choices = append(choices,

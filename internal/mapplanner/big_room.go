@@ -106,7 +106,7 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
 
 // applyPillars は部屋に柱を追加する
 func (b BigRoomDraw) applyPillars(planData *MetaPlan) {
-	spacing := b.Layout.PillarSpacing.Base + planData.RNG.IntN(b.Layout.PillarSpacing.Spread)
+	spacing := b.Layout.PillarSpacing.Roll(planData.RNG)
 
 	for _, room := range planData.Rooms {
 		// 柱の開始位置を計算（部屋の中心から対称に配置）
@@ -181,7 +181,7 @@ func (b BigRoomDraw) applyCenterPlatform(planData *MetaPlan) {
 		centerY := int(room.Min.Y+room.Max.Y) / 2
 
 		// 台座のサイズを部屋のサイズに基づいて決定
-		platformSize := b.Layout.PlatformRadius.Base + planData.RNG.IntN(b.Layout.PlatformRadius.Spread)
+		platformSize := b.Layout.PlatformRadius.Roll(planData.RNG)
 
 		// 円形の台座を作成
 		for dx := -platformSize; dx <= platformSize; dx++ {

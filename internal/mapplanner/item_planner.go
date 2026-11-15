@@ -60,7 +60,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 		planData.Items = []ItemSpec{}
 	}
 
-	total := i.plannerType.ItemCount.Base + planData.RNG.IntN(i.plannerType.ItemCount.Spread)
+	total := i.plannerType.ItemCount.Roll(planData.RNG)
 	if i.plannerType.Danger > itemIncreaseDanger {
 		total++
 	}

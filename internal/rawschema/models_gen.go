@@ -2270,7 +2270,7 @@ type ScatterZone struct {
 	Id EntityID `json:"id"`
 
 	// LootDensity 屋外の戦利品を置くタイルの、チャンクの面積あたりの割合
-	LootDensity float64 `json:"lootDensity"`
+	LootDensity Chance `json:"lootDensity"`
 
 	LootGroup EntityID `json:"lootGroup"`
 

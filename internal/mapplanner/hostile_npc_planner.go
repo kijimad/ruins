@@ -53,7 +53,7 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 		return nil
 	}
 
-	total := n.plannerType.EnemyCount.Base + planData.RNG.IntN(n.plannerType.EnemyCount.Spread)
+	total := n.plannerType.EnemyCount.Roll(planData.RNG)
 
 	// 部屋がある場合は部屋ベースでクラスタ配置
 	if len(planData.Rooms) > 0 {

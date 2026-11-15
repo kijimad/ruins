@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,15 +24,19 @@ func TestSpawn_デバッグの町の木箱にモジュールと装着アイテ�
 	_, err = Spawn(world, plan)
 	require.NoError(t, err)
 
-	var got []string
+	var crates []ecs.Entity
 	q := query.ActiveFilter2[gc.RawID, gc.GridElement](world).Query()
 	for q.Next() {
-		if world.Components.RawID.Get(q.Entity()).ID != "debug_crate" {
-			continue
+		if world.Components.RawID.Get(q.Entity()).ID == "debug_crate" {
+			crates = append(crates, q.Entity())
 		}
-		for _, e := range query.GetStorageItems(world, q.Entity()) {
-			got = append(got, query.GetEntityID(e, world))
-		}
+	}
+	require.Len(t, crates, 1, "絵がデバッグの木箱を1つ置く")
+
+	items := query.GetStorageItems(world, crates[0])
+	got := make([]string, 0, len(items))
+	for _, e := range items {
+		got = append(got, query.GetEntityID(e, world))
 	}
 	want := slices.Concat(
 		[]string{"pickaxe"},

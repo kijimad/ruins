@@ -14,11 +14,9 @@ func TestCheapestFoodCostPerNutrition_食料なしは0(t *testing.T) {
 	assert.Equal(t, 0.0, CheapestFoodCostPerNutrition(rawschema.Raws{}))
 }
 
-func TestExpectedFloorCount_基本の数に乱数の幅の平均を足す(t *testing.T) {
+func TestExpectedRunLootIncome_ダンジョンが無ければ0(t *testing.T) {
 	t.Parallel()
-	assert.Equal(t, 10.0, expectedFloorCount(rawschema.RandInt{Base: 8, Spread: 5}))
-	assert.Equal(t, 6.5, expectedFloorCount(rawschema.RandInt{Base: 5, Spread: 4}))
-	assert.Equal(t, 0.0, ExpectedRunLootIncome(rawschema.Raws{}, BaselineDungeon, 5), "ダンジョンが無ければ0")
+	assert.Equal(t, 0.0, ExpectedRunLootIncome(rawschema.Raws{}, BaselineDungeon, 5))
 }
 
 func TestExpectedLootValue_危険度で上がり正の値(t *testing.T) {

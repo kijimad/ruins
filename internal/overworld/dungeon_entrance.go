@@ -22,12 +22,18 @@ type dungeonEntranceFeature struct{}
 // チャンク座標のシードで決定的に選ぶ。開始チャンクには driver が歩いて届く入口を別途
 // 置くため、ここでは重複を避けてスキップする。
 func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	if !placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindDungeonEntrance).At(runSeed, c, cols) {
+	p := placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindDungeonEntrance)
+	if !p.At(runSeed, c, cols) {
 		return nil
 	}
 	rows := raw.PtrSlice(world.Resources.RawMaster.Dungeons)
-	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindDungeonEntrance).Salt, c.X, c.Y), 0))
-	i, ok := consts.Pick(rng, rows, func(d rawschema.Dungeon) float64 { return float64(d.EntranceWeight) })
+	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^p.Salt, c.X, c.Y), 0))
+	i, ok := consts.Pick(rng, rows, func(d rawschema.Dungeon) float64 {
+		if !raw.DungeonListed(&d) {
+			return 0
+		}
+		return float64(d.EntranceWeight)
+	})
 	if !ok {
 		return nil
 	}

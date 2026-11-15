@@ -1283,7 +1283,7 @@ import "strings"
 	soilDensity!:  number
 	propDensity!:  number
 	// 屋外の戦利品を置くタイルの、チャンクの面積あたりの割合
-	lootDensity!:  number & >=0
+	lootDensity!:  #Chance
 	lootGroup!:    #EntityID
 	lootGroup_ref: _itemGroupIDs[lootGroup] @rawgen(-)
 	entries!: [...#ScatterEntry]

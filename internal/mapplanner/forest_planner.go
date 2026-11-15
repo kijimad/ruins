@@ -21,12 +21,12 @@ func (f ForestPlanner) PlanInitial(planData *MetaPlan) error {
 	height := int(planData.Level.TileHeight)
 
 	// 森の中に小さな空き地（部屋）をいくつか作成
-	clearingCount := f.Layout.Clearings.Base + planData.RNG.IntN(f.Layout.Clearings.Spread)
+	clearingCount := f.Layout.Clearings.Roll(planData.RNG)
 
 	for range clearingCount {
 		// 空き地のサイズとランダムな位置
-		clearingWidth := f.Layout.ClearingSize.Base + planData.RNG.IntN(f.Layout.ClearingSize.Spread)
-		clearingHeight := f.Layout.ClearingSize.Base + planData.RNG.IntN(f.Layout.ClearingSize.Spread)
+		clearingWidth := f.Layout.ClearingSize.Roll(planData.RNG)
+		clearingHeight := f.Layout.ClearingSize.Roll(planData.RNG)
 
 		// IntNの引数が正であることを保証
 		maxXRange := max(1, width-clearingWidth-6)
@@ -299,7 +299,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 	height := int(planData.Level.TileHeight)
 
 	// 小さな動物の通り道や巣穴を作成
-	wildlifeSpotCount := f.Layout.WildlifeSpots.Base + planData.RNG.IntN(f.Layout.WildlifeSpots.Spread)
+	wildlifeSpotCount := f.Layout.WildlifeSpots.Roll(planData.RNG)
 
 	for range wildlifeSpotCount {
 		// IntNの引数が正であることを保証

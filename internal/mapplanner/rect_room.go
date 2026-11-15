@@ -32,13 +32,13 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) {
 	rooms = append(rooms, topRoom)
 
 	// 下端に必ず1つの部屋を配置（Y2=height-1に密着）
-	bottomW := b.RoomSize.Base + planData.RNG.IntN(b.RoomSize.Spread)
-	bottomH := b.RoomSize.Base + planData.RNG.IntN(b.RoomSize.Spread)
+	bottomW := b.RoomSize.Roll(planData.RNG)
+	bottomH := b.RoomSize.Roll(planData.RNG)
 	bottomX := planData.RNG.IntN(width)
 	rooms = append(rooms, gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(bottomX), Y: consts.Tile(max(height-bottomH, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(bottomX+bottomW, width) - 1), Y: consts.Tile(height - 1)}})
 
 	// 残りの部屋はランダム配置
-	maxRooms := b.Rooms.Base + planData.RNG.IntN(b.Rooms.Spread)
+	maxRooms := b.Rooms.Roll(planData.RNG)
 	for range maxRooms {
 		y := planData.RNG.IntN(height)
 		rooms = append(rooms, b.createRoom(planData, width, height, y))
@@ -50,8 +50,8 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) {
 // createRoom は指定のY座標から部屋を生成する
 func (b RectRoomPlanner) createRoom(planData *MetaPlan, width, height, y int) gc.Rect {
 	x := planData.RNG.IntN(width)
-	w := b.RoomSize.Base + planData.RNG.IntN(b.RoomSize.Spread)
-	h := b.RoomSize.Base + planData.RNG.IntN(b.RoomSize.Spread)
+	w := b.RoomSize.Roll(planData.RNG)
+	h := b.RoomSize.Roll(planData.RNG)
 	return gc.Rect{Min: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(max(y, 0))}, Max: consts.Coord[consts.Tile]{X: consts.Tile(min(x+w, width) - 1), Y: consts.Tile(min(y+h, height) - 1)}}
 
 }
