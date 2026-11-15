@@ -51,9 +51,8 @@ func TestDistrictRegion_zoneAt_層の候補を区域のseedで1つ選ぶ(t *test
 	assert.Equal(t, []rawschema.Zone{rawschema.Industrial, rawschema.Downtown}, zones(1<<zoneChoiceShift))
 }
 
-// TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出る は、規模 gate が効いて小さな市街地に
-// 専門施設が混ざらないことを固定する。都心の骨董品店・診療所は minSpan=3 なので span=2 では
-// 決して出ず、span=3 で初めて混ざる。gate を外すと小規模に専門施設が漏れる退行を検知する。
+// TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出る は、都心の骨董品店・診療所が minSpan=3 なので
+// span=2 の都心では出ず、span=3 で初めて混ざることを固定する。住宅地と産業区では span=2 でも出る
 func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出る(t *testing.T) {
 	t.Parallel()
 
@@ -70,6 +69,21 @@ func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出�
 	}
 	assert.True(t, big["antique"] || big["clinic"],
 		"span=3 の都心では専門施設が混ざる")
+}
+
+func TestRollFacilityInZone_住宅地と産業区は一番小さい町でも珍しい施設が混ざる(t *testing.T) {
+	t.Parallel()
+
+	cat := zoneCatalogFrom(testutil.InitTestWorld(t).Resources.RawMaster)
+	seen := func(z rawschema.Zone) []string {
+		got := map[string]bool{}
+		for s := range uint64(300) {
+			got[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, z, 2, 1, "")] = true
+		}
+		return slices.Sorted(maps.Keys(got))
+	}
+	assert.Equal(t, []string{"antique", "clinic", "gunshop", "house", "store"}, seen(rawschema.Residential))
+	assert.Equal(t, []string{"clinic", "depot", "gunshop", "house", "office"}, seen(rawschema.Industrial))
 }
 
 func TestRollFacilityInZone_深さの下限に届く危険度でだけ出る(t *testing.T) {
