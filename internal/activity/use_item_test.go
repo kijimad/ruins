@@ -285,7 +285,6 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].SetCondition(
 			gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 60, Severity: gc.TimerToSeverity(60)})
 
-		// splint は Remedy{Treats: ["fracture"], Potency: 100} の実在raw
 		item, err := lifecycle.SpawnBackpackItem(world, "splint", 1)
 		require.NoError(t, err)
 
