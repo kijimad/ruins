@@ -2508,6 +2508,7 @@ type Tile struct {
 	// Foliage 植生。省くと植生なし
 	Foliage *Foliage `json:"foliage,omitempty"`
 
+	// Id ground は施設のパレットで下地を残す地形の予約語なので、タイルの id に使わない
 	Id EntityID `json:"id"`
 
 	Name EntityName `json:"name"`

@@ -58,3 +58,15 @@ func TestError_Paths_位置を並べて重複を除く(t *testing.T) {
 	}}
 	assert.Equal(t, []string{"items.0.id", "items.1.id"}, e.Paths())
 }
+
+func TestValidate_タイルのidに下地を残す地形の予約語を使わない(t *testing.T) {
+	t.Parallel()
+	raws := makeRefRaws(func(r *rawschema.Raws) {
+		g := (*r.Tiles)[1]
+		g.Id = "ground"
+		*r.Tiles = append(*r.Tiles, g)
+	})
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"tiles.2.id"}, ce.Paths())
+}
