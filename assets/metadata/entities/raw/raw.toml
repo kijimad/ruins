@@ -20873,9 +20873,9 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = false
+  blockPass = true
   blockView = false
-  description = "建物の外壁の窓。木枠にガラス。居室や店舗の正面。仮画像"
+  description = "建物の外壁の窓。木枠にガラス。居室や店舗の正面。通れないが視線は通し、割ると入れる。仮画像"
   hp = 15
   id = "window"
   name = "Window"

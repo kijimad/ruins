@@ -6,12 +6,14 @@ import (
 	"slices"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -158,6 +160,27 @@ func TestFacilityTemplates_全施設に絵がある(t *testing.T) {
 	assert.ElementsMatch(t, want, loader.Facilities())
 }
 
+func TestSpawnFacility_窓に挟まれた扉は縦向きになる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	cells := [][]maptemplate.MapCell{{
+		{Terrain: "floor_linoleum", Prop: "window"},
+		{Terrain: "floor_linoleum", Prop: "door"},
+		{Terrain: "floor_linoleum", Prop: "window"},
+	}}
+	g := chunkGeom{chunkW: 3, chunkH: 1, tiles: &tileIndex{world: world, loX: 0, hiX: 3}}
+	_, _, err := spawnFacility(world, g, cells, 0, 0, "store", raw.MinDanger, 1)
+	require.NoError(t, err)
+
+	var got []gc.DoorOrientation
+	q := ecs.NewFilter1[gc.Door](world.ECS).Query()
+	for q.Next() {
+		got = append(got, q.Get().Orientation)
+	}
+	assert.Equal(t, []gc.DoorOrientation{gc.DoorOrientationVertical}, got)
+}
+
 func TestSpawnFacility_畳は屋内で庭は下地のまま屋外(t *testing.T) {
 	t.Parallel()
 
@@ -296,6 +319,11 @@ func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing
 	for _, tl := range raw.PtrSlice(raws.Tiles) {
 		rows[tl.Id] = tl
 	}
+	// 扉や窓のように通行を塞ぐ置物は、壁と同じく囲いになる
+	propBlocks := map[string]bool{}
+	for _, p := range raw.PtrSlice(raws.Props) {
+		propBlocks[p.Id] = p.BlockPass
+	}
 
 	for _, fac := range loader.Facilities() {
 		for _, name := range loader.FacilityChunkNames(fac) {
@@ -306,13 +334,13 @@ func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing
 				outside := map[[2]int]bool{}
 				if chunk.Edges == nil {
 					outside = reachableFromEdge(cells, func(x, y int) bool {
-						return rows[cells[y][x].Terrain].BlockPass || cells[y][x].Prop == "door"
+						return rows[cells[y][x].Terrain].BlockPass || propBlocks[cells[y][x].Prop]
 					})
 				}
 				var bad []string
 				for y, row := range cells {
 					for x, c := range row {
-						if rows[c.Terrain].BlockPass || c.Prop == "door" {
+						if rows[c.Terrain].BlockPass || propBlocks[c.Prop] {
 							continue
 						}
 						want := rawschema.Indoor
