@@ -249,6 +249,7 @@ func runTurnEndSystems(world w.World) error {
 		&FireSystem{},
 		&DeadCleanupSystem{},
 		&DebugInvincibleSystem{},
+		&AreaEntrySystem{},
 	} {
 		name := updater.String()
 		if sys, ok := world.Updaters[name]; ok {
