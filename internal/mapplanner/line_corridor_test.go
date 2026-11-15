@@ -47,7 +47,7 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 			RawMaster: CreateTestRawMaster(),
 		}
 
-		planner := LineCorridorPlanner{FloorTile: consts.TileNameFloor, WallTile: consts.TileNameWall, Width: 3}
+		planner := LineCorridorPlanner{FloorTile: consts.TileNameFloor, Width: 3}
 		planner.BuildCorridors(mp)
 
 		centerX, _ := room1.Center()

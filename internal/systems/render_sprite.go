@@ -374,18 +374,12 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	}
 
 	if world.Resources.Config.ShowMapDebug {
-		// デバッグ用：土の色違いと壁のオートタイルの添字を表示する
+		// デバッグ用：オートタイルの添字を表示する。オートタイルの絵は名前の末尾に数の添字を持つ
 		if spriteRender.SpriteSheetName == "tile" {
 			var number string
-			var prefix string
-			if base, n, ok := strings.CutLast(spriteRender.SpriteKey, "_"); ok {
+			if _, n, ok := strings.CutLast(spriteRender.SpriteKey, "_"); ok {
 				if _, err := strconv.Atoi(n); err == nil {
-					switch {
-					case strings.HasPrefix(base, "dirt_"):
-						number, prefix = n, "d"
-					case base == "dwall":
-						number, prefix = n, "w"
-					}
+					number = n
 				}
 			}
 
@@ -397,7 +391,7 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 
 				// テキスト表示位置を逆変換で求める
 				screenX, screenY := textOp.GeoM.Apply(0, 0)
-				ebitenutil.DebugPrintAt(screen, prefix+number, int(screenX), int(screenY))
+				ebitenutil.DebugPrintAt(screen, number, int(screenX), int(screenY))
 			}
 		}
 	}

@@ -4,11 +4,9 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 )
 
-// ConvertIsolatedWalls は床に隣接しない壁を指定したタイルに変換するプランナー
+// ConvertIsolatedWalls は通れるマスに隣接しない通れないマスを指定したタイルに変換するプランナー
 // オートタイル計算前に実行することで、正しい接続パターンで壁タイルを生成する
 type ConvertIsolatedWalls struct {
-	// WallTile は置き換える壁のタイル名
-	WallTile string
 	// ReplacementTile は孤立した壁を置き換えるタイル名
 	ReplacementTile string
 }
@@ -29,8 +27,7 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 			continue
 		}
 
-		// wallタイルで床に隣接していない場合、変換対象とする
-		if tile.Id == c.WallTile && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
+		if tile.BlockPass && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
 			tilesToConvert = append(tilesToConvert, i)
 		}
 	}

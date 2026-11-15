@@ -133,7 +133,7 @@ func (r RuinsDebris) PlanMeta(planData *MetaPlan) error {
 		for y := 1; y < height-1; y++ {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
-			if planData.Tiles[idx].Id == r.Tiles.Floor {
+			if !planData.Tiles[idx].BlockPass {
 				// 建物から離れた場所ほど瓦礫が少ない
 				debrisChance := r.calculateDebrisChance(planData, x, y)
 
@@ -223,7 +223,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 		// 70%の確率で通路を作成（部分的に破損）
 		if planData.RNG.Float64() > 0.3 {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
-			if planData.Tiles[idx].Id == r.Tiles.Wall {
+			if planData.Tiles[idx].BlockPass {
 				planData.Tiles[idx] = planData.GetTile(r.Tiles.Floor)
 			}
 		}
@@ -240,7 +240,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 		// 70%の確率で通路を作成
 		if planData.RNG.Float64() > 0.3 {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
-			if planData.Tiles[idx].Id == r.Tiles.Wall {
+			if planData.Tiles[idx].BlockPass {
 				planData.Tiles[idx] = planData.GetTile(r.Tiles.Floor)
 			}
 		}

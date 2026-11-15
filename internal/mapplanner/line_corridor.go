@@ -12,7 +12,6 @@ import (
 // 廊下は Width の幅で生成され、部屋との接続部は1タイル幅に狭まる
 type LineCorridorPlanner struct {
 	FloorTile string
-	WallTile  string
 	Width     int
 }
 
@@ -74,7 +73,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			// 中心線は無条件に床に変換する
 			for _, p := range centerPoints {
 				idx := planData.Level.CoordToIndex(p)
-				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Id == b.WallTile {
+				if isValidTileIdx(planData, idx) && planData.Tiles[idx].BlockPass {
 					planData.Tiles[idx] = planData.GetTile(b.FloorTile)
 				}
 				corridor = append(corridor, idx)
@@ -83,7 +82,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			// サイドは部屋に隣接するタイルをスキップして、接続部を1タイル幅に狭める
 			for _, p := range sidePoints {
 				idx := planData.Level.CoordToIndex(p)
-				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Id == b.WallTile {
+				if isValidTileIdx(planData, idx) && planData.Tiles[idx].BlockPass {
 					if isAdjacentToRoom(planData.Rooms, int(p.X), int(p.Y)) {
 						continue
 					}

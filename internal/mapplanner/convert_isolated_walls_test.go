@@ -53,7 +53,7 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	planData.Tiles[centerIdx] = planData.GetTile("wall")
 
 	// プランナーを実行（floorに変換）
-	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameFloor}
+	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameFloor}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -110,7 +110,7 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 	}
 
 	// プランナーを実行（voidに変換）
-	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameVoid}
+	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -149,7 +149,7 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 	}
 
 	// プランナーを実行
-	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameVoid}
+	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -181,7 +181,7 @@ func TestConvertIsolatedWalls_置き換え先のgroundは計画の下地(t *test
 	t.Run("孤立した壁を計画の下地にする", func(t *testing.T) {
 		t.Parallel()
 		planData := newPlan("dirt")
-		require.NoError(t, ConvertIsolatedWalls{WallTile: "wall", ReplacementTile: maptemplate.GroundTerrain}.PlanMeta(planData))
+		require.NoError(t, ConvertIsolatedWalls{ReplacementTile: maptemplate.GroundTerrain}.PlanMeta(planData))
 		assert.Equal(t, "dirt", planData.Tiles[center].Id)
 	})
 }

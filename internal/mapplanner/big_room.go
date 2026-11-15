@@ -73,14 +73,14 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
 			// 左辺
 			if x := room.Min.X - 1; x >= 0 {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-				if planData.Tiles[idx].Id != b.Tiles.Floor {
+				if planData.Tiles[idx].BlockPass {
 					planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 				}
 			}
 			// 右辺
 			if x := room.Max.X + 1; int(x) < int(planData.Level.TileWidth) {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-				if planData.Tiles[idx].Id != b.Tiles.Floor {
+				if planData.Tiles[idx].BlockPass {
 					planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 				}
 			}
@@ -90,14 +90,14 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
 			// 上辺
 			if y := room.Min.Y - 1; y >= 0 {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-				if planData.Tiles[idx].Id != b.Tiles.Floor {
+				if planData.Tiles[idx].BlockPass {
 					planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 				}
 			}
 			// 下辺
 			if y := room.Max.Y + 1; int(y) < int(planData.Level.TileHeight) {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-				if planData.Tiles[idx].Id != b.Tiles.Floor {
+				if planData.Tiles[idx].BlockPass {
 					planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 				}
 			}

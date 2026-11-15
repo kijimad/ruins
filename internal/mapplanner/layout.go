@@ -138,7 +138,7 @@ func newStart(raws rawschema.Raws, id string, tiles rawschema.LayoutTiles) (Init
 // 段の表を足すときは、schema.cue の表と stepIds_unique、refs.cue の _stepIDs、この分岐、TestNewStep の表の列挙を揃える
 func newStep(raws rawschema.Raws, id string, tiles rawschema.LayoutTiles) (MetaMapPlanner, error) {
 	if r, ok := raw.FindByKey(raws.CorridorSteps, func(r rawschema.CorridorStep) string { return r.Id }, id); ok {
-		return LineCorridorPlanner{FloorTile: tiles.Floor, WallTile: tiles.Wall, Width: r.Width}, nil
+		return LineCorridorPlanner{FloorTile: tiles.Floor, Width: r.Width}, nil
 	}
 	if r, ok := raw.FindByKey(raws.DoorSteps, func(r rawschema.DoorStep) string { return r.Id }, id); ok {
 		return DoorPlanner{DoorChance: r.Chance}, nil
@@ -190,7 +190,7 @@ func newSimpleStep(r rawschema.SimpleStep, tiles rawschema.LayoutTiles) (MetaMap
 	case rawschema.SimpleStepKindForestFloor:
 		return ForestTerrain{Tiles: tiles}, nil
 	case rawschema.SimpleStepKindIsolatedWalls:
-		return ConvertIsolatedWalls{WallTile: tiles.Wall, ReplacementTile: tiles.Void}, nil
+		return ConvertIsolatedWalls{ReplacementTile: tiles.Void}, nil
 	}
 	return nil, fmt.Errorf("%w: %s kind %s", ErrUnknownStep, r.Id, r.Kind)
 }
