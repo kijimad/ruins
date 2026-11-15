@@ -47,17 +47,16 @@ func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {
 // IsWallTile はそのタイルが高さのある箱として描かれるかを返す。
 //
 // 箱になるのは Tile と Solid を併せ持つエンティティだけである。扉やキューブは通行を
-// 塞ぐが箱にはならないので、SpatialIndex の通行不能判定をそのまま流用してはいけない。
-// ただし塊は必ず通れないので、通れるマスは索引で先に落として全走査を避ける。
+// 塞ぐが箱にはならないので、通れるかで代わりに判定してはいけない。全てのエンティティでなく
+// 塊のタイルだけを走査する。
 //
 // 内部でエンティティ検索のクエリを開くので、クエリ反復中には呼ばない。呼び出し元は Draw の
 // カーソル描画で、その時点でアクティブなクエリは無い。
 func IsWallTile(world w.World, c consts.Coord[consts.Tile]) bool {
-	if si := query.GetSpatialIndex(world); si != nil && !si.IsBlockPass(c) {
-		return false
-	}
-	for _, e := range query.GetEntitiesAt(world, c.X, c.Y) {
-		if IsWallTileEntity(world, e) {
+	q := query.ActiveFilter2[gc.GridElement, gc.Solid](world).With(ecs.C[gc.Tile]()).Query()
+	for q.Next() {
+		if world.Components.GridElement.Get(q.Entity()).Coord == c {
+			q.Close()
 			return true
 		}
 	}
