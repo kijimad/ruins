@@ -5,8 +5,6 @@ import (
 	"image"
 	"testing"
 
-	"github.com/hajimehoshi/ebiten/v2"
-
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -29,7 +27,7 @@ func drawDetailStory(t *testing.T, name string, page int) {
 	res := testutil.InitTestWorld(t, testutil.WithUI()).Resources.UIResources
 	rect := image.Rect(0, 0, 400, 400)
 	modal := buildPanelUI(res, rect, DetailContent{Name: "Biscuit", Desc: "A hard biscuit that keeps well as a preserved food.", Rows: storySpecRows()}, page)
-	screen := ebiten.NewImage(400, 400)
+	screen := vrt.NewScreen(400, 400)
 	modal.Draw(uicore.NewEbitenCanvas(screen))
 	vrt.AssertFrameGolden(t, name, screen)
 }
