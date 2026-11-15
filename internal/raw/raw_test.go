@@ -984,7 +984,13 @@ func TestTileIsTall_実データで描画順が高さのあるタイルだけが
 			tall = append(tall, tile.Id)
 		}
 	}
-	assert.ElementsMatch(t, []string{"wall", "dwall", "void"}, tall)
+	want := []string{"wall", "dwall", "void"}
+	for _, m := range []string{"stone", "rubble", "siding", "plaster", "pillar", "cobble", "board", "concrete", "wood", "brick", "reed", "ice"} {
+		for n := 1; n <= 4; n++ {
+			want = append(want, fmt.Sprintf("wall_%s_%d", m, n))
+		}
+	}
+	assert.ElementsMatch(t, want, tall)
 }
 
 func TestNewTileSpec_WithAutoTileIndex(t *testing.T) {

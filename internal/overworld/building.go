@@ -204,8 +204,8 @@ func edgeKey(a, b consts.Coord[consts.Chunk]) [2]consts.Coord[consts.Chunk] {
 }
 
 // roomChunkCells は区画 b の中の座標 l のチャンクの部屋の絵を引き、北と西の帯と合わせてチャンク全体のマスを組む。
-// 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする。isBox は箱で描く地形かを返す
-func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, streets streetTiles, isBox func(terrain string) bool) ([][]maptemplate.MapCell, error) {
+// 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする。isTall は高さのある地形かを返す
+func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, streets streetTiles, isTall func(terrain string) bool) ([][]maptemplate.MapCell, error) {
 	edges := b.roomEdges(l)
 	_, room, err := loader.FacilityRoom(b.facility, edges, ChunkSeed2D(b.seed, l.X, l.Y))
 	if err != nil {
@@ -227,16 +227,16 @@ func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.
 	for y, row := range room {
 		copy(cells[y+s][s:], row)
 	}
-	drawRoomStrips(cells, room, b, l, edges, roomWall(room, isBox))
+	drawRoomStrips(cells, room, b, l, edges, roomWall(room, isTall))
 	return cells, nil
 }
 
-// roomWall は部屋の絵の壁の地形を返す。部屋は1種類の壁で組むので、箱で描く地形を見つけた最初のものを使う。
-// 箱の地形が無い部屋は wall を返す
-func roomWall(room [][]maptemplate.MapCell, isBox func(terrain string) bool) string {
+// roomWall は部屋の絵の壁の地形を返す。部屋は1種類の壁で組むので、高さのある地形を見つけた最初のものを使う。
+// 高さのある地形が無い部屋は wall を返す
+func roomWall(room [][]maptemplate.MapCell, isTall func(terrain string) bool) string {
 	for _, row := range room {
 		for _, c := range row {
-			if isBox(c.Terrain) {
+			if isTall(c.Terrain) {
 				return c.Terrain
 			}
 		}

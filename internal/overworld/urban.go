@@ -252,7 +252,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Di
 // 部屋と帯でチャンク全体を組み、それ以外は街路の帯の内側に1棟の絵を置く。厚い壁の塊の内側は虚空にする
 func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, streets streetTiles) ([][]maptemplate.MapCell, consts.Tile, error) {
 	if loader.HasRooms(lot.facility) {
-		cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, streets, tileIsBox(raws))
+		cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, streets, tileIsTall(raws))
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
 		}
