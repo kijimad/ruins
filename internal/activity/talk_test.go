@@ -167,3 +167,16 @@ func TestTalkBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
 }
+
+func TestTalkBehavior_Canceled(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	comp := NewActivity(gc.BehaviorTalk, 0)
+	comp.CancelReason = "テスト中断"
+
+	tb := &TalkBehavior{}
+	require.NoError(t, tb.Canceled(comp, player, world))
+}

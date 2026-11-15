@@ -362,3 +362,15 @@ func TestRestBehavior_Finish(t *testing.T) {
 		assert.Contains(t, recent[0], "rest")
 	})
 }
+
+func TestRestBehavior_Start(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	comp := NewRestActivity()
+
+	rb := &RestBehavior{}
+	require.NoError(t, rb.Start(comp, player, world))
+}

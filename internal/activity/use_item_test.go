@@ -250,6 +250,66 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
+
+	t.Run("回復アイテムを使用してHPが回復する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.Player.Add(actor, &gc.Player{})
+		world.Components.HP.Add(actor, &gc.HP{Current: 50, Max: 100})
+
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
+		world.Components.RawID.Add(item, &gc.RawID{ID: "potion"})
+		world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 30})
+		world.Components.Consumable.Add(item, &gc.Consumable{})
+		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: actor})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			State:        gc.ActivityStateRunning,
+			Params:       &gc.UseItemParams{Target: item},
+		}
+
+		ua := &UseItemBehavior{}
+		err := ua.DoTurn(comp, actor, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+		assert.Equal(t, 80, world.Components.HP.Get(actor).Current, "回復量ぶんHPが増える")
+	})
+
+	t.Run("治療アイテムを使用して不調が治る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].SetCondition(
+			gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 60, Severity: gc.TimerToSeverity(60)})
+
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "Splint"})
+		world.Components.RawID.Add(item, &gc.RawID{ID: "splint"})
+		world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 150})
+		world.Components.Consumable.Add(item, &gc.Consumable{})
+		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: player})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			State:        gc.ActivityStateRunning,
+			Params:       &gc.UseItemParams{Target: item},
+		}
+
+		ua := &UseItemBehavior{}
+		err = ua.DoTurn(comp, player, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+		leg := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].GetCondition(gc.ConditionType("fracture"))
+		require.NotNil(t, leg)
+		assert.Equal(t, consts.Percent(150), leg.TendQuality, "治療アイテムの使用で不調が治療される")
+	})
 }
 
 func TestUseItemBehavior_Validate(t *testing.T) {
@@ -266,6 +326,50 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Consumable.Add(item, &gc.Consumable{})
 		world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 50})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			Params:       &gc.UseItemParams{Target: item},
+		}
+
+		ua := &UseItemBehavior{}
+		err := ua.Validate(comp, actor, world)
+		assert.NoError(t, err)
+	})
+
+	t.Run("空腹度回復アイテムは常に使える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.Player.Add(actor, &gc.Player{})
+		world.Components.HP.Add(actor, &gc.HP{Current: 100, Max: 100})
+
+		item := world.ECS.NewEntity()
+		world.Components.Consumable.Add(item, &gc.Consumable{})
+		world.Components.ProvidesNutrition.Add(item, &gc.ProvidesNutrition{Amount: 100})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			Params:       &gc.UseItemParams{Target: item},
+		}
+
+		ua := &UseItemBehavior{}
+		err := ua.Validate(comp, actor, world)
+		assert.NoError(t, err)
+	})
+
+	t.Run("自傷ダメージアイテムは常に使える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.Player.Add(actor, &gc.Player{})
+		world.Components.HP.Add(actor, &gc.HP{Current: 100, Max: 100})
+
+		item := world.ECS.NewEntity()
+		world.Components.Consumable.Add(item, &gc.Consumable{})
+		world.Components.InflictsDamage.Add(item, &gc.InflictsDamage{Amount: 10})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
@@ -652,4 +756,17 @@ func TestUseItemBehavior_logItemUse(t *testing.T) {
 		assert.Contains(t, recent[0], "damage")
 		assert.Contains(t, recent[0], "10")
 	})
+}
+
+func TestUseItemBehavior_Canceled(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	world.Components.Player.Add(actor, &gc.Player{})
+
+	comp := NewActivity(gc.BehaviorUseItem, 0)
+	comp.CancelReason = "テスト中断"
+
+	u := &UseItemBehavior{}
+	require.NoError(t, u.Canceled(comp, actor, world))
 }

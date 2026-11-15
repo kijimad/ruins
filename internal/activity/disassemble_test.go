@@ -152,3 +152,21 @@ func TestDisassembleBehavior_Canceled(t *testing.T) {
 		assert.Equal(t, []string{query.T(world, "interrupted disassembling")}, query.GetGameLog(world).GetRecent(1))
 	})
 }
+
+func TestDisassembleBehavior_Info(t *testing.T) {
+	t.Parallel()
+
+	b := &DisassembleBehavior{}
+	info := b.Info()
+
+	assert.Equal(t, "Disassemble", info.Name)
+	assert.True(t, info.Interruptible)
+	assert.False(t, info.Resumable)
+}
+
+func TestDisassembleBehavior_Name(t *testing.T) {
+	t.Parallel()
+
+	b := &DisassembleBehavior{}
+	assert.Equal(t, gc.BehaviorDisassemble, b.Name())
+}

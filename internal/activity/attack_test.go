@@ -684,3 +684,16 @@ func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
 		})
 	}
 }
+
+func TestMeleeBehavior_Canceled(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	comp := NewActivity(gc.BehaviorMelee, 0)
+	comp.CancelReason = "テスト中断"
+
+	ab := &MeleeBehavior{}
+	require.NoError(t, ab.Canceled(comp, player, world))
+}

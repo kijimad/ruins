@@ -327,6 +327,14 @@ func TestReloadBehavior_DoTurn_敵が接近すると中断する(t *testing.T) {
 	assert.Equal(t, i18n.Msgid("reload interrupted because enemies are nearby"), comp.CancelReason)
 }
 
+func TestReloadBehavior_Finish(t *testing.T) {
+	t.Parallel()
+	world, player, _, _ := setupShootingWorld(t)
+
+	ra := &ReloadBehavior{}
+	require.NoError(t, ra.Finish(NewActivity(gc.BehaviorReload, 100), player, world))
+}
+
 func TestReloadBehavior_Canceled_中断メッセージがログに出る(t *testing.T) {
 	t.Parallel()
 	world, player, _, _ := setupShootingWorld(t)

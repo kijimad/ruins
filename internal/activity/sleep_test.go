@@ -314,3 +314,14 @@ func TestSleepBehavior_DoTurn_疲労が残っていれば眠り続ける(t *test
 
 	assert.Equal(t, gc.ActivityStateRunning, comp.State, "疲労が残っていれば中断も完了もしない")
 }
+
+func TestSleepBehavior_Info(t *testing.T) {
+	t.Parallel()
+
+	sb := &SleepBehavior{}
+	info := sb.Info()
+
+	assert.Equal(t, "Sleep", info.Name)
+	assert.True(t, info.Interruptible)
+	assert.False(t, info.Resumable)
+}

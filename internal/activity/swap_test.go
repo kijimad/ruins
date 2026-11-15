@@ -43,3 +43,16 @@ func TestExecuteMoveAction_展開中のキューブとは入れ替えない(t *t
 	require.Len(t, entries, 1)
 	assert.Equal(t, query.T(world, "The deployed cube cannot be moved."), entries[0].Text())
 }
+
+func TestSwapBehavior_Canceled(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	comp := NewActivity(gc.BehaviorSwap, 0)
+	comp.CancelReason = "テスト中断"
+
+	sb := &SwapBehavior{}
+	require.NoError(t, sb.Canceled(comp, player, world))
+}

@@ -559,3 +559,53 @@ func TestReadBehavior_Canceled_本の名前が取れないときは汎用メッ�
 	require.Len(t, recent, 1)
 	assert.Contains(t, recent[0], "interrupted reading")
 }
+
+func TestReadBehavior_Info(t *testing.T) {
+	t.Parallel()
+
+	rb := &ReadBehavior{}
+	info := rb.Info()
+
+	assert.Equal(t, "Read", info.Name)
+	assert.True(t, info.Interruptible)
+	assert.True(t, info.Resumable)
+}
+
+func TestReadBehavior_Name(t *testing.T) {
+	t.Parallel()
+
+	rb := &ReadBehavior{}
+	assert.Equal(t, gc.BehaviorRead, rb.Name())
+}
+
+func TestNewReadActivity(t *testing.T) {
+	t.Parallel()
+
+	t.Run("本の総工数を進捗上限に据える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		bookEntity := world.ECS.NewEntity()
+		world.Components.Book.Add(bookEntity, &gc.Book{
+			Effort: gc.IntPool{Max: 20},
+			Skill:  &gc.SkillBookEffect{TargetSkill: rawschema.SkillIdSword, MaxLevel: 1},
+		})
+
+		comp := NewReadActivity(bookEntity, world)
+
+		assert.Equal(t, gc.BehaviorRead, comp.BehaviorName)
+		assert.Equal(t, 20, comp.Progress.Max)
+		params, ok := comp.Params.(*gc.ReadParams)
+		require.True(t, ok, "ReadParamsが設定されるべき")
+		assert.Equal(t, bookEntity, params.Target)
+	})
+
+	t.Run("本でない対象は進捗上限を0にする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		notBook := world.ECS.NewEntity()
+
+		comp := NewReadActivity(notBook, world)
+
+		assert.Equal(t, 0, comp.Progress.Max)
+	})
+}

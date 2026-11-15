@@ -150,3 +150,33 @@ func TestCloseDoorBehavior(t *testing.T) {
 		assert.True(t, world.Components.Door.Get(door).IsOpen, "扉は開いたまま")
 	})
 }
+
+func TestOpenDoorBehavior_Canceled(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	comp := NewOpenDoorActivity(door)
+	comp.CancelReason = "テスト中断"
+
+	odb := &OpenDoorBehavior{}
+	require.NoError(t, odb.Canceled(comp, player, world))
+}
+
+func TestCloseDoorBehavior_Canceled(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	comp := NewCloseDoorActivity(door)
+	comp.CancelReason = "テスト中断"
+
+	cdb := &CloseDoorBehavior{}
+	require.NoError(t, cdb.Canceled(comp, player, world))
+}
