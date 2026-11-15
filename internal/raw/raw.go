@@ -765,8 +765,8 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 		entitySpec.BlockPass = &gc.BlockPass{}
 	}
 
-	if tileRaw.IsWall() {
-		entitySpec.Wall = &gc.Wall{}
+	if tileRaw.IsSolid() {
+		entitySpec.Solid = &gc.Solid{}
 	}
 
 	// BlockViewがtrueの場合は視界を遮断

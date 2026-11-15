@@ -12,7 +12,7 @@ func CreateTestRawMaster() *rawschema.Raws {
 	// テスト用の基本的なタイルデータを定義
 	autotile := &rawschema.TileSpawn{Autotile: true}
 	testTiles := []rawschema.Tile{
-		{Id: "wall", Name: "wall", BlockPass: true, Wall: new(true), Spawn: &rawschema.TileSpawn{Tile: new("dwall"), Autotile: true}},
+		{Id: "wall", Name: "wall", BlockPass: true, Solid: new(true), Spawn: &rawschema.TileSpawn{Tile: new("dwall"), Autotile: true}},
 		{Id: "floor", Name: "floor", BlockPass: false, Spawn: autotile},
 		{Id: "road", Name: "road", BlockPass: false, Spawn: autotile},
 		{Id: "dirt", Name: "dirt", BlockPass: false, Spawn: autotile},

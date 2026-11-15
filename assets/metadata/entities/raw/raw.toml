@@ -23380,7 +23380,7 @@
   description = "濃灰のダンジョン壁のオートタイル。通行不可"
   id = "dwall"
   name = "Dungeon Wall"
-  wall = true
+  solid = true
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -23421,7 +23421,7 @@
   description = "灰色の石壁のオートタイル。通行不可"
   id = "wall"
   name = "Wall"
-  wall = true
+  solid = true
   [tiles.spawn]
     autotile = true
     tile = "dwall"

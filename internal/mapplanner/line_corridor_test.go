@@ -19,7 +19,7 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 		const width, height = 20, 20
 		tiles := make([]rawschema.Tile, width*height)
 		for i := range tiles {
-			tiles[i] = rawschema.Tile{Id: "wall", Name: "wall", BlockPass: true, Wall: new(true)}
+			tiles[i] = rawschema.Tile{Id: "wall", Name: "wall", BlockPass: true}
 		}
 
 		// 2つの部屋を縦に配置する。廊下が上下に接続される
@@ -47,7 +47,7 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 			RawMaster: CreateTestRawMaster(),
 		}
 
-		planner := LineCorridorPlanner{FloorTile: consts.TileNameFloor, Width: 3}
+		planner := LineCorridorPlanner{FloorTile: consts.TileNameFloor, WallTile: "wall", Width: 3}
 		planner.BuildCorridors(mp)
 
 		centerX, _ := room1.Center()

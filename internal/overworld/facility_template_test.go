@@ -234,7 +234,7 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 		return out
 	}
 	blocks := func(terrain string) bool { return terrain == consts.TileNameWall || terrain == consts.TileNameVoid }
-	isWall := func(terrain string) bool { return terrain == consts.TileNameWall }
+	isSolid := func(terrain string) bool { return terrain == consts.TileNameWall }
 	rows := []string{
 		"######",
 		"######",
@@ -244,7 +244,7 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 	}
 
 	walled := parse(rows)
-	voidEnclosedWalls(walled, blocks, isWall, func(int, int) bool { return false })
+	voidEnclosedWalls(walled, blocks, isSolid, func(int, int) bool { return false })
 	assert.Equal(t, []string{
 		"      ",
 		"      ",
@@ -254,7 +254,7 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 	}, render(walled), "マスの外を壁と数えると、外周の壁も床に接しなければ虚空になる")
 
 	open := parse(rows)
-	voidEnclosedWalls(open, blocks, isWall, func(int, int) bool { return true })
+	voidEnclosedWalls(open, blocks, isSolid, func(int, int) bool { return true })
 	assert.Equal(t, []string{
 		"######",
 		"#    #",
@@ -264,7 +264,7 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 	}, render(open), "マスの外を通れると数えると、外周の壁は残る")
 
 	east := parse(rows)
-	voidEnclosedWalls(east, blocks, isWall, func(x, _ int) bool { return x >= 6 })
+	voidEnclosedWalls(east, blocks, isSolid, func(x, _ int) bool { return x >= 6 })
 	assert.Equal(t, []string{
 		"     #",
 		"     #",
@@ -273,13 +273,13 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 		"#....#",
 	}, render(east), "通れる外に面する辺の壁だけが残る")
 
-	// 壁でない通れない地形は、囲まれていても虚空にしない
+	// 塊でない通れない地形は、囲まれていても虚空にしない
 	water := [][]maptemplate.MapCell{
 		{{Terrain: "deep_water"}, {Terrain: "deep_water"}, {Terrain: "deep_water"}},
 		{{Terrain: "deep_water"}, {Terrain: "deep_water"}, {Terrain: "deep_water"}},
 		{{Terrain: "deep_water"}, {Terrain: "deep_water"}, {Terrain: "deep_water"}},
 	}
-	voidEnclosedWalls(water, func(string) bool { return true }, isWall, func(int, int) bool { return false })
+	voidEnclosedWalls(water, func(string) bool { return true }, isSolid, func(int, int) bool { return false })
 	assert.Equal(t, "deep_water", water[1][1].Terrain, "囲まれた水は水のまま")
 }
 

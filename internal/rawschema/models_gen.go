@@ -2825,13 +2825,13 @@ type Tile struct {
 	// SnowMeltPercent 積もる雪を減らす割合。省くと減らさない
 	SnowMeltPercent *SnowMeltPercent `json:"snowMeltPercent,omitempty"`
 
+	// Solid 高さのある塊で描く。塊のオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い塊の内側は虚空にする。塊は通れない
+	Solid *bool `json:"solid,omitempty"`
+
 	// Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
 	Spawn *TileSpawn `json:"spawn,omitempty"`
 
 	SpriteRender SpriteRender `json:"spriteRender"`
-
-	// Wall 壁のタイル。間取りの段が掘って囲み、施設の絵の厚い内側を虚空にし、高さのある箱として描く。壁は通れない
-	Wall *bool `json:"wall,omitempty"`
 
 	// Water 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける
 	Water *bool `json:"water,omitempty"`

@@ -201,7 +201,7 @@ func (r RuinsCorridors) PlanMeta(planData *MetaPlan) error {
 	return nil
 }
 
-// createRuinedPath は破損した通路を作成する。通路は壁だけを床にする
+// createRuinedPath は破損した通路を作成する。通路は間取りの壁だけを床にする
 func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rect) {
 	// 各建物の中心を計算
 	center1X := (room1.Min.X + room1.Max.X) / 2
@@ -223,7 +223,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 		// 70%の確率で通路を作成（部分的に破損）
 		if planData.RNG.Float64() > 0.3 {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
-			if planData.Tiles[idx].IsWall() {
+			if planData.Tiles[idx].Id == r.Tiles.Wall {
 				planData.Tiles[idx] = planData.GetTile(r.Tiles.Floor)
 			}
 		}
@@ -240,7 +240,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 		// 70%の確率で通路を作成
 		if planData.RNG.Float64() > 0.3 {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
-			if planData.Tiles[idx].IsWall() {
+			if planData.Tiles[idx].Id == r.Tiles.Wall {
 				planData.Tiles[idx] = planData.GetTile(r.Tiles.Floor)
 			}
 		}

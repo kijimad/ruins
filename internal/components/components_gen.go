@@ -41,7 +41,7 @@ type EntitySpec struct {
 	SpriteRender       *SpriteRender
 	BlockView          *BlockView
 	BlockPass          *BlockPass
-	Wall               *Wall
+	Solid              *Solid
 	PassCost           *PassCost
 	Door               *Door
 	Item               *Item
@@ -138,7 +138,7 @@ type Components struct {
 	SpriteRender       *ecs.Map[SpriteRender]
 	BlockView          *ecs.Map[BlockView]
 	BlockPass          *ecs.Map[BlockPass]
-	Wall               *ecs.Map[Wall]
+	Solid              *ecs.Map[Solid]
 	PassCost           *ecs.Map[PassCost]
 	Door               *ecs.Map[Door]
 	Item               *ecs.Map[Item]
@@ -235,7 +235,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.SpriteRender = ecs.NewMap[SpriteRender](world)
 	c.BlockView = ecs.NewMap[BlockView](world)
 	c.BlockPass = ecs.NewMap[BlockPass](world)
-	c.Wall = ecs.NewMap[Wall](world)
+	c.Solid = ecs.NewMap[Solid](world)
 	c.PassCost = ecs.NewMap[PassCost](world)
 	c.Door = ecs.NewMap[Door](world)
 	c.Item = ecs.NewMap[Item](world)
@@ -334,7 +334,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.SpriteRender, entity, spec.SpriteRender)
 	addComp(c.BlockView, entity, spec.BlockView)
 	addComp(c.BlockPass, entity, spec.BlockPass)
-	addComp(c.Wall, entity, spec.Wall)
+	addComp(c.Solid, entity, spec.Solid)
 	addComp(c.PassCost, entity, spec.PassCost)
 	addComp(c.Door, entity, spec.Door)
 	addComp(c.Item, entity, spec.Item)

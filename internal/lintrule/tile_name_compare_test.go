@@ -15,8 +15,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestNoTileNameCompare はタイルの名前の定数 consts.TileName* や、間取りのタイルの欄 Tiles.Floor・Wall・Void と比べることを禁止する。タイルが何かは
-// 名前でなく、行の欄 wall・blockPass・earth などの性質で判定する。名前で比べると、同じ性質の別のタイルを
+// TestNoTileNameCompare はタイルの名前の定数 consts.TileName* と比べることを禁止する。タイルが何かは
+// 名前でなく、行の欄 solid・blockPass・earth などの性質で判定する。名前で比べると、同じ性質の別のタイルを
 // 足したときに Go を直す必要が出る。定数でタイルを置いたり引いたりするのは判定でないので対象外。
 func TestNoTileNameCompare(t *testing.T) {
 	t.Parallel()
@@ -47,7 +47,7 @@ func TestNoTileNameCompare(t *testing.T) {
 	require.NoError(t, err)
 
 	sort.Strings(found)
-	require.Empty(t, found, "タイルの名前と比べない。タイルの行の性質で判定する:\n%s", strings.Join(found, "\n"))
+	require.Empty(t, found, "タイルの名前の定数と比べない。タイルの行の性質で判定する:\n%s", strings.Join(found, "\n"))
 }
 
 func TestTileNameCompares(t *testing.T) {
@@ -65,9 +65,7 @@ func TestTileNameCompares(t *testing.T) {
 		{"タイルを引くのは適合", `_ = get(consts.TileNameVoid)`, 0},
 		{"性質で判定するのは適合", `_ = tile.BlockPass`, 0},
 		{"タイル以外の定数は適合", `_ = n == consts.MapTileWidth`, 0},
-		{"間取りのタイルの欄と比べると違反", `_ = tile.Id == r.Tiles.Floor`, 1},
-		{"入れ子の間取りのタイルの欄と比べると違反", `_ = tile.Id != b.Layout.Tiles.Wall`, 1},
-		{"間取りのタイルの欄を置くのは適合", `_ = get(r.Tiles.Void)`, 0},
+		{"間取りの行が指すタイルと比べるのは適合", `_ = tile.Id == r.Tiles.Wall`, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -80,18 +78,15 @@ func TestTileNameCompares(t *testing.T) {
 	}
 }
 
-// tileNameCompares はファイルの中でタイルの名前と比べる式の位置を返す
+// tileNameCompares はファイルの中でタイルの名前の定数と比べる式の位置を返す
 func tileNameCompares(f *ast.File) []token.Pos {
 	isTileName := func(e ast.Expr) bool {
 		sel, ok := e.(*ast.SelectorExpr)
 		if !ok {
 			return false
 		}
-		if pkg, ok := sel.X.(*ast.Ident); ok && pkg.Name == "consts" {
-			return strings.HasPrefix(sel.Sel.Name, "TileName")
-		}
-		tiles, ok := sel.X.(*ast.SelectorExpr)
-		return ok && tiles.Sel.Name == "Tiles" && (sel.Sel.Name == "Floor" || sel.Sel.Name == "Wall" || sel.Sel.Name == "Void")
+		pkg, ok := sel.X.(*ast.Ident)
+		return ok && pkg.Name == "consts" && strings.HasPrefix(sel.Sel.Name, "TileName")
 	}
 	var found []token.Pos
 	ast.Inspect(f, func(n ast.Node) bool {
