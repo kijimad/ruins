@@ -19,7 +19,7 @@
                 <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">/home/runner/work/ruins/ruins</a> - main.go<span style="font-size: 80%;"> (source / <a href="main.go.func-c.html">functions</a>)</span></td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory /home/runner/work/ruins/ruins">/home/runner/work/ruins/ruins</a> - main.go</td>
             <td width="5%"></td>
             <td width="5%"></td>
             <td width="5%" class="headerCovTableHead">Coverage</td>
@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 04:35:34</td>
+            <td class="headerValue">2026-11-15 07:26:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,7 +82,7 @@
 <span id="L20"><span class="lineNum">      20</span>              : func main() {</span>
 <span id="L21"><span class="lineNum">      21</span>              :         // 起動最初期に呼ぶ。未捕捉 panic 時のトレースへ全 goroutine を含める。設定読み込みより前で</span>
 <span id="L22"><span class="lineNum">      22</span>              :         // 落ちてもトレースが薄くならないよう、ここが最も早い</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 :         debug.SetTraceback(&quot;all&quot;)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         debug.SetTraceback(&quot;all&quot;)</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         app := cmd.NewMainApp()</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         err := cmd.RunMainApp(app, os.Args...)</span></span>

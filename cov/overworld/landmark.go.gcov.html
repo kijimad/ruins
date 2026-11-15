@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - overworld/landmark.go</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory overworld">overworld</a> - landmark.go</td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">75.0&nbsp;%</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntry">21</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-11-15 07:26:53</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package overworld</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;math/rand/v2&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/maptemplate&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              : )</span>
+<span id="L13"><span class="lineNum">      13</span>              : </span>
+<span id="L14"><span class="lineNum">      14</span>              : // 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・</span>
+<span id="L15"><span class="lineNum">      15</span>              : // 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // landmarkKindAt は当選チャンクに置くランドマークの施設の id を出現重みで抽選する。</span>
+<span id="L18"><span class="lineNum">      18</span>              : func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {</span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         lms := raw.PtrSlice(raws.Landmarks)</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         i, ok := consts.Pick(consts.HashRoll(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y)), lms, func(l rawschema.Landmark) float64 { return float64(l.Weight) })</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L22"><span class="lineNum">      22</span>              :                 // スキーマの weight&gt;=1 と TestRealData_HasLandmarks が候補の存在を保証する</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 panic(&quot;landmarkKindAt: no landmark to pick&quot;)</span></span>
+<span id="L24"><span class="lineNum">      24</span>              :         }</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         return lms[i].Id</span></span>
+<span id="L26"><span class="lineNum">      26</span>              : }</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : // wildernessLandmarkFeature は自然の点在ランドマークの feature 実装。</span>
+<span id="L29"><span class="lineNum">      29</span>              : type wildernessLandmarkFeature struct{}</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : // landmarkMargin はランドマークの絵とチャンクの縁の間に空けるマス数</span>
+<span id="L32"><span class="lineNum">      32</span>              : const landmarkMargin consts.Tile = 2</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // place は当選チャンクの荒れ地に、ランドマークの施設の絵を1つ置く。景色の脇役なので主役の地物には譲り、構図を</span>
+<span id="L35"><span class="lineNum">      35</span>              : // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が</span>
+<span id="L36"><span class="lineNum">      36</span>              : // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。</span>
+<span id="L37"><span class="lineNum">      37</span>              : func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols) != chunkLandmark {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         loader, err := maptemplate.FacilityTemplates()</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to load facility templates: %w&quot;, err)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         seed := ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         // ストリーム 0 は絵と原点の抽選。spawnFacility が戦利品と敵に使う 0x4 と 0x5 と分ける</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         fac := landmarkKindAt(world.Resources.RawMaster, runSeed, c)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         cells, err := planFacility(loader, fac, rng.Uint64(), rng)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to plan landmark %q: %w&quot;, fac, err)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L53"><span class="lineNum">      53</span>              :         // 絵がチャンクの縁から landmarkMargin 以上離れる範囲で原点を引く</span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         spanX := max(1, int(g.chunkW-2*landmarkMargin)-len(cells[0])+1)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         spanY := max(1, int(g.chunkH-2*landmarkMargin)-len(cells)+1)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         ox := landmarkMargin + consts.Tile(rng.IntN(spanX))</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         oy := landmarkMargin + consts.Tile(rng.IntN(spanY))</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         if _, _, err := spawnFacility(world, g, cells, ox, oy, fac, urbanDangerAt(world, c), seed); err != nil {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to place landmark %q: %w&quot;, fac, err)</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L62"><span class="lineNum">      62</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

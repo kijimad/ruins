@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - components/perishable.go</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory components">components</a> - perishable.go</td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-11-15 07:26:53</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package components</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/i18n&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // Perishable は腐敗する食料が持つ。累積した劣化量から鮮度段階を求める。</span>
+<span id="L10"><span class="lineNum">      10</span>              : // 劣化は時間経過で進み、速度は置き場所で変わりうる。速度の適用と実効量の算出は</span>
+<span id="L11"><span class="lineNum">      11</span>              : // query 層が担い、ここは劣化量から段階を求める段階付けだけを持つ。</span>
+<span id="L12"><span class="lineNum">      12</span>              : type Perishable struct {</span>
+<span id="L13"><span class="lineNum">      13</span>              :         RotAccrued     consts.Turn // 累積した劣化量。0 が生成直後</span>
+<span id="L14"><span class="lineNum">      14</span>              :         StageLength    consts.Turn // 1段階の長さ。鮮度の段階の境目は、raw の段階の行がこの何倍かで持つ</span>
+<span id="L15"><span class="lineNum">      15</span>              :         RotUpdatedTurn consts.Turn // RotAccrued を最後に前進させた GameTime.TotalTurns</span>
+<span id="L16"><span class="lineNum">      16</span>              : }</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : // StagesElapsed は累積劣化量 rot が経過させた段階数を返す。now でなく実効の rot を渡す。</span>
+<span id="L19"><span class="lineNum">      19</span>              : // 劣化速度は置き場所で変わるため rot の算出は query 層が担う</span>
+<span id="L20"><span class="lineNum">      20</span>              : func (p Perishable) StagesElapsed(rot consts.Turn) int {</span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return int(rot / p.StageLength)</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // FreshnessDef は鮮度の段階1つの定義。raw の freshnessStages の1行から組み立てる</span>
+<span id="L25"><span class="lineNum">      25</span>              : type FreshnessDef struct {</span>
+<span id="L26"><span class="lineNum">      26</span>              :         Level                rawschema.FreshnessStageId</span>
+<span id="L27"><span class="lineNum">      27</span>              :         From                 int        // 経過した段階数がこれ以上の段階のうち From が最大のものになる</span>
+<span id="L28"><span class="lineNum">      28</span>              :         Name                 i18n.Msgid // 表示名</span>
+<span id="L29"><span class="lineNum">      29</span>              :         NutritionPercent     int        // 食べたとき得る栄養の満額に対する割合。百分率</span>
+<span id="L30"><span class="lineNum">      30</span>              :         EatLog               i18n.Msgid // 食べたときのログ。%s は食べた者と食べ物</span>
+<span id="L31"><span class="lineNum">      31</span>              :         Marker               bool       // メニューの行に鮮度を添えるか</span>
+<span id="L32"><span class="lineNum">      32</span>              :         IllnessChancePercent int        // 食べたとき食中毒を起こす確率。百分率</span>
+<span id="L33"><span class="lineNum">      33</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
