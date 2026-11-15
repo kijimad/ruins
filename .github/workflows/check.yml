@@ -6,11 +6,13 @@ on:
       - main
   pull_request:
 
+# イメージは版を固定する。golden は固定した版の Mesa で撮っていて、ubuntu-26.04 では -race の
+# 終了時に描画スレッドとぶつかってヒープが壊れる
 jobs:
   build:
     permissions:
       contents: read
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
@@ -29,7 +31,7 @@ jobs:
   crosscompile:
     permissions:
       contents: read
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -51,7 +53,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -70,7 +72,7 @@ jobs:
         run: make build-steam
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       # octocov 用の設定
       # PRにコメントする
@@ -89,7 +91,7 @@ jobs:
       - uses: k1LoW/octocov-action@v1
 
   race-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
@@ -104,7 +106,7 @@ jobs:
     # 変更されたテストが無ければ何もせず成功する。main への push では diff が
     # 常に空なので、PR のときだけ動かして全履歴 fetch を省く
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
@@ -120,7 +122,7 @@ jobs:
     # geomean が2倍以上悪化したら失敗させる。別 runner では別 CPU に載って時間比較が無意味になるため、
     # 同一 CPU で測れるよう直列にする。
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # 直列で長引いたとき runner 回収でなく明示的タイムアウトで落とす
     timeout-minutes: 25
     permissions:
@@ -206,7 +208,7 @@ jobs:
           exit 1
 
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
@@ -216,7 +218,7 @@ jobs:
         run: make toolsinstall lint
 
   generate-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
@@ -230,7 +232,7 @@ jobs:
           test -z "$(git status -s)"
 
   image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
