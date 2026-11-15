@@ -14,6 +14,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/urfave/cli/v3"
 )
 
 func TestCutCells_透明なマスを除いて行と列の順に返す(t *testing.T) {
@@ -64,6 +65,20 @@ func TestWritePNG_作成できないパスはエラー(t *testing.T) {
 	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
+// cutSpriteApp は runCutSprite を Action に持つ単体の cli.Command を返す。
+// パッケージ変数 CmdCutSprite を直接 Run すると実行ごとの状態が共有されるため、テストごとに新規に作る。
+func cutSpriteApp() *cli.Command {
+	return &cli.Command{
+		Name:      "cutsprite",
+		ArgsUsage: "<image.png>",
+		Flags: []cli.Flag{
+			&cli.StringFlag{Name: "prefix", Required: true},
+			&cli.StringFlag{Name: outFlag},
+		},
+		Action: runCutSprite,
+	}
+}
+
 // writeSheet は w×h の透明な画像の opaque の範囲を赤で塗り、PNG に書き出してパスを返す
 func writeSheet(t *testing.T, w, h int, opaque image.Rectangle) string {
 	t.Helper()
@@ -80,7 +95,7 @@ func writeSheet(t *testing.T, w, h int, opaque image.Rectangle) string {
 func TestRunCutSprite_画像引数がないとエラー(t *testing.T) {
 	t.Parallel()
 
-	err := newCutSpriteCmd().Run(context.Background(), []string{"cutsprite", "--prefix", "p"})
+	err := cutSpriteApp().Run(context.Background(), []string{"cutsprite", "--prefix", "p"})
 	require.ErrorIs(t, err, errNoImageArg)
 }
 
@@ -88,7 +103,7 @@ func TestRunCutSprite_存在しない画像はエラー(t *testing.T) {
 	t.Parallel()
 
 	path := filepath.Join(t.TempDir(), "missing.png")
-	err := newCutSpriteCmd().Run(context.Background(), []string{"cutsprite", "--prefix", "p", path})
+	err := cutSpriteApp().Run(context.Background(), []string{"cutsprite", "--prefix", "p", path})
 	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
@@ -98,7 +113,7 @@ func TestRunCutSprite_不正なpngはエラー(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "broken.png")
 	require.NoError(t, os.WriteFile(path, []byte("not a png"), 0o644))
 
-	err := newCutSpriteCmd().Run(context.Background(), []string{"cutsprite", "--prefix", "p", path})
+	err := cutSpriteApp().Run(context.Background(), []string{"cutsprite", "--prefix", "p", path})
 	var fe png.FormatError
 	require.ErrorAs(t, err, &fe)
 }
@@ -111,7 +126,7 @@ func TestRunCutSprite_透明なマスを除いてスプライトを書き出す(
 
 	outDir := t.TempDir()
 	var buf bytes.Buffer
-	app := newCutSpriteCmd()
+	app := cutSpriteApp()
 	app.Writer = &buf
 
 	err := app.Run(context.Background(), []string{"cutsprite", "--prefix", "chip", "--out", outDir, srcPath})
@@ -138,6 +153,6 @@ func TestRunCutSprite_書き出し先が無いとエラー(t *testing.T) {
 
 	srcPath := writeSheet(t, 32, 32, image.Rect(0, 0, 32, 32))
 	outDir := filepath.Join(t.TempDir(), "no-such-dir")
-	err := newCutSpriteCmd().Run(context.Background(), []string{"cutsprite", "--prefix", "chip", "--out", outDir, srcPath})
+	err := cutSpriteApp().Run(context.Background(), []string{"cutsprite", "--prefix", "chip", "--out", outDir, srcPath})
 	require.ErrorIs(t, err, fs.ErrNotExist)
 }

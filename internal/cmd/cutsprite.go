@@ -23,20 +23,15 @@ const outFlag = "out"
 var errNoImageArg = errors.New("image path is required")
 
 // CmdCutSprite は画像を32ピクセル角のマスに切り、単体のスプライトとして書き出すサブコマンド
-var CmdCutSprite = newCutSpriteCmd()
-
-// newCutSpriteCmd は cutsprite のコマンドを作る。Command はフラグの値を持つので、実行ごとに新しく作る
-func newCutSpriteCmd() *cli.Command {
-	return &cli.Command{
-		Name:      "cutsprite",
-		Usage:     "cut an image into 32x32 sprites",
-		ArgsUsage: "<image.png>",
-		Flags: []cli.Flag{
-			&cli.StringFlag{Name: "prefix", Usage: "file name prefix of the sprites", Required: true},
-			&cli.StringFlag{Name: outFlag, Usage: "output directory", Value: "assets/file/textures/single"},
-		},
-		Action: runCutSprite,
-	}
+var CmdCutSprite = &cli.Command{
+	Name:      "cutsprite",
+	Usage:     "cut an image into 32x32 sprites",
+	ArgsUsage: "<image.png>",
+	Flags: []cli.Flag{
+		&cli.StringFlag{Name: "prefix", Usage: "file name prefix of the sprites", Required: true},
+		&cli.StringFlag{Name: outFlag, Usage: "output directory", Value: "assets/file/textures/single"},
+	},
+	Action: runCutSprite,
 }
 
 func runCutSprite(_ context.Context, cmd *cli.Command) error {
