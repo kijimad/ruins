@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 16:42:39</td>
+            <td class="headerValue">2026-11-15 02:54:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -418,7 +418,7 @@
 <span id="L356"><span class="lineNum">     356</span>              :         // 危険度は入口の北進度と日数の高い方で進入ごとに引き直し全階で共有する。swapTo 前の入口座標 fromPos から引く</span>
 <span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :         st.Danger = query.DangerLevelAt(world)</span></span>
 <span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :         if sb := query.GetSeamlessBand(world); sb != nil {</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :                 if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(sb.AbsChunkRow(fromPos.Y))); d &gt; st.Danger {</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :                 if d := query.DangerLevelForDepth(consts.NorthDepth(sb.SpawnChunkY(), sb.AbsChunkRow(fromPos.Y))); d &gt; st.Danger {</span></span>
 <span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :                         st.Danger = d</span></span>
 <span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L362"><span class="lineNum">     362</span>              :         }</span>

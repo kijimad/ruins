@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (81.9%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (89.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (88.3%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (79.7%)</option>
 				
@@ -107,7 +107,7 @@
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
+				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
 				
 				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -133,7 +133,7 @@
 				
 				<option value="file38">github.com/kijimaD/ruins/internal/balance/logistics.go (83.3%)</option>
 				
-				<option value="file39">github.com/kijimaD/ruins/internal/balance/loot.go (90.1%)</option>
+				<option value="file39">github.com/kijimaD/ruins/internal/balance/loot.go (91.3%)</option>
 				
 				<option value="file40">github.com/kijimaD/ruins/internal/balance/markov.go (92.2%)</option>
 				
@@ -435,11 +435,11 @@
 				
 				<option value="file189">github.com/kijimaD/ruins/internal/messagedata/message.go (96.8%)</option>
 				
-				<option value="file190">github.com/kijimaD/ruins/internal/overworld/building.go (95.5%)</option>
+				<option value="file190">github.com/kijimaD/ruins/internal/overworld/building.go (97.5%)</option>
 				
 				<option value="file191">github.com/kijimaD/ruins/internal/overworld/chunkgen.go (77.8%)</option>
 				
-				<option value="file192">github.com/kijimaD/ruins/internal/overworld/district.go (97.5%)</option>
+				<option value="file192">github.com/kijimaD/ruins/internal/overworld/district.go (97.7%)</option>
 				
 				<option value="file193">github.com/kijimaD/ruins/internal/overworld/district_jump.go (91.1%)</option>
 				
@@ -463,11 +463,11 @@
 				
 				<option value="file203">github.com/kijimaD/ruins/internal/overworld/road.go (90.9%)</option>
 				
-				<option value="file204">github.com/kijimaD/ruins/internal/overworld/road_geometry.go (97.7%)</option>
+				<option value="file204">github.com/kijimaD/ruins/internal/overworld/road_geometry.go (100.0%)</option>
 				
 				<option value="file205">github.com/kijimaD/ruins/internal/overworld/road_overlay.go (100.0%)</option>
 				
-				<option value="file206">github.com/kijimaD/ruins/internal/overworld/scatter.go (94.3%)</option>
+				<option value="file206">github.com/kijimaD/ruins/internal/overworld/scatter.go (94.4%)</option>
 				
 				<option value="file207">github.com/kijimaD/ruins/internal/overworld/scatter_tiles.go (89.3%)</option>
 				
@@ -477,7 +477,7 @@
 				
 				<option value="file210">github.com/kijimaD/ruins/internal/overworld/settlement.go (87.5%)</option>
 				
-				<option value="file211">github.com/kijimaD/ruins/internal/overworld/urban.go (91.1%)</option>
+				<option value="file211">github.com/kijimaD/ruins/internal/overworld/urban.go (91.2%)</option>
 				
 				<option value="file212">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
@@ -485,7 +485,7 @@
 				
 				<option value="file214">github.com/kijimaD/ruins/internal/raw/raw.go (96.2%)</option>
 				
-				<option value="file215">github.com/kijimaD/ruins/internal/raw/validate.go (98.0%)</option>
+				<option value="file215">github.com/kijimaD/ruins/internal/raw/validate.go (97.8%)</option>
 				
 				<option value="file216">github.com/kijimaD/ruins/internal/rawschema/models_gen.go (0.0%)</option>
 				
@@ -767,7 +767,7 @@
 				
 				<option value="file355">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (71.4%)</option>
 				
-				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.2%)</option>
+				<option value="file356">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.8%)</option>
 				
 				<option value="file357">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (91.4%)</option>
 				
@@ -1880,8 +1880,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -5479,7 +5479,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -7499,19 +7499,12 @@ func GenerateFacilityLoot(master rawschema.Raws, trials int, seed uint64) ([]Fac
         <span class="cov8" title="1">return result, nil</span>
 }
 
-// roomEdgeTrials は部屋の絵で組む施設の試行で、順に使う辺の組。迷路の部屋の5通りの形を1つずつ持つ
-var roomEdgeTrials = [][4]maptemplate.EdgeKind{
-        {maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeWall, maptemplate.EdgeWall},
-        {maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeWall},
-        {maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeDoor, maptemplate.EdgeWall},
-        {maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeWall, maptemplate.EdgeDoor},
-        {maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeDoor, maptemplate.EdgeDoor},
-}
-
-// facilityTrialChunk は施設 fac の i 回目の試行の絵を引く。部屋の絵で組む施設は、試行ごとに部屋1つを引く
+// facilityTrialChunk は施設 fac の i 回目の試行の絵を引く。部屋の絵で組む施設は、試行ごとに部屋の絵を1枚ずつ順に引く
 func facilityTrialChunk(loader *maptemplate.TemplateLoader, fac string, i int, seed uint64) (*maptemplate.ChunkTemplate, [][]maptemplate.MapCell, error) {
         <span class="cov8" title="1">if loader.HasRooms(fac) </span>{
-                <span class="cov8" title="1">return loader.FacilityRoom(fac, roomEdgeTrials[i%len(roomEdgeTrials)], seed)
+                <span class="cov8" title="1">names := loader.FacilityChunkNames(fac)
+                chunk, _, cells, err := loader.LoadTemplateByName(names[i%len(names)], seed)
+                return chunk, cells, err
 </span>        }
         <span class="cov8" title="1">return loader.FacilityChunk(fac, seed)</span>
 }
@@ -7579,7 +7572,7 @@ func buildTemplateLoot(master rawschema.Raws, total, present map[string]map[stri
                 <span class="cov8" title="1">if ea, eb := templateTotalExpected(templates[a]), templateTotalExpected(templates[b]); ea != eb </span>{
                         <span class="cov8" title="1">return ea &gt; eb
 </span>                }
-                <span class="cov0" title="0">return templates[a].Template &lt; templates[b].Template</span>
+                <span class="cov8" title="1">return templates[a].Template &lt; templates[b].Template</span>
         })
         <span class="cov8" title="1">return templates</span>
 }
@@ -12177,15 +12170,6 @@ func (sb SeamlessBand) SpawnChunkY() consts.Chunk {
         <span class="cov8" title="1">return sb.Rows / 2
 </span>}
 
-// DepthOfChunkRow は絶対チャンク行の北進深度を返す。起点 SpawnChunkY からの北進チャンク数で手前は0。
-// world を引く NorthDepthChunks の座標純関数版で、生成の難易度を深度で決めるのに使い再訪一致を保つ。
-func (sb SeamlessBand) DepthOfChunkRow(absChunkRow consts.Chunk) consts.Chunk {
-        <span class="cov8" title="1">if depth := sb.SpawnChunkY() - absChunkRow; depth &gt; 0 </span>{
-                <span class="cov8" title="1">return depth
-</span>        }
-        <span class="cov8" title="1">return 0</span>
-}
-
 // Dungeon は現在地を指すシングルトン。共存する複数ステージのうち、今どれが稼働中かを指す
 // identity だけを持つ。フィールド寸法・探索履歴・帯データなどステージ固有の状態は各ステージの
 // StageField が、時間や視界などグローバルな状態は専用シングルトンが持つ。
@@ -15679,6 +15663,11 @@ type Chunk int
 // chunkSize はその軸のチャンクの辺のタイル数。東西なら chunkW。
 func (c Chunk) Tiles(chunkSize Tile) Tile {
         <span class="cov8" title="1">return Tile(int(c)) * chunkSize
+</span>}
+
+// NorthDepth は起点の行 spawnRow から絶対チャンク行 row までの北進チャンク数を返す。起点より南は0
+func NorthDepth(spawnRow, row Chunk) Chunk {
+        <span class="cov8" title="1">return max(spawnRow-row, 0)
 </span>}
 </pre>
 		
@@ -25885,6 +25874,7 @@ import (
         "github.com/kijimaD/ruins/internal/maptemplate"
         "github.com/kijimaD/ruins/internal/raw"
         "github.com/kijimaD/ruins/internal/rawschema"
+        "github.com/kijimaD/ruins/internal/world/query"
 )
 
 // errRoomSizeMismatch は部屋の絵の大きさがチャンクから帯を引いた大きさと一致しないときに返す
@@ -25900,9 +25890,11 @@ type buildingLot struct {
 }
 
 // lotsOf は区域 r を建物の区画で埋める。左上のチャンクから順に、未割り当てのチャンクの地区で施設を引き、
-// 施設の大きさの候補を重みで引く。区画は同じ地区で未割り当てのチャンクだけに収まるまで小さくする
-func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion) []buildingLot {
-        <span class="cov8" title="1">facilities := map[string]rawschema.Facility{}
+// 施設の大きさの候補を重みで引く。区画は同じ地区で未割り当てのチャンクだけに収まるまで小さくする。
+// 施設の深さの足切りには、深さの起点の行 spawnRow から測った区域の北の端の危険度を使う。区域の中で足切りを揃えるため、チャンクごとには測らない
+func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow consts.Chunk) []buildingLot {
+        <span class="cov8" title="1">danger := query.DangerLevelForDepth(consts.NorthDepth(spawnRow, r.anchor.Y))
+        facilities := map[string]rawschema.Facility{}
         for _, f := range raw.PtrSlice(raws.Facilities) </span>{
                 <span class="cov8" title="1">facilities[f.Id] = f
 </span>        }
@@ -25950,7 +25942,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion) []buildingLo
 </span>                        // 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
                         // ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
                         <span class="cov8" title="1">frng := rand.New(rand.NewPCG(ChunkSeed2D(r.seed, x, y), 0x1))
-                        f := facilities[rollFacilityInZone(frng, cat, z, r.span(), r.landmark())]
+                        f := facilities[rollFacilityInZone(frng, cat, z, r.span(), danger, r.landmark())]
                         w, h := consts.Chunk(1), consts.Chunk(1)
                         if fps := raw.PtrSlice(f.Footprints); len(fps) &gt; 0 </span>{
                                 <span class="cov8" title="1">i, _ := consts.Pick(frng, fps, func(fp rawschema.FacilityFootprint) float64 </span>{ <span class="cov8" title="1">return float64(fp.Weight) }</span>)
@@ -25982,7 +25974,7 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
                         }
                 }
                 <span class="cov8" title="1">if len(cells) == 0 </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">minC, maxC := cells[0], cells[0]
                 for _, c := range cells </span>{
@@ -26139,7 +26131,7 @@ func drawRoomStrips(cells, room [][]maptemplate.MapCell, b buildingLot, l consts
         <span class="cov8" title="1">if l.X &gt; 0 &amp;&amp; l.Y &gt; 0 </span>{
                 <span class="cov8" title="1">corner := wall
                 if b.interior == rawschema.FacilityInteriorHall </span>{
-                        <span class="cov0" title="0">corner = floor(0, 0)
+                        <span class="cov8" title="1">corner = floor(0, 0)
 </span>                }
                 <span class="cov8" title="1">for y := range s </span>{
                         <span class="cov8" title="1">for x := range s </span>{
@@ -26154,7 +26146,7 @@ func drawRoomStrips(cells, room [][]maptemplate.MapCell, b buildingLot, l consts
 func stripOpen(kind maptemplate.EdgeKind, i, mid int, end bool) bool {
         <span class="cov8" title="1">switch kind </span>{
         case maptemplate.EdgeOpen:
-                <span class="cov0" title="0">return !end</span>
+                <span class="cov8" title="1">return !end</span>
         case maptemplate.EdgeDoor:
                 <span class="cov8" title="1">return i == mid-1 || i == mid</span>
         case maptemplate.EdgeWall:
@@ -26242,6 +26234,8 @@ import (
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/raw"
         "github.com/kijimaD/ruins/internal/rawschema"
+        w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/world/query"
 )
 
 // district は区域の1種類。raw の districts の行から作る
@@ -26258,6 +26252,15 @@ type districtRegion struct {
         w, h   consts.Chunk
         // seed は区域の中の地区と施設を引く種
         seed uint64
+}
+
+// spawnRowOf は world の帯の深さの起点の行を返す。帯が無ければ0
+func spawnRowOf(world w.World) consts.Chunk {
+        <span class="cov8" title="1">sb := query.GetSeamlessBand(world)
+        if sb == nil </span>{
+                <span class="cov8" title="1">return 0
+</span>        }
+        <span class="cov8" title="1">return sb.SpawnChunkY()</span>
 }
 
 // districtsFrom は raw の districts の行を、行の順に区域の種類にする
@@ -26844,7 +26847,7 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
         }
         <span class="cov8" title="1">danger := query.DangerLevelAt(world)
         if sb := query.GetSeamlessBand(world); sb != nil </span>{
-                <span class="cov8" title="1">depth := sb.DepthOfChunkRow(sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))
+                <span class="cov8" title="1">depth := consts.NorthDepth(sb.SpawnChunkY(), sb.AbsChunkRow(world.Components.GridElement.Get(entity).Y))
                 if d := query.DangerLevelForDepth(depth); d &gt; danger </span>{
                         <span class="cov8" title="1">danger = d
 </span>                }
@@ -27477,7 +27480,7 @@ type MacroView struct {
 func BuildMacroView(
         raws rawschema.Raws,
         runSeed uint64,
-        northIndex consts.Chunk,
+        northIndex, spawnRow consts.Chunk,
         chunkW, chunkH consts.Tile,
         area MacroRange,
         playerTile consts.Coord[consts.Tile],
@@ -27490,7 +27493,7 @@ func BuildMacroView(
 </span>
         // 道の接続方角を表示範囲で先に算出する。種別記号と同じく生成を伴わない純関数。
         // chunkPlace/道の有界カウントは帯の列数で、表示範囲の Cols がそれに相当する
-        <span class="cov8" title="1">roads := buildRoadOverlay(raws, runSeed, area, cols, chunkW, chunkH)
+        <span class="cov8" title="1">roads := buildRoadOverlay(raws, runSeed, area, cols, spawnRow, chunkW, chunkH)
 </span>
         <span class="cov8" title="1">colorOf := glyphColorMap(raws)
         cat := zoneCatalogFrom(raws)
@@ -27500,7 +27503,7 @@ func BuildMacroView(
                 <span class="cov8" title="1">cells[cy] = make([]MacroCell, cols)
                 for i := range cols </span>{
                         <span class="cov8" title="1">c := consts.Coord[consts.Chunk]{X: area.OriginX + i, Y: area.OriginY + cy}
-                        glyph := chunkPlace(raws, cat, runSeed, c, cols)
+                        glyph := chunkPlace(raws, cat, runSeed, c, cols, spawnRow)
                         col, hasCol := colorOf[glyph]
                         cells[cy][i] = MacroCell{
                                 Glyph:      glyph,
@@ -27573,7 +27576,7 @@ func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Ch
 </span>        }
         <span class="cov8" title="1">tiles := g.tiles.get()
         for _, pair := range crossingRoads(runSeed, c, cols) </span>{
-                <span class="cov8" title="1">segs := roadPath(world.Resources.RawMaster, runSeed, pair[0], pair[1], cols, g.chunkW, g.chunkH)
+                <span class="cov8" title="1">segs := roadPath(world.Resources.RawMaster, runSeed, pair[0], pair[1], cols, spawnRowOf(world), g.chunkW, g.chunkH)
                 if err := drawRoadSegments(world, tiles, segs, c, g); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
@@ -27681,13 +27684,13 @@ func roadSegments(a, b consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) [
 // roadPath は当選集落 a から b への道を返す。roadSegments の垂直辺が塀に囲まれた区域を横切るなら、区域の手前の行で
 // 北の門の列へ折れて門へ入り、南の門から出て区域の向こうの行で元の列へ戻る。区域の中は区域が街路を敷くので辺を置かない。
 // 門は区域の外周の街路の帯に開くので、門の列では帯の幅の真ん中を通す
-func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chunk], cols consts.Chunk, chunkW, chunkH consts.Tile) []roadSeg {
+func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, chunkW, chunkH consts.Tile) []roadSeg {
         <span class="cov8" title="1">segs := roadSegments(a, b, chunkW, chunkH)
         vertical := segs[1]
         x, y := vertical.fixed, vertical.lo
         out := []roadSeg{segs[0]}
         for _, r := range fencedDistrictsBetween(raws, runSeed, min(a.Y, b.Y), max(a.Y, b.Y), cols) </span>{
-                <span class="cov8" title="1">north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r))
+                <span class="cov8" title="1">north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, spawnRow))
                 top := r.anchor.Y.Tiles(chunkH)
                 bottom := (r.anchor.Y + r.h).Tiles(chunkH) - 1
                 lane := func(col consts.Chunk) consts.Tile </span>{ <span class="cov8" title="1">return col.Tiles(chunkW) + urbanStreetW/2 }</span>
@@ -27730,7 +27733,7 @@ func fencedDistrictsBetween(raws rawschema.Raws, runSeed uint64, top, bottom, co
 </span>                        }
                 }
         }
-        <span class="cov8" title="1">slices.SortFunc(out, func(a, b districtRegion) int </span>{ <span class="cov0" title="0">return cmp.Compare(a.anchor.Y, b.anchor.Y) }</span>)
+        <span class="cov8" title="1">slices.SortFunc(out, func(a, b districtRegion) int </span>{ <span class="cov8" title="1">return cmp.Compare(a.anchor.Y, b.anchor.Y) }</span>)
         <span class="cov8" title="1">return out</span>
 }
 
@@ -27782,7 +27785,7 @@ func (d RoadDir) Any() bool {
 // buildRoadOverlay は表示範囲に重なる範囲の道の接続方角を、絶対チャンク座標をキーに算出する。
 // road.go と同じく隣接リージョンの当選集落どうしを roadPath で結ぶ。生成を伴わない純関数で、
 // 表示範囲外へはみ出すチャンクも含みうるが、読み手が表示範囲内だけを引くので無害。
-func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols consts.Chunk, chunkW, chunkH consts.Tile) map[consts.Coord[consts.Chunk]]RoadDir {
+func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols, spawnRow consts.Chunk, chunkW, chunkH consts.Tile) map[consts.Coord[consts.Chunk]]RoadDir {
         <span class="cov8" title="1">overlay := map[consts.Coord[consts.Chunk]]RoadDir{}
         cols = max(cols, 1)
 </span>        // 道 (pr, pr+1) が占めるチャンク列は当選集落 a.X..b.X で、a.X は pr*Spacing 以上、b.X は
@@ -27797,7 +27800,7 @@ func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols
         for pr := rLo; pr &lt;= rHi; pr++ </span>{
                 <span class="cov8" title="1">a := settlementPlacement.WinnerOf(runSeed, pr, cols)
                 b := settlementPlacement.WinnerOf(runSeed, pr+1, cols)
-                markRoadPath(overlay, roadPath(raws, runSeed, a, b, cols, chunkW, chunkH), chunkW, chunkH)
+                markRoadPath(overlay, roadPath(raws, runSeed, a, b, cols, spawnRow, chunkW, chunkH), chunkW, chunkH)
 </span>        }
         <span class="cov8" title="1">return overlay</span>
 }
@@ -28051,8 +28054,9 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
         // 続けて樹木・岩を疎に撒く。Big の大物は位相 0 かつ経路外のタイルにだけ乗せ、二段で通行性を担保する。
         <span class="cov8" title="1">selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
         propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
+        spawnRow := spawnRowOf(world)
         for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, propCount) </span>{
-                <span class="cov8" title="1">bigAllowed := onBigPhase(rel) &amp;&amp; !onScatterRoute(world.Resources.RawMaster, runSeed, c, cols, g, absTile(rel))
+                <span class="cov8" title="1">bigAllowed := onBigPhase(rel) &amp;&amp; !onScatterRoute(world.Resources.RawMaster, runSeed, c, cols, spawnRow, g, absTile(rel))
                 roll := hashTileCoord(selSeed, rel)
                 entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
                 if entry.Ref == "" </span>{
@@ -28148,9 +28152,9 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 // onScatterRoute は絶対タイル pos が近傍集落間の道の直線からバッファ以内かを返す。実際の道タイルを
 // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、
 // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
-func onScatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
+func onScatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {
         <span class="cov8" title="1">for _, pair := range crossingRoads(runSeed, c, cols) </span>{
-                <span class="cov8" title="1">for _, seg := range roadPath(raws, runSeed, pair[0], pair[1], cols, g.chunkW, g.chunkH) </span>{
+                <span class="cov8" title="1">for _, seg := range roadPath(raws, runSeed, pair[0], pair[1], cols, spawnRow, g.chunkW, g.chunkH) </span>{
                         <span class="cov8" title="1">var d consts.Tile
                         if seg.orient == orientHorizontal </span>{
                                 <span class="cov8" title="1">d = chebToHSeg(pos, seg.fixed, seg.lo, seg.hi)
@@ -28400,11 +28404,11 @@ func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chun
 }
 
 // chunkPlace は1チャンクの種別を地図記号で返す純関数。
-func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {
+func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) rune {
         <span class="cov8" title="1">switch chunkTypeAt(raws, runSeed, c, cols) </span>{
         case chunkUrban:
                 <span class="cov8" title="1">r, _ := districtAt(raws, runSeed, c, cols)
-                if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c)); ok </span>{
+                if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c, spawnRow)); ok </span>{
                         <span class="cov8" title="1">return g.Label
 </span>                }
                 <span class="cov0" title="0">return placeUnknownGlyph</span>
@@ -28708,11 +28712,12 @@ func urbanEnemyTableFor(raws rawschema.Raws, fac string) (rawschema.EnemyTable, 
         <span class="cov8" title="1">return et, nil</span>
 }
 
-// facilityWeight は施設の抽選重みと規模 gate。市街地の一辺が minSpan 以上のときだけ抽選対象になる。
+// facilityWeight は施設の抽選重みと、規模と深さの足切り
 type facilityWeight struct {
-        kind    string
-        weight  int
-        minSpan consts.Chunk
+        kind      string
+        weight    int
+        minSpan   consts.Chunk
+        minDanger consts.Danger
 }
 
 // zoneCatalog は地区ごとの施設抽選重み。
@@ -28723,8 +28728,12 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
         <span class="cov8" title="1">cat := make(zoneCatalog)
         for _, f := range raw.PtrSlice(raws.Facilities) </span>{
                 <span class="cov8" title="1">for _, z := range f.Zones </span>{
-                        <span class="cov8" title="1">cat[z.Zone] = append(cat[z.Zone], facilityWeight{kind: f.Id, weight: int(z.Weight), minSpan: consts.Chunk(z.MinSpan)})
-</span>                }
+                        <span class="cov8" title="1">minDanger := consts.MinDanger
+                        if z.MinDanger != nil </span>{
+                                <span class="cov8" title="1">minDanger = consts.Danger(*z.MinDanger)
+</span>                        }
+                        <span class="cov8" title="1">cat[z.Zone] = append(cat[z.Zone], facilityWeight{kind: f.Id, weight: int(z.Weight), minSpan: consts.Chunk(z.MinSpan), minDanger: minDanger})</span>
+                }
         }
         <span class="cov8" title="1">return cat</span>
 }
@@ -28786,25 +28795,25 @@ func rowsLayer(layers []rawschema.DistrictLayer, ly, ch consts.Chunk) int {
         <span class="cov8" title="1">return rest</span>
 }
 
-// rollFacilityInZone は地区の重み表から規模 gate を通った施設 id を重みで抽選する。exclude の施設は引かない
-func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk, exclude string) string {
+// rollFacilityInZone は地区の重み表から、規模 span と危険度 danger の足切りを通った施設 id を重みで抽選する。exclude の施設は引かない
+func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk, danger consts.Danger, exclude string) string {
         <span class="cov8" title="1">zc := cat[z]
         i, ok := consts.Pick(rng, zc, func(f facilityWeight) float64 </span>{
-                <span class="cov8" title="1">if span &lt; f.minSpan || f.kind == exclude </span>{
+                <span class="cov8" title="1">if span &lt; f.minSpan || danger &lt; f.minDanger || f.kind == exclude </span>{
                         <span class="cov8" title="1">return 0
 </span>                }
                 <span class="cov8" title="1">return float64(f.weight)</span>
         })
         <span class="cov8" title="1">if !ok </span>{
-                // 一番小さい市街地でも各地区に建てられる基本施設があることを raw の検証が保証する
-                <span class="cov0" title="0">panic("rollFacilityInZone: zone has no facility within span")</span>
+                // 一番小さく浅い区域でも各地区に建てられる基本施設があることを raw の検証が保証する
+                <span class="cov0" title="0">panic("rollFacilityInZone: zone has no facility within span and danger")</span>
         }
         <span class="cov8" title="1">return zc[i].kind</span>
 }
 
 // urbanFacilityAt は区域 r の中のチャンク c に建つ施設 id を返す。地図表示と生成の両方が使う。
-func urbanFacilityAt(raws rawschema.Raws, cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk]) string {
-        <span class="cov8" title="1">return lotAt(lotsOf(raws, cat, r), r.local(c)).facility
+func urbanFacilityAt(raws rawschema.Raws, cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk], spawnRow consts.Chunk) string {
+        <span class="cov8" title="1">return lotAt(lotsOf(raws, cat, r, spawnRow), r.local(c)).facility
 </span>}
 
 // place は c が市街地の建物チャンクなら自分の建物を描く。各チャンクは自己完結するので
@@ -28816,7 +28825,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
                 <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">l := r.local(c)
-        lots := lotsOf(raws, zoneCatalogFrom(raws), r)
+        lots := lotsOf(raws, zoneCatalogFrom(raws), r, spawnRowOf(world))
         lot := lotAt(lots, l)
         var fence []consts.Coord[consts.Tile]
         if r.kind.Fence != nil &amp;&amp; *r.kind.Fence </span>{
@@ -28862,11 +28871,11 @@ func districtFence(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunk
 }
 
 // urbanDangerAt はチャンクの敵抽選に使う危険度を返す。北進度(空間)と日数(時間)の高い方。
-// c.Y は絶対チャンク行なので DepthOfChunkRow へそのまま渡せ、生成の再訪一致を壊さない。
+// c.Y は絶対チャンク行なので consts.NorthDepth へそのまま渡せ、生成の再訪一致を壊さない。
 func urbanDangerAt(world w.World, c consts.Coord[consts.Chunk]) consts.Danger {
         <span class="cov8" title="1">danger := query.DangerLevelAt(world)
         if sb := query.GetSeamlessBand(world); sb != nil </span>{
-                <span class="cov8" title="1">if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(c.Y)); d &gt; danger </span>{
+                <span class="cov8" title="1">if d := query.DangerLevelForDepth(consts.NorthDepth(sb.SpawnChunkY(), c.Y)); d &gt; danger </span>{
                         <span class="cov8" title="1">danger = d
 </span>                }
         }
@@ -30424,6 +30433,7 @@ import (
         "unicode/utf8"
 
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/rawschema"
 )
 
@@ -30432,6 +30442,7 @@ var (
         errDistrictSizeOutOfRegion       = errors.New("district size does not fit in its region")
         errDistrictTooShort              = errors.New("district is shorter than its layers")
         errDistrictLayers                = errors.New("district layers do not fit its pattern")
+        errLandmarkMinDanger             = errors.New("landmark facility has minDanger")
         errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
         errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
         errMapGlyphMissing               = errors.New("map glyph is missing")
@@ -30460,6 +30471,7 @@ func validateRules(raws rawschema.Raws) error {
                 validateDisassemblies,
                 validateDistricts,
                 validateZoneBaseFacilities,
+                validateLandmarkMinDanger,
                 validateMapGlyphReferences,
                 validateConditions,
                 validateWeathers,
@@ -30536,8 +30548,8 @@ func DistrictZones(d rawschema.District) []rawschema.Zone {
         <span class="cov8" title="1">return out</span>
 }
 
-// validateZoneBaseFacilities は、どの区域でも一番小さい大きさのときに、割り振る全ての地区に建てられる施設があることを検証する。
-// 施設は区域の長い方の辺が minSpan 以上のときだけ建つので、一番小さい大きさの辺で足切りを越える施設が要る
+// validateZoneBaseFacilities は、どの区域でも一番小さく一番浅いときに、割り振る全ての地区に建てられる施設があることを検証する。
+// 施設は区域の長い方の辺が minSpan 以上で、危険度が minDanger 以上のときだけ建つので、一番小さい大きさの辺と危険度1で足切りを越える施設が要る
 func validateZoneBaseFacilities(raws rawschema.Raws) error {
         <span class="cov8" title="1">facilities := PtrSlice(raws.Facilities)
         districts := PtrSlice(raws.Districts)
@@ -30556,11 +30568,34 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
                                         <span class="cov8" title="1">return false
 </span>                                }
                                 <span class="cov8" title="1">return slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool </span>{
-                                        <span class="cov8" title="1">return z.Zone == zone &amp;&amp; int(z.MinSpan) &lt;= baseSpan
+                                        <span class="cov8" title="1">return z.Zone == zone &amp;&amp; int(z.MinSpan) &lt;= baseSpan &amp;&amp; (z.MinDanger == nil || consts.Danger(*z.MinDanger) &lt;= consts.MinDanger)
 </span>                                })
                         })
                         <span class="cov8" title="1">if !hasBase </span>{
-                                <span class="cov8" title="1">return fmt.Errorf("district %q zone %q has no facility with minSpan&lt;=%d: %w", d.Id, zone, baseSpan, errZoneNoBaseFacility)
+                                <span class="cov8" title="1">return fmt.Errorf("district %q zone %q has no facility with minSpan&lt;=%d and minDanger&lt;=1: %w", d.Id, zone, baseSpan, errZoneNoBaseFacility)
+</span>                        }
+                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateLandmarkMinDanger は区域の目玉の施設が、その区域が割り振る地区の行に深さの下限を持たないことを検証する。
+// 目玉の施設は抽選を通らず区域に必ず1つ建つので、深さの下限を書いても効かない。区域の外の地区の行は抽選を通るので見ない
+func validateLandmarkMinDanger(raws rawschema.Raws) error {
+        <span class="cov8" title="1">districts := PtrSlice(raws.Districts)
+        for i := range districts </span>{
+                <span class="cov8" title="1">d := &amp;districts[i]
+                if d.Landmark == nil </span>{
+                        <span class="cov8" title="1">continue</span>
+                }
+                <span class="cov8" title="1">f, ok := GetFacility(raws, *d.Landmark)
+                if !ok </span>{
+                        <span class="cov0" title="0">continue</span>
+                }
+                <span class="cov8" title="1">zones := DistrictZones(*d)
+                for _, z := range f.Zones </span>{
+                        <span class="cov8" title="1">if z.MinDanger != nil &amp;&amp; slices.Contains(zones, z.Zone) </span>{
+                                <span class="cov8" title="1">return fmt.Errorf("district %q landmark %q zone %q: %w", d.Id, f.Id, z.Zone, errLandmarkMinDanger)
 </span>                        }
                 }
         }
@@ -31906,6 +31941,9 @@ func FacilityInteriorValues() []FacilityInterior {
 
 // FacilityZone 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
 type FacilityZone struct {
+        // MinDanger 区域の北の端の危険度がこの値以上のときだけ抽選する。省けば1で、どの深さでも抽選する
+        MinDanger *DangerLevel `json:"minDanger,omitempty"`
+
         // MinSpan 区域の長い方の辺がこのチャンク数以上のときだけ抽選する
         MinSpan int32 `json:"minSpan"`
 
@@ -33763,7 +33801,7 @@ type WeatherVisionDelta = int
 // Weight 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 type Weight = string
 
-// Zone 区域の地区。campus_ で始まる地区は研究所の敷地の門の列、中ほど、北の奥の列
+// Zone 区域の地区。区域の層が候補として持ち、施設は建つ地区として持つ
 type Zone string
 
 // Defines values for Zone.
@@ -33773,6 +33811,11 @@ const (
         CampusQuarantine Zone = "campus_quarantine"
         Downtown         Zone = "downtown"
         Industrial       Zone = "industrial"
+        MilitaryArmory   Zone = "military_armory"
+        MilitaryGate     Zone = "military_gate"
+        MilitaryInner    Zone = "military_inner"
+        PlantCore        Zone = "plant_core"
+        PlantOuter       Zone = "plant_outer"
         Residential      Zone = "residential"
 )
 
@@ -33789,6 +33832,16 @@ func (e Zone) Valid() bool {
                 <span class="cov0" title="0">return true</span>
         case Industrial:
                 <span class="cov0" title="0">return true</span>
+        case MilitaryArmory:
+                <span class="cov0" title="0">return true</span>
+        case MilitaryGate:
+                <span class="cov0" title="0">return true</span>
+        case MilitaryInner:
+                <span class="cov0" title="0">return true</span>
+        case PlantCore:
+                <span class="cov0" title="0">return true</span>
+        case PlantOuter:
+                <span class="cov0" title="0">return true</span>
         case Residential:
                 <span class="cov0" title="0">return true</span>
         default:
@@ -33798,7 +33851,7 @@ func (e Zone) Valid() bool {
 
 // ZoneValues は Zone の値を、スキーマに書いた順に返す。
 func ZoneValues() []Zone {
-        <span class="cov0" title="0">return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine}
+        <span class="cov0" title="0">return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore}
 </span>}
 </pre>
 		
@@ -40102,7 +40155,7 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
         // 危険度は入口の北進度と日数の高い方で進入ごとに引き直し全階で共有する。swapTo 前の入口座標 fromPos から引く
         <span class="cov8" title="1">st.Danger = query.DangerLevelAt(world)
         if sb := query.GetSeamlessBand(world); sb != nil </span>{
-                <span class="cov8" title="1">if d := query.DangerLevelForDepth(sb.DepthOfChunkRow(sb.AbsChunkRow(fromPos.Y))); d &gt; st.Danger </span>{
+                <span class="cov8" title="1">if d := query.DangerLevelForDepth(consts.NorthDepth(sb.SpawnChunkY(), sb.AbsChunkRow(fromPos.Y))); d &gt; st.Danger </span>{
                         <span class="cov8" title="1">st.Danger = d
 </span>                }
         }
@@ -42784,7 +42837,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 </span>        }
         <span class="cov8" title="1">area := overworld.PlayerCenteredRange(centerRow, sb.Cols, overworldMapRadius(inner, st.cellPx))
         st.view = overworld.BuildMacroView(
-                world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
+                world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.SpawnChunkY(), sb.ChunkW, sb.ChunkH,
                 area, playerTile, hasPlayer, query.CubeTiles(world), query.DiscoveredChunks(world, sb),
         )
 </span>
@@ -45347,7 +45400,7 @@ func extractMacroMapData(world w.World) hud.MacroMapData {
 </span>        }
         // 徐々に開くフォグ。探索済みチャンクだけを開放する。表示範囲・モデル・フォグは全画面図と共有する
         <span class="cov8" title="1">view := overworld.BuildMacroView(
-                world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.ChunkW, sb.ChunkH,
+                world.Resources.RawMaster, sb.RunSeed, sb.NorthIndex, sb.SpawnChunkY(), sb.ChunkW, sb.ChunkH,
                 area, playerTile, hasPlayer, query.CubeTiles(world), query.DiscoveredChunks(world, sb),
         )
 </span>        // カメラ不在時は北を既定にする
@@ -55510,7 +55563,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov0" title="0">return -1</span>
+        <span class="cov8" title="1">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
@@ -56596,7 +56649,7 @@ func DangerLevelForDay(days int) consts.Danger {
         <span class="cov8" title="1">if days &lt; 0 </span>{
                 <span class="cov8" title="1">days = 0
 </span>        }
-        <span class="cov8" title="1">return 1 + consts.Danger(days)/dangerDaysPerLevel</span>
+        <span class="cov8" title="1">return consts.MinDanger + consts.Danger(days)/dangerDaysPerLevel</span>
 }
 
 // DangerLevelAt は world から経過日数を引いて危険度を返す。
@@ -56613,7 +56666,7 @@ func DangerLevelForDepth(chunksNorth consts.Chunk) consts.Danger {
         <span class="cov8" title="1">if chunksNorth &lt; 0 </span>{
                 <span class="cov8" title="1">chunksNorth = 0
 </span>        }
-        <span class="cov8" title="1">return 1 + consts.Danger(chunksNorth)/dangerChunksPerLevel</span>
+        <span class="cov8" title="1">return consts.MinDanger + consts.Danger(chunksNorth)/dangerChunksPerLevel</span>
 }
 </pre>
 		

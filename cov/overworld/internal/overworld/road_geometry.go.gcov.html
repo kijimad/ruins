@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 16:42:39</td>
+            <td class="headerValue">2026-11-15 02:54:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -112,13 +112,13 @@
 <span id="L50"><span class="lineNum">      50</span>              : // roadPath は当選集落 a から b への道を返す。roadSegments の垂直辺が塀に囲まれた区域を横切るなら、区域の手前の行で</span>
 <span id="L51"><span class="lineNum">      51</span>              : // 北の門の列へ折れて門へ入り、南の門から出て区域の向こうの行で元の列へ戻る。区域の中は区域が街路を敷くので辺を置かない。</span>
 <span id="L52"><span class="lineNum">      52</span>              : // 門は区域の外周の街路の帯に開くので、門の列では帯の幅の真ん中を通す</span>
-<span id="L53"><span class="lineNum">      53</span>              : func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chunk], cols consts.Chunk, chunkW, chunkH consts.Tile) []roadSeg {</span>
+<span id="L53"><span class="lineNum">      53</span>              : func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, chunkW, chunkH consts.Tile) []roadSeg {</span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         segs := roadSegments(a, b, chunkW, chunkH)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         vertical := segs[1]</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         x, y := vertical.fixed, vertical.lo</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         out := []roadSeg{segs[0]}</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         for _, r := range fencedDistrictsBetween(raws, runSeed, min(a.Y, b.Y), max(a.Y, b.Y), cols) {</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r))</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, spawnRow))</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 top := r.anchor.Y.Tiles(chunkH)</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 bottom := (r.anchor.Y + r.h).Tiles(chunkH) - 1</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :                 lane := func(col consts.Chunk) consts.Tile { return col.Tiles(chunkW) + urbanStreetW/2 }</span></span>
@@ -161,7 +161,7 @@
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L100"><span class="lineNum">     100</span>              :                 }</span>
 <span id="L101"><span class="lineNum">     101</span>              :         }</span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         slices.SortFunc(out, func(a, b districtRegion) int { return cmp.Compare(a.anchor.Y, b.anchor.Y) })</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           2 :         slices.SortFunc(out, func(a, b districtRegion) int { return cmp.Compare(a.anchor.Y, b.anchor.Y) })</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         return out</span></span>
 <span id="L104"><span class="lineNum">     104</span>              : }</span>
 <span id="L105"><span class="lineNum">     105</span>              : </span>

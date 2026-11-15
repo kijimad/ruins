@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 16:42:39</td>
+            <td class="headerValue">2026-11-15 02:54:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,7 +77,7 @@
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 :         if days &lt; 0 {</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 days = 0</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         return 1 + consts.Danger(days)/dangerDaysPerLevel</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         return consts.MinDanger + consts.Danger(days)/dangerDaysPerLevel</span></span>
 <span id="L19"><span class="lineNum">      19</span>              : }</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // DangerLevelAt は world から経過日数を引いて危険度を返す。</span>
@@ -94,7 +94,7 @@
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         if chunksNorth &lt; 0 {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 chunksNorth = 0</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return 1 + consts.Danger(chunksNorth)/dangerChunksPerLevel</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return consts.MinDanger + consts.Danger(chunksNorth)/dangerChunksPerLevel</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : }</span>
         </pre>
               </td>

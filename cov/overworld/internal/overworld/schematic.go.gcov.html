@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-14 16:42:39</td>
+            <td class="headerValue">2026-11-15 02:54:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -170,11 +170,11 @@
 <span id="L108"><span class="lineNum">     108</span>              : }</span>
 <span id="L109"><span class="lineNum">     109</span>              : </span>
 <span id="L110"><span class="lineNum">     110</span>              : // chunkPlace は1チャンクの種別を地図記号で返す純関数。</span>
-<span id="L111"><span class="lineNum">     111</span>              : func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) rune {</span>
+<span id="L111"><span class="lineNum">     111</span>              : func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) rune {</span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(raws, runSeed, c, cols) {</span></span>
 <span id="L113"><span class="lineNum">     113</span>              :         case chunkUrban:</span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 r, _ := districtAt(raws, runSeed, c, cols)</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c)); ok {</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c, spawnRow)); ok {</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                 return placeUnknownGlyph</span></span>
