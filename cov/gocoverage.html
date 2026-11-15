@@ -771,7 +771,7 @@
 				
 				<option value="file357">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (71.4%)</option>
 				
-				<option value="file358">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.2%)</option>
+				<option value="file358">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.8%)</option>
 				
 				<option value="file359">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (91.4%)</option>
 				
@@ -44871,7 +44871,7 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
-// DebugInvincibleSystem はデバッグの無敵の間、プレイヤーの HP・体温・空腹・疲労を満たし、倒れていれば起こす。
+// DebugInvincibleSystem はデバッグの無敵の間、プレイヤーの HP・体温・空腹・疲労を満たし、怪我や病気の不調を消し、倒れていれば起こす。
 // 死の判定より前に毎フレーム走るので、致死の一撃を受けても死なない
 type DebugInvincibleSystem struct{}
 
@@ -44902,8 +44902,20 @@ func (sys *DebugInvincibleSystem) Update(world w.World) error {
                         hp.Current = hp.Max
 </span>                }
                 <span class="cov8" title="1">if world.Components.HealthStatus.Has(p) </span>{
-                        <span class="cov8" title="1">world.Components.HealthStatus.Get(p).BodyTempOffset = 0
-</span>                }
+                        <span class="cov8" title="1">hs := world.Components.HealthStatus.Get(p)
+                        hs.BodyTempOffset = 0
+                        healed := false
+                        for i := range hs.Parts </span>{
+                                <span class="cov8" title="1">if len(hs.Parts[i].Conditions) &gt; 0 </span>{
+                                        <span class="cov8" title="1">hs.Parts[i].Conditions = nil
+                                        healed = true
+</span>                                }
+                        }
+                        // 不調は能力値を下げるので、消したら能力値を計算し直させる
+                        <span class="cov8" title="1">if healed &amp;&amp; !world.Components.StatsChanged.Has(p) </span>{
+                                <span class="cov8" title="1">world.Components.StatsChanged.Add(p, &amp;gc.StatsChanged{})
+</span>                        }
+                }
                 <span class="cov8" title="1">if world.Components.Hunger.Has(p) </span>{
                         <span class="cov8" title="1">hunger := world.Components.Hunger.Get(p)
                         hunger.Current = hunger.Max
@@ -55657,7 +55669,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov0" title="0">return 1
+                <span class="cov8" title="1">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
