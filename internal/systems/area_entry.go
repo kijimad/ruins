@@ -7,8 +7,8 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// AreaEntrySystem は地上でプレイヤーのいるエリアが変わったら、エリアの名前をスプラッシュで出す。
-// 荒れ地に出たときは出さない。直前のエリアはセーブしないので、最初に見たエリアは記憶するだけにし、
+// AreaEntrySystem は地上でプレイヤーが別の区域に入ったら、区域の名前をスプラッシュで出す。
+// 集落・目印・遺跡の入口のような小さな場所と、荒れ地に出たときは出さない。直前のエリアはセーブしないので、最初に見たエリアは記憶するだけにし、
 // 開始とロードの直後には出さない
 type AreaEntrySystem struct {
 	last     string
@@ -34,7 +34,7 @@ func (sys *AreaEntrySystem) Update(world w.World) error {
 	return nil
 }
 
-// observe は現在のエリアを記憶し、前回と別のエリアに入ったかを返す。荒れ地と最初の1回は入ったとみなさない
+// observe は現在のエリアを記憶し、前回と別の区域に入ったかを返す。区域でない場所と最初の1回は入ったとみなさない
 func (sys *AreaEntrySystem) observe(area overworld.Area) bool {
 	entered := sys.observed && area.Key != sys.last && area.Key != ""
 	sys.last, sys.observed = area.Key, true

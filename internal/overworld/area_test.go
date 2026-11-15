@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAreaAt_区域は区域ごとに同じキーで荒れ地はキーを持たない(t *testing.T) {
+func TestAreaAt_区域だけが区域ごとのキーを持つ(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
@@ -36,7 +36,7 @@ func TestAreaAt_区域は区域ごとに同じキーで荒れ地はキーを持�
 				wasteland++
 				assert.Equal(t, Area{Name: "Wasteland"}, area)
 			case chunkSettlement, chunkLandmark, chunkDungeonEntrance:
-				assert.NotEmpty(t, area.Key)
+				assert.Empty(t, area.Key, "小さな場所はスプラッシュを出さない")
 				assert.NotEmpty(t, area.Name)
 				assert.Empty(t, area.Building)
 			}

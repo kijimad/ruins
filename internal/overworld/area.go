@@ -13,12 +13,13 @@ import (
 
 // Area は地上のチャンクの場所。区域・集落・目印・遺跡の入口・荒れ地のいずれか
 type Area struct {
-	Key      string     // エリアの同一性。同じなら同じエリア。荒れ地は空
+	Key      string     // スプラッシュを出す大きなエリアの同一性。区域だけが持ち、それ以外は空
 	Name     i18n.Msgid // エリアの表示名
 	Building i18n.Msgid // 市街地の建物の表示名。市街地でなければ空
 }
 
-// AreaAt はチャンク c のエリアを返す。区域の Key は種類と原点から作り、同じ種類の別の区域と区別する
+// AreaAt はチャンク c のエリアを返す。区域の Key は種類と原点から作り、同じ種類の別の区域と区別する。
+// 集落・目印・遺跡の入口は1チャンクの小さな場所なので、荒れ地と同じく Key を持たない
 func AreaAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) Area {
 	kind := chunkTypeAt(raws, runSeed, c, cols)
 	switch kind {
@@ -30,11 +31,11 @@ func AreaAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], c
 			Building: glyphName(raws, urbanFacilityAt(raws, zoneCatalogFrom(raws), r, c, spawnRow)),
 		}
 	case chunkSettlement:
-		return chunkArea(kind, c, glyphName(raws, settlementAt(raws, runSeed, c).Id))
+		return Area{Name: glyphName(raws, settlementAt(raws, runSeed, c).Id)}
 	case chunkLandmark:
-		return chunkArea(kind, c, glyphName(raws, landmarkKindAt(raws, runSeed, c)))
+		return Area{Name: glyphName(raws, landmarkKindAt(raws, runSeed, c))}
 	case chunkDungeonEntrance:
-		return chunkArea(kind, c, chunkGlyphName(raws, rawschema.DungeonEntrance))
+		return Area{Name: chunkGlyphName(raws, rawschema.DungeonEntrance)}
 	case chunkWasteland:
 		return Area{Name: chunkGlyphName(raws, rawschema.Wasteland)}
 	}
@@ -53,11 +54,6 @@ func PlayerArea(world w.World) (Area, bool) {
 	}
 	c := consts.Coord[consts.Chunk]{X: consts.Chunk(int(tile.X) / int(sb.ChunkW)), Y: sb.AbsChunkRow(tile.Y)}
 	return AreaAt(world.Resources.RawMaster, sb.RunSeed, c, sb.Cols, sb.SpawnChunkY()), true
-}
-
-// chunkArea は1チャンクで完結するエリアを返す
-func chunkArea(kind chunkType, c consts.Coord[consts.Chunk], name i18n.Msgid) Area {
-	return Area{Key: fmt.Sprintf("%s:%d,%d", kind, c.X, c.Y), Name: name}
 }
 
 // glyphName は id の地図記号の表示名を返す。記号が無ければ空
