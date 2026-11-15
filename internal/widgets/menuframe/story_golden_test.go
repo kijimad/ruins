@@ -47,20 +47,20 @@ func drawStory(t *testing.T, name string, size image.Point, rowH int, ws []uicor
 		items[i] = uicore.FlexItem{W: wgt, Height: rowH}
 	}
 	uicore.FlexColumn(image.Rect(0, 0, size.X, size.Y), items)
-	screen := vrt.NewScreen(size.X, size.Y)
-	cv := uicore.NewEbitenCanvas(screen)
-	for _, wgt := range ws {
-		wgt.Draw(cv)
-	}
-	vrt.AssertFrameGolden(t, name, screen)
+	vrt.DrawFrame(size.X, size.Y, func(screen *ebiten.Image) {
+		cv := uicore.NewEbitenCanvas(screen)
+		for _, wgt := range ws {
+			wgt.Draw(cv)
+		}
+	}).AssertGolden(t, name)
 }
 
 // drawWidget は配置済みの widget を1枚だけ実描画し、golden と比較する。
 func drawWidget(t *testing.T, name string, size image.Point, wgt uicore.Widget) {
 	t.Helper()
-	screen := vrt.NewScreen(size.X, size.Y)
-	wgt.Draw(uicore.NewEbitenCanvas(screen))
-	vrt.AssertFrameGolden(t, name, screen)
+	vrt.DrawFrame(size.X, size.Y, func(screen *ebiten.Image) {
+		wgt.Draw(uicore.NewEbitenCanvas(screen))
+	}).AssertGolden(t, name)
 }
 
 func TestGolden_Story_FooterRow(t *testing.T) {

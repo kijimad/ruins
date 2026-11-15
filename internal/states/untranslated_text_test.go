@@ -9,12 +9,12 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/vrt/replay"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -91,7 +91,7 @@ func TestUntranslatedText(t *testing.T) {
 					return built
 				},
 				actions,
-				func(int, w.World, *ebiten.Image) {},
+				func(int, w.World, vrt.Frame) {},
 			)
 
 			var leaks []string

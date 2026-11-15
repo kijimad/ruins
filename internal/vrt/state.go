@@ -39,7 +39,7 @@ func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World]) *
 	sm := SetupStateMachine(t, world, buildStates)
 	game, err := maingame.NewMainGame(world, sm)
 	require.NoError(t, err)
-	screen := NewScreen(consts.GameWidth, consts.GameHeight)
+	screen := newScreen(consts.GameWidth, consts.GameHeight)
 	game.Draw(screen)
 	return captureScreen(screen)
 }

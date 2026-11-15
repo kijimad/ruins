@@ -3,6 +3,7 @@ package states
 import (
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -123,7 +124,7 @@ func TestGolden_EquipSelect(t *testing.T) {
 
 	props := EquipSelectProps{Items: []ecs.Entity{sword, gun}, SlotNumber: gc.SlotWeapon1}
 	tree := buildEquipSelectUI(world, props, 0, world.Resources.UIResources)
-	screen := vrt.NewScreen(consts.GameWidth, consts.GameHeight)
-	tree.Draw(uicore.NewEbitenCanvas(screen))
-	vrt.AssertFrameGolden(t, "TestGolden_EquipSelect", screen)
+	vrt.DrawFrame(consts.GameWidth, consts.GameHeight, func(screen *ebiten.Image) {
+		tree.Draw(uicore.NewEbitenCanvas(screen))
+	}).AssertGolden(t, "TestGolden_EquipSelect")
 }

@@ -3,6 +3,7 @@ package states_test
 import (
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -45,7 +46,7 @@ func TestGolden_ItemMarker(t *testing.T) {
 
 	// 視界の再計算のため1フレーム進めてから撮る
 	require.NoError(t, sm.Update(world))
-	screen := vrt.NewScreen(consts.GameWidth, consts.GameHeight)
-	require.NoError(t, sm.Draw(world, screen))
-	vrt.AssertFrameGolden(t, "TestGolden_ItemMarker", screen)
+	vrt.DrawFrame(consts.GameWidth, consts.GameHeight, func(screen *ebiten.Image) {
+		require.NoError(t, sm.Draw(world, screen))
+	}).AssertGolden(t, "TestGolden_ItemMarker")
 }

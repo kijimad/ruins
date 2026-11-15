@@ -4,6 +4,7 @@ import (
 	"image"
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
@@ -17,10 +18,9 @@ func TestGolden_UISpecPanel(t *testing.T) {
 	defer facePool.Put(res)
 
 	const w, h = 240, 160
-	screen := vrt.NewScreen(w, h)
 	panel := buildRealPanel(*res)
 	panel.Layout(image.Rect(0, 0, w, h))
-	panel.Draw(uicore.NewEbitenCanvas(screen))
-
-	vrt.AssertFrameGolden(t, "TestGolden_UISpecPanel", screen)
+	vrt.DrawFrame(w, h, func(screen *ebiten.Image) {
+		panel.Draw(uicore.NewEbitenCanvas(screen))
+	}).AssertGolden(t, "TestGolden_UISpecPanel")
 }
