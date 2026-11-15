@@ -778,9 +778,9 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	return entitySpec, nil
 }
 
-// TileIsBox はタイルの行を 3D で高さのある箱として描くかを返す。描画順が高さのあるもの DepthNumTaller のタイルを箱で描く。
-// 箱のオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い箱の内側は虚空にする
-func TileIsBox(t rawschema.Tile) bool {
+// TileIsTall はタイルの行が高さのあるタイルかを返す。描画順が高さのあるもの DepthNumTaller なら高い。
+// 高いタイルのオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い塊の内側は虚空にする
+func TileIsTall(t rawschema.Tile) bool {
 	return toGCSpriteRender(t.SpriteRender).Depth == gc.DepthNumTaller
 }
 

@@ -166,10 +166,10 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 	return nil
 }
 
-// voidEnclosedBoxes は、直交と斜めの近傍8マスに通れる地形が無い箱の地形を虚空にする。壁のオートタイルは部屋を囲む細い輪郭を
+// voidEnclosedTall は、直交と斜めの近傍8マスに通れる地形が無い高さのある地形を虚空にする。壁のオートタイルは部屋を囲む細い輪郭を
 // 前提にするので、厚い壁の塊の内側を虚空にして描き崩れを防ぐ。マスの外は outsidePassable が通れると返す座標だけを通れるものとして
 // 数える。家具の乗った壁は残す
-func voidEnclosedBoxes(cells [][]maptemplate.MapCell, blocks, isBox func(terrain string) bool, outsidePassable func(x, y int) bool) {
+func voidEnclosedTall(cells [][]maptemplate.MapCell, blocks, isTall func(terrain string) bool, outsidePassable func(x, y int) bool) {
 	passable := func(x, y int) bool {
 		if y < 0 || y >= len(cells) || x < 0 || x >= len(cells[y]) {
 			return outsidePassable(x, y)
@@ -179,7 +179,7 @@ func voidEnclosedBoxes(cells [][]maptemplate.MapCell, blocks, isBox func(terrain
 	var enclosed [][2]int
 	for y, row := range cells {
 		for x, c := range row {
-			if !isBox(c.Terrain) || c.Prop != "" {
+			if !isTall(c.Terrain) || c.Prop != "" {
 				continue
 			}
 			open := false
@@ -198,14 +198,14 @@ func voidEnclosedBoxes(cells [][]maptemplate.MapCell, blocks, isBox func(terrain
 	}
 }
 
-// tileIsBox は地形 terrain を箱で描くかを raw のタイルの行から返す
-func tileIsBox(raws rawschema.Raws) func(terrain string) bool {
-	boxes := map[string]bool{}
+// tileIsTall は地形 terrain が高さのあるタイルかを raw のタイルの行から返す
+func tileIsTall(raws rawschema.Raws) func(terrain string) bool {
+	tall := map[string]bool{}
 	tiles := raw.PtrSlice(raws.Tiles)
 	for i := range tiles {
-		boxes[tiles[i].Id] = raw.TileIsBox(tiles[i])
+		tall[tiles[i].Id] = raw.TileIsTall(tiles[i])
 	}
-	return func(terrain string) bool { return boxes[terrain] }
+	return func(terrain string) bool { return tall[terrain] }
 }
 
 // tileBlocksPass は地形 terrain が通れないかを raw のタイルの行から返す。行の無い地形は通れないとする
