@@ -49,7 +49,7 @@ type ForestTerrain struct{}
 // PlanMeta は森の基本地形をタイルに描画する
 func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {
 	for i := range planData.Tiles {
-		planData.Tiles[i] = planData.GetTile(consts.TileNameRoad)
+		planData.Tiles[i] = planData.GetTile(consts.TileNameDirt)
 	}
 
 	for _, clearing := range planData.Rooms {
@@ -70,7 +70,7 @@ func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Re
 
 			if distance <= radius {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-				planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)
+				planData.Tiles[idx] = planData.GetTile(consts.TileNameDirt)
 			}
 		}
 	}
@@ -309,7 +309,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 					distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))
 					if distance <= float64(radius) {
 						idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
-						planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)
+						planData.Tiles[idx] = planData.GetTile(consts.TileNameDirt)
 					}
 				}
 			}
@@ -326,8 +326,8 @@ func NewForestPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Plan
 	chain.With(ForestTrees{})        // 木を配置
 	chain.With(ForestPaths{})        // 自然な通路を作成
 	chain.With(ForestWildlife{})     // 野生動物の痕跡を追加
-	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁を道に変換
-		ReplacementTile: consts.TileNameRoad,
+	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁を土に変換
+		ReplacementTile: consts.TileNameDirt,
 	})
 	chain.With(EnvironmentPlanner{})
 
