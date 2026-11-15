@@ -35,12 +35,18 @@ func (sys *AreaEntrySystem) Update(world w.World) error {
 	return nil
 }
 
-// observe はターン turn のエリアを記憶し、前回と別の区域に入ったかを返す。区域でない場所と、
-// 前回の観測から続いていないときは入ったとみなさない。system は world より長く生きてロードをまたぐので、
-// 連続を見て、前のプレイや別の場所で記憶したエリアと比べないようにする
+// observe はターン turn のエリアを記憶し、直前の区域と別の区域に入ったかを返す。区域でない場所に
+// 出ても直前の区域は忘れないので、区域の境目を行き来しても続けて出さない。system は world より長く
+// 生きてロードをまたぐので、前回の観測から続いていなければ、前のプレイや別の場所の区域と比べない
 func (sys *AreaEntrySystem) observe(area overworld.Area, turn consts.Turn) bool {
 	continuous := sys.observed && turn == sys.lastTurn+1
-	entered := continuous && area.Key != sys.last && area.Key != ""
-	sys.last, sys.lastTurn, sys.observed = area.Key, turn, true
+	if !continuous {
+		sys.last = ""
+	}
+	entered := continuous && area.Key != "" && area.Key != sys.last
+	if area.Key != "" {
+		sys.last = area.Key
+	}
+	sys.lastTurn, sys.observed = turn, true
 	return entered
 }

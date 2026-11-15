@@ -22,7 +22,7 @@ func TestAreaEntrySystem_observe_別の区域に入ったときだけ入った�
 	shrine := overworld.Area{Name: "Shrine"}
 
 	sys := &AreaEntrySystem{}
-	seq := []overworld.Area{townA, townA, wasteland, townA, townB, wasteland, shrine, townB}
+	seq := []overworld.Area{townA, townA, wasteland, townA, wasteland, townA, townB, wasteland, shrine, townB, wasteland, townA}
 	got := make([]bool, 0, len(seq))
 	for i, a := range seq {
 		got = append(got, sys.observe(a, consts.Turn(100+i)))
@@ -31,11 +31,15 @@ func TestAreaEntrySystem_observe_別の区域に入ったときだけ入った�
 		false, // 最初に見たエリアは記憶するだけ
 		false, // 同じ区域の中
 		false, // 荒れ地に出た
-		true,  // 荒れ地から町に戻った
+		false, // 荒れ地から同じ町に戻った。境目を行き来しても出さない
+		false, // また荒れ地に出た
+		false, // また同じ町に戻った
 		true,  // 同じ種類の別の区域に移った
 		false, // 荒れ地に出た
 		false, // 小さな場所に入った
-		true,  // 小さな場所から区域に戻った
+		false, // 小さな場所から直前と同じ区域に戻った
+		false, // 荒れ地に出た
+		true,  // 荒れ地を通って別の区域に入った
 	}, got)
 }
 
