@@ -89,7 +89,7 @@ func climateWorldTemperatureAt(world w.World, y consts.Tile) int {
 // snowFullTemperature で屋根の無い土の地面の全てを覆う
 const (
 	snowStartTemperature = 5
-	snowFullTemperature  = -5
+	snowFullTemperature  = -30
 )
 
 // SnowFraction はその日の平均気温 temp から、雪に覆われる地面のマスの割合を 0 から 1 で返す

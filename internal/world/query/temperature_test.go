@@ -427,9 +427,10 @@ func TestSnowFraction(t *testing.T) {
 	}{
 		{10, 0},
 		{5, 0},
-		{0, 0.5},
-		{-5, 1},
-		{-20, 1},
+		{0, 5.0 / 35},
+		{-5, 10.0 / 35},
+		{-30, 1},
+		{-40, 1},
 	}
 	for _, tt := range tests {
 		assert.InDelta(t, tt.want, query.SnowFraction(tt.temp), 1e-9, "%d℃", tt.temp)
@@ -466,8 +467,8 @@ func TestSnowFractionAt_春でも北へ進むほど雪の割合が増える(t *t
 		northIndex consts.Chunk
 		want       float64
 	}{
-		{"北へ4チャンクは1℃で4割", 4, 0.4},
-		{"北へ5チャンクは0℃で5割", 5, 0.5},
+		{"北へ4チャンクは1℃で35分の4", 4, 4.0 / 35},
+		{"北へ5チャンクは0℃で35分の5", 5, 5.0 / 35},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
