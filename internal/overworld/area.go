@@ -1,8 +1,6 @@
 package overworld
 
 import (
-	"fmt"
-
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -11,9 +9,15 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
+// AreaKey は区域の同一性。区域の種類と原点で決まり、同じ種類の別の区域と区別する。ゼロ値は区域でないことを表す
+type AreaKey struct {
+	District string
+	Anchor   consts.Coord[consts.Chunk]
+}
+
 // Area は地上のチャンクの場所。区域・集落・目印・遺跡の入口・荒れ地のいずれか
 type Area struct {
-	Key      string     // スプラッシュを出す大きなエリアの同一性。区域だけが持ち、それ以外は空
+	Key      AreaKey    // スプラッシュを出す大きなエリアの同一性。区域だけが持ち、それ以外はゼロ値
 	Name     i18n.Msgid // エリアの表示名
 	Building i18n.Msgid // 市街地の建物の表示名。市街地でなければ空
 }
@@ -25,7 +29,7 @@ func AreaAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], c
 	switch kind {
 	case chunkUrban:
 		return Area{
-			Key:      fmt.Sprintf("%s:%d,%d", r.kind.Id, r.anchor.X, r.anchor.Y),
+			Key:      AreaKey{District: r.kind.Id, Anchor: r.anchor},
 			Name:     i18n.Msgid(r.kind.Name),
 			Building: glyphName(raws, urbanFacilityAt(raws, zoneCatalogFrom(raws), r, c, spawnRow)),
 		}

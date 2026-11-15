@@ -16,8 +16,8 @@ import (
 func TestAreaEntrySystem_observe_別の区域に入ったときだけ入ったとみなす(t *testing.T) {
 	t.Parallel()
 
-	townA := overworld.Area{Key: "town:0,0", Name: "Town"}
-	townB := overworld.Area{Key: "town:9,9", Name: "Town"}
+	townA := overworld.Area{Key: overworld.AreaKey{District: "town"}, Name: "Town"}
+	townB := overworld.Area{Key: overworld.AreaKey{District: "town", Anchor: consts.Coord[consts.Chunk]{X: 9, Y: 9}}, Name: "Town"}
 	wasteland := overworld.Area{Name: "Wasteland"}
 	shrine := overworld.Area{Name: "Shrine"}
 
@@ -46,8 +46,8 @@ func TestAreaEntrySystem_observe_別の区域に入ったときだけ入った�
 func TestAreaEntrySystem_observe_ターンが続いていなければ別の区域でも入ったとみなさない(t *testing.T) {
 	t.Parallel()
 
-	townA := overworld.Area{Key: "town:0,0", Name: "Town"}
-	townB := overworld.Area{Key: "town:9,9", Name: "Town"}
+	townA := overworld.Area{Key: overworld.AreaKey{District: "town"}, Name: "Town"}
+	townB := overworld.Area{Key: overworld.AreaKey{District: "town", Anchor: consts.Coord[consts.Chunk]{X: 9, Y: 9}}, Name: "Town"}
 
 	sys := &AreaEntrySystem{}
 	got := []bool{
@@ -76,7 +76,7 @@ func TestFormatAreaLabel(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	assert.Equal(t, []string{"Town / Clinic", "Shrine"}, []string{
-		formatAreaLabel(world, overworld.Area{Key: "town:0,0", Name: "Town", Building: "Clinic"}),
+		formatAreaLabel(world, overworld.Area{Key: overworld.AreaKey{District: "town"}, Name: "Town", Building: "Clinic"}),
 		formatAreaLabel(world, overworld.Area{Name: "Shrine"}),
 	})
 }
