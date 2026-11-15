@@ -29,7 +29,6 @@ func NewDebugMenuState() (es.State[w.World], error) {
 
 // debugMenuChoices はデバッグメニューの選択肢を返す。開発用のスポーンやメッセージ確認をまとめる
 func debugMenuChoices(world w.World) (string, []Choice) {
-	debugName := dungeon.DebugID
 	choices := []Choice{
 		{Label: "Spawn healing potion (inventory)", Run: popAfter(func(world w.World) error {
 			_, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 1)
@@ -73,7 +72,7 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 	// TransReplace ではなく TransPop でゲームへ戻し、DungeonState.Update が enterDungeonWith を指定プランナーで通す
 	for _, pt := range mapplanner.ProceduralPlannerTypes(world.Resources.RawMaster) {
 		choices = append(choices, Choice{Label: "Generate debug dungeon " + pt.Name, Run: popAfter(func(world w.World) error {
-			return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(debugName, pt.Name))
+			return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DebugID, pt.Name))
 		})})
 	}
 

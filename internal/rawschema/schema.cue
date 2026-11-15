@@ -447,7 +447,8 @@ import "strings"
 
 // ダンジョンのフロアの間取り。最初の段で部屋を決め、中の段を並びの順に走らせる
 #Layout: {
-	id!:    #EntityID
+	id!: #EntityID
+	// 段が置くタイル。絵の最初の段は絵のタイルを置くので使わない
 	tiles!: #LayoutTiles
 	// 最初の段の表の行の id
 	start!:    #EntityID

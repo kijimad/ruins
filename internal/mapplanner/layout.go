@@ -16,6 +16,8 @@ var (
 	ErrNoLayout = errors.New("no layout")
 	// ErrUnknownStep は段の表に無い id を指したときのエラー
 	ErrUnknownStep = errors.New("unknown layout step")
+	// ErrFloorCountUnset は敵やアイテムの表を指すのにフロアに置く数を持たないプランナーのエラー
+	ErrFloorCountUnset = errors.New("floor count is not set")
 )
 
 // LayoutPlannerType は raw の間取りの行 id のプランナータイプを返す。行は計画を作るときに引く

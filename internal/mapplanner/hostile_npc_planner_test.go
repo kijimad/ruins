@@ -240,3 +240,15 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		}
 	})
 }
+
+func TestHostileNPCPlanner_表があり数が無ければエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
+	require.NoError(t, err)
+	chain.PlanData.RawMaster = CreateTestRawMaster()
+	require.NoError(t, chain.Plan())
+
+	planner := NewHostileNPCPlanner(world, PlannerType{Name: "test", EnemyTableName: "normal", Danger: 1})
+	require.ErrorIs(t, planner.PlanMeta(&chain.PlanData), ErrFloorCountUnset)
+}

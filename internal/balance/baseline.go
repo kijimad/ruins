@@ -208,14 +208,9 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string
 	}
 	writeMDTable(&b, []string{colDanger, "廃墟", "森", "洞窟"}, []tw.Align{alignR, alignR, alignR, alignR}, netLootRows)
 
-	ruins, _ := raw.GetDungeon(master, BaselineDungeon)
-	fmt.Fprintf(&b, "探索1回の期待収入。各層で約%g個拾い層の深さを危険度として手取りを積んだ閉形式。層数は生存に依る scenario 入力。\n", ruins.ItemCount.Mean())
-	fmt.Fprintf(&b, "総収支はこの収入から移動燃料コストを引くが、1回の移動タイル数はコードにない設計値なのでコスト側は別途与える。\n\n")
-	var runIncomeRows [][]string
-	for _, floors := range []int{1, 3, 5, 10} {
-		runIncomeRows = append(runIncomeRows, []string{fmt.Sprintf("%d", floors), fmt.Sprintf("%.0f", ExpectedRunLootIncome(master, BaselineDungeon, floors))})
+	if err := writeRunIncome(&b, master); err != nil {
+		return "", err
 	}
-	writeMDTable(&b, []string{"探索層数", "廃墟の期待収入"}, []tw.Align{alignR, alignR}, runIncomeRows)
 
 	// 経済の進行。支出側の生活費と、日ごとに loot がそれを賄えるか
 	fmt.Fprintf(&b, "経済の進行。1日の食費は満腹度減耗を最安の食料で埋め戻す費用で %.0f。日が進むと危険度が上がり loot 手取りも上がるので、\n", CostOfLivingPerDay(master, DefaultParams(master)))
@@ -576,5 +571,21 @@ func renderSkillDepth(b *strings.Builder, master rawschema.Raws) error {
 	}
 	writeMDTable(b, []string{"武器", "総レベル", "実効ティア", "死んだティア", "実効の最小改善(ターン)"}, []tw.Align{alignL, alignR, alignR, alignR, alignR}, rows)
 	fmt.Fprintf(b, "熟練度が base 全体へ効くので進行の大半は手応えがある。死んだティアは撃破ターンが既に短い高レベル帯に偏る。弱い武器ほど base が小さく、切り捨てでわずかに死にやすい。\n\n")
+	return nil
+}
+
+// writeRunIncome は基準のダンジョンを探索1回で拾う loot の期待収入の表を書く
+func writeRunIncome(b *strings.Builder, master rawschema.Raws) error {
+	ruins, err := raw.GetDungeon(master, BaselineDungeon)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(b, "探索1回の期待収入。各層で約%g個拾い層の深さを危険度として手取りを積んだ閉形式。層数は生存に依る scenario 入力。\n", ruins.ItemCount.Mean())
+	fmt.Fprintf(b, "総収支はこの収入から移動燃料コストを引くが、1回の移動タイル数はコードにない設計値なのでコスト側は別途与える。\n\n")
+	var runIncomeRows [][]string
+	for _, floors := range []int{1, 3, 5, 10} {
+		runIncomeRows = append(runIncomeRows, []string{fmt.Sprintf("%d", floors), fmt.Sprintf("%.0f", ExpectedRunLootIncome(master, BaselineDungeon, floors))})
+	}
+	writeMDTable(b, []string{"探索層数", "廃墟の期待収入"}, []tw.Align{alignR, alignR}, runIncomeRows)
 	return nil
 }

@@ -248,3 +248,15 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		assert.Greater(t, inRoomCount, len(chain.PlanData.Items)/2, "部屋内のアイテムが半数未満")
 	})
 }
+
+func TestItemPlanner_表があり数が無ければエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
+	require.NoError(t, err)
+	chain.PlanData.RawMaster = CreateTestRawMaster()
+	require.NoError(t, chain.Plan())
+
+	planner := NewItemPlanner(world, PlannerType{Name: "test", ItemTableName: "normal", Danger: 1})
+	require.ErrorIs(t, planner.PlanMeta(&chain.PlanData), ErrFloorCountUnset)
+}
