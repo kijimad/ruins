@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 11:46:14</td>
+            <td class="headerValue">2026-11-15 12:33:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -297,7 +297,7 @@
 <span id="L235"><span class="lineNum">     235</span>              : func drawRoomStrips(cells, room [][]maptemplate.MapCell, b buildingLot, l consts.Coord[consts.Chunk], edges [4]maptemplate.EdgeKind) {</span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         s := int(urbanStreetW)</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         h, w := len(cells), len(cells[0])</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         wall := maptemplate.MapCell{Terrain: &quot;wall&quot;}</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         wall := maptemplate.MapCell{Terrain: consts.TileNameWall}</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           2 :         floor := func(x, y int) maptemplate.MapCell { return maptemplate.MapCell{Terrain: room[y][x].Terrain} }</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         mid := (w - s) / 2</span></span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 : </span></span>

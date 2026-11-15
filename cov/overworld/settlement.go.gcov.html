@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 11:46:14</td>
+            <td class="headerValue">2026-11-15 12:33:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,7 +84,7 @@
 <span id="L22"><span class="lineNum">      22</span>              : type settlementFeature struct{}</span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         if !settlementPlacement.At(runSeed, c, cols) {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         if !placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindSettlement).At(runSeed, c, cols) {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L28"><span class="lineNum">      28</span>              :         // 区域と重なった当選は区域へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ</span>
@@ -104,7 +104,7 @@
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         for i := range rows {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 total += int(rows[i].Weight)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         roll := int(ChunkSeed2D(runSeed^settlementSalt, c.X, c.Y) % uint64(total))</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         roll := int(ChunkSeed2D(runSeed^placementOf(raws, rawschema.PointFeatureKindSettlement).Salt, c.X, c.Y) % uint64(total))</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         for i := range rows {</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 roll -= int(rows[i].Weight)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 if roll &lt; 0 {</span></span>

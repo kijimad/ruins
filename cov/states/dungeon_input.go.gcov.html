@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 11:46:14</td>
+            <td class="headerValue">2026-11-15 12:33:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -352,7 +352,7 @@
 <span id="L290"><span class="lineNum">     290</span>              :                 // オーバーワールドから遺跡へ入る。同一 State 内 swapTo で帯を退避し遺跡へ切り替える。</span>
 <span id="L291"><span class="lineNum">     291</span>              :                 // プランナー名の指定があれば固定して生成する。デバッグのプランナー単位進入で使う</span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 if p.PlannerName != &quot;&quot; {</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :                         builderType, ok := mapplanner.PlannerTypeByName(p.PlannerName)</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :                         builderType, ok := mapplanner.PlannerTypeByName(world.Resources.RawMaster, p.PlannerName)</span></span>
 <span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                         if !ok {</span></span>
 <span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unknown planner name: %s&quot;, p.PlannerName)</span></span>
 <span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                         }</span></span>

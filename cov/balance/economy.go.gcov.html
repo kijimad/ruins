@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">86.4&nbsp;%</td>
-            <td class="headerCovTableEntry">88</td>
-            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntryMed">86.5&nbsp;%</td>
+            <td class="headerCovTableEntry">89</td>
+            <td class="headerCovTableEntry">77</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 11:46:14</td>
+            <td class="headerValue">2026-11-15 12:33:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -166,70 +166,68 @@
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         return float64(query.CalculateSellPrice(int(math.Round(value))))</span></span>
 <span id="L105"><span class="lineNum">     105</span>              : }</span>
 <span id="L106"><span class="lineNum">     106</span>              : </span>
-<span id="L107"><span class="lineNum">     107</span>              : // expectedItemsPerFloor はフロアで拾える loot 個数の期待値。</span>
-<span id="L108"><span class="lineNum">     108</span>              : // consts.FloorItemRandom は奇数なので (consts.FloorItemRandom-1)/2 は整数除算でも厳密になる</span>
-<span id="L109"><span class="lineNum">     109</span>              : const expectedItemsPerFloor = consts.FloorItemBase + (consts.FloorItemRandom-1)/2</span>
-<span id="L110"><span class="lineNum">     110</span>              : </span>
-<span id="L111"><span class="lineNum">     111</span>              : // ExpectedRunLootIncome は floors 層を探索して拾う loot の期待手取り総額を返す。各層で expectedItemsPerFloor</span>
-<span id="L112"><span class="lineNum">     112</span>              : // 個を拾い、層の深さを危険度として ExpectedNetLootValue を積む。到達層数は生存依存の scenario 入力。</span>
-<span id="L113"><span class="lineNum">     113</span>              : func ExpectedRunLootIncome(master rawschema.Raws, itemTableName string, floors int) float64 {</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         total := 0.0</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         for depth := 1; depth &lt;= floors; depth++ {</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 total += expectedItemsPerFloor * ExpectedNetLootValue(master, itemTableName, depth)</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         return total</span></span>
-<span id="L119"><span class="lineNum">     119</span>              : }</span>
-<span id="L120"><span class="lineNum">     120</span>              : </span>
-<span id="L121"><span class="lineNum">     121</span>              : // CheapestFoodCostPerNutrition は満腹度1点を回復するのに要する最小の購入価値を返す。栄養価を持つ</span>
-<span id="L122"><span class="lineNum">     122</span>              : // アイテムのうち、価値÷栄養が最小のものを賢い調達とみなす。食料が無ければ0を返す。</span>
-<span id="L123"><span class="lineNum">     123</span>              : func CheapestFoodCostPerNutrition(master rawschema.Raws) float64 {</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         best := 0.0</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(master.Items)</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 it := &amp;items[i]</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 if it.ProvidesNutrition == nil || *it.ProvidesNutrition &lt;= 0 || it.Value &lt;= 0 {</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L130"><span class="lineNum">     130</span>              :                 }</span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 cost := float64(it.Value) / float64(*it.ProvidesNutrition)</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 if best == 0 || cost &lt; best {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                         best = cost</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L135"><span class="lineNum">     135</span>              :         }</span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         return best</span></span>
-<span id="L137"><span class="lineNum">     137</span>              : }</span>
-<span id="L138"><span class="lineNum">     138</span>              : </span>
-<span id="L139"><span class="lineNum">     139</span>              : // CostOfLivingPerDay は補給なしの1日で失う満腹度を、最安の食料で埋め戻す購入費用を返す。1日の満腹度</span>
-<span id="L140"><span class="lineNum">     140</span>              : // 減耗は turnsPerDay/HungerDrainTurns で、これに満腹度1点あたりの最小食料費を掛ける。経済の支出側の下端。</span>
-<span id="L141"><span class="lineNum">     141</span>              : func CostOfLivingPerDay(master rawschema.Raws, p Params) float64 {</span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         hungerPerDay := p.TurnsPerDay / p.HungerDrainTurns</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         return hungerPerDay * CheapestFoodCostPerNutrition(master)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L145"><span class="lineNum">     145</span>              : </span>
-<span id="L146"><span class="lineNum">     146</span>              : // EconomyDay は経過日1日ぶんの経済の断面。危険度に応じた1個あたり手取りと、1日の食費を賄うのに要する</span>
-<span id="L147"><span class="lineNum">     147</span>              : // loot 個数を持つ。個数が小さいほど、その日の loot は生活費に対して価値が高い。</span>
-<span id="L148"><span class="lineNum">     148</span>              : type EconomyDay struct {</span>
-<span id="L149"><span class="lineNum">     149</span>              :         Day            int</span>
-<span id="L150"><span class="lineNum">     150</span>              :         Danger         int</span>
-<span id="L151"><span class="lineNum">     151</span>              :         NetLootValue   float64 // 1個あたりの期待手取り</span>
-<span id="L152"><span class="lineNum">     152</span>              :         LootPerDayFood float64 // 1日の食費を賄うのに要する loot 個数</span>
-<span id="L153"><span class="lineNum">     153</span>              : }</span>
-<span id="L154"><span class="lineNum">     154</span>              : </span>
-<span id="L155"><span class="lineNum">     155</span>              : // EconomyProgression は経過日 1..days の経済を、危険度に応じた loot 手取りと一定の生活費で表す。進むほど loot</span>
-<span id="L156"><span class="lineNum">     156</span>              : // 価値が上がり生活費が相対的に軽くなるかを見る。乱数を使わない。</span>
-<span id="L157"><span class="lineNum">     157</span>              : func EconomyProgression(master rawschema.Raws, itemTableName string, days int, p Params) []EconomyDay {</span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         costPerDay := CostOfLivingPerDay(master, p)</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         out := make([]EconomyDay, 0, days)</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         for day := 1; day &lt;= days; day++ {</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 danger := int(query.DangerLevelForDay(day))</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 net := ExpectedNetLootValue(master, itemTableName, danger)</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 perFood := 0.0</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 if net &gt; 0 {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                         perFood = costPerDay / net</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 out = append(out, EconomyDay{Day: day, Danger: danger, NetLootValue: net, LootPerDayFood: perFood})</span></span>
-<span id="L168"><span class="lineNum">     168</span>              :         }</span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         return out</span></span>
-<span id="L170"><span class="lineNum">     170</span>              : }</span>
+<span id="L107"><span class="lineNum">     107</span>              : // ExpectedRunLootIncome はダンジョンの行 d を floors 層探索して拾う loot の期待手取り総額を返す。各層で</span>
+<span id="L108"><span class="lineNum">     108</span>              : // アイテムの数の期待値の個数を拾い、層の深さを危険度として ExpectedNetLootValue を積む。到達層数は生存依存の scenario 入力。</span>
+<span id="L109"><span class="lineNum">     109</span>              : // 高い危険度の層でアイテムの配置が1個足す分は含めない。</span>
+<span id="L110"><span class="lineNum">     110</span>              : func ExpectedRunLootIncome(master rawschema.Raws, d rawschema.Dungeon, floors int) float64 {</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         perFloor := d.ItemCount.Mean()</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         total := 0.0</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         for depth := 1; depth &lt;= floors; depth++ {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 total += perFloor * ExpectedNetLootValue(master, d.ItemTable, depth)</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         return total</span></span>
+<span id="L117"><span class="lineNum">     117</span>              : }</span>
+<span id="L118"><span class="lineNum">     118</span>              : </span>
+<span id="L119"><span class="lineNum">     119</span>              : // CheapestFoodCostPerNutrition は満腹度1点を回復するのに要する最小の購入価値を返す。栄養価を持つ</span>
+<span id="L120"><span class="lineNum">     120</span>              : // アイテムのうち、価値÷栄養が最小のものを賢い調達とみなす。食料が無ければ0を返す。</span>
+<span id="L121"><span class="lineNum">     121</span>              : func CheapestFoodCostPerNutrition(master rawschema.Raws) float64 {</span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         best := 0.0</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(master.Items)</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 it := &amp;items[i]</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 if it.ProvidesNutrition == nil || *it.ProvidesNutrition &lt;= 0 || it.Value &lt;= 0 {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L128"><span class="lineNum">     128</span>              :                 }</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 cost := float64(it.Value) / float64(*it.ProvidesNutrition)</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 if best == 0 || cost &lt; best {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                         best = cost</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L133"><span class="lineNum">     133</span>              :         }</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         return best</span></span>
+<span id="L135"><span class="lineNum">     135</span>              : }</span>
+<span id="L136"><span class="lineNum">     136</span>              : </span>
+<span id="L137"><span class="lineNum">     137</span>              : // CostOfLivingPerDay は補給なしの1日で失う満腹度を、最安の食料で埋め戻す購入費用を返す。1日の満腹度</span>
+<span id="L138"><span class="lineNum">     138</span>              : // 減耗は turnsPerDay/HungerDrainTurns で、これに満腹度1点あたりの最小食料費を掛ける。経済の支出側の下端。</span>
+<span id="L139"><span class="lineNum">     139</span>              : func CostOfLivingPerDay(master rawschema.Raws, p Params) float64 {</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         hungerPerDay := p.TurnsPerDay / p.HungerDrainTurns</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         return hungerPerDay * CheapestFoodCostPerNutrition(master)</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L143"><span class="lineNum">     143</span>              : </span>
+<span id="L144"><span class="lineNum">     144</span>              : // EconomyDay は経過日1日ぶんの経済の断面。危険度に応じた1個あたり手取りと、1日の食費を賄うのに要する</span>
+<span id="L145"><span class="lineNum">     145</span>              : // loot 個数を持つ。個数が小さいほど、その日の loot は生活費に対して価値が高い。</span>
+<span id="L146"><span class="lineNum">     146</span>              : type EconomyDay struct {</span>
+<span id="L147"><span class="lineNum">     147</span>              :         Day            int</span>
+<span id="L148"><span class="lineNum">     148</span>              :         Danger         int</span>
+<span id="L149"><span class="lineNum">     149</span>              :         NetLootValue   float64 // 1個あたりの期待手取り</span>
+<span id="L150"><span class="lineNum">     150</span>              :         LootPerDayFood float64 // 1日の食費を賄うのに要する loot 個数</span>
+<span id="L151"><span class="lineNum">     151</span>              : }</span>
+<span id="L152"><span class="lineNum">     152</span>              : </span>
+<span id="L153"><span class="lineNum">     153</span>              : // EconomyProgression は経過日 1..days の経済を、危険度に応じた loot 手取りと一定の生活費で表す。進むほど loot</span>
+<span id="L154"><span class="lineNum">     154</span>              : // 価値が上がり生活費が相対的に軽くなるかを見る。乱数を使わない。</span>
+<span id="L155"><span class="lineNum">     155</span>              : func EconomyProgression(master rawschema.Raws, itemTableName string, days int, p Params) []EconomyDay {</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         costPerDay := CostOfLivingPerDay(master, p)</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         out := make([]EconomyDay, 0, days)</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         for day := 1; day &lt;= days; day++ {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 danger := int(query.DangerLevelForDay(day))</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 net := ExpectedNetLootValue(master, itemTableName, danger)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 perFood := 0.0</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 if net &gt; 0 {</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                         perFood = costPerDay / net</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 out = append(out, EconomyDay{Day: day, Danger: danger, NetLootValue: net, LootPerDayFood: perFood})</span></span>
+<span id="L166"><span class="lineNum">     166</span>              :         }</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L168"><span class="lineNum">     168</span>              : }</span>
         </pre>
               </td>
             </tr>

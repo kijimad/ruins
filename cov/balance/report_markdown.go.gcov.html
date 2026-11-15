@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 11:46:14</td>
+            <td class="headerValue">2026-11-15 12:33:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,9 +75,9 @@
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :                 r.Player.Name, r.Player.HP, r.Player.Strength, r.Player.Sensation, r.Player.Dexterity, r.Player.Agility, r.Player.Defense)</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;武器 %s。ダメージ %d、命中 %d。\n\n&quot;, r.Weapon.Name, r.Weapon.Damage, r.Weapon.Accuracy)</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         b.WriteString(&quot;## 敵テーブル\n\n&quot;)</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         for i := range r.EnemyTables {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 run := &amp;r.EnemyTables[i]</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         b.WriteString(&quot;## ダンジョン\n\n&quot;)</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         for i := range r.Dungeons {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 run := &amp;r.Dungeons[i]</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 fmt.Fprintf(&amp;b, &quot;### %s\n\n&quot;, run.Name)</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 fmt.Fprintf(&amp;b, &quot;試行 %d、最大深度 %d、到達深度の中央値 %d、死亡率 %s。\n\n&quot;, run.Trials, run.MaxDepth, run.MedianDepth, percent(run.DeathRate))</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 b.WriteString(&quot;| 深度 | HP 中央値 | HP p5 | HP p95 | 回復前 HP 中央値 | 撃破ターン中央値 | 武器ダメージ中央値 | 空腹中央値 | 被ダメージ中央値 | 回復中央値 | 急死率 |\n&quot;)</span></span>
