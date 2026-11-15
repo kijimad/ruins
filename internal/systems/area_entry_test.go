@@ -3,12 +3,15 @@ package systems
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -94,4 +97,52 @@ func TestRunTurnEndSystems_登録したAreaEntrySystemが地上で回る(t *test
 	require.NoError(t, runTurnEndSystems(world))
 
 	assert.True(t, sys.observed, "ターンの終わりにエリアを観測する")
+}
+
+func TestAreaEntrySystem_Restart_開始とロードのたびに今いる区域の名前を出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 24, 24, 7, 9), &overworld.NewGameParams{RunSeed: 12345})
+	require.NoError(t, drv.Start(world))
+	sb := query.GetSeamlessBand(world)
+
+	// 帯の中から区域のチャンクを探し、プレイヤーをそこへ置く
+	var target consts.Coord[consts.Tile]
+	found := false
+	for ly := consts.Chunk(0); ly < sb.Rows && !found; ly++ {
+		for x := range sb.Cols {
+			row := ly - sb.NorthIndex
+			area := overworld.AreaAt(world.Resources.RawMaster, sb.RunSeed, consts.Coord[consts.Chunk]{X: x, Y: row}, sb.Cols, sb.SpawnChunkY())
+			if area.Key != "" {
+				target = consts.Coord[consts.Tile]{X: x.Tiles(sb.ChunkW) + 1, Y: ly.Tiles(sb.ChunkH) + 1}
+				found = true
+				break
+			}
+		}
+	}
+	require.True(t, found, "帯の中に区域がある")
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	world.Components.GridElement.Get(player).Coord = target
+
+	sys := &AreaEntrySystem{}
+	// 開始してすぐセーブし、同じターンのままロードした
+	require.NoError(t, sys.Restart(world))
+	require.NoError(t, sys.Restart(world))
+
+	assert.Len(t, splashTexts(world), 2, "ロードでも、続いて見える同じ区域の名前を出す")
+}
+
+// splashTexts はワールドに湧いているスプラッシュ表示エフェクトのテキストを列挙する
+func splashTexts(world w.World) []string {
+	var texts []string
+	q := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+	for q.Next() {
+		for _, effect := range world.Components.VisualEffects.Get(q.Entity()).Effects {
+			if splash, ok := effect.(*gc.SplashTextEffect); ok {
+				texts = append(texts, splash.Text)
+			}
+		}
+	}
+	return texts
 }

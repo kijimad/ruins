@@ -35,6 +35,13 @@ func (sys *AreaEntrySystem) Update(world w.World) error {
 	return nil
 }
 
+// Restart は直前のエリアを忘れて観測を始め直し、区域にいれば名前を出す。地上の開始とロードで呼ぶ。
+// ロードした世界のターンが直前の観測と続いて見えても、前のプレイのエリアと比べないようにする
+func (sys *AreaEntrySystem) Restart(world w.World) error {
+	sys.observed = false
+	return sys.Update(world)
+}
+
 // observe はターン turn のエリアを記憶し、区域に入ったかを返す。前回の観測から続いていなければ、
 // 直前のエリアを忘れて今いる区域に入ったとみなす。system は world より長く生きてロードをまたぐので、
 // 前のプレイや別の場所で記憶したエリアと比べないよう、ターンの連続を見る
