@@ -22934,6 +22934,7 @@
   description = "灰色の石を敷いた道のオートタイル。街路や森の小道の屋外の歩行可能タイル"
   id = "road"
   name = "Road"
+  snowMeltPercent = 60
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]

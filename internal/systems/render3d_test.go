@@ -259,7 +259,7 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 		want    float64
 	}{
 		{"冬の屋外の土は全面に積もる", winter, consts.TileNameDirt, nil, 1},
-		{"冬の屋外の道は全面に積もる", winter, consts.TileNameRoad, nil, 1},
+		{"冬の屋外の道は解けやすさの分だけ薄く積もる", winter, consts.TileNameRoad, nil, 0.4},
 		{"冬でも屋内の床には積もらない", winter, "floor_tile", nil, 0},
 		{"冬でも通れない壁には積もらない", winter, consts.TileNameDWall, nil, 0},
 		{"冬でも屋根のある半屋外には積もらない", winter, consts.TileNameDirt, new(rawschema.Partial), 0},
