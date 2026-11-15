@@ -6,7 +6,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// DebugInvincibleSystem はデバッグの無敵の間、プレイヤーの HP・体温・空腹・疲労を満たし、倒れていれば起こす。
+// DebugInvincibleSystem はデバッグの無敵の間、プレイヤーの HP・体温・空腹・疲労を満たし、怪我や病気の不調を消し、倒れていれば起こす。
 // 死の判定より前に毎フレーム走るので、致死の一撃を受けても死なない
 type DebugInvincibleSystem struct{}
 
@@ -37,7 +37,19 @@ func (sys *DebugInvincibleSystem) Update(world w.World) error {
 			hp.Current = hp.Max
 		}
 		if world.Components.HealthStatus.Has(p) {
-			world.Components.HealthStatus.Get(p).BodyTempOffset = 0
+			hs := world.Components.HealthStatus.Get(p)
+			hs.BodyTempOffset = 0
+			healed := false
+			for i := range hs.Parts {
+				if len(hs.Parts[i].Conditions) > 0 {
+					hs.Parts[i].Conditions = nil
+					healed = true
+				}
+			}
+			// 不調は能力値を下げるので、消したら能力値を計算し直させる
+			if healed && !world.Components.StatsChanged.Has(p) {
+				world.Components.StatsChanged.Add(p, &gc.StatsChanged{})
+			}
 		}
 		if world.Components.Hunger.Has(p) {
 			hunger := world.Components.Hunger.Get(p)
