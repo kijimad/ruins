@@ -1,9 +1,9 @@
 package loader
 
 import (
+	"encoding/json"
 	"image"
 	"image/png"
-	"io/fs"
 	"path"
 	"testing"
 
@@ -12,40 +12,57 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestTextureSources_インデックス形式のPNGを置かない は、束にまとめる元の絵が色の表を持つインデックス形式で
-// ないことを確かめる。make aseprite はインデックス形式の絵を色を見ずに中身の番号だけで同じ絵とみなして
-// 1枚にまとめるので、色違いの絵が黙って同じ色で描かれる
-func TestTextureSources_インデックス形式のPNGを置かない(t *testing.T) {
+// TestTextureSheets_束の各枠が元の絵と同じ は、make aseprite が束ねた絵の各枠が、同じ名前の元の絵と
+// 画素まで一致することを確かめる。束の作り直し忘れや、色違いの絵を1枚にまとめてしまう束ね方を止める
+func TestTextureSheets_束の各枠が元の絵と同じ(t *testing.T) {
 	t.Parallel()
 
-	var checked int
-	var paletted []string
-	dirs, err := fs.ReadDir(assets.FS, "file/textures")
-	require.NoError(t, err)
-	for _, d := range dirs {
-		// dist は束にまとめた結果なので、元の絵だけを見る
-		if !d.IsDir() || d.Name() == "dist" {
-			continue
-		}
-		root := path.Join("file/textures", d.Name())
-		entries, err := fs.ReadDir(assets.FS, root)
-		require.NoError(t, err, root)
-		for _, e := range entries {
-			if e.IsDir() || path.Ext(e.Name()) != ".png" {
-				continue
+	for _, sheet := range []string{"tiles", "single", "bg"} {
+		t.Run(sheet, func(t *testing.T) {
+			t.Parallel()
+			atlas := decodePNG(t, path.Join("file/textures/dist", sheet+".png"))
+			b, err := assets.FS.ReadFile(path.Join("file/textures/dist", sheet+".json"))
+			require.NoError(t, err)
+			var data AsepriteJSON
+			require.NoError(t, json.Unmarshal(b, &data))
+			require.NotEmpty(t, data.Frames, "枠が無いと検査が素通りする")
+
+			var differ []string
+			for _, fr := range data.Frames {
+				src := decodePNG(t, path.Join("file/textures", sheet, fr.Filename+".png"))
+				if !sameFrame(atlas, fr.Frame, src) {
+					differ = append(differ, fr.Filename)
+				}
 			}
-			name := path.Join(root, e.Name())
-			f, err := assets.FS.Open(name)
-			require.NoError(t, err, name)
-			img, err := png.Decode(f)
-			require.NoError(t, f.Close())
-			require.NoError(t, err, name)
-			if _, ok := img.(*image.Paletted); ok {
-				paletted = append(paletted, name)
+			assert.Empty(t, differ)
+		})
+	}
+}
+
+func decodePNG(t *testing.T, name string) image.Image {
+	t.Helper()
+	f, err := assets.FS.Open(name)
+	require.NoError(t, err, name)
+	img, err := png.Decode(f)
+	require.NoError(t, f.Close())
+	require.NoError(t, err, name)
+	return img
+}
+
+// sameFrame は束 atlas の枠 r の画素が元の絵 src と同じかを返す
+func sameFrame(atlas image.Image, r AsepriteRect, src image.Image) bool {
+	sb := src.Bounds()
+	if sb.Dx() != r.W || sb.Dy() != r.H {
+		return false
+	}
+	for y := range r.H {
+		for x := range r.W {
+			r1, g1, b1, a1 := atlas.At(r.X+x, r.Y+y).RGBA()
+			r2, g2, b2, a2 := src.At(sb.Min.X+x, sb.Min.Y+y).RGBA()
+			if r1 != r2 || g1 != g2 || b1 != b2 || a1 != a2 {
+				return false
 			}
-			checked++
 		}
 	}
-	require.Positive(t, checked, "絵が見つからないと検査が素通りする")
-	assert.Empty(t, paletted)
+	return true
 }
