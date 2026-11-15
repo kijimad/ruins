@@ -1163,15 +1163,12 @@ type GlyphChunk string
 
 // Defines values for GlyphChunk.
 const (
-	DungeonEntrance GlyphChunk = "dungeon_entrance"
-	Wasteland       GlyphChunk = "wasteland"
+	Wasteland GlyphChunk = "wasteland"
 )
 
 // Valid indicates whether the value is a known member of the GlyphChunk enum.
 func (e GlyphChunk) Valid() bool {
 	switch e {
-	case DungeonEntrance:
-		return true
 	case Wasteland:
 		return true
 	default:
@@ -1181,7 +1178,7 @@ func (e GlyphChunk) Valid() bool {
 
 // GlyphChunkValues は GlyphChunk の値を、スキーマに書いた順に返す。
 func GlyphChunkValues() []GlyphChunk {
-	return []GlyphChunk{Wasteland, DungeonEntrance}
+	return []GlyphChunk{Wasteland}
 }
 
 // GroundCoverEntry 地面を覆う草や土の飾りの prop 1種と、選ばれる重み

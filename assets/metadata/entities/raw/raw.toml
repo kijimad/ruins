@@ -17653,18 +17653,6 @@
     r = 208
 
 [[mapGlyphs]]
-  chunk = "dungeon_entrance"
-  glyph = ">"
-  id = "dungeon_entrance"
-  name = "Ruins Entrance"
-  order = 3
-  [mapGlyphs.color]
-    a = 255
-    b = 58
-    g = 69
-    r = 224
-
-[[mapGlyphs]]
   glyph = "x"
   id = "abandoned_hut"
   name = "Abandoned Hut"

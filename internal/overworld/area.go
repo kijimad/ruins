@@ -15,7 +15,7 @@ type AreaKey struct {
 	Anchor   consts.Coord[consts.Chunk]
 }
 
-// Area は地上のチャンクの場所。区域・集落・目印・遺跡の入口・荒れ地のいずれか
+// Area は地上のチャンクの場所。区域・集落・目印・荒れ地のいずれか
 type Area struct {
 	Key      AreaKey    // スプラッシュを出す大きなエリアの同一性。区域だけが持ち、それ以外はゼロ値
 	Name     i18n.Msgid // エリアの表示名
@@ -23,7 +23,7 @@ type Area struct {
 }
 
 // AreaAt はチャンク c のエリアを返す。区域の Key は種類と原点から作り、同じ種類の別の区域と区別する。
-// 集落・目印・遺跡の入口は1チャンクの小さな場所なので、荒れ地と同じく Key を持たない
+// 集落と目印は1チャンクの小さな場所なので、荒れ地と同じく Key を持たない
 func AreaAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) Area {
 	kind, r := classifyChunk(raws, runSeed, c, cols)
 	switch kind {
@@ -37,8 +37,6 @@ func AreaAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], c
 		return Area{Name: glyphName(raws, settlementAt(raws, runSeed, c).Id)}
 	case chunkLandmark:
 		return Area{Name: glyphName(raws, landmarkKindAt(raws, runSeed, c))}
-	case chunkDungeonEntrance:
-		return Area{Name: chunkGlyphName(raws, rawschema.DungeonEntrance)}
 	case chunkWasteland:
 		return Area{Name: chunkGlyphName(raws, rawschema.Wasteland)}
 	}

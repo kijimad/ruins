@@ -71,21 +71,20 @@ func TestChunkPlace_純関数で決定的(t *testing.T) {
 	}
 }
 
-func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.T) {
+func TestChunkPlace_集落が地物の文字で出る(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	cat := zoneCatalogFrom(raws)
 	const rows consts.Chunk = 9
 
-	dungeonGlyph := chunkGlyph(raws, rawschema.DungeonEntrance)
 	village, ok := glyphByID(raws, "village")
 	require.True(t, ok)
 	hamlet, ok := glyphByID(raws, "hamlet")
 	require.True(t, ok)
 	villageGlyph, hamletGlyph := village.Label, hamlet.Label
-	foundDungeonEntrance, foundVillage, foundHamlet := false, false, false
-	for s := uint64(1); s < 400 && (!foundDungeonEntrance || !foundVillage || !foundHamlet); s++ {
+	foundVillage, foundHamlet := false, false
+	for s := uint64(1); s < 400 && (!foundVillage || !foundHamlet); s++ {
 		for y := range rows {
 			for x := range consts.Chunk(8) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
@@ -94,8 +93,6 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 					continue
 				}
 				switch chunkPlace(raws, cat, s, c, rows, 0) {
-				case dungeonGlyph:
-					foundDungeonEntrance = true
 				case villageGlyph:
 					foundVillage = true
 				case hamletGlyph:
@@ -104,7 +101,6 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 			}
 		}
 	}
-	assert.True(t, foundDungeonEntrance, "遺跡入口チャンクが > で出る")
 	assert.True(t, foundVillage, "村の集落が村の文字で出る")
 	assert.True(t, foundHamlet, "一軒家の集落が一軒家の文字で出る。開始特例で常に村になる退行の検知")
 }

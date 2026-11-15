@@ -60,7 +60,6 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	world := testutil.InitTestWorld(t)
 	const chunkW, chunkH consts.Tile = 24, 24
 	const cols = 3
-	// 遺跡入口は Y 方向のリージョンに並ぶので、リージョンを含む高さの帯にする
 	const rows = 9
 
 	factory := NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, cols, rows), &overworld.NewGameParams{RunSeed: 777})
@@ -91,17 +90,6 @@ func TestOverworldState_OnStart_初期帯とプレイヤー中央(t *testing.T) 
 	require.NoError(t, err)
 	pg := world.Components.GridElement.Get(player)
 	assert.Equal(t, consts.Tile(cols/2)*chunkW+chunkW/2, pg.X, "プレイヤーX は中央チャンク中央")
-
-	// 開始チャンク近傍の入口に加え、帯全域の feature 配置でも入口が置かれうる。
-	// 少なくとも1つ存在し、いずれも進入先の遺跡名と相互作用を持つ
-	entranceCount := 0
-	eq := ecs.NewFilter1[gc.DungeonEntrance](world.ECS).Query()
-	for eq.Next() {
-		entranceCount++
-		assert.NotEmpty(t, world.Components.DungeonEntrance.Get(eq.Entity()).DefinitionName, "遺跡入口は進入先を持つ")
-		assert.True(t, world.Components.Interactable.Has(eq.Entity()), "遺跡入口は相互作用を持つ")
-	}
-	assert.GreaterOrEqual(t, entranceCount, 1, "遺跡入口が少なくとも1つ置かれる")
 }
 
 // TestOverworldState_オーバーレイ進入で帯タイルを消さない は、射撃/観察等のオーバーレイ

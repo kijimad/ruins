@@ -586,7 +586,7 @@ import (
 #FuelCapacityBonus: int & >=0
 
 // 持ち主の行を持たないチャンクの種類。地図記号の行がどの種類を表すかを指す
-#GlyphChunk: "wasteland" | "dungeon_entrance"
+#GlyphChunk: "wasteland"
 
 // 地面を覆う草や土の飾りの prop 1種と、選ばれる重み
 #GroundCoverEntry: {
