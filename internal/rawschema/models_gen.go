@@ -605,6 +605,9 @@ type District struct {
 	// Layers 地区の層。プレイヤーが入ってくる側から順に並べる。rings は外から内へ、rows は南から北へ
 	Layers []DistrictLayer `json:"layers"`
 
+	// Name 区域に入ったときと現在地に出す名前
+	Name EntityName `json:"name"`
+
 	// Pattern 地区の並べ方
 	Pattern DistrictPattern `json:"pattern"`
 

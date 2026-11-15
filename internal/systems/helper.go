@@ -37,6 +37,9 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	weatherSystem := &WeatherSystem{}
 	updaters[weatherSystem.String()] = weatherSystem
 
+	areaEntrySystem := &AreaEntrySystem{}
+	updaters[areaEntrySystem.String()] = areaEntrySystem
+
 	temperatureSystem := &TemperatureSystem{}
 	updaters[temperatureSystem.String()] = temperatureSystem
 

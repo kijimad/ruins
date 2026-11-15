@@ -92,9 +92,20 @@ const (
 // 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在ランドマーク > 荒れ地。地図も生成もこの
 // 分類を唯一の源にするので、地図の記号と実体が食い違わない。
 func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
-	if _, ok := districtAt(raws, runSeed, c, cols); ok {
-		return chunkUrban
+	kind, _ := classifyChunk(raws, runSeed, c, cols)
+	return kind
+}
+
+// classifyChunk は c の種別と、市街地ならその区域を返す。区域を引き直さずに使いたい呼び出し側が使う
+func classifyChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (chunkType, districtRegion) {
+	if r, ok := districtAt(raws, runSeed, c, cols); ok {
+		return chunkUrban, r
 	}
+	return openChunkTypeAt(raws, runSeed, c, cols), districtRegion{}
+}
+
+// openChunkTypeAt は市街地でない c の種別を返す
+func openChunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
 	if placementOf(raws, rawschema.PointFeatureKindDungeonEntrance).At(runSeed, c, cols) {
 		return chunkDungeonEntrance
 	}

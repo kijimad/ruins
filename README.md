@@ -107,7 +107,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [ダンジョンの間取りの段の並びを raw で組む](docs/design/261115160753.md) | 0/4 | worldgen, refactor |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference

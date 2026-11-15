@@ -311,6 +311,8 @@ import "strings"
 #District: {
 	// 区域の種類の id。行の順が優先で、重なった後の種類の区域は出さない
 	id!: #EntityID
+	// 区域に入ったときと現在地に出す名前
+	name!: #EntityName
 	// 当選の間隔。チャンク数
 	spacing!: int & >=1
 	// 隣のリージョンの区域との最小の空き。チャンク数

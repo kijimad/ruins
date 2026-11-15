@@ -5882,9 +5882,6 @@ msgstr "熱量"
 msgid "Turns left"
 msgstr "残りターン"
 
-msgid "Day %d"
-msgstr "%d日目"
-
 msgid "The season changed to %s."
 msgstr "季節が%sになった。"
 
@@ -6577,3 +6574,18 @@ msgstr "家畜の囲い"
 
 msgid "Crops"
 msgstr "作物"
+
+msgid "Research Campus"
+msgstr "研究所"
+
+msgid "Town"
+msgstr "町"
+
+msgid "Farm"
+msgstr "農場"
+
+msgid "Military Base"
+msgstr "軍基地"
+
+msgid "Power Plant"
+msgstr "発電所"

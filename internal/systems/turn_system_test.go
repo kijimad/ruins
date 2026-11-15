@@ -1011,7 +1011,7 @@ func TestNotifyEnvironmentChange(t *testing.T) {
 		assert.Contains(t, hist[0], "The sun rises.")
 	})
 
-	t.Run("季節の変わるターンは季節と日の出のログと日数スプラッシュを出す", func(t *testing.T) {
+	t.Run("季節の変わるターンは季節と日の出のログを出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// 春から夏へ切り替わる経過ターン。日の始まりは夜明けなので日の出とも重なる
@@ -1024,8 +1024,6 @@ func TestNotifyEnvironmentChange(t *testing.T) {
 		assert.Contains(t, hist[0], "The season changed to")
 		assert.Contains(t, hist[0], "Summer")
 		assert.Contains(t, hist[1], "The sun rises.")
-		// 季節の切り替わりは日付の繰り上がりと同時に起きるので、日数スプラッシュも同じターンに湧く
-		assert.Equal(t, []string{"Day 9"}, splashTexts(world))
 	})
 
 	t.Run("時間帯も季節も変わらないターンはログを出さない", func(t *testing.T) {
@@ -1037,39 +1035,4 @@ func TestNotifyEnvironmentChange(t *testing.T) {
 
 		assert.Equal(t, 0, query.GetGameLog(world).Count())
 	})
-
-	t.Run("日付の変わるターンはN日目のスプラッシュを出す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		// 2日目の開始ターン。日付の繰り上がりは夜明け入りと同時に起きる
-		query.GetGameTime(world).TotalTurns = 1500
-
-		notifyEnvironmentChange(world)
-
-		assert.Equal(t, []string{"Day 2"}, splashTexts(world))
-	})
-
-	t.Run("日付の変わらないターンはスプラッシュを出さない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		query.GetGameTime(world).TotalTurns = 1501
-
-		notifyEnvironmentChange(world)
-
-		assert.Empty(t, splashTexts(world))
-	})
-}
-
-// splashTexts はワールドに湧いているスプラッシュ表示エフェクトのテキストを列挙する。
-func splashTexts(world w.World) []string {
-	var texts []string
-	q := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
-	for q.Next() {
-		for _, effect := range world.Components.VisualEffects.Get(q.Entity()).Effects {
-			if splash, ok := effect.(*gc.SplashTextEffect); ok {
-				texts = append(texts, splash.Text)
-			}
-		}
-	}
-	return texts
 }
