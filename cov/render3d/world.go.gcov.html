@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.7&nbsp;%</td>
-            <td class="headerCovTableEntry">38</td>
-            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntryHi">94.9&nbsp;%</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntry">37</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 14:34:10</td>
+            <td class="headerValue">2026-11-15 15:58:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -106,52 +106,54 @@
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         return world.Components.GridElement.Get(pe).Coord, nil</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : }</span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
-<span id="L47"><span class="lineNum">      47</span>              : // IsWallTile はそのタイルが高さのある箱として描かれるかを返す。</span>
+<span id="L47"><span class="lineNum">      47</span>              : // IsBoxTile はそのタイルが高さのある箱として描かれるかを返す。</span>
 <span id="L48"><span class="lineNum">      48</span>              : //</span>
-<span id="L49"><span class="lineNum">      49</span>              : // 箱になるのは Tile と BlockPass を併せ持つエンティティだけである。扉やキューブは通行を</span>
-<span id="L50"><span class="lineNum">      50</span>              : // 塞ぐが箱にはならないので、SpatialIndex の通行不能判定をそのまま流用してはいけない。</span>
-<span id="L51"><span class="lineNum">      51</span>              : // ただし通行できるタイルは箱にもならないので、索引で先に落として全走査を避ける。</span>
+<span id="L49"><span class="lineNum">      49</span>              : // 箱になるのは、描画順が高さのあるもの DepthNumTaller のタイルだけである。扉やキューブは通行を</span>
+<span id="L50"><span class="lineNum">      50</span>              : // 塞ぐが箱にはならないので、通れるかで代わりに判定してはいけない。全てのエンティティでなく</span>
+<span id="L51"><span class="lineNum">      51</span>              : // 箱のタイルだけを走査する。</span>
 <span id="L52"><span class="lineNum">      52</span>              : //</span>
 <span id="L53"><span class="lineNum">      53</span>              : // 内部でエンティティ検索のクエリを開くので、クエリ反復中には呼ばない。呼び出し元は Draw の</span>
 <span id="L54"><span class="lineNum">      54</span>              : // カーソル描画で、その時点でアクティブなクエリは無い。</span>
-<span id="L55"><span class="lineNum">      55</span>              : func IsWallTile(world w.World, c consts.Coord[consts.Tile]) bool {</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         if si := query.GetSpatialIndex(world); si != nil &amp;&amp; !si.IsBlockPass(c) {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         for _, e := range query.GetEntitiesAt(world, c.X, c.Y) {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 if IsWallTileEntity(world, e) {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                         return true</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L63"><span class="lineNum">      63</span>              :         }</span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         return false</span></span>
-<span id="L65"><span class="lineNum">      65</span>              : }</span>
-<span id="L66"><span class="lineNum">      66</span>              : </span>
-<span id="L67"><span class="lineNum">      67</span>              : // IsWallTileEntity は箱として描かれるタイルの述語。壁の集合を組む側と、タイルを指す側が</span>
-<span id="L68"><span class="lineNum">      68</span>              : // 同じ判定を通ることで、どのタイルが箱かの認識が2箇所に分かれない。</span>
-<span id="L69"><span class="lineNum">      69</span>              : // Has を見るだけでクエリを開かないので、WallTileSet のクエリ反復中から呼んでも安全。</span>
-<span id="L70"><span class="lineNum">      70</span>              : // 座標からエンティティを引く IsWallTile とはこの点が異なる。</span>
-<span id="L71"><span class="lineNum">      71</span>              : func IsWallTileEntity(world w.World, e ecs.Entity) bool {</span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         return world.Components.Tile.Has(e) &amp;&amp; world.Components.BlockPass.Has(e)</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : func IsBoxTile(world w.World, c consts.Coord[consts.Tile]) bool {</span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).With(ecs.C[gc.Tile]()).Query()</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 if IsBoxTileEntity(world, q.Entity()) &amp;&amp; world.Components.GridElement.Get(q.Entity()).Coord == c {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         q.Close()</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                         return true</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :         }</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return false</span></span>
+<span id="L64"><span class="lineNum">      64</span>              : }</span>
+<span id="L65"><span class="lineNum">      65</span>              : </span>
+<span id="L66"><span class="lineNum">      66</span>              : // IsBoxTileEntity は箱として描かれるタイルの述語。壁の集合を組む側と、タイルを指す側が</span>
+<span id="L67"><span class="lineNum">      67</span>              : // 同じ判定を通ることで、どのタイルが箱かの認識が2箇所に分かれない。</span>
+<span id="L68"><span class="lineNum">      68</span>              : // Has を見るだけでクエリを開かないので、BoxTileSet のクエリ反復中から呼んでも安全。</span>
+<span id="L69"><span class="lineNum">      69</span>              : // 座標からエンティティを引く IsBoxTile とはこの点が異なる。</span>
+<span id="L70"><span class="lineNum">      70</span>              : func IsBoxTileEntity(world w.World, e ecs.Entity) bool {</span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return world.Components.Tile.Has(e) &amp;&amp; world.Components.SpriteRender.Has(e) &amp;&amp;</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 world.Components.SpriteRender.Get(e).Depth == gc.DepthNumTaller</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L74"><span class="lineNum">      74</span>              : </span>
-<span id="L75"><span class="lineNum">      75</span>              : // WallTileSet は箱として描かれるタイルの集合を組む。壁の側面を隣と突き合わせて省くのに使う</span>
-<span id="L76"><span class="lineNum">      76</span>              : func WallTileSet(world w.World) map[consts.Coord[consts.Tile]]bool {</span>
+<span id="L75"><span class="lineNum">      75</span>              : // BoxTileSet は箱として描かれるタイルの集合を組む。壁の側面を隣と突き合わせて省くのに使う</span>
+<span id="L76"><span class="lineNum">      76</span>              : func BoxTileSet(world w.World) map[consts.Coord[consts.Tile]]bool {</span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         walls := map[consts.Coord[consts.Tile]]bool{}</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         wallQ := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).With(ecs.C[gc.Tile]()).Query()</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         wallQ := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).With(ecs.C[gc.Tile]()).Query()</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         for wallQ.Next() {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 walls[world.Components.GridElement.Get(wallQ.Entity()).Coord] = true</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         return walls</span></span>
-<span id="L83"><span class="lineNum">      83</span>              : }</span>
-<span id="L84"><span class="lineNum">      84</span>              : </span>
-<span id="L85"><span class="lineNum">      85</span>              : // TileTopHeight はタイル上面の高さを返す。壁は箱として描かれるので天面、床は地面になる。</span>
-<span id="L86"><span class="lineNum">      86</span>              : // タイルを指すカーソルはこの高さへ描く。壁タイルを地面の高さで描くと箱に埋もれて見えなくなる。</span>
-<span id="L87"><span class="lineNum">      87</span>              : func TileTopHeight(world w.World, c consts.Coord[consts.Tile]) float64 {</span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         if IsWallTile(world, c) {</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 return WallHeight</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         return 0</span></span>
-<span id="L92"><span class="lineNum">      92</span>              : }</span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 if IsBoxTileEntity(world, wallQ.Entity()) {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                         walls[world.Components.GridElement.Get(wallQ.Entity()).Coord] = true</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L83"><span class="lineNum">      83</span>              :         }</span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         return walls</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : }</span>
+<span id="L86"><span class="lineNum">      86</span>              : </span>
+<span id="L87"><span class="lineNum">      87</span>              : // TileTopHeight はタイル上面の高さを返す。壁は箱として描かれるので天面、床は地面になる。</span>
+<span id="L88"><span class="lineNum">      88</span>              : // タイルを指すカーソルはこの高さへ描く。壁タイルを地面の高さで描くと箱に埋もれて見えなくなる。</span>
+<span id="L89"><span class="lineNum">      89</span>              : func TileTopHeight(world w.World, c consts.Coord[consts.Tile]) float64 {</span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         if IsBoxTile(world, c) {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 return WallHeight</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         return 0</span></span>
+<span id="L94"><span class="lineNum">      94</span>              : }</span>
         </pre>
               </td>
             </tr>

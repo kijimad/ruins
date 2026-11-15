@@ -371,7 +371,7 @@
 				
 				<option value="file157">github.com/kijimaD/ruins/internal/mapplanner/autotile.go (97.1%)</option>
 				
-				<option value="file158">github.com/kijimaD/ruins/internal/mapplanner/big_room.go (85.0%)</option>
+				<option value="file158">github.com/kijimaD/ruins/internal/mapplanner/big_room.go (98.8%)</option>
 				
 				<option value="file159">github.com/kijimaD/ruins/internal/mapplanner/cave_planner.go (78.5%)</option>
 				
@@ -451,7 +451,7 @@
 				
 				<option value="file197">github.com/kijimaD/ruins/internal/overworld/facility_loot.go (83.3%)</option>
 				
-				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_template.go (88.9%)</option>
+				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_template.go (89.5%)</option>
 				
 				<option value="file199">github.com/kijimaD/ruins/internal/overworld/feature.go (88.9%)</option>
 				
@@ -499,7 +499,7 @@
 				
 				<option value="file221">github.com/kijimaD/ruins/internal/render3d/projector.go (100.0%)</option>
 				
-				<option value="file222">github.com/kijimaD/ruins/internal/render3d/world.go (96.6%)</option>
+				<option value="file222">github.com/kijimaD/ruins/internal/render3d/world.go (96.7%)</option>
 				
 				<option value="file223">github.com/kijimaD/ruins/internal/resources/font.go (100.0%)</option>
 				
@@ -637,7 +637,7 @@
 				
 				<option value="file290">github.com/kijimaD/ruins/internal/systems/render3d.go (52.7%)</option>
 				
-				<option value="file291">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.3%)</option>
+				<option value="file291">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.4%)</option>
 				
 				<option value="file292">github.com/kijimaD/ruins/internal/systems/stats_changed.go (97.4%)</option>
 				
@@ -14455,7 +14455,7 @@ const (
         DepthNumDecal
         // DepthNumRug は床に置くもの。例: アイテム、焚き火
         DepthNumRug
-        // DepthNumTaller は高さのあるもの。例: 操作対象エンティティ、敵シンボル、壁
+        // DepthNumTaller は高さのあるもの。例: 操作対象エンティティ、敵シンボル、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く
         DepthNumTaller
         // DepthNumPlayer は操作キャラを最も手前に表示する
         DepthNumPlayer
@@ -20029,7 +20029,7 @@ func (b BigRoomDraw) PlanMeta(planData *MetaPlan) error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// drawBasicBigRoom は基本の大部屋を描画する
+// drawBasicBigRoom は基本の大部屋を描画する。部屋の周りの通れないマスを壁にする
 func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
         <span class="cov8" title="1">for _, room := range planData.Rooms </span>{
                 // 部屋の内部を床タイルで埋める
@@ -20044,16 +20044,16 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
                 <span class="cov8" title="1">for y := room.Min.Y; y &lt;= room.Max.Y; y++ </span>{
                         // 左辺
                         <span class="cov8" title="1">if x := room.Min.X - 1; x &gt;= 0 </span>{
-                                <span class="cov0" title="0">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].Id != b.Tiles.Floor </span>{
+                                <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
+                                if planData.Tiles[idx].BlockPass </span>{
                                         <span class="cov0" title="0">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 </span>                                }
                         }
                         // 右辺
                         <span class="cov8" title="1">if x := room.Max.X + 1; int(x) &lt; int(planData.Level.TileWidth) </span>{
-                                <span class="cov0" title="0">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].Id != b.Tiles.Floor </span>{
-                                        <span class="cov0" title="0">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
+                                <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
+                                if planData.Tiles[idx].BlockPass </span>{
+                                        <span class="cov8" title="1">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 </span>                                }
                         }
                 }
@@ -20061,16 +20061,16 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
                 <span class="cov8" title="1">for x := room.Min.X; x &lt;= room.Max.X; x++ </span>{
                         // 上辺
                         <span class="cov8" title="1">if y := room.Min.Y - 1; y &gt;= 0 </span>{
-                                <span class="cov0" title="0">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].Id != b.Tiles.Floor </span>{
-                                        <span class="cov0" title="0">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
+                                <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
+                                if planData.Tiles[idx].BlockPass </span>{
+                                        <span class="cov8" title="1">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 </span>                                }
                         }
                         // 下辺
                         <span class="cov8" title="1">if y := room.Max.Y + 1; int(y) &lt; int(planData.Level.TileHeight) </span>{
-                                <span class="cov0" title="0">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].Id != b.Tiles.Floor </span>{
-                                        <span class="cov0" title="0">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
+                                <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
+                                if planData.Tiles[idx].BlockPass </span>{
+                                        <span class="cov8" title="1">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 </span>                                }
                         }
                 }
@@ -20523,18 +20523,17 @@ func (c ConnectRooms) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect)
 
 import (
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/raw"
 )
 
-// ConvertIsolatedWalls は床に隣接しない壁を指定したタイルに変換するプランナー
+// ConvertIsolatedWalls は通れるマスに隣接しない高さのあるタイルを指定したタイルに変換するプランナー
 // オートタイル計算前に実行することで、正しい接続パターンで壁タイルを生成する
 type ConvertIsolatedWalls struct {
-        // WallTile は置き換える壁のタイル名
-        WallTile string
-        // ReplacementTile は孤立した壁を置き換えるタイル名
+        // ReplacementTile は孤立した高さのあるタイルを置き換えるタイル名
         ReplacementTile string
 }
 
-// PlanMeta は床に隣接しない壁タイルを指定したタイルに変換する
+// PlanMeta は通れるマスに隣接しない高さのあるタイルを指定したタイルに変換する
 func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
         <span class="cov8" title="1">width := int(planData.Level.TileWidth)
         height := int(planData.Level.TileHeight)
@@ -20550,8 +20549,7 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
                         <span class="cov8" title="1">continue</span>
                 }
 
-                // wallタイルで床に隣接していない場合、変換対象とする
-                <span class="cov8" title="1">if tile.Id == c.WallTile &amp;&amp; !planData.AdjacentAnyFloor(gc.TileIdx(i)) </span>{
+                <span class="cov8" title="1">if raw.TileIsTall(tile) &amp;&amp; !planData.AdjacentAnyFloor(gc.TileIdx(i)) </span>{
                         <span class="cov8" title="1">tilesToConvert = append(tilesToConvert, i)
 </span>                }
         }
@@ -21558,7 +21556,7 @@ func newSimpleStep(r rawschema.SimpleStep, tiles rawschema.LayoutTiles) (MetaMap
         case rawschema.SimpleStepKindForestFloor:
                 <span class="cov8" title="1">return ForestTerrain{Tiles: tiles}, nil</span>
         case rawschema.SimpleStepKindIsolatedWalls:
-                <span class="cov8" title="1">return ConvertIsolatedWalls{WallTile: tiles.Wall, ReplacementTile: tiles.Void}, nil</span>
+                <span class="cov8" title="1">return ConvertIsolatedWalls{ReplacementTile: tiles.Void}, nil</span>
         }
         <span class="cov0" title="0">return nil, fmt.Errorf("%w: %s kind %s", ErrUnknownStep, r.Id, r.Kind)</span>
 }
@@ -21669,59 +21667,56 @@ func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool 
                 slices.ContainsFunc(bm.Doors, func(door DoorSpec) bool { <span class="cov8" title="1">return door.Coord == pos }</span>)
 }
 
-// UpTile は上にあるタイルを調べる
+// outsideTile は地図の外を表すタイル。id を持たず、通れない
+var outsideTile = rawschema.Tile{BlockPass: true}
+
+// UpTile は上にあるタイルを調べる。地図の外は outsideTile を返す
 func (bm MetaPlan) UpTile(idx gc.TileIdx) rawschema.Tile {
         <span class="cov8" title="1">targetIdx := gc.TileIdx(int(idx) - int(bm.Level.TileWidth))
         if targetIdx &lt; 0 </span>{
-                // 境界外（マップ外＝暗闇）として扱う
-                <span class="cov8" title="1">return bm.GetTile(consts.TileNameVoid)
+                <span class="cov8" title="1">return outsideTile
 </span>        }
 
         <span class="cov8" title="1">return bm.Tiles[targetIdx]</span>
 }
 
-// DownTile は下にあるタイルを調べる
+// DownTile は下にあるタイルを調べる。地図の外は outsideTile を返す
 func (bm MetaPlan) DownTile(idx gc.TileIdx) rawschema.Tile {
         <span class="cov8" title="1">targetIdx := int(idx) + int(bm.Level.TileWidth)
         if targetIdx &gt; len(bm.Tiles)-1 </span>{
-                // 境界外（マップ外＝暗闇）として扱う
-                <span class="cov8" title="1">return bm.GetTile(consts.TileNameVoid)
+                <span class="cov8" title="1">return outsideTile
 </span>        }
 
         <span class="cov8" title="1">return bm.Tiles[targetIdx]</span>
 }
 
-// LeftTile は左にあるタイルを調べる
+// LeftTile は左にあるタイルを調べる。地図の外は outsideTile を返す
 func (bm MetaPlan) LeftTile(idx gc.TileIdx) rawschema.Tile {
         <span class="cov8" title="1">pos := bm.Level.IndexToCoord(idx)
-</span>        // 左端の場合は境界外（マップ外＝暗闇）
-        <span class="cov8" title="1">if pos.X == 0 </span>{
-                <span class="cov8" title="1">return bm.GetTile(consts.TileNameVoid)
+        if pos.X == 0 </span>{
+                <span class="cov8" title="1">return outsideTile
 </span>        }
 
         // 左のタイルが同じ行であることを確認
         <span class="cov8" title="1">targetIdx := idx - 1
         if bm.Level.IndexToCoord(targetIdx).Y != pos.Y </span>{
-                // 前の行にラップアラウンドしている（境界外）
-                <span class="cov0" title="0">return bm.GetTile(consts.TileNameVoid)
+                <span class="cov0" title="0">return outsideTile
 </span>        }
 
         <span class="cov8" title="1">return bm.Tiles[targetIdx]</span>
 }
 
-// RightTile は右にあるタイルを調べる
+// RightTile は右にあるタイルを調べる。地図の外は outsideTile を返す
 func (bm MetaPlan) RightTile(idx gc.TileIdx) rawschema.Tile {
         <span class="cov8" title="1">pos := bm.Level.IndexToCoord(idx)
-</span>        // 右端の場合は境界外（マップ外＝暗闇）
-        <span class="cov8" title="1">if pos.X == bm.Level.TileWidth-1 </span>{
-                <span class="cov8" title="1">return bm.GetTile(consts.TileNameVoid)
+        if pos.X == bm.Level.TileWidth-1 </span>{
+                <span class="cov8" title="1">return outsideTile
 </span>        }
 
         // 右のタイルが同じ行であることを確認
         <span class="cov8" title="1">targetIdx := idx + 1
         if bm.Level.IndexToCoord(targetIdx).Y != pos.Y </span>{
-                // 次の行にラップアラウンドしている（境界外）
-                <span class="cov0" title="0">return bm.GetTile(consts.TileNameVoid)
+                <span class="cov0" title="0">return outsideTile
 </span>        }
 
         <span class="cov8" title="1">return bm.Tiles[targetIdx]</span>
@@ -22038,7 +22033,7 @@ func (b LineCorridorPlanner) PlanMeta(planData *MetaPlan) error {
         return nil
 </span>}
 
-// BuildCorridors は廊下をビルドする
+// BuildCorridors は廊下をビルドする。廊下は間取りの壁だけを床にする
 func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
         // 接続済みの部屋。通路を2重に計算しないようにする
         <span class="cov8" title="1">connected := map[int]bool{}
@@ -22918,7 +22913,7 @@ type RuinsDebris struct {
         Tiles rawschema.LayoutTiles
 }
 
-// PlanMeta は廃墟に瓦礫を配置する
+// PlanMeta は廃墟の通れるマスに瓦礫を配置する
 func (r RuinsDebris) PlanMeta(planData *MetaPlan) error {
         <span class="cov8" title="1">width := int(planData.Level.TileWidth)
         height := int(planData.Level.TileHeight)
@@ -22928,7 +22923,7 @@ func (r RuinsDebris) PlanMeta(planData *MetaPlan) error {
                 <span class="cov8" title="1">for y := 1; y &lt; height-1; y++ </span>{
                         <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 </span>
-                        <span class="cov8" title="1">if planData.Tiles[idx].Id == r.Tiles.Floor </span>{
+                        <span class="cov8" title="1">if !planData.Tiles[idx].BlockPass </span>{
                                 // 建物から離れた場所ほど瓦礫が少ない
                                 <span class="cov8" title="1">debrisChance := r.calculateDebrisChance(planData, x, y)
 </span>
@@ -22996,7 +22991,7 @@ func (r RuinsCorridors) PlanMeta(planData *MetaPlan) error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// createRuinedPath は破損した通路を作成する
+// createRuinedPath は破損した通路を作成する。通路は間取りの壁だけを床にする
 func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rect) {
         // 各建物の中心を計算
         <span class="cov8" title="1">center1X := (room1.Min.X + room1.Max.X) / 2
@@ -23269,11 +23264,12 @@ func CreateTestRawMaster() *rawschema.Raws {
         // テスト用の基本的なタイルデータを定義
         <span class="cov8" title="1">autotile := &amp;rawschema.TileSpawn{Autotile: true}
         testTiles := []rawschema.Tile{
-                {Id: "wall", Name: "wall", BlockPass: true, Spawn: &amp;rawschema.TileSpawn{Tile: new("dwall"), Autotile: true}},
+                {Id: "wall", Name: "wall", BlockPass: true, SpriteRender: rawschema.SpriteRender{Depth: rawschema.N3}, Spawn: &amp;rawschema.TileSpawn{Tile: new("dwall"), Autotile: true}},
                 {Id: "floor", Name: "floor", BlockPass: false, Spawn: autotile},
                 {Id: "road", Name: "road", BlockPass: false, Spawn: autotile},
                 {Id: "dirt", Name: "dirt", BlockPass: false, Spawn: autotile},
-                {Id: "void", Name: "void", BlockPass: true, Spawn: &amp;rawschema.TileSpawn{}},
+                {Id: "void", Name: "void", BlockPass: true, SpriteRender: rawschema.SpriteRender{Depth: rawschema.N3}, Spawn: &amp;rawschema.TileSpawn{}},
+                {Id: "deep_water", Name: "deep_water", BlockPass: true, Spawn: &amp;rawschema.TileSpawn{}},
                 {Id: "bridge_a", Name: "bridge_a", BlockPass: false, Spawn: autotile},
                 {Id: "bridge_b", Name: "bridge_b", BlockPass: false, Spawn: autotile},
                 {Id: "bridge_c", Name: "bridge_c", BlockPass: false, Spawn: autotile},
@@ -27126,10 +27122,10 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
         <span class="cov8" title="1">return nil</span>
 }
 
-// voidEnclosedWalls は、直交と斜めの近傍8マスに通れる地形が無い壁を虚空にする。壁のオートタイルは部屋を囲む細い輪郭を
+// voidEnclosedTall は、直交と斜めの近傍8マスに通れる地形が無い高さのある地形を虚空にする。壁のオートタイルは部屋を囲む細い輪郭を
 // 前提にするので、厚い壁の塊の内側を虚空にして描き崩れを防ぐ。マスの外は outsidePassable が通れると返す座標だけを通れるものとして
 // 数える。家具の乗った壁は残す
-func voidEnclosedWalls(cells [][]maptemplate.MapCell, blocks func(terrain string) bool, outsidePassable func(x, y int) bool) {
+func voidEnclosedTall(cells [][]maptemplate.MapCell, blocks, isTall func(terrain string) bool, outsidePassable func(x, y int) bool) {
         <span class="cov8" title="1">passable := func(x, y int) bool </span>{
                 <span class="cov8" title="1">if y &lt; 0 || y &gt;= len(cells) || x &lt; 0 || x &gt;= len(cells[y]) </span>{
                         <span class="cov8" title="1">return outsidePassable(x, y)
@@ -27139,7 +27135,7 @@ func voidEnclosedWalls(cells [][]maptemplate.MapCell, blocks func(terrain string
         <span class="cov8" title="1">var enclosed [][2]int
         for y, row := range cells </span>{
                 <span class="cov8" title="1">for x, c := range row </span>{
-                        <span class="cov8" title="1">if c.Terrain != consts.TileNameWall || c.Prop != "" </span>{
+                        <span class="cov8" title="1">if !isTall(c.Terrain) || c.Prop != "" </span>{
                                 <span class="cov8" title="1">continue</span>
                         }
                         <span class="cov8" title="1">open := false
@@ -27156,6 +27152,16 @@ func voidEnclosedWalls(cells [][]maptemplate.MapCell, blocks func(terrain string
         <span class="cov8" title="1">for _, p := range enclosed </span>{
                 <span class="cov8" title="1">cells[p[1]][p[0]] = maptemplate.MapCell{Terrain: consts.TileNameVoid}
 </span>        }
+}
+
+// tileIsTall は地形 terrain が高さのあるタイルかを raw のタイルの行から返す
+func tileIsTall(raws rawschema.Raws) func(terrain string) bool {
+        <span class="cov8" title="1">tall := map[string]bool{}
+        tiles := raw.PtrSlice(raws.Tiles)
+        for i := range tiles </span>{
+                <span class="cov8" title="1">tall[tiles[i].Id] = raw.TileIsTall(tiles[i])
+</span>        }
+        <span class="cov8" title="1">return func(terrain string) bool </span>{ <span class="cov8" title="1">return tall[terrain] }</span>
 }
 
 // tileBlocksPass は地形 terrain が通れないかを raw のタイルの行から返す。行の無い地形は通れないとする
@@ -29039,7 +29045,7 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
 </span>                }
                 // 区画の東と南の外だけが隣の区画の街路で、ほかの外は隣の部屋の壁か帯
                 <span class="cov8" title="1">w, h := int(chunkW), int(chunkH)
-                voidEnclosedWalls(cells, tileBlocksPass(raws), func(x, y int) bool </span>{
+                voidEnclosedTall(cells, tileBlocksPass(raws), tileIsTall(raws), func(x, y int) bool </span>{
                         <span class="cov8" title="1">return x &gt;= w &amp;&amp; l.X == lot.w-1 || y &gt;= h &amp;&amp; l.Y == lot.h-1
 </span>                })
                 <span class="cov8" title="1">return cells, 0, nil</span>
@@ -29049,7 +29055,7 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
                 <span class="cov0" title="0">return nil, 0, fmt.Errorf("failed to plan facility %q: %w", lot.facility, err)
 </span>        }
         // 1棟の絵は街路の帯に囲まれるので、絵の外は通れるものとして数える
-        <span class="cov8" title="1">voidEnclosedWalls(cells, tileBlocksPass(raws), func(int, int) bool </span>{ <span class="cov0" title="0">return true }</span>)
+        <span class="cov8" title="1">voidEnclosedTall(cells, tileBlocksPass(raws), tileIsTall(raws), func(int, int) bool </span>{ <span class="cov0" title="0">return true }</span>)
         <span class="cov8" title="1">return cells, urbanStreetW, nil</span>
 }
 
@@ -30075,6 +30081,12 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 </span>
         <span class="cov8" title="1">return entitySpec, nil</span>
 }
+
+// TileIsTall はタイルの行が高さのあるタイルかを返す。描画順が高さのあるもの DepthNumTaller なら高い。
+// 高いタイルのオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い塊の内側は虚空にする
+func TileIsTall(t rawschema.Tile) bool {
+        <span class="cov8" title="1">return gc.DepthNum(int(t.SpriteRender.Depth)) == gc.DepthNumTaller
+</span>}
 
 // TileEnvironmentOf はタイルの行だけから決まる環境属性を返す。水の影響は周りのタイルで決まるので含まない
 func TileEnvironmentOf(t rawschema.Tile) gc.TileEnvironment {
@@ -34773,48 +34785,50 @@ func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {
         <span class="cov8" title="1">return world.Components.GridElement.Get(pe).Coord, nil</span>
 }
 
-// IsWallTile はそのタイルが高さのある箱として描かれるかを返す。
+// IsBoxTile はそのタイルが高さのある箱として描かれるかを返す。
 //
-// 箱になるのは Tile と BlockPass を併せ持つエンティティだけである。扉やキューブは通行を
-// 塞ぐが箱にはならないので、SpatialIndex の通行不能判定をそのまま流用してはいけない。
-// ただし通行できるタイルは箱にもならないので、索引で先に落として全走査を避ける。
+// 箱になるのは、描画順が高さのあるもの DepthNumTaller のタイルだけである。扉やキューブは通行を
+// 塞ぐが箱にはならないので、通れるかで代わりに判定してはいけない。全てのエンティティでなく
+// 箱のタイルだけを走査する。
 //
 // 内部でエンティティ検索のクエリを開くので、クエリ反復中には呼ばない。呼び出し元は Draw の
 // カーソル描画で、その時点でアクティブなクエリは無い。
-func IsWallTile(world w.World, c consts.Coord[consts.Tile]) bool {
-        <span class="cov8" title="1">if si := query.GetSpatialIndex(world); si != nil &amp;&amp; !si.IsBlockPass(c) </span>{
-                <span class="cov8" title="1">return false
-</span>        }
-        <span class="cov8" title="1">for _, e := range query.GetEntitiesAt(world, c.X, c.Y) </span>{
-                <span class="cov8" title="1">if IsWallTileEntity(world, e) </span>{
-                        <span class="cov8" title="1">return true
+func IsBoxTile(world w.World, c consts.Coord[consts.Tile]) bool {
+        <span class="cov8" title="1">q := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).With(ecs.C[gc.Tile]()).Query()
+        for q.Next() </span>{
+                <span class="cov8" title="1">if IsBoxTileEntity(world, q.Entity()) &amp;&amp; world.Components.GridElement.Get(q.Entity()).Coord == c </span>{
+                        <span class="cov8" title="1">q.Close()
+                        return true
 </span>                }
         }
         <span class="cov8" title="1">return false</span>
 }
 
-// IsWallTileEntity は箱として描かれるタイルの述語。壁の集合を組む側と、タイルを指す側が
+// IsBoxTileEntity は箱として描かれるタイルの述語。壁の集合を組む側と、タイルを指す側が
 // 同じ判定を通ることで、どのタイルが箱かの認識が2箇所に分かれない。
-// Has を見るだけでクエリを開かないので、WallTileSet のクエリ反復中から呼んでも安全。
-// 座標からエンティティを引く IsWallTile とはこの点が異なる。
-func IsWallTileEntity(world w.World, e ecs.Entity) bool {
-        <span class="cov8" title="1">return world.Components.Tile.Has(e) &amp;&amp; world.Components.BlockPass.Has(e)
+// Has を見るだけでクエリを開かないので、BoxTileSet のクエリ反復中から呼んでも安全。
+// 座標からエンティティを引く IsBoxTile とはこの点が異なる。
+func IsBoxTileEntity(world w.World, e ecs.Entity) bool {
+        <span class="cov8" title="1">return world.Components.Tile.Has(e) &amp;&amp; world.Components.SpriteRender.Has(e) &amp;&amp;
+                world.Components.SpriteRender.Get(e).Depth == gc.DepthNumTaller
 </span>}
 
-// WallTileSet は箱として描かれるタイルの集合を組む。壁の側面を隣と突き合わせて省くのに使う
-func WallTileSet(world w.World) map[consts.Coord[consts.Tile]]bool {
+// BoxTileSet は箱として描かれるタイルの集合を組む。壁の側面を隣と突き合わせて省くのに使う
+func BoxTileSet(world w.World) map[consts.Coord[consts.Tile]]bool {
         <span class="cov8" title="1">walls := map[consts.Coord[consts.Tile]]bool{}
-        wallQ := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).With(ecs.C[gc.Tile]()).Query()
+        wallQ := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).With(ecs.C[gc.Tile]()).Query()
         for wallQ.Next() </span>{
-                <span class="cov8" title="1">walls[world.Components.GridElement.Get(wallQ.Entity()).Coord] = true
-</span>        }
+                <span class="cov8" title="1">if IsBoxTileEntity(world, wallQ.Entity()) </span>{
+                        <span class="cov8" title="1">walls[world.Components.GridElement.Get(wallQ.Entity()).Coord] = true
+</span>                }
+        }
         <span class="cov8" title="1">return walls</span>
 }
 
 // TileTopHeight はタイル上面の高さを返す。壁は箱として描かれるので天面、床は地面になる。
 // タイルを指すカーソルはこの高さへ描く。壁タイルを地面の高さで描くと箱に埋もれて見えなくなる。
 func TileTopHeight(world w.World, c consts.Coord[consts.Tile]) float64 {
-        <span class="cov8" title="1">if IsWallTile(world, c) </span>{
+        <span class="cov8" title="1">if IsBoxTile(world, c) </span>{
                 <span class="cov8" title="1">return WallHeight
 </span>        }
         <span class="cov8" title="1">return 0</span>
@@ -46749,7 +46763,7 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 
 // collectTiles は床と壁のクアッドを quads へ追記して返す。
 func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
-        <span class="cov8" title="1">walls := render3d.WallTileSet(world)
+        <span class="cov8" title="1">walls := render3d.BoxTileSet(world)
         snow := sys.newSnowLayer(world)
         tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
         for tileQ.Next() </span>{
@@ -46769,7 +46783,7 @@ func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector
                 if !vok </span>{
                         <span class="cov0" title="0">continue</span>
                 }
-                <span class="cov0" title="0">if render3d.IsWallTileEntity(world, e) </span>{
+                <span class="cov0" title="0">if render3d.IsBoxTileEntity(world, e) </span>{
                         <span class="cov0" title="0">sys.addWall(&amp;quads, walls, g.Coord, fx, fz, atlas, ux, uy, uw, uh, tint)
 </span>                } else {
                         <span class="cov0" title="0">sys.addQuad(&amp;quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)
@@ -47355,19 +47369,13 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 </span>        }
 
         <span class="cov0" title="0">if world.Resources.Config.ShowMapDebug </span>{
-                // デバッグ用：土の色違いと壁のオートタイルの添字を表示する
+                // デバッグ用：オートタイルの添字を表示する。オートタイルの絵は名前の末尾に数の添字を持つ
                 <span class="cov0" title="0">if spriteRender.SpriteSheetName == "tile" </span>{
                         <span class="cov0" title="0">var number string
-                        var prefix string
-                        if base, n, ok := strings.CutLast(spriteRender.SpriteKey, "_"); ok </span>{
+                        if _, n, ok := strings.CutLast(spriteRender.SpriteKey, "_"); ok </span>{
                                 <span class="cov0" title="0">if _, err := strconv.Atoi(n); err == nil </span>{
-                                        <span class="cov0" title="0">switch </span>{
-                                        case strings.HasPrefix(base, "dirt_"):
-                                                <span class="cov0" title="0">number, prefix = n, "d"</span>
-                                        case base == "dwall":
-                                                <span class="cov0" title="0">number, prefix = n, "w"</span>
-                                        }
-                                }
+                                        <span class="cov0" title="0">number = n
+</span>                                }
                         }
 
                         <span class="cov0" title="0">if number != "" </span>{
@@ -47378,7 +47386,7 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 </span>
                                 // テキスト表示位置を逆変換で求める
                                 <span class="cov0" title="0">screenX, screenY := textOp.GeoM.Apply(0, 0)
-                                ebitenutil.DebugPrintAt(screen, prefix+number, int(screenX), int(screenY))
+                                ebitenutil.DebugPrintAt(screen, number, int(screenX), int(screenY))
 </span>                        }
                 }
         }

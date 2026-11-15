@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 14:34:10</td>
+            <td class="headerValue">2026-11-15 15:58:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -320,7 +320,7 @@
 <span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L259"><span class="lineNum">     259</span>              :                 // 区画の東と南の外だけが隣の区画の街路で、ほかの外は隣の部屋の壁か帯</span>
 <span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 w, h := int(chunkW), int(chunkH)</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 voidEnclosedWalls(cells, tileBlocksPass(raws), func(x, y int) bool {</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 voidEnclosedTall(cells, tileBlocksPass(raws), tileIsTall(raws), func(x, y int) bool {</span></span>
 <span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                         return x &gt;= w &amp;&amp; l.X == lot.w-1 || y &gt;= h &amp;&amp; l.Y == lot.h-1</span></span>
 <span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 })</span></span>
 <span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 return cells, 0, nil</span></span>
@@ -330,7 +330,7 @@
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                 return nil, 0, fmt.Errorf(&quot;failed to plan facility %q: %w&quot;, lot.facility, err)</span></span>
 <span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L270"><span class="lineNum">     270</span>              :         // 1棟の絵は街路の帯に囲まれるので、絵の外は通れるものとして数える</span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         voidEnclosedWalls(cells, tileBlocksPass(raws), func(int, int) bool { return true })</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         voidEnclosedTall(cells, tileBlocksPass(raws), tileIsTall(raws), func(int, int) bool { return true })</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         return cells, urbanStreetW, nil</span></span>
 <span id="L273"><span class="lineNum">     273</span>              : }</span>
 <span id="L274"><span class="lineNum">     274</span>              : </span>

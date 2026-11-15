@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 14:34:10</td>
+            <td class="headerValue">2026-11-15 15:58:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -252,7 +252,7 @@
 <span id="L190"><span class="lineNum">     190</span>              :         case rawschema.SimpleStepKindForestFloor:</span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 return ForestTerrain{Tiles: tiles}, nil</span></span>
 <span id="L192"><span class="lineNum">     192</span>              :         case rawschema.SimpleStepKindIsolatedWalls:</span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 return ConvertIsolatedWalls{WallTile: tiles.Wall, ReplacementTile: tiles.Void}, nil</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 return ConvertIsolatedWalls{ReplacementTile: tiles.Void}, nil</span></span>
 <span id="L194"><span class="lineNum">     194</span>              :         }</span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         return nil, fmt.Errorf(&quot;%w: %s kind %s&quot;, ErrUnknownStep, r.Id, r.Kind)</span></span>
 <span id="L196"><span class="lineNum">     196</span>              : }</span>

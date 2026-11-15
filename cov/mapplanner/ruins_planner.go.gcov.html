@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 14:34:10</td>
+            <td class="headerValue">2026-11-15 15:58:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -185,7 +185,7 @@
 <span id="L123"><span class="lineNum">     123</span>              :         Tiles rawschema.LayoutTiles</span>
 <span id="L124"><span class="lineNum">     124</span>              : }</span>
 <span id="L125"><span class="lineNum">     125</span>              : </span>
-<span id="L126"><span class="lineNum">     126</span>              : // PlanMeta は廃墟に瓦礫を配置する</span>
+<span id="L126"><span class="lineNum">     126</span>              : // PlanMeta は廃墟の通れるマスに瓦礫を配置する</span>
 <span id="L127"><span class="lineNum">     127</span>              : func (r RuinsDebris) PlanMeta(planData *MetaPlan) error {</span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         width := int(planData.Level.TileWidth)</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         height := int(planData.Level.TileHeight)</span></span>
@@ -195,7 +195,7 @@
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 for y := 1; y &lt; height-1; y++ {</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         if planData.Tiles[idx].Id == r.Tiles.Floor {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         if !planData.Tiles[idx].BlockPass {</span></span>
 <span id="L137"><span class="lineNum">     137</span>              :                                 // 建物から離れた場所ほど瓦礫が少ない</span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                                 debrisChance := r.calculateDebrisChance(planData, x, y)</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 : </span></span>
@@ -263,7 +263,7 @@
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L202"><span class="lineNum">     202</span>              : }</span>
 <span id="L203"><span class="lineNum">     203</span>              : </span>
-<span id="L204"><span class="lineNum">     204</span>              : // createRuinedPath は破損した通路を作成する</span>
+<span id="L204"><span class="lineNum">     204</span>              : // createRuinedPath は破損した通路を作成する。通路は間取りの壁だけを床にする</span>
 <span id="L205"><span class="lineNum">     205</span>              : func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rect) {</span>
 <span id="L206"><span class="lineNum">     206</span>              :         // 各建物の中心を計算</span>
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         center1X := (room1.Min.X + room1.Max.X) / 2</span></span>

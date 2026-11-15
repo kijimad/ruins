@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 14:34:10</td>
+            <td class="headerValue">2026-11-15 15:58:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -375,7 +375,7 @@
 <span id="L313"><span class="lineNum">     313</span>              : </span>
 <span id="L314"><span class="lineNum">     314</span>              : // collectTiles は床と壁のクアッドを quads へ追記して返す。</span>
 <span id="L315"><span class="lineNum">     315</span>              : func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {</span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         walls := render3d.WallTileSet(world)</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         walls := render3d.BoxTileSet(world)</span></span>
 <span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :         snow := sys.newSnowLayer(world)</span></span>
 <span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()</span></span>
 <span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         for tileQ.Next() {</span></span>
@@ -395,7 +395,7 @@
 <span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                 if !vok {</span></span>
 <span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L335"><span class="lineNum">     335</span>              :                 }</span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 if render3d.IsWallTileEntity(world, e) {</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 if render3d.IsBoxTileEntity(world, e) {</span></span>
 <span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                         sys.addWall(&amp;quads, walls, g.Coord, fx, fz, atlas, ux, uy, uw, uh, tint)</span></span>
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                 } else {</span></span>
 <span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                         sys.addQuad(&amp;quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)</span></span>
