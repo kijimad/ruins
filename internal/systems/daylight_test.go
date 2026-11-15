@@ -135,6 +135,7 @@ func TestShelteredAmbient(t *testing.T) {
 		{"受けないとダンジョンと同じ暗さ", 0.95, 0, dungeonAmbient},
 		{"4分の1だけ受けると暗さとの間の4分の1", 0.95, 25, dungeonAmbient + (0.95-dungeonAmbient)/4},
 		{"深夜は割合によらずダンジョンと同じ暗さ", dungeonAmbient, 25, dungeonAmbient},
+		{"日照がダンジョンより暗くても屋外より明るくならない", 0.03, 25, 0.03},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

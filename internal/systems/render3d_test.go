@@ -105,6 +105,27 @@ func TestVisTintFunc_FOV無効は全タイルを白で描く(t *testing.T) {
 	assert.True(t, visible)
 }
 
+func TestVisTintFunc_受ける環境光が強いタイルだけを持ち上げる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	outdoor := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}}
+	indoor := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 0}}
+	vs := query.GetVisionState(world)
+	vs.VisibleTiles = map[gc.GridElement]bool{outdoor: true, indoor: true}
+	white := color.RGBA{R: 255, G: 255, B: 255, A: 255}
+	vs.LightSourceCache = map[gc.GridElement]gc.LightInfo{
+		outdoor: {Color: white, Ambient: 0.95},
+		indoor:  {Color: white, Ambient: shelteredAmbient(0.95, 25)},
+	}
+
+	tintOf := (&Render3DSystem{UseFOV: true}).visTintFunc(world)
+	got, _, _ := tintOf(&outdoor)
+	assert.InDeltaSlice(t, []float64{1 + dayOverbrightMax, 1 + dayOverbrightMax, 1 + dayOverbrightMax}, got[:], 1e-9)
+	got, _, _ = tintOf(&indoor)
+	assert.InDeltaSlice(t, []float64{1, 1, 1}, got[:], 1e-9)
+}
+
 // TestSortQuadsByDepth_奥から手前へ並べる は画家アルゴリズムの前段ソートを固定する。
 func TestSortQuadsByDepth_奥から手前へ並べる(t *testing.T) {
 	t.Parallel()

@@ -2,6 +2,7 @@ package states_test
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -460,7 +461,7 @@ var goldenCases = []struct {
 			}
 			ds, ok := s.(*gs.DungeonState)
 			if !ok {
-				return nil, errNoIndoorTile
+				return nil, fmt.Errorf("unexpected state type %T", s)
 			}
 			query.GetGameTime(world).TotalTurns = 625
 			return []es.State[w.World]{indoorOverworldState{ds}}, nil

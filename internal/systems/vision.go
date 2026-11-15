@@ -93,10 +93,9 @@ func (sys *VisionSystem) Update(world w.World) error {
 
 	// 視界内タイルの光源情報を計算し、探索済みマークを行う。
 	// マップ外座標はデータに含めない。
-	// 環境光は屋内なら微小、地上なら時間帯の日照。昼の屋外は全体が明るく松明が要らず、
-	// 地下や深夜は松明の届く範囲だけが見える
-	// 環境光は明るさと色を持つ。屋内は微小で無彩色、地上は時間帯の日照と色。
-	// 地上の屋根の下は、囲われの日照を受ける割合だけ日照を受ける
+	// 環境光は明るさと色を持つ。ダンジョンは微小で無彩色、地上は時間帯の日照と色で、屋根の下は
+	// 囲われの日照を受ける割合だけ日照を受ける。昼の屋外は全体が明るく松明が要らず、
+	// ダンジョンと深夜と屋内は松明の届く範囲だけが見える
 	ambient := dungeonAmbient
 	ambientColor := [3]float64{1, 1, 1}
 	var daylightPercents map[gc.GridElement]int
@@ -357,9 +356,10 @@ func overworldAmbientColor(defs gc.CalendarDefs, gt *gc.GameTime) [3]float64 {
 	return [3]float64{a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t}
 }
 
-// shelteredAmbient は日照 daylight のうち percent の割合だけを受けた環境光を返す。0 ならダンジョンと同じ暗さになる
+// shelteredAmbient は日照 daylight のうち percent の割合だけを受けた環境光を返す。0 ならダンジョンと同じ暗さになる。
+// 日照がダンジョンより暗くても、屋根の下が屋外より明るくはならない
 func shelteredAmbient(daylight float64, percent int) float64 {
-	return dungeonAmbient + (daylight-dungeonAmbient)*float64(percent)/100
+	return math.Min(daylight, dungeonAmbient+(daylight-dungeonAmbient)*float64(percent)/100)
 }
 
 // buildDaylightPercentIndex は日照を減らして受けるタイルの座標と、日照を受ける割合を集める。表に無い座標は日照をそのまま受ける
