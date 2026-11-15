@@ -109,3 +109,12 @@ func TestDefinitions(t *testing.T) {
 		assert.Equal(t, consts.Chunk(9), rows)
 	})
 }
+
+func TestNewDungeonDefinition_行の下地を引き継ぐ(t *testing.T) {
+	t.Parallel()
+
+	forest := newDungeonDefinition(&rawschema.Dungeon{Id: "forest", Ground: new(rawschema.EntityID("dirt"))})
+	assert.Equal(t, "dirt", forest.Ground())
+	cave := newDungeonDefinition(&rawschema.Dungeon{Id: "cave"})
+	assert.Empty(t, cave.Ground(), "行が下地を省けば空")
+}

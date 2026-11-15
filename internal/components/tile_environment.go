@@ -5,12 +5,13 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
-// TileEnvironment はタイルの環境属性を持つコンポーネント。囲われ・水・植生。
-// 温度計算の入力になる。各要因を個別に保持し、ホバー時に内訳を表示できるようにする
+// TileEnvironment はタイルの環境属性を持つコンポーネント。囲われ・水・植生・雪の解けやすさ。
+// 温度計算と積雪の入力になる。各要因を個別に保持し、ホバー時に内訳を表示できるようにする
 type TileEnvironment struct {
-	Shelter rawschema.Shelter
-	Water   rawschema.WaterExposure // ゼロ値は水の影響なし
-	Foliage rawschema.Foliage       // ゼロ値は植生なし
+	Shelter         rawschema.Shelter
+	Water           rawschema.WaterExposure // ゼロ値は水の影響なし
+	Foliage         rawschema.Foliage       // ゼロ値は植生なし
+	SnowMeltPercent int                     // 積もる雪を減らす割合。ゼロ値は減らさない
 }
 
 // ShelterDef は囲われの度合いごとの、世界温度の受け方と表示名。raw の shelterEffects の1行から組み立てる

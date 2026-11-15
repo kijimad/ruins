@@ -189,22 +189,26 @@ func TestValidateDisassemblies(t *testing.T) {
 	}
 }
 
-func TestValidateScatterZoneGrounds(t *testing.T) {
+func TestValidateGrounds(t *testing.T) {
 	t.Parallel()
 
 	tiles := &[]rawschema.Tile{{Id: "dirt", Earth: new(true)}, {Id: "floor"}}
+	zone := func(g rawschema.EntityID) *[]rawschema.ScatterZone {
+		return &[]rawschema.ScatterZone{{Id: "wild", Ground: g}}
+	}
 	tests := []struct {
 		name    string
-		ground  rawschema.EntityID
+		raws    rawschema.Raws
 		wantErr error
 	}{
-		{name: "土の地面の下地は通る", ground: "dirt"},
-		{name: "土でない下地はエラー", ground: "floor", wantErr: errGroundNotEarth},
+		{name: "土の地面の下地は通る", raws: rawschema.Raws{Tiles: tiles, ScatterZones: zone("dirt"), Dungeons: &[]rawschema.Dungeon{{Id: "forest", Ground: new(rawschema.EntityID("dirt"))}, {Id: "cave"}}}},
+		{name: "区分の下地が土でなければエラー", raws: rawschema.Raws{Tiles: tiles, ScatterZones: zone("floor")}, wantErr: errGroundNotEarth},
+		{name: "ダンジョンの下地が土でなければエラー", raws: rawschema.Raws{Tiles: tiles, ScatterZones: zone("dirt"), Dungeons: &[]rawschema.Dungeon{{Id: "forest", Ground: new(rawschema.EntityID("floor"))}}}, wantErr: errGroundNotEarth},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			err := validateScatterZoneGrounds(rawschema.Raws{Tiles: tiles, ScatterZones: &[]rawschema.ScatterZone{{Id: "wild", Ground: tt.ground}}})
+			err := validateGrounds(tt.raws)
 			if tt.wantErr == nil {
 				require.NoError(t, err)
 				return

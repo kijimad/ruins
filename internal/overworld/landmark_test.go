@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -56,6 +57,12 @@ func TestWildernessLandmark_原野の当選チャンクに小構造物が決定�
 
 	build := func() map[consts.Coord[consts.Tile]]string {
 		world := testutil.InitTestWorld(t)
+		for y := range consts.Tile(50) {
+			for x := range consts.Tile(50) {
+				_, err := lifecycle.SpawnTile(world, "dirt_tundra", x, y, new(15))
+				require.NoError(t, err)
+			}
+		}
 		g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
 		require.NoError(t, wildernessLandmarkFeature{}.place(world, seed, c, 1, g))
 		return landmarkEntities(world)
@@ -114,4 +121,32 @@ func TestSpawnFacility_絵がチャンクからはみ出すとエラー(t *testi
 	require.NoError(t, err, "右下の端までちょうど収まる")
 	_, _, err = spawnFacility(world, g, cells, 4, 3, "shrine", 1, 1)
 	require.ErrorIs(t, err, errFacilityOutOfChunk)
+}
+
+func TestSpawnFacility_下地を残すマスの下が土の地面でないとエラー(t *testing.T) {
+	t.Parallel()
+
+	cells := [][]maptemplate.MapCell{{{Terrain: maptemplate.GroundTerrain}}}
+	tests := []struct {
+		name    string
+		under   string
+		wantErr error
+	}{
+		{"土の地面なら置ける", "dirt_tundra", nil},
+		{"床の上はエラー", "floor_tile", errFacilityGroundNotEarth},
+		{"タイルが無いとエラー", "", errFacilityGroundNotEarth},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			if tt.under != "" {
+				_, err := lifecycle.SpawnTile(world, tt.under, 0, 0, nil)
+				require.NoError(t, err)
+			}
+			g := chunkGeom{chunkW: 1, chunkH: 1, tiles: &tileIndex{world: world, loX: 0, hiX: 1}}
+			_, _, err := spawnFacility(world, g, cells, 0, 0, "shrine", 1, 1)
+			assert.ErrorIs(t, err, tt.wantErr)
+		})
+	}
 }

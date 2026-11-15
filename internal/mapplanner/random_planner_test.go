@@ -19,12 +19,14 @@ func TestNewRandomPlanner(t *testing.T) {
 	chain1, err := NewRandomPlanner(*CreateTestRawMaster(), width, height, seed)
 	require.NoError(t, err)
 	chain1.PlanData.RawMaster = CreateTestRawMaster()
+	chain1.PlanData.Ground = "dirt"
 	err = chain1.Plan()
 	require.NoError(t, err)
 
 	chain2, err := NewRandomPlanner(*CreateTestRawMaster(), width, height, seed)
 	require.NoError(t, err)
 	chain2.PlanData.RawMaster = CreateTestRawMaster()
+	chain2.PlanData.Ground = "dirt"
 	err = chain2.Plan()
 	require.NoError(t, err)
 
@@ -59,6 +61,7 @@ func TestRandomPlannerTypes(t *testing.T) {
 		chain, err := NewRandomPlanner(*CreateTestRawMaster(), width, height, seed)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
+		chain.PlanData.Ground = "dirt"
 		err = chain.Plan()
 		require.NoError(t, err)
 

@@ -25,6 +25,11 @@ const placeholderChar = '@'
 // placeholderStr はプレースホルダの文字列表現
 const placeholderStr = "@"
 
+// GroundTerrain はその場所の下地をそのまま残す地形。施設の庭や敷地の外に使い、置かれた区分の下地とつなげる。
+// 地上では施設より先に置く地物のタイルも残るので、施設より先の地物は土の地面以外を置かない。施設を置くときに下が土の地面かを確かめる。
+// ダンジョンのテンプレートで使うときは、そのダンジョンの行に下地 ground が要る
+const GroundTerrain = "ground"
+
 var (
 	// errInvalidChunkName はチャンク名が "{幅}x{高さ}_名前" 形式でないときに返す
 	errInvalidChunkName = errors.New("chunk name must be in '{width}x{height}_name' format")

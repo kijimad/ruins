@@ -4,7 +4,7 @@ description = "研究所"
 
 [palette.terrain]
 "#" = "wall"
-"," = "dirt"
+"," = "ground"
 "=" = "pavement"
 "." = "floor_tile"
 
@@ -88,7 +88,7 @@ tile = "pavement"
 id = "vending_machine"
 
 [palette.props."p"]
-tile = "dirt"
+tile = "ground"
 candidates = [{ id = "plant", weight = 2 }, { id = "bush", weight = 1 }]
 
 [palette.items."o"]

@@ -25,6 +25,7 @@ func TestForestPlanner(t *testing.T) {
 		chain, err := newLayoutChain(*CreateTestRawMaster(), "forest", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
+		chain.PlanData.Ground = "dirt"
 		err = chain.Plan()
 		require.NoError(t, err)
 
@@ -51,6 +52,7 @@ func TestForestPlanner(t *testing.T) {
 		chain, err := newLayoutChain(*CreateTestRawMaster(), "forest", width, height, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
+		chain.PlanData.Ground = "dirt"
 		err = chain.Plan()
 		require.NoError(t, err)
 
@@ -87,6 +89,7 @@ func TestForestPlanner(t *testing.T) {
 				chain, err := newLayoutChain(*CreateTestRawMaster(), "forest", tc.width, tc.height, 12345)
 				require.NoError(t, err)
 				chain.PlanData.RawMaster = CreateTestRawMaster()
+				chain.PlanData.Ground = "dirt"
 				err = chain.Plan()
 				require.NoError(t, err)
 
@@ -101,4 +104,12 @@ func TestForestPlanner(t *testing.T) {
 		}
 	})
 
+}
+
+func TestForestPlanner_下地を省くとエラー(t *testing.T) {
+	t.Parallel()
+	chain, err := newLayoutChain(*CreateTestRawMaster(), "forest", 30, 30, 12345)
+	require.NoError(t, err)
+	chain.PlanData.RawMaster = CreateTestRawMaster()
+	require.ErrorIs(t, chain.Plan(), ErrGroundNotSet)
 }

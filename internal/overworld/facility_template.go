@@ -17,8 +17,12 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// errFacilityOutOfChunk は施設の絵が置く原点からチャンクに収まらないときに返す
-var errFacilityOutOfChunk = errors.New("facility template does not fit in the chunk")
+var (
+	// errFacilityOutOfChunk は施設の絵が置く原点からチャンクに収まらないときに返す
+	errFacilityOutOfChunk = errors.New("facility template does not fit in the chunk")
+	// errFacilityGroundNotEarth は下地を残すマスの下が土の地面でないときに返す
+	errFacilityGroundNotEarth = errors.New("facility ground cell is not on an earth tile")
+)
 
 // planFacility は施設 fac の絵を1枚選んで展開する。絵は入口を北に向けて描いてあり、rng で半々に左へ90度回して入口を西の街路へ向ける。左右の反転も半々で選ぶ
 func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand) ([][]maptemplate.MapCell, error) {
@@ -54,7 +58,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		return t, nil
 	}
 	wallAt := func(x, y int) bool {
-		if y < 0 || y >= len(cells) || x < 0 || x >= len(cells[y]) {
+		if y < 0 || y >= len(cells) || x < 0 || x >= len(cells[y]) || cells[y][x].Terrain == maptemplate.GroundTerrain {
 			return false
 		}
 		t, err := tileOf(cells[y][x].Terrain)
@@ -70,12 +74,18 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 			pos := consts.Coord[consts.Tile]{X: g.offsetX + ox + consts.Tile(x), Y: g.offsetY + oy + consts.Tile(y)}
 			occupied[pos] = true
 
-			t, err := tileOf(cell.Terrain)
-			if err != nil {
-				return nil, nil, fmt.Errorf("facility %q tile at %d,%d: %w", fac, x, y, err)
-			}
-			if err := spawnFacilityTile(world, tiles, pos, t); err != nil {
-				return nil, nil, err
+			if cell.Terrain == maptemplate.GroundTerrain {
+				if err := checkFacilityGround(world, tiles, pos, tileOf); err != nil {
+					return nil, nil, fmt.Errorf("facility %q at %d,%d: %w", fac, x, y, err)
+				}
+			} else {
+				t, err := tileOf(cell.Terrain)
+				if err != nil {
+					return nil, nil, fmt.Errorf("facility %q tile at %d,%d: %w", fac, x, y, err)
+				}
+				if err := spawnFacilityTile(world, tiles, pos, t); err != nil {
+					return nil, nil, err
+				}
 			}
 			orientation := gc.DoorOrientationHorizontal
 			// 2マスの扉は隣が扉になるので、扉も壁と同じく向きを決める側に数える
@@ -93,6 +103,22 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 
 	isWall := func(lx, ly consts.Tile) bool { return wallAt(int(lx-ox), int(ly-oy)) }
 	return isWall, occupied, nil
+}
+
+// checkFacilityGround は下地を残すマス pos の下に、土の地面のタイルが置かれていることを確かめる
+func checkFacilityGround(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileOf func(string) (rawschema.Tile, error)) error {
+	e, ok := tiles[gc.GridElement{Coord: pos}]
+	if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {
+		return errFacilityGroundNotEarth
+	}
+	t, err := tileOf(world.Components.RawID.Get(e).ID)
+	if err != nil {
+		return err
+	}
+	if t.Earth == nil || !*t.Earth {
+		return errFacilityGroundNotEarth
+	}
+	return nil
 }
 
 // spawnFacilityTile はタイルの行 t を pos へ置く。行の生成の仕様が別のタイルを指せばそれを置き、オートタイルしないタイルは添字を付けない
@@ -180,6 +206,9 @@ func tileBlocksPass(raws rawschema.Raws) func(terrain string) bool {
 		blocks[tiles[i].Id] = tiles[i].BlockPass
 	}
 	return func(terrain string) bool {
+		if terrain == maptemplate.GroundTerrain {
+			return false
+		}
 		b, ok := blocks[terrain]
 		return !ok || b
 	}

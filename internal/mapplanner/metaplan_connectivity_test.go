@@ -21,6 +21,8 @@ func TestConnectivity_AllPlannerTypes(t *testing.T) {
 	seedCount := 30
 
 	for _, pt := range ProceduralPlannerTypes(testutil.InitTestWorld(t).Resources.RawMaster) {
+		// 下地を使う間取りがあるので、どの間取りにも下地を渡す
+		pt.Ground = consts.TileNameDirt
 		t.Run(pt.Name, func(t *testing.T) {
 			t.Parallel()
 

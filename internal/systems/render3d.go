@@ -367,10 +367,13 @@ func (sys *Render3DSystem) newSnowLayer(world w.World) *snowLayer {
 	return l
 }
 
-// amount は地面 e に積もる雪の量を返す。通れて屋根の無い地面のときだけ正になる
+// amount は地面 e に積もる雪の量を返す。通れて屋根の無い地面のときだけ正になり、タイルの解けやすさの分だけ減る
 func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Tile]) float64 {
-	if world.Components.BlockPass.Has(e) || !world.Components.TileEnvironment.Has(e) ||
-		world.Resources.TileEnvDefs.Shelters[world.Components.TileEnvironment.Get(e).Shelter].Covered {
+	if world.Components.BlockPass.Has(e) || !world.Components.TileEnvironment.Has(e) {
+		return 0
+	}
+	env := world.Components.TileEnvironment.Get(e)
+	if world.Resources.TileEnvDefs.Shelters[env.Shelter].Covered {
 		return 0
 	}
 	f, ok := l.fractions[c.Y]
@@ -378,7 +381,7 @@ func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Ti
 		f = query.SnowFractionAt(world, c.Y)
 		l.fractions[c.Y] = f
 	}
-	return query.SnowAmount(f, query.SnowRankAt(world, c.X, c.Y))
+	return query.SnowAmount(f, query.SnowRankAt(world, c.X, c.Y)) * float64(100-env.SnowMeltPercent) / 100
 }
 
 // add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。地面より後に描くよう depth を1つ上げる

@@ -43,6 +43,7 @@ type DungeonDefinition struct {
 	itemCount   rawschema.RandInt
 	plannerPool []PlannerWeight
 	baseTemp    int
+	ground      string
 }
 
 // Name はダンジョンの識別名を返す。raw の dungeons の行の id にあたる
@@ -82,6 +83,9 @@ func (d *DungeonDefinition) SelectPlanner(rng *rand.Rand) (mapplanner.PlannerTyp
 	}
 	return d.plannerPool[i].PlannerType, nil
 }
+
+// Ground は地面を下地で埋める間取りの下地のタイルを返す。持たなければ空
+func (d *DungeonDefinition) Ground() string { return d.ground }
 
 // OverworldDefinition は帯をスライドし続けるオーバーワールドのマスタ。
 // フロアを生成しないので、ダンジョン専用のテーブルやプランナーを持たない。

@@ -558,7 +558,7 @@ func TestSpawnTile(t *testing.T) {
 
 		require.True(t, world.Components.SpriteRender.Has(entity))
 		sprite := world.Components.SpriteRender.Get(entity)
-		assert.Equal(t, "dirt_2", sprite.SpriteKey, "オートタイルインデックスがスプライトキーに付与される")
+		assert.Equal(t, "dirt_loam_2", sprite.SpriteKey, "オートタイルインデックスがスプライトキーに付与される")
 	})
 
 	t.Run("存在しないタイル名はKeyNotFoundErrorになる", func(t *testing.T) {

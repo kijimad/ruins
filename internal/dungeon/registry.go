@@ -46,7 +46,7 @@ func newDungeonDefinition(row *rawschema.Dungeon) *DungeonDefinition {
 	for _, p := range row.Planners {
 		pool = append(pool, PlannerWeight{PlannerType: mapplanner.LayoutPlannerType(p.Id), Weight: p.Weight})
 	}
-	return &DungeonDefinition{
+	def := &DungeonDefinition{
 		name:        row.Id,
 		displayName: i18n.Msgid(row.Name),
 		enemyTable:  row.EnemyTable,
@@ -56,6 +56,10 @@ func newDungeonDefinition(row *rawschema.Dungeon) *DungeonDefinition {
 		baseTemp:    row.BaseTemp,
 		plannerPool: pool,
 	}
+	if row.Ground != nil {
+		def.ground = *row.Ground
+	}
+	return def
 }
 
 // internalDefinitions は選択画面に表示しない内部用の定義

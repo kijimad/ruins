@@ -35,7 +35,6 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 		}
 	}
 
-	// 特定したタイルを変換
 	for _, i := range tilesToConvert {
 		planData.Tiles[i] = planData.GetTile(c.ReplacementTile)
 	}

@@ -1964,6 +1964,7 @@
   description = "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone."
   enemyTable = "forest"
   entranceWeight = 1
+  ground = "dirt"
   id = "dead_forest"
   imageKey = "forest1"
   itemTable = "forest"
@@ -2048,6 +2049,7 @@
   description = "A dungeon for debugging."
   enemyTable = "forest"
   entranceWeight = 0
+  ground = "dirt"
   id = "debug"
   imageKey = "forest1"
   itemTable = "forest"
@@ -17825,8 +17827,8 @@
   start = "forest_clearings"
   steps = ["forest_floor", "forest_trees", "forest_trails", "forest_glades", "isolated_walls"]
   [layouts.tiles]
-    floor = "dirt"
-    void = "dirt"
+    floor = "ground"
+    void = "ground"
     wall = "wall"
 
 [[layouts]]
@@ -22602,7 +22604,7 @@
 
 [[scatterZones]]
   grassDensity = 0.09
-  ground = "dirt"
+  ground = "dirt_tundra"
   id = "roadside"
   lootDensity = 0.002
   lootGroup = "scrap_of_paper"
@@ -22683,7 +22685,7 @@
 
 [[scatterZones]]
   grassDensity = 0.19
-  ground = "dirt"
+  ground = "dirt_tundra"
   id = "wild"
   lootDensity = 0.002
   lootGroup = "junk"
@@ -23288,9 +23290,66 @@
 [[tiles]]
   blockPass = false
   blockView = false
+  description = "橙の赤土のオートタイル床。屋外の歩行可能タイル"
+  earth = true
+  id = "dirt_orange"
+  name = "Red Clay"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "dirt_orange"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "灰色がかった凍土のオートタイル床。屋外の歩行可能タイル"
+  earth = true
+  id = "dirt_tundra"
+  name = "Frozen Soil"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "dirt_tundra"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "暗い泥炭のオートタイル床。屋外の歩行可能タイル"
+  earth = true
+  id = "dirt_peat"
+  name = "Peat"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "dirt_peat"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "灰色の荒れた土のオートタイル床。屋外の歩行可能タイル"
+  earth = true
+  id = "dirt_ash"
+  name = "Ashen Soil"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "dirt_ash"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
   description = "灰色の石を敷いた道のオートタイル。街路や森の小道の屋外の歩行可能タイル"
   id = "road"
   name = "Road"
+  snowMeltPercent = 60
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
@@ -23320,7 +23379,7 @@
     autotile = true
   [tiles.spriteRender]
     depth = 0
-    spriteKey = "dirt"
+    spriteKey = "dirt_loam"
     spriteSheetName = "tile"
 
 [[tiles]]

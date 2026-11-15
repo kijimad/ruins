@@ -142,7 +142,7 @@ func CreateTestRawMaster() *rawschema.Raws {
 			{Id: "big_room", Tiles: testLayoutTiles, Start: "full_room", Steps: []rawschema.EntityID{"fill_wall", "big_room", "isolated_walls"}},
 			{Id: "cave", Tiles: testLayoutTiles, Start: "cave_noise", Steps: []rawschema.EntityID{"cave_automata", "cave_widen", "connect_rooms", "stalactites", "isolated_walls"}},
 			{Id: "ruins", Tiles: testLayoutTiles, Start: "ruined_buildings", Steps: []rawschema.EntityID{"fill_wall", "ruined_walls", "debris", "ruined_paths", "isolated_walls"}},
-			{Id: "forest", Tiles: rawschema.LayoutTiles{Floor: "dirt", Wall: "wall", Void: "dirt"}, Start: "forest_clearings", Steps: []rawschema.EntityID{"forest_floor", "forest_trees", "forest_trails", "forest_glades", "isolated_walls"}},
+			{Id: "forest", Tiles: rawschema.LayoutTiles{Floor: "ground", Wall: "wall", Void: "ground"}, Start: "forest_clearings", Steps: []rawschema.EntityID{"forest_floor", "forest_trees", "forest_trails", "forest_glades", "isolated_walls"}},
 			{Id: "town_plaza", Tiles: testLayoutTiles, Start: "town_plaza"},
 			{Id: "debug_town", Tiles: testLayoutTiles, Start: "debug_town"},
 		},

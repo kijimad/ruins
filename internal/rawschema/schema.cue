@@ -1,7 +1,9 @@
 // Package rawschema は raw のデータの形、値の制約、行の間の参照を持つ。
 package rawschema
 
-import "strings"
+import (
+	"strings"
+)
 
 // 能力値
 #Abilities: {
@@ -421,6 +423,15 @@ import "strings"
 	enemyCount!: #RandInt
 	// フロアに置くアイテムの数
 	itemCount!: #RandInt
+
+	// タイルに ground を書いた間取りが使う下地のタイル。そうした間取りを持つなら必須
+	ground?: #EntityID
+	if len([for p in planners if _groundLayoutIDs[p.id] != _|_ {p}]) > 0 {
+		ground!: _ @rawgen(-)
+	}
+	if ground != _|_ {
+		ground_ref: _tileIDs[ground] @rawgen(-)
+	}
 }
 
 // 乱数で決める数。base に 0 以上 spread 未満の乱数を足す
@@ -432,15 +443,22 @@ import "strings"
 // 確率
 #Chance: number & >=0 & <=1
 
-// 間取りが置くタイル
+// 間取りが置くタイル。ground と書けば、ダンジョンの行の下地 ground を置く
 #LayoutTiles: {
-	floor!:    #EntityID
-	floor_ref: _tileIDs[floor] @rawgen(-)
-	wall!:     #EntityID
-	wall_ref:  _tileIDs[wall] @rawgen(-)
+	floor!: #EntityID
+	if floor != "ground" {
+		floor_ref: _tileIDs[floor] @rawgen(-)
+	}
+	wall!: #EntityID
+	if wall != "ground" {
+		wall_ref: _tileIDs[wall] @rawgen(-)
+	}
+
 	// 床に接しない壁を置き換えるタイル
-	void!:    #EntityID
-	void_ref: _tileIDs[void] @rawgen(-)
+	void!: #EntityID
+	if void != "ground" {
+		void_ref: _tileIDs[void] @rawgen(-)
+	}
 }
 
 // ダンジョンのフロアの間取り。最初の段で部屋を決め、中の段を並びの順に走らせる
@@ -1549,7 +1567,8 @@ import "strings"
 
 // タイル
 #Tile: {
-	id!:           #EntityID
+	// ground は施設のパレットで下地を残す地形の予約語なので、タイルの id に使わない
+	id!:           #EntityID & !="ground"
 	name!:         #EntityName
 	description!:  #EntityDescription
 	blockPass!:    #BlocksPassage
@@ -1570,7 +1589,13 @@ import "strings"
 
 	// 草や木を立てられ、道で上書きしてよい土の地面か
 	earth?: bool
+
+	// 積もる雪を減らす割合。省くと減らさない
+	snowMeltPercent?: #SnowMeltPercent
 }
+
+// 地面に積もる雪の量を減らす割合。百分率。100 なら雪が積もらない
+#SnowMeltPercent: int & >=0 & <=100
 
 // 計画のタイルを実体化する仕様
 #TileSpawn: {

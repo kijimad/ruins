@@ -74,6 +74,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	builderType.ItemTableName = def.ItemTableName()
 	builderType.EnemyCount = def.EnemyCount()
 	builderType.ItemCount = def.ItemCount()
+	builderType.Ground = def.Ground()
 	// 危険度は enterDungeonWith が入口深度込みで確定し全階で共有する。未設定のデバッグ経路だけ日数版で補う
 	if st.Danger == 0 {
 		st.Danger = query.DangerLevelAt(world)

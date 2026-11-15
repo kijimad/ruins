@@ -4,7 +4,7 @@ description = "通信施設"
 
 [palette.terrain]
 "#" = "wall"
-"," = "dirt"
+"," = "ground"
 "=" = "pavement"
 "." = "floor_tile"
 
@@ -17,11 +17,11 @@ tile = "wall"
 id = "window"
 
 [palette.props."f"]
-tile = "dirt"
+tile = "ground"
 id = "fence"
 
 [palette.props."M"]
-tile = "dirt"
+tile = "ground"
 id = "radio_mast"
 
 [palette.props."c"]

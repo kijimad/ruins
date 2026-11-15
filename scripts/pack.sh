@@ -15,8 +15,11 @@ pack_sprites() {
 	local source_dir="$1"
 	local output_name="$1" # 入力ディレクトリと同じ名前を使う
 
+	# パレット形式の PNG は色でなく色番号の並びで同じ絵とみなされ、色違いが1枚にまとめられる。
+	# --color-mode は前に開いた画像に効くので、画像の後ろで RGB にしてから詰める
 	aseprite \
 		--batch "./${source_dir}/"*.png \
+		--color-mode rgb \
 		--sheet "./dist/${output_name}.png" \
 		--data "./dist/${output_name}.json" \
 		--sheet-type packed \

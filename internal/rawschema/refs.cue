@@ -57,6 +57,11 @@ _dialogueIDs: {if dialogues != _|_ for x in dialogues {(x.id): true}}
 
 _layoutIDs: {if layouts != _|_ for x in layouts {(x.id): true}}
 
+// タイルに ground を書き、ダンジョンの行の下地を使う間取り
+_groundLayoutIDs: {
+	if layouts != _|_ for x in layouts if x.tiles.floor == "ground" || x.tiles.wall == "ground" || x.tiles.void == "ground" {(x.id): true}
+}
+
 // 最初の段の表はどれも同じ id の空間で参照される
 _startIDs: {
 	if rectRoomStarts != _|_ for x in rectRoomStarts {(x.id): true}

@@ -731,6 +731,9 @@ type Dungeon struct {
 	// EntranceWeight 地上の遺跡の入口がこのダンジョンを引く重み。0 なら入口に出ず、デバッグで名前を指して入るだけになる
 	EntranceWeight int `json:"entranceWeight"`
 
+	// Ground タイルに ground を書いた間取りが使う下地のタイル。そうした間取りを持つなら必須
+	Ground *EntityID `json:"ground,omitempty"`
+
 	Id EntityID `json:"id"`
 
 	// ImageKey 背景画像のスプライトキー
@@ -1515,7 +1518,7 @@ type Layout struct {
 	Tiles LayoutTiles `json:"tiles"`
 }
 
-// LayoutTiles 間取りが置くタイル
+// LayoutTiles 間取りが置くタイル。ground と書けば、ダンジョンの行の下地 ground を置く
 type LayoutTiles struct {
 	Floor EntityID `json:"floor"`
 
@@ -2658,6 +2661,9 @@ type SkillProficiency struct {
 	Resists *Element `json:"resists,omitempty"`
 }
 
+// SnowMeltPercent 地面に積もる雪の量を減らす割合。百分率。100 なら雪が積もらない
+type SnowMeltPercent = int
+
 // SpellTurns 天候のスペルの基準長。ターン
 type SpellTurns = int
 
@@ -2814,12 +2820,16 @@ type Tile struct {
 	// Foliage 植生。省くと植生なし
 	Foliage *Foliage `json:"foliage,omitempty"`
 
+	// Id ground は施設のパレットで下地を残す地形の予約語なので、タイルの id に使わない
 	Id EntityID `json:"id"`
 
 	Name EntityName `json:"name"`
 
 	// Shelter 囲われの度合い。省くと屋外
 	Shelter *Shelter `json:"shelter,omitempty"`
+
+	// SnowMeltPercent 積もる雪を減らす割合。省くと減らさない
+	SnowMeltPercent *SnowMeltPercent `json:"snowMeltPercent,omitempty"`
 
 	// Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
 	Spawn *TileSpawn `json:"spawn,omitempty"`

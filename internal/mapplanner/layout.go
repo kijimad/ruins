@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
@@ -97,6 +98,7 @@ func newLayoutChain(raws rawschema.Raws, id string, width, height consts.Tile, s
 		chain = NewPlannerChain(width, height, seed)
 		chain.StartWith(start)
 	}
+	chain.PlanData.NeedsGround = usesGround(l.Tiles)
 	for _, sid := range l.Steps {
 		step, err := newStep(raws, sid, l.Tiles)
 		if err != nil {
@@ -189,4 +191,9 @@ func newSimpleStep(r rawschema.SimpleStep, tiles rawschema.LayoutTiles) (MetaMap
 		return ConvertIsolatedWalls{WallTile: tiles.Wall, ReplacementTile: tiles.Void}, nil
 	}
 	return nil, fmt.Errorf("%w: %s kind %s", ErrUnknownStep, r.Id, r.Kind)
+}
+
+// usesGround は間取りのタイルが下地を指すかを返す
+func usesGround(t rawschema.LayoutTiles) bool {
+	return t.Floor == maptemplate.GroundTerrain || t.Wall == maptemplate.GroundTerrain || t.Void == maptemplate.GroundTerrain
 }

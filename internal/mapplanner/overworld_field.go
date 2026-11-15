@@ -6,7 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
-// ErrGroundNotSet は下地を渡さずに地上の計画を組んだときのエラー
+// ErrGroundNotSet は下地を使う計画を下地を渡さずに組んだときのエラー
 var ErrGroundNotSet = errors.New("ground tile is not set")
 
 // OverworldFieldPlanner はオーバーワールドの「開けた地形」チャンクの初期プランナー。

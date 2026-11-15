@@ -4,7 +4,7 @@ description = "銃砲店"
 
 [palette.terrain]
 "#" = "wall"
-"," = "dirt"
+"," = "ground"
 "=" = "pavement"
 "." = "floor_wood"
 
@@ -45,7 +45,7 @@ tile = "floor_wood"
 id = "chair"
 
 [palette.props."p"]
-tile = "dirt"
+tile = "ground"
 candidates = [{ id = "plant", weight = 2 }, { id = "bush", weight = 1 }]
 
 [palette.items."o"]

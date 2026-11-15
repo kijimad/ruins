@@ -6589,3 +6589,15 @@ msgstr "軍基地"
 
 msgid "Power Plant"
 msgstr "発電所"
+
+msgid "Red Clay"
+msgstr "赤土"
+
+msgid "Frozen Soil"
+msgstr "凍土"
+
+msgid "Peat"
+msgstr "泥炭"
+
+msgid "Ashen Soil"
+msgstr "灰土"

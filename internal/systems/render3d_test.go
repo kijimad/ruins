@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -247,6 +248,23 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 	assert.Equal(t, int(gc.DepthNumDecal), quads[0].depth)
 }
 
+func TestSnowLayer_道は行の解けやすさの分だけ薄く積もる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	query.GetGameTime(world).TotalTurns = 24*1500 + 500
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	query.EnsureSeamlessBand(world)
+	row, err := raw.GetTile(world.Resources.RawMaster, consts.TileNameRoad)
+	require.NoError(t, err)
+	require.NotNil(t, row.SnowMeltPercent, "前提: 道の行が解けやすさを持つ")
+	tile, err := lifecycle.SpawnTile(world, consts.TileNameRoad, 3, 3, nil)
+	require.NoError(t, err)
+
+	layer := (&Render3DSystem{}).newSnowLayer(world)
+	assert.InDelta(t, float64(100-*row.SnowMeltPercent)/100, layer.amount(world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}), 1e-9)
+}
+
 func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *testing.T) {
 	t.Parallel()
 
@@ -256,14 +274,15 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 		turns   consts.Turn
 		tile    string
 		shelter *rawschema.Shelter
+		melt    int
 		want    float64
 	}{
-		{"冬の屋外の土は全面に積もる", winter, consts.TileNameDirt, nil, 1},
-		{"冬の屋外の道は全面に積もる", winter, consts.TileNameRoad, nil, 1},
-		{"冬でも屋内の床には積もらない", winter, "floor_tile", nil, 0},
-		{"冬でも通れない壁には積もらない", winter, "dwall", nil, 0},
-		{"冬でも屋根のある半屋外には積もらない", winter, consts.TileNameDirt, new(rawschema.Partial), 0},
-		{"春は積もらない", 0, consts.TileNameDirt, nil, 0},
+		{"冬の屋外の土は全面に積もる", winter, consts.TileNameDirt, nil, 0, 1},
+		{"冬の屋外でも解けやすさの分だけ薄く積もる", winter, consts.TileNameDirt, nil, 75, 0.25},
+		{"冬でも屋内の床には積もらない", winter, "floor_tile", nil, 0, 0},
+		{"冬でも通れない壁には積もらない", winter, "dwall", nil, 0, 0},
+		{"冬でも屋根のある半屋外には積もらない", winter, consts.TileNameDirt, new(rawschema.Partial), 0, 0},
+		{"春は積もらない", 0, consts.TileNameDirt, nil, 0, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -277,6 +296,7 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 			if tt.shelter != nil {
 				world.Components.TileEnvironment.Get(tile).Shelter = *tt.shelter
 			}
+			world.Components.TileEnvironment.Get(tile).SnowMeltPercent = tt.melt
 
 			layer := (&Render3DSystem{}).newSnowLayer(world)
 			assert.InDelta(t, tt.want, layer.amount(world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}), 1e-9)
