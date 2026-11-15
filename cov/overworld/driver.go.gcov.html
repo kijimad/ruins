@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 10:44:39</td>
+            <td class="headerValue">2026-11-15 11:46:14</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -142,7 +142,7 @@
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L81"><span class="lineNum">      81</span>              : </span>
 <span id="L82"><span class="lineNum">      82</span>              : // startInitialBand は新規開始として初期帯を決定的生成し、帯状態を SeamlessBand へ記録し、</span>
-<span id="L83"><span class="lineNum">      83</span>              : // プレイヤーとキューブを中央チャンク付近へ置き、開始チャンクに遺跡入口を置く。帯パラメータは params から取る。</span>
+<span id="L83"><span class="lineNum">      83</span>              : // プレイヤーとキューブを中央チャンク付近へ置く。帯パラメータは params から取る。</span>
 <span id="L84"><span class="lineNum">      84</span>              : //</span>
 <span id="L85"><span class="lineNum">      85</span>              : // この関数は新規開始で一度だけ走る。セーブ復帰は Start が restoreFromSave の枝を選ぶのでここは走らず、</span>
 <span id="L86"><span class="lineNum">      86</span>              : // プレイヤー・キューブ・全エンティティは serde で復元される。したがってここでの生成に復帰時の</span>
@@ -178,7 +178,7 @@
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L117"><span class="lineNum">     117</span>              : </span>
 <span id="L118"><span class="lineNum">     118</span>              :         // プレイヤーを中央チャンク付近の歩行可能タイルへ湧かせる。開始チャンクの種別に依存せず、</span>
-<span id="L119"><span class="lineNum">     119</span>              :         // 建物や遺跡入口の上でも壁を避けて安全に置く。居なければ生成、居れば移動</span>
+<span id="L119"><span class="lineNum">     119</span>              :         // 建物の上でも壁を避けて安全に置く。居なければ生成、居れば移動</span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         center := consts.Coord[consts.Tile]{</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 X: (dr.band.Cols() / 2).Tiles(chunkW) + chunkW/2,</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 Y: (dr.band.Rows() / 2).Tiles(chunkH) + chunkH/2,</span></span>
@@ -212,7 +212,7 @@
 <span id="L150"><span class="lineNum">     150</span>              : }</span>
 <span id="L151"><span class="lineNum">     151</span>              : </span>
 <span id="L152"><span class="lineNum">     152</span>              : // walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を</span>
-<span id="L153"><span class="lineNum">     153</span>              : // 返す。開始チャンクが荒れ地でなく建物や遺跡入口でも、プレイヤーを壁の中へ湧かせないための安全策。</span>
+<span id="L153"><span class="lineNum">     153</span>              : // 返す。開始チャンクが荒れ地でなく建物でも、プレイヤーを壁の中へ湧かせないための安全策。</span>
 <span id="L154"><span class="lineNum">     154</span>              : // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。</span>
 <span id="L155"><span class="lineNum">     155</span>              : func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {</span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         blocked := make(map[gc.GridElement]bool)</span></span>
