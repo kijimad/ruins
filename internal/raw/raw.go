@@ -765,10 +765,6 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 		entitySpec.BlockPass = &gc.BlockPass{}
 	}
 
-	if tileRaw.IsBox() {
-		entitySpec.Box = &gc.Box{}
-	}
-
 	// BlockViewがtrueの場合は視界を遮断
 	if tileRaw.BlockView {
 		entitySpec.BlockView = &gc.BlockView{}
@@ -780,6 +776,12 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	entitySpec.TileEnvironment = &env
 
 	return entitySpec, nil
+}
+
+// TileIsBox はタイルの行を 3D で高さのある箱として描くかを返す。描画順が高さのあるもの DepthNumTaller のタイルを箱で描く。
+// 箱のオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い箱の内側は虚空にする
+func TileIsBox(t rawschema.Tile) bool {
+	return toGCSpriteRender(t.SpriteRender).Depth == gc.DepthNumTaller
 }
 
 // TileEnvironmentOf はタイルの行だけから決まる環境属性を返す。水の影響は周りのタイルで決まるので含まない

@@ -2,6 +2,7 @@ package mapplanner
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 )
 
 // ConvertIsolatedWalls は通れるマスに隣接しない箱のタイルを指定したタイルに変換するプランナー
@@ -27,7 +28,7 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 			continue
 		}
 
-		if tile.IsBox() && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
+		if raw.TileIsBox(tile) && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
 			tilesToConvert = append(tilesToConvert, i)
 		}
 	}

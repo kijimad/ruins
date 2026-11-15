@@ -2806,9 +2806,6 @@ type Tile struct {
 
 	BlockView BlocksView `json:"blockView"`
 
-	// Box 3D で高さのある箱として描く。箱のオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い箱の内側は虚空にする
-	Box *bool `json:"box,omitempty"`
-
 	Description EntityDescription `json:"description"`
 
 	// Earth 草や木を立てられ、道で上書きしてよい土の地面か

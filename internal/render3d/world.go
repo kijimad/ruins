@@ -46,16 +46,16 @@ func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {
 
 // IsBoxTile はそのタイルが高さのある箱として描かれるかを返す。
 //
-// 箱になるのは Tile と Box を併せ持つエンティティだけである。扉やキューブは通行を
+// 箱になるのは、描画順が高さのあるもの DepthNumTaller のタイルだけである。扉やキューブは通行を
 // 塞ぐが箱にはならないので、通れるかで代わりに判定してはいけない。全てのエンティティでなく
 // 箱のタイルだけを走査する。
 //
 // 内部でエンティティ検索のクエリを開くので、クエリ反復中には呼ばない。呼び出し元は Draw の
 // カーソル描画で、その時点でアクティブなクエリは無い。
 func IsBoxTile(world w.World, c consts.Coord[consts.Tile]) bool {
-	q := query.ActiveFilter2[gc.GridElement, gc.Box](world).With(ecs.C[gc.Tile]()).Query()
+	q := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).With(ecs.C[gc.Tile]()).Query()
 	for q.Next() {
-		if world.Components.GridElement.Get(q.Entity()).Coord == c {
+		if IsBoxTileEntity(world, q.Entity()) && world.Components.GridElement.Get(q.Entity()).Coord == c {
 			q.Close()
 			return true
 		}
@@ -68,15 +68,18 @@ func IsBoxTile(world w.World, c consts.Coord[consts.Tile]) bool {
 // Has を見るだけでクエリを開かないので、BoxTileSet のクエリ反復中から呼んでも安全。
 // 座標からエンティティを引く IsBoxTile とはこの点が異なる。
 func IsBoxTileEntity(world w.World, e ecs.Entity) bool {
-	return world.Components.Tile.Has(e) && world.Components.Box.Has(e)
+	return world.Components.Tile.Has(e) && world.Components.SpriteRender.Has(e) &&
+		world.Components.SpriteRender.Get(e).Depth == gc.DepthNumTaller
 }
 
 // BoxTileSet は箱として描かれるタイルの集合を組む。壁の側面を隣と突き合わせて省くのに使う
 func BoxTileSet(world w.World) map[consts.Coord[consts.Tile]]bool {
 	walls := map[consts.Coord[consts.Tile]]bool{}
-	wallQ := query.ActiveFilter2[gc.GridElement, gc.Box](world).With(ecs.C[gc.Tile]()).Query()
+	wallQ := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).With(ecs.C[gc.Tile]()).Query()
 	for wallQ.Next() {
-		walls[world.Components.GridElement.Get(wallQ.Entity()).Coord] = true
+		if IsBoxTileEntity(world, wallQ.Entity()) {
+			walls[world.Components.GridElement.Get(wallQ.Entity()).Coord] = true
+		}
 	}
 	return walls
 }

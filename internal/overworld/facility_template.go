@@ -203,7 +203,7 @@ func tileIsBox(raws rawschema.Raws) func(terrain string) bool {
 	boxes := map[string]bool{}
 	tiles := raw.PtrSlice(raws.Tiles)
 	for i := range tiles {
-		boxes[tiles[i].Id] = tiles[i].IsBox()
+		boxes[tiles[i].Id] = raw.TileIsBox(tiles[i])
 	}
 	return func(terrain string) bool { return boxes[terrain] }
 }

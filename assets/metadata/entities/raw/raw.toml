@@ -23377,7 +23377,6 @@
 [[tiles]]
   blockPass = true
   blockView = true
-  box = true
   description = "濃灰のダンジョン壁のオートタイル。通行不可"
   id = "dwall"
   name = "Dungeon Wall"
@@ -23405,21 +23404,19 @@
 [[tiles]]
   blockPass = true
   blockView = false
-  box = true
   description = "暗闇。単一絵柄の通行不可タイル"
   id = "void"
   name = "Void"
   [tiles.spawn]
     autotile = false
   [tiles.spriteRender]
-    depth = 0
+    depth = 3
     spriteKey = "void"
     spriteSheetName = "tile"
 
 [[tiles]]
   blockPass = true
   blockView = true
-  box = true
   description = "灰色の石壁のオートタイル。通行不可"
   id = "wall"
   name = "Wall"
