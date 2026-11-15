@@ -485,7 +485,7 @@
 				
 				<option value="file214">github.com/kijimaD/ruins/internal/raw/item_group.go (93.3%)</option>
 				
-				<option value="file215">github.com/kijimaD/ruins/internal/raw/raw.go (96.2%)</option>
+				<option value="file215">github.com/kijimaD/ruins/internal/raw/raw.go (95.9%)</option>
 				
 				<option value="file216">github.com/kijimaD/ruins/internal/raw/validate.go (97.8%)</option>
 				
@@ -633,7 +633,7 @@
 				
 				<option value="file288">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file289">github.com/kijimaD/ruins/internal/systems/render3d.go (48.4%)</option>
+				<option value="file289">github.com/kijimaD/ruins/internal/systems/render3d.go (49.1%)</option>
 				
 				<option value="file290">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.3%)</option>
 				
@@ -14585,12 +14585,13 @@ import (
         "github.com/kijimaD/ruins/internal/rawschema"
 )
 
-// TileEnvironment はタイルの環境属性を持つコンポーネント。囲われ・水・植生。
-// 温度計算の入力になる。各要因を個別に保持し、ホバー時に内訳を表示できるようにする
+// TileEnvironment はタイルの環境属性を持つコンポーネント。囲われ・水・植生・雪の解けやすさ。
+// 温度計算と積雪の入力になる。各要因を個別に保持し、ホバー時に内訳を表示できるようにする
 type TileEnvironment struct {
-        Shelter rawschema.Shelter
-        Water   rawschema.WaterExposure // ゼロ値は水の影響なし
-        Foliage rawschema.Foliage       // ゼロ値は植生なし
+        Shelter         rawschema.Shelter
+        Water           rawschema.WaterExposure // ゼロ値は水の影響なし
+        Foliage         rawschema.Foliage       // ゼロ値は植生なし
+        SnowMeltPercent int                     // 積もる雪を減らす割合。ゼロ値は減らさない
 }
 
 // ShelterDef は囲われの度合いごとの、世界温度の受け方と表示名。raw の shelterEffects の1行から組み立てる
@@ -20676,17 +20677,13 @@ import (
 type EnvironmentPlanner struct{}
 
 // PlanMeta はタイルごとの環境を計算して MetaPlan.Environments に入れる。
-// 囲われと植生はタイルの行の値をそのまま使い、水の影響は周りのタイルから導く
+// タイルの行から決まる値はそのまま使い、水の影響は周りのタイルから導く
 func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
         <span class="cov8" title="1">mp.Environments = make([]gc.TileEnvironment, len(mp.Tiles))
         for i := range mp.Tiles </span>{
-                <span class="cov8" title="1">env := &amp;mp.Environments[i]
-                env.Shelter = raw.TileShelter(mp.Tiles[i])
-                env.Water = p.calcWater(mp, i)
-                if mp.Tiles[i].Foliage != nil </span>{
-                        <span class="cov8" title="1">env.Foliage = *mp.Tiles[i].Foliage
-</span>                }
-        }
+                <span class="cov8" title="1">mp.Environments[i] = raw.TileEnvironmentOf(mp.Tiles[i])
+                mp.Environments[i].Water = p.calcWater(mp, i)
+</span>        }
 
         <span class="cov8" title="1">return nil</span>
 }
@@ -30041,9 +30038,22 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 
         <span class="cov8" title="1">entitySpec.Tile = &amp;gc.Tile{}
 </span>
-        <span class="cov8" title="1">entitySpec.TileEnvironment = &amp;gc.TileEnvironment{Shelter: TileShelter(tileRaw)}
+        <span class="cov8" title="1">env := TileEnvironmentOf(tileRaw)
+        entitySpec.TileEnvironment = &amp;env
 </span>
         <span class="cov8" title="1">return entitySpec, nil</span>
+}
+
+// TileEnvironmentOf はタイルの行だけから決まる環境属性を返す。水の影響は周りのタイルで決まるので含まない
+func TileEnvironmentOf(t rawschema.Tile) gc.TileEnvironment {
+        <span class="cov8" title="1">env := gc.TileEnvironment{Shelter: TileShelter(t)}
+        if t.Foliage != nil </span>{
+                <span class="cov0" title="0">env.Foliage = *t.Foliage
+</span>        }
+        <span class="cov8" title="1">if t.SnowMeltPercent != nil </span>{
+                <span class="cov0" title="0">env.SnowMeltPercent = *t.SnowMeltPercent
+</span>        }
+        <span class="cov8" title="1">return env</span>
 }
 
 // TileShelter はタイルの行の囲われを返す。行が省けば屋外
@@ -33429,6 +33439,9 @@ type SkillProficiency struct {
         Resists *Element `json:"resists,omitempty"`
 }
 
+// SnowMeltPercent 地面に積もる雪の量を減らす割合。百分率。100 なら雪が積もらない
+type SnowMeltPercent = int
+
 // SpellTurns 天候のスペルの基準長。ターン
 type SpellTurns = int
 
@@ -33584,6 +33597,9 @@ type Tile struct {
 
         // Shelter 囲われの度合い。省くと屋外
         Shelter *Shelter `json:"shelter,omitempty"`
+
+        // SnowMeltPercent 積もる雪を減らす割合。省くと減らさない
+        SnowMeltPercent *SnowMeltPercent `json:"snowMeltPercent,omitempty"`
 
         // Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
         Spawn *TileSpawn `json:"spawn,omitempty"`
@@ -46464,10 +46480,13 @@ func (sys *Render3DSystem) newSnowLayer(world w.World) *snowLayer {
         return l</span>
 }
 
-// amount は地面 e に積もる雪の量を返す。通れて屋根の無い地面のときだけ正になる
+// amount は地面 e に積もる雪の量を返す。通れて屋根の無い地面のときだけ正になり、タイルの解けやすさの分だけ減る
 func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Tile]) float64 {
-        <span class="cov8" title="1">if world.Components.BlockPass.Has(e) || !world.Components.TileEnvironment.Has(e) ||
-                world.Resources.TileEnvDefs.Shelters[world.Components.TileEnvironment.Get(e).Shelter].Covered </span>{
+        <span class="cov8" title="1">if world.Components.BlockPass.Has(e) || !world.Components.TileEnvironment.Has(e) </span>{
+                <span class="cov8" title="1">return 0
+</span>        }
+        <span class="cov8" title="1">env := world.Components.TileEnvironment.Get(e)
+        if world.Resources.TileEnvDefs.Shelters[env.Shelter].Covered </span>{
                 <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">f, ok := l.fractions[c.Y]
@@ -46475,7 +46494,7 @@ func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Ti
                 <span class="cov8" title="1">f = query.SnowFractionAt(world, c.Y)
                 l.fractions[c.Y] = f
 </span>        }
-        <span class="cov8" title="1">return query.SnowAmount(f, query.SnowRankAt(world, c.X, c.Y))</span>
+        <span class="cov8" title="1">return query.SnowAmount(f, query.SnowRankAt(world, c.X, c.Y)) * float64(100-env.SnowMeltPercent) / 100</span>
 }
 
 // add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。地面より後に描くよう depth を1つ上げる
@@ -58466,7 +58485,7 @@ func climateWorldTemperatureAt(world w.World, y consts.Tile) int {
 // snowFullTemperature で屋根の無い土の地面の全てを覆う
 const (
         snowStartTemperature = 5
-        snowFullTemperature  = -5
+        snowFullTemperature  = -30
 )
 
 // SnowFraction はその日の平均気温 temp から、雪に覆われる地面のマスの割合を 0 から 1 で返す
@@ -58522,13 +58541,8 @@ func lerp(a, b, t float64) float64 { <span class="cov8" title="1">return a + (b-
 // snowEdgeWidth は雪の塊の縁で、量が0から1まで変わる順位の幅。縁ほど薄く積もり、境目がぼける
 const snowEdgeWidth = 0.25
 
-// SnowAmountAt は帯ローカル座標 (x, y) の地面に積もる雪の量を 0 から 1 で返す。割合と順位の差から決め、
+// SnowAmount は雪の割合 fraction とマスの順位 rank から積もる量を 0 から 1 で返す。割合と順位の差から決め、
 // 塊の内側ほど濃く縁ほど薄い。割合が1なら全てのマスが1になるよう、割合を縁の幅ぶん引き伸ばす
-func SnowAmountAt(world w.World, x, y consts.Tile) float64 {
-        <span class="cov8" title="1">return SnowAmount(SnowFractionAt(world, y), SnowRankAt(world, x, y))
-</span>}
-
-// SnowAmount は雪の割合 fraction とマスの順位 rank から積もる量を返す
 func SnowAmount(fraction, rank float64) float64 {
         <span class="cov8" title="1">if fraction &lt;= 0 </span>{
                 <span class="cov8" title="1">return 0
