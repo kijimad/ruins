@@ -1321,7 +1321,13 @@ import (
 
 	// 草や木を立てられ、道で上書きしてよい土の地面か
 	earth?: bool
+
+	// 積もる雪を減らす割合。省くと減らさない
+	snowMeltPercent?: #SnowMeltPercent
 }
+
+// 地面に積もる雪の量を減らす割合。百分率。100 なら雪が積もらない
+#SnowMeltPercent: int & >=0 & <=100
 
 // 計画のタイルを実体化する仕様
 #TileSpawn: {

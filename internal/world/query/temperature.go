@@ -89,7 +89,7 @@ func climateWorldTemperatureAt(world w.World, y consts.Tile) int {
 // snowFullTemperature で屋根の無い土の地面の全てを覆う
 const (
 	snowStartTemperature = 5
-	snowFullTemperature  = -5
+	snowFullTemperature  = -30
 )
 
 // SnowFraction はその日の平均気温 temp から、雪に覆われる地面のマスの割合を 0 から 1 で返す
@@ -145,13 +145,8 @@ func lerp(a, b, t float64) float64 { return a + (b-a)*t }
 // snowEdgeWidth は雪の塊の縁で、量が0から1まで変わる順位の幅。縁ほど薄く積もり、境目がぼける
 const snowEdgeWidth = 0.25
 
-// SnowAmountAt は帯ローカル座標 (x, y) の地面に積もる雪の量を 0 から 1 で返す。割合と順位の差から決め、
+// SnowAmount は雪の割合 fraction とマスの順位 rank から積もる量を 0 から 1 で返す。割合と順位の差から決め、
 // 塊の内側ほど濃く縁ほど薄い。割合が1なら全てのマスが1になるよう、割合を縁の幅ぶん引き伸ばす
-func SnowAmountAt(world w.World, x, y consts.Tile) float64 {
-	return SnowAmount(SnowFractionAt(world, y), SnowRankAt(world, x, y))
-}
-
-// SnowAmount は雪の割合 fraction とマスの順位 rank から積もる量を返す
 func SnowAmount(fraction, rank float64) float64 {
 	if fraction <= 0 {
 		return 0

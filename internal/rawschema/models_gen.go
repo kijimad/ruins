@@ -2360,6 +2360,9 @@ type SkillProficiency struct {
 	Resists *Element `json:"resists,omitempty"`
 }
 
+// SnowMeltPercent 地面に積もる雪の量を減らす割合。百分率。100 なら雪が積もらない
+type SnowMeltPercent = int
+
 // SpellTurns 天候のスペルの基準長。ターン
 type SpellTurns = int
 
@@ -2515,6 +2518,9 @@ type Tile struct {
 
 	// Shelter 囲われの度合い。省くと屋外
 	Shelter *Shelter `json:"shelter,omitempty"`
+
+	// SnowMeltPercent 積もる雪を減らす割合。省くと減らさない
+	SnowMeltPercent *SnowMeltPercent `json:"snowMeltPercent,omitempty"`
 
 	// Spawn マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
 	Spawn *TileSpawn `json:"spawn,omitempty"`
