@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
+	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
@@ -34,4 +36,15 @@ func TestDebugKillNearbyEnemies_近くの敵だけを倒す(t *testing.T) {
 	require.NoError(t, debugKillNearbyEnemies(world))
 	assert.True(t, world.Components.Dead.Has(near))
 	assert.False(t, world.Components.Dead.Has(far))
+}
+
+func TestDebugMenu_デバッグの町の間取りとダンジョンをrawから引ける(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+
+	pt, ok := mapplanner.PlannerTypeByName(raws, debugTownLayout)
+	require.True(t, ok, "メニューが指す間取りの行がある")
+	assert.Equal(t, debugTownLayout, pt.Name)
+	_, ok = dungeon.GetStageDefinition(raws, dungeon.DebugTownID)
+	assert.True(t, ok, "メニューが指すダンジョンの行がある")
 }
