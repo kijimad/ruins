@@ -57,7 +57,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		return t, nil
 	}
 	wallAt := func(x, y int) bool {
-		if y < 0 || y >= len(cells) || x < 0 || x >= len(cells[y]) {
+		if y < 0 || y >= len(cells) || x < 0 || x >= len(cells[y]) || cells[y][x].Terrain == maptemplate.GroundTerrain {
 			return false
 		}
 		t, err := tileOf(cells[y][x].Terrain)

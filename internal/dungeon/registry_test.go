@@ -113,6 +113,26 @@ func TestNewDungeonDefinition_行の下地を引き継ぐ(t *testing.T) {
 	t.Parallel()
 
 	forest := newDungeonDefinition(&rawschema.Dungeon{Id: "forest", Ground: new(rawschema.EntityID("dirt"))})
+	assert.Equal(t, "dirt", forest.Ground())
 	cave := newDungeonDefinition(&rawschema.Dungeon{Id: "cave"})
-	assert.Equal(t, []string{"dirt", ""}, []string{forest.Ground(), cave.Ground()})
+	assert.Empty(t, cave.Ground(), "行が下地を省けば空")
+}
+
+func TestGetAllDungeons_下地を使う間取りを持つダンジョンは下地を持つ(t *testing.T) {
+	t.Parallel()
+
+	var missing []string
+	checked := 0
+	for _, def := range GetAllDungeons(loadRaws(t)) {
+		for _, pw := range def.PlannerPool() {
+			if pw.PlannerType.UsesGround {
+				checked++
+				if def.Ground() == "" {
+					missing = append(missing, def.Name()+" "+pw.PlannerType.Name)
+				}
+			}
+		}
+	}
+	require.Positive(t, checked, "下地を使う間取りを持つダンジョンがあるはず")
+	assert.Empty(t, missing)
 }

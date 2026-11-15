@@ -20,8 +20,14 @@ func TestTextureSources_インデックス形式のPNGを置かない(t *testing
 
 	var checked int
 	var paletted []string
-	for _, dir := range []string{"tiles", "single", "bg"} {
-		root := path.Join("file/textures", dir)
+	dirs, err := fs.ReadDir(assets.FS, "file/textures")
+	require.NoError(t, err)
+	for _, d := range dirs {
+		// dist は束にまとめた結果なので、元の絵だけを見る
+		if !d.IsDir() || d.Name() == "dist" {
+			continue
+		}
+		root := path.Join("file/textures", d.Name())
 		entries, err := fs.ReadDir(assets.FS, root)
 		require.NoError(t, err, root)
 		for _, e := range entries {
