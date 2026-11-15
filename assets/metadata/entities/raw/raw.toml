@@ -22939,7 +22939,7 @@
     autotile = true
   [tiles.spriteRender]
     depth = 0
-    spriteKey = "dirt"
+    spriteKey = "dirt_orange"
     spriteSheetName = "tile"
 
 [[tiles]]

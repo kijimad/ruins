@@ -373,16 +373,19 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	}
 
 	if world.Resources.Config.ShowMapDebug {
-		// デバッグ用：スプライト番号表示(dirt, dwall)
+		// デバッグ用：土の色違いと壁のオートタイルの添字を表示する
 		if spriteRender.SpriteSheetName == "tile" {
 			var number string
 			var prefix string
-			if after, ok := strings.CutPrefix(spriteRender.SpriteKey, "dirt_"); ok {
-				number = after
-				prefix = "d"
-			} else if after, ok := strings.CutPrefix(spriteRender.SpriteKey, "dwall_"); ok {
-				number = after
-				prefix = "w"
+			key := spriteRender.SpriteKey
+			if i := strings.LastIndex(key, "_"); i >= 0 {
+				family, _, _ := strings.Cut(key, "_")
+				switch family {
+				case "dirt":
+					number, prefix = key[i+1:], "d"
+				case "dwall":
+					number, prefix = key[i+1:], "w"
+				}
 			}
 
 			if number != "" {
