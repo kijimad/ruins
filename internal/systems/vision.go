@@ -93,15 +93,17 @@ func (sys *VisionSystem) Update(world w.World) error {
 
 	// 視界内タイルの光源情報を計算し、探索済みマークを行う。
 	// マップ外座標はデータに含めない。
-	// 環境光は屋内なら微小、地上なら時間帯の日照。昼の屋外は全体が明るく松明が要らず、
-	// 地下や深夜は松明の届く範囲だけが見える
-	// 環境光は明るさと色を持つ。屋内は微小で無彩色、地上は時間帯の日照と色
+	// 環境光は明るさと色を持つ。ダンジョンは微小で無彩色、地上は時間帯の日照と色で、屋根の下は
+	// 囲われの日照を受ける割合だけ日照を受ける。昼の屋外は全体が明るく松明が要らず、
+	// ダンジョンと深夜と屋内は松明の届く範囲だけが見える
 	ambient := dungeonAmbient
 	ambientColor := [3]float64{1, 1, 1}
+	var daylightPercents map[gc.GridElement]int
 	if query.IsOnOverworld(world) {
 		gt := query.GetGameTime(world)
 		ambient = overworldDaylight(world.Resources.CalendarDefs, gt)
 		ambientColor = overworldAmbientColor(world.Resources.CalendarDefs, gt)
+		daylightPercents = buildDaylightPercentIndex(world)
 	}
 	visibleTiles := make(map[gc.GridElement]bool)
 	for _, tileData := range visibilityData {
@@ -113,7 +115,11 @@ func (sys *VisionSystem) Update(world w.World) error {
 			continue
 		}
 
-		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, ambient, ambientColor)
+		tileAmbient := ambient
+		if p, ok := daylightPercents[gridElement]; ok {
+			tileAmbient = shelteredAmbient(ambient, p)
+		}
+		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, tileAmbient, ambientColor)
 		// 明るさが閾値未満なら見えない。視界を光の届く範囲へ寄せる。
 		// 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる
 		if 1.0-info.Darkness < visibilityThreshold {
@@ -154,6 +160,7 @@ type TileRenderInfo interface {
 type TileRenderVisible struct {
 	Darkness   VisibleDarkness // 暗闘の強さ。0.0で完全に明るく、1.0で完全に暗い
 	LightColor color.RGBA      // 光源がある場合の色
+	Ambient    float64         // タイルが受ける環境光の明るさ。光の情報が無ければ 0 で、昼の底上げを受けない
 }
 
 func (TileRenderVisible) tileRenderInfo() {}
@@ -196,6 +203,7 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo)
 		visible := TileRenderVisible{Darkness: DarknessVisible}
 		if li, ok := lights[grid]; ok {
 			visible.Darkness = VisibleDarkness(math.Min(li.Darkness, float64(DarknessRemembered)))
+			visible.Ambient = li.Ambient
 			// 完全な暗黒には色を乗せない。描画側も無視するが、意図を明示する
 			if li.Darkness < 1.0 {
 				visible.LightColor = li.Color
@@ -348,6 +356,26 @@ func overworldAmbientColor(defs gc.CalendarDefs, gt *gc.GameTime) [3]float64 {
 	return [3]float64{a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t}
 }
 
+// shelteredAmbient は日照 daylight のうち percent の割合だけを受けた環境光を返す。0 ならダンジョンと同じ暗さになる。
+// 日照がダンジョンより暗くても、屋根の下が屋外より明るくはならない
+func shelteredAmbient(daylight float64, percent int) float64 {
+	return math.Min(daylight, dungeonAmbient+(daylight-dungeonAmbient)*float64(percent)/100)
+}
+
+// buildDaylightPercentIndex は日照を減らして受けるタイルの座標と、日照を受ける割合を集める。表に無い座標は日照をそのまま受ける
+func buildDaylightPercentIndex(world w.World) map[gc.GridElement]int {
+	index := make(map[gc.GridElement]int)
+	shelters := world.Resources.TileEnvDefs.Shelters
+	q := query.ActiveFilter3[gc.GridElement, gc.TileEnvironment, gc.Tile](world).Query()
+	for q.Next() {
+		def, ok := shelters[world.Components.TileEnvironment.Get(q.Entity()).Shelter]
+		if ok && def.DaylightPercent < 100 {
+			index[*world.Components.GridElement.Get(q.Entity())] = def.DaylightPercent
+		}
+	}
+	return index
+}
+
 // lightAccum は環境光と光源を畳んで明るさと色を溜める。フィルタ列で順に組み立てる。
 type lightAccum struct {
 	brightness       float64 // 加算した明るさ。resolve で 0..1 にクランプする
@@ -431,7 +459,9 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 		acc = acc.addSource(lightSource.Color, atten*suppress)
 	}
 
-	return acc.resolve()
+	info := acc.resolve()
+	info.Ambient = ambient
+	return info
 }
 
 // 各タイル状態の暗闇の強さ
@@ -442,7 +472,7 @@ const (
 
 // ライティングの調整値
 const (
-	// dungeonAmbient は屋内の環境光。松明が無いと見えないくらい暗い
+	// dungeonAmbient はダンジョンの環境光。松明が無いと見えないくらい暗い
 	dungeonAmbient = 0.06
 	// lightFadeLow は光源のフェードの下端。これ以下の環境光では光源が満額効く
 	lightFadeLow = 0.45

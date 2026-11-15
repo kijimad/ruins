@@ -1,6 +1,8 @@
 package states_test
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -11,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/vrt/replay"
@@ -55,6 +58,45 @@ func overworldAtTurn(turns consts.Turn) func(world w.World) ([]es.State[w.World]
 		return []es.State[w.World]{s}, err
 	}
 }
+
+// indoorOverworldState は地上を始めた直後に、プレイヤーを最も近い屋内の通れるマスへ動かす。
+// 開始地点は荒れ地になりやすく、屋根の下の明るさを撮るために使う。撮る場所は地上の生成で決まるので、
+// 生成を変えると撮る建物も変わる
+type indoorOverworldState struct {
+	*gs.DungeonState
+}
+
+// OnStart は地上を始めてから、プレイヤーを屋内へ動かす
+func (s indoorOverworldState) OnStart(world w.World) error {
+	if err := s.DungeonState.OnStart(world); err != nil {
+		return err
+	}
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	from := world.Components.GridElement.Get(player).Coord
+	var best consts.Coord[consts.Tile]
+	bestDist := -1
+	q := query.ActiveFilter2[gc.GridElement, gc.TileEnvironment](world).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.BlockPass.Has(e) || world.Components.TileEnvironment.Get(e).Shelter != rawschema.Indoor {
+			continue
+		}
+		c := world.Components.GridElement.Get(e).Coord
+		d := int((c.X-from.X)*(c.X-from.X) + (c.Y-from.Y)*(c.Y-from.Y))
+		if bestDist < 0 || d < bestDist || (d == bestDist && (c.Y < best.Y || (c.Y == best.Y && c.X < best.X))) {
+			best, bestDist = c, d
+		}
+	}
+	if bestDist < 0 {
+		return errNoIndoorTile
+	}
+	return lifecycle.MovePlayerToPosition(world, best)
+}
+
+var errNoIndoorTile = errors.New("no indoor tile in the band")
 
 // goldenCases は TestGolden が撮る場面の一覧。build は fixture の error をそのまま返し、サブテストで require する。
 // *testing.T を取らないことで golangci-lint の thelper の誤検知を避ける
@@ -410,6 +452,23 @@ var goldenCases = []struct {
 	{name: "Overworld_Snowfall", build: overworldAtTurn(16*1500 + 625), steps: []replayStep{{shot: true}}},
 	// Overworld_Winter は冬の底の25日目の昼を撮る。屋根の無い土の地面の全てが雪に覆われる
 	{name: "Overworld_Winter", build: overworldAtTurn(24*1500 + 625), steps: []replayStep{{shot: true}}},
+	// Overworld_Indoor は昼に建物の中に立つ画面を撮る。屋根の下は日照を減らして受け、屋外より暗い
+	{
+		name: "Overworld_Indoor",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{})()
+			if err != nil {
+				return nil, err
+			}
+			ds, ok := s.(*gs.DungeonState)
+			if !ok {
+				return nil, fmt.Errorf("unexpected state type %T", s)
+			}
+			query.GetGameTime(world).TotalTurns = 625
+			return []es.State[w.World]{indoorOverworldState{ds}}, nil
+		},
+		steps: []replayStep{{shot: true}},
+	},
 	// Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
 	// プレイヤーは上り階段の上に湧く実スポーンのまま撮る。
 	{

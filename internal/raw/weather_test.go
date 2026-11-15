@@ -296,9 +296,9 @@ func TestNewTileEnvDefs_実データ(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, gc.TileEnvDefs{
 		Shelters: map[rawschema.Shelter]gc.ShelterDef{
-			rawschema.Outdoor: {Name: "Outdoor", AnchorTemp: 10, InfluencePercent: 100},
-			rawschema.Partial: {Name: "Semi-outdoor", AnchorTemp: 10, InfluencePercent: 75, Covered: true},
-			rawschema.Indoor:  {Name: "Indoor", AnchorTemp: 10, InfluencePercent: 50, Covered: true},
+			rawschema.Outdoor: {Name: "Outdoor", AnchorTemp: 10, InfluencePercent: 100, DaylightPercent: 100},
+			rawschema.Partial: {Name: "Semi-outdoor", AnchorTemp: 10, InfluencePercent: 75, Covered: true, DaylightPercent: 60},
+			rawschema.Indoor:  {Name: "Indoor", AnchorTemp: 10, InfluencePercent: 50, Covered: true, DaylightPercent: 25},
 		},
 		Water:   map[rawschema.WaterExposure]int{rawschema.Nearby: -5, rawschema.Submerged: -10},
 		Foliage: map[rawschema.Foliage]int{rawschema.FoliageGrass: -1, rawschema.FoliageForest: -3},

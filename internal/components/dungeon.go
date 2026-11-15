@@ -13,6 +13,7 @@ type TileIdx int
 type LightInfo struct {
 	Darkness float64
 	Color    color.RGBA
+	Ambient  float64 // タイルが受ける環境光の明るさ。屋根の下ほど日照を受けず暗い
 }
 
 // SeamlessBand はオーバーワールドのアクティブ帯の永続状態を保持する。

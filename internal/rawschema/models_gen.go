@@ -2418,12 +2418,18 @@ func ShelterValues() []Shelter {
 	return []Shelter{Outdoor, Partial, Indoor}
 }
 
+// ShelterDaylightPercent 地上の日照を受ける割合。百分率。100 なら屋外と同じ明るさ、0 ならダンジョンと同じ暗さになる
+type ShelterDaylightPercent = int
+
 // ShelterEffect 囲われの度合いごとの、世界温度の受け方と表示名。受ける温度は anchorTemp + (世界温度 - anchorTemp) * influencePercent / 100
 type ShelterEffect struct {
 	AnchorTemp TileTempModifier `json:"anchorTemp"`
 
 	// Covered 屋根に覆われているか。覆われない通れるタイルには雪が積もる
 	Covered bool `json:"covered"`
+
+	// DaylightPercent 地上の日照を受ける割合
+	DaylightPercent ShelterDaylightPercent `json:"daylightPercent"`
 
 	Id Shelter `json:"id"`
 

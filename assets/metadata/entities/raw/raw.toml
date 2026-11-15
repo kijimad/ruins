@@ -22837,6 +22837,7 @@
 [[shelterEffects]]
   anchorTemp = 10
   covered = false
+  daylightPercent = 100
   id = "outdoor"
   influencePercent = 100
   name = "Outdoor"
@@ -22844,6 +22845,7 @@
 [[shelterEffects]]
   anchorTemp = 10
   covered = true
+  daylightPercent = 60
   id = "partial"
   influencePercent = 75
   name = "Semi-outdoor"
@@ -22851,6 +22853,7 @@
 [[shelterEffects]]
   anchorTemp = 10
   covered = true
+  daylightPercent = 25
   id = "indoor"
   influencePercent = 50
   name = "Indoor"
