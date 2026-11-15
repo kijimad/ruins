@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-15 02:58:15</td>
+            <td class="headerValue">2026-11-15 03:32:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,7 +111,7 @@
 <span id="L49"><span class="lineNum">      49</span>              : // PlanMeta は森の基本地形をタイルに描画する</span>
 <span id="L50"><span class="lineNum">      50</span>              : func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {</span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         for i := range planData.Tiles {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 planData.Tiles[i] = planData.GetTile(consts.TileNameRoad)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 planData.Tiles[i] = planData.GetTile(consts.TileNameDirt)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         for _, clearing := range planData.Rooms {</span></span>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                         if distance &lt;= radius {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                                 planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                                 planData.Tiles[idx] = planData.GetTile(consts.TileNameDirt)</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L75"><span class="lineNum">      75</span>              :                 }</span>
 <span id="L76"><span class="lineNum">      76</span>              :         }</span>
@@ -371,7 +371,7 @@
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                                         distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))</span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                                         if distance &lt;= float64(radius) {</span></span>
 <span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                                                 planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                                                 planData.Tiles[idx] = planData.GetTile(consts.TileNameDirt)</span></span>
 <span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                                         }</span></span>
 <span id="L314"><span class="lineNum">     314</span>              :                                 }</span>
 <span id="L315"><span class="lineNum">     315</span>              :                         }</span>
@@ -388,8 +388,8 @@
 <span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         chain.With(ForestTrees{})        // 木を配置</span></span>
 <span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         chain.With(ForestPaths{})        // 自然な通路を作成</span></span>
 <span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         chain.With(ForestWildlife{})     // 野生動物の痕跡を追加</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :         chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁を道に変換</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 ReplacementTile: consts.TileNameRoad,</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :         chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁を土に変換</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 ReplacementTile: consts.TileNameDirt,</span></span>
 <span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :         chain.With(EnvironmentPlanner{})</span></span>
 <span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 : </span></span>

@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (81.9%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (89.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (79.7%)</option>
 				
@@ -1726,7 +1726,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1880,8 +1880,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -20798,7 +20798,7 @@ type ForestTerrain struct{}
 // PlanMeta は森の基本地形をタイルに描画する
 func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {
         <span class="cov8" title="1">for i := range planData.Tiles </span>{
-                <span class="cov8" title="1">planData.Tiles[i] = planData.GetTile(consts.TileNameRoad)
+                <span class="cov8" title="1">planData.Tiles[i] = planData.GetTile(consts.TileNameDirt)
 </span>        }
 
         <span class="cov8" title="1">for _, clearing := range planData.Rooms </span>{
@@ -20819,7 +20819,7 @@ func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Re
 </span>
                         <span class="cov8" title="1">if distance &lt;= radius </span>{
                                 <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)
+                                planData.Tiles[idx] = planData.GetTile(consts.TileNameDirt)
 </span>                        }
                 }
         }
@@ -21058,7 +21058,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
                                         <span class="cov8" title="1">distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))
                                         if distance &lt;= float64(radius) </span>{
                                                 <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
-                                                planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)
+                                                planData.Tiles[idx] = planData.GetTile(consts.TileNameDirt)
 </span>                                        }
                                 }
                         }
@@ -21075,8 +21075,8 @@ func NewForestPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Plan
         chain.With(ForestTrees{})        // 木を配置
         chain.With(ForestPaths{})        // 自然な通路を作成
         chain.With(ForestWildlife{})     // 野生動物の痕跡を追加
-        chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁を道に変換
-                ReplacementTile: consts.TileNameRoad,
+        chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁を土に変換
+                ReplacementTile: consts.TileNameDirt,
         })
         chain.With(EnvironmentPlanner{})
 </span>
