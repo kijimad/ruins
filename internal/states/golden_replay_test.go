@@ -86,7 +86,7 @@ func (s indoorOverworldState) OnStart(world w.World) error {
 		}
 		c := world.Components.GridElement.Get(e).Coord
 		d := int((c.X-from.X)*(c.X-from.X) + (c.Y-from.Y)*(c.Y-from.Y))
-		if bestDist < 0 || d < bestDist || d == bestDist && (c.Y < best.Y || c.Y == best.Y && c.X < best.X) {
+		if bestDist < 0 || d < bestDist || (d == bestDist && (c.Y < best.Y || (c.Y == best.Y && c.X < best.X))) {
 			best, bestDist = c, d
 		}
 	}

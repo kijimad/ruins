@@ -111,8 +111,9 @@ func TestVisTintFunc_受ける環境光が強いタイルだけを持ち上げ�
 	world := testutil.InitTestWorld(t)
 	outdoor := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}}
 	indoor := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 0}}
+	unlit := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}}
 	vs := query.GetVisionState(world)
-	vs.VisibleTiles = map[gc.GridElement]bool{outdoor: true, indoor: true}
+	vs.VisibleTiles = map[gc.GridElement]bool{outdoor: true, indoor: true, unlit: true}
 	white := color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	vs.LightSourceCache = map[gc.GridElement]gc.LightInfo{
 		outdoor: {Color: white, Ambient: 0.95},
@@ -124,6 +125,9 @@ func TestVisTintFunc_受ける環境光が強いタイルだけを持ち上げ�
 	assert.InDeltaSlice(t, []float64{1 + dayOverbrightMax, 1 + dayOverbrightMax, 1 + dayOverbrightMax}, got[:], 1e-9)
 	got, _, _ = tintOf(&indoor)
 	assert.InDeltaSlice(t, []float64{1, 1, 1}, got[:], 1e-9)
+	got, _, _ = tintOf(&unlit)
+	brightness := 1 - float64(DarknessVisible)
+	assert.InDeltaSlice(t, []float64{brightness, brightness, brightness}, got[:], 1e-9, "光の情報が無いタイルは底上げを受けない")
 }
 
 // TestSortQuadsByDepth_奥から手前へ並べる は画家アルゴリズムの前段ソートを固定する。
