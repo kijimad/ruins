@@ -117,7 +117,7 @@ func newEdgeTileTestPlan() *MetaPlan {
 	return plan
 }
 
-func TestMetaPlan_UpTile_上端は境界外のvoidタイルを返す(t *testing.T) {
+func TestMetaPlan_UpTile_上端は地図の外の通れないタイルを返す(t *testing.T) {
 	t.Parallel()
 
 	plan := newEdgeTileTestPlan()
@@ -125,7 +125,7 @@ func TestMetaPlan_UpTile_上端は境界外のvoidタイルを返す(t *testing.
 
 	tile := plan.UpTile(topIdx)
 
-	assert.Equal(t, plan.GetTile(consts.TileNameVoid), tile)
+	assert.Equal(t, rawschema.Tile{BlockPass: true}, tile)
 }
 
 func TestMetaPlan_UpTile_境界外でなければ上のタイルを返す(t *testing.T) {
@@ -139,7 +139,7 @@ func TestMetaPlan_UpTile_境界外でなければ上のタイルを返す(t *tes
 	assert.Equal(t, plan.GetTile(consts.TileNameFloor), tile)
 }
 
-func TestMetaPlan_DownTile_下端は境界外のvoidタイルを返す(t *testing.T) {
+func TestMetaPlan_DownTile_下端は地図の外の通れないタイルを返す(t *testing.T) {
 	t.Parallel()
 
 	plan := newEdgeTileTestPlan()
@@ -147,7 +147,7 @@ func TestMetaPlan_DownTile_下端は境界外のvoidタイルを返す(t *testin
 
 	tile := plan.DownTile(bottomIdx)
 
-	assert.Equal(t, plan.GetTile(consts.TileNameVoid), tile)
+	assert.Equal(t, rawschema.Tile{BlockPass: true}, tile)
 }
 
 func TestMetaPlan_DownTile_境界外でなければ下のタイルを返す(t *testing.T) {
@@ -161,7 +161,7 @@ func TestMetaPlan_DownTile_境界外でなければ下のタイルを返す(t *t
 	assert.Equal(t, plan.GetTile(consts.TileNameFloor), tile)
 }
 
-func TestMetaPlan_LeftTile_左端は境界外のvoidタイルを返す(t *testing.T) {
+func TestMetaPlan_LeftTile_左端は地図の外の通れないタイルを返す(t *testing.T) {
 	t.Parallel()
 
 	plan := newEdgeTileTestPlan()
@@ -169,7 +169,7 @@ func TestMetaPlan_LeftTile_左端は境界外のvoidタイルを返す(t *testin
 
 	tile := plan.LeftTile(leftIdx)
 
-	assert.Equal(t, plan.GetTile(consts.TileNameVoid), tile)
+	assert.Equal(t, rawschema.Tile{BlockPass: true}, tile)
 }
 
 func TestMetaPlan_LeftTile_境界外でなければ左のタイルを返す(t *testing.T) {
@@ -183,7 +183,7 @@ func TestMetaPlan_LeftTile_境界外でなければ左のタイルを返す(t *t
 	assert.Equal(t, plan.GetTile(consts.TileNameFloor), tile)
 }
 
-func TestMetaPlan_RightTile_右端は境界外のvoidタイルを返す(t *testing.T) {
+func TestMetaPlan_RightTile_右端は地図の外の通れないタイルを返す(t *testing.T) {
 	t.Parallel()
 
 	plan := newEdgeTileTestPlan()
@@ -191,7 +191,7 @@ func TestMetaPlan_RightTile_右端は境界外のvoidタイルを返す(t *testi
 
 	tile := plan.RightTile(rightIdx)
 
-	assert.Equal(t, plan.GetTile(consts.TileNameVoid), tile)
+	assert.Equal(t, rawschema.Tile{BlockPass: true}, tile)
 }
 
 func TestMetaPlan_RightTile_境界外でなければ右のタイルを返す(t *testing.T) {

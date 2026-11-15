@@ -22,7 +22,7 @@ func (b LineCorridorPlanner) PlanMeta(planData *MetaPlan) error {
 	return nil
 }
 
-// BuildCorridors は廊下をビルドする
+// BuildCorridors は廊下をビルドする。廊下は間取りの壁だけを床にする
 func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 	// 接続済みの部屋。通路を2重に計算しないようにする
 	connected := map[int]bool{}

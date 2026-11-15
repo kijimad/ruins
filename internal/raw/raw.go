@@ -778,6 +778,12 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	return entitySpec, nil
 }
 
+// TileIsTall はタイルの行が高さのあるタイルかを返す。描画順が高さのあるもの DepthNumTaller なら高い。
+// 高いタイルのオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い塊の内側は虚空にする
+func TileIsTall(t rawschema.Tile) bool {
+	return gc.DepthNum(int(t.SpriteRender.Depth)) == gc.DepthNumTaller
+}
+
 // TileEnvironmentOf はタイルの行だけから決まる環境属性を返す。水の影響は周りのタイルで決まるので含まない
 func TileEnvironmentOf(t rawschema.Tile) gc.TileEnvironment {
 	env := gc.TileEnvironment{Shelter: TileShelter(t)}

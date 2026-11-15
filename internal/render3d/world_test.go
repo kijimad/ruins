@@ -100,7 +100,7 @@ func TestTileTopHeight_壁は天面床は地面の高さになる(t *testing.T) 
 	assert.InDelta(t, 0.0, render3d.TileTopHeight(world, consts.Coord[consts.Tile]{X: 40, Y: 40}), 1e-9)
 }
 
-func TestIsWallTile_通行を塞ぐだけの物は箱にならない(t *testing.T) {
+func TestIsBoxTile_通行を塞ぐだけの物は箱にならない(t *testing.T) {
 	t.Parallel()
 
 	// 扉は BlockPass を持つが Tile ではないので箱として描かれない。
@@ -110,10 +110,10 @@ func TestIsWallTile_通行を塞ぐだけの物は箱にならない(t *testing.
 	require.NoError(t, err)
 	require.True(t, world.Components.BlockPass.Has(door))
 
-	assert.False(t, render3d.IsWallTile(world, consts.Coord[consts.Tile]{X: 25, Y: 24}))
+	assert.False(t, render3d.IsBoxTile(world, consts.Coord[consts.Tile]{X: 25, Y: 24}))
 }
 
-func TestWallTileSet_箱になるタイルだけを集める(t *testing.T) {
+func TestBoxTileSet_箱になるタイルだけを集める(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -123,7 +123,7 @@ func TestWallTileSet_箱になるタイルだけを集める(t *testing.T) {
 	require.NoError(t, err)
 
 	// 壁の側面を省く判定と、タイルを指す判定が同じ集合を見る
-	walls := render3d.WallTileSet(world)
+	walls := render3d.BoxTileSet(world)
 	assert.True(t, walls[consts.Coord[consts.Tile]{X: 25, Y: 24}])
 	assert.False(t, walls[consts.Coord[consts.Tile]{X: 25, Y: 23}])
 }

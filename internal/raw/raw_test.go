@@ -972,6 +972,20 @@ BlockView = true
 	assert.NotNil(t, spec.BlockView, "壁タイルにはBlockViewがある")
 }
 
+func TestTileIsTall_実データで描画順が高さのあるタイルだけが高い(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	var tall []string
+	for _, tile := range PtrSlice(raws.Tiles) {
+		if TileIsTall(tile) {
+			tall = append(tall, tile.Id)
+		}
+	}
+	assert.ElementsMatch(t, []string{"wall", "dwall", "void"}, tall)
+}
+
 func TestNewTileSpec_WithAutoTileIndex(t *testing.T) {
 	t.Parallel()
 

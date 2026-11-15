@@ -190,7 +190,7 @@ func newSimpleStep(r rawschema.SimpleStep, tiles rawschema.LayoutTiles) (MetaMap
 	case rawschema.SimpleStepKindForestFloor:
 		return ForestTerrain{Tiles: tiles}, nil
 	case rawschema.SimpleStepKindIsolatedWalls:
-		return ConvertIsolatedWalls{WallTile: tiles.Wall, ReplacementTile: tiles.Void}, nil
+		return ConvertIsolatedWalls{ReplacementTile: tiles.Void}, nil
 	}
 	return nil, fmt.Errorf("%w: %s kind %s", ErrUnknownStep, r.Id, r.Kind)
 }

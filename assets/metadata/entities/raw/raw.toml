@@ -23413,7 +23413,7 @@
   [tiles.spawn]
     autotile = false
   [tiles.spriteRender]
-    depth = 0
+    depth = 3
     spriteKey = "void"
     spriteSheetName = "tile"
 

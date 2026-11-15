@@ -53,7 +53,7 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	planData.Tiles[centerIdx] = planData.GetTile("wall")
 
 	// プランナーを実行（floorに変換）
-	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameFloor}
+	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameFloor}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -110,7 +110,7 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 	}
 
 	// プランナーを実行（voidに変換）
-	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameVoid}
+	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -149,7 +149,7 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 	}
 
 	// プランナーを実行
-	converter := ConvertIsolatedWalls{WallTile: consts.TileNameWall, ReplacementTile: consts.TileNameVoid}
+	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
 	require.NoError(t, err)
 
@@ -181,7 +181,36 @@ func TestConvertIsolatedWalls_置き換え先のgroundは計画の下地(t *test
 	t.Run("孤立した壁を計画の下地にする", func(t *testing.T) {
 		t.Parallel()
 		planData := newPlan("dirt")
-		require.NoError(t, ConvertIsolatedWalls{WallTile: "wall", ReplacementTile: maptemplate.GroundTerrain}.PlanMeta(planData))
+		require.NoError(t, ConvertIsolatedWalls{ReplacementTile: maptemplate.GroundTerrain}.PlanMeta(planData))
 		assert.Equal(t, "dirt", planData.Tiles[center].Id)
 	})
+}
+
+func TestConvertIsolatedWalls_高さのない通れないタイルは置き換えない(t *testing.T) {
+	t.Parallel()
+
+	// 5x5 の中央は添字 2*5+2。全てを同じタイルにすると、中央は通れるマスに接しない
+	const center = 12
+	tests := []struct {
+		fill string
+		want string
+	}{
+		{"wall", "floor"},
+		{"deep_water", "deep_water"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.fill, func(t *testing.T) {
+			t.Parallel()
+			planData := &MetaPlan{
+				Level:     gc.Level{TileWidth: 5, TileHeight: 5},
+				Tiles:     make([]rawschema.Tile, 25),
+				RawMaster: CreateTestRawMaster(),
+			}
+			for i := range planData.Tiles {
+				planData.Tiles[i] = planData.GetTile(tt.fill)
+			}
+			require.NoError(t, ConvertIsolatedWalls{ReplacementTile: "floor"}.PlanMeta(planData))
+			assert.Equal(t, tt.want, planData.Tiles[center].Id)
+		})
+	}
 }

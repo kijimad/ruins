@@ -313,7 +313,7 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 
 // collectTiles は床と壁のクアッドを quads へ追記して返す。
 func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
-	walls := render3d.WallTileSet(world)
+	walls := render3d.BoxTileSet(world)
 	snow := sys.newSnowLayer(world)
 	tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
 	for tileQ.Next() {
@@ -333,7 +333,7 @@ func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector
 		if !vok {
 			continue
 		}
-		if render3d.IsWallTileEntity(world, e) {
+		if render3d.IsBoxTileEntity(world, e) {
 			sys.addWall(&quads, walls, g.Coord, fx, fz, atlas, ux, uy, uw, uh, tint)
 		} else {
 			sys.addQuad(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)

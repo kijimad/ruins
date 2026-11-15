@@ -195,7 +195,7 @@ func TestSpawnFacility_畳は屋内で庭は下地のまま屋外(t *testing.T) 
 	assert.Equal(t, []rawschema.Shelter{rawschema.Outdoor}, slices.Collect(maps.Keys(got["dirt_tundra"])), "庭は置かれた場所の下地のまま")
 }
 
-func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空にする(t *testing.T) {
+func TestVoidEnclosedTall_通れるマスに接しない高さのある地形だけを虚空にする(t *testing.T) {
 	t.Parallel()
 
 	parse := func(rows []string) [][]maptemplate.MapCell {
@@ -234,6 +234,7 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 		return out
 	}
 	blocks := func(terrain string) bool { return terrain == consts.TileNameWall || terrain == consts.TileNameVoid }
+	isTall := func(terrain string) bool { return terrain == consts.TileNameWall }
 	rows := []string{
 		"######",
 		"######",
@@ -243,7 +244,7 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 	}
 
 	walled := parse(rows)
-	voidEnclosedWalls(walled, blocks, func(int, int) bool { return false })
+	voidEnclosedTall(walled, blocks, isTall, func(int, int) bool { return false })
 	assert.Equal(t, []string{
 		"      ",
 		"      ",
@@ -253,7 +254,7 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 	}, render(walled), "マスの外を壁と数えると、外周の壁も床に接しなければ虚空になる")
 
 	open := parse(rows)
-	voidEnclosedWalls(open, blocks, func(int, int) bool { return true })
+	voidEnclosedTall(open, blocks, isTall, func(int, int) bool { return true })
 	assert.Equal(t, []string{
 		"######",
 		"#    #",
@@ -263,7 +264,7 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 	}, render(open), "マスの外を通れると数えると、外周の壁は残る")
 
 	east := parse(rows)
-	voidEnclosedWalls(east, blocks, func(x, _ int) bool { return x >= 6 })
+	voidEnclosedTall(east, blocks, isTall, func(x, _ int) bool { return x >= 6 })
 	assert.Equal(t, []string{
 		"     #",
 		"     #",
@@ -271,6 +272,15 @@ func TestVoidEnclosedWalls_通れるマスに接しない壁だけを虚空に�
 		"######",
 		"#....#",
 	}, render(east), "通れる外に面する辺の壁だけが残る")
+
+	// 高さのない通れない地形は、囲まれていても虚空にしない
+	water := [][]maptemplate.MapCell{
+		{{Terrain: "deep_water"}, {Terrain: "deep_water"}, {Terrain: "deep_water"}},
+		{{Terrain: "deep_water"}, {Terrain: "deep_water"}, {Terrain: "deep_water"}},
+		{{Terrain: "deep_water"}, {Terrain: "deep_water"}, {Terrain: "deep_water"}},
+	}
+	voidEnclosedTall(water, func(string) bool { return true }, isTall, func(int, int) bool { return false })
+	assert.Equal(t, "deep_water", water[1][1].Terrain, "囲まれた水は水のまま")
 }
 
 // TestFacilityTemplates_囲いの外の床は屋外で内は屋内 は1棟の絵で、区画の縁から壁と扉を越えずにたどれる床が屋外のタイルを、

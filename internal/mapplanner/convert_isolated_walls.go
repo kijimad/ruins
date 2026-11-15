@@ -2,18 +2,17 @@ package mapplanner
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 )
 
-// ConvertIsolatedWalls は床に隣接しない壁を指定したタイルに変換するプランナー
+// ConvertIsolatedWalls は通れるマスに隣接しない高さのあるタイルを指定したタイルに変換するプランナー
 // オートタイル計算前に実行することで、正しい接続パターンで壁タイルを生成する
 type ConvertIsolatedWalls struct {
-	// WallTile は置き換える壁のタイル名
-	WallTile string
-	// ReplacementTile は孤立した壁を置き換えるタイル名
+	// ReplacementTile は孤立した高さのあるタイルを置き換えるタイル名
 	ReplacementTile string
 }
 
-// PlanMeta は床に隣接しない壁タイルを指定したタイルに変換する
+// PlanMeta は通れるマスに隣接しない高さのあるタイルを指定したタイルに変換する
 func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)
@@ -29,8 +28,7 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 			continue
 		}
 
-		// wallタイルで床に隣接していない場合、変換対象とする
-		if tile.Id == c.WallTile && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
+		if raw.TileIsTall(tile) && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
 			tilesToConvert = append(tilesToConvert, i)
 		}
 	}

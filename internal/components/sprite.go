@@ -92,7 +92,7 @@ const (
 	DepthNumDecal
 	// DepthNumRug は床に置くもの。例: アイテム、焚き火
 	DepthNumRug
-	// DepthNumTaller は高さのあるもの。例: 操作対象エンティティ、敵シンボル、壁
+	// DepthNumTaller は高さのあるもの。例: 操作対象エンティティ、敵シンボル、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く
 	DepthNumTaller
 	// DepthNumPlayer は操作キャラを最も手前に表示する
 	DepthNumPlayer
