@@ -3,6 +3,8 @@ package overworld
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/rawschema"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,15 +19,24 @@ func TestWinnerOf_SpacingがSeparation以下はパニックする(t *testing.T) 
 	}, "Spacing <= Separation の設定ミスはパニックで弾く")
 }
 
-// TestPlacements_全登録配置はSpacingがSeparationより大きい は、登録済みの Placement が
-// WinnerOf のガードに引っかからない健全な設定であることを固定する。
-func TestPlacements_全登録配置はSpacingがSeparationより大きい(t *testing.T) {
+func TestPlacements_実データの全ての地物はSpacingがSeparationより大きい(t *testing.T) {
 	t.Parallel()
 
-	for name, p := range map[string]Placement{
-		"settlement": settlementPlacement,
-		"landmark":   landmarkPlacement,
-	} {
-		assert.Greaterf(t, p.Spacing, p.Separation, "%s の Spacing は Separation より大きい", name)
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	for _, kind := range rawschema.PointFeatureKindValues() {
+		p := placementOf(raws, kind)
+		assert.Greaterf(t, p.Spacing, p.Separation, "%s の Spacing は Separation より大きい", kind)
+	}
+}
+
+func TestPlacements_地物の行のソルトは区域と散布のソルトと重ならない(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	got := map[uint64]bool{districtSalt: true, scatterSalt: true, outdoorLootSalt: true}
+	for _, kind := range rawschema.PointFeatureKindValues() {
+		salt := placementOf(raws, kind).Salt
+		assert.Falsef(t, got[salt], "%s のソルト %d が他と重なる", kind, salt)
+		got[salt] = true
 	}
 }

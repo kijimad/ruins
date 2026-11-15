@@ -20,8 +20,12 @@ func TestGenerateReport_プレイヤーと武器と敵テーブルの結果を�
 
 	assert.Equal(t, "bare_hands", report.Weapon.Name)
 
-	require.Len(t, report.EnemyTables, len(raw.PtrSlice(master.EnemyTables)), "raw.tomlのenemyTables数と一致する")
-	for _, run := range report.EnemyTables {
+	names := make([]string, 0, len(report.Dungeons))
+	for _, run := range report.Dungeons {
+		names = append(names, run.Name)
+	}
+	assert.Equal(t, []string{"Dead forest", "Ash cave", "Forgotten ruins"}, names, "一覧に出すダンジョンを行の順に試算する")
+	for _, run := range report.Dungeons {
 		assert.Equal(t, 3, run.MaxDepth)
 		assert.Equal(t, 5, run.Trials)
 		assert.NotEmpty(t, run.Depths, "深度1には必ず到達する")
@@ -89,7 +93,7 @@ func TestReport_Markdown(t *testing.T) {
 	r := &Report{
 		Player: PlayerInfo{Name: "ash", HP: 80, Strength: 5, Sensation: 4, Dexterity: 3, Agility: 2, Defense: 1},
 		Weapon: WeaponInfo{Name: "bare_hands", Damage: 3, Accuracy: 90},
-		EnemyTables: []EnemyTableRun{{
+		Dungeons: []DungeonRun{{
 			Name: "廃墟", Trials: 10, MaxDepth: 3, MedianDepth: 2, DeathRate: 0.25,
 			Depths: []DepthStat{{Depth: 1, MedianHP: 70, P5HP: 50, P95HP: 80, MedianHPBeforeHeal: 60, MedianKillTurns: 4, MedianWeaponDamage: 3, MedianHunger: 10, MedianDamage: 12, MedianHealing: 5, SuddenDeathRate: 0.1}},
 		}},
@@ -103,7 +107,7 @@ func TestReport_Markdown(t *testing.T) {
 
 武器 bare_hands。ダメージ 3、命中 90。
 
-## 敵テーブル
+## ダンジョン
 
 ### 廃墟
 

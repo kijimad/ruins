@@ -22,7 +22,7 @@ type relSpot struct {
 type settlementFeature struct{}
 
 func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	if !settlementPlacement.At(runSeed, c, cols) {
+	if !placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindSettlement).At(runSeed, c, cols) {
 		return nil
 	}
 	// 区域と重なった当選は区域へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ
@@ -42,7 +42,7 @@ func settlementAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chu
 	for i := range rows {
 		total += int(rows[i].Weight)
 	}
-	roll := int(ChunkSeed2D(runSeed^settlementSalt, c.X, c.Y) % uint64(total))
+	roll := int(ChunkSeed2D(runSeed^placementOf(raws, rawschema.PointFeatureKindSettlement).Salt, c.X, c.Y) % uint64(total))
 	for i := range rows {
 		roll -= int(rows[i].Weight)
 		if roll < 0 {

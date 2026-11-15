@@ -34,7 +34,7 @@ func TestRoadPath_塀に囲まれた区域は南北の門を通る(t *testing.T)
 
 	raws := rawschema.Raws{
 		Districts: &[]rawschema.District{{
-			Id: "lab_campus", Spacing: 20, Separation: 1, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(true),
+			Id: "lab_campus", Spacing: 20, Separation: 1, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(rawschema.EntityID("fence")),
 			Sizes: []rawschema.DistrictSize{{W: 3, H: 4, Weight: 1}},
 		}},
 		Facilities: &[]rawschema.Facility{
@@ -63,4 +63,27 @@ func TestRoadPath_塀に囲まれた区域は南北の門を通る(t *testing.T)
 		span(orientHorizontal, after, lane(south), x),
 		span(orientVertical, x, after, chunkCenter(b.Y, size)),
 	}, roadPath(raws, 1, a, b, cols, 0, size, size))
+}
+
+func TestRoadPath_塀の無い区域は横切ってまっすぐ通る(t *testing.T) {
+	t.Parallel()
+
+	raws := rawschema.Raws{
+		Districts: &[]rawschema.District{{
+			Id: "lab_campus", Spacing: 20, Separation: 1, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers,
+			Sizes: []rawschema.DistrictSize{{W: 3, H: 4, Weight: 1}},
+		}},
+		Facilities: &[]rawschema.Facility{
+			{Id: "gate", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusGate, Weight: 1, MinSpan: 1}}},
+			{Id: "inner", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusInner, Weight: 1, MinSpan: 1}}},
+			{Id: "back", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusQuarantine, Weight: 1, MinSpan: 1}}},
+		},
+	}
+	const cols consts.Chunk = 3
+	const size consts.Tile = 10
+	r := districtsFrom(raws)[0].regionIn(1, 0, cols)
+	a := consts.Coord[consts.Chunk]{X: 0, Y: r.anchor.Y - 3}
+	b := consts.Coord[consts.Chunk]{X: 2, Y: r.anchor.Y + r.h + 2}
+
+	assert.Equal(t, roadSegments(a, b, size, size), roadPath(raws, 1, a, b, cols, 0, size, size))
 }

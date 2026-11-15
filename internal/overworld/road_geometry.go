@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
@@ -85,7 +86,7 @@ func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chun
 func fencedDistrictsBetween(raws rawschema.Raws, runSeed uint64, top, bottom, cols consts.Chunk) []districtRegion {
 	var out []districtRegion
 	for _, d := range districtsFrom(raws) {
-		if d.row.Fence == nil || !*d.row.Fence {
+		if d.row.Fence == nil {
 			continue
 		}
 		spacing := consts.Chunk(d.row.Spacing)
@@ -103,16 +104,25 @@ func fencedDistrictsBetween(raws rawschema.Raws, runSeed uint64, top, bottom, co
 	return out
 }
 
-// crossingRoads はチャンク c を横切りうる道の端点対を返す。c を横切りうるのは (r-1,r) と (r,r+1) を
-// 結ぶ2本だけ。road.go の舗装と scatter.go の回避が同じ結線を共有する。ホットパスで呼ぶので、
-// スライスを確保せず固定長配列で返す。集落は Y 方向のリージョンに並ぶので region は c.Y から引く。
-func crossingRoads(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) [2][2]consts.Coord[consts.Chunk] {
-	r := consts.FloorDiv(c.Y, settlementPlacement.Spacing)
-	var pairs [2][2]consts.Coord[consts.Chunk]
-	for i := range 2 {
-		pr := r - 1 + consts.Chunk(i)
-		pairs[i][0] = settlementPlacement.WinnerOf(runSeed, pr, cols)
-		pairs[i][1] = settlementPlacement.WinnerOf(runSeed, pr+1, cols)
+// roadLink は道で結ぶ2つの当選と、その道
+type roadLink struct {
+	a, b consts.Coord[consts.Chunk]
+	road rawschema.Road
+}
+
+// crossingRoads はチャンク c を横切りうる道を返す。道を持つ地物ごとに、c の行が属するリージョン r の
+// (r-1,r) と (r,r+1) の当選を結ぶ2本だけが c を横切りうる。road.go の舗装と scatter.go の回避が同じ結線を共有する
+func crossingRoads(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) []roadLink {
+	var links []roadLink
+	for _, f := range raw.PtrSlice(raws.PointFeatures) {
+		if f.Road == nil {
+			continue
+		}
+		p := placementFrom(f)
+		r := consts.FloorDiv(c.Y, p.Spacing)
+		for pr := r - 1; pr <= r; pr++ {
+			links = append(links, roadLink{a: p.WinnerOf(runSeed, pr, cols), b: p.WinnerOf(runSeed, pr+1, cols), road: *f.Road})
+		}
 	}
-	return pairs
+	return links
 }

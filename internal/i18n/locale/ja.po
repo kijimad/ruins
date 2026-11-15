@@ -2082,6 +2082,9 @@ msgstr "黒い花瓶"
 msgid "Wooden Crate"
 msgstr "木箱"
 
+msgid "Debug Crate"
+msgstr "デバッグの木箱"
+
 msgid "Locker"
 msgstr "ロッカー"
 

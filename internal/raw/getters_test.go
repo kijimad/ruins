@@ -97,3 +97,16 @@ func TestGetMapGlyph(t *testing.T) {
 		assert.False(t, ok)
 	})
 }
+
+func TestDungeonReachable_入口の重みが0のデバッグの行だけを外す(t *testing.T) {
+	t.Parallel()
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	var listed []string
+	for _, d := range PtrSlice(raws.Dungeons) {
+		if DungeonReachable(&d) {
+			listed = append(listed, d.Id)
+		}
+	}
+	assert.Equal(t, []string{"dead_forest", "ash_cave", "forgotten_ruins"}, listed)
+}

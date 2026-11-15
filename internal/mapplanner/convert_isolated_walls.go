@@ -2,27 +2,19 @@ package mapplanner
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // ConvertIsolatedWalls は床に隣接しない壁を指定したタイルに変換するプランナー
 // オートタイル計算前に実行することで、正しい接続パターンで壁タイルを生成する
 type ConvertIsolatedWalls struct {
+	// WallTile は置き換える壁のタイル名
+	WallTile string
 	// ReplacementTile は孤立した壁を置き換えるタイル名
 	ReplacementTile string
-	// UseGround なら ReplacementTile の代わりに計画の下地 MetaPlan.Ground で置き換える
-	UseGround bool
 }
 
 // PlanMeta は床に隣接しない壁タイルを指定したタイルに変換する
 func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
-	replacement := c.ReplacementTile
-	if c.UseGround {
-		if planData.Ground == "" {
-			return ErrGroundNotSet
-		}
-		replacement = planData.Ground
-	}
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)
 
@@ -38,13 +30,13 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 		}
 
 		// wallタイルで床に隣接していない場合、変換対象とする
-		if tile.Id == consts.TileNameWall && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
+		if tile.Id == c.WallTile && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
 			tilesToConvert = append(tilesToConvert, i)
 		}
 	}
 
 	for _, i := range tilesToConvert {
-		planData.Tiles[i] = planData.GetTile(replacement)
+		planData.Tiles[i] = planData.GetTile(c.ReplacementTile)
 	}
 
 	return nil

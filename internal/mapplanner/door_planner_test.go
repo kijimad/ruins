@@ -122,7 +122,7 @@ func TestDoorPlanner_PlanMeta(t *testing.T) {
 	t.Run("SmallRoomPlannerでドアが生成される", func(t *testing.T) {
 		t.Parallel()
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 
 		chain.PlanData.RawMaster = CreateTestRawMaster()

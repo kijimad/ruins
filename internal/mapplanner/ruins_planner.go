@@ -3,24 +3,26 @@ package mapplanner
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // RuinsPlanner は廃墟風レイアウトを生成するビルダー
 // 建物の残骸や瓦礫が散在する廃墟を作成
-type RuinsPlanner struct{}
+type RuinsPlanner struct {
+	Row rawschema.BuildingStart
+}
 
 // PlanInitial は初期廃墟マップをビルドする
 func (r RuinsPlanner) PlanInitial(planData *MetaPlan) error {
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)
 
-	// まず大きな廃墟建物の基盤を作成（3-5個の大きな矩形）
-	ruinCount := 3 + planData.RNG.IntN(3)
+	ruinCount := r.Row.Buildings.Roll(planData.RNG)
 
 	for range ruinCount {
 		// ランダムな位置とサイズで廃墟の基盤を作成
-		buildingWidth := 8 + planData.RNG.IntN(10)
-		buildingHeight := 6 + planData.RNG.IntN(8)
+		buildingWidth := r.Row.BuildingWidth.Roll(planData.RNG)
+		buildingHeight := r.Row.BuildingHeight.Roll(planData.RNG)
 
 		// IntNの引数が正であることを保証
 		maxXRange := max(1, width-buildingWidth-4)
@@ -38,15 +40,15 @@ func (r RuinsPlanner) PlanInitial(planData *MetaPlan) error {
 
 // RuinsDraw は廃墟構造を描画する
 type RuinsDraw struct {
-	FloorTile string
-	WallTile  string
+	Row   rawschema.RuinedWallStep
+	Tiles rawschema.LayoutTiles
 }
 
 // PlanMeta は廃墟構造をタイルに描画する
 func (r RuinsDraw) PlanMeta(planData *MetaPlan) error {
 	// まず全体を床で埋める（屋外エリア）
 	for i := range planData.Tiles {
-		planData.Tiles[i] = planData.GetTile(r.FloorTile)
+		planData.Tiles[i] = planData.GetTile(r.Tiles.Floor)
 	}
 
 	// 各廃墟建物を処理
@@ -61,27 +63,27 @@ func (r RuinsDraw) drawRuinedBuilding(planData *MetaPlan, building gc.Rect) {
 	// 建物の外壁を描画（一部欠損あり）
 	for x := building.Min.X; x <= building.Max.X; x++ {
 		// 上辺
-		if y := building.Min.Y; planData.RNG.Float64() > 0.3 { // 70%の確率で壁
+		if y := building.Min.Y; planData.RNG.Float64() > r.Row.WallGapChance {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-			planData.Tiles[idx] = planData.GetTile(r.WallTile)
+			planData.Tiles[idx] = planData.GetTile(r.Tiles.Wall)
 		}
 		// 下辺
-		if y := building.Max.Y; planData.RNG.Float64() > 0.3 {
+		if y := building.Max.Y; planData.RNG.Float64() > r.Row.WallGapChance {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-			planData.Tiles[idx] = planData.GetTile(r.WallTile)
+			planData.Tiles[idx] = planData.GetTile(r.Tiles.Wall)
 		}
 	}
 
 	for y := building.Min.Y; y <= building.Max.Y; y++ {
 		// 左辺
-		if x := building.Min.X; planData.RNG.Float64() > 0.3 {
+		if x := building.Min.X; planData.RNG.Float64() > r.Row.WallGapChance {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-			planData.Tiles[idx] = planData.GetTile(r.WallTile)
+			planData.Tiles[idx] = planData.GetTile(r.Tiles.Wall)
 		}
 		// 右辺
-		if x := building.Max.X; planData.RNG.Float64() > 0.3 {
+		if x := building.Max.X; planData.RNG.Float64() > r.Row.WallGapChance {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-			planData.Tiles[idx] = planData.GetTile(r.WallTile)
+			planData.Tiles[idx] = planData.GetTile(r.Tiles.Wall)
 		}
 	}
 
@@ -99,18 +101,18 @@ func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {
 		// 縦の仕切り
 		midX := building.Min.X + consts.Tile(buildingWidth/2)
 		for y := building.Min.Y + 2; y <= building.Max.Y-2; y++ {
-			if planData.RNG.Float64() > 0.4 { // 60%の確率で壁
+			if planData.RNG.Float64() > r.Row.PartitionGapChance {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: midX, Y: y})
-				planData.Tiles[idx] = planData.GetTile(r.WallTile)
+				planData.Tiles[idx] = planData.GetTile(r.Tiles.Wall)
 			}
 		}
 
 		// 横の仕切り
 		midY := building.Min.Y + consts.Tile(buildingHeight/2)
 		for x := building.Min.X + 2; x <= building.Max.X-2; x++ {
-			if planData.RNG.Float64() > 0.4 { // 60%の確率で壁
+			if planData.RNG.Float64() > r.Row.PartitionGapChance {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: midY})
-				planData.Tiles[idx] = planData.GetTile(r.WallTile)
+				planData.Tiles[idx] = planData.GetTile(r.Tiles.Wall)
 			}
 		}
 	}
@@ -118,8 +120,7 @@ func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {
 
 // RuinsDebris は瓦礫や破片を配置する
 type RuinsDebris struct {
-	FloorTile string
-	WallTile  string
+	Tiles rawschema.LayoutTiles
 }
 
 // PlanMeta は廃墟に瓦礫を配置する
@@ -132,12 +133,12 @@ func (r RuinsDebris) PlanMeta(planData *MetaPlan) error {
 		for y := 1; y < height-1; y++ {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
-			if planData.Tiles[idx].Id == r.FloorTile {
+			if planData.Tiles[idx].Id == r.Tiles.Floor {
 				// 建物から離れた場所ほど瓦礫が少ない
 				debrisChance := r.calculateDebrisChance(planData, x, y)
 
 				if planData.RNG.Float64() < debrisChance {
-					planData.Tiles[idx] = planData.GetTile(r.WallTile) // 瓦礫として壁タイルを使用
+					planData.Tiles[idx] = planData.GetTile(r.Tiles.Wall) // 瓦礫として壁タイルを使用
 				}
 			}
 		}
@@ -176,8 +177,8 @@ func (r RuinsDebris) calculateDebrisChance(planData *MetaPlan, x, y int) float64
 
 // RuinsCorridors は廃墟間を繋ぐ通路を作成する
 type RuinsCorridors struct {
-	FloorTile string
-	WallTile  string
+	Row   rawschema.RuinedPathStep
+	Tiles rawschema.LayoutTiles
 }
 
 // PlanMeta は廃墟間に通路を作成する
@@ -192,8 +193,7 @@ func (r RuinsCorridors) PlanMeta(planData *MetaPlan) error {
 			room1 := planData.Rooms[i]
 			room2 := planData.Rooms[j]
 
-			// 30%の確率で通路を作成（すべての建物を繋ぐわけではない）
-			if planData.RNG.Float64() < 0.3 {
+			if planData.RNG.Float64() < r.Row.Chance {
 				r.createRuinedPath(planData, room1, room2)
 			}
 		}
@@ -223,8 +223,8 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 		// 70%の確率で通路を作成（部分的に破損）
 		if planData.RNG.Float64() > 0.3 {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
-			if planData.Tiles[idx].Id == r.WallTile {
-				planData.Tiles[idx] = planData.GetTile(r.FloorTile)
+			if planData.Tiles[idx].Id == r.Tiles.Wall {
+				planData.Tiles[idx] = planData.GetTile(r.Tiles.Floor)
 			}
 		}
 	}
@@ -240,34 +240,9 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 		// 70%の確率で通路を作成
 		if planData.RNG.Float64() > 0.3 {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
-			if planData.Tiles[idx].Id == r.WallTile {
-				planData.Tiles[idx] = planData.GetTile(r.FloorTile)
+			if planData.Tiles[idx].Id == r.Tiles.Wall {
+				planData.Tiles[idx] = planData.GetTile(r.Tiles.Floor)
 			}
 		}
 	}
-}
-
-// NewRuinsPlanner は廃墟ビルダーを作成する
-func NewRuinsPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
-	chain := NewPlannerChain(width, height, seed)
-	chain.StartWith(RuinsPlanner{})
-	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
-	chain.With(RuinsDraw{
-		FloorTile: consts.TileNameFloor,
-		WallTile:  consts.TileNameWall,
-	}) // 廃墟構造を描画
-	chain.With(RuinsDebris{
-		FloorTile: consts.TileNameFloor,
-		WallTile:  consts.TileNameWall,
-	}) // 瓦礫を配置
-	chain.With(RuinsCorridors{
-		FloorTile: consts.TileNameFloor,
-		WallTile:  consts.TileNameWall,
-	}) // 通路を作成
-	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をvoidに変換
-		ReplacementTile: consts.TileNameVoid,
-	})
-	chain.With(EnvironmentPlanner{})
-
-	return chain, nil
 }

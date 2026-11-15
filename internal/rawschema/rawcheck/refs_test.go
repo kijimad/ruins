@@ -46,11 +46,14 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		}},
 		Districts: &[]rawschema.District{{
 			Id: "town", Name: "Town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{{Zones: []rawschema.Zone{rawschema.Residential}}, {Zones: []rawschema.Zone{rawschema.Downtown}}}, Landmark: new(rawschema.EntityID("house")),
-			Street: "floor", Verge: new(rawschema.EntityID("floor")),
+			Street: "floor", Verge: new(rawschema.EntityID("floor")), StreetEnemies: "1d2",
 			Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}},
 		}},
 		Landmarks: &[]rawschema.Landmark{
 			{Id: "house", Weight: 1},
+		},
+		PointFeatures: &[]rawschema.PointFeature{
+			{Id: rawschema.PointFeatureKindSettlement, Spacing: 3, Separation: 1, Salt: 1, Road: &rawschema.Road{Tile: "floor", Width: 2}},
 		},
 		ScatterZones: &[]rawschema.ScatterZone{{
 			Id: "meadow", Ground: "floor", LootGroup: "junk",
@@ -89,11 +92,20 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		}},
 		Dungeons: &[]rawschema.Dungeon{{
 			Id: "forest", Name: "Forest", Description: "Forest", ImageKey: "forest", EnemyTable: "wild", ItemTable: "chest",
-			Planners: []rawschema.DungeonPlannerWeight{{Id: rawschema.DungeonPlannerCave, Weight: 1}},
+			Planners:   []rawschema.DungeonPlannerWeight{{Id: "cave", Weight: 1}},
+			EnemyCount: rawschema.RandInt{Base: 1, Spread: 1}, ItemCount: rawschema.RandInt{Base: 1, Spread: 1},
 		}},
 		Settlements: &[]rawschema.Settlement{{Id: "village", Weight: 1, Members: []rawschema.PropSpot{{Name: "slime"}}, Props: []rawschema.PropSpot{{Name: "bed"}}}},
 		Dialogues:   &[]rawschema.Dialogue{{Id: "greeting", Pages: []rawschema.DialoguePage{"Hi."}}},
 		Tiles:       &[]rawschema.Tile{tile("floor", &rawschema.TileSpawn{Tile: new("wall")}), tile("wall", nil)},
+		Layouts: &[]rawschema.Layout{{
+			Id: "cave", Tiles: rawschema.LayoutTiles{Floor: "floor", Wall: "wall", Void: "wall"},
+			Start: "noise", Steps: []rawschema.EntityID{"widen", "trail"},
+		}},
+		NoiseStarts:    &[]rawschema.NoiseStart{{Id: "noise", WallChance: 0.3}},
+		TemplateStarts: &[]rawschema.TemplateStart{{Id: "town", Template: "town"}},
+		WidenSteps:     &[]rawschema.WidenStep{{Id: "widen", Chance: 0.3}},
+		TrailSteps:     &[]rawschema.TrailStep{{Id: "trail", Tile: "floor"}},
 	}
 	mutate(&raws)
 	return raws
@@ -127,6 +139,8 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"ドロップテーブルの素材", func(r *rawschema.Raws) { (*r.DropTables)[0].Entries[0].Id = "none" }, "dropTables.0.entries.0.id_ref"},
 		{"施設の敵テーブル", func(r *rawschema.Raws) { (*r.Facilities)[0].EnemyTable = "none" }, "facilities.0.enemyTable_ref"},
 		{"ランドマークの施設", func(r *rawschema.Raws) { (*r.Landmarks)[0].Id = "none" }, "landmarks.0.id_ref"},
+		{"区域の塀の家具", func(r *rawschema.Raws) { (*r.Districts)[0].Fence = new(rawschema.EntityID("none")) }, "districts.0.fence_ref"},
+		{"地物の道のタイル", func(r *rawschema.Raws) { (*r.PointFeatures)[0].Road.Tile = "none" }, "pointFeatures.0.road.tile_ref"},
 		{"散布ゾーンの下地のタイル", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Ground = "none" }, "scatterZones.0.ground_ref"},
 		{"散布ゾーンの戦利品グループ", func(r *rawschema.Raws) { (*r.ScatterZones)[0].LootGroup = "none" }, "scatterZones.0.lootGroup_ref"},
 		{"区域の目玉の施設", func(r *rawschema.Raws) { (*r.Districts)[0].Landmark = new(rawschema.EntityID("none")) }, "districts.0.landmark_ref"},
@@ -156,6 +170,11 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"職業のスキル", func(r *rawschema.Raws) { (*(*r.Professions)[0].Skills)[0].Id = rawschema.SkillIdSpear }, "professions.0.skills.0.id_ref"},
 		{"ダンジョンの敵テーブル", func(r *rawschema.Raws) { (*r.Dungeons)[0].EnemyTable = "none" }, "dungeons.0.enemyTable_ref"},
 		{"ダンジョンのアイテムテーブル", func(r *rawschema.Raws) { (*r.Dungeons)[0].ItemTable = "none" }, "dungeons.0.itemTable_ref"},
+		{"ダンジョンの間取り", func(r *rawschema.Raws) { (*r.Dungeons)[0].Planners[0].Id = "none" }, "dungeons.0.planners.0.id_ref"},
+		{"間取りのタイル", func(r *rawschema.Raws) { (*r.Layouts)[0].Tiles.Void = "none" }, "layouts.0.tiles.void_ref"},
+		{"間取りの最初の段", func(r *rawschema.Raws) { (*r.Layouts)[0].Start = "none" }, "layouts.0.start_ref"},
+		{"間取りの中の段", func(r *rawschema.Raws) { (*r.Layouts)[0].Steps[1] = "none" }, "layouts.0.steps_ref.1"},
+		{"小道の段のタイル", func(r *rawschema.Raws) { (*r.TrailSteps)[0].Tile = "none" }, "trailSteps.0.tile_ref"},
 		{"集落の住人", func(r *rawschema.Raws) { (*r.Settlements)[0].Members[0].Name = "none" }, "settlements.0.members_ref.0"},
 		{"集落の prop", func(r *rawschema.Raws) { (*r.Settlements)[0].Props[0].Name = "none" }, "settlements.0.props_ref.0"},
 		{"タイルの生成の仕様", func(r *rawschema.Raws) { (*r.Tiles)[0].Spawn.Tile = new("none") }, "tileSpawns_ref.floor"},
@@ -200,6 +219,9 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"会話", func(r *rawschema.Raws) { *r.Dialogues = append(*r.Dialogues, (*r.Dialogues)[0]) }, "dialogueIds_unique.greeting"},
 		{"ダンジョン", func(r *rawschema.Raws) { *r.Dungeons = append(*r.Dungeons, (*r.Dungeons)[0]) }, "dungeonIds_unique.forest"},
 		{"アイテムグループとアイテムコレクション", func(r *rawschema.Raws) { (*r.ItemCollections)[0].Id = "junk" }, "itemGroupIds_unique.junk"},
+		{"間取り", func(r *rawschema.Raws) { *r.Layouts = append(*r.Layouts, (*r.Layouts)[0]) }, "layoutIds_unique.cave"},
+		{"最初の段が表をまたぐ", func(r *rawschema.Raws) { (*r.TemplateStarts)[0].Id = "noise" }, "startIds_unique.noise"},
+		{"中の段が表をまたぐ", func(r *rawschema.Raws) { (*r.TrailSteps)[0].Id = "widen" }, "stepIds_unique.widen"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

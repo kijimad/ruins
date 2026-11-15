@@ -25,10 +25,10 @@ func TestDungeonResume_視界を強制再計算する(t *testing.T) {
 	// OnStart は通常ダンジョンではタイトルエフェクトで UI リソースに触れるので、フェイス込みの world を使う
 	world := testutil.InitTestWorld(t, testutil.WithUI())
 	// ロード直後を模す。現ステージは通常ダンジョンで、視界フラグは未設定
-	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 3)
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(dungeon.DebugID, 3)
 	query.GetVisionState(world).ConsumePendingUpdate()
 
-	st := &gs.DungeonState{Depth: 3, DefinitionName: dungeon.DungeonDebug.Name(), Resume: true}
+	st := &gs.DungeonState{Depth: 3, DefinitionName: dungeon.DebugID, Resume: true}
 	require.NoError(t, st.OnStart(world))
 
 	assert.True(t, query.GetVisionState(world).ConsumePendingUpdate(), "通常ダンジョンの復帰は視界を強制再計算する")

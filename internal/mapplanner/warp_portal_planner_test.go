@@ -16,31 +16,28 @@ func TestNewPortalPlanner(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
+	planner := NewPortalPlanner(world, LayoutPlannerType("small_room"))
 
 	assert.NotNil(t, planner)
-	assert.Equal(t, PlannerTypeSmallRoom.Name, planner.plannerType.Name)
+	assert.Equal(t, LayoutPlannerType("small_room").Name, planner.plannerType.Name)
 }
 
 func TestPortalPlanner_PlanMeta(t *testing.T) {
 	t.Parallel()
 
-	t.Run("UseFixedPortalPosがtrueの場合はポータルを配置しない", func(t *testing.T) {
+	t.Run("FixedPortalsが立つ計画にはポータルを配置しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage("テスト遺跡", 1)})
 
-		// UseFixedPortalPos が true のプランナータイプ
-		plannerType := PlannerType{
-			Name:              "test_fixed",
-			UseFixedPortalPos: true,
-		}
+		plannerType := PlannerType{Name: "test_fixed"}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
 		require.NoError(t, err)
+		chain.PlanData.FixedPortals = true
 
 		planner := NewPortalPlanner(world, plannerType)
 		err = planner.PlanMeta(&chain.PlanData)
@@ -56,13 +53,13 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage("テスト遺跡", 1)})
 		world.Resources.RawMaster = *CreateTestRawMaster()
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
 		require.NoError(t, err)
 
-		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
+		planner := NewPortalPlanner(world, LayoutPlannerType("small_room"))
 		err = planner.PlanMeta(&chain.PlanData)
 		require.NoError(t, err)
 
@@ -88,7 +85,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		idx := chain.PlanData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: 5, Y: 5})
 		chain.PlanData.Tiles[idx] = chain.PlanData.GetTile("floor")
 
-		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
+		planner := NewPortalPlanner(world, LayoutPlannerType("small_room"))
 		err := planner.PlanMeta(&chain.PlanData)
 		require.Error(t, err)
 		assert.ErrorIs(t, err, ErrConnectivity)
@@ -106,7 +103,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 			chain.PlanData.Tiles[i] = chain.PlanData.GetTile("wall")
 		}
 
-		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
+		planner := NewPortalPlanner(world, LayoutPlannerType("small_room"))
 		err := planner.PlanMeta(&chain.PlanData)
 		require.Error(t, err)
 		assert.ErrorIs(t, err, ErrConnectivity)
@@ -118,13 +115,13 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage("テスト遺跡", 5)})
 		world.Resources.RawMaster = *CreateTestRawMaster()
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
 		require.NoError(t, err)
 
-		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
+		planner := NewPortalPlanner(world, LayoutPlannerType("small_room"))
 		err = planner.PlanMeta(&chain.PlanData)
 		require.NoError(t, err)
 
@@ -151,13 +148,13 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 			query.SetDungeon(world, &gc.Dungeon{CurrentStage: gc.NewDungeonStage("テスト遺跡", 5)})
 			world.Resources.RawMaster = *CreateTestRawMaster()
 
-			chain, err := NewSmallRoomPlanner(40, 40, seed)
+			chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 40, 40, seed)
 			require.NoError(t, err)
 			chain.PlanData.RawMaster = CreateTestRawMaster()
 			err = chain.Plan()
 			require.NoError(t, err)
 
-			planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
+			planner := NewPortalPlanner(world, LayoutPlannerType("small_room"))
 			err = planner.PlanMeta(&chain.PlanData)
 			require.NoError(t, err)
 

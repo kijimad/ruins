@@ -22,9 +22,9 @@ var benchDungeons = []struct {
 	name string
 	bt   mapplanner.PlannerType
 }{
-	{"SmallRoom", mapplanner.PlannerTypeSmallRoom},
-	{"BigRoom", mapplanner.PlannerTypeBigRoom},
-	{"Cave", mapplanner.PlannerTypeCave},
+	{"SmallRoom", mapplanner.LayoutPlannerType("small_room")},
+	{"BigRoom", mapplanner.LayoutPlannerType("big_room")},
+	{"Cave", mapplanner.LayoutPlannerType("cave")},
 }
 
 // BenchmarkDungeonFrame は実ダンジョンの1フレームを Update / Draw に分けて実時間を計測する。
@@ -37,9 +37,10 @@ var benchDungeons = []struct {
 // 通常プレイで描画が占める割合を示す。AIスパイク自体は BenchmarkProcessAll で別途計測している。
 // custom metric "gridEnts" は GridElement を持つエンティティ数（≒タイル数）で、Draw のスケール要因。
 func BenchmarkDungeonFrame(b *testing.B) {
-	for _, bld := range benchDungeons {
+	for i := range benchDungeons {
+		bld := &benchDungeons[i]
 		world := vrt.InitReplayWorld(b)
-		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: bld.bt}, world)
+		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DebugID, BuilderType: bld.bt}, world)
 		require.NoError(b, err)
 		for range 5 {
 			require.NoError(b, sm.Update(world))
@@ -71,9 +72,10 @@ func BenchmarkDungeonFrame(b *testing.B) {
 //
 // 反復ごとにワールドが1ターン進み状態は累積する。実プレイの流れを測るため毎回リセットしない。
 func BenchmarkTurn(b *testing.B) {
-	for _, bld := range benchDungeons {
+	for i := range benchDungeons {
+		bld := &benchDungeons[i]
 		world := vrt.InitReplayWorld(b)
-		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: bld.bt}, world)
+		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DebugID, BuilderType: bld.bt}, world)
 		require.NoError(b, err)
 		// 毎フレーム待機を供給し、プレイヤーが行動してターンが進むようにする
 		world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionWait, true }

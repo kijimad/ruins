@@ -35,10 +35,10 @@ func TestValidate_ダイス表記の違反を位置で返す(t *testing.T) {
 	assert.Equal(t, []string{"enemyTables.0.entries.0.pack"}, ce.Paths())
 }
 
-func TestValidate_森の間取りを持つダンジョンは下地を持つ(t *testing.T) {
+func TestValidate_下地を使う間取りを持つダンジョンは下地を持つ(t *testing.T) {
 	t.Parallel()
 	raws := makeRefRaws(func(r *rawschema.Raws) {
-		(*r.Dungeons)[0].Planners = []rawschema.DungeonPlannerWeight{{Id: rawschema.DungeonPlannerForest, Weight: 1}}
+		(*r.Layouts)[0].Tiles.Floor = "ground"
 	})
 	var ce *rawcheck.Error
 	require.ErrorAs(t, rawcheck.Validate(raws), &ce)

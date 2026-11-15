@@ -14,7 +14,7 @@ func TestBigRoomPlanner(t *testing.T) {
 	width, height := consts.Tile(20), consts.Tile(20)
 	seed := uint64(12345)
 
-	chain, err := NewBigRoomPlanner(width, height, seed)
+	chain, err := newLayoutChain(*CreateTestRawMaster(), "big_room", width, height, seed)
 	require.NoError(t, err)
 	chain.PlanData.RawMaster = CreateTestRawMaster()
 	err = chain.Plan()
@@ -60,7 +60,7 @@ func TestBigRoomVariations(t *testing.T) {
 	variantCounts := make(map[string]int)
 
 	for _, seed := range seeds {
-		chain, err := NewBigRoomPlanner(20, 20, seed)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "big_room", 20, 20, seed)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -113,7 +113,7 @@ func TestBigRoomPlannerBoundaries(t *testing.T) {
 	width, height := consts.Tile(20), consts.Tile(20)
 	seed := uint64(11111)
 
-	chain, err := NewBigRoomPlanner(width, height, seed)
+	chain, err := newLayoutChain(*CreateTestRawMaster(), "big_room", width, height, seed)
 	require.NoError(t, err)
 	chain.PlanData.RawMaster = CreateTestRawMaster()
 	err = chain.Plan()

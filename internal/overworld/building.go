@@ -235,7 +235,7 @@ func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.
 func drawRoomStrips(cells, room [][]maptemplate.MapCell, b buildingLot, l consts.Coord[consts.Chunk], edges [4]maptemplate.EdgeKind) {
 	s := int(urbanStreetW)
 	h, w := len(cells), len(cells[0])
-	wall := maptemplate.MapCell{Terrain: "wall"}
+	wall := maptemplate.MapCell{Terrain: consts.TileNameWall}
 	floor := func(x, y int) maptemplate.MapCell { return maptemplate.MapCell{Terrain: room[y][x].Terrain} }
 	mid := (w - s) / 2
 

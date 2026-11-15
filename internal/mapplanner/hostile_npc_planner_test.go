@@ -3,6 +3,7 @@ package mapplanner
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,6 +16,7 @@ func TestNewHostileNPCPlanner(t *testing.T) {
 	plannerType := PlannerType{
 		Name:           "test",
 		EnemyTableName: "normal",
+		EnemyCount:     rawschema.RandInt{Base: 5, Spread: 4},
 		Danger:         1,
 	}
 	planner := NewHostileNPCPlanner(world, plannerType)
@@ -35,7 +37,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 			Danger: 1,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -55,10 +57,11 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_with_enemies",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.RandInt{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -78,10 +81,11 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_valid_position",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.RandInt{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -106,10 +110,11 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_multiple_enemies",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.RandInt{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -129,10 +134,11 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_room_based",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.RandInt{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -165,10 +171,11 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_big_room_cluster",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.RandInt{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
-		chain, err := NewBigRoomPlanner(40, 40, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "big_room", 40, 40, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -206,10 +213,11 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_same_species",
 			EnemyTableName: "normal",
+			EnemyCount:     rawschema.RandInt{Base: 5, Spread: 4},
 			Danger:         1,
 		}
 
-		chain, err := NewSmallRoomPlanner(40, 40, 100)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 40, 40, 100)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -231,4 +239,16 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 			assert.LessOrEqual(t, len(species), 1, "部屋(%d,%d)-(%d,%d)内に異種の敵が混在している", room.Min.X, room.Min.Y, room.Max.X, room.Max.Y)
 		}
 	})
+}
+
+func TestHostileNPCPlanner_表があり数が無ければエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
+	require.NoError(t, err)
+	chain.PlanData.RawMaster = CreateTestRawMaster()
+	require.NoError(t, chain.Plan())
+
+	planner := NewHostileNPCPlanner(world, PlannerType{Name: "test", EnemyTableName: "normal", Danger: 1})
+	require.ErrorIs(t, planner.PlanMeta(&chain.PlanData), ErrFloorCountUnset)
 }

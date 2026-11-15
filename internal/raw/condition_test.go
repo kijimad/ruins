@@ -77,11 +77,15 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	})
 	timesOfDay := enumRowsOf(enumStrings(rawschema.TimeOfDayIdValues()), func(id string) rawschema.TimeOfDay { return rawschema.TimeOfDay{Id: rawschema.TimeOfDayId(id)} })
 	seasons := enumRowsOf(enumStrings(rawschema.SeasonIdValues()), func(id string) rawschema.Season { return rawschema.Season{Id: rawschema.SeasonId(id)} })
+	pointFeatures := enumRowsOf(enumStrings(rawschema.PointFeatureKindValues()), func(id string) rawschema.PointFeature {
+		return rawschema.PointFeature{Id: rawschema.PointFeatureKind(id), Spacing: 3, Separation: 1}
+	})
 	raws := rawschema.Raws{
 		Dungeons:        &[]rawschema.Dungeon{{Id: "dead_forest"}},
 		Settlements:     &[]rawschema.Settlement{{Id: "village", Weight: 1}},
 		TimesOfDay:      &timesOfDay,
 		Seasons:         &seasons,
+		PointFeatures:   &pointFeatures,
 		FreshnessStages: &freshness,
 		Materials:       &materials,
 		ToolCategories:  &tools,
@@ -318,6 +322,13 @@ func TestValidateCodeRows(t *testing.T) {
 				*r.Seasons = append(*r.Seasons, rawschema.Season{Id: rawschema.Winter})
 			},
 			wantErr: errDuplicateID,
+		},
+		{
+			name: "地物の種類に行が無い",
+			mutate: func(r *rawschema.Raws) {
+				*r.PointFeatures = (*r.PointFeatures)[1:]
+			},
+			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "集落が無い",

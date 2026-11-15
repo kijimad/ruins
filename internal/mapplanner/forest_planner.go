@@ -6,11 +6,14 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // ForestPlanner は森風レイアウトを生成するビルダー
 // 木々が点在し、自然な通路を持つ森を作成
-type ForestPlanner struct{}
+type ForestPlanner struct {
+	Row rawschema.ClearingStart
+}
 
 // PlanInitial は初期森マップをプランする
 func (f ForestPlanner) PlanInitial(planData *MetaPlan) error {
@@ -18,12 +21,12 @@ func (f ForestPlanner) PlanInitial(planData *MetaPlan) error {
 	height := int(planData.Level.TileHeight)
 
 	// 森の中に小さな空き地（部屋）をいくつか作成
-	clearingCount := 3 + planData.RNG.IntN(4)
+	clearingCount := f.Row.Clearings.Roll(planData.RNG)
 
 	for range clearingCount {
 		// 空き地のサイズとランダムな位置
-		clearingWidth := 4 + planData.RNG.IntN(6)
-		clearingHeight := 4 + planData.RNG.IntN(6)
+		clearingWidth := f.Row.ClearingSize.Roll(planData.RNG)
+		clearingHeight := f.Row.ClearingSize.Roll(planData.RNG)
 
 		// IntNの引数が正であることを保証
 		maxXRange := max(1, width-clearingWidth-6)
@@ -44,15 +47,14 @@ func (f ForestPlanner) PlanInitial(planData *MetaPlan) error {
 }
 
 // ForestTerrain は森の基本地形を生成する
-type ForestTerrain struct{}
+type ForestTerrain struct {
+	Tiles rawschema.LayoutTiles
+}
 
-// PlanMeta は森の基本地形をタイルに描画する。下地は計画の下地 MetaPlan.Ground で、空ならエラーにする
+// PlanMeta は森の基本地形をタイルに描画する
 func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {
-	if planData.Ground == "" {
-		return ErrGroundNotSet
-	}
 	for i := range planData.Tiles {
-		planData.Tiles[i] = planData.GetTile(planData.Ground)
+		planData.Tiles[i] = planData.GetTile(f.Tiles.Floor)
 	}
 
 	for _, clearing := range planData.Rooms {
@@ -73,21 +75,23 @@ func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Re
 
 			if distance <= radius {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-				planData.Tiles[idx] = planData.GetTile(planData.Ground)
+				planData.Tiles[idx] = planData.GetTile(f.Tiles.Floor)
 			}
 		}
 	}
 }
 
 // ForestTrees は森に木々を配置する
-type ForestTrees struct{}
+type ForestTrees struct {
+	Row   rawschema.TreeStep
+	Tiles rawschema.LayoutTiles
+}
 
 // PlanMeta は森に木を配置する
 func (f ForestTrees) PlanMeta(planData *MetaPlan) error {
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)
 
-	// 森全体に木を配置（60%の密度）
 	for x := 1; x < width-1; x++ {
 		for y := 1; y < height-1; y++ {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
@@ -98,10 +102,10 @@ func (f ForestTrees) PlanMeta(planData *MetaPlan) error {
 
 				if planData.RNG.Float64() < treeDensity {
 					// TODO: 木エンティティとして追加する
-					planData.Tiles[idx] = planData.GetTile("wall")
+					planData.Tiles[idx] = planData.GetTile(f.Tiles.Wall)
 
 					// 大きな木の場合、周囲にも追加の木を配置
-					if planData.RNG.Float64() < 0.2 { // 20%の確率で大木
+					if planData.RNG.Float64() < f.Row.LargeTreeChance {
 						f.placeLargeTree(planData, x, y)
 					}
 				}
@@ -113,7 +117,7 @@ func (f ForestTrees) PlanMeta(planData *MetaPlan) error {
 
 // calculateTreeDensity は位置に基づいて木の密度を計算する
 func (f ForestTrees) calculateTreeDensity(planData *MetaPlan, x, y int) float64 {
-	baseDensity := 0.6 // 基本密度60%
+	baseDensity := f.Row.Density
 
 	// 空き地からの距離に基づいて密度を調整
 	minDistanceToClearing := 1000.0
@@ -154,7 +158,7 @@ func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 				if !planData.Tiles[idx].BlockPass && planData.RNG.Float64() < 0.7 {
-					planData.Tiles[idx] = planData.GetTile("wall")
+					planData.Tiles[idx] = planData.GetTile(f.Tiles.Wall)
 				}
 			}
 		}
@@ -162,7 +166,9 @@ func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {
 }
 
 // ForestPaths は森の中に自然な通路を作成する
-type ForestPaths struct{}
+type ForestPaths struct {
+	Row rawschema.TrailStep
+}
 
 // PlanMeta は自然な通路を作成する
 func (f ForestPaths) PlanMeta(planData *MetaPlan) error {
@@ -205,7 +211,7 @@ func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, hei
 			x := pathX + dx
 			if x >= 0 && x < width {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-				planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)
+				planData.Tiles[idx] = planData.GetTile(f.Row.Tile)
 			}
 		}
 
@@ -275,7 +281,7 @@ func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect)
 
 					// 70%の確率で通路を作成（自然な感じに）
 					if planData.RNG.Float64() < 0.7 {
-						planData.Tiles[idx] = planData.GetTile(consts.TileNameRoad)
+						planData.Tiles[idx] = planData.GetTile(f.Row.Tile)
 					}
 				}
 			}
@@ -284,7 +290,10 @@ func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect)
 }
 
 // ForestWildlife は森に野生動物の痕跡（小さな空き地）を追加する
-type ForestWildlife struct{}
+type ForestWildlife struct {
+	Row   rawschema.GladeStep
+	Tiles rawschema.LayoutTiles
+}
 
 // PlanMeta は森に小さな動物の痕跡を追加する
 func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
@@ -292,7 +301,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 	height := int(planData.Level.TileHeight)
 
 	// 小さな動物の通り道や巣穴を作成
-	wildlifeSpotCount := 2 + planData.RNG.IntN(4)
+	wildlifeSpotCount := f.Row.Spots.Roll(planData.RNG)
 
 	for range wildlifeSpotCount {
 		// IntNの引数が正であることを保証
@@ -312,25 +321,11 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 					distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))
 					if distance <= float64(radius) {
 						idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
-						planData.Tiles[idx] = planData.GetTile(planData.Ground)
+						planData.Tiles[idx] = planData.GetTile(f.Tiles.Floor)
 					}
 				}
 			}
 		}
 	}
 	return nil
-}
-
-// NewForestPlanner は森ビルダーを作成する
-func NewForestPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
-	chain := NewPlannerChain(width, height, seed)
-	chain.StartWith(ForestPlanner{})
-	chain.With(ForestTerrain{})                       // 基本地形を生成
-	chain.With(ForestTrees{})                         // 木を配置
-	chain.With(ForestPaths{})                         // 自然な通路を作成
-	chain.With(ForestWildlife{})                      // 野生動物の痕跡を追加
-	chain.With(ConvertIsolatedWalls{UseGround: true}) // 床に隣接しない壁を下地に変換
-	chain.With(EnvironmentPlanner{})
-
-	return chain, nil
 }

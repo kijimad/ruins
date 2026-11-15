@@ -92,7 +92,7 @@ func TestRunSimulation_Basic(t *testing.T) {
 	require.NoError(t, err)
 
 	rng := rand.New(rand.NewPCG(42, 0))
-	result := SimulateRun(master, "ruins_area", player, playerWeapon, 5, rng)
+	result := SimulateRun(master, BaselineDungeon, player, playerWeapon, 5, rng)
 
 	// シード固定のため結果は決定論的。素手でも最低1階層には到達する
 	assert.GreaterOrEqual(t, result.ReachedDepth, 1)
@@ -109,7 +109,7 @@ func TestRunSimulations_Stats(t *testing.T) {
 	playerWeapon, err := LoadWeaponFromItem(master, "bare_hands")
 	require.NoError(t, err)
 
-	stats := RunSimulations(master, "ruins_area", player, playerWeapon, 10, 100, 42)
+	stats := RunSimulations(master, BaselineDungeon, player, playerWeapon, 10, 100, 42)
 
 	// 基本的な統計が取れることの確認
 	assert.Positive(t, stats.MedianDepth())

@@ -1,6 +1,7 @@
 package mapplanner
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -60,7 +61,10 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 		planData.Items = []ItemSpec{}
 	}
 
-	total := consts.FloorItemBase + planData.RNG.IntN(consts.FloorItemRandom)
+	if i.plannerType.ItemCount.Spread < 1 {
+		return fmt.Errorf("%w: item table %s", ErrFloorCountUnset, i.plannerType.ItemTableName)
+	}
+	total := i.plannerType.ItemCount.Roll(planData.RNG)
 	if i.plannerType.Danger > itemIncreaseDanger {
 		total++
 	}

@@ -2,6 +2,8 @@ package overworld
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -31,7 +33,7 @@ func (p Placement) At(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.
 // 道の結線や情報サービスが近傍の地物位置を「生成せずに算出」する基盤になる。
 func (p Placement) WinnerOf(runSeed uint64, ry, cols consts.Chunk) consts.Coord[consts.Chunk] {
 	// Spacing <= Separation だと差が負になり uint64 キャストで巨大値へアンダーフローし、
-	// オフセット抽選が壊れる。Placement は内部定数なので設定ミスは never として弾く
+	// オフセット抽選が壊れる。raw のスキーマが separation < spacing を保証するので never として弾く
 	if p.Spacing <= p.Separation {
 		panic("Placement: Spacing must be greater than Separation")
 	}
@@ -68,24 +70,35 @@ func features() []feature {
 	}
 }
 
-// 地物ごとのソルト。ハッシュ入力を地物ごとにずらし、配置と抽選を他地物と無相関にするタグ。
+// 区域と散布のソルト。ハッシュ入力を地物ごとにずらし、配置と抽選を他地物と無相関にするタグ。
 // 互いに異なりさえすればよく、ChunkSeed2D の finalizer が1ビット差でも出力を無相関へ散らす。
-// iota で一意性を自動保証する。値を変えると同じ RunSeed でも別の世界になる。scatter は必ず末尾へ
-// 足す。途中へ挿入すると後続の salt 値がずれ、既存地物の配置が変わって再訪一致が壊れる。
+// 値を変えると同じ RunSeed でも別の世界になる。集落・遺跡の入口・ランドマークのソルトは raw の地物の行が持ち、
+// ここの値と重ならないことをテストが確かめる
 const (
-	settlementSalt uint64 = iota + 1
-	districtSalt
-	_ // 使わない値。詰めると後続の salt がずれる
-	landmarkSalt
-	scatterSalt
-	outdoorLootSalt
+	districtSalt    uint64 = 2
+	scatterSalt     uint64 = 5
+	outdoorLootSalt uint64 = 6
 )
 
-// 地物ごとのリージョン配置。salt と対で地物の疎密を決める。
-var (
-	settlementPlacement = Placement{Spacing: 5, Separation: 1, Salt: settlementSalt}
-	landmarkPlacement   = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
-)
+// pointFeatureOf は地物の種類 kind の raw の行を返す。全ての種類に行があることを raw の検証が保証する
+func pointFeatureOf(raws rawschema.Raws, kind rawschema.PointFeatureKind) rawschema.PointFeature {
+	for _, f := range raw.PtrSlice(raws.PointFeatures) {
+		if f.Id == kind {
+			return f
+		}
+	}
+	panic("point feature has no raw row: " + string(kind))
+}
+
+// placementOf は地物の種類 kind の配置ルールを、raw の行の間隔とソルトから作る
+func placementOf(raws rawschema.Raws, kind rawschema.PointFeatureKind) Placement {
+	return placementFrom(pointFeatureOf(raws, kind))
+}
+
+// placementFrom は地物の行 f の配置ルールを作る
+func placementFrom(f rawschema.PointFeature) Placement {
+	return Placement{Spacing: consts.Chunk(f.Spacing), Separation: consts.Chunk(f.Separation), Salt: uint64(f.Salt)}
+}
 
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
 // 判定はすべて runSeed・座標・cols の純関数で、開始チャンクの特例は持たない。

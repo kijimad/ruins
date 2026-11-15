@@ -32,8 +32,8 @@ type DepthStat struct {
 	SuddenDeathRate    float64
 }
 
-// EnemyTableRun 1つの敵テーブルに対するシミュレーション結果
-type EnemyTableRun struct {
+// DungeonRun 1つのダンジョンに対するシミュレーション結果
+type DungeonRun struct {
 	DeathRate   float64
 	Depths      []DepthStat
 	MaxDepth    int
@@ -71,7 +71,7 @@ type PlayerInfo struct {
 // Report シミュレーション結果全体を表す
 type Report struct {
 	BattleMetrics []BattleMetric
-	EnemyTables   []EnemyTableRun
+	Dungeons      []DungeonRun
 	Player        PlayerInfo
 	FacilityLoot  []FacilityLoot
 	Weapon        WeaponInfo

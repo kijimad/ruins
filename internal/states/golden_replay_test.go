@@ -268,8 +268,8 @@ var goldenCases = []struct {
 		build: func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
-				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				DefinitionName: dungeon.DebugID,
+				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}, &gs.LookAroundState{}}, nil
 		},
 		steps: []replayStep{
@@ -310,8 +310,8 @@ var goldenCases = []struct {
 		build: func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
-				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				DefinitionName: dungeon.DebugID,
+				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}, &gs.ShootingState{}}, nil
 		},
 		steps: []replayStep{{shot: true}},
@@ -417,8 +417,8 @@ var goldenCases = []struct {
 		build: func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
-				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				DefinitionName: dungeon.DebugID,
+				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}}, nil
 		},
 		steps: []replayStep{{shot: true}},
@@ -438,8 +438,8 @@ var goldenCases = []struct {
 			}
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
-				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				DefinitionName: dungeon.DebugID,
+				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}}, nil
 		},
 		steps: []replayStep{{shot: true}},
@@ -479,8 +479,8 @@ var goldenCases = []struct {
 		build: func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
-				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				DefinitionName: dungeon.DebugID,
+				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}}, nil
 		},
 		steps: []replayStep{
@@ -494,8 +494,8 @@ var goldenCases = []struct {
 		build: func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.DungeonState{
 				Depth:          1,
-				DefinitionName: dungeon.DungeonDebug.Name(),
-				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				DefinitionName: dungeon.DebugID,
+				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
 			}}, nil
 		},
 		steps: []replayStep{

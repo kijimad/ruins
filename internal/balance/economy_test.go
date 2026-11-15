@@ -3,7 +3,7 @@ package balance
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -13,12 +13,6 @@ func TestCheapestFoodCostPerNutrition_食料なしは0(t *testing.T) {
 	t.Parallel()
 	// 食料アイテムが1つも無ければ最安費用は0に落ちる。
 	assert.Equal(t, 0.0, CheapestFoodCostPerNutrition(rawschema.Raws{}))
-}
-
-func TestExpectedItemsPerFloor_奇数前提で厳密(t *testing.T) {
-	t.Parallel()
-	// 偶数にすると expectedItemsPerFloor が整数除算で黙って切り捨てられる
-	assert.Equal(t, 1, consts.FloorItemRandom%2, "consts.FloorItemRandom は奇数")
 }
 
 func TestExpectedLootValue_危険度で上がり正の値(t *testing.T) {
@@ -44,9 +38,11 @@ func TestExpectedNetLootValue_手取りは額面より小さく正(t *testing.T)
 func TestExpectedRunLootIncome_層数で単調に増える(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
-	assert.Equal(t, 0.0, ExpectedRunLootIncome(master, "ruins_area", 0), "0層は収入0")
-	i1 := ExpectedRunLootIncome(master, "ruins_area", 1)
-	i5 := ExpectedRunLootIncome(master, "ruins_area", 5)
+	ruins, err := raw.GetDungeon(master, BaselineDungeon)
+	require.NoError(t, err)
+	assert.Equal(t, 0.0, ExpectedRunLootIncome(master, ruins, 0), "0層は収入0")
+	i1 := ExpectedRunLootIncome(master, ruins, 1)
+	i5 := ExpectedRunLootIncome(master, ruins, 5)
 	assert.Positive(t, i1, "1層でも期待収入は正")
 	assert.Greater(t, i5, i1, "層が深いほど高危険度の loot で収入が増える")
 }

@@ -73,6 +73,23 @@
   range = "ranged"
   skill = "cannon"
 
+[[automataSteps]]
+  id = "cave_automata"
+  iterations = 3
+  minRoomTiles = 10
+  wallNeighbors = 6
+
+[[bigRoomSteps]]
+  id = "big_room"
+  mazeGapChance = 0.3
+  obstacleArea = 30
+  [bigRoomSteps.pillarSpacing]
+    base = 3
+    spread = 4
+  [bigRoomSteps.platformRadius]
+    base = 2
+    spread = 3
+
 [[bodyParts]]
   hitWeight = 2.0
   id = "head"
@@ -107,6 +124,27 @@
   hitWeight = 0.0
   id = "whole_body"
   name = "Whole body"
+
+[[buildingStarts]]
+  id = "ruined_buildings"
+  [buildingStarts.buildingHeight]
+    base = 6
+    spread = 8
+  [buildingStarts.buildingWidth]
+    base = 8
+    spread = 10
+  [buildingStarts.buildings]
+    base = 3
+    spread = 3
+
+[[clearingStarts]]
+  id = "forest_clearings"
+  [clearingStarts.clearingSize]
+    base = 4
+    spread = 6
+  [clearingStarts.clearings]
+    base = 3
+    spread = 4
 
 [[commandTables]]
   id = "bat"
@@ -1077,6 +1115,10 @@
   onset = "hunger"
   painPerSeverity = 0
 
+[[corridorSteps]]
+  id = "line_corridor"
+  width = 3
+
 [[dialogues]]
   id = "old_soldier_greeting"
   pages = ["\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\"", "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""]
@@ -1086,7 +1128,7 @@
   pages = ["Want to make a deal?\n\nI've got good stuff."]
 
 [[districts]]
-  fence = true
+  fence = "fence"
   id = "lab_campus"
   landmark = "lab_main"
   name = "Research Campus"
@@ -1094,6 +1136,7 @@
   separation = 4
   spacing = 30
   street = "road"
+  streetEnemies = "1d6"
   verge = "grass_green"
 
   [[districts.layers]]
@@ -1118,7 +1161,7 @@
     weight = 1
 
 [[districts]]
-  fence = true
+  fence = "fence"
   id = "military_base"
   landmark = "military_armory"
   name = "Military Base"
@@ -1126,6 +1169,7 @@
   separation = 4
   spacing = 36
   street = "road"
+  streetEnemies = "2d4"
   verge = "grass_green"
 
   [[districts.layers]]
@@ -1150,7 +1194,7 @@
     weight = 1
 
 [[districts]]
-  fence = true
+  fence = "fence"
   id = "power_plant"
   landmark = "power_turbine"
   name = "Power Plant"
@@ -1158,6 +1202,7 @@
   separation = 4
   spacing = 40
   street = "road"
+  streetEnemies = "1d6"
 
   [[districts.layers]]
     zones = ["plant_outer"]
@@ -1182,6 +1227,7 @@
   separation = 2
   spacing = 7
   street = "road"
+  streetEnemies = "1d4"
 
   [[districts.layers]]
     zones = ["residential", "industrial"]
@@ -1210,7 +1256,7 @@
     weight = 1
 
 [[districts]]
-  fence = true
+  fence = "fence"
   id = "farm"
   landmark = "farmhouse"
   name = "Farm"
@@ -1218,6 +1264,7 @@
   separation = 2
   spacing = 12
   street = "dirt"
+  streetEnemies = "1d2"
 
   [[districts.layers]]
     zones = ["farm_field"]
@@ -1240,6 +1287,10 @@
     h = 3
     w = 3
     weight = 1
+
+[[doorSteps]]
+  chance = 0.8
+  id = "doors"
 
 [[dropTables]]
   id = "bat"
@@ -1912,11 +1963,18 @@
   baseTemp = 0
   description = "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone."
   enemyTable = "forest"
+  entranceWeight = 1
   ground = "dirt"
   id = "dead_forest"
   imageKey = "forest1"
   itemTable = "forest"
   name = "Dead forest"
+  [dungeons.enemyCount]
+    base = 5
+    spread = 4
+  [dungeons.itemCount]
+    base = 8
+    spread = 5
 
   [[dungeons.planners]]
     id = "forest"
@@ -1934,10 +1992,17 @@
   baseTemp = 5
   description = "Frost crystals run like veins through the gray rock.\nThe deeper you go, the quieter it grows."
   enemyTable = "cave"
+  entranceWeight = 1
   id = "ash_cave"
   imageKey = "cave1"
   itemTable = "cave"
   name = "Ash cave"
+  [dungeons.enemyCount]
+    base = 5
+    spread = 4
+  [dungeons.itemCount]
+    base = 8
+    spread = 5
 
   [[dungeons.planners]]
     id = "cave"
@@ -1955,10 +2020,17 @@
   baseTemp = 15
   description = "An ancient city stands frozen in place.\nWho forgot what, no one remembers now."
   enemyTable = "ruins_area"
+  entranceWeight = 1
   id = "forgotten_ruins"
   imageKey = "city1"
   itemTable = "ruins_area"
   name = "Forgotten ruins"
+  [dungeons.enemyCount]
+    base = 5
+    spread = 4
+  [dungeons.itemCount]
+    base = 8
+    spread = 5
 
   [[dungeons.planners]]
     id = "small_room"
@@ -1971,6 +2043,47 @@
   [[dungeons.planners]]
     id = "big_room"
     weight = 2
+
+[[dungeons]]
+  baseTemp = 10
+  description = "A dungeon for debugging."
+  enemyTable = "forest"
+  entranceWeight = 0
+  ground = "dirt"
+  id = "debug"
+  imageKey = "forest1"
+  itemTable = "forest"
+  name = "Debug"
+  [dungeons.enemyCount]
+    base = 5
+    spread = 4
+  [dungeons.itemCount]
+    base = 8
+    spread = 5
+
+  [[dungeons.planners]]
+    id = "small_room"
+    weight = 1
+
+[[dungeons]]
+  baseTemp = 20
+  description = "A town for debugging. Townsfolk and a crate stand next to the spawn point."
+  enemyTable = "none"
+  entranceWeight = 0
+  id = "debug_town"
+  imageKey = "forest1"
+  itemTable = "none"
+  name = "Debug town"
+  [dungeons.enemyCount]
+    base = 0
+    spread = 1
+  [dungeons.itemCount]
+    base = 0
+    spread = 1
+
+  [[dungeons.planners]]
+    id = "debug_town"
+    weight = 1
 
 [[enemyTables]]
   id = "ruins_area"
@@ -3345,6 +3458,11 @@
     pack = "1d1"
     weight = 0.2
 
+[[enemyTables]]
+  entries = []
+  id = "none"
+  name = "None"
+
 [[facilities]]
   enemyTable = "house_enemies"
   id = "house"
@@ -3857,6 +3975,12 @@
   marker = true
   name = "Rotten"
   nutritionPercent = 30
+
+[[gladeSteps]]
+  id = "forest_glades"
+  [gladeSteps.spots]
+    base = 2
+    spread = 4
 
 [[hungerStages]]
   from = 0.95
@@ -5052,6 +5176,45 @@
     chance = 6
     id = "tesla_coil_orb"
     pack = "1d2"
+
+[[itemCollections]]
+  id = "debug_crate"
+  name = "Debug crate"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "cube_range_module"
+    pack = "4d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "cube_fuel_module"
+    pack = "4d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "deployable_storage"
+    pack = "2d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "deployable_lamp"
+    pack = "2d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "deployable_bed"
+    pack = "2d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "deployable_workbench"
+    pack = "2d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "pickaxe"
+    pack = "1d1"
 
 [[itemGroups]]
   id = "healing_item"
@@ -8128,6 +8291,21 @@
     maxDanger = 100
     minDanger = 1
     weight = 1
+
+[[itemTables]]
+  id = "debug_crate"
+  name = "Debug crate"
+
+  [[itemTables.entries]]
+    id = "debug_crate"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  entries = []
+  id = "none"
+  name = "None"
 
 [[items]]
   description = "A lit torch. Serves as light, weapon, and a way to set fuel alight."
@@ -17618,6 +17796,87 @@
   id = "campsite"
   weight = 25
 
+[[layouts]]
+  id = "small_room"
+  start = "rect_rooms"
+  steps = ["fill_wall", "draw_rooms", "line_corridor", "doors", "isolated_walls"]
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "big_room"
+  start = "full_room"
+  steps = ["fill_wall", "big_room", "isolated_walls"]
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "cave"
+  start = "cave_noise"
+  steps = ["cave_automata", "cave_widen", "connect_rooms", "stalactites", "isolated_walls"]
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "ruins"
+  start = "ruined_buildings"
+  steps = ["fill_wall", "ruined_walls", "debris", "ruined_paths", "isolated_walls"]
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "forest"
+  start = "forest_clearings"
+  steps = ["forest_floor", "forest_trees", "forest_trails", "forest_glades", "isolated_walls"]
+  [layouts.tiles]
+    floor = "ground"
+    void = "ground"
+    wall = "wall"
+
+[[layouts]]
+  id = "office_building"
+  start = "office_building"
+  steps = []
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "small_town"
+  start = "small_town"
+  steps = []
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "town_plaza"
+  start = "town_plaza"
+  steps = []
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
+[[layouts]]
+  id = "debug_town"
+  start = "debug_town"
+  steps = []
+  [layouts.tiles]
+    floor = "floor"
+    void = "void"
+    wall = "wall"
+
 [[mapGlyphs]]
   chunk = "wasteland"
   glyph = "."
@@ -19622,6 +19881,25 @@
     sensation = 3
     strength = 11
     vitality = 2
+
+[[noiseStarts]]
+  id = "cave_noise"
+  wallChance = 0.3
+
+[[pointFeatures]]
+  id = "settlement"
+  salt = 1
+  separation = 1
+  spacing = 5
+  [pointFeatures.road]
+    tile = "road"
+    width = 4
+
+[[pointFeatures]]
+  id = "landmark"
+  salt = 4
+  separation = 1
+  spacing = 3
 
 [[professions]]
   description = "An ordinary person who fled the collapse."
@@ -22118,6 +22396,22 @@
     spriteKey = "crop"
     spriteSheetName = "field"
 
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "A crate holding items for debugging."
+  hp = 20
+  id = "debug_crate"
+  name = "Debug Crate"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "wooden_crate"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d1"
+    lootTableId = "debug_crate"
+    maxWeight = "200 kg"
+
 [[recipes]]
   id = "ray_gun"
   name = "レイガン"
@@ -22278,10 +22572,33 @@
     amount = 2
     id = "rag"
 
+[[rectRoomStarts]]
+  id = "rect_rooms"
+  [rectRoomStarts.roomSize]
+    base = 2
+    spread = 8
+  [rectRoomStarts.rooms]
+    base = 4
+    spread = 10
+
+[[ruinedPathSteps]]
+  chance = 0.3
+  id = "ruined_paths"
+
+[[ruinedWallSteps]]
+  id = "ruined_walls"
+  partitionGapChance = 0.4
+  wallGapChance = 0.3
+
+[[scatterWallSteps]]
+  chance = 0.02
+  id = "stalactites"
+
 [[scatterZones]]
   grassDensity = 0.09
   ground = "dirt_tundra"
   id = "roadside"
+  lootDensity = 0.002
   lootGroup = "scrap_of_paper"
   propDensity = 0.015
   soilDensity = 0.03
@@ -22362,6 +22679,7 @@
   grassDensity = 0.19
   ground = "dirt_tundra"
   id = "wild"
+  lootDensity = 0.002
   lootGroup = "junk"
   propDensity = 0.035
   soilDensity = 0.03
@@ -22536,6 +22854,34 @@
   id = "indoor"
   influencePercent = 50
   name = "Indoor"
+
+[[simpleStarts]]
+  id = "full_room"
+  kind = "full_room"
+
+[[simpleSteps]]
+  id = "fill_wall"
+  kind = "fill_wall"
+
+[[simpleSteps]]
+  id = "draw_rooms"
+  kind = "draw_rooms"
+
+[[simpleSteps]]
+  id = "connect_rooms"
+  kind = "connect_rooms"
+
+[[simpleSteps]]
+  id = "debris"
+  kind = "debris"
+
+[[simpleSteps]]
+  id = "forest_floor"
+  kind = "forest_floor"
+
+[[simpleSteps]]
+  id = "isolated_walls"
+  kind = "isolated_walls"
 
 [[skillCategories]]
   id = "melee"
@@ -22916,6 +23262,22 @@
 [[spriteSheets]]
   name = "tile"
   path = "file/textures/dist/tiles.json"
+
+[[templateStarts]]
+  id = "office_building"
+  template = "15x10_office_building"
+
+[[templateStarts]]
+  id = "small_town"
+  template = "50x50_small_town"
+
+[[templateStarts]]
+  id = "town_plaza"
+  template = "50x20_town_plaza"
+
+[[templateStarts]]
+  id = "debug_town"
+  template = "20x20_debug_town"
 
 [[tiles]]
   blockPass = false
@@ -23590,6 +23952,15 @@
 [[toolCategories]]
   id = "mining"
 
+[[trailSteps]]
+  id = "forest_trails"
+  tile = "road"
+
+[[treeSteps]]
+  density = 0.6
+  id = "forest_trees"
+  largeTreeChance = 0.2
+
 [[waterEffects]]
   id = "nearby"
   tempModifier = -5
@@ -23747,3 +24118,7 @@
   [[weathers.seasons]]
     id = "winter"
     weight = 0.8
+
+[[widenSteps]]
+  chance = 0.3
+  id = "cave_widen"

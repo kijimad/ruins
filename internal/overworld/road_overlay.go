@@ -2,6 +2,7 @@ package overworld
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
@@ -39,14 +40,20 @@ func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols
 	// 属するリージョンの1つ西から表示範囲の右端の属するリージョンまで。端の道を取りこぼさないよう、左右へ
 	// scanMargin ぶんの余裕を足す。表示範囲外へ出たチャンクを印しても読み手が引かないので無害
 	const scanMargin consts.Chunk = 1
-	topRegion := consts.FloorDiv(area.OriginY, settlementPlacement.Spacing)
-	botRegion := consts.FloorDiv(area.OriginY+area.Rows-1, settlementPlacement.Spacing)
-	rLo := topRegion - 1 - scanMargin // 1つ北のリージョンの道が南へ食い込みうる
-	rHi := botRegion + scanMargin
-	for pr := rLo; pr <= rHi; pr++ {
-		a := settlementPlacement.WinnerOf(runSeed, pr, cols)
-		b := settlementPlacement.WinnerOf(runSeed, pr+1, cols)
-		markRoadPath(overlay, roadPath(raws, runSeed, a, b, cols, spawnRow, chunkW, chunkH), chunkW, chunkH)
+	for _, f := range raw.PtrSlice(raws.PointFeatures) {
+		if f.Road == nil {
+			continue
+		}
+		p := placementFrom(f)
+		topRegion := consts.FloorDiv(area.OriginY, p.Spacing)
+		botRegion := consts.FloorDiv(area.OriginY+area.Rows-1, p.Spacing)
+		rLo := topRegion - 1 - scanMargin // 1つ北のリージョンの道が南へ食い込みうる
+		rHi := botRegion + scanMargin
+		for pr := rLo; pr <= rHi; pr++ {
+			a := p.WinnerOf(runSeed, pr, cols)
+			b := p.WinnerOf(runSeed, pr+1, cols)
+			markRoadPath(overlay, roadPath(raws, runSeed, a, b, cols, spawnRow, chunkW, chunkH), chunkW, chunkH)
+		}
 	}
 	return overlay
 }

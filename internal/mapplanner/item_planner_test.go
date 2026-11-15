@@ -3,6 +3,7 @@ package mapplanner
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,6 +16,7 @@ func TestNewItemPlanner(t *testing.T) {
 	plannerType := PlannerType{
 		Name:          "test",
 		ItemTableName: "normal",
+		ItemCount:     rawschema.RandInt{Base: 8, Spread: 5},
 		Danger:        1,
 	}
 	planner := NewItemPlanner(world, plannerType)
@@ -35,7 +37,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 			Danger: 1,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -55,10 +57,11 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:          "test_with_items",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.RandInt{Base: 8, Spread: 5},
 			Danger:        1,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -78,10 +81,11 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:          "test_valid_position",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.RandInt{Base: 8, Spread: 5},
 			Danger:        1,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -106,10 +110,11 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerTypeShallow := PlannerType{
 			Name:          "test_depth_shallow",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.RandInt{Base: 8, Spread: 5},
 			Danger:        1,
 		}
 
-		chainShallow, err := NewSmallRoomPlanner(30, 30, 12345)
+		chainShallow, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chainShallow.PlanData.RawMaster = CreateTestRawMaster()
 		err = chainShallow.Plan()
@@ -124,10 +129,11 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerTypeDeep := PlannerType{
 			Name:          "test_depth_deep",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.RandInt{Base: 8, Spread: 5},
 			Danger:        10,
 		}
 
-		chainDeep, err := NewSmallRoomPlanner(30, 30, 12345)
+		chainDeep, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chainDeep.PlanData.RawMaster = CreateTestRawMaster()
 		err = chainDeep.Plan()
@@ -150,10 +156,11 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:          "test_multiple_items",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.RandInt{Base: 8, Spread: 5},
 			Danger:        5,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -174,10 +181,11 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:          "test_stackable",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.RandInt{Base: 8, Spread: 5},
 			Danger:        1,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -209,10 +217,11 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:          "test_room_based_items",
 			ItemTableName: "normal",
+			ItemCount:     rawschema.RandInt{Base: 8, Spread: 5},
 			Danger:        1,
 		}
 
-		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
@@ -238,4 +247,16 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		// 部屋配置を優先するため、半数以上が部屋内にあることを期待する
 		assert.Greater(t, inRoomCount, len(chain.PlanData.Items)/2, "部屋内のアイテムが半数未満")
 	})
+}
+
+func TestItemPlanner_表があり数が無ければエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	chain, err := newLayoutChain(*CreateTestRawMaster(), "small_room", 30, 30, 12345)
+	require.NoError(t, err)
+	chain.PlanData.RawMaster = CreateTestRawMaster()
+	require.NoError(t, chain.Plan())
+
+	planner := NewItemPlanner(world, PlannerType{Name: "test", ItemTableName: "normal", Danger: 1})
+	require.ErrorIs(t, planner.PlanMeta(&chain.PlanData), ErrFloorCountUnset)
 }

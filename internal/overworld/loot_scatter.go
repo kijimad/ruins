@@ -17,11 +17,6 @@ import (
 // 装備が落ちている絵面も不自然なので、無価値な item group からだけ引く。道沿いは人の営みの残りの紙屑、奥地は
 // 打ち捨てられた廃材やくず鉄。密度も低くして原野を埋め尽くさない。土系の地面かつ非占有のタイルにだけ置く。
 
-// outdoorLootDensity は屋外散布 loot の面積あたり係数。count = round(area * density) で置くタイル数を密度から
-// 導く。反復乱数でなく密度で決めるので純関数のまま。屋外の loot は稀であるべきなので低く抑える。1チャンク
-// 約600タイルで期待 1 タイル強に相当する。屑物 group 側も低確率なので、実際に物が出るのはさらに疎になる。
-const outdoorLootDensity = 0.002
-
 // outdoorLootItemChannel はアイテム抽選を座標選択と無相関にするハッシュチャネル。scatterTiles のタイル選択
 // seed と別チャネルにし、どのタイルに何が出るかの相関を切る。scatter.go の grass/weed チャネルと同じ考え方。
 const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // "loot_itm"
@@ -37,7 +32,8 @@ func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chu
 	// 相関しうるので、アイテム側は専用チャネルを XOR して無相関にする
 	selSeed := ChunkSeed2D(runSeed^outdoorLootSalt, c.X, c.Y)
 	rng := rand.New(rand.NewPCG(selSeed^outdoorLootItemChannel, outdoorLootSalt))
-	count := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * outdoorLootDensity))
+	// 置くタイル数は散布ゾーンの密度から面積で導く。反復乱数でなく密度で決めるので純関数のまま
+	count := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.LootDensity))
 
 	for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, count) {
 		draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)

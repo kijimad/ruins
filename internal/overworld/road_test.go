@@ -9,6 +9,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -45,8 +47,12 @@ func TestNewChunkGen_隣接する小集落が道で結ばれる(t *testing.T) {
 
 	// 集落は Y 隣接なので道は縦に走る。集落中心 X の列で、幅を持たせた縦帯の1本を探す。行 y で
 	// north.X を含む床の横連続が丁度 roadWidth なら、他の道や水平辺と重ならない単独の縦帯である。
-	// road.go の非公開 roadWidth と一致させる。実装側を変えたらここも合わせる
-	const roadWidth = 4
+	var roadWidth consts.Tile
+	for _, f := range raw.PtrSlice(world.Resources.RawMaster.PointFeatures) {
+		if f.Id == rawschema.PointFeatureKindSettlement {
+			roadWidth = consts.Tile(f.Road.Width)
+		}
+	}
 	north, south := centers[0], centers[1]
 	isFloor := func(x, y consts.Tile) bool {
 		return strings.HasPrefix(spriteKeyAtOrEmpty(world, x, y), consts.TileNameFloor)

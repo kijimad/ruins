@@ -55,9 +55,9 @@ func TestPhaseG_遺跡滞在中にセーブロードしても共存が復元さ�
 
 	// 遺跡へ入る。オーバーワールド State は BuilderType を持たず、遺跡定義で生成する。
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
-	require.NoError(t, st.enterDungeon(world, dungeon.DungeonDebug.Name()))
+	require.NoError(t, st.enterDungeon(world, dungeon.DebugID))
 
-	ruinKey := gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 1)
+	ruinKey := gc.NewDungeonStage(dungeon.DebugID, 1)
 	require.Equal(t, ruinKey, query.GetDungeon(world).CurrentStage, "現ステージは遺跡1階")
 
 	// セーブして別 world へロードする。共存状態がまるごと往復する。
@@ -109,13 +109,13 @@ func TestPhaseG_多層の共存がセーブロードを跨いで保持され順�
 
 	// 遺跡へ入り、さらに1つ深い階へ降りる。3ステージが共存する。
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
-	require.NoError(t, st.enterDungeon(world, dungeon.DungeonDebug.Name()))
+	require.NoError(t, st.enterDungeon(world, dungeon.DebugID))
 	require.NoError(t, st.descend(world))
 
 	// 遺跡の全フロアは定義名付きキーで一貫して識別される。enterDungeon が作る1階も
 	// descend が作る深い階も同じ dungeonStageKey で揃うため、上り階段の結線が正しい階を指す。
-	floor1Key := dungeonStageKey(dungeon.DungeonDebug.Name(), 1)
-	floor2Key := dungeonStageKey(dungeon.DungeonDebug.Name(), 2)
+	floor1Key := dungeonStageKey(dungeon.DebugID, 1)
+	floor2Key := dungeonStageKey(dungeon.DebugID, 2)
 	require.Equal(t, floor2Key, query.GetDungeon(world).CurrentStage, "現ステージは遺跡2階")
 
 	// セーブして別 world へロードする。
@@ -171,7 +171,7 @@ func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され�
 
 	// 遺跡へ入る。Level が遺跡寸法に置き換わる。
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
-	require.NoError(t, st.enterDungeon(world, dungeon.DungeonDebug.Name()))
+	require.NoError(t, st.enterDungeon(world, dungeon.DebugID))
 
 	// 上り階段で密集した街へ戻る。帰還が失敗しないこと。
 	st2 := &DungeonState{Depth: query.GetDungeon(world).CurrentStage.Depth}
@@ -209,8 +209,8 @@ func TestPhaseG_遺跡内で保存しロード復元しても現ステージが�
 
 	// 遺跡へ入る。現ステージは遺跡、帯データはオーバーワールドの StageField ごと退避される。
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
-	require.NoError(t, st.enterDungeon(world, dungeon.DungeonDebug.Name()))
-	ruinKey := gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 1)
+	require.NoError(t, st.enterDungeon(world, dungeon.DebugID))
+	ruinKey := gc.NewDungeonStage(dungeon.DebugID, 1)
 	require.Equal(t, ruinKey, query.GetDungeon(world).CurrentStage)
 
 	// セーブして別 world へロードする。
@@ -248,20 +248,20 @@ func TestDebug_遺跡進入イベントで正規経路を通って遺跡へ入�
 	require.NoError(t, drv.Start(world))
 
 	// デバッグ選択相当: 遺跡進入イベントを積む
-	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterEvent(dungeon.DungeonDebug.Name())))
+	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterEvent(dungeon.DebugID)))
 
 	// ゲームへ戻った DungeonState が積まれたイベントを処理する
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
 	_, err := st.handleStateChangeRequest(world)
 	require.NoError(t, err)
 
-	ruinKey := gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 1)
+	ruinKey := gc.NewDungeonStage(dungeon.DebugID, 1)
 	assert.Equal(t, ruinKey, query.GetDungeon(world).CurrentStage, "正規経路で遺跡1階へ入る")
 	// 退避したオーバーワールドは現物として残り、上り階段で戻れる(共存)
 	require.NotEmpty(t, stage.BoundEntities(world, gc.NewOverworldStage()), "退避中の地上が残る")
 
 	// 既にその遺跡1階にいる状態で同じ遺跡を選ぶと、自己スワップにならず現ステージが変わらない
-	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterEvent(dungeon.DungeonDebug.Name())))
+	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterEvent(dungeon.DebugID)))
 	_, err = st.handleStateChangeRequest(world)
 	require.NoError(t, err)
 	assert.Equal(t, ruinKey, query.GetDungeon(world).CurrentStage, "同じ遺跡1階への再進入は no-op")
@@ -276,18 +276,18 @@ func TestDebug_プランナー指定進入で指定プランナーが固定さ�
 	require.NoError(t, drv.Start(world))
 
 	// デバッグのプランナー選択相当: 大部屋を固定してデバッグ遺跡へ入る
-	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DungeonDebug.Name(), mapplanner.PlannerTypeBigRoom.Name)))
+	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DebugID, mapplanner.LayoutPlannerType("big_room").Name)))
 
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
 	_, err := st.handleStateChangeRequest(world)
 	require.NoError(t, err)
 
-	ruinKey := gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 1)
+	ruinKey := gc.NewDungeonStage(dungeon.DebugID, 1)
 	assert.Equal(t, ruinKey, query.GetDungeon(world).CurrentStage, "正規経路でデバッグ遺跡1階へ入る")
-	assert.Equal(t, mapplanner.PlannerTypeBigRoom.Name, st.BuilderType.Name, "指定した大部屋プランナーが固定される")
+	assert.Equal(t, mapplanner.LayoutPlannerType("big_room").Name, st.BuilderType.Name, "指定した大部屋プランナーが固定される")
 
 	// 不明なプランナー名は握り潰さず error にする
-	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DungeonDebug.Name(), "存在しないプランナー")))
+	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DebugID, "存在しないプランナー")))
 	_, err = st.handleStateChangeRequest(world)
 	require.Error(t, err, "不明なプランナー名は error になる")
 }
@@ -301,10 +301,10 @@ func TestDebug_プランナー指定は選ぶたびにフロアを作り直す(t
 	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 24, 24, 3, 1), &overworld.NewGameParams{RunSeed: 13})
 	require.NoError(t, drv.Start(world))
 	st := &DungeonState{DefinitionName: dungeon.DungeonOverworld.Name()}
-	ruinKey := gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 1)
+	ruinKey := gc.NewDungeonStage(dungeon.DebugID, 1)
 
 	// 1回目: オーバーワールドから大部屋を選んでデバッグ遺跡へ入る
-	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DungeonDebug.Name(), mapplanner.PlannerTypeBigRoom.Name)))
+	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DebugID, mapplanner.LayoutPlannerType("big_room").Name)))
 	_, err := st.handleStateChangeRequest(world)
 	require.NoError(t, err)
 	assert.Equal(t, ruinKey, query.GetDungeon(world).CurrentStage, "デバッグ遺跡1階に入る")
@@ -313,11 +313,11 @@ func TestDebug_プランナー指定は選ぶたびにフロアを作り直す(t
 	sample := first[0] // 作り直しで消えるはずの旧フロアのエンティティ
 
 	// 2回目: デバッグ遺跡に居るまま小部屋を選び直す。自己スワップだが作り直される
-	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DungeonDebug.Name(), mapplanner.PlannerTypeSmallRoom.Name)))
+	require.NoError(t, lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DebugID, mapplanner.LayoutPlannerType("small_room").Name)))
 	_, err = st.handleStateChangeRequest(world)
 	require.NoError(t, err)
 	assert.Equal(t, ruinKey, query.GetDungeon(world).CurrentStage, "現ステージはデバッグ遺跡1階のまま")
-	assert.Equal(t, mapplanner.PlannerTypeSmallRoom.Name, st.BuilderType.Name, "小部屋プランナーに切り替わる")
+	assert.Equal(t, mapplanner.LayoutPlannerType("small_room").Name, st.BuilderType.Name, "小部屋プランナーに切り替わる")
 	assert.False(t, world.ECS.Alive(sample), "旧フロアは Purge され残らない")
 	require.NotEmpty(t, stage.BoundEntities(world, ruinKey), "作り直したフロアが存在する")
 

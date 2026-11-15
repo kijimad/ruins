@@ -28,21 +28,21 @@ func TestSelectPlanner(t *testing.T) {
 		t.Parallel()
 		def := DungeonDefinition{
 			plannerPool: []PlannerWeight{
-				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
+				{PlannerType: mapplanner.LayoutPlannerType("cave"), Weight: 1},
 			},
 		}
 		rng := rand.New(rand.NewPCG(12345, 0))
 		result, err := def.SelectPlanner(rng)
 		require.NoError(t, err)
-		assert.Equal(t, mapplanner.PlannerTypeCave.Name, result.Name)
+		assert.Equal(t, mapplanner.LayoutPlannerType("cave").Name, result.Name)
 	})
 
 	t.Run("重みに応じて選択される", func(t *testing.T) {
 		t.Parallel()
 		def := DungeonDefinition{
 			plannerPool: []PlannerWeight{
-				{PlannerType: mapplanner.PlannerTypeForest, Weight: 100},
-				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
+				{PlannerType: mapplanner.LayoutPlannerType("forest"), Weight: 100},
+				{PlannerType: mapplanner.LayoutPlannerType("cave"), Weight: 1},
 			},
 		}
 
@@ -53,9 +53,9 @@ func TestSelectPlanner(t *testing.T) {
 			result, err := def.SelectPlanner(rng)
 			require.NoError(t, err)
 			switch result.Name {
-			case mapplanner.PlannerTypeForest.Name:
+			case mapplanner.LayoutPlannerType("forest").Name:
 				forestCount++
-			case mapplanner.PlannerTypeCave.Name:
+			case mapplanner.LayoutPlannerType("cave").Name:
 				caveCount++
 			}
 		}
@@ -69,8 +69,8 @@ func TestSelectPlanner(t *testing.T) {
 		def := DungeonDefinition{
 			name: "テスト",
 			plannerPool: []PlannerWeight{
-				{PlannerType: mapplanner.PlannerTypeRuins, Weight: 0},
-				{PlannerType: mapplanner.PlannerTypeCave, Weight: 0},
+				{PlannerType: mapplanner.LayoutPlannerType("ruins"), Weight: 0},
+				{PlannerType: mapplanner.LayoutPlannerType("cave"), Weight: 0},
 			},
 		}
 		rng := rand.New(rand.NewPCG(12345, 0))
@@ -82,9 +82,9 @@ func TestSelectPlanner(t *testing.T) {
 		t.Parallel()
 		def := DungeonDefinition{
 			plannerPool: []PlannerWeight{
-				{PlannerType: mapplanner.PlannerTypeForest, Weight: 1},
-				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
-				{PlannerType: mapplanner.PlannerTypeRuins, Weight: 1},
+				{PlannerType: mapplanner.LayoutPlannerType("forest"), Weight: 1},
+				{PlannerType: mapplanner.LayoutPlannerType("cave"), Weight: 1},
+				{PlannerType: mapplanner.LayoutPlannerType("ruins"), Weight: 1},
 			},
 		}
 
@@ -103,9 +103,9 @@ func TestSelectPlanner(t *testing.T) {
 		t.Parallel()
 		def := DungeonDefinition{
 			plannerPool: []PlannerWeight{
-				{PlannerType: mapplanner.PlannerTypeForest, Weight: 1},
-				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
-				{PlannerType: mapplanner.PlannerTypeRuins, Weight: 1},
+				{PlannerType: mapplanner.LayoutPlannerType("forest"), Weight: 1},
+				{PlannerType: mapplanner.LayoutPlannerType("cave"), Weight: 1},
+				{PlannerType: mapplanner.LayoutPlannerType("ruins"), Weight: 1},
 			},
 		}
 
