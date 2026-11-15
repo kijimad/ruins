@@ -160,7 +160,7 @@ type TileRenderInfo interface {
 type TileRenderVisible struct {
 	Darkness   VisibleDarkness // 暗闘の強さ。0.0で完全に明るく、1.0で完全に暗い
 	LightColor color.RGBA      // 光源がある場合の色
-	Ambient    float64         // タイルが受ける環境光の明るさ
+	Ambient    float64         // タイルが受ける環境光の明るさ。光の情報が無ければ 0 で、昼の底上げを受けない
 }
 
 func (TileRenderVisible) tileRenderInfo() {}
@@ -472,7 +472,7 @@ const (
 
 // ライティングの調整値
 const (
-	// dungeonAmbient は屋内の環境光。松明が無いと見えないくらい暗い
+	// dungeonAmbient はダンジョンの環境光。松明が無いと見えないくらい暗い
 	dungeonAmbient = 0.06
 	// lightFadeLow は光源のフェードの下端。これ以下の環境光では光源が満額効く
 	lightFadeLow = 0.45
