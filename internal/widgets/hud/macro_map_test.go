@@ -180,11 +180,11 @@ func TestDrawMapLegend_種別ごとに色見本と名前を描く(t *testing.T) 
 	cv := &fakeCanvas{}
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 
-	// フェイスは nil でよい。fakeCanvas は描画命令を記録するだけで実描画しない
-	DrawMapLegend(cv, raws, func(msgid string) string { return msgid }, nil, nil, 100)
-
 	glyphs := overworld.LegendGlyphs(raws)
 	require.NotEmpty(t, glyphs)
+	// フェイスは nil でよい。fakeCanvas は描画命令を記録するだけで実描画しない
+	DrawMapLegend(cv, glyphs, func(msgid string) string { return msgid }, nil, nil, 100)
+
 	assert.Len(t, cv.fillRects, len(glyphs), "種別ごとに色見本を1つ塗る")
 	assert.Len(t, cv.texts, len(glyphs)*2)
 }

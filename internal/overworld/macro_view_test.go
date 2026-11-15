@@ -120,3 +120,19 @@ func TestBuildMacroView_プレイヤー不在なら現在地なし(t *testing.T)
 
 	assert.Nil(t, view.PlayerCell, "プレイヤー不在なら現在地なし")
 }
+
+func TestMacroView_Legend_開放済みのチャンクに出ている記号だけを凡例の順に返す(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	view := MacroView{Cells: [][]MacroCell{
+		{{Glyph: 'h', Discovered: true}, {Glyph: '.', Discovered: true}},
+		{{Glyph: 'h', Discovered: true}, {Glyph: 'S', Discovered: false}},
+	}}
+	legend := view.Legend(raws)
+	got := make([]rune, 0, len(legend))
+	for _, g := range legend {
+		got = append(got, g.Label)
+	}
+	assert.Equal(t, []rune{'.', 'h'}, got)
+}

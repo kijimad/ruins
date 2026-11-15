@@ -135,3 +135,22 @@ func BuildMacroView(
 	}
 	return view
 }
+
+// Legend は表示範囲の開放済みのチャンクに出ている記号を、凡例の順に返す。未開放のチャンクの記号は伏せる
+func (v MacroView) Legend(raws rawschema.Raws) []GlyphInfo {
+	seen := map[rune]bool{}
+	for _, row := range v.Cells {
+		for _, c := range row {
+			if c.Discovered {
+				seen[c.Glyph] = true
+			}
+		}
+	}
+	var out []GlyphInfo
+	for _, g := range LegendGlyphs(raws) {
+		if seen[g.Label] {
+			out = append(out, g)
+		}
+	}
+	return out
+}
