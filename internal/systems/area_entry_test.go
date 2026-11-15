@@ -28,7 +28,7 @@ func TestAreaEntrySystem_observe_別の区域に入ったときだけ入った�
 		got = append(got, sys.observe(a, consts.Turn(100+i)))
 	}
 	assert.Equal(t, []bool{
-		false, // 最初に見たエリアは記憶するだけ
+		true,  // 最初に見たのが区域なら入ったとみなす
 		false, // 同じ区域の中
 		false, // 荒れ地に出た
 		true,  // 荒れ地から町に戻った
@@ -39,19 +39,21 @@ func TestAreaEntrySystem_observe_別の区域に入ったときだけ入った�
 	}, got)
 }
 
-func TestAreaEntrySystem_observe_ターンが続いていなければ別の区域でも入ったとみなさない(t *testing.T) {
+func TestAreaEntrySystem_observe_ターンが続いていなければ今いる区域に入ったとみなす(t *testing.T) {
 	t.Parallel()
 
 	townA := overworld.Area{Key: "town:0,0", Name: "Town"}
-	townB := overworld.Area{Key: "town:9,9", Name: "Town"}
+	wasteland := overworld.Area{Name: "Wasteland"}
 
 	sys := &AreaEntrySystem{}
 	got := []bool{
 		sys.observe(townA, 100),
-		sys.observe(townB, 500), // 別のセーブを読み込んだ、あるいはダンジョンから戻った
+		sys.observe(townA, 100), // 開始時の観測の直後に、同じターンでもう一度見た
+		sys.observe(townA, 500), // 同じ町のセーブを読み込んだ、あるいはダンジョンから同じ町に戻った
 		sys.observe(townA, 501),
+		sys.observe(wasteland, 900), // 荒れ地のセーブを読み込んだ
 	}
-	assert.Equal(t, []bool{false, false, true}, got)
+	assert.Equal(t, []bool{true, false, true, false, false}, got)
 }
 
 func TestAreaLabel_地上でなければ空(t *testing.T) {

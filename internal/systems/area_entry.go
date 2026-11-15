@@ -9,7 +9,7 @@ import (
 )
 
 // AreaEntrySystem は地上でプレイヤーが別の区域に入ったら、区域の名前をスプラッシュで出す。
-// 前回の観測から1ターンずつ続いているときだけ比べるので、開始・ロード・ダンジョンからの帰還の直後は出さない
+// 開始・ロード・ダンジョンからの帰還の直後に区域にいるときも出す
 type AreaEntrySystem struct {
 	last     string
 	lastTurn consts.Turn
@@ -35,12 +35,13 @@ func (sys *AreaEntrySystem) Update(world w.World) error {
 	return nil
 }
 
-// observe はターン turn のエリアを記憶し、前回と別の区域に入ったかを返す。区域でない場所と、
-// 前回の観測から続いていないときは入ったとみなさない。system は world より長く生きてロードをまたぐので、
-// 連続を見て、前のプレイや別の場所で記憶したエリアと比べないようにする
+// observe はターン turn のエリアを記憶し、区域に入ったかを返す。前回の観測から続いていなければ、
+// 直前のエリアを忘れて今いる区域に入ったとみなす。system は world より長く生きてロードをまたぐので、
+// 前のプレイや別の場所で記憶したエリアと比べないよう、ターンの連続を見る
 func (sys *AreaEntrySystem) observe(area overworld.Area, turn consts.Turn) bool {
-	continuous := sys.observed && turn == sys.lastTurn+1
-	entered := continuous && area.Key != sys.last && area.Key != ""
+	// 開始時にも1回観測するので、同じターンの観測も続いているとみなす
+	continuous := sys.observed && (turn == sys.lastTurn || turn == sys.lastTurn+1)
+	entered := area.Key != "" && (!continuous || area.Key != sys.last)
 	sys.last, sys.lastTurn, sys.observed = area.Key, turn, true
 	return entered
 }

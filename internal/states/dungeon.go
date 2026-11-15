@@ -115,6 +115,10 @@ func (st *DungeonState) OnStart(world w.World) error {
 		if err := st.driver.Start(world); err != nil {
 			return err
 		}
+		// 開始とロードの直後に区域にいれば、最初の1手を待たずに区域の名前を出す
+		if err := runUpdaters(world, &gs.AreaEntrySystem{}); err != nil {
+			return err
+		}
 		// 新規開始直後に最初の復帰点を作る。ロード復帰では newGame が nil なので保存しない
 		if st.newGame != nil {
 			if err := autoSave(world, nil); err != nil {
