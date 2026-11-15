@@ -1123,7 +1123,8 @@
   pattern = "rows"
   separation = 4
   spacing = 36
-  verge = true
+  street = "road"
+  verge = "grass_green"
 
   [[districts.layers]]
     rows = 1
@@ -1153,6 +1154,7 @@
   pattern = "rings"
   separation = 4
   spacing = 40
+  street = "road"
 
   [[districts.layers]]
     zones = ["plant_outer"]
