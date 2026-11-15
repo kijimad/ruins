@@ -624,32 +624,6 @@ type DoorRaw struct {
 	VerticalOpen SpriteKey `json:"verticalOpen"`
 }
 
-// DrawerKey ランドマークの描画関数の選択キー
-type DrawerKey string
-
-// Defines values for DrawerKey.
-const (
-	Hut  DrawerKey = "hut"
-	Open DrawerKey = "open"
-)
-
-// Valid indicates whether the value is a known member of the DrawerKey enum.
-func (e DrawerKey) Valid() bool {
-	switch e {
-	case Hut:
-		return true
-	case Open:
-		return true
-	default:
-		return false
-	}
-}
-
-// DrawerKeyValues は DrawerKey の値を、スキーマに書いた順に返す。
-func DrawerKeyValues() []DrawerKey {
-	return []DrawerKey{Hut, Open}
-}
-
 // DropTable ドロップテーブル
 type DropTable struct {
 	Entries []DropTableEntry `json:"entries"`
@@ -1464,23 +1438,12 @@ type ItemTableEntry struct {
 // ItemValue 売買価格
 type ItemValue = int
 
-// Landmark 原野の点在ランドマーク1種。hutW/hutH は drawer=hut のときだけ使う
+// Landmark 原野の点在ランドマーク1種。施設の絵で描く施設を、原野のランドマークの当選チャンクに置く
 type Landmark struct {
-	Drawer DrawerKey `json:"drawer"`
-
-	// HutFloor 小屋の床と壁のタイル。drawer=hut のときだけ使い、そのとき必須
-	HutFloor *EntityID `json:"hutFloor,omitempty"`
-
-	HutH int32 `json:"hutH"`
-
-	HutW int32 `json:"hutW"`
-
-	HutWall *EntityID `json:"hutWall,omitempty"`
-
+	// Id 原野に置く施設の id。地図の記号もこの id で引く
 	Id EntityID `json:"id"`
 
-	Props []PropSpot `json:"props"`
-
+	// Weight 原野のランドマークの当選チャンクで、この施設を引く重み
 	Weight int32 `json:"weight"`
 }
 
@@ -2844,6 +2807,8 @@ const (
 	CampusInner      Zone = "campus_inner"
 	CampusQuarantine Zone = "campus_quarantine"
 	Downtown         Zone = "downtown"
+	FarmField        Zone = "farm_field"
+	FarmYard         Zone = "farm_yard"
 	Industrial       Zone = "industrial"
 	MilitaryArmory   Zone = "military_armory"
 	MilitaryGate     Zone = "military_gate"
@@ -2863,6 +2828,10 @@ func (e Zone) Valid() bool {
 	case CampusQuarantine:
 		return true
 	case Downtown:
+		return true
+	case FarmField:
+		return true
+	case FarmYard:
 		return true
 	case Industrial:
 		return true
@@ -2885,5 +2854,5 @@ func (e Zone) Valid() bool {
 
 // ZoneValues は Zone の値を、スキーマに書いた順に返す。
 func ZoneValues() []Zone {
-	return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore}
+	return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore, FarmYard, FarmField}
 }

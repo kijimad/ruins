@@ -1205,6 +1205,37 @@
     w = 5
     weight = 1
 
+[[districts]]
+  fence = true
+  id = "farm"
+  landmark = "farmhouse"
+  pattern = "rows"
+  separation = 2
+  spacing = 12
+  street = "dirt"
+
+  [[districts.layers]]
+    zones = ["farm_field"]
+
+  [[districts.layers]]
+    rows = 1
+    zones = ["farm_yard"]
+
+  [[districts.sizes]]
+    h = 2
+    w = 2
+    weight = 2
+
+  [[districts.sizes]]
+    h = 2
+    w = 3
+    weight = 1
+
+  [[districts.sizes]]
+    h = 3
+    w = 3
+    weight = 1
+
 [[dropTables]]
   id = "bat"
   name = "コウモリ"
@@ -3693,6 +3724,64 @@
     minSpan = 1
     weight = 1
     zone = "plant_core"
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "abandoned_hut"
+  lootedChance = 30
+  zones = []
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "shrine"
+  lootedChance = 0
+  zones = []
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "campsite"
+  lootedChance = 0
+  zones = []
+
+[[facilities]]
+  enemyTable = "house_enemies"
+  id = "farmhouse"
+  lootedChance = 50
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "farm_yard"
+
+[[facilities]]
+  enemyTable = "house_enemies"
+  id = "farm_barn"
+  lootedChance = 40
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 2
+    zone = "farm_yard"
+
+[[facilities]]
+  enemyTable = "house_enemies"
+  id = "farm_field"
+  lootedChance = 30
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 3
+    zone = "farm_field"
+
+[[facilities]]
+  enemyTable = "house_enemies"
+  id = "farm_pen"
+  lootedChance = 30
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "farm_field"
 
 [[fatigueStages]]
   canSleep = false
@@ -8005,6 +8094,28 @@
     maxDanger = 100
     minDanger = 1
     weight = 3
+
+  [[itemTables.entries]]
+    id = "industrial_materials"
+    maxDanger = 100
+    minDanger = 1
+    weight = 1
+
+[[itemTables]]
+  id = "farm_barn"
+  name = "農場の納屋"
+
+  [[itemTables.entries]]
+    id = "hand_tools"
+    maxDanger = 100
+    minDanger = 1
+    weight = 2
+
+  [[itemTables.entries]]
+    id = "food"
+    maxDanger = 100
+    minDanger = 1
+    weight = 2
 
   [[itemTables.entries]]
     id = "industrial_materials"
@@ -17490,86 +17601,16 @@
   weight = "200 g"
 
 [[landmarks]]
-  drawer = "hut"
-  hutFloor = "floor"
-  hutH = 5
-  hutW = 6
-  hutWall = "dwall"
   id = "abandoned_hut"
   weight = 30
 
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "bed"
-
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "closet"
-
 [[landmarks]]
-  drawer = "hut"
-  hutFloor = "floor"
-  hutH = 5
-  hutW = 7
-  hutWall = "dwall"
-  id = "farmstead"
-  weight = 25
-
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "barrel"
-
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "crate"
-
-[[landmarks]]
-  drawer = "open"
-  hutH = 0
-  hutW = 0
   id = "shrine"
   weight = 20
 
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "stone_pillar"
-
-  [[landmarks.props]]
-    dx = -1
-    dy = 1
-    name = "candle"
-
-  [[landmarks.props]]
-    dx = 1
-    dy = 1
-    name = "candle"
-
 [[landmarks]]
-  drawer = "open"
-  hutH = 0
-  hutW = 0
   id = "campsite"
   weight = 25
-
-  [[landmarks.props]]
-    dx = 0
-    dy = 0
-    name = "hearth"
-
-  [[landmarks.props]]
-    dx = 1
-    dy = 1
-    name = "crate"
-
-  [[landmarks.props]]
-    dx = -1
-    dy = 0
-    name = "bench"
 
 [[mapGlyphs]]
   chunk = "wasteland"
@@ -17630,8 +17671,8 @@
 
 [[mapGlyphs]]
   glyph = "f"
-  id = "farmstead"
-  name = "Old Farmstead"
+  id = "farmhouse"
+  name = "Farmhouse"
   order = 5
   [mapGlyphs.color]
     a = 255
@@ -17891,6 +17932,39 @@
     b = 90
     g = 100
     r = 110
+
+[[mapGlyphs]]
+  glyph = "b"
+  id = "farm_barn"
+  name = "Barn"
+  order = 29
+  [mapGlyphs.color]
+    a = 255
+    b = 70
+    g = 110
+    r = 170
+
+[[mapGlyphs]]
+  glyph = "\""
+  id = "farm_field"
+  name = "Field"
+  order = 30
+  [mapGlyphs.color]
+    a = 255
+    b = 80
+    g = 190
+    r = 150
+
+[[mapGlyphs]]
+  glyph = "p"
+  id = "farm_pen"
+  name = "Pen"
+  order = 31
+  [mapGlyphs.color]
+    a = 255
+    b = 110
+    g = 160
+    r = 180
 
 [[materials]]
   heatPerKg = 200
@@ -22037,6 +22111,18 @@
     lootCount = "1d2"
     lootTableId = "power_control"
     maxWeight = "30 kg"
+
+[[props]]
+  blockPass = false
+  blockView = false
+  description = "[dummy] 畝に並ぶ作物。実アート未実装の仮素材"
+  hp = 5
+  id = "crop"
+  name = "Crops"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "crop"
+    spriteSheetName = "field"
 
 [[recipes]]
   id = "ray_gun"
