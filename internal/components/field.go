@@ -56,9 +56,6 @@ type Tile struct{}
 // キャラクター（プレイヤー・敵）には付与しない。キャラクターの通行可否は関係性で判定する
 type BlockPass struct{}
 
-// Box は 3D で高さのある箱として描くタイルに付与する。raw のタイルの行の box から付く
-type Box struct{}
-
 // BlockView はフィールド上で視界を遮る
 // TODO: 能動態のほうがわかりやすそう
 type BlockView struct{}
