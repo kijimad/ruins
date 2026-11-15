@@ -3,7 +3,9 @@ package mapplanner
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -163,4 +165,36 @@ func TestBigRoomPlannerBoundaries(t *testing.T) {
 				"部屋下辺壁[%d,%d]が壁でない", x, y)
 		}
 	}
+}
+
+func TestBigRoomDraw_drawBasicBigRoom_部屋の周りの通れないマスだけを壁にする(t *testing.T) {
+	t.Parallel()
+
+	planData := &MetaPlan{
+		Level:     gc.Level{TileWidth: 5, TileHeight: 5},
+		Tiles:     make([]rawschema.Tile, 25),
+		Rooms:     []gc.Rect{{Min: consts.Coord[consts.Tile]{X: 1, Y: 1}, Max: consts.Coord[consts.Tile]{X: 3, Y: 3}}},
+		RawMaster: CreateTestRawMaster(),
+	}
+	for i := range planData.Tiles {
+		planData.Tiles[i] = planData.GetTile("void")
+		if i%5 == 0 {
+			planData.Tiles[i] = planData.GetTile("road")
+		}
+	}
+
+	BigRoomDraw{Tiles: rawschema.LayoutTiles{Floor: "floor", Wall: "wall", Void: "void"}}.drawBasicBigRoom(planData)
+
+	initials := map[string]string{"road": "r", "void": "v", "wall": "w", "floor": "f"}
+	got := make([]string, 5)
+	for i, tile := range planData.Tiles {
+		got[i/5] += initials[tile.Id]
+	}
+	assert.Equal(t, []string{
+		"rwwwv",
+		"rfffw",
+		"rfffw",
+		"rfffw",
+		"rwwwv",
+	}, got)
 }

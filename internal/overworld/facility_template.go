@@ -166,10 +166,10 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 	return nil
 }
 
-// voidEnclosedWalls は、直交と斜めの近傍8マスに通れる地形が無い箱の地形を虚空にする。壁のオートタイルは部屋を囲む細い輪郭を
+// voidEnclosedBoxes は、直交と斜めの近傍8マスに通れる地形が無い箱の地形を虚空にする。壁のオートタイルは部屋を囲む細い輪郭を
 // 前提にするので、厚い壁の塊の内側を虚空にして描き崩れを防ぐ。マスの外は outsidePassable が通れると返す座標だけを通れるものとして
 // 数える。家具の乗った壁は残す
-func voidEnclosedWalls(cells [][]maptemplate.MapCell, blocks, isBox func(terrain string) bool, outsidePassable func(x, y int) bool) {
+func voidEnclosedBoxes(cells [][]maptemplate.MapCell, blocks, isBox func(terrain string) bool, outsidePassable func(x, y int) bool) {
 	passable := func(x, y int) bool {
 		if y < 0 || y >= len(cells) || x < 0 || x >= len(cells[y]) {
 			return outsidePassable(x, y)

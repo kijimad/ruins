@@ -44,7 +44,7 @@ func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {
 	return world.Components.GridElement.Get(pe).Coord, nil
 }
 
-// IsWallTile はそのタイルが高さのある箱として描かれるかを返す。
+// IsBoxTile はそのタイルが高さのある箱として描かれるかを返す。
 //
 // 箱になるのは Tile と Box を併せ持つエンティティだけである。扉やキューブは通行を
 // 塞ぐが箱にはならないので、通れるかで代わりに判定してはいけない。全てのエンティティでなく
@@ -52,7 +52,7 @@ func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {
 //
 // 内部でエンティティ検索のクエリを開くので、クエリ反復中には呼ばない。呼び出し元は Draw の
 // カーソル描画で、その時点でアクティブなクエリは無い。
-func IsWallTile(world w.World, c consts.Coord[consts.Tile]) bool {
+func IsBoxTile(world w.World, c consts.Coord[consts.Tile]) bool {
 	q := query.ActiveFilter2[gc.GridElement, gc.Box](world).With(ecs.C[gc.Tile]()).Query()
 	for q.Next() {
 		if world.Components.GridElement.Get(q.Entity()).Coord == c {
@@ -63,16 +63,16 @@ func IsWallTile(world w.World, c consts.Coord[consts.Tile]) bool {
 	return false
 }
 
-// IsWallTileEntity は箱として描かれるタイルの述語。壁の集合を組む側と、タイルを指す側が
+// IsBoxTileEntity は箱として描かれるタイルの述語。壁の集合を組む側と、タイルを指す側が
 // 同じ判定を通ることで、どのタイルが箱かの認識が2箇所に分かれない。
-// Has を見るだけでクエリを開かないので、WallTileSet のクエリ反復中から呼んでも安全。
-// 座標からエンティティを引く IsWallTile とはこの点が異なる。
-func IsWallTileEntity(world w.World, e ecs.Entity) bool {
+// Has を見るだけでクエリを開かないので、BoxTileSet のクエリ反復中から呼んでも安全。
+// 座標からエンティティを引く IsBoxTile とはこの点が異なる。
+func IsBoxTileEntity(world w.World, e ecs.Entity) bool {
 	return world.Components.Tile.Has(e) && world.Components.Box.Has(e)
 }
 
-// WallTileSet は箱として描かれるタイルの集合を組む。壁の側面を隣と突き合わせて省くのに使う
-func WallTileSet(world w.World) map[consts.Coord[consts.Tile]]bool {
+// BoxTileSet は箱として描かれるタイルの集合を組む。壁の側面を隣と突き合わせて省くのに使う
+func BoxTileSet(world w.World) map[consts.Coord[consts.Tile]]bool {
 	walls := map[consts.Coord[consts.Tile]]bool{}
 	wallQ := query.ActiveFilter2[gc.GridElement, gc.Box](world).With(ecs.C[gc.Tile]()).Query()
 	for wallQ.Next() {
@@ -84,7 +84,7 @@ func WallTileSet(world w.World) map[consts.Coord[consts.Tile]]bool {
 // TileTopHeight はタイル上面の高さを返す。壁は箱として描かれるので天面、床は地面になる。
 // タイルを指すカーソルはこの高さへ描く。壁タイルを地面の高さで描くと箱に埋もれて見えなくなる。
 func TileTopHeight(world w.World, c consts.Coord[consts.Tile]) float64 {
-	if IsWallTile(world, c) {
+	if IsBoxTile(world, c) {
 		return WallHeight
 	}
 	return 0
