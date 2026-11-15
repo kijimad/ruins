@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestBehavior_NoOpStep_ゲームログに出力しない は、log.Debug のみで常に nil を返す
+// TestBehavior_NoOpStep_ゲームログに出力しない は、Params が nil のとき log.Debug のみで nil を返す
 // Behavior の Start/Finish/Canceled をまとめて検証する。これらは実装上固定で失敗しようがないため、
 // 検証できる唯一の契約は「ゲームログに何も出さない」こと。将来うっかり出力を足したときに捕まえる
 func TestBehavior_NoOpStep_ゲームログに出力しない(t *testing.T) {

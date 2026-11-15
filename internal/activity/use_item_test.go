@@ -260,7 +260,6 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		hp.Max = 100
 		hp.Current = 50
 
-		// green_herb は ProvidesHealing{Kind: HealNumeral, Amount: 30} の実在raw
 		item, err := lifecycle.SpawnBackpackItem(world, "green_herb", 1)
 		require.NoError(t, err)
 
@@ -275,7 +274,6 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-		// 30に治療効果スキルの倍率がかかって31回復する
 		assert.Equal(t, 81, world.Components.HP.Get(player).Current, "回復量ぶんHPが増える")
 	})
 
@@ -333,13 +331,12 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	t.Run("空腹度回復アイテムはHP満タンでも使える", func(t *testing.T) {
+	t.Run("空腹度回復アイテムは使用前検証を通る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
-		// almond は ProvidesNutrition の実在raw。回復アイテムと違いHP満タンでも弾かれない
 		item, err := lifecycle.SpawnBackpackItem(world, "almond", 1)
 		require.NoError(t, err)
 
@@ -353,7 +350,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	t.Run("自傷ダメージアイテムはHP満タンでも使える", func(t *testing.T) {
+	t.Run("自傷ダメージアイテムは使用前検証を通る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")

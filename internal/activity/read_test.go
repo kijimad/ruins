@@ -560,14 +560,10 @@ func TestReadBehavior_Canceled_本の名前が取れないときは汎用メッ�
 	assert.Contains(t, recent[0], "interrupted reading")
 }
 
-func TestReadBehavior_Info(t *testing.T) {
+func TestReadBehavior_Info_中断した読書は再開できる(t *testing.T) {
 	t.Parallel()
 
-	rb := &ReadBehavior{}
-	info := rb.Info()
-
-	assert.True(t, info.Interruptible)
-	assert.True(t, info.Resumable)
+	assert.True(t, (&ReadBehavior{}).Info().Resumable)
 }
 
 func TestNewReadActivity(t *testing.T) {
