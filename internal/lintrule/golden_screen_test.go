@@ -63,6 +63,7 @@ func TestManagedGoldenScreens(t *testing.T) {
 		{"NewScreen は適合", "screen := vrt.NewScreen(2, 2)\nvrt.AssertFrameGolden(t, \"x\", screen)", 0},
 		{"描画元の NewImage は適合", "src := ebiten.NewImage(2, 2)\nscreen := vrt.NewScreen(2, 2)\nscreen.DrawImage(src, nil)\nvrt.AssertFrameGolden(t, \"x\", screen)", 0},
 		{"受け取った描き先は適合", "vrt.AssertFrameGolden(t, \"x\", frame)", 0},
+		{"vrt の中の修飾なしの呼び出しも違反", "screen := ebiten.NewImage(2, 2)\nAssertFrameGolden(t, \"x\", screen)", 1},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -76,7 +77,7 @@ func TestManagedGoldenScreens(t *testing.T) {
 }
 
 // managedGoldenScreens は vrt.AssertFrameGolden の描き先が ebiten.NewImage 系で作られた呼び出しの位置を返す。
-// 描き先の変数は関数ごとに名前で突き合わせる
+// 描き先の変数は関数ごとに名前で突き合わせる。import の別名は追わない
 func managedGoldenScreens(f *ast.File) []token.Pos {
 	var out []token.Pos
 	for _, decl := range f.Decls {
@@ -104,7 +105,7 @@ func managedGoldenScreens(f *ast.File) []token.Pos {
 		})
 		ast.Inspect(fn.Body, func(n ast.Node) bool {
 			call, ok := n.(*ast.CallExpr)
-			if !ok || !isSelector(call.Fun, "vrt", "AssertFrameGolden") || len(call.Args) < 3 {
+			if !ok || !isAssertFrameGolden(call.Fun) || len(call.Args) < 3 {
 				return true
 			}
 			arg := call.Args[2]
@@ -115,6 +116,14 @@ func managedGoldenScreens(f *ast.File) []token.Pos {
 		})
 	}
 	return out
+}
+
+// isAssertFrameGolden は式が vrt.AssertFrameGolden か、vrt パッケージの中の修飾なしの呼び出しかを返す
+func isAssertFrameGolden(e ast.Expr) bool {
+	if id, ok := e.(*ast.Ident); ok {
+		return id.Name == "AssertFrameGolden"
+	}
+	return isSelector(e, "vrt", "AssertFrameGolden")
 }
 
 // isNewImageCall は式が ebiten.NewImage か ebiten.NewImageWithOptions の呼び出しかを返す
