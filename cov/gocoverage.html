@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (81.9%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (79.7%)</option>
 				
@@ -451,7 +451,7 @@
 				
 				<option value="file197">github.com/kijimaD/ruins/internal/overworld/facility_loot.go (83.3%)</option>
 				
-				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_template.go (88.6%)</option>
+				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_template.go (90.0%)</option>
 				
 				<option value="file199">github.com/kijimaD/ruins/internal/overworld/feature.go (88.9%)</option>
 				
@@ -1732,7 +1732,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1886,8 +1886,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -27027,12 +27027,44 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
                 <span class="cov8" title="1">tileRows[id] = t
                 return t, nil</span>
         }
+        <span class="cov8" title="1">inBounds := func(x, y int) bool </span>{ <span class="cov8" title="1">return y &gt;= 0 &amp;&amp; y &lt; len(cells) &amp;&amp; x &gt;= 0 &amp;&amp; x &lt; len(cells[y]) }</span>
         <span class="cov8" title="1">wallAt := func(x, y int) bool </span>{
-                <span class="cov8" title="1">if y &lt; 0 || y &gt;= len(cells) || x &lt; 0 || x &gt;= len(cells[y]) || cells[y][x].Terrain == maptemplate.GroundTerrain </span>{
+                <span class="cov8" title="1">if !inBounds(x, y) || cells[y][x].Terrain == maptemplate.GroundTerrain </span>{
                         <span class="cov8" title="1">return false
 </span>                }
                 <span class="cov8" title="1">t, err := tileOf(cells[y][x].Terrain)
                 return err == nil &amp;&amp; t.BlockPass</span>
+        }
+
+        <span class="cov8" title="1">propBlocks := map[string]bool{}
+        propBlocksPass := func(id string) (bool, error) </span>{
+                <span class="cov8" title="1">if id == "" </span>{
+                        <span class="cov8" title="1">return false, nil
+</span>                }
+                <span class="cov8" title="1">if b, ok := propBlocks[id]; ok </span>{
+                        <span class="cov8" title="1">return b, nil
+</span>                }
+                <span class="cov8" title="1">prop, err := raw.GetProp(world.Resources.RawMaster, id)
+                if err != nil </span>{
+                        <span class="cov8" title="1">return false, err
+</span>                }
+                <span class="cov8" title="1">propBlocks[id] = prop.BlockPass
+                return prop.BlockPass, nil</span>
+        }
+
+        // 扉の隣には扉や窓が並ぶので、通行を塞ぐ置物も壁と同じく向きを決める側に数える
+        <span class="cov8" title="1">blocks := func(x, y int) (bool, error) </span>{
+                <span class="cov8" title="1">if !inBounds(x, y) </span>{
+                        <span class="cov8" title="1">return false, nil
+</span>                }
+                <span class="cov8" title="1">if wallAt(x, y) </span>{
+                        <span class="cov8" title="1">return true, nil
+</span>                }
+                <span class="cov8" title="1">b, err := propBlocksPass(cells[y][x].Prop)
+                if err != nil </span>{
+                        <span class="cov8" title="1">return false, fmt.Errorf("facility %q prop at %d,%d: %w", fac, x, y, err)
+</span>                }
+                <span class="cov8" title="1">return b, nil</span>
         }
 
         <span class="cov8" title="1">tiles := g.tiles.get()
@@ -27058,11 +27090,15 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 </span>                                }
                         }
                         <span class="cov8" title="1">orientation := gc.DoorOrientationHorizontal
-</span>                        // 2マスの扉は隣が扉になるので、扉も壁と同じく向きを決める側に数える
-                        <span class="cov8" title="1">blocks := func(x, y int) bool </span>{
-                                <span class="cov8" title="1">return wallAt(x, y) || y &gt;= 0 &amp;&amp; y &lt; len(cells) &amp;&amp; x &gt;= 0 &amp;&amp; x &lt; len(cells[y]) &amp;&amp; cells[y][x].Prop == "door"
+                        left, err := blocks(x-1, y)
+                        if err != nil </span>{
+                                <span class="cov0" title="0">return nil, nil, err
 </span>                        }
-                        <span class="cov8" title="1">if blocks(x-1, y) &amp;&amp; blocks(x+1, y) </span>{
+                        <span class="cov8" title="1">right, err := blocks(x+1, y)
+                        if err != nil </span>{
+                                <span class="cov8" title="1">return nil, nil, err
+</span>                        }
+                        <span class="cov8" title="1">if left &amp;&amp; right </span>{
                                 <span class="cov8" title="1">orientation = gc.DoorOrientationVertical
 </span>                        }
                         <span class="cov8" title="1">if err := spawnFacilityCell(world, cell, pos, orientation, fac, danger, lootRNG, beingRNG); err != nil </span>{
