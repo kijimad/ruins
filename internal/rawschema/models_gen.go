@@ -2704,9 +2704,39 @@ type SpriteKey = string
 type SpriteRender struct {
 	Depth SpriteDepth `json:"depth"`
 
+	Shape *SpriteShape `json:"shape,omitempty"`
+
 	SpriteKey SpriteKey `json:"spriteKey"`
 
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
+}
+
+// SpriteShape 3D で置物を立てる形。省くとカメラを向く立て板になる。
+// inset は壁と同じ高さの箱で、隣の壁や inset と接する面を描かない。扉や窓のように壁の並びにはめるもの。
+// facing は隣の壁を背にして向く板で、カメラへは45度までしか回らない。棚のように壁際に置くもの
+type SpriteShape string
+
+// Defines values for SpriteShape.
+const (
+	Facing SpriteShape = "facing"
+	Inset  SpriteShape = "inset"
+)
+
+// Valid indicates whether the value is a known member of the SpriteShape enum.
+func (e SpriteShape) Valid() bool {
+	switch e {
+	case Facing:
+		return true
+	case Inset:
+		return true
+	default:
+		return false
+	}
+}
+
+// SpriteShapeValues は SpriteShape の値を、スキーマに書いた順に返す。
+func SpriteShapeValues() []SpriteShape {
+	return []SpriteShape{Inset, Facing}
 }
 
 // SpriteSheet スプライトシート

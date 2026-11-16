@@ -187,8 +187,6 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 // externallyReferencedSprites は raw に spriteKey 登録されないが、Go コードや scene 状態が
 // 名前で参照する正当なスプライト。孤児検査から除外する。
 var externallyReferencedSprites = []string{
-	// 扉は状態変化で render/lifecycle が open や縦向きスプライトへ切り替える
-	"door_horizontal_open", "door_vertical_closed", "door_vertical_open",
 	// キューブは SpawnCube がコードで組み、浮いて揺れる4コマを名前で並べる
 	"cube_float_0", "cube_float_1", "cube_float_2", "cube_float_3",
 }

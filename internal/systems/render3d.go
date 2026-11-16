@@ -3,6 +3,7 @@ package systems
 import (
 	"image"
 	"image/color"
+	"math"
 	"sort"
 	"sync"
 
@@ -10,6 +11,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/render3d"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -181,8 +183,9 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 
 	visTint := sys.visTintFunc(world)
 	// 前フレームのバッファを [:0] で使い回す。追記で伸びた容量を最後に持ち越す
-	quads := sys.collectTiles(world, sys.quads[:0], projector, visTint)
-	quads = sys.collectBillboards(world, quads, projector, visTint)
+	boxes, wallTiles := render3d.BoxSet(world)
+	quads := sys.collectTiles(world, sys.quads[:0], projector, visTint, boxes)
+	quads = sys.collectBillboards(world, quads, projector, visTint, boxes, wallTiles)
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
 	// 展開中キューブの野営エリアを囲むレーザー壁も状態従属の装飾として積む
@@ -312,8 +315,7 @@ func (sys *Render3DSystem) visTintFunc(world w.World) tintFunc {
 }
 
 // collectTiles は床と壁のクアッドを quads へ追記して返す。
-func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
-	walls := render3d.BoxTileSet(world)
+func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, boxes map[consts.Coord[consts.Tile]]bool) []r3quad {
 	snow := sys.newSnowLayer(world)
 	tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
 	for tileQ.Next() {
@@ -333,8 +335,8 @@ func (sys *Render3DSystem) collectTiles(world w.World, quads []r3quad, projector
 		if !vok {
 			continue
 		}
-		if render3d.IsBoxTileEntity(world, e) {
-			sys.addWall(&quads, walls, g.Coord, fx, fz, atlas, ux, uy, uw, uh, tint)
+		if render3d.IsBoxEntity(world, e) {
+			sys.addWall(&quads, boxes, g.Coord, fx, fz, atlas, ux, uy, uw, uh, tint)
 		} else {
 			sys.addQuad(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)
 			snow.add(&quads, world, e, g.Coord, tint)
@@ -418,8 +420,9 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 }
 
 // collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。床の模様は地面に寝かせる。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc) []r3quad {
-	right := projector.Right()
+// 壁にはめる置物は壁と同じ箱か開口部の脇の板に、壁を背にする置物は壁と反対を向く板にする
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, boxes, wallTiles map[consts.Coord[consts.Tile]]bool) []r3quad {
+	cameraRight := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
 		e := objQ.Entity()
@@ -444,10 +447,19 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			quads[len(quads)-1].depth = int(sr.Depth)
 			continue
 		}
+		if sr.Shape == rawschema.Inset {
+			// 壁の並びの一部なので、壁と同じく記憶エリアにも描く
+			sys.addInset(&quads, boxes, g.Coord, world.Components.BlockPass.Has(e), atlas, ux, uy, uw, uh, tint)
+			continue
+		}
 		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない。
 		// 地面に寝かせるものは床と同じく記憶エリアにも描く
 		if !vis {
 			continue
+		}
+		right := cameraRight
+		if back, ok := backWall(wallTiles, g.Coord); sr.Shape == rawschema.Facing && ok {
+			right = render3d.FacingRight(render3d.At(-float64(back.X), 0, -float64(back.Y)), cameraRight, facingMaxTurn)
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
 		const bw = 0.45
@@ -463,6 +475,77 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		quads[len(quads)-1].depth = depth
 	}
 	return quads
+}
+
+// facingMaxTurn は壁を背にする置物の板が、置物の向きからカメラへ回る角度の上限。カメラは45度刻みで回るので、
+// 真横から見ても45度の板になり幅が残る
+const facingMaxTurn = math.Pi / 4
+
+// backWall は c の置物が背にする壁の向きを返す。北・東・西・南の順に、高さのあるタイルが隣にある最初の向き。
+// 角では北や東の壁を背にして、既定のカメラがいる南を向きやすくする
+func backWall(wallTiles map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
+	for _, d := range []consts.Coord[consts.Tile]{{X: 0, Y: -1}, {X: 1, Y: 0}, {X: -1, Y: 0}, {X: 0, Y: 1}} {
+		if wallTiles[c.Add(d)] {
+			return d, true
+		}
+	}
+	return consts.Coord[consts.Tile]{}, false
+}
+
+// insetFace は壁にはめる置物の1面。flat は絵を貼らず平均色で塗る面
+type insetFace struct {
+	p     [4]render3d.Vec
+	shade float64
+	flat  bool
+}
+
+// insetFaces は壁にはめる置物の面を返す。閉じていれば壁と同じ高さの箱にし、隣の箱と接する面を省く。
+// 2つ並んだ扉は間の面が省かれて1枚の板になる。開いていれば、箱の隣に寄せて通り道と平行な板にする。
+// 面は外から見て左上・右上・右下・左下の順に張り、絵が裏返らないようにする
+func insetFaces(boxes map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], closed bool) []insetFace {
+	fx, fz := float64(c.X), float64(c.Y)
+	const h = render3d.WallHeight
+	north, south := c.Add(consts.Coord[consts.Tile]{X: 0, Y: -1}), c.Add(consts.Coord[consts.Tile]{X: 0, Y: 1})
+	west, east := c.Add(consts.Coord[consts.Tile]{X: -1, Y: 0}), c.Add(consts.Coord[consts.Tile]{X: 1, Y: 0})
+	if closed {
+		faces := []insetFace{{p: [4]render3d.Vec{render3d.At(fx, h, fz), render3d.At(fx+1, h, fz), render3d.At(fx+1, h, fz+1), render3d.At(fx, h, fz+1)}, shade: 0.95, flat: true}}
+		if !boxes[north] {
+			faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(fx+1, h, fz), render3d.At(fx, h, fz), render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz)}, shade: 0.6})
+		}
+		if !boxes[south] {
+			faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(fx, h, fz+1), render3d.At(fx+1, h, fz+1), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1)}, shade: 0.6})
+		}
+		if !boxes[west] {
+			faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(fx, h, fz), render3d.At(fx, h, fz+1), render3d.At(fx, 0, fz+1), render3d.At(fx, 0, fz)}, shade: 0.78})
+		}
+		if !boxes[east] {
+			faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(fx+1, h, fz+1), render3d.At(fx+1, h, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1)}, shade: 0.78})
+		}
+		return faces
+	}
+	// 隣の壁の面と重なってちらつかないよう、板を壁から少し離す
+	const gap = 0.08
+	switch {
+	case boxes[west]:
+		return []insetFace{{p: [4]render3d.Vec{render3d.At(fx+gap, h, fz), render3d.At(fx+gap, h, fz+1), render3d.At(fx+gap, 0, fz+1), render3d.At(fx+gap, 0, fz)}, shade: 0.78}}
+	case boxes[east]:
+		return []insetFace{{p: [4]render3d.Vec{render3d.At(fx+1-gap, h, fz+1), render3d.At(fx+1-gap, h, fz), render3d.At(fx+1-gap, 0, fz), render3d.At(fx+1-gap, 0, fz+1)}, shade: 0.78}}
+	case boxes[south]:
+		return []insetFace{{p: [4]render3d.Vec{render3d.At(fx, h, fz+1-gap), render3d.At(fx+1, h, fz+1-gap), render3d.At(fx+1, 0, fz+1-gap), render3d.At(fx, 0, fz+1-gap)}, shade: 0.6}}
+	default:
+		return []insetFace{{p: [4]render3d.Vec{render3d.At(fx+1, h, fz+gap), render3d.At(fx, h, fz+gap), render3d.At(fx, 0, fz+gap), render3d.At(fx+1, 0, fz+gap)}, shade: 0.6}}
+	}
+}
+
+// addInset は壁にはめる置物の面を積む
+func (sys *Render3DSystem) addInset(out *[]r3quad, boxes map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], closed bool, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
+	for _, f := range insetFaces(boxes, c, closed) {
+		if f.flat {
+			sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, f.shade))
+			continue
+		}
+		sys.addQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, f.shade))
+	}
 }
 
 // sortQuadsByDepth はカメラ空間の奥行きでクアッドを安定ソートする。画家アルゴリズムの前段。

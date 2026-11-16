@@ -1,6 +1,7 @@
 package render3d
 
 import (
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -106,4 +107,28 @@ func TestProjector_Point(t *testing.T) {
 		_, ok := p.Point(Vec{0, 0, 10}) // 視点より後ろ
 		assert.False(t, ok)
 	})
+}
+
+func TestFacingRight_置物の向きからカメラへ45度までしか回らない(t *testing.T) {
+	t.Parallel()
+
+	// 南を向く置物を、カメラの8方向から見る。yaw のカメラの画面右は (cos, 0, -sin)
+	rightOf := func(yaw float64) Vec { return Vec{math.Cos(yaw), 0, -math.Sin(yaw)} }
+	south := Vec{0, 0, 1}
+	cases := []struct {
+		cameraYaw, want float64
+	}{
+		{0, 0},
+		{math.Pi / 4, math.Pi / 4},
+		{math.Pi / 2, math.Pi / 4},
+		{3 * math.Pi / 4, math.Pi / 4},
+		{math.Pi, math.Pi / 4},
+		{5 * math.Pi / 4, -math.Pi / 4},
+		{3 * math.Pi / 2, -math.Pi / 4},
+		{7 * math.Pi / 4, -math.Pi / 4},
+	}
+	for _, c := range cases {
+		got := FacingRight(south, rightOf(c.cameraYaw), math.Pi/4)
+		assertVecInDelta(t, rightOf(c.want), got, 1e-9)
+	}
 }

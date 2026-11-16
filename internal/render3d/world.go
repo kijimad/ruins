@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -44,18 +45,18 @@ func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {
 	return world.Components.GridElement.Get(pe).Coord, nil
 }
 
-// IsBoxTile はそのタイルが高さのある箱として描かれるかを返す。
+// IsBox はその座標に高さのある箱として描かれるものがあるかを返す。
 //
-// 箱になるのは、描画順が高さのあるもの DepthNumTaller のタイルだけである。扉やキューブは通行を
-// 塞ぐが箱にはならないので、通れるかで代わりに判定してはいけない。全てのエンティティでなく
-// 箱のタイルだけを走査する。
+// 箱になるのは、描画順が高さのあるもの DepthNumTaller のタイルと、壁にはめる形 inset の
+// 閉じた置物である。キューブのように通行を塞ぐだけの物は箱にならないので、通れるかで代わりに
+// 判定してはいけない。
 //
 // 内部でエンティティ検索のクエリを開くので、クエリ反復中には呼ばない。呼び出し元は Draw の
 // カーソル描画で、その時点でアクティブなクエリは無い。
-func IsBoxTile(world w.World, c consts.Coord[consts.Tile]) bool {
-	q := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).With(ecs.C[gc.Tile]()).Query()
+func IsBox(world w.World, c consts.Coord[consts.Tile]) bool {
+	q := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).Query()
 	for q.Next() {
-		if IsBoxTileEntity(world, q.Entity()) && world.Components.GridElement.Get(q.Entity()).Coord == c {
+		if IsBoxEntity(world, q.Entity()) && world.Components.GridElement.Get(q.Entity()).Coord == c {
 			q.Close()
 			return true
 		}
@@ -63,31 +64,47 @@ func IsBoxTile(world w.World, c consts.Coord[consts.Tile]) bool {
 	return false
 }
 
-// IsBoxTileEntity は箱として描かれるタイルの述語。壁の集合を組む側と、タイルを指す側が
-// 同じ判定を通ることで、どのタイルが箱かの認識が2箇所に分かれない。
-// Has を見るだけでクエリを開かないので、BoxTileSet のクエリ反復中から呼んでも安全。
-// 座標からエンティティを引く IsBoxTile とはこの点が異なる。
-func IsBoxTileEntity(world w.World, e ecs.Entity) bool {
-	return world.Components.Tile.Has(e) && world.Components.SpriteRender.Has(e) &&
-		world.Components.SpriteRender.Get(e).Depth == gc.DepthNumTaller
+// IsBoxEntity は箱として描かれるものの述語。箱の集合を組む側と、タイルを指す側が
+// 同じ判定を通ることで、どれが箱かの認識が2箇所に分かれない。
+// Has を見るだけでクエリを開かないので、BoxSet のクエリ反復中から呼んでも安全。
+// 座標からエンティティを引く IsBox とはこの点が異なる。
+// 扉は開くと通行を塞がなくなるので、閉じている間だけ箱になる
+func IsBoxEntity(world w.World, e ecs.Entity) bool {
+	if !world.Components.SpriteRender.Has(e) {
+		return false
+	}
+	sr := world.Components.SpriteRender.Get(e)
+	if world.Components.Tile.Has(e) {
+		return sr.Depth == gc.DepthNumTaller
+	}
+	return sr.Shape == rawschema.Inset && world.Components.BlockPass.Has(e)
 }
 
-// BoxTileSet は箱として描かれるタイルの集合を組む。壁の側面を隣と突き合わせて省くのに使う
-func BoxTileSet(world w.World) map[consts.Coord[consts.Tile]]bool {
-	walls := map[consts.Coord[consts.Tile]]bool{}
-	wallQ := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).With(ecs.C[gc.Tile]()).Query()
-	for wallQ.Next() {
-		if IsBoxTileEntity(world, wallQ.Entity()) {
-			walls[world.Components.GridElement.Get(wallQ.Entity()).Coord] = true
+// BoxSet は箱として描かれるものの座標の集合 boxes と、そのうちタイルの座標の集合 tiles を組む。
+// boxes は箱の側面を隣と突き合わせて省くのに使う。tiles は壁を背にする置物の向きを決めるのに使い、
+// 扉の開け閉めで置物の向きが変わらないよう置物の箱を含めない
+func BoxSet(world w.World) (boxes, tiles map[consts.Coord[consts.Tile]]bool) {
+	boxes = map[consts.Coord[consts.Tile]]bool{}
+	tiles = map[consts.Coord[consts.Tile]]bool{}
+	q := query.ActiveFilter2[gc.GridElement, gc.SpriteRender](world).Query()
+	for q.Next() {
+		e := q.Entity()
+		if !IsBoxEntity(world, e) {
+			continue
+		}
+		c := world.Components.GridElement.Get(e).Coord
+		boxes[c] = true
+		if world.Components.Tile.Has(e) {
+			tiles[c] = true
 		}
 	}
-	return walls
+	return boxes, tiles
 }
 
 // TileTopHeight はタイル上面の高さを返す。壁は箱として描かれるので天面、床は地面になる。
 // タイルを指すカーソルはこの高さへ描く。壁タイルを地面の高さで描くと箱に埋もれて見えなくなる。
 func TileTopHeight(world w.World, c consts.Coord[consts.Tile]) float64 {
-	if IsBoxTile(world, c) {
+	if IsBox(world, c) {
 		return WallHeight
 	}
 	return 0

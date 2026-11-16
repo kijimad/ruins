@@ -9,6 +9,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/assets"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // SubImage は画像の部分矩形を切り出す。
@@ -78,6 +79,8 @@ type SpriteRender struct {
 	AnimKeys []string
 	// 描画順。小さい順に先に(下に)描画する
 	Depth DepthNum
+	// 3D で立てる形。空ならカメラを向く立て板
+	Shape rawschema.SpriteShape
 	// Draw options（実行時の描画オプション。serde対象外）
 	Options ebiten.DrawImageOptions `json:"-"`
 }

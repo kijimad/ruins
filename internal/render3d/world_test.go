@@ -3,6 +3,7 @@ package render3d_test
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -100,20 +101,33 @@ func TestTileTopHeight_壁は天面床は地面の高さになる(t *testing.T) 
 	assert.InDelta(t, 0.0, render3d.TileTopHeight(world, consts.Coord[consts.Tile]{X: 40, Y: 40}), 1e-9)
 }
 
-func TestIsBoxTile_通行を塞ぐだけの物は箱にならない(t *testing.T) {
+func TestIsBox_通行を塞ぐだけの物は箱にならない(t *testing.T) {
 	t.Parallel()
 
-	// 扉は BlockPass を持つが Tile ではないので箱として描かれない。
+	// 樽は BlockPass を持つが、壁にはめる形でないので箱として描かれない。
 	// 通行不能をそのまま壁とみなすと、箱の無い場所へカーソルが浮く
 	world := testutil.InitTestWorld(t)
-	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 25, Y: 24}, 0)
+	barrel, err := lifecycle.SpawnProp(world, "barrel", 25, 24)
 	require.NoError(t, err)
-	require.True(t, world.Components.BlockPass.Has(door))
+	require.True(t, world.Components.BlockPass.Has(barrel))
 
-	assert.False(t, render3d.IsBoxTile(world, consts.Coord[consts.Tile]{X: 25, Y: 24}))
+	assert.False(t, render3d.IsBox(world, consts.Coord[consts.Tile]{X: 25, Y: 24}))
 }
 
-func TestBoxTileSet_箱になるタイルだけを集める(t *testing.T) {
+func TestIsBox_壁にはめる扉は閉じている間だけ箱になる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	pos := consts.Coord[consts.Tile]{X: 25, Y: 24}
+	door, err := lifecycle.SpawnDoor(world, pos, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+	assert.True(t, render3d.IsBox(world, pos))
+
+	require.NoError(t, lifecycle.OpenDoor(world, door))
+	assert.False(t, render3d.IsBox(world, pos))
+}
+
+func TestBoxSet_箱になるものと箱になるタイルを集める(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -121,9 +135,11 @@ func TestBoxTileSet_箱になるタイルだけを集める(t *testing.T) {
 	require.NoError(t, err)
 	_, err = lifecycle.SpawnTile(world, "floor", 25, 23, nil)
 	require.NoError(t, err)
+	_, err = lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 26, Y: 24}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
 
-	// 壁の側面を省く判定と、タイルを指す判定が同じ集合を見る
-	walls := render3d.BoxTileSet(world)
-	assert.True(t, walls[consts.Coord[consts.Tile]{X: 25, Y: 24}])
-	assert.False(t, walls[consts.Coord[consts.Tile]{X: 25, Y: 23}])
+	// 箱の側面を省く判定と、タイルを指す判定が同じ集合を見る
+	boxes, tiles := render3d.BoxSet(world)
+	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true, {X: 26, Y: 24}: true}, boxes)
+	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true}, tiles)
 }

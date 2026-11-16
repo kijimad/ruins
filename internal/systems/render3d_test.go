@@ -264,7 +264,7 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil)
 
 	require.Len(t, quads, 1)
 	assert.Equal(t, [4]render3d.Vec{
@@ -326,5 +326,65 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 			layer := (&Render3DSystem{}).newSnowLayer(world)
 			assert.InDelta(t, tt.want, layer.amount(world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}), 1e-9)
 		})
+	}
+}
+
+func TestInsetFaces_並んだ扉は間の面を省いて1枚の板になる(t *testing.T) {
+	t.Parallel()
+
+	// 西の壁・扉・扉・東の壁と並ぶ。扉は天面と南北の面だけを張る
+	boxes := map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 25, Y: 25}: true, {X: 26, Y: 25}: true, {X: 27, Y: 25}: true}
+	assert.Equal(t, []insetFace{
+		{p: [4]render3d.Vec{render3d.At(25, 1, 25), render3d.At(26, 1, 25), render3d.At(26, 1, 26), render3d.At(25, 1, 26)}, shade: 0.95, flat: true},
+		{p: [4]render3d.Vec{render3d.At(26, 1, 25), render3d.At(25, 1, 25), render3d.At(25, 0, 25), render3d.At(26, 0, 25)}, shade: 0.6},
+		{p: [4]render3d.Vec{render3d.At(25, 1, 26), render3d.At(26, 1, 26), render3d.At(26, 0, 26), render3d.At(25, 0, 26)}, shade: 0.6},
+	}, insetFaces(boxes, consts.Coord[consts.Tile]{X: 25, Y: 25}, true))
+}
+
+func TestInsetFaces_開いた扉は箱の隣に寄せて通り道と平行な板になる(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name  string
+		boxes map[consts.Coord[consts.Tile]]bool
+		want  [4]render3d.Vec
+	}{
+		{"東西に続く壁では西の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 26, Y: 25}: true},
+			[4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}},
+		{"両開きの東側は東の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true},
+			[4]render3d.Vec{render3d.At(25.92, 1, 26), render3d.At(25.92, 1, 25), render3d.At(25.92, 0, 25), render3d.At(25.92, 0, 26)}},
+		{"南北に続く壁では南の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true, {X: 25, Y: 26}: true},
+			[4]render3d.Vec{render3d.At(25, 1, 25.92), render3d.At(26, 1, 25.92), render3d.At(26, 0, 25.92), render3d.At(25, 0, 25.92)}},
+	}
+	for _, c := range cases {
+		faces := insetFaces(c.boxes, consts.Coord[consts.Tile]{X: 25, Y: 25}, false)
+		require.Len(t, faces, 1, c.name)
+		for i := range c.want {
+			assert.InDelta(t, c.want[i].X, faces[0].p[i].X, 1e-9, c.name)
+			assert.InDelta(t, c.want[i].Y, faces[0].p[i].Y, 1e-9, c.name)
+			assert.InDelta(t, c.want[i].Z, faces[0].p[i].Z, 1e-9, c.name)
+		}
+	}
+}
+
+func TestBackWall_北東西南の順で隣の壁を背にする(t *testing.T) {
+	t.Parallel()
+
+	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	cases := []struct {
+		name   string
+		walls  map[consts.Coord[consts.Tile]]bool
+		want   consts.Coord[consts.Tile]
+		wantOK bool
+	}{
+		{"西の壁", map[consts.Coord[consts.Tile]]bool{{X: 4, Y: 5}: true}, consts.Coord[consts.Tile]{X: -1, Y: 0}, true},
+		{"北東の角は北", map[consts.Coord[consts.Tile]]bool{{X: 5, Y: 4}: true, {X: 6, Y: 5}: true}, consts.Coord[consts.Tile]{X: 0, Y: -1}, true},
+		{"南だけ", map[consts.Coord[consts.Tile]]bool{{X: 5, Y: 6}: true}, consts.Coord[consts.Tile]{X: 0, Y: 1}, true},
+		{"壁なし", map[consts.Coord[consts.Tile]]bool{}, consts.Coord[consts.Tile]{}, false},
+	}
+	for _, tc := range cases {
+		got, ok := backWall(tc.walls, c)
+		assert.Equal(t, tc.wantOK, ok, tc.name)
+		assert.Equal(t, tc.want, got, tc.name)
 	}
 }

@@ -1531,7 +1531,13 @@ import (
 	spriteSheetName!: #SpriteSheetName
 	spriteKey!:       #SpriteKey
 	depth!:           #SpriteDepth
+	shape?:           #SpriteShape
 }
+
+// 3D で置物を立てる形。省くとカメラを向く立て板になる。
+// inset は壁と同じ高さの箱で、隣の壁や inset と接する面を描かない。扉や窓のように壁の並びにはめるもの。
+// facing は隣の壁を背にして向く板で、カメラへは45度までしか回らない。棚のように壁際に置くもの
+#SpriteShape: "inset" | "facing"
 
 // スプライトシート
 #SpriteSheet: {
