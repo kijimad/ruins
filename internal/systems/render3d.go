@@ -526,7 +526,7 @@ func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts
 }
 
 // insetFaces は壁にはめる置物の面を返す。つながる向きに並ぶ板にし、つながりが無ければ東西に並べる。
-// 南北の板は東西の板をタイルの中心で回して作る
+// 南北の板は東西の板をタイルの中心で回して作る。絵を貼る面は立て板と同じ明るさにし、平均色の面にだけ陰影を付ける
 func insetFaces(c consts.Coord[consts.Tile], conn connections, closed bool) []insetFace {
 	alongX := conn.west || conn.east || !conn.north && !conn.south
 	first, second := conn.west, conn.east
@@ -542,7 +542,10 @@ func insetFaces(c consts.Coord[consts.Tile], conn connections, closed bool) []in
 			}
 			faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))
 		}
-		faces[i].shade = faceShade(faces[i].p)
+		faces[i].shade = 1
+		if faces[i].flat {
+			faces[i].shade = faceShade(faces[i].p)
+		}
 	}
 	return faces
 }

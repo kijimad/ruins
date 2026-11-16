@@ -358,11 +358,11 @@ func TestInsetFaces_閉じた扉はつながる向きに並ぶ薄い板になる
 
 	c := consts.Coord[consts.Tile]{X: 25, Y: 25}
 	top := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true}
-	north := insetFace{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6}
-	south := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6}
+	north := insetFace{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 1}
+	south := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 1}
 	nsTop := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26), render3d.At(25.4, 1, 25)}, shade: 0.95, flat: true}
-	east := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}, shade: 0.78}
-	west := insetFace{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}, shade: 0.78}
+	east := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}, shade: 1}
+	west := insetFace{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}, shade: 1}
 	cases := []struct {
 		name string
 		conn connections
@@ -384,7 +384,7 @@ func TestInsetFaces_閉じた扉はつながる向きに並ぶ薄い板になる
 func TestInsetFaces_開いた扉はつながる側の脇に寄せて通り道と平行な板になる(t *testing.T) {
 	t.Parallel()
 
-	westSide := insetFace{p: [4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}, shade: 0.78}
+	westSide := insetFace{p: [4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}, shade: 1}
 	cases := []struct {
 		name string
 		conn connections
@@ -392,9 +392,9 @@ func TestInsetFaces_開いた扉はつながる側の脇に寄せて通り道と
 	}{
 		{"東西につながれば西に寄せる", connections{east: true, west: true}, westSide},
 		{"東だけにつながれば東に寄せる", connections{east: true},
-			insetFace{p: [4]render3d.Vec{render3d.At(25.92, 1, 26), render3d.At(25.92, 1, 25), render3d.At(25.92, 0, 25), render3d.At(25.92, 0, 26)}, shade: 0.78}},
+			insetFace{p: [4]render3d.Vec{render3d.At(25.92, 1, 26), render3d.At(25.92, 1, 25), render3d.At(25.92, 0, 25), render3d.At(25.92, 0, 26)}, shade: 1}},
 		{"南北につながれば北に寄せる", connections{north: true, south: true},
-			insetFace{p: [4]render3d.Vec{render3d.At(26, 1, 25.08), render3d.At(25, 1, 25.08), render3d.At(25, 0, 25.08), render3d.At(26, 0, 25.08)}, shade: 0.6}},
+			insetFace{p: [4]render3d.Vec{render3d.At(26, 1, 25.08), render3d.At(25, 1, 25.08), render3d.At(25, 0, 25.08), render3d.At(26, 0, 25.08)}, shade: 1}},
 		{"つながりが無ければ西に寄せる", connections{}, westSide},
 	}
 	for _, tc := range cases {
