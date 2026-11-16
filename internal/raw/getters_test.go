@@ -123,11 +123,11 @@ func TestGetChunkGlyph(t *testing.T) {
 	t.Parallel()
 	wasteland := rawschema.Wasteland
 	raws := rawschema.Raws{MapGlyphs: &[]rawschema.MapGlyph{
-		{Id: "荒野", Glyph: "荒", Chunk: &wasteland},
 		{Id: "工房", Glyph: "工"},
+		{Id: "荒野", Glyph: "荒", Chunk: &wasteland},
 	}}
 
-	t.Run("持ち主の行を持たないチャンクの種類が一致する記号を返す", func(t *testing.T) {
+	t.Run("チャンクを持たない行を飛ばして種類が一致する記号を返す", func(t *testing.T) {
 		t.Parallel()
 		got, ok := GetChunkGlyph(raws, rawschema.Wasteland)
 		assert.True(t, ok)

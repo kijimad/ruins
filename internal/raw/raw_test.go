@@ -1113,7 +1113,11 @@ func TestPlayerMemberID_player持ちのIDを返す(t *testing.T) {
 func TestPlayerMemberID_player持ちが無ければerrPlayerMemberMissing(t *testing.T) {
 	t.Parallel()
 
-	raws := rawschema.Raws{Members: &[]rawschema.Member{{Id: "村人"}}}
+	notPlayer := false
+	raws := rawschema.Raws{Members: &[]rawschema.Member{
+		{Id: "村人"},
+		{Id: "商人", Player: &notPlayer},
+	}}
 
 	_, err := PlayerMemberID(raws)
 	require.ErrorIs(t, err, errPlayerMemberMissing)
