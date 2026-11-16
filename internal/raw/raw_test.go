@@ -1,6 +1,7 @@
 package raw
 
 import (
+	"fmt"
 	"io/fs"
 	"testing"
 
@@ -983,7 +984,8 @@ func TestTileIsTall_実データで描画順が高さのあるタイルだけが
 			tall = append(tall, tile.Id)
 		}
 	}
-	assert.ElementsMatch(t, []string{"wall", "dwall", "void"}, tall)
+	want := append([]string{"wall", "dwall", "void"}, wallMaterialTiles()...)
+	assert.ElementsMatch(t, want, tall)
 }
 
 func TestNewTileSpec_WithAutoTileIndex(t *testing.T) {
@@ -1194,7 +1196,7 @@ func TestTileSpawn_実データ(t *testing.T) {
 			got[tl.Id] = *tl.Spawn
 		}
 	}
-	assert.Equal(t, map[string]rawschema.TileSpawn{
+	want := map[string]rawschema.TileSpawn{
 		"dirt":             {Autotile: true},
 		"dirt_orange":      {Autotile: true},
 		"dirt_tundra":      {Autotile: true},
@@ -1233,7 +1235,11 @@ func TestTileSpawn_実データ(t *testing.T) {
 		"plank_blue":       {Autotile: true},
 		"wall":             {Tile: new("dwall"), Autotile: true},
 		"void":             {Autotile: false},
-	}, got)
+	}
+	for _, id := range wallMaterialTiles() {
+		want[id] = rawschema.TileSpawn{Autotile: true}
+	}
+	assert.Equal(t, want, got)
 }
 
 func TestTileShelter_実データ(t *testing.T) {
@@ -1283,4 +1289,34 @@ func TestTiles_オートタイルの絵しか無いタイルは生成でオー�
 		}
 	}
 	assert.Empty(t, missing)
+}
+
+// wallMaterialTiles は DawnLike の壁のオートタイルの行の id を返す。素材ごとに明るさ4段
+func wallMaterialTiles() []string {
+	var ids []string
+	for _, m := range []string{"stone", "rubble", "siding", "plaster", "pillar", "cobble", "board", "concrete", "wood", "brick", "reed", "ice"} {
+		for n := 1; n <= 4; n++ {
+			ids = append(ids, fmt.Sprintf("wall_%s_%d", m, n))
+		}
+	}
+	return ids
+}
+
+func TestWallMaterialTiles_dwallと同じ描画順と通れなさと視界で並ぶ(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	dwall, err := GetTile(raws, "dwall")
+	require.NoError(t, err)
+	type traits struct {
+		depth                int
+		blockPass, blockView bool
+	}
+	want := traits{int(dwall.SpriteRender.Depth), dwall.BlockPass, dwall.BlockView}
+	for _, id := range wallMaterialTiles() {
+		tile, err := GetTile(raws, id)
+		require.NoError(t, err, id)
+		assert.Equal(t, want, traits{int(tile.SpriteRender.Depth), tile.BlockPass, tile.BlockView}, id)
+	}
 }

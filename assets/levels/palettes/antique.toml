@@ -3,7 +3,7 @@ id = "antique"
 description = "骨董品店"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_brick_1"
 "," = "ground"
 "=" = "pavement"
 "." = "floor_wood"

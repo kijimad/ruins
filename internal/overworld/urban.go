@@ -251,14 +251,15 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Di
 // planUrbanChunk は区画 lot の中の座標 l のチャンクに置くマスと、マスを置くチャンク内の原点を返す。部屋の絵を持つ施設は
 // 部屋と帯でチャンク全体を組み、それ以外は街路の帯の内側に1棟の絵を置く。厚い壁の塊の内側は虚空にする
 func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, streets streetTiles) ([][]maptemplate.MapCell, consts.Tile, error) {
+	isTall, blocks := tileIsTall(raws), tileBlocksPass(raws)
 	if loader.HasRooms(lot.facility) {
-		cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, streets)
+		cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, streets, isTall)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
 		}
 		// 区画の東と南の外だけが隣の区画の街路で、ほかの外は隣の部屋の壁か帯
 		w, h := int(chunkW), int(chunkH)
-		voidEnclosedTall(cells, tileBlocksPass(raws), tileIsTall(raws), func(x, y int) bool {
+		voidEnclosedTall(cells, blocks, isTall, func(x, y int) bool {
 			return x >= w && l.X == lot.w-1 || y >= h && l.Y == lot.h-1
 		})
 		return cells, 0, nil
@@ -268,7 +269,7 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
 		return nil, 0, fmt.Errorf("failed to plan facility %q: %w", lot.facility, err)
 	}
 	// 1棟の絵は街路の帯に囲まれるので、絵の外は通れるものとして数える
-	voidEnclosedTall(cells, tileBlocksPass(raws), tileIsTall(raws), func(int, int) bool { return true })
+	voidEnclosedTall(cells, blocks, isTall, func(int, int) bool { return true })
 	return cells, urbanStreetW, nil
 }
 

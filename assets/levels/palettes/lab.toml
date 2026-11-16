@@ -3,7 +3,7 @@ id = "lab"
 description = "研究所"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_siding_1"
 "," = "ground"
 "=" = "pavement"
 "." = "floor_tile"

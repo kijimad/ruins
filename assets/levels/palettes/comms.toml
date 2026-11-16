@@ -3,7 +3,7 @@ id = "comms"
 description = "通信施設"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_concrete_2"
 "," = "ground"
 "=" = "pavement"
 "." = "floor_tile"

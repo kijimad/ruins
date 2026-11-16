@@ -3,7 +3,7 @@ id = "house"
 description = "民家"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_wood_1"
 "," = "ground"
 "." = "floor_wood"
 ":" = "floor_tatami"

@@ -3,7 +3,7 @@ id = "landmark"
 description = "原野のランドマーク"
 
 [palette.terrain]
-"#" = "dwall"
+"#" = "wall_wood_1"
 "," = "ground"
 "." = "floor"
 

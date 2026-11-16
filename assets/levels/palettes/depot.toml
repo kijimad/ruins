@@ -3,7 +3,7 @@ id = "depot"
 description = "倉庫"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_board_1"
 "," = "ground"
 "=" = "pavement"
 "." = "floor_concrete"

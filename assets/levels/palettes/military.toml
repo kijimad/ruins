@@ -3,7 +3,7 @@ id = "military"
 description = "軍基地"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_stone_3"
 "," = "ground"
 "." = "floor_concrete"
 "=" = "pavement"

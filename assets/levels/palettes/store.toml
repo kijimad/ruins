@@ -3,7 +3,7 @@ id = "store"
 description = "店"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_brick_1"
 "," = "ground"
 "=" = "pavement"
 "%" = "floor_concrete"

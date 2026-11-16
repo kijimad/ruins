@@ -3,7 +3,7 @@ id = "clinic"
 description = "診療所"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_siding_1"
 "," = "ground"
 "=" = "pavement"
 "." = "floor_linoleum"
