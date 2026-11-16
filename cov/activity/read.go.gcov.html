@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.1&nbsp;%</td>
+            <td class="headerCovTableEntryMed">88.8&nbsp;%</td>
             <td class="headerCovTableEntry">161</td>
-            <td class="headerCovTableEntry">129</td>
+            <td class="headerCovTableEntry">143</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-16 00:14:16</td>
+            <td class="headerValue">2026-11-16 00:17:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,13 +81,13 @@
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // Info はBehaviorの実装</span>
 <span id="L21"><span class="lineNum">      21</span>              : func (rb *ReadBehavior) Info() Info {</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         return Info{</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 Name:            &quot;Read&quot;,</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                 Description:     &quot;Read a book to learn skills or recipes&quot;,</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 Interruptible:   true,</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :                 Resumable:       true,</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 ActionPointCost: consts.StandardActionCost,</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return Info{</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 Name:            &quot;Read&quot;,</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 Description:     &quot;Read a book to learn skills or recipes&quot;,</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 Interruptible:   true,</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 Resumable:       true,</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 ActionPointCost: consts.StandardActionCost,</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : }</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // Name はBehaviorの実装</span>
@@ -98,13 +98,13 @@
 <span id="L36"><span class="lineNum">      36</span>              : // NewReadActivity は読む本を指定して読書アクティビティを組む。進捗は本の Effort に</span>
 <span id="L37"><span class="lineNum">      37</span>              : // 永続するので、Progress.Max も本の総工数に据えて表示を揃える。</span>
 <span id="L38"><span class="lineNum">      38</span>              : func NewReadActivity(target ecs.Entity, world w.World) *gc.Activity {</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         effort := 0</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         if book := getBook(target, world); book != nil {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 effort = book.Effort.Max</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         comp := NewActivity(gc.BehaviorRead, effort)</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         comp.Params = &amp;gc.ReadParams{Target: target}</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         return comp</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         effort := 0</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if book := getBook(target, world); book != nil {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 effort = book.Effort.Max</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         comp := NewActivity(gc.BehaviorRead, effort)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         comp.Params = &amp;gc.ReadParams{Target: target}</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         return comp</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : }</span>
 <span id="L47"><span class="lineNum">      47</span>              : </span>
 <span id="L48"><span class="lineNum">      48</span>              : // Validate は読書アクティビティの検証を行う</span>

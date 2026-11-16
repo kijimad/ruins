@@ -59,13 +59,13 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (81.9%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (89.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (79.7%)</option>
 				
-				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (82.9%)</option>
+				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (87.8%)</option>
 				
-				<option value="file5">github.com/kijimaD/ruins/internal/activity/drop.go (75.0%)</option>
+				<option value="file5">github.com/kijimaD/ruins/internal/activity/drop.go (91.7%)</option>
 				
 				<option value="file6">github.com/kijimaD/ruins/internal/activity/errors.go (100.0%)</option>
 				
@@ -73,35 +73,35 @@
 				
 				<option value="file8">github.com/kijimaD/ruins/internal/activity/injury.go (93.5%)</option>
 				
-				<option value="file9">github.com/kijimaD/ruins/internal/activity/move.go (84.5%)</option>
+				<option value="file9">github.com/kijimaD/ruins/internal/activity/move.go (87.3%)</option>
 				
 				<option value="file10">github.com/kijimaD/ruins/internal/activity/pathfind.go (93.3%)</option>
 				
-				<option value="file11">github.com/kijimaD/ruins/internal/activity/pickup.go (78.6%)</option>
+				<option value="file11">github.com/kijimaD/ruins/internal/activity/pickup.go (89.3%)</option>
 				
 				<option value="file12">github.com/kijimaD/ruins/internal/activity/player_actions.go (89.6%)</option>
 				
-				<option value="file13">github.com/kijimaD/ruins/internal/activity/read.go (84.3%)</option>
+				<option value="file13">github.com/kijimaD/ruins/internal/activity/read.go (90.7%)</option>
 				
-				<option value="file14">github.com/kijimaD/ruins/internal/activity/reload.go (87.7%)</option>
+				<option value="file14">github.com/kijimaD/ruins/internal/activity/reload.go (91.2%)</option>
 				
-				<option value="file15">github.com/kijimaD/ruins/internal/activity/rest.go (92.0%)</option>
+				<option value="file15">github.com/kijimaD/ruins/internal/activity/rest.go (96.0%)</option>
 				
 				<option value="file16">github.com/kijimaD/ruins/internal/activity/salvage.go (83.9%)</option>
 				
-				<option value="file17">github.com/kijimaD/ruins/internal/activity/shoot.go (89.6%)</option>
+				<option value="file17">github.com/kijimaD/ruins/internal/activity/shoot.go (91.7%)</option>
 				
-				<option value="file18">github.com/kijimaD/ruins/internal/activity/sleep.go (91.5%)</option>
+				<option value="file18">github.com/kijimaD/ruins/internal/activity/sleep.go (93.2%)</option>
 				
 				<option value="file19">github.com/kijimaD/ruins/internal/activity/sleep_conditions.go (100.0%)</option>
 				
-				<option value="file20">github.com/kijimaD/ruins/internal/activity/swap.go (80.6%)</option>
+				<option value="file20">github.com/kijimaD/ruins/internal/activity/swap.go (87.1%)</option>
 				
-				<option value="file21">github.com/kijimaD/ruins/internal/activity/talk.go (84.8%)</option>
+				<option value="file21">github.com/kijimaD/ruins/internal/activity/talk.go (89.1%)</option>
 				
-				<option value="file22">github.com/kijimaD/ruins/internal/activity/use_effect.go (77.3%)</option>
+				<option value="file22">github.com/kijimaD/ruins/internal/activity/use_effect.go (100.0%)</option>
 				
-				<option value="file23">github.com/kijimaD/ruins/internal/activity/use_item.go (94.3%)</option>
+				<option value="file23">github.com/kijimaD/ruins/internal/activity/use_item.go (95.9%)</option>
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/activity/wait.go (96.0%)</option>
 				
@@ -1592,7 +1592,7 @@ func (ab *MeleeBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) 
 
 // Canceled はBehaviorの実装
 func (ab *MeleeBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("attack canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov8" title="1">log.Debug("attack canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 
@@ -2170,7 +2170,7 @@ func (odb *OpenDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Canceled は扉開閉キャンセル時の処理を実行する
 func (odb *OpenDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("open door canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov8" title="1">log.Debug("open door canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 
@@ -2296,7 +2296,7 @@ func (cdb *CloseDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.W
 
 // Canceled は扉閉鎖キャンセル時の処理を実行する
 func (cdb *CloseDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("close door canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov8" title="1">log.Debug("close door canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 </pre>
@@ -2367,10 +2367,10 @@ func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 
 // Start はアイテムドロップ開始時の処理を実行する
 func (db *DropBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">if p, ok := comp.Params.(*gc.PlaceParams); ok </span>{
+        <span class="cov8" title="1">if p, ok := comp.Params.(*gc.PlaceParams); ok </span>{
                 <span class="cov0" title="0">log.Debug("item drop started", "actor", actor, "target", p.Target)
 </span>        }
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // DoTurn はアイテムドロップアクティビティの1ターン分の処理を実行する
@@ -2385,13 +2385,13 @@ func (db *DropBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish はアイテムドロップ完了時の処理を実行する
 func (db *DropBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("item drop activity finished", "actor", actor)
+        <span class="cov8" title="1">log.Debug("item drop activity finished", "actor", actor)
         return nil
 </span>}
 
 // Canceled はアイテムドロップキャンセル時の処理を実行する
 func (db *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("item drop canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov8" title="1">log.Debug("item drop canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 
@@ -2929,7 +2929,7 @@ func (mb *MoveBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Canceled はBehaviorの実装
 func (mb *MoveBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("move canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov8" title="1">log.Debug("move canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 
@@ -3141,7 +3141,7 @@ func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.Worl
 
 // Start はアイテム拾得開始時の処理を実行する
 func (pb *PickupBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("item pickup started", "actor", actor)
+        <span class="cov8" title="1">log.Debug("item pickup started", "actor", actor)
         return nil
 </span>}
 
@@ -3160,13 +3160,13 @@ func (pb *PickupBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Finish はアイテム拾得完了時の処理を実行する
 func (pb *PickupBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("item pickup activity finished", "actor", actor)
+        <span class="cov8" title="1">log.Debug("item pickup activity finished", "actor", actor)
         return nil
 </span>}
 
 // Canceled はアイテム拾得キャンセル時の処理を実行する
 func (pb *PickupBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("item pickup canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov8" title="1">log.Debug("item pickup canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 
@@ -3464,7 +3464,7 @@ type ReadBehavior struct{}
 
 // Info はBehaviorの実装
 func (rb *ReadBehavior) Info() Info {
-        <span class="cov0" title="0">return Info{
+        <span class="cov8" title="1">return Info{
                 Name:            "Read",
                 Description:     "Read a book to learn skills or recipes",
                 Interruptible:   true,
@@ -3481,11 +3481,11 @@ func (rb *ReadBehavior) Name() gc.BehaviorName {
 // NewReadActivity は読む本を指定して読書アクティビティを組む。進捗は本の Effort に
 // 永続するので、Progress.Max も本の総工数に据えて表示を揃える。
 func NewReadActivity(target ecs.Entity, world w.World) *gc.Activity {
-        <span class="cov0" title="0">effort := 0
+        <span class="cov8" title="1">effort := 0
         if book := getBook(target, world); book != nil </span>{
-                <span class="cov0" title="0">effort = book.Effort.Max
+                <span class="cov8" title="1">effort = book.Effort.Max
 </span>        }
-        <span class="cov0" title="0">comp := NewActivity(gc.BehaviorRead, effort)
+        <span class="cov8" title="1">comp := NewActivity(gc.BehaviorRead, effort)
         comp.Params = &amp;gc.ReadParams{Target: target}
         return comp</span>
 }
@@ -3842,7 +3842,7 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Finish はリロード完了時の処理
 func (rb *ReloadBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("reload finished", "actor", actor)
+        <span class="cov8" title="1">log.Debug("reload finished", "actor", actor)
         return nil
 </span>}
 
@@ -3933,7 +3933,7 @@ func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は休息開始時の処理を実行する
 func (rb *RestBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("rest started", "actor", actor, "required", comp.Progress.Max)
+        <span class="cov8" title="1">log.Debug("rest started", "actor", actor, "required", comp.Progress.Max)
         return nil
 </span>}
 
@@ -4295,7 +4295,7 @@ func (sb *ShootBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) err
 
 // Canceled はBehaviorの実装
 func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("shoot canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov8" title="1">log.Debug("shoot canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 
@@ -4412,7 +4412,7 @@ type SleepBehavior struct{}
 
 // Info はBehaviorの実装
 func (sb *SleepBehavior) Info() Info {
-        <span class="cov0" title="0">return Info{
+        <span class="cov8" title="1">return Info{
                 Name:          "Sleep",
                 Description:   "Sleep until fatigue is gone",
                 Interruptible: true,
@@ -4704,7 +4704,7 @@ func (sb *SwapBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 
 // Canceled はBehaviorの実装
 func (sb *SwapBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("swap canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov8" title="1">log.Debug("swap canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 </pre>
@@ -4840,7 +4840,7 @@ func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Canceled は会話キャンセル時の処理を実行する
 func (tb *TalkBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("talk canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov8" title="1">log.Debug("talk canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 </pre>
@@ -4880,7 +4880,7 @@ func (healEffect) present(world w.World, item ecs.Entity) bool {
 func (healEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { <span class="cov8" title="1">return nil }</span>
 
 func (healEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
-        <span class="cov0" title="0">return u.applyHealing(comp, actor, world, world.Components.ProvidesHealing.Get(item), item)
+        <span class="cov8" title="1">return u.applyHealing(comp, actor, world, world.Components.ProvidesHealing.Get(item), item)
 </span>}
 
 // nutritionEffect は空腹度を回復する
@@ -4890,7 +4890,7 @@ func (nutritionEffect) present(world w.World, item ecs.Entity) bool {
         <span class="cov8" title="1">return world.Components.ProvidesNutrition.Has(item)
 </span>}
 
-func (nutritionEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { <span class="cov0" title="0">return nil }</span>
+func (nutritionEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { <span class="cov8" title="1">return nil }</span>
 
 func (nutritionEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
         <span class="cov8" title="1">return u.applyNutrition(comp, actor, world, world.Components.ProvidesNutrition.Get(item).Amount, item)
@@ -4903,7 +4903,7 @@ func (damageEffect) present(world w.World, item ecs.Entity) bool {
         <span class="cov8" title="1">return world.Components.InflictsDamage.Has(item)
 </span>}
 
-func (damageEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { <span class="cov0" title="0">return nil }</span>
+func (damageEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { <span class="cov8" title="1">return nil }</span>
 
 func (damageEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
         <span class="cov8" title="1">gameaction.ApplyDamage(world, actor, world.Components.InflictsDamage.Get(item).Amount, actor)
@@ -4931,7 +4931,7 @@ func (remedyEffect) check(u *UseItemBehavior, actor, item ecs.Entity, world w.Wo
 }
 
 func (remedyEffect) apply(u *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
-        <span class="cov0" title="0">u.applyRemedy(actor, world, world.Components.Remedy.Get(item), item)
+        <span class="cov8" title="1">u.applyRemedy(actor, world, world.Components.Remedy.Get(item), item)
         return nil
 </span>}
 
@@ -5080,7 +5080,7 @@ func (u *UseItemBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) er
 
 // Canceled はBehaviorの実装
 func (u *UseItemBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-        <span class="cov0" title="0">log.Debug("item use canceled", "actor", actor, "reason", comp.CancelReason)
+        <span class="cov8" title="1">log.Debug("item use canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
 

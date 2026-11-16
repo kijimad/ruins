@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">91.1&nbsp;%</td>
             <td class="headerCovTableEntry">90</td>
-            <td class="headerCovTableEntry">72</td>
+            <td class="headerCovTableEntry">82</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-16 00:14:16</td>
+            <td class="headerValue">2026-11-16 00:17:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -78,16 +78,16 @@
 <span id="L16"><span class="lineNum">      16</span>              : </span>
 <span id="L17"><span class="lineNum">      17</span>              : // Info はBehaviorの実装</span>
 <span id="L18"><span class="lineNum">      18</span>              : func (sb *SleepBehavior) Info() Info {</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :         return Info{</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :                 Name:          &quot;Sleep&quot;,</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :                 Description:   &quot;Sleep until fatigue is gone&quot;,</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :                 Interruptible: true,</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 // 中断は Cancel で目覚めとして扱い、再入眠は B キーで新規に Execute する。</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                 // Pause からの Resume 経路は使わないので false にし、寝具 Quality の再解決漏れも避ける</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 Resumable:       false,</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :                 ActionPointCost: consts.StandardActionCost,</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 TotalRequiredAP: 0,</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         return Info{</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 Name:          &quot;Sleep&quot;,</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 Description:   &quot;Sleep until fatigue is gone&quot;,</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 Interruptible: true,</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 // 中断は Cancel で目覚めとして扱い、再入眠は B キーで新規に Execute する。</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 // Pause からの Resume 経路は使わないので false にし、寝具 Quality の再解決漏れも避ける</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 Resumable:       false,</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 ActionPointCost: consts.StandardActionCost,</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 TotalRequiredAP: 0,</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : }</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // Name はBehaviorの実装</span>

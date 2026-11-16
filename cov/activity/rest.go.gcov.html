@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">91.2&nbsp;%</td>
+            <td class="headerCovTableEntryHi">95.0&nbsp;%</td>
             <td class="headerCovTableEntry">80</td>
-            <td class="headerCovTableEntry">73</td>
+            <td class="headerCovTableEntry">76</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-16 00:14:16</td>
+            <td class="headerValue">2026-11-16 00:17:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -118,9 +118,9 @@
 <span id="L56"><span class="lineNum">      56</span>              : </span>
 <span id="L57"><span class="lineNum">      57</span>              : // Start は休息開始時の処理を実行する</span>
 <span id="L58"><span class="lineNum">      58</span>              : func (rb *RestBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         log.Debug(&quot;rest started&quot;, &quot;actor&quot;, actor, &quot;required&quot;, comp.Progress.Max)</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         log.Debug(&quot;rest started&quot;, &quot;actor&quot;, actor, &quot;required&quot;, comp.Progress.Max)</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L62"><span class="lineNum">      62</span>              : </span>
 <span id="L63"><span class="lineNum">      63</span>              : // DoTurn は休息アクティビティの1ターン分の処理を実行する</span>
 <span id="L64"><span class="lineNum">      64</span>              : func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span>

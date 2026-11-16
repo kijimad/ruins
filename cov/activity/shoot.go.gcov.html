@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">86.0&nbsp;%</td>
+            <td class="headerCovTableEntryMed">88.2&nbsp;%</td>
             <td class="headerCovTableEntry">136</td>
-            <td class="headerCovTableEntry">117</td>
+            <td class="headerCovTableEntry">120</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-16 00:14:16</td>
+            <td class="headerValue">2026-11-16 00:17:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -202,9 +202,9 @@
 <span id="L140"><span class="lineNum">     140</span>              : </span>
 <span id="L141"><span class="lineNum">     141</span>              : // Canceled はBehaviorの実装</span>
 <span id="L142"><span class="lineNum">     142</span>              : func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         log.Debug(&quot;shoot canceled&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         log.Debug(&quot;shoot canceled&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L146"><span class="lineNum">     146</span>              : </span>
 <span id="L147"><span class="lineNum">     147</span>              : // getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する</span>
 <span id="L148"><span class="lineNum">     148</span>              : func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, i18n.Msgid, error) {</span>
