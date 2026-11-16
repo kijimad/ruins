@@ -78,6 +78,11 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		return propBlocks[id]
 	}
 
+	// 扉の隣には扉や窓が並ぶので、通行を塞ぐ置物も壁と同じく向きを決める側に数える
+	blocks := func(x, y int) bool {
+		return wallAt(x, y) || (y >= 0 && y < len(cells) && x >= 0 && x < len(cells[y]) && propBlocksPass(cells[y][x].Prop))
+	}
+
 	tiles := g.tiles.get()
 	occupied := make(map[consts.Coord[consts.Tile]]bool)
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
@@ -101,10 +106,6 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 				}
 			}
 			orientation := gc.DoorOrientationHorizontal
-			// 扉の隣には扉や窓が並ぶので、通行を塞ぐ置物も壁と同じく向きを決める側に数える
-			blocks := func(x, y int) bool {
-				return wallAt(x, y) || (y >= 0 && y < len(cells) && x >= 0 && x < len(cells[y]) && propBlocksPass(cells[y][x].Prop))
-			}
 			if blocks(x-1, y) && blocks(x+1, y) {
 				orientation = gc.DoorOrientationVertical
 			}

@@ -181,6 +181,32 @@ func TestSpawnFacility_窓に挟まれた扉は縦向きになる(t *testing.T) 
 	assert.Equal(t, []gc.DoorOrientation{gc.DoorOrientationVertical}, got)
 }
 
+func TestSpawnFacility_窓は通れず視線を通し下の床も塞がない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	cells := [][]maptemplate.MapCell{{{Terrain: "floor_linoleum", Prop: "window"}}}
+	g := chunkGeom{chunkW: 1, chunkH: 1, tiles: &tileIndex{world: world, loX: 0, hiX: 1}}
+	_, _, err := spawnFacility(world, g, cells, 0, 0, "store", raw.MinDanger, 1)
+	require.NoError(t, err)
+
+	type traits struct{ pass, view bool }
+	got := map[string]traits{}
+	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		kind := "tile"
+		if world.Components.Prop.Has(e) {
+			kind = "prop"
+		}
+		got[kind] = traits{pass: world.Components.BlockPass.Has(e), view: world.Components.BlockView.Has(e)}
+	}
+	assert.Equal(t, map[string]traits{
+		"prop": {pass: true, view: false},
+		"tile": {pass: false, view: false},
+	}, got)
+}
+
 func TestSpawnFacility_畳は屋内で庭は下地のまま屋外(t *testing.T) {
 	t.Parallel()
 
@@ -308,6 +334,45 @@ func TestVoidEnclosedTall_通れるマスに接しない高さのある地形だ
 
 // TestFacilityTemplates_囲いの外の床は屋外で内は屋内 は1棟の絵で、区画の縁から壁と扉を越えずにたどれる床が屋外のタイルを、
 // たどれない床が屋内のタイルを指すことを確かめる。部屋の絵は床が全て屋内のタイルを指すことを確かめる。屋内外はタイルの種類で決まるので、絵が置き場所に合うタイルを選ぶ必要がある
+// TestFacilityTemplates_置物の下の地形は置物より塞がない は、壊したら下の地形が現れる置物の前提を固定する。
+// 通行を塞ぐ置物の下は通れ、視線を通す置物の下は視線を通す。下の地形が塞ぐと、置物の性質が打ち消される
+func TestFacilityTemplates_置物の下の地形は置物より塞がない(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	tiles := map[string]rawschema.Tile{}
+	for _, tl := range raw.PtrSlice(raws.Tiles) {
+		tiles[tl.Id] = tl
+	}
+	props := map[string]rawschema.Prop{}
+	for _, p := range raw.PtrSlice(raws.Props) {
+		props[p.Id] = p
+	}
+
+	var bad []string
+	for _, fac := range loader.Facilities() {
+		for _, name := range loader.FacilityChunkNames(fac) {
+			_, _, cells, err := loader.LoadTemplateByName(name, 1)
+			require.NoError(t, err)
+			for y, row := range cells {
+				for x, c := range row {
+					p, ok := props[c.Prop]
+					if !ok {
+						continue
+					}
+					tl := tiles[c.Terrain]
+					if (p.BlockPass && tl.BlockPass) || (!p.BlockView && tl.BlockView) {
+						bad = append(bad, fmt.Sprintf("%s %d,%d %s on %s", name, x, y, c.Prop, c.Terrain))
+					}
+				}
+			}
+		}
+	}
+	assert.Empty(t, bad)
+}
+
 func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing.T) {
 	t.Parallel()
 
