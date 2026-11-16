@@ -98,6 +98,49 @@ func TestGetMapGlyph(t *testing.T) {
 	})
 }
 
+func TestGetDungeon(t *testing.T) {
+	t.Parallel()
+	raws := rawschema.Raws{Dungeons: &[]rawschema.Dungeon{{Id: "dead_forest"}}}
+
+	t.Run("存在するIDはダンジョンの行を返す", func(t *testing.T) {
+		t.Parallel()
+		got, err := GetDungeon(raws, "dead_forest")
+		require.NoError(t, err)
+		assert.Equal(t, "dead_forest", got.Id)
+	})
+
+	t.Run("存在しないIDはKeyNotFoundErrorになる", func(t *testing.T) {
+		t.Parallel()
+		_, err := GetDungeon(raws, "存在しない")
+		var notFound KeyNotFoundError
+		require.ErrorAs(t, err, &notFound)
+		assert.Equal(t, "存在しない", notFound.Key)
+		assert.Equal(t, "Dungeons", notFound.Collection)
+	})
+}
+
+func TestGetChunkGlyph(t *testing.T) {
+	t.Parallel()
+	wasteland := rawschema.Wasteland
+	raws := rawschema.Raws{MapGlyphs: &[]rawschema.MapGlyph{
+		{Id: "荒野", Glyph: "荒", Chunk: &wasteland},
+		{Id: "工房", Glyph: "工"},
+	}}
+
+	t.Run("持ち主の行を持たないチャンクの種類が一致する記号を返す", func(t *testing.T) {
+		t.Parallel()
+		got, ok := GetChunkGlyph(raws, rawschema.Wasteland)
+		assert.True(t, ok)
+		assert.Equal(t, "荒", got.Glyph)
+	})
+
+	t.Run("一致するチャンクが無ければfalseを返す", func(t *testing.T) {
+		t.Parallel()
+		_, ok := GetChunkGlyph(rawschema.Raws{MapGlyphs: &[]rawschema.MapGlyph{{Id: "工房", Glyph: "工"}}}, rawschema.Wasteland)
+		assert.False(t, ok)
+	})
+}
+
 func TestDungeonReachable_入口の重みが0のデバッグの行だけを外す(t *testing.T) {
 	t.Parallel()
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")

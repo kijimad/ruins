@@ -1086,6 +1086,39 @@ func TestFindMember_存在しないIDはKeyNotFoundErrorになる(t *testing.T) 
 	assert.Equal(t, "Members", keyErr.Collection)
 }
 
+func TestFindMember_存在するIDはメンバーを返す(t *testing.T) {
+	t.Parallel()
+
+	raws := rawschema.Raws{Members: &[]rawschema.Member{{Id: "主人公"}}}
+
+	got, err := FindMember(raws, "主人公")
+	require.NoError(t, err)
+	assert.Equal(t, "主人公", got.Id)
+}
+
+func TestPlayerMemberID_player持ちのIDを返す(t *testing.T) {
+	t.Parallel()
+
+	isPlayer := true
+	raws := rawschema.Raws{Members: &[]rawschema.Member{
+		{Id: "村人"},
+		{Id: "主人公", Player: &isPlayer},
+	}}
+
+	got, err := PlayerMemberID(raws)
+	require.NoError(t, err)
+	assert.Equal(t, "主人公", got)
+}
+
+func TestPlayerMemberID_player持ちが無ければerrPlayerMemberMissing(t *testing.T) {
+	t.Parallel()
+
+	raws := rawschema.Raws{Members: &[]rawschema.Member{{Id: "村人"}}}
+
+	_, err := PlayerMemberID(raws)
+	require.ErrorIs(t, err, errPlayerMemberMissing)
+}
+
 func TestFindSpriteSheet_存在しないIDはKeyNotFoundErrorになる(t *testing.T) {
 	t.Parallel()
 
@@ -1270,6 +1303,25 @@ func TestTileShelter_実データ(t *testing.T) {
 		"smooth_teal":     rawschema.Indoor,
 		"smooth_white":    rawschema.Indoor,
 	}, got)
+}
+
+func TestTileEnvironmentOf(t *testing.T) {
+	t.Parallel()
+
+	t.Run("FoliageとSnowMeltPercentを省くとゼロ値", func(t *testing.T) {
+		t.Parallel()
+		got := TileEnvironmentOf(rawschema.Tile{})
+		assert.Equal(t, gc.TileEnvironment{Shelter: rawschema.Outdoor}, got)
+	})
+
+	t.Run("FoliageとSnowMeltPercentを指定すると反映する", func(t *testing.T) {
+		t.Parallel()
+		indoor := rawschema.Indoor
+		foliage := rawschema.FoliageForest
+		snowMelt := 50
+		got := TileEnvironmentOf(rawschema.Tile{Shelter: &indoor, Foliage: &foliage, SnowMeltPercent: &snowMelt})
+		assert.Equal(t, gc.TileEnvironment{Shelter: rawschema.Indoor, Foliage: rawschema.FoliageForest, SnowMeltPercent: 50}, got)
+	})
 }
 
 func TestTiles_オートタイルの絵しか無いタイルは生成でオートタイルにする(t *testing.T) {
