@@ -439,7 +439,7 @@
 				
 				<option value="file191">github.com/kijimaD/ruins/internal/overworld/area.go (52.2%)</option>
 				
-				<option value="file192">github.com/kijimaD/ruins/internal/overworld/building.go (97.5%)</option>
+				<option value="file192">github.com/kijimaD/ruins/internal/overworld/building.go (97.6%)</option>
 				
 				<option value="file193">github.com/kijimaD/ruins/internal/overworld/chunkgen.go (77.8%)</option>
 				
@@ -451,7 +451,7 @@
 				
 				<option value="file197">github.com/kijimaD/ruins/internal/overworld/facility_loot.go (83.3%)</option>
 				
-				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_template.go (89.5%)</option>
+				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_template.go (88.6%)</option>
 				
 				<option value="file199">github.com/kijimaD/ruins/internal/overworld/feature.go (88.9%)</option>
 				
@@ -479,7 +479,7 @@
 				
 				<option value="file211">github.com/kijimaD/ruins/internal/overworld/settlement.go (87.5%)</option>
 				
-				<option value="file212">github.com/kijimaD/ruins/internal/overworld/urban.go (90.9%)</option>
+				<option value="file212">github.com/kijimaD/ruins/internal/overworld/urban.go (91.0%)</option>
 				
 				<option value="file213">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
@@ -26188,8 +26188,8 @@ func edgeKey(a, b consts.Coord[consts.Chunk]) [2]consts.Coord[consts.Chunk] {
 }
 
 // roomChunkCells は区画 b の中の座標 l のチャンクの部屋の絵を引き、北と西の帯と合わせてチャンク全体のマスを組む。
-// 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする
-func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, streets streetTiles) ([][]maptemplate.MapCell, error) {
+// 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする。isTall は高さのある地形かを返す
+func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, streets streetTiles, isTall func(terrain string) bool) ([][]maptemplate.MapCell, error) {
         <span class="cov8" title="1">edges := b.roomEdges(l)
         _, room, err := loader.FacilityRoom(b.facility, edges, ChunkSeed2D(b.seed, l.X, l.Y))
         if err != nil </span>{
@@ -26211,15 +26211,29 @@ func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.
         <span class="cov8" title="1">for y, row := range room </span>{
                 <span class="cov8" title="1">copy(cells[y+s][s:], row)
 </span>        }
-        <span class="cov8" title="1">drawRoomStrips(cells, room, b, l, edges)
+        <span class="cov8" title="1">drawRoomStrips(cells, room, b, l, edges, roomWall(room, isTall))
         return cells, nil</span>
 }
 
-// drawRoomStrips は区画の内側に面するチャンクの北と西の帯を、隣の部屋との繋ぎとして描く。区画の外周の帯は街路のまま残す
-func drawRoomStrips(cells, room [][]maptemplate.MapCell, b buildingLot, l consts.Coord[consts.Chunk], edges [4]maptemplate.EdgeKind) {
+// roomWall は部屋の絵の壁の地形を返す。部屋は1種類の壁で組むので、高さのある地形を見つけた最初のものを使う。
+// 高さのある地形が無い部屋は wall を返す
+func roomWall(room [][]maptemplate.MapCell, isTall func(terrain string) bool) string {
+        <span class="cov8" title="1">for _, row := range room </span>{
+                <span class="cov8" title="1">for _, c := range row </span>{
+                        <span class="cov8" title="1">if isTall(c.Terrain) </span>{
+                                <span class="cov8" title="1">return c.Terrain
+</span>                        }
+                }
+        }
+        <span class="cov8" title="1">return consts.TileNameWall</span>
+}
+
+// drawRoomStrips は区画の内側に面するチャンクの北と西の帯を、隣の部屋との繋ぎとして描く。区画の外周の帯は街路のまま残す。
+// 帯の壁は部屋の壁の地形 wallTerrain で描く
+func drawRoomStrips(cells, room [][]maptemplate.MapCell, b buildingLot, l consts.Coord[consts.Chunk], edges [4]maptemplate.EdgeKind, wallTerrain string) {
         <span class="cov8" title="1">s := int(urbanStreetW)
         h, w := len(cells), len(cells[0])
-        wall := maptemplate.MapCell{Terrain: consts.TileNameWall}
+        wall := maptemplate.MapCell{Terrain: wallTerrain}
         floor := func(x, y int) maptemplate.MapCell </span>{ <span class="cov8" title="1">return maptemplate.MapCell{Terrain: room[y][x].Terrain} }</span>
         <span class="cov8" title="1">mid := (w - s) / 2
 </span>
@@ -27081,7 +27095,7 @@ func checkFacilityGround(world w.World, tiles map[gc.GridElement]ecs.Entity, pos
 func spawnFacilityTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], t rawschema.Tile) error {
         <span class="cov8" title="1">name := t.Id
         if t.Spawn != nil &amp;&amp; t.Spawn.Tile != nil </span>{
-                <span class="cov8" title="1">name = *t.Spawn.Tile
+                <span class="cov0" title="0">name = *t.Spawn.Tile
 </span>        }
         <span class="cov8" title="1">var index *int
         if t.Spawn != nil &amp;&amp; t.Spawn.Autotile </span>{
@@ -29038,14 +29052,15 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Di
 // planUrbanChunk は区画 lot の中の座標 l のチャンクに置くマスと、マスを置くチャンク内の原点を返す。部屋の絵を持つ施設は
 // 部屋と帯でチャンク全体を組み、それ以外は街路の帯の内側に1棟の絵を置く。厚い壁の塊の内側は虚空にする
 func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, streets streetTiles) ([][]maptemplate.MapCell, consts.Tile, error) {
-        <span class="cov8" title="1">if loader.HasRooms(lot.facility) </span>{
-                <span class="cov8" title="1">cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, streets)
+        <span class="cov8" title="1">isTall, blocks := tileIsTall(raws), tileBlocksPass(raws)
+        if loader.HasRooms(lot.facility) </span>{
+                <span class="cov8" title="1">cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, streets, isTall)
                 if err != nil </span>{
                         <span class="cov0" title="0">return nil, 0, fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
 </span>                }
                 // 区画の東と南の外だけが隣の区画の街路で、ほかの外は隣の部屋の壁か帯
                 <span class="cov8" title="1">w, h := int(chunkW), int(chunkH)
-                voidEnclosedTall(cells, tileBlocksPass(raws), tileIsTall(raws), func(x, y int) bool </span>{
+                voidEnclosedTall(cells, blocks, isTall, func(x, y int) bool </span>{
                         <span class="cov8" title="1">return x &gt;= w &amp;&amp; l.X == lot.w-1 || y &gt;= h &amp;&amp; l.Y == lot.h-1
 </span>                })
                 <span class="cov8" title="1">return cells, 0, nil</span>
@@ -29055,7 +29070,7 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
                 <span class="cov0" title="0">return nil, 0, fmt.Errorf("failed to plan facility %q: %w", lot.facility, err)
 </span>        }
         // 1棟の絵は街路の帯に囲まれるので、絵の外は通れるものとして数える
-        <span class="cov8" title="1">voidEnclosedTall(cells, tileBlocksPass(raws), tileIsTall(raws), func(int, int) bool </span>{ <span class="cov0" title="0">return true }</span>)
+        <span class="cov8" title="1">voidEnclosedTall(cells, blocks, isTall, func(int, int) bool </span>{ <span class="cov0" title="0">return true }</span>)
         <span class="cov8" title="1">return cells, urbanStreetW, nil</span>
 }
 
