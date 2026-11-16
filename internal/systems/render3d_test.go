@@ -329,16 +329,56 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 	}
 }
 
-func TestInsetFaces_並んだ扉は間の面を省いて1枚の板になる(t *testing.T) {
+// assertFacesInDelta は面の並びを、頂点を近似で、陰影と塗り方を一致で比べる
+func assertFacesInDelta(t *testing.T, want, got []insetFace, msg string) {
+	t.Helper()
+	require.Len(t, got, len(want), msg)
+	for i := range want {
+		assert.Equal(t, want[i].shade, got[i].shade, msg)
+		assert.Equal(t, want[i].flat, got[i].flat, msg)
+		for j := range want[i].p {
+			assert.InDelta(t, want[i].p[j].X, got[i].p[j].X, 1e-9, msg)
+			assert.InDelta(t, want[i].p[j].Y, got[i].p[j].Y, 1e-9, msg)
+			assert.InDelta(t, want[i].p[j].Z, got[i].p[j].Z, 1e-9, msg)
+		}
+	}
+}
+
+func TestInsetFaces_閉じた扉は壁の並ぶ向きに立つ薄い板になる(t *testing.T) {
 	t.Parallel()
 
-	// 西の壁・扉・扉・東の壁と並ぶ。扉は天面と南北の面だけを張る
-	boxes := map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 25, Y: 25}: true, {X: 26, Y: 25}: true, {X: 27, Y: 25}: true}
-	assert.Equal(t, []insetFace{
-		{p: [4]render3d.Vec{render3d.At(25, 1, 25), render3d.At(26, 1, 25), render3d.At(26, 1, 26), render3d.At(25, 1, 26)}, shade: 0.95, flat: true},
-		{p: [4]render3d.Vec{render3d.At(26, 1, 25), render3d.At(25, 1, 25), render3d.At(25, 0, 25), render3d.At(26, 0, 25)}, shade: 0.6},
-		{p: [4]render3d.Vec{render3d.At(25, 1, 26), render3d.At(26, 1, 26), render3d.At(26, 0, 26), render3d.At(25, 0, 26)}, shade: 0.6},
-	}, insetFaces(boxes, consts.Coord[consts.Tile]{X: 25, Y: 25}, true))
+	c := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	cases := []struct {
+		name   string
+		frames map[consts.Coord[consts.Tile]]bool
+		want   []insetFace
+	}{
+		{"東西に続く壁では東西に張り、端を壁と接して省く", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 26, Y: 25}: true}, []insetFace{
+			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true},
+			{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6},
+			{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6},
+		}},
+		{"南北に続く壁では南北に張る", map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true, {X: 25, Y: 26}: true}, []insetFace{
+			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26)}, shade: 0.95, flat: true},
+			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}, shade: 0.78},
+			{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}, shade: 0.78},
+		}},
+		{"両開きの西側は東の扉と接する端も省く", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 26, Y: 25}: true, {X: 27, Y: 25}: true}, []insetFace{
+			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true},
+			{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6},
+			{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6},
+		}},
+		{"相手が無ければ東西に張って両端を描く", map[consts.Coord[consts.Tile]]bool{}, []insetFace{
+			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true},
+			{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6},
+			{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6},
+			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(25, 1, 25.6), render3d.At(25, 0, 25.6), render3d.At(25, 0, 25.4)}, shade: 0.78, flat: true},
+			{p: [4]render3d.Vec{render3d.At(26, 1, 25.6), render3d.At(26, 1, 25.4), render3d.At(26, 0, 25.4), render3d.At(26, 0, 25.6)}, shade: 0.78, flat: true},
+		}},
+	}
+	for _, tc := range cases {
+		assertFacesInDelta(t, tc.want, insetFaces(tc.frames, c, true), tc.name)
+	}
 }
 
 func TestInsetFaces_開いた扉は箱の隣に寄せて通り道と平行な板になる(t *testing.T) {
