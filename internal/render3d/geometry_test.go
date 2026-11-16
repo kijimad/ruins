@@ -112,7 +112,6 @@ func TestProjector_Point(t *testing.T) {
 func TestFacingRight_置物の向きからカメラへ45度までしか回らない(t *testing.T) {
 	t.Parallel()
 
-	// 南を向く置物を、カメラの8方向から見る。yaw のカメラの画面右は (cos, 0, -sin)
 	rightOf := func(yaw float64) Vec { return Vec{math.Cos(yaw), 0, -math.Sin(yaw)} }
 	south := Vec{0, 0, 1}
 	cases := []struct {

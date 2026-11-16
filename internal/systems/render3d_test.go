@@ -364,6 +364,12 @@ func TestInsetFaces_閉じた扉は壁の並ぶ向きに立つ薄い板になる
 			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}, shade: 0.78},
 			{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}, shade: 0.78},
 		}},
+		{"南北の並びの南端では南の端を描く", map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true}, nil, []insetFace{
+			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26)}, shade: 0.95, flat: true},
+			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}, shade: 0.78},
+			{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}, shade: 0.78},
+			{p: [4]render3d.Vec{render3d.At(25.4, 1, 26), render3d.At(25.6, 1, 26), render3d.At(25.6, 0, 26), render3d.At(25.4, 0, 26)}, shade: 0.6, flat: true},
+		}},
 		{"両開きの西側は東の閉じた扉と接する端も省く", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 27, Y: 25}: true}, map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}, []insetFace{
 			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true},
 			{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6},
@@ -427,7 +433,6 @@ func TestClosedInsets_閉じた壁にはめる置物だけを集める(t *testin
 func TestCollectBillboards_壁を背にする置物は壁と反対を向く板にする(t *testing.T) {
 	t.Parallel()
 	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
-	// 既定のカメラは南から見る。東の壁を背にした棚は西を向き、カメラへ45度だけ回る
 	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
 	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
 
@@ -456,7 +461,6 @@ func TestCollectBillboards_壁を背にする置物は壁と反対を向く板�
 		assert.InDelta(t, want[i].Y, quads[0].p[i].Y, 1e-9)
 		assert.InDelta(t, want[i].Z, quads[0].p[i].Z, 1e-9)
 	}
-	// 板の面は南西を向き、板は北西から南東へ張られる
 	assert.InDelta(t, math.Sqrt2/2, right.X, 1e-9)
 	assert.InDelta(t, math.Sqrt2/2, right.Z, 1e-9)
 }

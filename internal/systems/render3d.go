@@ -420,7 +420,6 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 }
 
 // collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。床の模様は地面に寝かせる。
-// 壁にはめる置物は壁の並びに立つ板か開口部の脇の板に、壁を背にする置物は壁と反対を向く板にする
 func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool) []r3quad {
 	cameraRight := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
@@ -448,8 +447,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		if sr.Shape == rawschema.Inset {
-			// 壁の並びの一部なので、壁と同じく記憶エリアにも描く。記憶エリアでは閉じた形に固定し、
-			// 視界の外の開け閉めを見せない
+			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする
 			sys.addInset(&quads, walls, insets, g.Coord, !vis || world.Components.BlockPass.Has(e), atlas, ux, uy, uw, uh, tint)
 			continue
 		}
@@ -478,15 +476,13 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 	return quads
 }
 
-// insetThickness は壁にはめる置物の板の厚み。単位はタイル幅
+// insetThickness は壁にはめる置物の板の厚み
 const insetThickness = 0.2
 
-// facingMaxTurn は壁を背にする置物の板が、置物の向きからカメラへ回る角度の上限。カメラの向きの1刻みにそろえ、
-// 真横から見ても1刻み分だけ傾いた板になり幅が残る
+// facingMaxTurn は壁を背にする置物の板がカメラのほうへ首を振れる角度。カメラの向きの1刻み
 const facingMaxTurn = 2 * math.Pi / gc.CameraOrientCount
 
-// backWall は c の置物が背にする壁の向きを返す。北・東・西・南の順に、高さのあるタイルが隣にある最初の向き。
-// 角では北や東の壁を背にして、既定のカメラがいる南を向きやすくする
+// backWall は c の置物が背にする壁の向きを返す。角では既定のカメラがいる南を向くよう、北・東・西・南の順に探す
 func backWall(walls map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
 	for _, d := range []consts.Coord[consts.Tile]{{X: 0, Y: -1}, {X: 1, Y: 0}, {X: -1, Y: 0}, {X: 0, Y: 1}} {
 		if walls[c.Add(d)] {
@@ -503,7 +499,7 @@ type insetFace struct {
 	flat  bool
 }
 
-// closedInsets は閉じている壁にはめる置物の座標の集合を返す。開いた扉は通れるので含めない
+// closedInsets は閉じている壁にはめる置物の座標の集合を返す
 func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {
 	insets := map[consts.Coord[consts.Tile]]bool{}
 	q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Tile]()).Query()
@@ -515,11 +511,10 @@ func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {
 	return insets
 }
 
-// insetFaces は壁にはめる置物の面を返す。板をつなぐ相手は、壁 walls と閉じている壁にはめる置物 insets である。
-// 閉じていれば壁の厚みの真ん中に立つ薄い板にし、壁の並ぶ向きに張る。相手が無ければ東西に張る。板の端は隣の相手と接していれば省く。
-// 2つ並んだ扉は端どうしが接して1枚の板になる。壁より薄いので、真上や真横からも壁の切れ目として見える。
-// 開いていれば、相手の隣に寄せて通り道と平行な板にする。西・東・南の順に相手を探し、無ければ北に寄せる。
-// 面は外から見て左上・右上・右下・左下の順に張り、絵が裏返らないようにする
+// insetFaces は壁にはめる置物の面を返す。walls と insets が板をつなぐ相手になる。
+// 閉じていれば相手の並ぶ向き、相手が無ければ東西に張る薄い板にし、相手と接する端を省く。
+// 開いていれば相手の脇、相手が無ければ北に寄せた、通り道と平行な板にする。
+// 面は外から見て左上から時計回りに張り、絵が裏返らないようにする
 func insetFaces(walls, insets map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], closed bool) []insetFace {
 	fx, fz := float64(c.X), float64(c.Y)
 	const h = render3d.WallHeight
