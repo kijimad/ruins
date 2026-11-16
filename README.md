@@ -108,6 +108,7 @@ $ make help
 |---|---|---|---|
 | in-progress | [施設の多様化](docs/design/261108165219.md) | 7/16 | worldgen, item, gamedesign |
 | draft | [脱出の鍵・作る段・アイテムの分解を足し、世界をオーバーワールドに一本化してゲームループを閉じる](docs/design/261111002908.md) | 0/17 | gamedesign, item, worldgen, refactor |
+| draft | [コード監査: セーブロードがフォグを毎回消す 2026-11-16](docs/design/261116001703.md) | 0/3 | save, ecs |
 
 
 ## Reference
