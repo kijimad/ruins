@@ -250,6 +250,59 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, gc.ActivityStateRunning, comp.State, "中断は呼び出し側が行う")
 	})
+
+	t.Run("回復アイテムを使用してHPが回復する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		hp := world.Components.HP.Get(player)
+		hp.Max = 100
+		hp.Current = 50
+
+		item, err := lifecycle.SpawnBackpackItem(world, "green_herb", 1)
+		require.NoError(t, err)
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			State:        gc.ActivityStateRunning,
+			Params:       &gc.UseItemParams{Target: item},
+		}
+
+		ua := &UseItemBehavior{}
+		err = ua.DoTurn(comp, player, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+		assert.Equal(t, 81, world.Components.HP.Get(player).Current, "回復量ぶんHPが増える")
+	})
+
+	t.Run("治療アイテムを使用して不調が治る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].SetCondition(
+			gc.HealthCondition{Type: gc.ConditionType("fracture"), Timer: 60, Severity: gc.TimerToSeverity(60)})
+
+		item, err := lifecycle.SpawnBackpackItem(world, "splint", 1)
+		require.NoError(t, err)
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			State:        gc.ActivityStateRunning,
+			Params:       &gc.UseItemParams{Target: item},
+		}
+
+		ua := &UseItemBehavior{}
+		err = ua.DoTurn(comp, player, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+		leg := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].GetCondition(gc.ConditionType("fracture"))
+		require.NotNil(t, leg)
+		assert.Equal(t, consts.Percent(100), leg.TendQuality, "治療アイテムの使用で不調が治療される")
+	})
 }
 
 func TestUseItemBehavior_Validate(t *testing.T) {
@@ -274,6 +327,46 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
+		assert.NoError(t, err)
+	})
+
+	t.Run("空腹度回復アイテムは使用前検証を通る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+
+		item, err := lifecycle.SpawnBackpackItem(world, "almond", 1)
+		require.NoError(t, err)
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			Params:       &gc.UseItemParams{Target: item},
+		}
+
+		ua := &UseItemBehavior{}
+		err = ua.Validate(comp, player, world)
+		assert.NoError(t, err)
+	})
+
+	t.Run("自傷ダメージアイテムは使用前検証を通る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+
+		// 自傷ダメージのみを持つraw項目は存在しないため、効果コンポーネントのみ手組みする
+		item := world.ECS.NewEntity()
+		world.Components.Consumable.Add(item, &gc.Consumable{})
+		world.Components.InflictsDamage.Add(item, &gc.InflictsDamage{Amount: 10})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			Params:       &gc.UseItemParams{Target: item},
+		}
+
+		ua := &UseItemBehavior{}
+		err = ua.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
 
