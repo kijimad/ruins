@@ -181,6 +181,28 @@ func TestSpawnFacility_窓に挟まれた扉は縦向きになる(t *testing.T) 
 	assert.Equal(t, []gc.DoorOrientation{gc.DoorOrientationVertical}, got)
 }
 
+func TestSpawnFacility_扉の向きを決める隣の置物の行が無ければエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	cells := [][]maptemplate.MapCell{{
+		{Terrain: "floor_linoleum", Prop: "door"},
+		{Terrain: "floor_linoleum", Prop: "no_such_prop"},
+	}}
+	g := chunkGeom{chunkW: 2, chunkH: 1, tiles: &tileIndex{world: world, loX: 0, hiX: 2}}
+	_, _, err := spawnFacility(world, g, cells, 0, 0, "store", raw.MinDanger, 1)
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "no_such_prop", Collection: "Props"}, notFound)
+	// 置物を置く前に、扉の向きを決める時点で止まるので、先に並べた扉も置かれない
+	doors := 0
+	q := ecs.NewFilter1[gc.Door](world.ECS).Query()
+	for q.Next() {
+		doors++
+	}
+	assert.Equal(t, 0, doors)
+}
+
 func TestSpawnFacility_窓は通れず視線を通し下の床も塞がない(t *testing.T) {
 	t.Parallel()
 
@@ -332,8 +354,6 @@ func TestVoidEnclosedTall_通れるマスに接しない高さのある地形だ
 	assert.Equal(t, "deep_water", water[1][1].Terrain, "囲まれた水は水のまま")
 }
 
-// TestFacilityTemplates_囲いの外の床は屋外で内は屋内 は1棟の絵で、区画の縁から壁と扉を越えずにたどれる床が屋外のタイルを、
-// たどれない床が屋内のタイルを指すことを確かめる。部屋の絵は床が全て屋内のタイルを指すことを確かめる。屋内外はタイルの種類で決まるので、絵が置き場所に合うタイルを選ぶ必要がある
 // TestFacilityTemplates_置物の下の地形は置物より塞がない は、壊したら下の地形が現れる置物の前提を固定する。
 // 通行を塞ぐ置物の下は通れ、視線を通す置物の下は視線を通す。下の地形が塞ぐと、置物の性質が打ち消される
 func TestFacilityTemplates_置物の下の地形は置物より塞がない(t *testing.T) {
@@ -373,6 +393,8 @@ func TestFacilityTemplates_置物の下の地形は置物より塞がない(t *t
 	assert.Empty(t, bad)
 }
 
+// TestFacilityTemplates_囲いの外の床は屋外で内は屋内 は1棟の絵で、区画の縁から壁と通行を塞ぐ置物を越えずにたどれる床が屋外のタイルを、
+// たどれない床が屋内のタイルを指すことを確かめる。部屋の絵は床が全て屋内のタイルを指すことを確かめる。屋内外はタイルの種類で決まるので、絵が置き場所に合うタイルを選ぶ必要がある
 func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing.T) {
 	t.Parallel()
 
