@@ -2,6 +2,7 @@ package systems
 
 import (
 	"image/color"
+	"math"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -349,26 +350,26 @@ func TestInsetFaces_閉じた扉は壁の並ぶ向きに立つ薄い板になる
 
 	c := consts.Coord[consts.Tile]{X: 25, Y: 25}
 	cases := []struct {
-		name   string
-		frames map[consts.Coord[consts.Tile]]bool
-		want   []insetFace
+		name          string
+		walls, insets map[consts.Coord[consts.Tile]]bool
+		want          []insetFace
 	}{
-		{"東西に続く壁では東西に張り、端を壁と接して省く", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 26, Y: 25}: true}, []insetFace{
+		{"東西に続く壁では東西に張り、端を壁と接して省く", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 26, Y: 25}: true}, nil, []insetFace{
 			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true},
 			{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6},
 			{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6},
 		}},
-		{"南北に続く壁では南北に張る", map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true, {X: 25, Y: 26}: true}, []insetFace{
+		{"南北に続く壁では南北に張る", map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true, {X: 25, Y: 26}: true}, nil, []insetFace{
 			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26)}, shade: 0.95, flat: true},
 			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}, shade: 0.78},
 			{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}, shade: 0.78},
 		}},
-		{"両開きの西側は東の扉と接する端も省く", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 26, Y: 25}: true, {X: 27, Y: 25}: true}, []insetFace{
+		{"両開きの西側は東の閉じた扉と接する端も省く", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 27, Y: 25}: true}, map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}, []insetFace{
 			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true},
 			{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6},
 			{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6},
 		}},
-		{"相手が無ければ東西に張って両端を描く", map[consts.Coord[consts.Tile]]bool{}, []insetFace{
+		{"相手が無ければ東西に張って両端を描く", map[consts.Coord[consts.Tile]]bool{}, nil, []insetFace{
 			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true},
 			{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6},
 			{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6},
@@ -377,34 +378,87 @@ func TestInsetFaces_閉じた扉は壁の並ぶ向きに立つ薄い板になる
 		}},
 	}
 	for _, tc := range cases {
-		assertFacesInDelta(t, tc.want, insetFaces(tc.frames, c, true), tc.name)
+		assertFacesInDelta(t, tc.want, insetFaces(tc.walls, tc.insets, c, true), tc.name)
 	}
 }
 
-func TestInsetFaces_開いた扉は箱の隣に寄せて通り道と平行な板になる(t *testing.T) {
+func TestInsetFaces_開いた扉は相手の隣に寄せて通り道と平行な板になる(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
-		name  string
-		boxes map[consts.Coord[consts.Tile]]bool
-		want  [4]render3d.Vec
+		name          string
+		walls, insets map[consts.Coord[consts.Tile]]bool
+		want          [4]render3d.Vec
 	}{
-		{"東西に続く壁では西の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 26, Y: 25}: true},
+		{"東西に続く壁では西の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 26, Y: 25}: true}, nil,
 			[4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}},
-		{"両開きの東側は東の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true},
+		{"両開きの東側は東の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}, nil,
 			[4]render3d.Vec{render3d.At(25.92, 1, 26), render3d.At(25.92, 1, 25), render3d.At(25.92, 0, 25), render3d.At(25.92, 0, 26)}},
-		{"南北に続く壁では南の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true, {X: 25, Y: 26}: true},
+		{"片側だけ開いた両開きは閉じた扉の側に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}, map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true},
+			[4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}},
+		{"南北に続く壁では南の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true, {X: 25, Y: 26}: true}, nil,
 			[4]render3d.Vec{render3d.At(25, 1, 25.92), render3d.At(26, 1, 25.92), render3d.At(26, 0, 25.92), render3d.At(25, 0, 25.92)}},
+		{"相手が無ければ北に寄せる", nil, nil,
+			[4]render3d.Vec{render3d.At(26, 1, 25.08), render3d.At(25, 1, 25.08), render3d.At(25, 0, 25.08), render3d.At(26, 0, 25.08)}},
 	}
 	for _, c := range cases {
-		faces := insetFaces(c.boxes, consts.Coord[consts.Tile]{X: 25, Y: 25}, false)
-		require.Len(t, faces, 1, c.name)
-		for i := range c.want {
-			assert.InDelta(t, c.want[i].X, faces[0].p[i].X, 1e-9, c.name)
-			assert.InDelta(t, c.want[i].Y, faces[0].p[i].Y, 1e-9, c.name)
-			assert.InDelta(t, c.want[i].Z, faces[0].p[i].Z, 1e-9, c.name)
-		}
+		faces := insetFaces(c.walls, c.insets, consts.Coord[consts.Tile]{X: 25, Y: 25}, false)
+		assertFacesInDelta(t, []insetFace{{p: c.want, shade: faces[0].shade}}, faces, c.name)
 	}
+}
+
+func TestClosedInsets_閉じた壁にはめる置物だけを集める(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 3, Y: 3}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+	opened, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 4, Y: 3}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.OpenDoor(world, opened))
+	_, err = lifecycle.SpawnProp(world, "window", 5, 3)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "barrel", 6, 3)
+	require.NoError(t, err)
+
+	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 5, Y: 3}: true}, closedInsets(world))
+}
+
+func TestCollectBillboards_壁を背にする置物は壁と反対を向く板にする(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	// 既定のカメラは南から見る。東の壁を背にした棚は西を向き、カメラへ45度だけ回る
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {
+			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
+			Sprites: map[string]gc.Sprite{"book_shelf_2": {Width: 32, Height: 32}},
+		},
+	})
+	_, err := lifecycle.SpawnProp(world, "book_shelf_2", center.X, center.Y)
+	require.NoError(t, err)
+	walls := map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}
+	sys := &Render3DSystem{}
+
+	quads := sys.collectBillboards(world, nil, projector, visible, walls, nil)
+
+	require.Len(t, quads, 1)
+	right := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), math.Pi/4)
+	base := render3d.At(25.5, 0, 25.5)
+	b0, b1 := render3d.Add(base, render3d.Scale(right, -0.45)), render3d.Add(base, render3d.Scale(right, 0.45))
+	top := render3d.At(0, render3d.BillboardHeight, 0)
+	want := [4]render3d.Vec{render3d.Add(b0, top), render3d.Add(b1, top), b1, b0}
+	for i := range want {
+		assert.InDelta(t, want[i].X, quads[0].p[i].X, 1e-9)
+		assert.InDelta(t, want[i].Y, quads[0].p[i].Y, 1e-9)
+		assert.InDelta(t, want[i].Z, quads[0].p[i].Z, 1e-9)
+	}
+	// 板の面は南西を向き、板は北西から南東へ張られる
+	assert.InDelta(t, math.Sqrt2/2, right.X, 1e-9)
+	assert.InDelta(t, math.Sqrt2/2, right.Z, 1e-9)
 }
 
 func TestBackWall_北東西南の順で隣の壁を背にする(t *testing.T) {

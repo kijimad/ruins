@@ -3,7 +3,6 @@ package systems
 import (
 	"image"
 	"image/color"
-	"maps"
 	"math"
 	"sort"
 	"sync"
@@ -186,7 +185,7 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	// 前フレームのバッファを [:0] で使い回す。追記で伸びた容量を最後に持ち越す
 	walls := render3d.BoxTileSet(world)
 	quads := sys.collectTiles(world, sys.quads[:0], projector, visTint, walls)
-	quads = sys.collectBillboards(world, quads, projector, visTint, walls, insetFrames(world, walls))
+	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world))
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
 	// 展開中キューブの野営エリアを囲むレーザー壁も状態従属の装飾として積む
@@ -422,7 +421,7 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 
 // collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。床の模様は地面に寝かせる。
 // 壁にはめる置物は壁の並びに立つ板か開口部の脇の板に、壁を背にする置物は壁と反対を向く板にする
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, frames map[consts.Coord[consts.Tile]]bool) []r3quad {
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool) []r3quad {
 	cameraRight := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
@@ -449,8 +448,9 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		if sr.Shape == rawschema.Inset {
-			// 壁の並びの一部なので、壁と同じく記憶エリアにも描く
-			sys.addInset(&quads, frames, g.Coord, world.Components.BlockPass.Has(e), atlas, ux, uy, uw, uh, tint)
+			// 壁の並びの一部なので、壁と同じく記憶エリアにも描く。記憶エリアでは閉じた形に固定し、
+			// 視界の外の開け閉めを見せない
+			sys.addInset(&quads, walls, insets, g.Coord, !vis || world.Components.BlockPass.Has(e), atlas, ux, uy, uw, uh, tint)
 			continue
 		}
 		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない。
@@ -481,9 +481,9 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 // insetThickness は壁にはめる置物の板の厚み。単位はタイル幅
 const insetThickness = 0.2
 
-// facingMaxTurn は壁を背にする置物の板が、置物の向きからカメラへ回る角度の上限。カメラは45度刻みで回るので、
-// 真横から見ても45度の板になり幅が残る
-const facingMaxTurn = math.Pi / 4
+// facingMaxTurn は壁を背にする置物の板が、置物の向きからカメラへ回る角度の上限。カメラの向きの1刻みにそろえ、
+// 真横から見ても1刻み分だけ傾いた板になり幅が残る
+const facingMaxTurn = 2 * math.Pi / gc.CameraOrientCount
 
 // backWall は c の置物が背にする壁の向きを返す。北・東・西・南の順に、高さのあるタイルが隣にある最初の向き。
 // 角では北や東の壁を背にして、既定のカメラがいる南を向きやすくする
@@ -503,29 +503,31 @@ type insetFace struct {
 	flat  bool
 }
 
-// insetFrames は壁にはめる置物の板をつなぐ相手の集合を返す。壁のタイルと、閉じている壁にはめる置物である。
-// 開いた扉は通れるので含めない
-func insetFrames(world w.World, walls map[consts.Coord[consts.Tile]]bool) map[consts.Coord[consts.Tile]]bool {
-	frames := maps.Clone(walls)
+// closedInsets は閉じている壁にはめる置物の座標の集合を返す。開いた扉は通れるので含めない
+func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {
+	insets := map[consts.Coord[consts.Tile]]bool{}
 	q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Tile]()).Query()
 	for q.Next() {
 		if world.Components.SpriteRender.Get(q.Entity()).Shape == rawschema.Inset {
-			frames[world.Components.GridElement.Get(q.Entity()).Coord] = true
+			insets[world.Components.GridElement.Get(q.Entity()).Coord] = true
 		}
 	}
-	return frames
+	return insets
 }
 
-// insetFaces は壁にはめる置物の面を返す。frames は板をつなぐ相手の集合。
-// 閉じていれば壁の厚みの真ん中に立つ薄い板にし、壁の並ぶ向きに張る。板の端は隣の相手と接していれば省く。
+// insetFaces は壁にはめる置物の面を返す。板をつなぐ相手は、壁 walls と閉じている壁にはめる置物 insets である。
+// 閉じていれば壁の厚みの真ん中に立つ薄い板にし、壁の並ぶ向きに張る。相手が無ければ東西に張る。板の端は隣の相手と接していれば省く。
 // 2つ並んだ扉は端どうしが接して1枚の板になる。壁より薄いので、真上や真横からも壁の切れ目として見える。
-// 開いていれば、相手の隣に寄せて通り道と平行な板にする。
+// 開いていれば、相手の隣に寄せて通り道と平行な板にする。西・東・南の順に相手を探し、無ければ北に寄せる。
 // 面は外から見て左上・右上・右下・左下の順に張り、絵が裏返らないようにする
-func insetFaces(frames map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], closed bool) []insetFace {
+func insetFaces(walls, insets map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], closed bool) []insetFace {
 	fx, fz := float64(c.X), float64(c.Y)
 	const h = render3d.WallHeight
-	north, south := frames[c.Add(consts.Coord[consts.Tile]{X: 0, Y: -1})], frames[c.Add(consts.Coord[consts.Tile]{X: 0, Y: 1})]
-	west, east := frames[c.Add(consts.Coord[consts.Tile]{X: -1, Y: 0})], frames[c.Add(consts.Coord[consts.Tile]{X: 1, Y: 0})]
+	frame := func(dx, dy consts.Tile) bool {
+		n := c.Add(consts.Coord[consts.Tile]{X: dx, Y: dy})
+		return walls[n] || insets[n]
+	}
+	north, south, west, east := frame(0, -1), frame(0, 1), frame(-1, 0), frame(1, 0)
 	if closed {
 		const half = insetThickness / 2
 		if west || east || !north && !south {
@@ -572,8 +574,8 @@ func insetFaces(frames map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts
 }
 
 // addInset は壁にはめる置物の面を積む
-func (sys *Render3DSystem) addInset(out *[]r3quad, frames map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], closed bool, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
-	for _, f := range insetFaces(frames, c, closed) {
+func (sys *Render3DSystem) addInset(out *[]r3quad, walls, insets map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], closed bool, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
+	for _, f := range insetFaces(walls, insets, c, closed) {
 		if f.flat {
 			sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, f.shade))
 			continue
