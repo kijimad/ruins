@@ -448,7 +448,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		}
 		if sr.Shape == rawschema.Inset {
 			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする
-			sys.addInset(&quads, walls, insets, g.Coord, !vis || world.Components.BlockPass.Has(e), atlas, ux, uy, uw, uh, tint)
+			sys.addInset(&quads, g.Coord, insetConnections(walls, insets, g.Coord), !vis || world.Components.BlockPass.Has(e), atlas, ux, uy, uw, uh, tint)
 			continue
 		}
 		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない。
@@ -511,66 +511,85 @@ func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {
 	return insets
 }
 
-// insetFaces は壁にはめる置物の面を返す。walls と insets が板をつなぐ相手になる。
-// 閉じていれば相手の並ぶ向き、相手が無ければ東西に張る薄い板にし、相手と接する端を省く。
-// 開いていれば相手の脇、相手が無ければ北に寄せた、通り道と平行な板にする。
-// 面は外から見て左上から時計回りに張り、絵が裏返らないようにする
-func insetFaces(walls, insets map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], closed bool) []insetFace {
-	fx, fz := float64(c.X), float64(c.Y)
-	const h = render3d.WallHeight
-	frame := func(dx, dy consts.Tile) bool {
+// connections は壁にはめる置物が、北・東・南・西の隣とつながるか
+type connections struct {
+	north, east, south, west bool
+}
+
+// insetConnections は c の置物が、隣の壁 walls か閉じている壁にはめる置物 insets とつながるかを返す
+func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile]) connections {
+	at := func(dx, dy consts.Tile) bool {
 		n := c.Add(consts.Coord[consts.Tile]{X: dx, Y: dy})
 		return walls[n] || insets[n]
 	}
-	north, south, west, east := frame(0, -1), frame(0, 1), frame(-1, 0), frame(1, 0)
+	return connections{north: at(0, -1), east: at(1, 0), south: at(0, 1), west: at(-1, 0)}
+}
+
+// insetFaces は壁にはめる置物の面を返す。つながる向きに並ぶ板にし、つながりが無ければ東西に並べる。
+// 南北の板は東西の板をタイルの中心で回して作る
+func insetFaces(c consts.Coord[consts.Tile], conn connections, closed bool) []insetFace {
+	alongX := conn.west || conn.east || !conn.north && !conn.south
+	first, second := conn.west, conn.east
+	if !alongX {
+		first, second = conn.north, conn.south
+	}
+	faces := slabFaces(first, second, closed)
+	for i := range faces {
+		for j, v := range faces[i].p {
+			if !alongX {
+				// 西の端が北へ、東の端が南へ来る回転。裏返らないので面の張り順が保たれる
+				v.X, v.Z = 1-v.Z, v.X
+			}
+			faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))
+		}
+		faces[i].shade = faceShade(faces[i].p)
+	}
+	return faces
+}
+
+// slabFaces は東西に並ぶ壁にはめる置物の面を、タイルの北西の角を原点に返す。west と east は西と東の隣とつながるか。
+// 閉じていれば壁の厚みの真ん中に立つ薄い板にし、つながる端を省く。開いていればつながる側の脇、
+// どちらともつながらなければ西の脇に寄せた、通り道と平行な板にする。面は外から見て左上から時計回りに張る
+func slabFaces(west, east, closed bool) []insetFace {
+	const h = render3d.WallHeight
 	if closed {
-		const half = insetThickness / 2
-		if west || east || !north && !south {
-			z0, z1 := fz+0.5-half, fz+0.5+half
-			faces := []insetFace{
-				{p: [4]render3d.Vec{render3d.At(fx, h, z0), render3d.At(fx+1, h, z0), render3d.At(fx+1, h, z1), render3d.At(fx, h, z1)}, shade: 0.95, flat: true},
-				{p: [4]render3d.Vec{render3d.At(fx+1, h, z0), render3d.At(fx, h, z0), render3d.At(fx, 0, z0), render3d.At(fx+1, 0, z0)}, shade: 0.6},
-				{p: [4]render3d.Vec{render3d.At(fx, h, z1), render3d.At(fx+1, h, z1), render3d.At(fx+1, 0, z1), render3d.At(fx, 0, z1)}, shade: 0.6},
-			}
-			if !west {
-				faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(fx, h, z0), render3d.At(fx, h, z1), render3d.At(fx, 0, z1), render3d.At(fx, 0, z0)}, shade: 0.78, flat: true})
-			}
-			if !east {
-				faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(fx+1, h, z1), render3d.At(fx+1, h, z0), render3d.At(fx+1, 0, z0), render3d.At(fx+1, 0, z1)}, shade: 0.78, flat: true})
-			}
-			return faces
-		}
-		x0, x1 := fx+0.5-half, fx+0.5+half
+		z0, z1 := 0.5-insetThickness/2, 0.5+insetThickness/2
 		faces := []insetFace{
-			{p: [4]render3d.Vec{render3d.At(x0, h, fz), render3d.At(x1, h, fz), render3d.At(x1, h, fz+1), render3d.At(x0, h, fz+1)}, shade: 0.95, flat: true},
-			{p: [4]render3d.Vec{render3d.At(x0, h, fz), render3d.At(x0, h, fz+1), render3d.At(x0, 0, fz+1), render3d.At(x0, 0, fz)}, shade: 0.78},
-			{p: [4]render3d.Vec{render3d.At(x1, h, fz+1), render3d.At(x1, h, fz), render3d.At(x1, 0, fz), render3d.At(x1, 0, fz+1)}, shade: 0.78},
+			{p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(1, h, z0), render3d.At(1, h, z1), render3d.At(0, h, z1)}, flat: true},
+			{p: [4]render3d.Vec{render3d.At(1, h, z0), render3d.At(0, h, z0), render3d.At(0, 0, z0), render3d.At(1, 0, z0)}},
+			{p: [4]render3d.Vec{render3d.At(0, h, z1), render3d.At(1, h, z1), render3d.At(1, 0, z1), render3d.At(0, 0, z1)}},
 		}
-		if !north {
-			faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(x1, h, fz), render3d.At(x0, h, fz), render3d.At(x0, 0, fz), render3d.At(x1, 0, fz)}, shade: 0.6, flat: true})
+		if !west {
+			faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(0, h, z1), render3d.At(0, 0, z1), render3d.At(0, 0, z0)}, flat: true})
 		}
-		if !south {
-			faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(x0, h, fz+1), render3d.At(x1, h, fz+1), render3d.At(x1, 0, fz+1), render3d.At(x0, 0, fz+1)}, shade: 0.6, flat: true})
+		if !east {
+			faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(1, h, z1), render3d.At(1, h, z0), render3d.At(1, 0, z0), render3d.At(1, 0, z1)}, flat: true})
 		}
 		return faces
 	}
 	// 隣の壁の面と重なってちらつかないよう、板を壁から少し離す
 	const gap = 0.08
+	if east && !west {
+		return []insetFace{{p: [4]render3d.Vec{render3d.At(1-gap, h, 1), render3d.At(1-gap, h, 0), render3d.At(1-gap, 0, 0), render3d.At(1-gap, 0, 1)}}}
+	}
+	return []insetFace{{p: [4]render3d.Vec{render3d.At(gap, h, 0), render3d.At(gap, h, 1), render3d.At(gap, 0, 1), render3d.At(gap, 0, 0)}}}
+}
+
+// faceShade は面の向きから陰影を返す。天面0.95・東西0.78・南北0.6は壁の箱と同じ疑似方向光源
+func faceShade(p [4]render3d.Vec) float64 {
 	switch {
-	case west:
-		return []insetFace{{p: [4]render3d.Vec{render3d.At(fx+gap, h, fz), render3d.At(fx+gap, h, fz+1), render3d.At(fx+gap, 0, fz+1), render3d.At(fx+gap, 0, fz)}, shade: 0.78}}
-	case east:
-		return []insetFace{{p: [4]render3d.Vec{render3d.At(fx+1-gap, h, fz+1), render3d.At(fx+1-gap, h, fz), render3d.At(fx+1-gap, 0, fz), render3d.At(fx+1-gap, 0, fz+1)}, shade: 0.78}}
-	case south:
-		return []insetFace{{p: [4]render3d.Vec{render3d.At(fx, h, fz+1-gap), render3d.At(fx+1, h, fz+1-gap), render3d.At(fx+1, 0, fz+1-gap), render3d.At(fx, 0, fz+1-gap)}, shade: 0.6}}
+	case p[0].Y == p[1].Y && p[1].Y == p[2].Y:
+		return 0.95
+	case p[0].X == p[1].X && p[1].X == p[2].X:
+		return 0.78
 	default:
-		return []insetFace{{p: [4]render3d.Vec{render3d.At(fx+1, h, fz+gap), render3d.At(fx, h, fz+gap), render3d.At(fx, 0, fz+gap), render3d.At(fx+1, 0, fz+gap)}, shade: 0.6}}
+		return 0.6
 	}
 }
 
 // addInset は壁にはめる置物の面を積む
-func (sys *Render3DSystem) addInset(out *[]r3quad, walls, insets map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], closed bool, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
-	for _, f := range insetFaces(walls, insets, c, closed) {
+func (sys *Render3DSystem) addInset(out *[]r3quad, c consts.Coord[consts.Tile], conn connections, closed bool, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
+	for _, f := range insetFaces(c, conn, closed) {
 		if f.flat {
 			sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, f.shade))
 			continue

@@ -345,71 +345,60 @@ func assertFacesInDelta(t *testing.T, want, got []insetFace, msg string) {
 	}
 }
 
-func TestInsetFaces_閉じた扉は壁の並ぶ向きに立つ薄い板になる(t *testing.T) {
+func TestInsetConnections_隣の壁と閉じた壁にはめる置物につながる(t *testing.T) {
+	t.Parallel()
+
+	walls := map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true}
+	insets := map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}
+	assert.Equal(t, connections{east: true, west: true}, insetConnections(walls, insets, consts.Coord[consts.Tile]{X: 25, Y: 25}))
+}
+
+func TestInsetFaces_閉じた扉はつながる向きに並ぶ薄い板になる(t *testing.T) {
 	t.Parallel()
 
 	c := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	top := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true}
+	north := insetFace{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6}
+	south := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6}
+	nsTop := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26), render3d.At(25.4, 1, 25)}, shade: 0.95, flat: true}
+	east := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}, shade: 0.78}
+	west := insetFace{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}, shade: 0.78}
 	cases := []struct {
-		name          string
-		walls, insets map[consts.Coord[consts.Tile]]bool
-		want          []insetFace
+		name string
+		conn connections
+		want []insetFace
 	}{
-		{"東西に続く壁では東西に張り、端を壁と接して省く", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 26, Y: 25}: true}, nil, []insetFace{
-			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true},
-			{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6},
-			{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6},
-		}},
-		{"南北に続く壁では南北に張る", map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true, {X: 25, Y: 26}: true}, nil, []insetFace{
-			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26)}, shade: 0.95, flat: true},
-			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}, shade: 0.78},
-			{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}, shade: 0.78},
-		}},
-		{"南北の並びの南端では南の端を描く", map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true}, nil, []insetFace{
-			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26)}, shade: 0.95, flat: true},
-			{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}, shade: 0.78},
-			{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}, shade: 0.78},
-			{p: [4]render3d.Vec{render3d.At(25.4, 1, 26), render3d.At(25.6, 1, 26), render3d.At(25.6, 0, 26), render3d.At(25.4, 0, 26)}, shade: 0.6, flat: true},
-		}},
-		{"両開きの西側は東の閉じた扉と接する端も省く", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 27, Y: 25}: true}, map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}, []insetFace{
-			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true},
-			{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6},
-			{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6},
-		}},
-		{"相手が無ければ東西に張って両端を描く", map[consts.Coord[consts.Tile]]bool{}, nil, []insetFace{
-			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true},
-			{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 0.6},
-			{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 0.6},
+		{"東西につながれば東西に張り、両端を省く", connections{east: true, west: true}, []insetFace{top, north, south}},
+		{"南北につながれば南北に張る", connections{north: true, south: true}, []insetFace{nsTop, east, west}},
+		{"北だけにつながれば南の端を描く", connections{north: true}, []insetFace{nsTop, east, west,
+			{p: [4]render3d.Vec{render3d.At(25.4, 1, 26), render3d.At(25.6, 1, 26), render3d.At(25.6, 0, 26), render3d.At(25.4, 0, 26)}, shade: 0.6, flat: true}}},
+		{"つながりが無ければ東西に張って両端を描く", connections{}, []insetFace{top, north, south,
 			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(25, 1, 25.6), render3d.At(25, 0, 25.6), render3d.At(25, 0, 25.4)}, shade: 0.78, flat: true},
-			{p: [4]render3d.Vec{render3d.At(26, 1, 25.6), render3d.At(26, 1, 25.4), render3d.At(26, 0, 25.4), render3d.At(26, 0, 25.6)}, shade: 0.78, flat: true},
-		}},
+			{p: [4]render3d.Vec{render3d.At(26, 1, 25.6), render3d.At(26, 1, 25.4), render3d.At(26, 0, 25.4), render3d.At(26, 0, 25.6)}, shade: 0.78, flat: true}}},
 	}
 	for _, tc := range cases {
-		assertFacesInDelta(t, tc.want, insetFaces(tc.walls, tc.insets, c, true), tc.name)
+		assertFacesInDelta(t, tc.want, insetFaces(c, tc.conn, true), tc.name)
 	}
 }
 
-func TestInsetFaces_開いた扉は相手の隣に寄せて通り道と平行な板になる(t *testing.T) {
+func TestInsetFaces_開いた扉はつながる側の脇に寄せて通り道と平行な板になる(t *testing.T) {
 	t.Parallel()
 
+	westSide := insetFace{p: [4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}, shade: 0.78}
 	cases := []struct {
-		name          string
-		walls, insets map[consts.Coord[consts.Tile]]bool
-		want          [4]render3d.Vec
+		name string
+		conn connections
+		want insetFace
 	}{
-		{"東西に続く壁では西の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true, {X: 26, Y: 25}: true}, nil,
-			[4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}},
-		{"両開きの東側は東の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}, nil,
-			[4]render3d.Vec{render3d.At(25.92, 1, 26), render3d.At(25.92, 1, 25), render3d.At(25.92, 0, 25), render3d.At(25.92, 0, 26)}},
-		{"片側だけ開いた両開きは閉じた扉の側に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}, map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true},
-			[4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}},
-		{"南北に続く壁では南の壁に寄せる", map[consts.Coord[consts.Tile]]bool{{X: 25, Y: 24}: true, {X: 25, Y: 26}: true}, nil,
-			[4]render3d.Vec{render3d.At(25, 1, 25.92), render3d.At(26, 1, 25.92), render3d.At(26, 0, 25.92), render3d.At(25, 0, 25.92)}},
-		{"相手が無ければ北に寄せる", nil, nil,
-			[4]render3d.Vec{render3d.At(26, 1, 25.08), render3d.At(25, 1, 25.08), render3d.At(25, 0, 25.08), render3d.At(26, 0, 25.08)}},
+		{"東西につながれば西に寄せる", connections{east: true, west: true}, westSide},
+		{"東だけにつながれば東に寄せる", connections{east: true},
+			insetFace{p: [4]render3d.Vec{render3d.At(25.92, 1, 26), render3d.At(25.92, 1, 25), render3d.At(25.92, 0, 25), render3d.At(25.92, 0, 26)}, shade: 0.78}},
+		{"南北につながれば北に寄せる", connections{north: true, south: true},
+			insetFace{p: [4]render3d.Vec{render3d.At(26, 1, 25.08), render3d.At(25, 1, 25.08), render3d.At(25, 0, 25.08), render3d.At(26, 0, 25.08)}, shade: 0.6}},
+		{"つながりが無ければ西に寄せる", connections{}, westSide},
 	}
-	for _, c := range cases {
-		faces := insetFaces(c.walls, c.insets, consts.Coord[consts.Tile]{X: 25, Y: 25}, false)
-		assertFacesInDelta(t, []insetFace{{p: c.want, shade: faces[0].shade}}, faces, c.name)
+	for _, tc := range cases {
+		assertFacesInDelta(t, []insetFace{tc.want}, insetFaces(consts.Coord[consts.Tile]{X: 25, Y: 25}, tc.conn, false), tc.name)
 	}
 }
 
