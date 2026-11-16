@@ -5643,6 +5643,42 @@ msgstr "暗闇"
 msgid "Wall"
 msgstr "壁"
 
+msgid "Stone Wall"
+msgstr "石積みの壁"
+
+msgid "Rubble Wall"
+msgstr "荒石の壁"
+
+msgid "Siding Wall"
+msgstr "羽目板の壁"
+
+msgid "Plaster Wall"
+msgstr "漆喰の壁"
+
+msgid "Pillar Wall"
+msgstr "柱の壁"
+
+msgid "Cobble Wall"
+msgstr "玉石の壁"
+
+msgid "Board Wall"
+msgstr "板の壁"
+
+msgid "Concrete Wall"
+msgstr "コンクリートの壁"
+
+msgid "Wood Wall"
+msgstr "木の壁"
+
+msgid "Brick Wall"
+msgstr "煉瓦の壁"
+
+msgid "Reed Wall"
+msgstr "葦の壁"
+
+msgid "Ice Wall"
+msgstr "氷の壁"
+
 msgid "Linoleum Floor"
 msgstr "リノリウムの床"
 

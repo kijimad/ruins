@@ -3,7 +3,7 @@ id = "farm"
 description = "農場"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_wood_1"
 "," = "grass_green"
 "=" = "dirt"
 "." = "floor_wood"

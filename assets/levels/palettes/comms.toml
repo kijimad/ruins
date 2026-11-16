@@ -3,7 +3,7 @@ id = "comms"
 description = "通信施設"
 
 [palette.terrain]
-"#" = "wall"
+"#" = "wall_concrete_2"
 "," = "ground"
 "=" = "pavement"
 "." = "floor_tile"
@@ -13,7 +13,7 @@ tile = "floor_tile"
 id = "door"
 
 [palette.props."w"]
-tile = "wall"
+tile = "wall_concrete_2"
 id = "window"
 
 [palette.props."f"]
