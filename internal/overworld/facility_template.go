@@ -57,12 +57,44 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		tileRows[id] = t
 		return t, nil
 	}
+	inBounds := func(x, y int) bool { return y >= 0 && y < len(cells) && x >= 0 && x < len(cells[y]) }
 	wallAt := func(x, y int) bool {
-		if y < 0 || y >= len(cells) || x < 0 || x >= len(cells[y]) || cells[y][x].Terrain == maptemplate.GroundTerrain {
+		if !inBounds(x, y) || cells[y][x].Terrain == maptemplate.GroundTerrain {
 			return false
 		}
 		t, err := tileOf(cells[y][x].Terrain)
 		return err == nil && t.BlockPass
+	}
+
+	propBlocks := map[string]bool{}
+	propBlocksPass := func(id string) (bool, error) {
+		if id == "" {
+			return false, nil
+		}
+		if b, ok := propBlocks[id]; ok {
+			return b, nil
+		}
+		prop, err := raw.GetProp(world.Resources.RawMaster, id)
+		if err != nil {
+			return false, err
+		}
+		propBlocks[id] = prop.BlockPass
+		return prop.BlockPass, nil
+	}
+
+	// 扉の隣には扉や窓が並ぶので、通行を塞ぐ置物も壁と同じく向きを決める側に数える
+	blocks := func(x, y int) (bool, error) {
+		if !inBounds(x, y) {
+			return false, nil
+		}
+		if wallAt(x, y) {
+			return true, nil
+		}
+		b, err := propBlocksPass(cells[y][x].Prop)
+		if err != nil {
+			return false, fmt.Errorf("facility %q prop at %d,%d: %w", fac, x, y, err)
+		}
+		return b, nil
 	}
 
 	tiles := g.tiles.get()
@@ -88,11 +120,15 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 				}
 			}
 			orientation := gc.DoorOrientationHorizontal
-			// 2マスの扉は隣が扉になるので、扉も壁と同じく向きを決める側に数える
-			blocks := func(x, y int) bool {
-				return wallAt(x, y) || y >= 0 && y < len(cells) && x >= 0 && x < len(cells[y]) && cells[y][x].Prop == "door"
+			left, err := blocks(x-1, y)
+			if err != nil {
+				return nil, nil, err
 			}
-			if blocks(x-1, y) && blocks(x+1, y) {
+			right, err := blocks(x+1, y)
+			if err != nil {
+				return nil, nil, err
+			}
+			if left && right {
 				orientation = gc.DoorOrientationVertical
 			}
 			if err := spawnFacilityCell(world, cell, pos, orientation, fac, danger, lootRNG, beingRNG); err != nil {

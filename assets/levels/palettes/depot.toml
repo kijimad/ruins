@@ -15,7 +15,7 @@ tile = "floor_concrete"
 id = "door"
 
 [palette.props."w"]
-tile = "wall_board_1"
+tile = "floor_concrete"
 id = "window"
 
 [palette.props."B"]

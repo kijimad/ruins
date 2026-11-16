@@ -6,12 +6,14 @@ import (
 	"slices"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -158,6 +160,75 @@ func TestFacilityTemplates_全施設に絵がある(t *testing.T) {
 	assert.ElementsMatch(t, want, loader.Facilities())
 }
 
+func TestSpawnFacility_窓に挟まれた扉は縦向きになる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	cells := [][]maptemplate.MapCell{{
+		{Terrain: "floor_linoleum", Prop: "window"},
+		{Terrain: "floor_linoleum", Prop: "door"},
+		{Terrain: "floor_linoleum", Prop: "window"},
+	}}
+	g := chunkGeom{chunkW: 3, chunkH: 1, tiles: &tileIndex{world: world, loX: 0, hiX: 3}}
+	_, _, err := spawnFacility(world, g, cells, 0, 0, "store", raw.MinDanger, 1)
+	require.NoError(t, err)
+
+	var got []gc.DoorOrientation
+	q := ecs.NewFilter1[gc.Door](world.ECS).Query()
+	for q.Next() {
+		got = append(got, q.Get().Orientation)
+	}
+	assert.Equal(t, []gc.DoorOrientation{gc.DoorOrientationVertical}, got)
+}
+
+func TestSpawnFacility_扉の向きを決める隣の置物の行が無ければエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	cells := [][]maptemplate.MapCell{{
+		{Terrain: "floor_linoleum", Prop: "door"},
+		{Terrain: "floor_linoleum", Prop: "no_such_prop"},
+	}}
+	g := chunkGeom{chunkW: 2, chunkH: 1, tiles: &tileIndex{world: world, loX: 0, hiX: 2}}
+	_, _, err := spawnFacility(world, g, cells, 0, 0, "store", raw.MinDanger, 1)
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "no_such_prop", Collection: "Props"}, notFound)
+	// 置物を置く前に、扉の向きを決める時点で止まるので、先に並べた扉も置かれない
+	doors := 0
+	q := ecs.NewFilter1[gc.Door](world.ECS).Query()
+	for q.Next() {
+		doors++
+	}
+	assert.Equal(t, 0, doors)
+}
+
+func TestSpawnFacility_窓は通れず視線を通し下の床も塞がない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	cells := [][]maptemplate.MapCell{{{Terrain: "floor_linoleum", Prop: "window"}}}
+	g := chunkGeom{chunkW: 1, chunkH: 1, tiles: &tileIndex{world: world, loX: 0, hiX: 1}}
+	_, _, err := spawnFacility(world, g, cells, 0, 0, "store", raw.MinDanger, 1)
+	require.NoError(t, err)
+
+	type traits struct{ pass, view bool }
+	got := map[string]traits{}
+	q := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		kind := "tile"
+		if world.Components.Prop.Has(e) {
+			kind = "prop"
+		}
+		got[kind] = traits{pass: world.Components.BlockPass.Has(e), view: world.Components.BlockView.Has(e)}
+	}
+	assert.Equal(t, map[string]traits{
+		"prop": {pass: true, view: false},
+		"tile": {pass: false, view: false},
+	}, got)
+}
+
 func TestSpawnFacility_畳は屋内で庭は下地のまま屋外(t *testing.T) {
 	t.Parallel()
 
@@ -283,7 +354,46 @@ func TestVoidEnclosedTall_通れるマスに接しない高さのある地形だ
 	assert.Equal(t, "deep_water", water[1][1].Terrain, "囲まれた水は水のまま")
 }
 
-// TestFacilityTemplates_囲いの外の床は屋外で内は屋内 は1棟の絵で、区画の縁から壁と扉を越えずにたどれる床が屋外のタイルを、
+// TestFacilityTemplates_置物の下の地形は置物より塞がない は、壊したら下の地形が現れる置物の前提を固定する。
+// 通行を塞ぐ置物の下は通れ、視線を通す置物の下は視線を通す。下の地形が塞ぐと、置物の性質が打ち消される
+func TestFacilityTemplates_置物の下の地形は置物より塞がない(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	tiles := map[string]rawschema.Tile{}
+	for _, tl := range raw.PtrSlice(raws.Tiles) {
+		tiles[tl.Id] = tl
+	}
+	props := map[string]rawschema.Prop{}
+	for _, p := range raw.PtrSlice(raws.Props) {
+		props[p.Id] = p
+	}
+
+	var bad []string
+	for _, fac := range loader.Facilities() {
+		for _, name := range loader.FacilityChunkNames(fac) {
+			_, _, cells, err := loader.LoadTemplateByName(name, 1)
+			require.NoError(t, err)
+			for y, row := range cells {
+				for x, c := range row {
+					p, ok := props[c.Prop]
+					if !ok {
+						continue
+					}
+					tl := tiles[c.Terrain]
+					if (p.BlockPass && tl.BlockPass) || (!p.BlockView && tl.BlockView) {
+						bad = append(bad, fmt.Sprintf("%s %d,%d %s on %s", name, x, y, c.Prop, c.Terrain))
+					}
+				}
+			}
+		}
+	}
+	assert.Empty(t, bad)
+}
+
+// TestFacilityTemplates_囲いの外の床は屋外で内は屋内 は1棟の絵で、区画の縁から壁と通行を塞ぐ置物を越えずにたどれる床が屋外のタイルを、
 // たどれない床が屋内のタイルを指すことを確かめる。部屋の絵は床が全て屋内のタイルを指すことを確かめる。屋内外はタイルの種類で決まるので、絵が置き場所に合うタイルを選ぶ必要がある
 func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing.T) {
 	t.Parallel()
@@ -296,6 +406,11 @@ func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing
 	for _, tl := range raw.PtrSlice(raws.Tiles) {
 		rows[tl.Id] = tl
 	}
+	// 扉や窓のように通行を塞ぐ置物は、壁と同じく囲いになる
+	propBlocks := map[string]bool{}
+	for _, p := range raw.PtrSlice(raws.Props) {
+		propBlocks[p.Id] = p.BlockPass
+	}
 
 	for _, fac := range loader.Facilities() {
 		for _, name := range loader.FacilityChunkNames(fac) {
@@ -306,13 +421,13 @@ func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing
 				outside := map[[2]int]bool{}
 				if chunk.Edges == nil {
 					outside = reachableFromEdge(cells, func(x, y int) bool {
-						return rows[cells[y][x].Terrain].BlockPass || cells[y][x].Prop == "door"
+						return rows[cells[y][x].Terrain].BlockPass || propBlocks[cells[y][x].Prop]
 					})
 				}
 				var bad []string
 				for y, row := range cells {
 					for x, c := range row {
-						if rows[c.Terrain].BlockPass || c.Prop == "door" {
+						if rows[c.Terrain].BlockPass || propBlocks[c.Prop] {
 							continue
 						}
 						want := rawschema.Indoor

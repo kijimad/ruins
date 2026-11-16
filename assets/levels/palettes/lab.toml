@@ -13,7 +13,7 @@ tile = "floor_tile"
 id = "door"
 
 [palette.props."w"]
-tile = "wall_siding_1"
+tile = "floor_tile"
 id = "window"
 
 [palette.props."Q"]
