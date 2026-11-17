@@ -518,7 +518,8 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
 	westBacked := facing{dir: dirWest, backed: true}
 	// 東の壁を背に西を向く南北の並びの1台。北の隣と接するので北の端を省き、5面の板と正面と背面の絵になる
-	faces := facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]facing{c: westBacked, {X: 5, Y: 4}: westBacked})
+	all := func(consts.Coord[consts.Tile]) bool { return true }
+	faces := facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]facing{c: westBacked, {X: 5, Y: 4}: westBacked}, all)
 	require.Len(t, faces, 7)
 	for _, f := range faces[:5] {
 		assert.True(t, f.flat)
@@ -533,7 +534,11 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 
 	// 隣の無い1台は、天面・前後・左右・底面の6面で閉じ、正面と背面に絵を貼る
 	alone := facing{dir: dirSouth}
-	assert.Len(t, facingFaces(c, alone, map[consts.Coord[consts.Tile]]facing{c: alone}), 8)
+	assert.Len(t, facingFaces(c, alone, map[consts.Coord[consts.Tile]]facing{c: alone}, all), 8)
+
+	// 北の隣が視界の外で描かれなければ、北の端を省かず板を閉じる
+	hidden := func(n consts.Coord[consts.Tile]) bool { return n != consts.Coord[consts.Tile]{X: 5, Y: 4} }
+	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]facing{c: westBacked, {X: 5, Y: 4}: westBacked}, hidden), 8)
 }
 
 func TestFacingProps_向きを決める置物と塞がる置物を集める(t *testing.T) {

@@ -2,6 +2,7 @@ package systems
 
 import (
 	"cmp"
+	"fmt"
 	"image"
 	"image/color"
 	"maps"
@@ -476,7 +477,11 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		if f, ok := facings[g.Coord]; ok && sr.Shape == rawschema.Facing {
-			sys.addSlab(&quads, facingFaces(g.Coord, f, facings), atlas, ux, uy, uw, uh, tint)
+			drawn := func(n consts.Coord[consts.Tile]) bool {
+				_, _, v := visTint(&gc.GridElement{Coord: n})
+				return v
+			}
+			sys.addSlab(&quads, facingFaces(g.Coord, f, facings, drawn), atlas, ux, uy, uw, uh, tint)
 			continue
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
@@ -581,7 +586,7 @@ func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Co
 		// 一番長い並びが1台なら残りはどれも1台なので、並びを探し直さずに順に決める
 		for _, c := range order {
 			if left[c] {
-				decide(facingRow{members: []consts.Coord[consts.Tile]{c}, sides: []consts.Coord[consts.Tile]{dirSouth, dirEast, dirWest, dirNorth}})
+				decide(facingRow{members: []consts.Coord[consts.Tile]{c}, sides: aloneSides})
 			}
 		}
 	}
@@ -589,17 +594,17 @@ func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Co
 }
 
 // facingFaces は向き f の置物の面を返す。平均色で塗った閉じた6面の板を立て、正面と背面に外向きに絵を貼る。
-// 絵の透明な余白からは板の色が見える。同じ向きの隣と接する端は、重なってちらつかないよう省く。
+// 絵の透明な余白からは板の色が見える。同じ向きの隣が描かれ drawn、端が接するときは、重なってちらつかないよう省く。
 // 背が塞がっていれば背の側へ寄せ、空いていればマスの真ん中に立てる。南を向く板を作ってから向きの分だけ回す
-func facingFaces(c consts.Coord[consts.Tile], f facing, facings map[consts.Coord[consts.Tile]]facing) []insetFace {
+func facingFaces(c consts.Coord[consts.Tile], f facing, facings map[consts.Coord[consts.Tile]]facing, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {
 	const h = render3d.WallHeight
-	turns := map[consts.Coord[consts.Tile]]int{dirSouth: 0, dirWest: 1, dirNorth: 2, dirEast: 3}[f.dir]
+	turns := quarterTurns(f.dir)
 	connected := func(local consts.Coord[consts.Tile]) bool {
 		for range turns {
 			local = consts.Coord[consts.Tile]{X: -local.Y, Y: local.X}
 		}
 		n, ok := facings[c.Add(local)]
-		return ok && n.dir == f.dir
+		return ok && n.dir == f.dir && drawn(c.Add(local))
 	}
 	z0 := 0.5 - facingThickness/2
 	if f.backed {
@@ -626,6 +631,30 @@ func facingFaces(c consts.Coord[consts.Tile], f facing, facings map[consts.Coord
 	return faces
 }
 
+// quarterTurns は南を向く板を向き dir へ回す90度の回数を返す
+func quarterTurns(dir consts.Coord[consts.Tile]) int {
+	switch dir {
+	case dirSouth:
+		return 0
+	case dirWest:
+		return 1
+	case dirNorth:
+		return 2
+	case dirEast:
+		return 3
+	}
+	panic(fmt.Sprintf("facing direction is not one of the four cardinals: %v", dir))
+}
+
+var (
+	// rowAxes は並びの軸。東西の並びを南北より先に探す
+	rowAxes = []struct{ back, ahead consts.Coord[consts.Tile] }{{dirWest, dirEast}, {dirNorth, dirSouth}}
+	// eastWestRowSides、northSouthRowSides、aloneSides は向きの候補。同点なら先の側を向く
+	eastWestRowSides   = []consts.Coord[consts.Tile]{dirSouth, dirNorth}
+	northSouthRowSides = []consts.Coord[consts.Tile]{dirEast, dirWest}
+	aloneSides         = []consts.Coord[consts.Tile]{dirSouth, dirEast, dirWest, dirNorth}
+)
+
 // longestRow は残りの置物 left の中で一番長いまっすぐな並びを返す。order は置物を北西から並べた順。
 // 同じ長さなら北西に近い置物から始まる並び、東西の並びを先にする。並びが無ければ1台だけの並びを返す
 func longestRow(order []consts.Coord[consts.Tile], left map[consts.Coord[consts.Tile]]bool) facingRow {
@@ -637,13 +666,13 @@ func longestRow(order []consts.Coord[consts.Tile], left map[consts.Coord[consts.
 		if best.members == nil {
 			best = facingRow{members: []consts.Coord[consts.Tile]{c}}
 		}
-		for _, axis := range []struct{ back, ahead consts.Coord[consts.Tile] }{{dirWest, dirEast}, {dirNorth, dirSouth}} {
+		for _, axis := range rowAxes {
 			if left[c.Add(axis.back)] || !left[c.Add(axis.ahead)] {
 				continue
 			}
-			row := facingRow{sides: []consts.Coord[consts.Tile]{dirSouth, dirNorth}}
+			row := facingRow{sides: eastWestRowSides}
 			if axis.back == dirNorth {
-				row.sides = []consts.Coord[consts.Tile]{dirEast, dirWest}
+				row.sides = northSouthRowSides
 			}
 			for m := c; left[m]; m = m.Add(axis.ahead) {
 				row.members = append(row.members, m)
