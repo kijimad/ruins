@@ -132,4 +132,9 @@ func TestFacingRight_置物の正面か裏の向きからカメラのほうへ45
 		assertVecInDelta(t, rightOf(c.want), got, 1e-9)
 		assert.Equal(t, c.behind, behind, "yaw %v", c.cameraYaw)
 	}
+
+	// 東を向く置物を既定の南のカメラから見ると、東から南へ45度首を振る
+	got, behind := FacingRight(Vec{1, 0, 0}, rightOf(0), math.Pi/4)
+	assertVecInDelta(t, rightOf(math.Pi/4), got, 1e-9)
+	assert.False(t, behind)
 }

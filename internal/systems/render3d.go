@@ -419,7 +419,8 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 	}
 }
 
-// collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。床の模様は地面に寝かせる。
+// collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
+// inset は壁にはめる板、facing は壁を背に向く板にする。床の模様は地面に寝かせる。
 func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool) []r3quad {
 	cameraRight := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
@@ -457,8 +458,10 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		right, behind := cameraRight, false
-		if back, ok := backWall(walls, g.Coord); sr.Shape == rawschema.Facing && ok {
-			right, behind = render3d.FacingRight(render3d.At(-float64(back.X), 0, -float64(back.Y)), cameraRight, facingMaxTurn)
+		if sr.Shape == rawschema.Facing {
+			if back, ok := backWall(walls, g.Coord); ok {
+				right, behind = render3d.FacingRight(render3d.At(-float64(back.X), 0, -float64(back.Y)), cameraRight, facingMaxTurn)
+			}
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
 		const bw = 0.45
