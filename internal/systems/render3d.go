@@ -476,7 +476,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		if f, ok := facings[g.Coord]; ok && sr.Shape == rawschema.Facing {
-			sys.addSlab(&quads, facingFaces(g.Coord, f, facings), atlas, ux, uy, uw, uh, tint)
+			sys.addSlab(&quads, facingFaces(g.Coord, f), atlas, ux, uy, uw, uh, tint)
 			continue
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
@@ -499,7 +499,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 const insetThickness = 0.2
 
 const (
-	// facingThickness は向きを決めた置物の板の厚み。ポスターのように薄くし、表裏とも外向きに絵を貼るためだけに厚みを持たせる
+	// facingThickness は向きを決めた置物の板の厚み。表裏とも外向きに絵を貼り、奥行きの並べ替えで手前の面を出すためだけに持たせる
 	facingThickness = 0.05
 	// facingGap は背の塞がりに寄せた板と背のあいだ。壁の面と重なってちらつかないよう少し離す
 	facingGap = 0.02
@@ -586,22 +586,16 @@ func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Co
 	return facings
 }
 
-// facingFaces は向き f の置物の面を返す。並びに沿って立つ薄い板にし、同じ向きの隣と接する端を省く。
-// 背が塞がっていれば背の側へ寄せ、空いていればマスの真ん中に立てる。南を向く板を作ってから向きの分だけ回す
-func facingFaces(c consts.Coord[consts.Tile], f facing, facings map[consts.Coord[consts.Tile]]facing) []insetFace {
+// facingFaces は向き f の置物の面を返す。向きに回したポスターのような薄い板にし、表裏の2面だけに絵を貼る。
+// 絵の透明な余白から浮かないよう、天面と端は描かない。背が塞がっていれば背の側へ寄せ、空いていればマスの真ん中に立てる。
+// 南を向く板を作ってから向きの分だけ回す
+func facingFaces(c consts.Coord[consts.Tile], f facing) []insetFace {
 	turns := map[consts.Coord[consts.Tile]]int{dirSouth: 0, dirWest: 1, dirNorth: 2, dirEast: 3}[f.dir]
-	connected := func(local consts.Coord[consts.Tile]) bool {
-		for range turns {
-			local = consts.Coord[consts.Tile]{X: -local.Y, Y: local.X}
-		}
-		n, ok := facings[c.Add(local)]
-		return ok && n.dir == f.dir
-	}
 	z0 := 0.5 - facingThickness/2
 	if f.backed {
 		z0 = facingGap
 	}
-	faces := slab(z0, z0+facingThickness, !connected(dirWest), !connected(dirEast))
+	faces := slices.DeleteFunc(slab(z0, z0+facingThickness, false, false), func(f insetFace) bool { return f.flat })
 	for i := range faces {
 		for j, v := range faces[i].p {
 			for range turns {

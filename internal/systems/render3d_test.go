@@ -512,29 +512,21 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 	assert.Equal(t, all(facing{dir: dirSouth, backed: true}, shelf), rowFacings(set(shelf), weight), "壁と樽に挟まれる")
 }
 
-func TestFacingFaces_向きに合わせて回した薄い板になる(t *testing.T) {
+func TestFacingFaces_向きに合わせて回した薄い板の表裏だけを描く(t *testing.T) {
 	t.Parallel()
 
 	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
-	westBacked := facing{dir: dirWest, backed: true}
-	// 東の壁を背に西を向く南北の並びの1台。北の隣と接するので、南の端だけを描く
-	facings := map[consts.Coord[consts.Tile]]facing{c: westBacked, {X: 5, Y: 4}: westBacked}
+	// 東の壁を背に西を向く1台は、東の壁へ寄せた南北に長い板になる
 	assertFacesInDelta(t, []insetFace{
-		{p: [4]render3d.Vec{render3d.At(5.98, 1, 5), render3d.At(5.98, 1, 6), render3d.At(5.93, 1, 6), render3d.At(5.93, 1, 5)}, flat: true},
 		{p: [4]render3d.Vec{render3d.At(5.98, 1, 6), render3d.At(5.98, 1, 5), render3d.At(5.98, 0, 5), render3d.At(5.98, 0, 6)}},
 		{p: [4]render3d.Vec{render3d.At(5.93, 1, 5), render3d.At(5.93, 1, 6), render3d.At(5.93, 0, 6), render3d.At(5.93, 0, 5)}},
-		{p: [4]render3d.Vec{render3d.At(5.93, 1, 6), render3d.At(5.98, 1, 6), render3d.At(5.98, 0, 6), render3d.At(5.93, 0, 6)}, flat: true},
-	}, facingFaces(c, westBacked, facings), "西を向き東の壁へ寄る")
+	}, facingFaces(c, facing{dir: dirWest, backed: true}), "西を向き東の壁へ寄る")
 
-	// 背が空いた南向きの1台は、マスの真ん中に東西に立ち、両端を描く
-	alone := facing{dir: dirSouth}
-	faces := facingFaces(c, alone, map[consts.Coord[consts.Tile]]facing{c: alone})
-	require.Len(t, faces, 5)
-	for _, f := range faces {
-		for _, v := range f.p {
-			assert.True(t, v.Z >= 5.3-1e-9 && v.Z <= 5.7+1e-9, "真ん中の z の範囲に収まる %v", v)
-		}
-	}
+	// 背が空いた南向きの1台は、マスの真ん中に東西に立つ
+	assertFacesInDelta(t, []insetFace{
+		{p: [4]render3d.Vec{render3d.At(6, 1, 5.475), render3d.At(5, 1, 5.475), render3d.At(5, 0, 5.475), render3d.At(6, 0, 5.475)}},
+		{p: [4]render3d.Vec{render3d.At(5, 1, 5.525), render3d.At(6, 1, 5.525), render3d.At(6, 0, 5.525), render3d.At(5, 0, 5.525)}},
+	}, facingFaces(c, facing{dir: dirSouth}), "真ん中に立つ")
 }
 
 func TestFacingProps_向きを決める置物と塞がる置物を集める(t *testing.T) {
