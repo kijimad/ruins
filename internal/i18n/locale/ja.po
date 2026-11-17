@@ -6640,3 +6640,21 @@ msgstr "泥炭"
 
 msgid "Ashen Soil"
 msgstr "灰土"
+
+msgid "Crash Site"
+msgstr "墜落現場"
+
+msgid "Impact Crater"
+msgstr "墜落の窪み"
+
+msgid "Scorched Ground"
+msgstr "焦げた地面"
+
+msgid "Burning Wreckage"
+msgstr "燃える残骸"
+
+msgid "Wreckage"
+msgstr "残骸"
+
+msgid "Cargo Pod"
+msgstr "貨物ポッド"

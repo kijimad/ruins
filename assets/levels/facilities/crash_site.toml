@@ -1,0 +1,18 @@
+[[chunk]]
+name = "13x11_crash_site"
+facility = "crash_site"
+weight = 100
+palettes = ["crash_site"]
+map = """
+,,,,,,s,,,,,,
+,,,,,W,,,C,,,
+,s,,sssss,,,,
+,,sFscccssss,
+,,sscccccss,,
+s,scccccccs,,
+,,sscccccss,s
+,,WsscccssW,,
+,,,,sssss,,,,
+,,s,,,,,,,s,,
+,,,,,,,,,,,,,
+"""

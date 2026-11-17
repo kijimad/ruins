@@ -69,7 +69,7 @@ func TestAreaLabel_地上では現在地の名前を出す(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 24, 24, 3, 1), &overworld.NewGameParams{RunSeed: 42})
 	require.NoError(t, drv.Start(world))
-	assert.Equal(t, "Wasteland", areaLabel(world), "開始地点は荒れ地")
+	assert.Equal(t, "Crash Site", areaLabel(world), "開始地点は墜落現場")
 }
 
 func TestFormatAreaLabel(t *testing.T) {

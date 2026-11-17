@@ -503,6 +503,15 @@ type CorridorStep struct {
 	Width int `json:"width"`
 }
 
+// CrashSite 開始チャンクに置く墜落現場の候補1種
+type CrashSite struct {
+	// Id 施設の id。施設の絵の facility が指す
+	Id EntityID `json:"id"`
+
+	// Weight 開始チャンクでこの墜落現場を引く重み
+	Weight int32 `json:"weight"`
+}
+
 // CubeModule キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる
 type CubeModule struct {
 	FuelCapacityBonus FuelCapacityBonus `json:"fuelCapacityBonus"`
@@ -2092,6 +2101,8 @@ type Raws struct {
 	Conditions *[]Condition `json:"conditions,omitempty"`
 
 	CorridorSteps *[]CorridorStep `json:"corridorSteps,omitempty"`
+
+	CrashSites *[]CrashSite `json:"crashSites,omitempty"`
 
 	Dialogues *[]Dialogue `json:"dialogues,omitempty"`
 

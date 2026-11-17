@@ -175,7 +175,7 @@ func TestUrbanZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 		for y := range rows {
 			for x := range consts.Chunk(60) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if r, ok := districtAt(raws, s, c, rows); ok {
+				if r, ok := districtAt(raws, s, c, rows, farSpawnRow); ok {
 					k := urbanFacilityAt(raws, cat, r, c, 0)
 					grid[c] = k
 					kindCount[k]++

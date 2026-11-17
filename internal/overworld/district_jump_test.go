@@ -33,7 +33,7 @@ func TestDriver_JumpToDistrict_北で一番近い区域の南の門の前へ行�
 		row := sb.AbsChunkRow(pg.Y)
 		col := consts.Chunk(pg.X / testChunkW)
 		assert.Less(t, row, before, "北へ進む")
-		r, ok := districtAt(raws, sb.RunSeed, consts.Coord[consts.Chunk]{X: col, Y: row - 1}, cols)
+		r, ok := districtAt(raws, sb.RunSeed, consts.Coord[consts.Chunk]{X: col, Y: row - 1}, cols, sb.SpawnChunkY())
 		require.True(t, ok, "プレイヤーのすぐ北が区域")
 		assert.Equal(t, consts.Coord[consts.Chunk]{X: r.anchor.X + r.w/2, Y: r.anchor.Y + r.h}, consts.Coord[consts.Chunk]{X: col, Y: row}, "区域の南の端の真ん中の列のすぐ外")
 		assert.Equal(t, rows/2, consts.Chunk(pg.Y/testChunkH), "帯の中央の行に留まる")
@@ -52,8 +52,8 @@ func TestNearestDistrictNorth_先の種類に重なって出ない区域しか�
 		{Id: "town", Spacing: 3, Separation: 0, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 1, H: 1, Weight: 1}}},
 	}}
 	ds := districtsFrom(raws)
-	_, ok := nearestDistrictNorth(raws, ds[1], 1, 0, 2)
+	_, ok := nearestDistrictNorth(raws, ds[1], 1, 0, 2, farSpawnRow)
 	assert.False(t, ok)
-	_, ok = nearestDistrictNorth(raws, ds[0], 1, 0, 2)
+	_, ok = nearestDistrictNorth(raws, ds[0], 1, 0, 2, farSpawnRow)
 	assert.True(t, ok, "先の種類は見つかる")
 }

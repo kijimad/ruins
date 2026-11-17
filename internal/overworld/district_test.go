@@ -25,6 +25,9 @@ var (
 	}
 )
 
+// farSpawnRow は墜落現場の開始チャンクがどの区域にも当たらない遠い行。墜落現場と関係ない区域のテストで使う
+const farSpawnRow consts.Chunk = -1 << 20
+
 func TestDistrict_regionIn_大きさの候補から選び自分のリージョンに収める(t *testing.T) {
 	t.Parallel()
 
@@ -61,7 +64,7 @@ func TestDistrictAt_チャンクを含む区域を返す(t *testing.T) {
 	for y := consts.Chunk(14); y < 21; y++ {
 		for x := range cols {
 			c := consts.Coord[consts.Chunk]{X: x, Y: y}
-			r, ok := districtAt(raws, 42, c, cols)
+			r, ok := districtAt(raws, 42, c, cols, farSpawnRow)
 			require.Equal(t, want.contains(c), ok, "%v", c)
 			if ok {
 				assert.Equal(t, want, r)
@@ -104,7 +107,7 @@ func TestDistrictAt_先の種類の区域と重なる後の種類の区域は丸
 		for y := range consts.Chunk(9) {
 			for x := range cols {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				r, ok := districtAt(raws, seed, c, cols)
+				r, ok := districtAt(raws, seed, c, cols, farSpawnRow)
 				if campus.contains(c) {
 					require.True(t, ok)
 					assert.Equal(t, "lab_campus", r.kind.Id, "seed=%d %v", seed, c)
@@ -130,7 +133,7 @@ func TestDistricts_seed100個の全てで通信施設が起点から北へ60チ�
 		for depth := consts.Chunk(0); depth <= within && !found; depth++ {
 			for x := range cols {
 				c := consts.Coord[consts.Chunk]{X: x, Y: spawnRow - depth}
-				if r, ok := districtAt(raws, seed, c, cols); ok && urbanFacilityAt(raws, cat, r, c, spawnRow) == "comms" {
+				if r, ok := districtAt(raws, seed, c, cols, spawnRow); ok && urbanFacilityAt(raws, cat, r, c, spawnRow) == "comms" {
 					found = true
 					break
 				}

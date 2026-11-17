@@ -22,11 +22,8 @@ type relSpot struct {
 type settlementFeature struct{}
 
 func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	if !placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindSettlement).At(runSeed, c, cols) {
-		return nil
-	}
-	// 区域と重なった当選は区域へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ
-	if _, ok := districtAt(world.Resources.RawMaster, runSeed, c, cols); ok {
+	// 区域や墜落現場と重なった当選は譲る。地物の優先度は分類が一元管理する
+	if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world)) != chunkSettlement {
 		return nil
 	}
 	center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}

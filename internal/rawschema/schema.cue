@@ -979,6 +979,15 @@ import (
 // 売買価格
 #ItemValue: int & >=0 & <=99999
 
+// 開始チャンクに置く墜落現場の候補1種
+#CrashSite: {
+	// 施設の id。施設の絵の facility が指す
+	id!:    #EntityID
+	id_ref: _facilityIDs[id] @rawgen(-)
+	// 開始チャンクでこの墜落現場を引く重み
+	weight!: int32 & >=1
+}
+
 // 原野の点在ランドマーク1種。施設の絵で描く施設を、原野のランドマークの当選チャンクに置く
 #Landmark: {
 	// 原野に置く施設の id。地図の記号もこの id で引く
@@ -1243,6 +1252,7 @@ import (
 	districts?: [...#District]
 	pointFeatures?: [...#PointFeature]
 	landmarks?: [...#Landmark]
+	crashSites?: [...#CrashSite]
 	scatterZones?: [...#ScatterZone]
 	mapGlyphs?: [...#MapGlyph]
 	spriteSheets?: [...#SpriteSheet]

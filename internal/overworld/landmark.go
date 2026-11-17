@@ -35,7 +35,7 @@ const landmarkMargin consts.Tile = 2
 // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が
 // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。
 func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols) != chunkLandmark {
+	if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world)) != chunkLandmark {
 		return nil
 	}
 	loader, err := maptemplate.FacilityTemplates()

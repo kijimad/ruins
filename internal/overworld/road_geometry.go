@@ -56,7 +56,7 @@ func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chun
 	vertical := segs[1]
 	x, y := vertical.fixed, vertical.lo
 	out := []roadSeg{segs[0]}
-	for _, r := range fencedDistrictsBetween(raws, runSeed, min(a.Y, b.Y), max(a.Y, b.Y), cols) {
+	for _, r := range fencedDistrictsBetween(raws, runSeed, min(a.Y, b.Y), max(a.Y, b.Y), cols, spawnRow) {
 		north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, spawnRow))
 		top := r.anchor.Y.Tiles(chunkH)
 		bottom := (r.anchor.Y + r.h).Tiles(chunkH) - 1
@@ -83,7 +83,7 @@ func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chun
 }
 
 // fencedDistrictsBetween は絶対チャンク行 top から bottom に掛かる、塀に囲まれた区域を北から順に返す
-func fencedDistrictsBetween(raws rawschema.Raws, runSeed uint64, top, bottom, cols consts.Chunk) []districtRegion {
+func fencedDistrictsBetween(raws rawschema.Raws, runSeed uint64, top, bottom, cols, spawnRow consts.Chunk) []districtRegion {
 	var out []districtRegion
 	for _, d := range districtsFrom(raws) {
 		if d.row.Fence == nil {
@@ -95,7 +95,7 @@ func fencedDistrictsBetween(raws rawschema.Raws, runSeed uint64, top, bottom, co
 			if r.anchor.Y > bottom || r.anchor.Y+r.h-1 < top {
 				continue
 			}
-			if got, ok := districtAt(raws, runSeed, r.anchor, cols); ok && got == r {
+			if got, ok := districtAt(raws, runSeed, r.anchor, cols, spawnRow); ok && got == r {
 				out = append(out, r)
 			}
 		}

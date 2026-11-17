@@ -1,0 +1,21 @@
+[palette]
+id = "crash_site"
+description = "キューブが墜落した開始の現場"
+
+[palette.terrain]
+"," = "ground"
+"c" = "crater_ground"
+"s" = "scorched_ground"
+
+[palette.props."F"]
+tile = "scorched_ground"
+id = "burning_wreck"
+
+[palette.props."W"]
+tile = "scorched_ground"
+id = "wreck_debris"
+
+[palette.props."C"]
+tile = "scorched_ground"
+id = "cargo_pod"
+lootTable = "crash_site_cargo"

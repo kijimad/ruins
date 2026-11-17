@@ -46,7 +46,7 @@ func firstWastelandChunk(t *testing.T) consts.Coord[consts.Chunk] {
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	for cx := range consts.Chunk(200) {
 		c := consts.Coord[consts.Chunk]{X: cx, Y: 0}
-		if chunkTypeAt(raws, scatterTestSeed, c, scatterTestRows) == chunkWasteland {
+		if chunkTypeAt(raws, scatterTestSeed, c, scatterTestRows, 0) == chunkWasteland {
 			return c
 		}
 	}
@@ -60,7 +60,7 @@ func firstNonWastelandChunk(t *testing.T) consts.Coord[consts.Chunk] {
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	for cx := range consts.Chunk(200) {
 		c := consts.Coord[consts.Chunk]{X: cx, Y: 0}
-		if chunkTypeAt(raws, scatterTestSeed, c, scatterTestRows) != chunkWasteland {
+		if chunkTypeAt(raws, scatterTestSeed, c, scatterTestRows, 0) != chunkWasteland {
 			return c
 		}
 	}

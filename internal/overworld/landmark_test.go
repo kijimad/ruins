@@ -8,7 +8,6 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -23,12 +22,10 @@ func findLandmarkChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
 	const rows = 1
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	for s := uint64(1); s < 200; s++ {
-		for x := range consts.Chunk(30) {
-			c := consts.Coord[consts.Chunk]{X: x}
-			if !placementOf(raws, rawschema.PointFeatureKindLandmark).At(s, c, rows) || placementOf(raws, rawschema.PointFeatureKindSettlement).At(s, c, rows) {
-				continue
-			}
-			if _, ok := districtAt(raws, s, c, rows); ok {
+		for y := range consts.Chunk(30) {
+			c := consts.Coord[consts.Chunk]{Y: y}
+			// 帯を作らずに置くので、生成の側は開始の行を0とみなし、チャンク (0,0) は墜落現場になる
+			if chunkTypeAt(raws, s, c, rows, 0) != chunkLandmark {
 				continue
 			}
 			return s, c

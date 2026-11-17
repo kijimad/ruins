@@ -46,7 +46,7 @@ func (dr *Driver) JumpToDistrict(world w.World, id string) error {
 	chunkH := sb.ChunkH
 	playerRow := sb.AbsChunkRow(world.Components.GridElement.Get(player).Y)
 
-	r, ok := nearestDistrictNorth(raws, *target, sb.RunSeed, playerRow, sb.Cols)
+	r, ok := nearestDistrictNorth(raws, *target, sb.RunSeed, playerRow, sb.Cols, sb.SpawnChunkY())
 	if !ok {
 		return fmt.Errorf("%w: %q", errNoDistrictNorth, id)
 	}
@@ -81,14 +81,14 @@ func (dr *Driver) JumpToDistrict(world w.World, id string) error {
 
 // nearestDistrictNorth は絶対チャンク行 playerRow より北にある種類 d の区域のうち、一番近いものを返す。
 // 種類の違う区域との重なりで出ない区域は飛ばす
-func nearestDistrictNorth(raws rawschema.Raws, d district, runSeed uint64, playerRow, cols consts.Chunk) (districtRegion, bool) {
+func nearestDistrictNorth(raws rawschema.Raws, d district, runSeed uint64, playerRow, cols, spawnRow consts.Chunk) (districtRegion, bool) {
 	start := consts.FloorDiv(playerRow, consts.Chunk(d.row.Spacing))
 	for i := range consts.Chunk(districtJumpSearch) {
 		r := d.regionIn(runSeed, start-i, cols)
 		if r.anchor.Y+r.h >= playerRow {
 			continue
 		}
-		if got, ok := districtAt(raws, runSeed, r.anchor, cols); ok && got == r {
+		if got, ok := districtAt(raws, runSeed, r.anchor, cols, spawnRow); ok && got == r {
 			return r, true
 		}
 	}

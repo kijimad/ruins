@@ -60,7 +60,7 @@ func overworldAtTurn(turns consts.Turn) func(world w.World) ([]es.State[w.World]
 }
 
 // indoorOverworldState は地上を始めた直後に、プレイヤーを最も近い屋内の通れるマスへ動かす。
-// 開始地点は荒れ地になりやすく、屋根の下の明るさを撮るために使う。撮る場所は地上の生成で決まるので、
+// 開始地点は屋根の無い墜落現場なので、屋根の下の明るさを撮るために使う。撮る場所は地上の生成で決まるので、
 // 生成を変えると撮る建物も変わる
 type indoorOverworldState struct {
 	*gs.DungeonState
@@ -465,7 +465,8 @@ var goldenCases = []struct {
 	{
 		name: "Overworld_Indoor",
 		build: func(world w.World) ([]es.State[w.World], error) {
-			s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{})()
+			// RunSeed 6 は開始チャンクのすぐ西が市街地になる
+			s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{RunSeed: 6})()
 			if err != nil {
 				return nil, err
 			}

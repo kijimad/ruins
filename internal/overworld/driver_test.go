@@ -230,7 +230,8 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 	found := false
 	for s := uint64(1); s < 500 && !found; s++ {
 		for y := range consts.Chunk(12) {
-			if chunkTypeAt(raws, s, consts.Coord[consts.Chunk]{Y: y}, cols) == chunkSettlement {
+			// 帯を作らずに生成するので、生成の側は開始の行を0とみなす
+			if chunkTypeAt(raws, s, consts.Coord[consts.Chunk]{Y: y}, cols, 0) == chunkSettlement {
 				seed, c, found = s, consts.Coord[consts.Chunk]{Y: y}, true
 				break
 			}
@@ -359,7 +360,7 @@ func TestDriver_シフト後もタイルは座標ごとに1枚(t *testing.T) {
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	var seed uint64
 	for s := uint64(1); s < 500; s++ {
-		if _, ok := districtAt(raws, s, consts.Coord[consts.Chunk]{Y: 2}, testCols); ok {
+		if _, ok := districtAt(raws, s, consts.Coord[consts.Chunk]{Y: 2}, testCols, gc.SeamlessBand{Rows: testRows}.SpawnChunkY()); ok {
 			seed = s
 			break
 		}

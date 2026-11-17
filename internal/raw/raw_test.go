@@ -1239,6 +1239,8 @@ func TestTileSpawn_実データ(t *testing.T) {
 		"dirt_tundra":      {Autotile: true},
 		"dirt_peat":        {Autotile: true},
 		"dirt_ash":         {Autotile: true},
+		"crater_ground":    {Autotile: true},
+		"scorched_ground":  {Autotile: true},
 		"floor":            {Autotile: true},
 		"road":             {Autotile: true},
 		"grass_green":      {Autotile: true},

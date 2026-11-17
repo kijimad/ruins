@@ -80,12 +80,14 @@ func (d district) regionAt(runSeed uint64, c consts.Coord[consts.Chunk], cols co
 }
 
 // districtAt は c を含む区域を返す。種類の違う区域が重なれば、raw の行の順で先の種類を残し、後の種類の区域は
-// 丸ごと出さない。街路の途中に塀が刺さった半端な区域を作らないため
-func districtAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (districtRegion, bool) {
+// 丸ごと出さない。街路の途中に塀が刺さった半端な区域を作らないため。同じ理由で、開始の行 spawnRow から決まる
+// 開始チャンクに重なる区域も丸ごと出さない
+func districtAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) (districtRegion, bool) {
 	ds := districtsFrom(raws)
+	spawn := spawnChunkOf(cols, spawnRow)
 	for i, d := range ds {
 		r, ok := d.regionAt(runSeed, c, cols)
-		if ok && !overlapsAny(r, ds[:i], runSeed, cols) {
+		if ok && !r.contains(spawn) && !overlapsAny(r, ds[:i], runSeed, cols) {
 			return r, true
 		}
 	}

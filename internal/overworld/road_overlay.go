@@ -55,6 +55,8 @@ func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols
 			markRoadPath(overlay, roadPath(raws, runSeed, a, b, cols, spawnRow, chunkW, chunkH), chunkW, chunkH)
 		}
 	}
+	// 実体の道は墜落現場の中を描かないので、地図の道も印さない
+	delete(overlay, spawnChunkOf(cols, spawnRow))
 	return overlay
 }
 

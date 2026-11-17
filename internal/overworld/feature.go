@@ -65,7 +65,7 @@ func features() []feature {
 	// 点在ランドマークは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に
 	// 評価する。散布は占有と道の実状態を読むため最後に評価する
 	return []feature{
-		settlementFeature{}, urbanFeature{}, wildernessLandmarkFeature{},
+		settlementFeature{}, urbanFeature{}, crashSiteFeature{}, wildernessLandmarkFeature{},
 		roadFeature{}, openTerrainFeature{},
 	}
 }
@@ -78,6 +78,7 @@ const (
 	districtSalt    uint64 = 2
 	scatterSalt     uint64 = 5
 	outdoorLootSalt uint64 = 6
+	crashSiteSalt   uint64 = 7
 )
 
 // pointFeatureOf は地物の種類 kind の raw の行を返す。全ての種類に行があることを raw の検証が保証する
@@ -101,7 +102,7 @@ func placementFrom(f rawschema.PointFeature) Placement {
 }
 
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。
-// 判定はすべて runSeed・座標・cols の純関数で、開始チャンクの特例は持たない。
+// 判定はすべて runSeed・座標・cols・開始の行の純関数で、開始チャンクの特例は分類の中にだけ置く。
 func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {
 	g := chunkGeom{
 		offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH,

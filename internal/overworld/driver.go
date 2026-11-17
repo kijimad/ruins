@@ -115,11 +115,12 @@ func (dr *Driver) startInitialBand(world w.World) error {
 		return err
 	}
 
-	// プレイヤーを中央チャンク付近の歩行可能タイルへ湧かせる。開始チャンクの種別に依存せず、
-	// 建物の上でも壁を避けて安全に置く。居なければ生成、居れば移動
+	// プレイヤーを開始チャンクの真ん中に一番近い歩行可能タイルへ湧かせる。開始チャンクは墜落現場で、
+	// 絵の真ん中を歩ける地面にしてある。居なければ生成、居れば移動
+	start := spawnChunkOf(sb.Cols, sb.SpawnChunkY())
 	center := consts.Coord[consts.Tile]{
-		X: (dr.band.Cols() / 2).Tiles(chunkW) + chunkW/2,
-		Y: (dr.band.Rows() / 2).Tiles(chunkH) + chunkH/2,
+		X: start.X.Tiles(chunkW) + chunkW/2,
+		Y: start.Y.Tiles(chunkH) + chunkH/2,
 	}
 	spawn := walkableSpawnNear(world, center)
 	if _, err := query.GetPlayerEntity(world); err != nil {
