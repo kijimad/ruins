@@ -96,10 +96,7 @@ func TestBenchRegressions(t *testing.T) {
 func TestLoadBench_構文エラー行は読み飛ばす(t *testing.T) {
 	t.Parallel()
 
-	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
-	body := header + "BenchmarkBroken-4 abc\nBenchmarkFoo-4 \t1000\t100 ns/op\n"
-	path := filepath.Join(t.TempDir(), "bench.txt")
-	require.NoError(t, os.WriteFile(path, []byte(body), 0o644))
+	path := writeBenchFile(t, t.TempDir(), "bench.txt", "BenchmarkBroken-4 abc\nBenchmarkFoo-4 \t1000\t100 ns/op\n")
 
 	got, err := loadBench(path)
 	require.NoError(t, err)
@@ -113,10 +110,7 @@ func TestLoadBench_構文エラー行は読み飛ばす(t *testing.T) {
 func TestLoadBench_sec_opもns_opも無い測定値は読み飛ばす(t *testing.T) {
 	t.Parallel()
 
-	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
-	body := header + "BenchmarkCustomOnly-4 \t1000\t42 custom/op\n"
-	path := filepath.Join(t.TempDir(), "bench.txt")
-	require.NoError(t, os.WriteFile(path, []byte(body), 0o644))
+	path := writeBenchFile(t, t.TempDir(), "bench.txt", "BenchmarkCustomOnly-4 \t1000\t42 custom/op\n")
 
 	got, err := loadBench(path)
 	require.NoError(t, err)
@@ -127,17 +121,11 @@ func TestBenchGate_ファイルを読んで比較する(t *testing.T) {
 	t.Parallel()
 
 	// go: 行や設定行が混ざっても benchfmt が結果行だけ拾う。PR だけの新規ベンチは判定に入らない。
-	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
-	baseBody := header + "BenchmarkFoo-4 \t1000\t100 ns/op\nBenchmarkFoo-4 \t1000\t100 ns/op\n"
-	prBody := header + "go: downloading example.com/mod v1.2.3\n" +
-		"BenchmarkFoo-4 \t1000\t300 ns/op\nBenchmarkFoo-4 \t1000\t300 ns/op\n" +
-		"BenchmarkNew-4 \t1000\t9999 ns/op\n"
-
 	dir := t.TempDir()
-	basePath := filepath.Join(dir, "base.txt")
-	prPath := filepath.Join(dir, "pr.txt")
-	require.NoError(t, os.WriteFile(basePath, []byte(baseBody), 0o644))
-	require.NoError(t, os.WriteFile(prPath, []byte(prBody), 0o644))
+	basePath := writeBenchFile(t, dir, "base.txt", "BenchmarkFoo-4 \t1000\t100 ns/op\nBenchmarkFoo-4 \t1000\t100 ns/op\n")
+	prPath := writeBenchFile(t, dir, "pr.txt", "go: downloading example.com/mod v1.2.3\n"+
+		"BenchmarkFoo-4 \t1000\t300 ns/op\nBenchmarkFoo-4 \t1000\t300 ns/op\n"+
+		"BenchmarkNew-4 \t1000\t9999 ns/op\n")
 
 	var buf bytes.Buffer
 	require.NoError(t, benchGate(&buf, basePath, prPath, 2.0))
@@ -147,15 +135,9 @@ func TestBenchGate_ファイルを読んで比較する(t *testing.T) {
 func TestBenchGate_閾値未満の悪化は報告しない(t *testing.T) {
 	t.Parallel()
 
-	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
-	baseBody := header + "BenchmarkFoo-4 \t1000\t100 ns/op\n"
-	prBody := header + "BenchmarkFoo-4 \t1000\t300 ns/op\n"
-
 	dir := t.TempDir()
-	basePath := filepath.Join(dir, "base.txt")
-	prPath := filepath.Join(dir, "pr.txt")
-	require.NoError(t, os.WriteFile(basePath, []byte(baseBody), 0o644))
-	require.NoError(t, os.WriteFile(prPath, []byte(prBody), 0o644))
+	basePath := writeBenchFile(t, dir, "base.txt", "BenchmarkFoo-4 \t1000\t100 ns/op\n")
+	prPath := writeBenchFile(t, dir, "pr.txt", "BenchmarkFoo-4 \t1000\t300 ns/op\n")
 
 	// 3倍悪化だが、閾値を5倍にすると報告対象から外れる
 	var buf bytes.Buffer
@@ -184,6 +166,15 @@ func TestBenchGate_prファイルが読めなければエラー(t *testing.T) {
 	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
+// writeBenchFile は共通の環境行の後ろに body を付けたベンチ結果のファイルを dir に書き、パスを返す
+func writeBenchFile(t *testing.T, dir, name, body string) string {
+	t.Helper()
+	const header = "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
+	path := filepath.Join(dir, name)
+	require.NoError(t, os.WriteFile(path, []byte(header+body), 0o644))
+	return path
+}
+
 // errBoom は書き込み失敗を起こす出力先であることを示す。
 var errBoom = errors.New("boom")
 
@@ -195,15 +186,9 @@ func (failingWriter) Write([]byte) (int, error) { return 0, errBoom }
 func TestBenchGate_出力に失敗すればエラーを返す(t *testing.T) {
 	t.Parallel()
 
-	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
-	baseBody := header + "BenchmarkFoo-4 \t1000\t100 ns/op\n"
-	prBody := header + "BenchmarkFoo-4 \t1000\t300 ns/op\n"
-
 	dir := t.TempDir()
-	basePath := filepath.Join(dir, "base.txt")
-	prPath := filepath.Join(dir, "pr.txt")
-	require.NoError(t, os.WriteFile(basePath, []byte(baseBody), 0o644))
-	require.NoError(t, os.WriteFile(prPath, []byte(prBody), 0o644))
+	basePath := writeBenchFile(t, dir, "base.txt", "BenchmarkFoo-4 \t1000\t100 ns/op\n")
+	prPath := writeBenchFile(t, dir, "pr.txt", "BenchmarkFoo-4 \t1000\t300 ns/op\n")
 
 	err := benchGate(failingWriter{}, basePath, prPath, 2.0)
 	require.ErrorIs(t, err, errBoom)
@@ -240,15 +225,9 @@ func TestRunBenchgate_引数が2個でなければ使い方を返す(t *testing.
 func TestRunBenchgate_2個の引数をbase_prの順でbenchGateへ渡す(t *testing.T) {
 	t.Parallel()
 
-	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
-	baseBody := header + "BenchmarkFoo-4 \t1000\t100 ns/op\nBenchmarkFoo-4 \t1000\t100 ns/op\n"
-	prBody := header + "BenchmarkFoo-4 \t1000\t300 ns/op\nBenchmarkFoo-4 \t1000\t300 ns/op\n"
-
 	dir := t.TempDir()
-	basePath := filepath.Join(dir, "base.txt")
-	prPath := filepath.Join(dir, "pr.txt")
-	require.NoError(t, os.WriteFile(basePath, []byte(baseBody), 0o644))
-	require.NoError(t, os.WriteFile(prPath, []byte(prBody), 0o644))
+	basePath := writeBenchFile(t, dir, "base.txt", "BenchmarkFoo-4 \t1000\t100 ns/op\nBenchmarkFoo-4 \t1000\t100 ns/op\n")
+	prPath := writeBenchFile(t, dir, "pr.txt", "BenchmarkFoo-4 \t1000\t300 ns/op\nBenchmarkFoo-4 \t1000\t300 ns/op\n")
 
 	var buf bytes.Buffer
 	app := benchgateApp()
