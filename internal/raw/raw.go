@@ -130,6 +130,7 @@ func toGCSpriteRender(s rawschema.SpriteRender) gc.SpriteRender {
 		SpriteSheetName: s.SpriteSheetName,
 		SpriteKey:       s.SpriteKey,
 		Depth:           gc.DepthNum(int(s.Depth)),
+		Shape:           deref(s.Shape),
 	}
 }
 

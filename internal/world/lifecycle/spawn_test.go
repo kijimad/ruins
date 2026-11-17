@@ -359,7 +359,7 @@ func TestSpawnDoor(t *testing.T) {
 
 		// SpriteRenderを確認
 		sprite := world.Components.SpriteRender.Get(door)
-		assert.Equal(t, "door_horizontal_closed", sprite.SpriteKey)
+		assert.Equal(t, "door_vertical_closed", sprite.SpriteKey)
 
 		// Doorコンポーネントを確認
 		doorComp := world.Components.Door.Get(door)
