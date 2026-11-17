@@ -1,6 +1,6 @@
 [palette]
 id = "crash_site"
-description = "キューブが墜落した開始の現場"
+description = "宇宙船が墜落した開始の現場"
 
 [palette.terrain]
 "," = "ground"

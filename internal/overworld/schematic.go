@@ -85,7 +85,7 @@ const (
 	chunkSettlement chunkType = "settlement" // 集落。村・一軒家
 	chunkUrban      chunkType = "urban"      // 市街地。建物チャンク
 	chunkLandmark   chunkType = "landmark"   // 自然の点在ランドマーク
-	chunkCrashSite  chunkType = "crash_site" // キューブが墜落した開始の現場
+	chunkCrashSite  chunkType = "crash_site" // 宇宙船が墜落した開始の現場
 )
 
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に

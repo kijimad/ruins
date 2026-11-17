@@ -26,7 +26,7 @@ func crashSiteAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chun
 	return sites[i].Id
 }
 
-// crashSiteFeature はキューブが墜落した開始の現場の feature 実装
+// crashSiteFeature は宇宙船が墜落した開始の現場の feature 実装
 type crashSiteFeature struct{}
 
 // place は開始チャンクに墜落現場の絵を1枚、回転も反転もせずにチャンクの真ん中へ置く。
