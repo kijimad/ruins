@@ -563,6 +563,9 @@ msgstr "書込"
 msgid "No actions available."
 msgstr "実行可能なアクションがありません。"
 
+msgid "Could not load the save data."
+msgstr "セーブデータを読み込めませんでした。"
+
 msgid "Save"
 msgstr "セーブ"
 

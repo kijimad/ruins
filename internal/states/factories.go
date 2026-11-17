@@ -225,10 +225,10 @@ func loadSlotChoice(world w.World, saveManager *save.SerializationManager, slotN
 	return Choice{Label: label, Value: value, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 		if err := saveManager.LoadWorld(world, slotName); err != nil {
 			// ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
-			// 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
+			// 無傷なので、エラーはログに残し、知らせを出すメインメニューへ戻る。ゲームループへ返すと
 			// main の log.Fatal まで波及してプロセスごと落ちてしまう
 			logger.New(logger.CategorySave).Error("failed to load save", "slot", slotName, "error", err.Error())
-			return es.Transition[w.World]{Type: es.TransPop}, nil
+			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuAfterLoadFailure}}, nil
 		}
 		// 復元済みの現在地から再生成せずに復帰する
 		return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newResumeStateFactory(world)}}, nil
@@ -254,15 +254,14 @@ var ErrNoContinuePoint = errors.New("no save to continue")
 // ResumeFromLatestSave は最新のセーブを saveManager から world へ読み込み、その地点の復帰ステートを返す。
 // 読み込めるセーブが無いときは ErrNoContinuePoint を返し、呼び出し側はメニューへ退避する。
 func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager) (es.State[w.World], error) {
-	// 手動と自動を混ぜた全スロットから最新を読む。ListSaves はタイムスタンプ降順で返す
-	saves, err := saveManager.ListSaves()
-	if err != nil {
-		return nil, fmt.Errorf("continue: list saves: %w", err)
-	}
-	if len(saves) == 0 {
+	// 手動と自動を混ぜた全スロットから最新を読む。最新が壊れていても古いセーブへは進まない
+	latest, err := saveManager.LatestSave()
+	if errors.Is(err, save.ErrNoSave) {
 		return nil, ErrNoContinuePoint
 	}
-	latest := saves[0]
+	if err != nil {
+		return nil, fmt.Errorf("continue: find latest save: %w", err)
+	}
 	if err := saveManager.LoadWorld(world, latest); err != nil {
 		return nil, fmt.Errorf("continue: load save %q: %w", latest, err)
 	}
@@ -273,16 +272,18 @@ func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager)
 	return state, nil
 }
 
-// ContinueOrMainMenu は最新のセーブから続きを始めるステートを返す。セーブが無いときと読めないときはメインメニューを返す。
+// ContinueOrMainMenu は最新のセーブから続きを始めるステートを返す。セーブが無いときはメインメニューを、
+// 読めないときは読めなかったことを知らせるメインメニューを返す。
 // 読めないセーブで起動のたびに止まると、セーブを消すまで起動できなくなる。復元は先に使い捨てのワールドで試すので、
 // 読み込みに失敗しても world は壊れず、メインメニューからそのまま続けられる
 func ContinueOrMainMenu(world w.World, saveManager *save.SerializationManager) es.State[w.World] {
 	state, err := ResumeFromLatestSave(world, saveManager)
 	if err != nil {
-		if !errors.Is(err, ErrNoContinuePoint) {
-			logger.New(logger.CategorySave).Error("failed to continue from the latest save", "error", err.Error())
+		if errors.Is(err, ErrNoContinuePoint) {
+			return &MainMenuState{}
 		}
-		return &MainMenuState{}
+		logger.New(logger.CategorySave).Error("failed to continue from the latest save", "error", err.Error())
+		return &MainMenuState{loadFailed: true}
 	}
 	return state
 }

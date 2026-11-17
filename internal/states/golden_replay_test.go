@@ -113,6 +113,15 @@ var goldenCases = []struct {
 		},
 		steps: []replayStep{{shot: true}},
 	},
+	// MainMenu_LoadFailed はセーブを読めずにメインメニューへ戻ったとき、知らせのモーダルを重ねた画を固定する
+	{
+		name: "MainMenu_LoadFailed",
+		build: func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewMainMenuAfterLoadFailure()
+			return []es.State[w.World]{s}, err
+		},
+		steps: []replayStep{{}, {shot: true}},
+	},
 	{
 		name: "SettingsMenu",
 		build: func(w.World) ([]es.State[w.World], error) {

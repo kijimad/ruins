@@ -249,6 +249,48 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	require.ErrorIs(t, err, errChecksumMissing)
 }
 
+func TestLatestSave(t *testing.T) {
+	t.Parallel()
+
+	t.Run("セーブが無ければ ErrNoSave", func(t *testing.T) {
+		t.Parallel()
+		m, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+		require.NoError(t, err)
+		_, err = m.LatestSave()
+		require.ErrorIs(t, err, ErrNoSave)
+	})
+
+	t.Run("読めるセーブは中の時刻で最新を選ぶ", func(t *testing.T) {
+		t.Parallel()
+		m, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+		require.NoError(t, err)
+		world := testutil.InitTestWorld(t)
+		require.NoError(t, m.SaveWorld(world, "slot1"))
+		time.Sleep(10 * time.Millisecond)
+		require.NoError(t, m.SaveWorld(world, "slot2"))
+
+		latest, err := m.LatestSave()
+		require.NoError(t, err)
+		assert.Equal(t, "slot2", latest)
+	})
+
+	t.Run("最新のセーブが壊れていても古いセーブでなく壊れたセーブを選ぶ", func(t *testing.T) {
+		t.Parallel()
+		dir := t.TempDir()
+		m, err := NewSerializationManager(WithSaveDir(dir))
+		require.NoError(t, err)
+		require.NoError(t, m.SaveWorld(testutil.InitTestWorld(t), "slot1"))
+		broken := filepath.Join(dir, "slot2"+saveFileExt)
+		require.NoError(t, os.WriteFile(broken, []byte("broken"), 0o600))
+		later := time.Now().Add(time.Hour)
+		require.NoError(t, os.Chtimes(broken, later, later))
+
+		latest, err := m.LatestSave()
+		require.NoError(t, err)
+		assert.Equal(t, "slot2", latest)
+	})
+}
+
 func TestListSaves(t *testing.T) {
 	t.Parallel()
 

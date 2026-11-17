@@ -29,6 +29,8 @@ var (
 	errChecksumMismatch = errors.New("checksum mismatch")
 	// errUnsupportedVersion はセーブデータのバージョンが現行と異なるときに返す
 	errUnsupportedVersion = errors.New("unsupported save data version")
+	// ErrNoSave は並べられるセーブが1つも無いときに返す
+	ErrNoSave = errors.New("no save")
 	// errPlayerNameNotFound はセーブデータにプレイヤー名が無いときに返す
 	errPlayerNameNotFound = errors.New("player name not found in save data")
 	// errAutoSave はオートセーブの保存に失敗したときに返す
@@ -235,6 +237,33 @@ func (sm *SerializationManager) ListSaves() ([]string, error) {
 		return timestamps[b].Compare(timestamps[a])
 	})
 	return valid, nil
+}
+
+// LatestSave は全てのセーブから最も新しいスロット名を返す。中身を読めないセーブも、書いた時刻で並べて候補に含める。
+// 最新のセーブが壊れているとき、古いセーブから黙って続きを始めず、読み込みで失敗させるためである。
+// 書いた時刻も取れないセーブは並べられないので除く。セーブが無ければ ErrNoSave を返す
+func (sm *SerializationManager) LatestSave() (string, error) {
+	names, err := sm.listSavesImpl()
+	if err != nil {
+		return "", err
+	}
+	var latest string
+	var latestAt time.Time
+	for _, name := range names {
+		at, err := sm.GetSaveFileTimestamp(name)
+		if err != nil {
+			if at, err = sm.saveModTimeImpl(name); err != nil {
+				continue
+			}
+		}
+		if latest == "" || at.After(latestAt) {
+			latest, latestAt = name, at
+		}
+	}
+	if latest == "" {
+		return "", ErrNoSave
+	}
+	return latest, nil
 }
 
 // ListAutoSaves はオートセーブスロット名の一覧を返す。

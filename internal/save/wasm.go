@@ -4,9 +4,11 @@ package save
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"strings"
 	"syscall/js"
+	"time"
 )
 
 // initImpl はWASM環境での初期化処理
@@ -62,6 +64,14 @@ func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool {
 }
 
 // listSavesImpl はWASM環境でセーブデータ名の一覧を返す
+// errModTimeUnavailable はセーブを書いた時刻を取れない保存先で返す
+var errModTimeUnavailable = errors.New("save modification time is unavailable")
+
+// saveModTimeImpl は localStorage が書いた時刻を持たないので、常に errModTimeUnavailable を返す
+func (sm *SerializationManager) saveModTimeImpl(_ string) (time.Time, error) {
+	return time.Time{}, errModTimeUnavailable
+}
+
 func (sm *SerializationManager) listSavesImpl() ([]string, error) {
 	localStorage := js.Global().Get("localStorage")
 	if localStorage.IsUndefined() {

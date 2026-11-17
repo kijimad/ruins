@@ -7,8 +7,10 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -99,7 +101,7 @@ func TestContinueOrMainMenu(t *testing.T) {
 		assert.Equal(t, &MainMenuState{}, ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager))
 	})
 
-	t.Run("読めないセーブならメインメニューから始める", func(t *testing.T) {
+	t.Run("読めないセーブなら知らせを出すメインメニューから始める", func(t *testing.T) {
 		t.Parallel()
 		dir := t.TempDir()
 		saveManager, err := save.NewSerializationManager(save.WithSaveDir(dir))
@@ -111,8 +113,64 @@ func TestContinueOrMainMenu(t *testing.T) {
 		require.Error(t, err)
 		require.NotErrorIs(t, err, ErrNoContinuePoint)
 
-		assert.Equal(t, &MainMenuState{}, ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager))
+		assert.Equal(t, &MainMenuState{loadFailed: true}, ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager))
 	})
+
+	t.Run("最新のセーブが壊れていれば古いセーブへ進まず知らせを出すメインメニューから始める", func(t *testing.T) {
+		t.Parallel()
+		dir := t.TempDir()
+		saveManager, err := save.NewSerializationManager(save.WithSaveDir(dir))
+		require.NoError(t, err)
+		require.NoError(t, saveManager.SaveWorld(testutil.InitTestWorld(t), "slot1"))
+		broken := filepath.Join(dir, "slot2.json.gz")
+		require.NoError(t, os.WriteFile(broken, []byte("broken"), 0o600))
+		later := time.Now().Add(time.Hour)
+		require.NoError(t, os.Chtimes(broken, later, later))
+
+		assert.Equal(t, &MainMenuState{loadFailed: true}, ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager))
+	})
+}
+
+func TestMainMenuState_Update_読めなかった知らせを最初に一度だけ重ねる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t, testutil.WithUI())
+	state, err := NewMainMenuAfterLoadFailure()
+	require.NoError(t, err)
+	st, ok := state.(*MainMenuState)
+	require.True(t, ok)
+	require.NoError(t, st.OnStart(world))
+
+	tr, err := st.Update(world)
+	require.NoError(t, err)
+	require.Equal(t, es.TransPush, tr.Type)
+	require.Len(t, tr.NewStateFuncs, 1)
+	pushed, err := tr.NewStateFuncs[0]()
+	require.NoError(t, err)
+	assert.IsType(t, &MessageState{}, pushed)
+
+	tr, err = st.Update(world)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransNone, tr.Type, "知らせは一度だけ")
+}
+
+func TestLoadSlotChoice_読めないセーブは知らせを出すメインメニューへ置き換える(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	saveManager, err := save.NewSerializationManager(save.WithSaveDir(dir))
+	require.NoError(t, err)
+	require.NoError(t, saveManager.SaveWorld(testutil.InitTestWorld(t), "slot1"))
+	tamperSaves(t, dir)
+
+	world := testutil.InitTestWorld(t)
+	tr, err := loadSlotChoice(world, saveManager, "slot1").Run(world)
+	require.NoError(t, err)
+	require.Equal(t, es.TransReplace, tr.Type)
+	require.Len(t, tr.NewStateFuncs, 1)
+	state, err := tr.NewStateFuncs[0]()
+	require.NoError(t, err)
+	assert.Equal(t, &MainMenuState{loadFailed: true}, state)
 }
 
 // tamperSaves は dir の全てのセーブの版を書き換え、チェックサムを合わなくして読めなくする

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // saveFileExt はセーブファイルの拡張子。中身は gzip 圧縮した JSON なので、gunzip や zcat でそのまま解凍できる。
@@ -54,6 +55,15 @@ func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool {
 }
 
 // listSavesImpl はデスクトップ環境でセーブファイル名の一覧を返す
+// saveModTimeImpl はセーブファイルを書いた時刻を返す。中身を読めないセーブを並べるのに使う
+func (sm *SerializationManager) saveModTimeImpl(slotName string) (time.Time, error) {
+	info, err := os.Stat(filepath.Join(sm.saveDirectory, slotName+saveFileExt))
+	if err != nil {
+		return time.Time{}, err
+	}
+	return info.ModTime(), nil
+}
+
 func (sm *SerializationManager) listSavesImpl() ([]string, error) {
 	entries, err := os.ReadDir(sm.saveDirectory)
 	if err != nil {
