@@ -107,7 +107,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| draft | [初期スポーンの避難所](docs/design/261117222355.md) | 0/8 | worldgen, gamedesign, narrative |
 
 
 ## Reference
