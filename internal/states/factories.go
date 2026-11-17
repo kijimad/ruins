@@ -225,10 +225,10 @@ func loadSlotChoice(world w.World, saveManager *save.SerializationManager, slotN
 	return Choice{Label: label, Value: value, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) {
 		if err := saveManager.LoadWorld(world, slotName); err != nil {
 			// ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
-			// 無傷なので、エラーはログに残し、知らせを出すメインメニューへ戻る。ゲームループへ返すと
+			// 無傷なので、エラーはログに残し、ロードのメニューの上に知らせを重ねる。ゲームループへ返すと
 			// main の log.Fatal まで波及してプロセスごと落ちてしまう
 			logger.New(logger.CategorySave).Error("failed to load save", "slot", slotName, "error", err.Error())
-			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuAfterLoadFailure}}, nil
+			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{newLoadFailedMessageState}}, nil
 		}
 		// 復元済みの現在地から再生成せずに復帰する
 		return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newResumeStateFactory(world)}}, nil

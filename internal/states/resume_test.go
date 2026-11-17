@@ -143,7 +143,7 @@ func TestMainMenuState_Update_読めなかった知らせを最初に一度だ�
 	assert.Equal(t, es.TransNone, tr.Type, "知らせは一度だけ")
 }
 
-func TestLoadSlotChoice_読めないセーブは知らせを出すメインメニューへ置き換える(t *testing.T) {
+func TestLoadSlotChoice_読めないセーブはロードのメニューの上に知らせを重ねる(t *testing.T) {
 	t.Parallel()
 
 	dir := t.TempDir()
@@ -155,13 +155,11 @@ func TestLoadSlotChoice_読めないセーブは知らせを出すメインメ�
 	world := testutil.InitTestWorld(t)
 	tr, err := loadSlotChoice(world, saveManager, "slot1").Run(world)
 	require.NoError(t, err)
-	require.Equal(t, es.TransReplace, tr.Type)
+	require.Equal(t, es.TransPush, tr.Type)
 	require.Len(t, tr.NewStateFuncs, 1)
 	state, err := tr.NewStateFuncs[0]()
 	require.NoError(t, err)
-	menu, ok := state.(*MainMenuState)
-	require.True(t, ok)
-	assert.True(t, menu.loadFailed)
+	assert.IsType(t, &MessageState{}, state)
 }
 
 // tamperSaves は dir の全てのセーブの版を書き換え、チェックサムを合わなくして読めなくする

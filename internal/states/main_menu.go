@@ -45,11 +45,13 @@ func (st *MainMenuState) OnStart(_ w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	if st.loadFailed {
-		st.loadFailed = false
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{newLoadFailedMessageState}}, nil
+	// 知らせの下にメニューの項目を描くため、先に画面を組んでから知らせを積む
+	tr, err := st.screen.Update(world)
+	if err != nil || !st.loadFailed {
+		return tr, err
 	}
-	return st.screen.Update(world)
+	st.loadFailed = false
+	return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{newLoadFailedMessageState}}, nil
 }
 
 // newLoadFailedMessageState はセーブを読めなかったことを知らせるモーダルを作る
