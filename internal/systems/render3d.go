@@ -533,9 +533,11 @@ func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts
 // insetFaces は閉じた壁にはめる置物の面を返す。つながる向きに並ぶ板にし、つながりが無ければ東西に並べ、
 // つながる端を省く。南北の板は東西の板をタイルの中心で回して作る
 func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
-	alongX := conn.west || conn.east || !conn.north && !conn.south
-	faces := slab(!conn.west, !conn.east)
-	if !alongX {
+	alongX := conn.west || conn.east || (!conn.north && !conn.south)
+	var faces []insetFace
+	if alongX {
+		faces = slab(!conn.west, !conn.east)
+	} else {
 		faces = slab(!conn.north, !conn.south)
 	}
 	for i := range faces {

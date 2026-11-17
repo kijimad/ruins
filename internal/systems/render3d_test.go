@@ -371,6 +371,7 @@ func TestInsetFaces_つながる向きに並ぶ薄い板になる(t *testing.T) 
 		{"南北につながれば南北に張る", connections{north: true, south: true}, []insetFace{nsTop, east, west}},
 		{"北だけにつながれば南の端を描く", connections{north: true}, []insetFace{nsTop, east, west,
 			{p: [4]render3d.Vec{render3d.At(25.4, 1, 26), render3d.At(25.6, 1, 26), render3d.At(25.6, 0, 26), render3d.At(25.4, 0, 26)}, flat: true}}},
+		{"東西と南北の両方につながれば東西に張る", connections{north: true, east: true, south: true, west: true}, []insetFace{top, north, south}},
 		{"つながりが無ければ東西に張って両端を描く", connections{}, []insetFace{top, north, south,
 			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(25, 1, 25.6), render3d.At(25, 0, 25.6), render3d.At(25, 0, 25.4)}, flat: true},
 			{p: [4]render3d.Vec{render3d.At(26, 1, 25.6), render3d.At(26, 1, 25.4), render3d.At(26, 0, 25.4), render3d.At(26, 0, 25.6)}, flat: true}}},
@@ -403,6 +404,27 @@ func TestClosedInsets_閉じた壁にはめる置物だけを集める(t *testin
 	require.NoError(t, err)
 
 	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 5, Y: 3}: true}, closedInsets(world))
+}
+
+func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {
+			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
+			Sprites: map[string]gc.Sprite{"door_vertical_closed": {Width: 32, Height: 32}},
+		},
+	})
+	door, err := lifecycle.SpawnDoor(world, center, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.OpenDoor(world, door))
+	sys := &Render3DSystem{}
+
+	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world)))
 }
 
 func TestCollectBillboards_壁を背にする置物は壁と反対を向く板にする(t *testing.T) {
