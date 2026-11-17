@@ -62,7 +62,7 @@ func FloorDiv[T ~int](a, b T) T {
 	return q
 }
 
-// Cardinal は東西南北のどれかの向き。北は Y が減る向き
+// Cardinal は地図の東西南北のどれかの向き。北は Y が減る向き。画面の上下左右と斜めを表す移動の向きとは別
 type Cardinal int
 
 // 東西南北の向き

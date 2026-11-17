@@ -150,7 +150,7 @@ func TestSpawnProps_棚の向きを地図を作るときに決めて付ける(t 
 	}
 }
 
-func TestPlanFacings_同じマスの置物はどれか1つが塞げば塞がりに数える(t *testing.T) {
+func TestPlanPoses_同じマスの置物はどれか1つが塞げば塞がりに数える(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)

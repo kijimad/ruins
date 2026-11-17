@@ -466,7 +466,7 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Pose{c: westBacked, {X: 5, Y: 4}: {Facing: consts.West}}, all), 8)
 }
 
-func TestFacingsAt_地図を作るときに決めた向きを座標ごとに集める(t *testing.T) {
+func TestPosesAt_地図を作るときに決めた向きを座標ごとに集める(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
