@@ -31,6 +31,7 @@ type EntitySpec struct {
 	LocationEquipped   *LocationEquipped
 	LocationOnField    *LocationOnField
 	LocationInStorage  *LocationInStorage
+	Unsearched         *Unsearched
 	LocationStowed     *LocationStowed
 	LocationInstalled  *LocationInstalled
 	Tile               *Tile
@@ -128,6 +129,7 @@ type Components struct {
 	LocationEquipped   *ecs.Map[LocationEquipped]
 	LocationOnField    *ecs.Map[LocationOnField]
 	LocationInStorage  *ecs.Map[LocationInStorage]
+	Unsearched         *ecs.Map[Unsearched]
 	LocationStowed     *ecs.Map[LocationStowed]
 	LocationInstalled  *ecs.Map[LocationInstalled]
 	Tile               *ecs.Map[Tile]
@@ -225,6 +227,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.LocationEquipped = ecs.NewMap[LocationEquipped](world)
 	c.LocationOnField = ecs.NewMap[LocationOnField](world)
 	c.LocationInStorage = ecs.NewMap[LocationInStorage](world)
+	c.Unsearched = ecs.NewMap[Unsearched](world)
 	c.LocationStowed = ecs.NewMap[LocationStowed](world)
 	c.LocationInstalled = ecs.NewMap[LocationInstalled](world)
 	c.Tile = ecs.NewMap[Tile](world)
@@ -324,6 +327,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.LocationEquipped, entity, spec.LocationEquipped)
 	addComp(c.LocationOnField, entity, spec.LocationOnField)
 	addComp(c.LocationInStorage, entity, spec.LocationInStorage)
+	addComp(c.Unsearched, entity, spec.Unsearched)
 	addComp(c.LocationStowed, entity, spec.LocationStowed)
 	addComp(c.LocationInstalled, entity, spec.LocationInstalled)
 	addComp(c.Tile, entity, spec.Tile)

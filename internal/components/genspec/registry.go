@@ -35,6 +35,7 @@ var Registry = []Def{
 	{Field: "LocationEquipped"},   // 装備中であることを表す
 	{Field: "LocationOnField"},    // フィールド上にあることを表す
 	{Field: "LocationInStorage"},  // 収納内にあることを表す
+	{Field: "Unsearched"},         // まだ探していない収納であることを表す
 	{Field: "LocationStowed"},     // キューブに畳み込んだ貨物のロケーション。相対位置を保持し燃料タンクと排他
 	{Field: "LocationInstalled"},  // キューブに装着したモジュールのロケーション。装着先キューブを保持する
 

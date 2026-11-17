@@ -191,15 +191,29 @@ func startPickup(world w.World) (es.Transition[w.World], error) {
 	}}, nil
 }
 
-// pickupChoices は拾うメニューの選択肢を返す。収納画面はメニューの上に開き、閉じるとメニューへ戻る
+// pickupChoices は拾うメニューの選択肢を返す。探し終えた収納の画面はメニューの上に開き、閉じるとメニューへ戻る。
+// まだ探していない収納は強調色で出し、選ぶとメニューを閉じて探すアクティビティでターンを進める
 func pickupChoices(world w.World) (string, []Choice) {
 	actions := nearbyPickupActions(world)
 	choices := make([]Choice, 0, len(actions))
 	for _, a := range actions {
-		if a.Interaction == gc.InteractionStorage {
+		if a.Interaction == gc.InteractionStorage && !world.Components.Unsearched.Has(a.Target) {
 			choices = append(choices, Choice{Label: a.Label, Run: pushChoice(func() (es.State[w.World], error) {
 				return NewStorageMenuState(a.Target)
 			})})
+			continue
+		}
+		if a.Interaction == gc.InteractionStorage {
+			choices = append(choices, Choice{Label: a.Label, Accent: true, Run: func(world w.World) (es.Transition[w.World], error) {
+				player, err := query.GetPlayerEntity(world)
+				if err != nil {
+					return es.Transition[w.World]{}, err
+				}
+				if _, err := activity.ExecuteInteraction(player, a.Target, a.Interaction, world); err != nil {
+					return es.Transition[w.World]{}, err
+				}
+				return es.Transition[w.World]{Type: es.TransPop}, nil
+			}})
 			continue
 		}
 		choices = append(choices, Choice{Label: a.Label, Run: func(world w.World) (es.Transition[w.World], error) {
@@ -234,7 +248,7 @@ func nearbyPickupActions(world w.World) []InteractionAction {
 			dirLabel := query.T(world, activity.GetDirectionLabel(playerGrid, &gc.GridElement{Coord: c}))
 			if storage, ok := interactableAt(world, c, gc.InteractionStorage); ok {
 				actions = append(actions, InteractionAction{
-					Label:       query.T(world, "Open %s (%s)", query.GetEntityName(storage, world), dirLabel),
+					Label:       storageLabel(world, storage, dirLabel),
 					Target:      storage,
 					Interaction: gc.InteractionStorage,
 				})
@@ -249,6 +263,18 @@ func nearbyPickupActions(world w.World) []InteractionAction {
 		}
 	}
 	return actions
+}
+
+// storageLabel は収納の行の文言を返す。まだ探していない収納、空の収納、中身のある収納を見分けさせる
+func storageLabel(world w.World, storage ecs.Entity, dirLabel string) string {
+	name := query.GetEntityName(storage, world)
+	switch {
+	case world.Components.Unsearched.Has(storage):
+		return query.T(world, "Search %s (%s)", name, dirLabel)
+	case !query.HasStorageItems(world, storage):
+		return query.T(world, "Open %s (%s, empty)", name, dirLabel)
+	}
+	return query.T(world, "Open %s (%s)", name, dirLabel)
 }
 
 // getInteractionActions はInteractableに対応するアクションを取得する

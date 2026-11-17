@@ -65,6 +65,8 @@ const (
 	BehaviorSwap BehaviorName = "Swap"
 	// BehaviorDisassemble は所持品のアイテムを材質の素材に戻す
 	BehaviorDisassemble BehaviorName = "Disassemble"
+	// BehaviorSearch はまだ探していない収納を探し、終えると収納を開く
+	BehaviorSearch BehaviorName = "Search"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント
@@ -158,6 +160,13 @@ type DisassembleParams struct {
 }
 
 func (*DisassembleParams) isActivityParams() {}
+
+// SearchParams は収納を探すアクティビティのパラメータ。
+type SearchParams struct {
+	Target ecs.Entity // 探す収納のエンティティ
+}
+
+func (*SearchParams) isActivityParams() {}
 
 // PlaceParams は対象と操作先を取るアクションのパラメータ。ドロップ・押し引きが使う。
 type PlaceParams struct {

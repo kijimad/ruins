@@ -16,6 +16,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -665,7 +666,7 @@ func TestStartPickup(t *testing.T) {
 
 		assert.Equal(t, es.TransPush, trans.Type)
 		assert.Equal(t, []InteractionAction{
-			{Label: "Open Wooden Crate (upper left)", Target: crate, Interaction: gc.InteractionStorage},
+			{Label: "Search Wooden Crate (upper left)", Target: crate, Interaction: gc.InteractionStorage},
 		}, nearbyPickupActions(world))
 	})
 
@@ -716,13 +717,14 @@ func TestPickupChoices(t *testing.T) {
 		assert.True(t, world.Components.LocationInBackpack.Has(second))
 	})
 
-	t.Run("収納は収納画面をメニューの上に開く", func(t *testing.T) {
+	t.Run("探し終えた収納は収納画面をメニューの上に開く", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
-		_, err = lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+		crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
 		require.NoError(t, err)
+		world.Components.Unsearched.Remove(crate)
 
 		_, choices := pickupChoices(world)
 		require.Len(t, choices, 1)
@@ -735,6 +737,55 @@ func TestPickupChoices(t *testing.T) {
 		require.NoError(t, err)
 		assert.IsType(t, &StorageMenuState{}, state)
 	})
+
+	t.Run("まだ探していない収納は強調色で出し、選ぶとメニューを閉じて探し始める", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+		require.NoError(t, err)
+
+		_, choices := pickupChoices(world)
+		require.Len(t, choices, 1)
+		assert.True(t, choices[0].Accent)
+		trans, err := choices[0].Run(world)
+		require.NoError(t, err)
+
+		assert.Equal(t, es.TransPop, trans.Type)
+		assert.Equal(t, gc.BehaviorSearch, query.GetActivity(world, player).BehaviorName)
+	})
+}
+
+func TestStorageLabel(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		searched bool
+		item     bool
+		want     string
+	}{
+		{"まだ探していない収納は探す", false, true, "Search Wooden Crate (up)"},
+		{"探し終えた空の収納は空と添える", true, false, "Open Wooden Crate (up, empty)"},
+		{"探し終えた中身のある収納は開く", true, true, "Open Wooden Crate (up)"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+			require.NoError(t, err)
+			if tt.searched {
+				world.Components.Unsearched.Remove(crate)
+			}
+			if tt.item {
+				_, err := lifecycle.SpawnStorageItem(world, "bread", 1, crate)
+				require.NoError(t, err)
+			}
+			assert.Equal(t, tt.want, storageLabel(world, crate, "up"))
+		})
+	}
 }
 
 func TestStartPickup_周囲8タイルのアイテム1つはそのまま拾う(t *testing.T) {
@@ -788,7 +839,7 @@ func TestNearbyPickupActions(t *testing.T) {
 	}
 
 	assert.Equal(t, []row{
-		{Label: "Open Wooden Crate (up)", Interaction: gc.InteractionStorage},
+		{Label: "Search Wooden Crate (up)", Interaction: gc.InteractionStorage},
 		{Label: "Pick up 3 Bread (here)", Interaction: gc.InteractionItem},
 		{Label: "Pick up Healing Potion (right)", Interaction: gc.InteractionItem},
 		{Label: "Pick up Healing Potion (lower right)", Interaction: gc.InteractionItem},

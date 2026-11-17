@@ -435,6 +435,20 @@ var goldenCases = []struct {
 		},
 		steps: []replayStep{{shot: true}},
 	},
+	// ChoiceMenuAccent は共通の選択メニューの強調行を覆う。拾うメニューでまだ探していない収納を強調する見た目
+	{
+		name: "ChoiceMenuAccent",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			choices := []gs.Choice{
+				{Label: query.T(world, "Search %s (%s)", query.T(world, "Wooden Crate"), query.T(world, "up")), Accent: true},
+				{Label: query.T(world, "Open %s (%s, empty)", query.T(world, "Wooden Crate"), query.T(world, "left"))},
+				{Label: query.T(world, "Pick up %s (%s)", query.T(world, "Bread"), query.T(world, "here"))},
+			}
+			menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "", choices })
+			return []es.State[w.World]{menu}, nil
+		},
+		steps: []replayStep{{shot: true}, {action: inputmapper.ActionMenuDown, shot: true, suffix: "Moved"}},
+	},
 	// Overworld は新規ゲーム開始直後のオーバーワールド実画面を固定する。
 	{
 		name: "Overworld",

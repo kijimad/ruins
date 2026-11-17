@@ -6658,3 +6658,36 @@ msgstr "残骸"
 
 msgid "Cargo Pod"
 msgstr "貨物ポッド"
+
+msgid "Search %s (%s)"
+msgstr "%sを探す(%s)"
+
+msgid "Open %s (%s, empty)"
+msgstr "%sを開く(%s、空)"
+
+msgid "there is nothing to search"
+msgstr "探すものがない"
+
+msgid "cannot search because enemies are nearby"
+msgstr "敵が近くにいるので探せない"
+
+msgid "started searching %s"
+msgstr "%sを探し始めた"
+
+msgid "interrupted because the container is gone"
+msgstr "収納がなくなったので中断した"
+
+msgid "searching interrupted because enemies are nearby"
+msgstr "敵が近づいたので探すのを中断した"
+
+msgid "interrupted searching"
+msgstr "探すのを中断した"
+
+msgid "interrupted searching %s"
+msgstr "%sを探すのを中断した"
+
+msgid "Search"
+msgstr "探す"
+
+msgid "Search a container"
+msgstr "収納を探す"
