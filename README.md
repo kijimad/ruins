@@ -107,7 +107,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| draft | [壊した後に破片・血痕を残す](docs/design/261118004239.md) | 0/6 | combat, gamedesign, item |
 
 
 ## Reference
