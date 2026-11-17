@@ -99,13 +99,13 @@ func TestContinueOrMainMenu(t *testing.T) {
 		assert.Equal(t, &MainMenuState{}, ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager))
 	})
 
-	t.Run("版の違うセーブは読めずメインメニューから始める", func(t *testing.T) {
+	t.Run("読めないセーブならメインメニューから始める", func(t *testing.T) {
 		t.Parallel()
 		dir := t.TempDir()
 		saveManager, err := save.NewSerializationManager(save.WithSaveDir(dir))
 		require.NoError(t, err)
 		require.NoError(t, saveManager.AutoSave(testutil.InitTestWorld(t)))
-		rewriteSaveVersions(t, dir, "0.0.0")
+		tamperSaves(t, dir)
 		// 前提: セーブは一覧に出ていて、無い扱いでなく読み込みで失敗する
 		_, err = ResumeFromLatestSave(testutil.InitTestWorld(t), saveManager)
 		require.Error(t, err)
@@ -115,8 +115,8 @@ func TestContinueOrMainMenu(t *testing.T) {
 	})
 }
 
-// rewriteSaveVersions は dir の全てのセーブの版を version に書き換える
-func rewriteSaveVersions(t *testing.T, dir, version string) {
+// tamperSaves は dir の全てのセーブの版を書き換え、チェックサムを合わなくして読めなくする
+func tamperSaves(t *testing.T, dir string) {
 	t.Helper()
 	paths, err := filepath.Glob(filepath.Join(dir, "*.json.gz"))
 	require.NoError(t, err)
@@ -129,7 +129,7 @@ func rewriteSaveVersions(t *testing.T, dir, version string) {
 		var env map[string]json.RawMessage
 		require.NoError(t, json.NewDecoder(zr).Decode(&env))
 		require.NoError(t, f.Close())
-		env["version"], err = json.Marshal(version)
+		env["version"], err = json.Marshal("0.0.0")
 		require.NoError(t, err)
 
 		var buf bytes.Buffer

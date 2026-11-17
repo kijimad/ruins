@@ -274,8 +274,8 @@ func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager)
 }
 
 // ContinueOrMainMenu は最新のセーブから続きを始めるステートを返す。セーブが無いときと読めないときはメインメニューを返す。
-// 読めないセーブで起動のたびに止まると、セーブを消すまで起動できなくなる。復元は先に使い捨てのワールドで試し、
-// 失敗しても world を壊さないので、メインメニューからそのまま続けられる
+// 読めないセーブで起動のたびに止まると、セーブを消すまで起動できなくなる。復元は先に使い捨てのワールドで試すので、
+// 読み込みに失敗しても world は壊れず、メインメニューからそのまま続けられる
 func ContinueOrMainMenu(world w.World, saveManager *save.SerializationManager) es.State[w.World] {
 	state, err := ResumeFromLatestSave(world, saveManager)
 	if err != nil {
