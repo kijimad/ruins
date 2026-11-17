@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"image"
+	"image/color"
 	"image/png"
 	"os"
 	"path/filepath"
@@ -115,7 +116,13 @@ func TestRunLayoutPNG_実データのレイアウトをPNGと凡例に書き出�
 	defer func() { _ = f.Close() }()
 	got, err := png.Decode(f)
 	require.NoError(t, err)
-	assert.Equal(t, renderLayout(wantCells, layoutCellSize).Bounds(), got.Bounds())
+	want := renderLayout(wantCells, layoutCellSize)
+	require.Equal(t, want.Bounds(), got.Bounds())
+	for y := want.Bounds().Min.Y; y < want.Bounds().Max.Y; y++ {
+		for x := want.Bounds().Min.X; x < want.Bounds().Max.X; x++ {
+			require.Equal(t, want.NRGBAAt(x, y), color.NRGBAModel.Convert(got.At(x, y)))
+		}
+	}
 
 	var legend bytes.Buffer
 	require.NoError(t, writeLegend(&legend, wantCells))
