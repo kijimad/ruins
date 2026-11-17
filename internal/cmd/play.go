@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -145,21 +144,15 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 	})
 }
 
-// initialPlayState は起動時の開始ステートを決める。継続でセーブを読めればその地点から、無ければ
-// メインメニューから始める。ロードの失敗は握りつぶさず返す。
+// initialPlayState は起動時の開始ステートを決める。継続でセーブを読めればその地点から、無いときと読めないときは
+// メインメニューから始める
 func initialPlayState(world w.World, cfg *config.Config) (es.State[w.World], error) {
 	if cfg.Continue && cfg.SaveLoadEnabled {
 		saveManager, err := save.NewSerializationManager()
 		if err != nil {
 			return nil, fmt.Errorf("continue: create save manager: %w", err)
 		}
-		resume, err := gs.ResumeFromLatestSave(world, saveManager)
-		if err != nil && !errors.Is(err, gs.ErrNoContinuePoint) {
-			return nil, err
-		}
-		if resume != nil {
-			return resume, nil
-		}
+		return gs.ContinueOrMainMenu(world, saveManager), nil
 	}
 	return &gs.MainMenuState{}, nil
 }

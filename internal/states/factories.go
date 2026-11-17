@@ -273,6 +273,20 @@ func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager)
 	return state, nil
 }
 
+// ContinueOrMainMenu は最新のセーブから続きを始めるステートを返す。セーブが無いときと読めないときはメインメニューを返す。
+// 読めないセーブで起動のたびに止まると、セーブを消すまで起動できなくなる。復元は先に使い捨てのワールドで試し、
+// 失敗しても world を壊さないので、メインメニューからそのまま続けられる
+func ContinueOrMainMenu(world w.World, saveManager *save.SerializationManager) es.State[w.World] {
+	state, err := ResumeFromLatestSave(world, saveManager)
+	if err != nil {
+		if !errors.Is(err, ErrNoContinuePoint) {
+			logger.New(logger.CategorySave).Error("failed to continue from the latest save", "error", err.Error())
+		}
+		return &MainMenuState{}
+	}
+	return state
+}
+
 // formatSaveSlotLabel はスロット行の左ラベルと、値のプレイ時間を返す。時間が無ければ value は空。値は右寄せ列で描く。
 func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, slotName string) (label, value string) {
 	if !saveManager.SaveFileExists(slotName) {

@@ -1,6 +1,11 @@
 package states
 
 import (
+	"bytes"
+	"compress/gzip"
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -71,4 +76,66 @@ func TestResumeFromLatestSave_手動が最新なら手動を読む(t *testing.T)
 	require.NotNil(t, state)
 	assert.Equal(t, consts.Turn(20), query.GetTurnState(fresh).TurnNumber,
 		"手動が最新なら自動でなく手動を読む")
+}
+
+func TestContinueOrMainMenu(t *testing.T) {
+	t.Parallel()
+
+	t.Run("読めるセーブがあれば続きから始める", func(t *testing.T) {
+		t.Parallel()
+		saveManager, err := save.NewSerializationManager(save.WithSaveDir(t.TempDir()))
+		require.NoError(t, err)
+		require.NoError(t, saveManager.AutoSave(testutil.InitTestWorld(t)))
+
+		_, isDungeon := ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager).(*DungeonState)
+		assert.True(t, isDungeon)
+	})
+
+	t.Run("セーブが無ければメインメニューから始める", func(t *testing.T) {
+		t.Parallel()
+		saveManager, err := save.NewSerializationManager(save.WithSaveDir(t.TempDir()))
+		require.NoError(t, err)
+
+		assert.Equal(t, &MainMenuState{}, ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager))
+	})
+
+	t.Run("版の違うセーブは読めずメインメニューから始める", func(t *testing.T) {
+		t.Parallel()
+		dir := t.TempDir()
+		saveManager, err := save.NewSerializationManager(save.WithSaveDir(dir))
+		require.NoError(t, err)
+		require.NoError(t, saveManager.AutoSave(testutil.InitTestWorld(t)))
+		rewriteSaveVersions(t, dir, "0.0.0")
+		// 前提: セーブは一覧に出ていて、無い扱いでなく読み込みで失敗する
+		_, err = ResumeFromLatestSave(testutil.InitTestWorld(t), saveManager)
+		require.Error(t, err)
+		require.NotErrorIs(t, err, ErrNoContinuePoint)
+
+		assert.Equal(t, &MainMenuState{}, ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager))
+	})
+}
+
+// rewriteSaveVersions は dir の全てのセーブの版を version に書き換える
+func rewriteSaveVersions(t *testing.T, dir, version string) {
+	t.Helper()
+	paths, err := filepath.Glob(filepath.Join(dir, "*.json.gz"))
+	require.NoError(t, err)
+	require.NotEmpty(t, paths)
+	for _, p := range paths {
+		f, err := os.Open(p)
+		require.NoError(t, err)
+		zr, err := gzip.NewReader(f)
+		require.NoError(t, err)
+		var env map[string]json.RawMessage
+		require.NoError(t, json.NewDecoder(zr).Decode(&env))
+		require.NoError(t, f.Close())
+		env["version"], err = json.Marshal(version)
+		require.NoError(t, err)
+
+		var buf bytes.Buffer
+		zw := gzip.NewWriter(&buf)
+		require.NoError(t, json.NewEncoder(zw).Encode(env))
+		require.NoError(t, zw.Close())
+		require.NoError(t, os.WriteFile(p, buf.Bytes(), 0o600))
+	}
 }
