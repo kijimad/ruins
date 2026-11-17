@@ -62,10 +62,28 @@ func FloorDiv[T ~int](a, b T) T {
 	return q
 }
 
-// 東西南北の隣のマスへの向き。北は Y が減る向き
-var (
-	TileNorth = Coord[Tile]{X: 0, Y: -1}
-	TileEast  = Coord[Tile]{X: 1, Y: 0}
-	TileSouth = Coord[Tile]{X: 0, Y: 1}
-	TileWest  = Coord[Tile]{X: -1, Y: 0}
+// Cardinal は東西南北のどれかの向き。北は Y が減る向き
+type Cardinal int
+
+// 東西南北の向き
+const (
+	North Cardinal = iota
+	East
+	South
+	West
 )
+
+// Delta はその向きの隣のマスへのずれを返す
+func (c Cardinal) Delta() Coord[Tile] {
+	switch c {
+	case North:
+		return Coord[Tile]{X: 0, Y: -1}
+	case East:
+		return Coord[Tile]{X: 1, Y: 0}
+	case South:
+		return Coord[Tile]{X: 0, Y: 1}
+	case West:
+		return Coord[Tile]{X: -1, Y: 0}
+	}
+	panic(fmt.Sprintf("unknown cardinal: %d", int(c)))
+}

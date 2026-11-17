@@ -199,7 +199,7 @@ func TestSpawnFacility_棚の向きを施設の絵の並びから決めて付け
 	for q.Next() {
 		got = append(got, *q.Get())
 	}
-	assert.Equal(t, []gc.Facing{{Dir: consts.TileSouth, Backed: true}, {Dir: consts.TileSouth, Backed: true}}, got)
+	assert.Equal(t, []gc.Facing{{Dir: consts.South, Backed: true}, {Dir: consts.South, Backed: true}}, got)
 }
 
 func TestSpawnFacility_扉の向きを決める隣の置物の行が無ければエラー(t *testing.T) {

@@ -147,7 +147,7 @@ func TestSpawnProps_棚の向きを地図を作るときに決めて付ける(t 
 	}
 	require.Len(t, shelves, 2)
 	for _, e := range shelves {
-		assert.Equal(t, gc.Facing{Dir: consts.TileSouth, Backed: true}, *world.Components.Facing.Get(e))
+		assert.Equal(t, gc.Facing{Dir: consts.South, Backed: true}, *world.Components.Facing.Get(e))
 	}
 }
 
@@ -170,6 +170,6 @@ func TestPlanFacings_同じマスの置物はどれか1つが塞げば塞がり�
 		}
 		got, err := planFacings(plan)
 		require.NoError(t, err)
-		assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Facing{{X: 1, Y: 1}: {Dir: consts.TileSouth, Backed: true}}, got, "%v", order)
+		assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Facing{{X: 1, Y: 1}: {Dir: consts.South, Backed: true}}, got, "%v", order)
 	}
 }

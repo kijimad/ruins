@@ -430,7 +430,7 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 	t.Parallel()
 
 	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
-	westBacked := gc.Facing{Dir: consts.TileWest, Backed: true}
+	westBacked := gc.Facing{Dir: consts.West, Backed: true}
 	// 東の壁を背に西を向く南北の並びの1台。北の隣と接するので北の端を省き、5面の板と正面と背面の絵になる
 	all := func(consts.Coord[consts.Tile]) bool { return true }
 	faces := facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Facing{c: westBacked, {X: 5, Y: 4}: westBacked}, all)
@@ -447,15 +447,15 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 	}, faces[5:], "絵は板の西の正面と東の背面から、外向きに少し浮かせて貼る")
 
 	// 隣の無い1台は、天面・前後・左右・底面の6面で閉じ、正面と背面に絵を貼る
-	alone := gc.Facing{Dir: consts.TileSouth}
+	alone := gc.Facing{Dir: consts.South}
 	assert.Len(t, facingFaces(c, alone, map[consts.Coord[consts.Tile]]gc.Facing{c: alone}, all), 8)
 
 	// 北向きと東向きの1台は、南向きの板を2回と3回回した位置に正面の絵が来る
-	north := gc.Facing{Dir: consts.TileNorth}
+	north := gc.Facing{Dir: consts.North}
 	assertFacesInDelta(t, []insetFace{
 		{p: [4]render3d.Vec{render3d.At(6, 1, 5.39), render3d.At(5, 1, 5.39), render3d.At(5, 0, 5.39), render3d.At(6, 0, 5.39)}},
 	}, facingFaces(c, north, map[consts.Coord[consts.Tile]]gc.Facing{c: north}, all)[6:7], "北向きの正面")
-	east := gc.Facing{Dir: consts.TileEast}
+	east := gc.Facing{Dir: consts.East}
 	assertFacesInDelta(t, []insetFace{
 		{p: [4]render3d.Vec{render3d.At(5.61, 1, 6), render3d.At(5.61, 1, 5), render3d.At(5.61, 0, 5), render3d.At(5.61, 0, 6)}},
 	}, facingFaces(c, east, map[consts.Coord[consts.Tile]]gc.Facing{c: east}, all)[6:7], "東向きの正面")
@@ -465,7 +465,7 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Facing{c: westBacked, {X: 5, Y: 4}: westBacked}, hidden), 8)
 
 	// 区画の境などで隣が同じ向きでも寄せる位置が違えば、継ぎ目に穴が開かないよう端を閉じる
-	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Facing{c: westBacked, {X: 5, Y: 4}: {Dir: consts.TileWest}}, all), 8)
+	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Facing{c: westBacked, {X: 5, Y: 4}: {Dir: consts.West}}, all), 8)
 }
 
 func TestFacingsAt_地図を作るときに決めた向きを座標ごとに集める(t *testing.T) {
@@ -474,9 +474,9 @@ func TestFacingsAt_地図を作るときに決めた向きを座標ごとに集�
 	world := testutil.InitTestWorld(t)
 	shelf, err := lifecycle.SpawnProp(world, "book_shelf_2", 3, 3)
 	require.NoError(t, err)
-	world.Components.Facing.Add(shelf, &gc.Facing{Dir: consts.TileWest, Backed: true})
+	world.Components.Facing.Add(shelf, &gc.Facing{Dir: consts.West, Backed: true})
 	_, err = lifecycle.SpawnProp(world, "book_shelf_2", 4, 3)
 	require.NoError(t, err)
 
-	assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Facing{{X: 3, Y: 3}: {Dir: consts.TileWest, Backed: true}}, facingsAt(world))
+	assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Facing{{X: 3, Y: 3}: {Dir: consts.West, Backed: true}}, facingsAt(world))
 }

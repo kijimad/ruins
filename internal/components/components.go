@@ -385,7 +385,7 @@ type Door struct {
 // Facing は置物が向く向き Dir と、背が塞がっていて背の側へ寄せるか Backed。地図を作るときに並びから決め、
 // 隣の置物が壊れても変えない
 type Facing struct {
-	Dir    consts.Coord[consts.Tile]
+	Dir    consts.Cardinal
 	Backed bool
 }
 

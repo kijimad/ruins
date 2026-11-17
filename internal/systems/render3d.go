@@ -512,7 +512,8 @@ func facingsAt(world w.World) map[consts.Coord[consts.Tile]]gc.Facing {
 func facingFaces(c consts.Coord[consts.Tile], f gc.Facing, facings map[consts.Coord[consts.Tile]]gc.Facing, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {
 	const h = render3d.WallHeight
 	turns := quarterTurns(f.Dir)
-	connected := func(local consts.Coord[consts.Tile]) bool {
+	connected := func(side consts.Cardinal) bool {
+		local := side.Delta()
 		for range turns {
 			local = consts.Coord[consts.Tile]{X: -local.Y, Y: local.X}
 		}
@@ -524,7 +525,7 @@ func facingFaces(c consts.Coord[consts.Tile], f gc.Facing, facings map[consts.Co
 		z0 = facingGap
 	}
 	z1 := z0 + facingThickness
-	faces := slab(z0, z1, !connected(consts.TileWest), !connected(consts.TileEast))
+	faces := slab(z0, z1, !connected(consts.West), !connected(consts.East))
 	for i := range faces {
 		faces[i].flat = true
 	}
@@ -545,18 +546,18 @@ func facingFaces(c consts.Coord[consts.Tile], f gc.Facing, facings map[consts.Co
 }
 
 // quarterTurns は南を向く板を向き dir へ回す90度の回数を返す
-func quarterTurns(dir consts.Coord[consts.Tile]) int {
+func quarterTurns(dir consts.Cardinal) int {
 	switch dir {
-	case consts.TileSouth:
+	case consts.South:
 		return 0
-	case consts.TileWest:
+	case consts.West:
 		return 1
-	case consts.TileNorth:
+	case consts.North:
 		return 2
-	case consts.TileEast:
+	case consts.East:
 		return 3
 	}
-	panic(fmt.Sprintf("facing direction is not one of the four cardinals: %v", dir))
+	panic(fmt.Sprintf("unknown cardinal: %d", int(dir)))
 }
 
 // insetFace は壁にはめる置物の1面。flat は絵を貼らず平均色で塗る面

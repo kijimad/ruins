@@ -12,7 +12,8 @@ import (
 
 // facingRow は向きを1つにそろえる置物の並び。sides は並びが向ける方向の候補
 type facingRow struct {
-	members, sides []consts.Coord[consts.Tile]
+	members []consts.Coord[consts.Tile]
+	sides   []consts.Cardinal
 }
 
 // RowFacings は facing の置物ごとの向きを返す。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
@@ -42,8 +43,8 @@ func RowFacings(facers, blockers map[consts.Coord[consts.Tile]]bool, wall func(c
 		for _, d := range row.sides {
 			score, b := 0.0, 0.0
 			for _, m := range row.members {
-				b += weight(m.Sub(d))
-				score += weight(m.Sub(d)) - weight(m.Add(d))
+				b += weight(m.Sub(d.Delta()))
+				score += weight(m.Sub(d.Delta())) - weight(m.Add(d.Delta()))
 			}
 			if score > bestScore {
 				best, bestScore, back = d, score, b
@@ -72,11 +73,11 @@ func RowFacings(facers, blockers map[consts.Coord[consts.Tile]]bool, wall func(c
 
 var (
 	// rowAxes は並びの軸。東西の並びを南北より先に探す
-	rowAxes = []struct{ back, ahead consts.Coord[consts.Tile] }{{consts.TileWest, consts.TileEast}, {consts.TileNorth, consts.TileSouth}}
+	rowAxes = []struct{ back, ahead consts.Cardinal }{{consts.West, consts.East}, {consts.North, consts.South}}
 	// eastWestRowSides、northSouthRowSides、aloneSides は向きの候補。同点なら先の側を向く
-	eastWestRowSides   = []consts.Coord[consts.Tile]{consts.TileSouth, consts.TileNorth}
-	northSouthRowSides = []consts.Coord[consts.Tile]{consts.TileEast, consts.TileWest}
-	aloneSides         = []consts.Coord[consts.Tile]{consts.TileSouth, consts.TileEast, consts.TileWest, consts.TileNorth}
+	eastWestRowSides   = []consts.Cardinal{consts.South, consts.North}
+	northSouthRowSides = []consts.Cardinal{consts.East, consts.West}
+	aloneSides         = []consts.Cardinal{consts.South, consts.East, consts.West, consts.North}
 )
 
 // longestRow は残りの置物 left の中で一番長いまっすぐな並びを返す。order は置物を北西から並べた順。
@@ -91,14 +92,14 @@ func longestRow(order []consts.Coord[consts.Tile], left map[consts.Coord[consts.
 			best = facingRow{members: []consts.Coord[consts.Tile]{c}}
 		}
 		for _, axis := range rowAxes {
-			if left[c.Add(axis.back)] || !left[c.Add(axis.ahead)] {
+			if left[c.Add(axis.back.Delta())] || !left[c.Add(axis.ahead.Delta())] {
 				continue
 			}
 			row := facingRow{sides: eastWestRowSides}
-			if axis.back == consts.TileNorth {
+			if axis.back == consts.North {
 				row.sides = northSouthRowSides
 			}
-			for m := c; left[m]; m = m.Add(axis.ahead) {
+			for m := c; left[m]; m = m.Add(axis.ahead.Delta()) {
 				row.members = append(row.members, m)
 			}
 			if len(row.members) > len(best.members) {
