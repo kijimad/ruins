@@ -141,3 +141,10 @@ func TestFloorDiv(t *testing.T) {
 		})
 	}
 }
+
+func TestCardinal_Delta_隣のマスへのずれを返す(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, []consts.Coord[consts.Tile]{{X: 0, Y: -1}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: -1, Y: 0}},
+		[]consts.Coord[consts.Tile]{consts.North.Delta(), consts.East.Delta(), consts.South.Delta(), consts.West.Delta()})
+}

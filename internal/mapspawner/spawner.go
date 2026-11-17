@@ -150,6 +150,10 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 
 // spawnProps はPropsを生成する
 func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
+	poses, err := planPoses(metaPlan)
+	if err != nil {
+		return err
+	}
 	for _, prop := range metaPlan.Props {
 		tileX, tileY := prop.X+offsetX, prop.Y+offsetY
 
@@ -161,6 +165,10 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 		propEntity, err := lifecycle.SpawnProp(world, prop.Name, tileX, tileY)
 		if err != nil {
 			return fmt.Errorf("failed to spawn props (%d, %d): %w", prop.X, prop.Y, err)
+		}
+
+		if f, ok := poses[consts.Coord[consts.Tile]{X: prop.X, Y: prop.Y}]; ok && propRaw.SpriteRender.HasShape(rawschema.Facing) {
+			world.Components.Pose.Add(propEntity, &f)
 		}
 
 		// Door componentがあれば向きを設定して閉じた状態で初期化
@@ -205,6 +213,29 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY
 	}
 
 	return nil
+}
+
+// planPoses は計画の facing の置物ごとの置き方を返す
+func planPoses(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]gc.Pose, error) {
+	facers := map[consts.Coord[consts.Tile]]bool{}
+	blockers := map[consts.Coord[consts.Tile]]bool{}
+	for _, prop := range metaPlan.Props {
+		propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get props (%s): %w", prop.Name, err)
+		}
+		c := consts.Coord[consts.Tile]{X: prop.X, Y: prop.Y}
+		isFacing := propRaw.SpriteRender.HasShape(rawschema.Facing)
+		if isFacing {
+			facers[c] = true
+		}
+		blockers[c] = blockers[c] || isFacing || propRaw.BlockPass
+	}
+	width, height := metaPlan.Level.TileWidth, metaPlan.Level.TileHeight
+	wall := func(c consts.Coord[consts.Tile]) bool {
+		return c.X >= 0 && c.Y >= 0 && c.X < width && c.Y < height && metaPlan.Tiles[int(c.Y*width+c.X)].BlockPass
+	}
+	return mapplanner.RowPoses(facers, blockers, wall), nil
 }
 
 // detectPropDoorOrientation はpropsの扉の向きを隣接タイルから判定する。

@@ -8,6 +8,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
@@ -66,19 +67,26 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		return err == nil && t.BlockPass
 	}
 
-	propBlocks := map[string]bool{}
+	propRows := map[string]rawschema.Prop{}
+	propOf := func(id string) (rawschema.Prop, error) {
+		if p, ok := propRows[id]; ok {
+			return p, nil
+		}
+		p, err := raw.GetProp(world.Resources.RawMaster, id)
+		if err != nil {
+			return rawschema.Prop{}, err
+		}
+		propRows[id] = p
+		return p, nil
+	}
 	propBlocksPass := func(id string) (bool, error) {
 		if id == "" {
 			return false, nil
 		}
-		if b, ok := propBlocks[id]; ok {
-			return b, nil
-		}
-		prop, err := raw.GetProp(world.Resources.RawMaster, id)
+		prop, err := propOf(id)
 		if err != nil {
 			return false, err
 		}
-		propBlocks[id] = prop.BlockPass
 		return prop.BlockPass, nil
 	}
 
@@ -95,6 +103,11 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 			return false, fmt.Errorf("facility %q prop at %d,%d: %w", fac, x, y, err)
 		}
 		return b, nil
+	}
+
+	poses, err := cellPoses(cells, wallAt, propOf)
+	if err != nil {
+		return nil, nil, fmt.Errorf("facility %q: %w", fac, err)
 	}
 
 	tiles := g.tiles.get()
@@ -131,7 +144,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 			if left && right {
 				orientation = gc.DoorOrientationVertical
 			}
-			if err := spawnFacilityCell(world, cell, pos, orientation, fac, danger, lootRNG, beingRNG); err != nil {
+			if err := spawnFacilityCell(world, cell, pos, orientation, poses[consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}], fac, danger, lootRNG, beingRNG); err != nil {
 				return nil, nil, err
 			}
 		}
@@ -174,7 +187,7 @@ func spawnFacilityTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos c
 }
 
 // spawnFacilityCell はマスの扉、家具と収納の中身、床の戦利品、敵を pos へ置く。扉の向きは呼び出し側が壁から決める
-func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation, fac string, danger consts.Danger, lootRNG, beingRNG *rand.Rand) error {
+func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation, pose *gc.Pose, fac string, danger consts.Danger, lootRNG, beingRNG *rand.Rand) error {
 	switch {
 	case cell.Prop == "door":
 		if _, err := lifecycle.SpawnDoor(world, pos, orientation); err != nil {
@@ -184,6 +197,9 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 		ent, err := lifecycle.SpawnProp(world, cell.Prop, pos.X, pos.Y)
 		if err != nil {
 			return fmt.Errorf("failed to place facility prop (%s at %d,%d): %w", cell.Prop, pos.X, pos.Y, err)
+		}
+		if pose != nil {
+			world.Components.Pose.Add(ent, pose)
 		}
 		if err := populateStorageLoot(world, ent, cell.Prop, cell.LootTable, fac, lootRNG); err != nil {
 			return fmt.Errorf("failed to populate storage loot (%s): %w", cell.Prop, err)
@@ -200,6 +216,35 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 		}
 	}
 	return nil
+}
+
+// cellPoses は施設の絵の facing の置物ごとの置き方を返す。絵の外は塞がりに数えない
+func cellPoses(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool, propOf func(id string) (rawschema.Prop, error)) (map[consts.Coord[consts.Tile]]*gc.Pose, error) {
+	facers := map[consts.Coord[consts.Tile]]bool{}
+	blockers := map[consts.Coord[consts.Tile]]bool{}
+	for y, row := range cells {
+		for x, cell := range row {
+			if cell.Prop == "" {
+				continue
+			}
+			prop, err := propOf(cell.Prop)
+			if err != nil {
+				return nil, fmt.Errorf("prop at %d,%d: %w", x, y, err)
+			}
+			c := consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+			isFacing := prop.SpriteRender.HasShape(rawschema.Facing)
+			if isFacing {
+				facers[c] = true
+			}
+			blockers[c] = blockers[c] || isFacing || prop.BlockPass
+		}
+	}
+	poses := map[consts.Coord[consts.Tile]]*gc.Pose{}
+	wall := func(c consts.Coord[consts.Tile]) bool { return wallAt(int(c.X), int(c.Y)) }
+	for c, f := range mapplanner.RowPoses(facers, blockers, wall) {
+		poses[c] = &f
+	}
+	return poses, nil
 }
 
 // voidEnclosedTall は、直交と斜めの近傍8マスに通れる地形が無い高さのある地形を虚空にする。壁のオートタイルは部屋を囲む細い輪郭を

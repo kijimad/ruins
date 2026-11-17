@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -43,6 +44,8 @@ func TestGolden_ItemMarker(t *testing.T) {
 	require.NoError(t, err)
 	_, err = lifecycle.SpawnStorageItem(world, "healing_potion", 3, closet)
 	require.NoError(t, err)
+	// クローゼットは東の壁際にあるので、地図を作るときと同じく西を向かせる
+	world.Components.Pose.Add(closet, &gc.Pose{Facing: consts.West, Anchor: gc.AnchorBack})
 
 	// 視界の再計算のため1フレーム進めてから撮る
 	require.NoError(t, sm.Update(world))

@@ -2,7 +2,6 @@ package systems
 
 import (
 	"image/color"
-	"math"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -265,7 +264,7 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil)
 
 	require.Len(t, quads, 1)
 	assert.Equal(t, [4]render3d.Vec{
@@ -424,62 +423,58 @@ func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
 	require.NoError(t, lifecycle.OpenDoor(world, door))
 	sys := &Render3DSystem{}
 
-	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world)))
+	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil))
 }
 
-func TestCollectBillboards_壁を背にする置物は壁と反対を向く板にする(t *testing.T) {
-	t.Parallel()
-	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
-	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
-	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
-
-	world := testutil.InitTestWorld(t)
-	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
-		"field": {
-			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
-			Sprites: map[string]gc.Sprite{"book_shelf_2": {Width: 32, Height: 32}},
-		},
-	})
-	_, err := lifecycle.SpawnProp(world, "book_shelf_2", center.X, center.Y)
-	require.NoError(t, err)
-	walls := map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}
-	sys := &Render3DSystem{}
-
-	quads := sys.collectBillboards(world, nil, projector, visible, walls, nil)
-
-	require.Len(t, quads, 1)
-	right := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), facingMaxTurn)
-	base := render3d.At(25.5, 0, 25.5)
-	b0, b1 := render3d.Add(base, render3d.Scale(right, -0.45)), render3d.Add(base, render3d.Scale(right, 0.45))
-	top := render3d.At(0, render3d.BillboardHeight, 0)
-	want := [4]render3d.Vec{render3d.Add(b0, top), render3d.Add(b1, top), b1, b0}
-	for i := range want {
-		assert.InDelta(t, want[i].X, quads[0].p[i].X, 1e-9)
-		assert.InDelta(t, want[i].Y, quads[0].p[i].Y, 1e-9)
-		assert.InDelta(t, want[i].Z, quads[0].p[i].Z, 1e-9)
-	}
-	assert.InDelta(t, math.Sqrt2/2, right.X, 1e-9)
-	assert.InDelta(t, math.Sqrt2/2, right.Z, 1e-9)
-}
-
-func TestBackWall_北東西南の順で隣の壁を背にする(t *testing.T) {
+func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T) {
 	t.Parallel()
 
 	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
-	cases := []struct {
-		name   string
-		walls  map[consts.Coord[consts.Tile]]bool
-		want   consts.Coord[consts.Tile]
-		wantOK bool
-	}{
-		{"西の壁", map[consts.Coord[consts.Tile]]bool{{X: 4, Y: 5}: true}, consts.Coord[consts.Tile]{X: -1, Y: 0}, true},
-		{"北東の角は北", map[consts.Coord[consts.Tile]]bool{{X: 5, Y: 4}: true, {X: 6, Y: 5}: true}, consts.Coord[consts.Tile]{X: 0, Y: -1}, true},
-		{"南だけ", map[consts.Coord[consts.Tile]]bool{{X: 5, Y: 6}: true}, consts.Coord[consts.Tile]{X: 0, Y: 1}, true},
-		{"壁なし", map[consts.Coord[consts.Tile]]bool{}, consts.Coord[consts.Tile]{}, false},
+	westBacked := gc.Pose{Facing: consts.West, Anchor: gc.AnchorBack}
+	// 北の隣と接するので北の端を省く
+	all := func(consts.Coord[consts.Tile]) bool { return true }
+	faces := facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Pose{c: westBacked, {X: 5, Y: 4}: westBacked}, all)
+	require.Len(t, faces, 7)
+	for _, f := range faces[:5] {
+		assert.True(t, f.flat)
+		for _, v := range f.p {
+			assert.True(t, v.X >= 5.78-1e-9 && v.X <= 5.98+1e-9 && v.Z >= 5-1e-9 && v.Z <= 6+1e-9, "板は東の壁へ寄せた範囲に収まる %v", v)
+		}
 	}
-	for _, tc := range cases {
-		got, ok := backWall(tc.walls, c)
-		assert.Equal(t, tc.wantOK, ok, tc.name)
-		assert.Equal(t, tc.want, got, tc.name)
-	}
+	assertFacesInDelta(t, []insetFace{
+		{p: [4]render3d.Vec{render3d.At(5.77, 1, 5), render3d.At(5.77, 1, 6), render3d.At(5.77, 0, 6), render3d.At(5.77, 0, 5)}},
+		{p: [4]render3d.Vec{render3d.At(5.99, 1, 6), render3d.At(5.99, 1, 5), render3d.At(5.99, 0, 5), render3d.At(5.99, 0, 6)}},
+	}, faces[5:], "絵は板の西の正面と東の背面から、外向きに少し浮かせて貼る")
+
+	alone := gc.Pose{Facing: consts.South}
+	assert.Len(t, facingFaces(c, alone, map[consts.Coord[consts.Tile]]gc.Pose{c: alone}, all), 8)
+
+	north := gc.Pose{Facing: consts.North}
+	assertFacesInDelta(t, []insetFace{
+		{p: [4]render3d.Vec{render3d.At(6, 1, 5.39), render3d.At(5, 1, 5.39), render3d.At(5, 0, 5.39), render3d.At(6, 0, 5.39)}},
+	}, facingFaces(c, north, map[consts.Coord[consts.Tile]]gc.Pose{c: north}, all)[6:7], "北向きの正面")
+	east := gc.Pose{Facing: consts.East}
+	assertFacesInDelta(t, []insetFace{
+		{p: [4]render3d.Vec{render3d.At(5.61, 1, 6), render3d.At(5.61, 1, 5), render3d.At(5.61, 0, 5), render3d.At(5.61, 0, 6)}},
+	}, facingFaces(c, east, map[consts.Coord[consts.Tile]]gc.Pose{c: east}, all)[6:7], "東向きの正面")
+
+	// 北の隣が視界の外で描かれなければ、北の端を省かず板を閉じる
+	hidden := func(n consts.Coord[consts.Tile]) bool { return n != consts.Coord[consts.Tile]{X: 5, Y: 4} }
+	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Pose{c: westBacked, {X: 5, Y: 4}: westBacked}, hidden), 8)
+
+	// 区画の境などで隣が同じ向きでも寄せる位置が違えば、継ぎ目に穴が開かないよう端を閉じる
+	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Pose{c: westBacked, {X: 5, Y: 4}: {Facing: consts.West}}, all), 8)
+}
+
+func TestPosesAt_地図を作るときに決めた向きを座標ごとに集める(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	shelf, err := lifecycle.SpawnProp(world, "book_shelf_2", 3, 3)
+	require.NoError(t, err)
+	world.Components.Pose.Add(shelf, &gc.Pose{Facing: consts.West, Anchor: gc.AnchorBack})
+	_, err = lifecycle.SpawnProp(world, "book_shelf_2", 4, 3)
+	require.NoError(t, err)
+
+	assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Pose{{X: 3, Y: 3}: {Facing: consts.West, Anchor: gc.AnchorBack}}, posesAt(world))
 }

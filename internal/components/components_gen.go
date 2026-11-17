@@ -43,6 +43,7 @@ type EntitySpec struct {
 	BlockPass          *BlockPass
 	PassCost           *PassCost
 	Door               *Door
+	Pose               *Pose
 	Item               *Item
 	Prop               *Prop
 	Cube               *Cube
@@ -139,6 +140,7 @@ type Components struct {
 	BlockPass          *ecs.Map[BlockPass]
 	PassCost           *ecs.Map[PassCost]
 	Door               *ecs.Map[Door]
+	Pose               *ecs.Map[Pose]
 	Item               *ecs.Map[Item]
 	Prop               *ecs.Map[Prop]
 	Cube               *ecs.Map[Cube]
@@ -235,6 +237,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.BlockPass = ecs.NewMap[BlockPass](world)
 	c.PassCost = ecs.NewMap[PassCost](world)
 	c.Door = ecs.NewMap[Door](world)
+	c.Pose = ecs.NewMap[Pose](world)
 	c.Item = ecs.NewMap[Item](world)
 	c.Prop = ecs.NewMap[Prop](world)
 	c.Cube = ecs.NewMap[Cube](world)
@@ -333,6 +336,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.BlockPass, entity, spec.BlockPass)
 	addComp(c.PassCost, entity, spec.PassCost)
 	addComp(c.Door, entity, spec.Door)
+	addComp(c.Pose, entity, spec.Pose)
 	addComp(c.Item, entity, spec.Item)
 	addComp(c.Prop, entity, spec.Prop)
 	addComp(c.Cube, entity, spec.Cube)

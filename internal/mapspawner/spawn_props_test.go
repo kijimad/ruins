@@ -119,3 +119,56 @@ func TestSpawnProps_収納propはルートテーブルからアイテムを収�
 	}
 	assert.Positive(t, count, "収納アイテムが1つ以上生成される")
 }
+
+func TestSpawnProps_棚の向きを地図を作るときに決めて付ける(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	tiles := make([]rawschema.Tile, 12)
+	for i := range tiles {
+		tiles[i] = rawschema.Tile{BlockPass: i < 4}
+	}
+	plan := &mapplanner.MetaPlan{
+		Level:     gc.Level{TileWidth: 4, TileHeight: 3},
+		RawMaster: &world.Resources.RawMaster,
+		Tiles:     tiles,
+		Props: []mapplanner.PropsSpec{
+			{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "book_shelf_2"},
+			{Coord: consts.Coord[consts.Tile]{X: 2, Y: 1}, Name: "book_shelf_2"},
+		},
+	}
+	require.NoError(t, spawnProps(world, plan, 0, 0))
+
+	var shelves []ecs.Entity
+	q := ecs.NewFilter1[gc.Pose](world.ECS).Query()
+	for q.Next() {
+		shelves = append(shelves, q.Entity())
+	}
+	require.Len(t, shelves, 2)
+	for _, e := range shelves {
+		assert.Equal(t, gc.Pose{Facing: consts.South, Anchor: gc.AnchorBack}, *world.Components.Pose.Get(e))
+	}
+}
+
+func TestPlanPoses_同じマスの置物はどれか1つが塞げば塞がりに数える(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	tiles := make([]rawschema.Tile, 9)
+	// 重なりの順を入れ替えても、樽が塞ぐので本棚は南を向く
+	for _, order := range [][]string{{"barrel", "soil_crack"}, {"soil_crack", "barrel"}} {
+		plan := &mapplanner.MetaPlan{
+			Level:     gc.Level{TileWidth: 3, TileHeight: 3},
+			RawMaster: &world.Resources.RawMaster,
+			Tiles:     tiles,
+			Props: []mapplanner.PropsSpec{
+				{Coord: consts.Coord[consts.Tile]{X: 1, Y: 0}, Name: order[0]},
+				{Coord: consts.Coord[consts.Tile]{X: 1, Y: 0}, Name: order[1]},
+				{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "book_shelf_2"},
+			},
+		}
+		got, err := planPoses(plan)
+		require.NoError(t, err)
+		assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Pose{{X: 1, Y: 1}: {Facing: consts.South, Anchor: gc.AnchorBack}}, got, "%v", order)
+	}
+}
