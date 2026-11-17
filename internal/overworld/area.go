@@ -23,10 +23,12 @@ type Area struct {
 }
 
 // AreaAt はチャンク c のエリアを返す。区域の Key は種類と原点から作り、同じ種類の別の区域と区別する。
-// 集落と目印は1チャンクの小さな場所なので、荒れ地と同じく Key を持たない
+// 墜落現場・集落・目印は1チャンクの小さな場所なので、荒れ地と同じく Key を持たない
 func AreaAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) Area {
-	kind, r := classifyChunk(raws, runSeed, c, cols)
+	kind, r := classifyChunk(raws, runSeed, c, cols, spawnRow)
 	switch kind {
+	case chunkCrashSite:
+		return Area{Name: glyphName(raws, crashSiteAt(raws, runSeed, c))}
 	case chunkUrban:
 		return Area{
 			Key:      AreaKey{District: r.kind.Id, Anchor: r.anchor},

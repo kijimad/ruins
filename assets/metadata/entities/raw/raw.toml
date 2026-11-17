@@ -1119,6 +1119,10 @@
   id = "line_corridor"
   width = 3
 
+[[crashSites]]
+  id = "crash_site"
+  weight = 1
+
 [[dialogues]]
   id = "old_soldier_greeting"
   pages = ["\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\"", "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""]
@@ -3907,6 +3911,11 @@
     weight = 1
     zone = "farm_field"
 
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "crash_site"
+  zones = []
+
 [[fatigueStages]]
   canSleep = false
   from = 0.0
@@ -5214,6 +5223,30 @@
   [[itemCollections.entries]]
     chance = 100
     id = "pickaxe"
+    pack = "1d1"
+
+[[itemCollections]]
+  id = "crash_site_supplies"
+  name = "墜落した貨物の中身"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "bandage"
+    pack = "1d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "ration_bar"
+    pack = "1d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "deployable_bed"
+    pack = "1d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "iron_knife"
     pack = "1d1"
 
 [[itemGroups]]
@@ -8306,6 +8339,16 @@
   entries = []
   id = "none"
   name = "None"
+
+[[itemTables]]
+  id = "crash_site_cargo"
+  name = "墜落した貨物"
+
+  [[itemTables.entries]]
+    id = "crash_site_supplies"
+    maxDanger = 100
+    minDanger = 0
+    weight = 1
 
 [[items]]
   description = "A lit torch. Serves as light, weapon, and a way to set fuel alight."
@@ -18219,6 +18262,17 @@
     g = 160
     r = 180
 
+[[mapGlyphs]]
+  glyph = "*"
+  id = "crash_site"
+  name = "Crash Site"
+  order = 3
+  [mapGlyphs.color]
+    a = 255
+    b = 60
+    g = 120
+    r = 255
+
 [[materials]]
   heatPerKg = 200
   id = "WOOD"
@@ -22422,6 +22476,68 @@
     lootTableId = "debug_crate"
     maxWeight = "200 kg"
 
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "墜落した乗り物の燃え続ける残骸。暖と光を放つ。燃料は要らない。仮画像"
+  id = "burning_wreck"
+  name = "Burning Wreckage"
+  [props.heatSource]
+    radius = 2
+    warmth = 0.6
+  [props.lightSource]
+    enabled = true
+    radius = 4
+    [props.lightSource.color]
+      a = 255
+      b = 60
+      g = 150
+      r = 255
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "dummy_brazier"
+    spriteSheetName = "field"
+
+[[props]]
+  blockPass = false
+  blockView = false
+  description = "墜落した乗り物の残骸。通れるが遅い。こじ開ける道具で解体すると素材が取れる。仮画像"
+  hp = 10
+  id = "wreck_debris"
+  name = "Wreckage"
+  passCost = 40
+  [props.disassembly]
+    toolCategory = "prying"
+
+    [[props.disassembly.yields]]
+      count = "1d3"
+      id = "scrap_iron"
+
+    [[props.disassembly.yields]]
+      chance = 50
+      count = "1d1"
+      id = "electric_wire"
+  [props.spriteRender]
+    depth = 2
+    spriteKey = "dummy_scrap_heap"
+    spriteSheetName = "field"
+
+[[props]]
+  blockPass = true
+  blockView = false
+  description = "墜落で投げ出された貨物の容器。最初の手当てと食事と寝床と武器が入っている。仮画像"
+  hp = 20
+  id = "cargo_pod"
+  name = "Cargo Pod"
+  [props.spriteRender]
+    depth = 3
+    spriteKey = "ammo_crate"
+    spriteSheetName = "field"
+  [props.storage]
+    lootCount = "1d1"
+    lootTableId = "crash_site_cargo"
+    maxWeight = "40 kg"
+
 [[recipes]]
   id = "ray_gun"
   name = "レイガン"
@@ -24509,6 +24625,32 @@
   [tiles.spriteRender]
     depth = 3
     spriteKey = "wall_ice_4"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "墜落でえぐれた地面のオートタイル床。土でないので草や木は生えない。屋外の歩行可能タイル"
+  id = "crater_ground"
+  name = "Impact Crater"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "dirt_peat"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "墜落の火で焦げた地面のオートタイル床。土でないので草や木は生えない。屋外の歩行可能タイル"
+  id = "scorched_ground"
+  name = "Scorched Ground"
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = 0
+    spriteKey = "dirt_ash"
     spriteSheetName = "tile"
 
 [[timesOfDay]]

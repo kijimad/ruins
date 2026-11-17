@@ -138,9 +138,9 @@ func groundCoverEntries(rows []rawschema.GroundCoverEntry) []scatterEntry {
 // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと
 // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
-func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool, error) {
-	switch chunkTypeAt(raws, runSeed, c, cols) {
-	case chunkWasteland:
+func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) (scatterCatalog, bool, error) {
+	switch chunkTypeAt(raws, runSeed, c, cols, spawnRow) {
+	case chunkWasteland, chunkCrashSite:
 		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(raws, runSeed, c, cols))
 		return cat, err == nil, err
 	default:
@@ -149,7 +149,7 @@ func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[
 }
 
 // openTerrainFeature は開けた地形のチャンクへ草・低木・岩を散布する feature。対象のチャンクとカタログは
-// scatterCatalogForChunk が決める。今は wasteland だけが対象で、砂漠など他の開けた地形はそこへ足す。
+// scatterCatalogForChunk が決める。荒れ地と、墜落現場の絵の外の土の地面が対象で、砂漠など他の開けた地形はそこへ足す。
 type openTerrainFeature struct{}
 
 // place は散布対象の開けたチャンクへ、まず草と土の飾りを撒き、続けて樹木と岩を疎に撒く。
@@ -157,7 +157,7 @@ type openTerrainFeature struct{}
 // 座標の、樹木と岩はチャンク相対座標と絶対チャンク seed の純関数で選び、帯の整列がずれても再訪一致する。
 // 地面判定と占有は帯ローカルの実エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
 func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	cat, ok, err := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols)
+	cat, ok, err := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world))
 	if err != nil || !ok {
 		return err
 	}

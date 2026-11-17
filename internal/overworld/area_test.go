@@ -16,15 +16,18 @@ func TestAreaAt_区域だけが区域ごとのキーを持つ(t *testing.T) {
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	const runSeed uint64 = 12345
 	const cols consts.Chunk = 7
-	var wasteland, urban int
+	var wasteland, urban, crash int
 	for y := consts.Chunk(-80); y < 10; y++ {
 		for x := range cols {
 			c := consts.Coord[consts.Chunk]{X: x, Y: y}
 			area := AreaAt(raws, runSeed, c, cols, 0)
-			switch chunkTypeAt(raws, runSeed, c, cols) {
+			switch chunkTypeAt(raws, runSeed, c, cols, 0) {
+			case chunkCrashSite:
+				crash++
+				assert.Equal(t, Area{Name: "Crash Site"}, area)
 			case chunkUrban:
 				urban++
-				r, _ := districtAt(raws, runSeed, c, cols)
+				r, _ := districtAt(raws, runSeed, c, cols, 0)
 				assert.Equal(t, AreaKey{District: r.kind.Id, Anchor: r.anchor}, area.Key, "区域の種類と原点で区域を区別する")
 				assert.Equal(t, i18n.Msgid(r.kind.Name), area.Name)
 				assert.NotEmpty(t, area.Building, "市街地は建物の名前を持つ")
@@ -40,4 +43,5 @@ func TestAreaAt_区域だけが区域ごとのキーを持つ(t *testing.T) {
 	}
 	require.Positive(t, urban, "区域のチャンクがある")
 	require.Positive(t, wasteland, "荒れ地のチャンクがある")
+	assert.Equal(t, 1, crash, "墜落現場は開始チャンクの1つだけ")
 }

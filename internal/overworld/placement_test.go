@@ -33,7 +33,7 @@ func TestPlacements_地物の行のソルトは区域と散布のソルトと重
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	got := map[uint64]bool{districtSalt: true, scatterSalt: true, outdoorLootSalt: true}
+	got := map[uint64]bool{districtSalt: true, scatterSalt: true, outdoorLootSalt: true, crashSiteSalt: true}
 	for _, kind := range rawschema.PointFeatureKindValues() {
 		salt := placementOf(raws, kind).Salt
 		assert.Falsef(t, got[salt], "%s のソルト %d が他と重なる", kind, salt)

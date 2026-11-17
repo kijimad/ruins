@@ -85,19 +85,23 @@ const (
 	chunkSettlement chunkType = "settlement" // 集落。村・一軒家
 	chunkUrban      chunkType = "urban"      // 市街地。建物チャンク
 	chunkLandmark   chunkType = "landmark"   // 自然の点在ランドマーク
+	chunkCrashSite  chunkType = "crash_site" // 宇宙船が墜落した開始の現場
 )
 
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
-// 荒れ地を返す。優先度は市街地 > 集落 > 点在ランドマーク > 荒れ地。地図も生成もこの
-// 分類を唯一の源にするので、地図の記号と実体が食い違わない。
-func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
-	kind, _ := classifyChunk(raws, runSeed, c, cols)
+// 荒れ地を返す。優先度は墜落現場 > 市街地 > 集落 > 点在ランドマーク > 荒れ地。地図も生成もこの
+// 分類を唯一の源にするので、地図の記号と実体が食い違わない。spawnRow は開始の行で、開始チャンクを決める
+func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) chunkType {
+	kind, _ := classifyChunk(raws, runSeed, c, cols, spawnRow)
 	return kind
 }
 
 // classifyChunk は c の種別と、市街地ならその区域を返す。区域を引き直さずに使いたい呼び出し側が使う
-func classifyChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (chunkType, districtRegion) {
-	if r, ok := districtAt(raws, runSeed, c, cols); ok {
+func classifyChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) (chunkType, districtRegion) {
+	if c == spawnChunkOf(cols, spawnRow) {
+		return chunkCrashSite, districtRegion{}
+	}
+	if r, ok := districtAt(raws, runSeed, c, cols, spawnRow); ok {
 		return chunkUrban, r
 	}
 	return openChunkTypeAt(raws, runSeed, c, cols), districtRegion{}
@@ -116,9 +120,14 @@ func openChunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.
 
 // chunkPlace は1チャンクの種別を地図記号で返す純関数。
 func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) rune {
-	switch chunkTypeAt(raws, runSeed, c, cols) {
+	switch chunkTypeAt(raws, runSeed, c, cols, spawnRow) {
+	case chunkCrashSite:
+		if g, ok := glyphByID(raws, crashSiteAt(raws, runSeed, c)); ok {
+			return g.Label
+		}
+		return placeUnknownGlyph
 	case chunkUrban:
-		r, _ := districtAt(raws, runSeed, c, cols)
+		r, _ := districtAt(raws, runSeed, c, cols, spawnRow)
 		if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c, spawnRow)); ok {
 			return g.Label
 		}

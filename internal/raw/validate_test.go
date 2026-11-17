@@ -30,6 +30,14 @@ func TestRealData_HasLandmarks(t *testing.T) {
 	require.NotEmpty(t, PtrSlice(master.Landmarks), "overworld 生成が要求するので実 raw.toml は landmarks を持つべき")
 }
 
+func TestRealData_HasCrashSites(t *testing.T) {
+	t.Parallel()
+
+	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	require.NotEmpty(t, PtrSlice(master.CrashSites), "開始チャンクに墜落現場を必ず置くので実 raw.toml は crashSites を持つべき")
+}
+
 func TestSchema_正常なアイテムは通る(t *testing.T) {
 	t.Parallel()
 

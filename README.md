@@ -107,7 +107,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [初期スポーンの墜落現場](docs/design/261117222355.md) | 0/12 | worldgen, gamedesign, narrative |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference

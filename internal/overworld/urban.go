@@ -144,7 +144,7 @@ func urbanFacilityAt(raws rawschema.Raws, cat zoneCatalog, r districtRegion, c c
 // 生成順に依存しない。
 func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
 	raws := world.Resources.RawMaster
-	r, ok := districtAt(raws, runSeed, c, cols)
+	r, ok := districtAt(raws, runSeed, c, cols, spawnRowOf(world))
 	if !ok {
 		return nil
 	}

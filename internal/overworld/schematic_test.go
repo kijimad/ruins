@@ -32,7 +32,7 @@ func findUrbanChunk(t *testing.T, raws rawschema.Raws, rows consts.Chunk) (uint6
 		for y := range rows {
 			for x := range consts.Chunk(12) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if _, ok := districtAt(raws, s, c, rows); ok {
+				if _, ok := districtAt(raws, s, c, rows, 0); ok {
 					return s, c
 				}
 			}
@@ -49,7 +49,7 @@ func TestChunkPlace_市街地の建物チャンクは施設種別の文字を返
 	cat := zoneCatalogFrom(raws)
 	const rows consts.Chunk = 9
 	seed, c := findUrbanChunk(t, raws, rows)
-	r, ok := districtAt(raws, seed, c, rows)
+	r, ok := districtAt(raws, seed, c, rows, 0)
 	require.True(t, ok, "前提: 市街地チャンク")
 	kind := urbanFacilityAt(raws, cat, r, c, 0)
 
@@ -89,7 +89,7 @@ func TestChunkPlace_集落が地物の文字で出る(t *testing.T) {
 			for x := range consts.Chunk(8) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
 				// 市街地に上書きされないチャンクだけ見る
-				if _, ok := districtAt(raws, s, c, rows); ok {
+				if _, ok := districtAt(raws, s, c, rows, 0); ok {
 					continue
 				}
 				switch chunkPlace(raws, cat, s, c, rows, 0) {
