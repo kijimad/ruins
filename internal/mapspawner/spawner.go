@@ -215,8 +215,7 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY
 	return nil
 }
 
-// planPoses は計画の、向きを決める置物 facing の座標ごとの置き方 Pose を返す。通行を塞ぐタイルを壁、
-// 通行を塞ぐ置物と facing の置物を塞がりに数え、並びごとに向きを決める
+// planPoses は計画の facing の置物ごとの置き方を返す
 func planPoses(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]gc.Pose, error) {
 	facers := map[consts.Coord[consts.Tile]]bool{}
 	blockers := map[consts.Coord[consts.Tile]]bool{}
@@ -230,7 +229,6 @@ func planPoses(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]gc.
 		if facing {
 			facers[c] = true
 		}
-		// 同じマスに置物が重なっても、どれか1つが塞げば塞がりに数える
 		blockers[c] = blockers[c] || facing || propRaw.BlockPass
 	}
 	width, height := metaPlan.Level.TileWidth, metaPlan.Level.TileHeight

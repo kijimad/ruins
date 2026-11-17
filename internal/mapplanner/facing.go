@@ -16,14 +16,9 @@ type facingRow struct {
 	sides   []consts.Cardinal
 }
 
-// RowPoses は facing の置物ごとの置き方 Pose を返す。向きと、背へ寄せるかを決める。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
-// 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。一番長い並びから1本ずつ決め、
-// 決めた置物を除いた残りから並びを作り直す。L字やT字で交わる置物は長い並びの向きにそろい、塊の残りも並びとして向く。
-// 並びと直角の2方向のうち、背の塞がりが重く前が軽い側を向く。塞がりの重みは壁 wall を2、置物 blockers を1にして、
-// 動かない壁を置物より強い根拠にする。同じなら南・東・西・北の順で先の側を向く。
-// 並びの1台でも背が塞がれば、並び全体を背へ寄せる。軸に沿って隣り合う同じ向きの2台は必ず同じ並びで決まるので、
-// 寄せる位置も同じになり、端を省き合っても継ぎ目に隙間が出ない。
-// 1台だけの置物は4方向から同じく選ぶ
+// RowPoses は facing の置物ごとの置き方を返す。隣り合う置物をまっすぐな並びにまとめ、一番長い並びから順に1つの置き方を決める。
+// 並びと直角の2方向のうち、背の塞がりが重く前が軽い側を向き、1台でも背が塞がれば並び全体を背へ寄せる。
+// 塞がりは動かない壁 wall を2、置物 blockers を1に数え、同点なら南・東・西・北の順で先の側を向く
 func RowPoses(facers, blockers map[consts.Coord[consts.Tile]]bool, wall func(consts.Coord[consts.Tile]) bool) map[consts.Coord[consts.Tile]]gc.Pose {
 	weight := func(c consts.Coord[consts.Tile]) float64 {
 		switch {
@@ -76,16 +71,15 @@ func RowPoses(facers, blockers map[consts.Coord[consts.Tile]]bool, wall func(con
 }
 
 var (
-	// rowAxes は並びの軸。東西の並びを南北より先に探す
+	// rowAxes は並びの軸。東西を先に探す
 	rowAxes = []struct{ back, ahead consts.Cardinal }{{consts.West, consts.East}, {consts.North, consts.South}}
-	// eastWestRowSides、northSouthRowSides、aloneSides は向きの候補。同点なら先の側を向く
+	// 向きの候補。同点なら先の側を向く
 	eastWestRowSides   = []consts.Cardinal{consts.South, consts.North}
 	northSouthRowSides = []consts.Cardinal{consts.East, consts.West}
 	aloneSides         = []consts.Cardinal{consts.South, consts.East, consts.West, consts.North}
 )
 
-// longestRow は残りの置物 left の中で一番長いまっすぐな並びを返す。order は置物を北西から並べた順。
-// 同じ長さなら北西に近い置物から始まる並び、東西の並びを先にする。並びが無ければ1台だけの並びを返す
+// longestRow は残りの置物 left の中で一番長いまっすぐな並びを返す。同じ長さなら order で先の置物から始まる並びを返す
 func longestRow(order []consts.Coord[consts.Tile], left map[consts.Coord[consts.Tile]]bool) facingRow {
 	var best facingRow
 	for _, c := range order {

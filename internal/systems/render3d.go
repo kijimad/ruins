@@ -506,9 +506,8 @@ func posesAt(world w.World) map[consts.Coord[consts.Tile]]gc.Pose {
 	return facings
 }
 
-// facingFaces は置き方 f の置物の面を返す。平均色で塗った閉じた6面の板を立て、正面と背面に外向きに絵を貼る。
-// 絵の透明な余白からは板の色が見える。同じ向きで同じ位置に寄せた隣が描かれ drawn、端が接するときは、重なってちらつかないよう省く。
-// 立つ位置が AnchorBack なら背の側へ寄せ、AnchorCenter ならマスの真ん中に立てる。南を向く板を作ってから向きの分だけ回す
+// facingFaces は置き方 f の置物の面を返す。平均色で塗った閉じた6面の板の正面と背面に、外向きに絵を貼る。
+// 同じ置き方の隣が描かれ drawn、接するときは、重なってちらつかないよう端を省く
 func facingFaces(c consts.Coord[consts.Tile], f gc.Pose, facings map[consts.Coord[consts.Tile]]gc.Pose, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {
 	const h = render3d.WallHeight
 	turns := quarterTurns(f.Facing)

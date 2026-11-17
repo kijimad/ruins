@@ -431,7 +431,7 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 
 	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
 	westBacked := gc.Pose{Facing: consts.West, Anchor: gc.AnchorBack}
-	// 東の壁を背に西を向く南北の並びの1台。北の隣と接するので北の端を省き、5面の板と正面と背面の絵になる
+	// 北の隣と接するので北の端を省く
 	all := func(consts.Coord[consts.Tile]) bool { return true }
 	faces := facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Pose{c: westBacked, {X: 5, Y: 4}: westBacked}, all)
 	require.Len(t, faces, 7)
@@ -446,11 +446,9 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 		{p: [4]render3d.Vec{render3d.At(5.99, 1, 6), render3d.At(5.99, 1, 5), render3d.At(5.99, 0, 5), render3d.At(5.99, 0, 6)}},
 	}, faces[5:], "絵は板の西の正面と東の背面から、外向きに少し浮かせて貼る")
 
-	// 隣の無い1台は、天面・前後・左右・底面の6面で閉じ、正面と背面に絵を貼る
 	alone := gc.Pose{Facing: consts.South}
 	assert.Len(t, facingFaces(c, alone, map[consts.Coord[consts.Tile]]gc.Pose{c: alone}, all), 8)
 
-	// 北向きと東向きの1台は、南向きの板を2回と3回回した位置に正面の絵が来る
 	north := gc.Pose{Facing: consts.North}
 	assertFacesInDelta(t, []insetFace{
 		{p: [4]render3d.Vec{render3d.At(6, 1, 5.39), render3d.At(5, 1, 5.39), render3d.At(5, 0, 5.39), render3d.At(6, 0, 5.39)}},

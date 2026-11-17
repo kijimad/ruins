@@ -218,8 +218,7 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 	return nil
 }
 
-// cellPoses は施設の絵の、向きを決める置物 facing のマスごとの置き方 Pose を返す。通行を塞ぐ置物と facing の置物を塞がりに数え、
-// 並びごとに向きを決める。絵の外は塞がりに数えない
+// cellPoses は施設の絵の facing の置物ごとの置き方を返す。絵の外は塞がりに数えない
 func cellPoses(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool, propOf func(id string) (rawschema.Prop, error)) (map[consts.Coord[consts.Tile]]*gc.Pose, error) {
 	facers := map[consts.Coord[consts.Tile]]bool{}
 	blockers := map[consts.Coord[consts.Tile]]bool{}

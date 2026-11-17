@@ -185,7 +185,6 @@ func TestSpawnFacility_棚の向きを施設の絵の並びから決めて付け
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	// 北の行が壁、その南に本棚が東西に2台並ぶ
 	cells := [][]maptemplate.MapCell{
 		{{Terrain: "wall"}, {Terrain: "wall"}},
 		{{Terrain: "floor_linoleum", Prop: "book_shelf_2"}, {Terrain: "floor_linoleum", Prop: "book_shelf_2"}},

@@ -124,7 +124,6 @@ func TestSpawnProps_棚の向きを地図を作るときに決めて付ける(t 
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	// 北の行が壁、その南に本棚が東西に2台並ぶ
 	tiles := make([]rawschema.Tile, 12)
 	for i := range tiles {
 		tiles[i] = rawschema.Tile{BlockPass: i < 4}
@@ -156,7 +155,7 @@ func TestPlanFacings_同じマスの置物はどれか1つが塞げば塞がり�
 
 	world := testutil.InitTestWorld(t)
 	tiles := make([]rawschema.Tile, 9)
-	// 北に樽と通れる飾り棚が重なり、その南の本棚は重なりを背にして南を向く。重なりの順を入れ替えても同じ
+	// 重なりの順を入れ替えても、樽が塞ぐので本棚は南を向く
 	for _, order := range [][]string{{"barrel", "soil_crack"}, {"soil_crack", "barrel"}} {
 		plan := &mapplanner.MetaPlan{
 			Level:     gc.Level{TileWidth: 3, TileHeight: 3},
