@@ -45,9 +45,9 @@ func (st *MainMenuState) OnStart(_ w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// 知らせの下にメニューの項目を描くため、先に画面を組んでから知らせを積む
+	// 知らせの下にメニューの項目を描くため、先に画面を組んでから知らせを積む。入力による遷移があれば先に通す
 	tr, err := st.screen.Update(world)
-	if err != nil || !st.loadFailed {
+	if err != nil || !st.loadFailed || tr.Type != es.TransNone {
 		return tr, err
 	}
 	st.loadFailed = false

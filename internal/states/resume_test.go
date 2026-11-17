@@ -169,13 +169,13 @@ func tamperSaves(t *testing.T, dir string) {
 	require.NoError(t, err)
 	require.NotEmpty(t, paths)
 	for _, p := range paths {
-		f, err := os.Open(p)
+		raw, err := os.ReadFile(p)
 		require.NoError(t, err)
-		zr, err := gzip.NewReader(f)
+		zr, err := gzip.NewReader(bytes.NewReader(raw))
 		require.NoError(t, err)
 		var env map[string]json.RawMessage
 		require.NoError(t, json.NewDecoder(zr).Decode(&env))
-		require.NoError(t, f.Close())
+		require.NoError(t, zr.Close())
 		env["version"], err = json.Marshal("0.0.0")
 		require.NoError(t, err)
 
