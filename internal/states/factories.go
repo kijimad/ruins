@@ -408,7 +408,7 @@ func NewOpeningState() (es.State[w.World], error) {
 	messageState.build = func(world w.World) *messagedata.MessageData {
 		// 背景キーを持たせず、土台のゲーム画面へモーダルとして重ねる
 		page := &messagedata.MessageData{Speaker: ""}
-		page.AddMarkup(query.T(world, "You are a space traveler, stranded on a\nfrozen planet after your cube broke down.\nHead <keyword>north</keyword>. A relay station may still remain.\nYou must <keyword>repair</keyword> the cube and <keyword>escape</keyword>."))
+		page.AddMarkup(query.T(world, "You are a space traveler. Your ship crashed\non a frozen planet. Only your cargo cube survived.\nHead <keyword>north</keyword>. A relay station may still remain.\n<keyword>Repair</keyword> the escape core and <keyword>escape</keyword> this planet."))
 		return page
 	}
 	return messageState, nil
