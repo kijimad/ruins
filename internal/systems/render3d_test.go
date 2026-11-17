@@ -384,21 +384,41 @@ func TestInsetFaces_閉じた扉はつながる向きに並ぶ薄い板になる
 func TestInsetFaces_開いた扉はつながる側の脇に寄せて通り道と平行な板になる(t *testing.T) {
 	t.Parallel()
 
-	westSide := insetFace{p: [4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}, shade: 1}
+	// 西の脇の板は x が 25.08..25.28、東の脇の板は 25.72..25.92 で、南北に長い
+	westLeaf := []insetFace{
+		{p: [4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.28, 1, 25), render3d.At(25.28, 1, 26), render3d.At(25.08, 1, 26)}, shade: 0.95, flat: true},
+		{p: [4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}, shade: 1},
+		{p: [4]render3d.Vec{render3d.At(25.28, 1, 26), render3d.At(25.28, 1, 25), render3d.At(25.28, 0, 25), render3d.At(25.28, 0, 26)}, shade: 1},
+		{p: [4]render3d.Vec{render3d.At(25.28, 1, 25), render3d.At(25.08, 1, 25), render3d.At(25.08, 0, 25), render3d.At(25.28, 0, 25)}, shade: 0.6, flat: true},
+		{p: [4]render3d.Vec{render3d.At(25.08, 1, 26), render3d.At(25.28, 1, 26), render3d.At(25.28, 0, 26), render3d.At(25.08, 0, 26)}, shade: 0.6, flat: true},
+	}
+	eastLeaf := []insetFace{
+		{p: [4]render3d.Vec{render3d.At(25.72, 1, 25), render3d.At(25.92, 1, 25), render3d.At(25.92, 1, 26), render3d.At(25.72, 1, 26)}, shade: 0.95, flat: true},
+		{p: [4]render3d.Vec{render3d.At(25.72, 1, 25), render3d.At(25.72, 1, 26), render3d.At(25.72, 0, 26), render3d.At(25.72, 0, 25)}, shade: 1},
+		{p: [4]render3d.Vec{render3d.At(25.92, 1, 26), render3d.At(25.92, 1, 25), render3d.At(25.92, 0, 25), render3d.At(25.92, 0, 26)}, shade: 1},
+		{p: [4]render3d.Vec{render3d.At(25.92, 1, 25), render3d.At(25.72, 1, 25), render3d.At(25.72, 0, 25), render3d.At(25.92, 0, 25)}, shade: 0.6, flat: true},
+		{p: [4]render3d.Vec{render3d.At(25.72, 1, 26), render3d.At(25.92, 1, 26), render3d.At(25.92, 0, 26), render3d.At(25.72, 0, 26)}, shade: 0.6, flat: true},
+	}
 	cases := []struct {
 		name string
 		conn connections
-		want insetFace
+		want []insetFace
 	}{
-		{"東西につながれば西に寄せる", connections{east: true, west: true}, westSide},
-		{"東だけにつながれば東に寄せる", connections{east: true},
-			insetFace{p: [4]render3d.Vec{render3d.At(25.92, 1, 26), render3d.At(25.92, 1, 25), render3d.At(25.92, 0, 25), render3d.At(25.92, 0, 26)}, shade: 1}},
-		{"南北につながれば北に寄せる", connections{north: true, south: true},
-			insetFace{p: [4]render3d.Vec{render3d.At(26, 1, 25.08), render3d.At(25, 1, 25.08), render3d.At(25, 0, 25.08), render3d.At(26, 0, 25.08)}, shade: 1}},
-		{"つながりが無ければ西に寄せる", connections{}, westSide},
+		{"東西につながれば西に寄せる", connections{east: true, west: true}, westLeaf},
+		{"東だけにつながれば東に寄せる", connections{east: true}, eastLeaf},
+		{"つながりが無ければ西に寄せる", connections{}, westLeaf},
 	}
 	for _, tc := range cases {
-		assertFacesInDelta(t, []insetFace{tc.want}, insetFaces(consts.Coord[consts.Tile]{X: 25, Y: 25}, tc.conn, false), tc.name)
+		assertFacesInDelta(t, tc.want, insetFaces(consts.Coord[consts.Tile]{X: 25, Y: 25}, tc.conn, false), tc.name)
+	}
+
+	// 南北につながれば同じ板を回し、北の脇に寄せて東西に長く立てる
+	ns := insetFaces(consts.Coord[consts.Tile]{X: 25, Y: 25}, connections{north: true, south: true}, false)
+	require.Len(t, ns, 5)
+	for _, f := range ns {
+		for _, v := range f.p {
+			assert.True(t, v.Z >= 25.08-1e-9 && v.Z <= 25.28+1e-9, "北の脇の z の範囲に収まる %v", v)
+		}
 	}
 }
 
@@ -440,7 +460,8 @@ func TestCollectBillboards_壁を背にする置物は壁と反対を向く板�
 	quads := sys.collectBillboards(world, nil, projector, visible, walls, nil)
 
 	require.Len(t, quads, 1)
-	right := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), math.Pi/4)
+	right, behind := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), math.Pi/4)
+	require.False(t, behind)
 	base := render3d.At(25.5, 0, 25.5)
 	b0, b1 := render3d.Add(base, render3d.Scale(right, -0.45)), render3d.Add(base, render3d.Scale(right, 0.45))
 	top := render3d.At(0, render3d.BillboardHeight, 0)

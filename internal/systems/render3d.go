@@ -456,9 +456,9 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		if !vis {
 			continue
 		}
-		right := cameraRight
+		right, behind := cameraRight, false
 		if back, ok := backWall(walls, g.Coord); sr.Shape == rawschema.Facing && ok {
-			right = render3d.FacingRight(render3d.At(-float64(back.X), 0, -float64(back.Y)), cameraRight, facingMaxTurn)
+			right, behind = render3d.FacingRight(render3d.At(-float64(back.X), 0, -float64(back.Y)), cameraRight, facingMaxTurn)
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
 		const bw = 0.45
@@ -470,7 +470,12 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		// 立て板の上下は SpriteRender.Depth で決める。同一タイルのプレイヤーとアイテムは4隅が
 		// 一致して奥行きが同値になるので、この副キーが無いと走査順で前後がばらつく
 		depth := int(sr.Depth)
-		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
+		if behind {
+			// 裏から見る板は絵を左右反転させず、平均色で塗る
+			sys.addFlatQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
+		} else {
+			sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
+		}
 		quads[len(quads)-1].depth = depth
 	}
 	return quads
@@ -551,31 +556,42 @@ func insetFaces(c consts.Coord[consts.Tile], conn connections, closed bool) []in
 }
 
 // slabFaces は東西に並ぶ壁にはめる置物の面を、タイルの北西の角を原点に返す。west と east は西と東の隣とつながるか。
-// 閉じていれば壁の厚みの真ん中に立つ薄い板にし、つながる端を省く。開いていればつながる側の脇、
-// どちらともつながらなければ西の脇に寄せた、通り道と平行な板にする。面は外から見て左上から時計回りに張る
+// 閉じていれば壁の厚みの真ん中に立つ薄い板にし、つながる端を省く。開いていれば同じ板を90度倒し、
+// つながる側の脇、どちらともつながらなければ西の脇に寄せて、通り道と平行に立てる
 func slabFaces(west, east, closed bool) []insetFace {
-	const h = render3d.WallHeight
 	if closed {
-		z0, z1 := 0.5-insetThickness/2, 0.5+insetThickness/2
-		faces := []insetFace{
-			{p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(1, h, z0), render3d.At(1, h, z1), render3d.At(0, h, z1)}, flat: true},
-			{p: [4]render3d.Vec{render3d.At(1, h, z0), render3d.At(0, h, z0), render3d.At(0, 0, z0), render3d.At(1, 0, z0)}},
-			{p: [4]render3d.Vec{render3d.At(0, h, z1), render3d.At(1, h, z1), render3d.At(1, 0, z1), render3d.At(0, 0, z1)}},
-		}
-		if !west {
-			faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(0, h, z1), render3d.At(0, 0, z1), render3d.At(0, 0, z0)}, flat: true})
-		}
-		if !east {
-			faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(1, h, z1), render3d.At(1, h, z0), render3d.At(1, 0, z0), render3d.At(1, 0, z1)}, flat: true})
-		}
-		return faces
+		return slabBox(0, 1, 0.5-insetThickness/2, 0.5+insetThickness/2, !west, !east)
 	}
 	// 隣の壁の面と重なってちらつかないよう、板を壁から少し離す
 	const gap = 0.08
 	if east && !west {
-		return []insetFace{{p: [4]render3d.Vec{render3d.At(1-gap, h, 1), render3d.At(1-gap, h, 0), render3d.At(1-gap, 0, 0), render3d.At(1-gap, 0, 1)}}}
+		return slabBox(1-gap-insetThickness, 1-gap, 0, 1, true, true)
 	}
-	return []insetFace{{p: [4]render3d.Vec{render3d.At(gap, h, 0), render3d.At(gap, h, 1), render3d.At(gap, 0, 1), render3d.At(gap, 0, 0)}}}
+	return slabBox(gap, gap+insetThickness, 0, 1, true, true)
+}
+
+// slabBox は x0..x1・z0..z1 に立つ板の面を返す。長い2面は表裏とも外向きに絵を貼り、天面と短い端は平均色で塗る。
+// firstEnd と secondEnd は短い端の西と東、南北に長い板なら北と南を描くか。面は外から見て左上から時計回りに張る
+func slabBox(x0, x1, z0, z1 float64, firstEnd, secondEnd bool) []insetFace {
+	const h = render3d.WallHeight
+	alongX := x1-x0 > z1-z0
+	north := insetFace{p: [4]render3d.Vec{render3d.At(x1, h, z0), render3d.At(x0, h, z0), render3d.At(x0, 0, z0), render3d.At(x1, 0, z0)}, flat: !alongX}
+	south := insetFace{p: [4]render3d.Vec{render3d.At(x0, h, z1), render3d.At(x1, h, z1), render3d.At(x1, 0, z1), render3d.At(x0, 0, z1)}, flat: !alongX}
+	west := insetFace{p: [4]render3d.Vec{render3d.At(x0, h, z0), render3d.At(x0, h, z1), render3d.At(x0, 0, z1), render3d.At(x0, 0, z0)}, flat: alongX}
+	east := insetFace{p: [4]render3d.Vec{render3d.At(x1, h, z1), render3d.At(x1, h, z0), render3d.At(x1, 0, z0), render3d.At(x1, 0, z1)}, flat: alongX}
+	faces := []insetFace{{p: [4]render3d.Vec{render3d.At(x0, h, z0), render3d.At(x1, h, z0), render3d.At(x1, h, z1), render3d.At(x0, h, z1)}, flat: true}}
+	long, first, second := []insetFace{north, south}, west, east
+	if !alongX {
+		long, first, second = []insetFace{west, east}, north, south
+	}
+	faces = append(faces, long...)
+	if firstEnd {
+		faces = append(faces, first)
+	}
+	if secondEnd {
+		faces = append(faces, second)
+	}
+	return faces
 }
 
 // faceShade は面の向きから陰影を返す。天面0.95・東西0.78・南北0.6は壁の箱と同じ疑似方向光源
