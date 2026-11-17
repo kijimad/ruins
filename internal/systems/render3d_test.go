@@ -3,7 +3,6 @@ package systems
 import (
 	"image/color"
 	"maps"
-	"math"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -428,46 +427,10 @@ func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
 	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil))
 }
 
-func TestCollectBillboards_向きを決めた置物はその向きからカメラへ首を振る板にする(t *testing.T) {
-	t.Parallel()
-	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
-	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
-	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
-
-	world := testutil.InitTestWorld(t)
-	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
-		"field": {
-			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
-			Sprites: map[string]gc.Sprite{"book_shelf_2": {Width: 32, Height: 32}},
-		},
-	})
-	_, err := lifecycle.SpawnProp(world, "book_shelf_2", center.X, center.Y)
-	require.NoError(t, err)
-	facings := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{center: dirWest}
-	sys := &Render3DSystem{}
-
-	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, facings)
-
-	require.Len(t, quads, 1)
-	right := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), facingMaxTurn)
-	base := render3d.At(25.5, 0, 25.5)
-	b0, b1 := render3d.Add(base, render3d.Scale(right, -0.45)), render3d.Add(base, render3d.Scale(right, 0.45))
-	top := render3d.At(0, render3d.BillboardHeight, 0)
-	want := [4]render3d.Vec{render3d.Add(b0, top), render3d.Add(b1, top), b1, b0}
-	for i := range want {
-		assert.InDelta(t, want[i].X, quads[0].p[i].X, 1e-9)
-		assert.InDelta(t, want[i].Y, quads[0].p[i].Y, 1e-9)
-		assert.InDelta(t, want[i].Z, quads[0].p[i].Z, 1e-9)
-	}
-	assert.InDelta(t, math.Sqrt2/2, right.X, 1e-9)
-	assert.InDelta(t, math.Sqrt2/2, right.Z, 1e-9)
-}
-
 func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *testing.T) {
 	t.Parallel()
 
 	type coord = consts.Coord[consts.Tile]
-	toSouth, toNorth, toEast := render3d.At(0, 0, 1), render3d.At(0, 0, -1), render3d.At(1, 0, 0)
 	set := func(cs ...coord) map[coord]bool {
 		m := map[coord]bool{}
 		for _, c := range cs {
@@ -483,10 +446,10 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 			return 0
 		}
 	}
-	all := func(d coord, cs ...coord) map[coord]coord {
-		m := map[coord]coord{}
+	all := func(f facing, cs ...coord) map[coord]facing {
+		m := map[coord]facing{}
 		for _, c := range cs {
-			m[c] = d
+			m[c] = f
 		}
 		return m
 	}
@@ -496,19 +459,16 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 		name    string
 		facers  []coord
 		blocked map[coord]bool
-		toward  render3d.Vec
-		want    map[coord]coord
+		want    map[coord]facing
 	}{
-		{"両面とも空いた東西の並びはカメラに近い南を向く", row, nil, toSouth, all(dirSouth, row...)},
-		{"両面とも空いた東西の並びはカメラに近い北を向く", row, nil, toNorth, all(dirNorth, row...)},
-		{"北に1つだけ塞がりがある並びも全員が南を向く", row, set(coord{X: 3, Y: 4}), toNorth, all(dirSouth, row...)},
-		{"東の壁と北の角に接する南北の並びは全員が西を向く", column, set(coord{X: 6, Y: 2}, coord{X: 6, Y: 3}, coord{X: 6, Y: 4}, coord{X: 5, Y: 1}), toEast, all(dirWest, column...)},
-		{"北の壁に接する1台は南を向く", []coord{{X: 5, Y: 5}}, set(coord{X: 5, Y: 4}), toEast, all(dirSouth, coord{X: 5, Y: 5})},
-		{"何にも接しない1台はカメラに近い東を向く", []coord{{X: 5, Y: 5}}, nil, toEast, all(dirEast, coord{X: 5, Y: 5})},
+		{"両面とも空いた東西の並びは南を向き、真ん中に立つ", row, nil, all(facing{dir: dirSouth}, row...)},
+		{"北に1つだけ塞がりがある並びも全員が南を向き、背へ寄る", row, set(coord{X: 3, Y: 4}), all(facing{dir: dirSouth, backed: true}, row...)},
+		{"東の壁と北の角に接する南北の並びは全員が西を向く", column, set(coord{X: 6, Y: 2}, coord{X: 6, Y: 3}, coord{X: 6, Y: 4}, coord{X: 5, Y: 1}), all(facing{dir: dirWest, backed: true}, column...)},
+		{"北の壁に接する1台は南を向く", []coord{{X: 5, Y: 5}}, set(coord{X: 5, Y: 4}), all(facing{dir: dirSouth, backed: true}, coord{X: 5, Y: 5})},
+		{"何にも接しない1台は南を向き、真ん中に立つ", []coord{{X: 5, Y: 5}}, nil, all(facing{dir: dirSouth}, coord{X: 5, Y: 5})},
 	}
 	for _, tc := range cases {
-		got := rowFacings(set(tc.facers...), weightOf(tc.blocked), tc.toward)
-		assert.Equal(t, tc.want, got, tc.name)
+		assert.Equal(t, tc.want, rowFacings(set(tc.facers...), weightOf(tc.blocked)), tc.name)
 	}
 
 	// 北東の角で、北の壁沿いの5台の列と、角を含めて東の壁沿いに4台の列が角の1台を分け合う。角は長い北の列にそろう
@@ -516,30 +476,26 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 	east3 := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
 	walls := set(coord{X: 1, Y: 0}, coord{X: 2, Y: 0}, coord{X: 3, Y: 0}, coord{X: 4, Y: 0}, coord{X: 5, Y: 0},
 		coord{X: 6, Y: 1}, coord{X: 6, Y: 2}, coord{X: 6, Y: 3}, coord{X: 6, Y: 4})
-	want := all(dirSouth, north5...)
-	maps.Copy(want, all(dirWest, east3...))
+	want := all(facing{dir: dirSouth, backed: true}, north5...)
+	maps.Copy(want, all(facing{dir: dirWest, backed: true}, east3...))
 	facers := set(north5...)
 	maps.Copy(facers, set(east3...))
-	assert.Equal(t, want, rowFacings(facers, weightOf(walls), toEast), "L字")
+	assert.Equal(t, want, rowFacings(facers, weightOf(walls)), "L字")
 
 	// T字では横の3台の並びが縦の3台の並びと (5,4) を分け合う。同じ長さなら先に見つけた縦の並びが取る
 	vertical := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
 	horizontal := []coord{{X: 3, Y: 4}, {X: 4, Y: 4}}
-	want = all(dirSouth, horizontal...)
-	maps.Copy(want, all(dirEast, vertical...))
+	want = all(facing{dir: dirSouth}, horizontal...)
+	maps.Copy(want, all(facing{dir: dirEast}, vertical...))
 	facers = set(vertical...)
 	maps.Copy(facers, set(horizontal...))
-	assert.Equal(t, want, rowFacings(facers, weightOf(nil), toEast), "T字")
+	assert.Equal(t, want, rowFacings(facers, weightOf(nil)), "T字")
 
-	// 2x2 の塊は上段を東西の並びとして先に決め、残りの下段も東西の並びとして南を向く
+	// 2x2 の塊は上段を東西の並びとして先に決め、残りの下段も東西の並びとして背中合わせに南を向く
 	block := []coord{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}}
-	want = all(dirNorth, block[:2]...)
-	maps.Copy(want, all(dirSouth, block[2:]...))
-	assert.Equal(t, want, rowFacings(set(block...), weightOf(set(block...)), toEast), "2x2")
-
-	// 斜めのカメラで南と東が同点なら、南を先にする
-	toSouthEast := render3d.At(math.Sqrt2/2, 0, math.Sqrt2/2)
-	assert.Equal(t, all(dirSouth, coord{X: 5, Y: 5}), rowFacings(set(coord{X: 5, Y: 5}), weightOf(nil), toSouthEast), "斜めの同点")
+	want = all(facing{dir: dirNorth, backed: true}, block[:2]...)
+	maps.Copy(want, all(facing{dir: dirSouth, backed: true}, block[2:]...))
+	assert.Equal(t, want, rowFacings(set(block...), weightOf(set(block...))), "2x2")
 
 	// 北の壁を背にした棚の前に樽があっても、壁を強い根拠にして南を向く
 	shelf := coord{X: 5, Y: 5}
@@ -553,7 +509,32 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 			return 0
 		}
 	}
-	assert.Equal(t, all(dirSouth, shelf), rowFacings(set(shelf), weight, toNorth), "壁と樽に挟まれる")
+	assert.Equal(t, all(facing{dir: dirSouth, backed: true}, shelf), rowFacings(set(shelf), weight), "壁と樽に挟まれる")
+}
+
+func TestFacingFaces_向きに合わせて回した薄い板になる(t *testing.T) {
+	t.Parallel()
+
+	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	westBacked := facing{dir: dirWest, backed: true}
+	// 東の壁を背に西を向く南北の並びの1台。北の隣と接するので、南の端だけを描く
+	facings := map[consts.Coord[consts.Tile]]facing{c: westBacked, {X: 5, Y: 4}: westBacked}
+	assertFacesInDelta(t, []insetFace{
+		{p: [4]render3d.Vec{render3d.At(5.98, 1, 5), render3d.At(5.98, 1, 6), render3d.At(5.93, 1, 6), render3d.At(5.93, 1, 5)}, flat: true},
+		{p: [4]render3d.Vec{render3d.At(5.98, 1, 6), render3d.At(5.98, 1, 5), render3d.At(5.98, 0, 5), render3d.At(5.98, 0, 6)}},
+		{p: [4]render3d.Vec{render3d.At(5.93, 1, 5), render3d.At(5.93, 1, 6), render3d.At(5.93, 0, 6), render3d.At(5.93, 0, 5)}},
+		{p: [4]render3d.Vec{render3d.At(5.93, 1, 6), render3d.At(5.98, 1, 6), render3d.At(5.98, 0, 6), render3d.At(5.93, 0, 6)}, flat: true},
+	}, facingFaces(c, westBacked, facings), "西を向き東の壁へ寄る")
+
+	// 背が空いた南向きの1台は、マスの真ん中に東西に立ち、両端を描く
+	alone := facing{dir: dirSouth}
+	faces := facingFaces(c, alone, map[consts.Coord[consts.Tile]]facing{c: alone})
+	require.Len(t, faces, 5)
+	for _, f := range faces {
+		for _, v := range f.p {
+			assert.True(t, v.Z >= 5.3-1e-9 && v.Z <= 5.7+1e-9, "真ん中の z の範囲に収まる %v", v)
+		}
+	}
 }
 
 func TestFacingProps_向きを決める置物と塞がる置物を集める(t *testing.T) {
@@ -574,18 +555,4 @@ func TestFacingProps_向きを決める置物と塞がる置物を集める(t *t
 	facers, blockers := facingProps(world)
 	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 6, Y: 3}: true}, facers)
 	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 4, Y: 3}: true, {X: 6, Y: 3}: true}, blockers)
-}
-
-func TestCameraToward_既定のカメラは南にいる(t *testing.T) {
-	t.Parallel()
-
-	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, consts.Coord[consts.Tile]{X: 5, Y: 5}, 960, 720)
-	got := cameraToward(projector.Right())
-	assert.InDelta(t, 0.0, got.X, 1e-9)
-	assert.InDelta(t, 1.0, got.Z, 1e-9)
-
-	// 90度回したカメラは東にいる
-	got = cameraToward(render3d.NewProjector(gc.Camera{Orient: 2, Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, consts.Coord[consts.Tile]{X: 5, Y: 5}, 960, 720).Right())
-	assert.InDelta(t, 1.0, got.X, 1e-9)
-	assert.InDelta(t, 0.0, got.Z, 1e-9)
 }

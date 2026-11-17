@@ -199,7 +199,7 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 		default:
 			return 0
 		}
-	}, cameraToward(projector.Right()))
+	})
 	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world), facings)
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
@@ -435,9 +435,9 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 }
 
 // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
-// inset は壁にはめる板、facing は並びと隣の空きに合わせて向く板にする。床の模様は地面に寝かせる。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, facings map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]) []r3quad {
-	cameraRight := projector.Right()
+// inset は壁にはめる板、facing は向きに合わせて回した薄い板にする。床の模様は地面に寝かせる。
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, facings map[consts.Coord[consts.Tile]]facing) []r3quad {
+	right := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
 		e := objQ.Entity()
@@ -466,7 +466,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする。
 			// 開いた扉は描かず、開口部だけを残す
 			if !vis || world.Components.BlockPass.Has(e) {
-				sys.addInset(&quads, g.Coord, insetConnections(walls, insets, g.Coord), atlas, ux, uy, uw, uh, tint)
+				sys.addSlab(&quads, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
 			}
 			continue
 		}
@@ -475,9 +475,9 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		if !vis {
 			continue
 		}
-		right := cameraRight
-		if d, ok := facings[g.Coord]; ok && sr.Shape == rawschema.Facing {
-			right = render3d.FacingRight(render3d.At(float64(d.X), 0, float64(d.Y)), cameraRight, facingMaxTurn)
+		if f, ok := facings[g.Coord]; ok && sr.Shape == rawschema.Facing {
+			sys.addSlab(&quads, facingFaces(g.Coord, f, facings), atlas, ux, uy, uw, uh, tint)
+			continue
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
 		const bw = 0.45
@@ -498,8 +498,12 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 // insetThickness は壁にはめる置物の板の厚み
 const insetThickness = 0.2
 
-// facingMaxTurn は向きを決めた置物の板がカメラのほうへ首を振れる角度。カメラの向きの1刻み
-const facingMaxTurn = 2 * math.Pi / gc.CameraOrientCount
+const (
+	// facingThickness は向きを決めた置物の板の厚み。ポスターのように薄くし、表裏とも外向きに絵を貼るためだけに厚みを持たせる
+	facingThickness = 0.05
+	// facingGap は背の塞がりに寄せた板と背のあいだ。壁の面と重なってちらつかないよう少し離す
+	facingGap = 0.02
+)
 
 // facingProps は向きを決める置物 facing の座標の集合と、その向きを決めるときに塞がる置物の座標の集合を返す。
 // 塞がる置物は通行を塞ぐ置物と、通行と関係なく facing の置物で、2列に並べた棚は背中合わせになる。
@@ -522,11 +526,6 @@ func facingProps(world w.World) (facers, blockers map[consts.Coord[consts.Tile]]
 	return facers, blockers
 }
 
-// cameraToward は画面右が cameraRight のカメラへ向かう水平の向きを返す
-func cameraToward(cameraRight render3d.Vec) render3d.Vec {
-	return render3d.At(-cameraRight.Z, 0, cameraRight.X)
-}
-
 var (
 	dirNorth = consts.Coord[consts.Tile]{X: 0, Y: -1}
 	dirEast  = consts.Coord[consts.Tile]{X: 1, Y: 0}
@@ -539,30 +538,35 @@ type facingRow struct {
 	members, sides []consts.Coord[consts.Tile]
 }
 
-// rowFacings は facing の置物ごとに向く方向を返す。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
+// facing は置物の向き dir と、背が塞がっていて背の側へ寄せるか backed
+type facing struct {
+	dir    consts.Coord[consts.Tile]
+	backed bool
+}
+
+// rowFacings は facing の置物ごとの向きを返す。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
 // 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。一番長い並びから1本ずつ決め、
 // 決めた置物を除いた残りから並びを作り直す。L字やT字で交わる置物は長い並びの向きにそろい、塊の残りも並びとして向く。
-// 並びと直角の2方向のうち、背の塞がりの重み weight が大きく前が小さい側を向く。同じならカメラ toward に近い側、
-// それも同じなら南・東・西・北の順で先の側を向く。1台だけの置物は4方向から同じく選ぶ
-func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Coord[consts.Tile]) float64, toward render3d.Vec) map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile] {
+// 並びと直角の2方向のうち、背の塞がりの重み weight が大きく前が小さい側を向く。同じなら南・東・西・北の順で先の側を向く。
+// 1台だけの置物は4方向から同じく選ぶ
+func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Coord[consts.Tile]) float64) map[consts.Coord[consts.Tile]]facing {
 	order := slices.SortedFunc(maps.Keys(facers), func(a, b consts.Coord[consts.Tile]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) })
 	left := maps.Clone(facers)
-	facings := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{}
+	facings := map[consts.Coord[consts.Tile]]facing{}
 	decide := func(row facingRow) {
-		best, bestScore := row.sides[0], math.Inf(-1)
+		best, bestScore, back := row.sides[0], math.Inf(-1), 0.0
 		for _, d := range row.sides {
-			score := 0.0
+			score, b := 0.0, 0.0
 			for _, m := range row.members {
+				b += weight(m.Sub(d))
 				score += weight(m.Sub(d)) - weight(m.Add(d))
 			}
-			// カメラへの近さは塞がりの1マスより軽くし、塞がりが同じときだけ効かせる
-			score += 0.5 * (float64(d.X)*toward.X + float64(d.Y)*toward.Z)
 			if score > bestScore {
-				best, bestScore = d, score
+				best, bestScore, back = d, score, b
 			}
 		}
 		for _, m := range row.members {
-			facings[m] = best
+			facings[m] = facing{dir: best, backed: back > 0}
 			delete(left, m)
 		}
 	}
@@ -580,6 +584,33 @@ func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Co
 		}
 	}
 	return facings
+}
+
+// facingFaces は向き f の置物の面を返す。並びに沿って立つ薄い板にし、同じ向きの隣と接する端を省く。
+// 背が塞がっていれば背の側へ寄せ、空いていればマスの真ん中に立てる。南を向く板を作ってから向きの分だけ回す
+func facingFaces(c consts.Coord[consts.Tile], f facing, facings map[consts.Coord[consts.Tile]]facing) []insetFace {
+	turns := map[consts.Coord[consts.Tile]]int{dirSouth: 0, dirWest: 1, dirNorth: 2, dirEast: 3}[f.dir]
+	connected := func(local consts.Coord[consts.Tile]) bool {
+		for range turns {
+			local = consts.Coord[consts.Tile]{X: -local.Y, Y: local.X}
+		}
+		n, ok := facings[c.Add(local)]
+		return ok && n.dir == f.dir
+	}
+	z0 := 0.5 - facingThickness/2
+	if f.backed {
+		z0 = facingGap
+	}
+	faces := slab(z0, z0+facingThickness, !connected(dirWest), !connected(dirEast))
+	for i := range faces {
+		for j, v := range faces[i].p {
+			for range turns {
+				v = turnQuarter(v)
+			}
+			faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))
+		}
+	}
+	return faces
 }
 
 // longestRow は残りの置物 left の中で一番長いまっすぐな並びを返す。order は置物を北西から並べた順。
@@ -650,9 +681,9 @@ func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
 	alongX := conn.west || conn.east || (!conn.north && !conn.south)
 	var faces []insetFace
 	if alongX {
-		faces = slab(!conn.west, !conn.east)
+		faces = slab(0.5-insetThickness/2, 0.5+insetThickness/2, !conn.west, !conn.east)
 	} else {
-		faces = slab(!conn.north, !conn.south)
+		faces = slab(0.5-insetThickness/2, 0.5+insetThickness/2, !conn.north, !conn.south)
 	}
 	for i := range faces {
 		for j, v := range faces[i].p {
@@ -665,11 +696,10 @@ func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
 	return faces
 }
 
-// slab は壁の厚みの真ん中に東西に立つ板の面を返す。南北の2面に絵を貼り、天面と東西の端は平均色で塗る。
+// slab は z0..z1 に東西に立つ板の面を、タイルの北西の角を原点に返す。南北の2面に絵を貼り、天面と東西の端は平均色で塗る。
 // westEnd と eastEnd は西と東の端を描くか。面は外から見て左上から時計回りに張る
-func slab(westEnd, eastEnd bool) []insetFace {
+func slab(z0, z1 float64, westEnd, eastEnd bool) []insetFace {
 	const h = render3d.WallHeight
-	z0, z1 := 0.5-insetThickness/2, 0.5+insetThickness/2
 	faces := []insetFace{
 		{p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(1, h, z0), render3d.At(1, h, z1), render3d.At(0, h, z1)}, flat: true},
 		{p: [4]render3d.Vec{render3d.At(1, h, z0), render3d.At(0, h, z0), render3d.At(0, 0, z0), render3d.At(1, 0, z0)}},
@@ -701,9 +731,9 @@ func faceShade(p [4]render3d.Vec) float64 {
 	}
 }
 
-// addInset は壁にはめる置物の面を積む
-func (sys *Render3DSystem) addInset(out *[]r3quad, c consts.Coord[consts.Tile], conn connections, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
-	for _, f := range insetFaces(c, conn) {
+// addSlab は板の面を積む
+func (sys *Render3DSystem) addSlab(out *[]r3quad, faces []insetFace, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
+	for _, f := range faces {
 		// 絵を貼る面は立て板と同じ明るさにし、平均色の面にだけ陰影を付ける
 		if f.flat {
 			sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, faceShade(f.p)))
