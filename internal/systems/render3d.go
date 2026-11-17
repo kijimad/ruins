@@ -492,7 +492,8 @@ const insetThickness = 0.2
 const facingMaxTurn = 2 * math.Pi / gc.CameraOrientCount
 
 // facingProps は向きを決める置物 facing の座標の集合と、その向きを決めるときに塞がる置物の座標の集合を返す。
-// 壁にはめる置物は開け閉めで並びの向きが変わらないよう、塞がる置物に含めない
+// 壁にはめる置物は開け閉めで並びの向きが変わらないよう、塞がる置物に含めない。置物 Prop だけを見るので、
+// Prop でない物に facing を付けても並びに入らず向きが決まらない
 func facingProps(world w.World) (facers, blockers map[consts.Coord[consts.Tile]]bool) {
 	facers, blockers = map[consts.Coord[consts.Tile]]bool{}, map[consts.Coord[consts.Tile]]bool{}
 	q := query.ActiveFilter3[gc.Prop, gc.SpriteRender, gc.GridElement](world).Query()
@@ -516,10 +517,10 @@ func cameraToward(cameraRight render3d.Vec) render3d.Vec {
 }
 
 var (
-	north = consts.Coord[consts.Tile]{X: 0, Y: -1}
-	east  = consts.Coord[consts.Tile]{X: 1, Y: 0}
-	south = consts.Coord[consts.Tile]{X: 0, Y: 1}
-	west  = consts.Coord[consts.Tile]{X: -1, Y: 0}
+	dirNorth = consts.Coord[consts.Tile]{X: 0, Y: -1}
+	dirEast  = consts.Coord[consts.Tile]{X: 1, Y: 0}
+	dirSouth = consts.Coord[consts.Tile]{X: 0, Y: 1}
+	dirWest  = consts.Coord[consts.Tile]{X: -1, Y: 0}
 )
 
 // facingRow は向きを1つにそろえる置物の並び。sides は並びが向ける方向の候補
@@ -528,45 +529,19 @@ type facingRow struct {
 }
 
 // rowFacings は facing の置物ごとに向く方向を返す。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
-// 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。L字やT字で2つの並びが交わる置物は、
-// 長い並びから先に決めて、その並びの向きにそろえる。並びと直角の2方向のうち、背が塞がり前が空くマスの多い側を向く。
-// 同じならカメラ toward に近い側、それも同じなら南・東・西・北の順で先の側を向く。1台だけの置物は4方向から同じく選ぶ
+// 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。一番長い並びから1本ずつ決め、
+// 決めた置物を除いた残りから並びを作り直す。L字やT字で交わる置物は長い並びの向きにそろい、塊の残りも並びとして向く。
+// 並びと直角の2方向のうち、背が塞がり前が空くマスの多い側を向く。同じならカメラ toward に近い側、
+// それも同じなら南・東・西・北の順で先の側を向く。1台だけの置物は4方向から同じく選ぶ
 func rowFacings(facers map[consts.Coord[consts.Tile]]bool, blocked func(consts.Coord[consts.Tile]) bool, toward render3d.Vec) map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile] {
-	var rows []facingRow
-	for _, c := range slices.SortedFunc(maps.Keys(facers), func(a, b consts.Coord[consts.Tile]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) }) {
-		alone := true
-		for _, axis := range []struct{ back, ahead consts.Coord[consts.Tile] }{{west, east}, {north, south}} {
-			if facers[c.Add(axis.back)] || facers[c.Add(axis.ahead)] {
-				alone = false
-			}
-			if facers[c.Add(axis.back)] || !facers[c.Add(axis.ahead)] {
-				continue
-			}
-			row := facingRow{sides: []consts.Coord[consts.Tile]{south, north}}
-			if axis.back == north {
-				row.sides = []consts.Coord[consts.Tile]{east, west}
-			}
-			for m := c; facers[m]; m = m.Add(axis.ahead) {
-				row.members = append(row.members, m)
-			}
-			rows = append(rows, row)
-		}
-		if alone {
-			rows = append(rows, facingRow{members: []consts.Coord[consts.Tile]{c}, sides: []consts.Coord[consts.Tile]{south, east, west, north}})
-		}
-	}
-	slices.SortStableFunc(rows, func(a, b facingRow) int { return cmp.Compare(len(b.members), len(a.members)) })
-
+	left := maps.Clone(facers)
 	facings := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{}
-	for _, row := range rows {
-		members := slices.DeleteFunc(row.members, func(m consts.Coord[consts.Tile]) bool { _, done := facings[m]; return done })
-		if len(members) == 0 {
-			continue
-		}
+	for len(left) > 0 {
+		row := longestRow(left)
 		best, bestScore := row.sides[0], math.Inf(-1)
 		for _, d := range row.sides {
 			score := 0.0
-			for _, m := range members {
+			for _, m := range row.members {
 				if blocked(m.Sub(d)) {
 					score++
 				}
@@ -580,11 +555,39 @@ func rowFacings(facers map[consts.Coord[consts.Tile]]bool, blocked func(consts.C
 				best, bestScore = d, score
 			}
 		}
-		for _, m := range members {
+		for _, m := range row.members {
 			facings[m] = best
+			delete(left, m)
 		}
 	}
 	return facings
+}
+
+// longestRow は置物 facers の中で一番長いまっすぐな並びを返す。同じ長さなら北西に近い置物から始まる並び、
+// 東西の並びを先にする。隣り合う置物が無ければ、北西に近い1台を4方向から向きを選ぶ並びとして返す
+func longestRow(facers map[consts.Coord[consts.Tile]]bool) facingRow {
+	var best facingRow
+	for _, c := range slices.SortedFunc(maps.Keys(facers), func(a, b consts.Coord[consts.Tile]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) }) {
+		if best.members == nil {
+			best = facingRow{members: []consts.Coord[consts.Tile]{c}, sides: []consts.Coord[consts.Tile]{dirSouth, dirEast, dirWest, dirNorth}}
+		}
+		for _, axis := range []struct{ back, ahead consts.Coord[consts.Tile] }{{dirWest, dirEast}, {dirNorth, dirSouth}} {
+			if facers[c.Add(axis.back)] || !facers[c.Add(axis.ahead)] {
+				continue
+			}
+			row := facingRow{sides: []consts.Coord[consts.Tile]{dirSouth, dirNorth}}
+			if axis.back == dirNorth {
+				row.sides = []consts.Coord[consts.Tile]{dirEast, dirWest}
+			}
+			for m := c; facers[m]; m = m.Add(axis.ahead) {
+				row.members = append(row.members, m)
+			}
+			if len(row.members) > len(best.members) {
+				best = row
+			}
+		}
+	}
+	return best
 }
 
 // insetFace は壁にはめる置物の1面。flat は絵を貼らず平均色で塗る面

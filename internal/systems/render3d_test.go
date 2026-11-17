@@ -443,7 +443,7 @@ func TestCollectBillboards_向きを決めた置物はその向きからカメ�
 	})
 	_, err := lifecycle.SpawnProp(world, "book_shelf_2", center.X, center.Y)
 	require.NoError(t, err)
-	facings := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{center: west}
+	facings := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{center: dirWest}
 	sys := &Render3DSystem{}
 
 	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, facings)
@@ -491,25 +491,25 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 		toward  render3d.Vec
 		want    map[coord]coord
 	}{
-		{"両面とも空いた東西の並びはカメラに近い南を向く", row, nil, toSouth, all(south, row...)},
-		{"両面とも空いた東西の並びはカメラに近い北を向く", row, nil, toNorth, all(north, row...)},
-		{"北に1つだけ塞がりがある並びも全員が南を向く", row, set(coord{X: 3, Y: 4}), toNorth, all(south, row...)},
-		{"東の壁と北の角に接する南北の並びは全員が西を向く", column, set(coord{X: 6, Y: 2}, coord{X: 6, Y: 3}, coord{X: 6, Y: 4}, coord{X: 5, Y: 1}), toEast, all(west, column...)},
-		{"北の壁に接する1台は南を向く", []coord{{X: 5, Y: 5}}, set(coord{X: 5, Y: 4}), toEast, all(south, coord{X: 5, Y: 5})},
-		{"何にも接しない1台はカメラに近い東を向く", []coord{{X: 5, Y: 5}}, nil, toEast, all(east, coord{X: 5, Y: 5})},
+		{"両面とも空いた東西の並びはカメラに近い南を向く", row, nil, toSouth, all(dirSouth, row...)},
+		{"両面とも空いた東西の並びはカメラに近い北を向く", row, nil, toNorth, all(dirNorth, row...)},
+		{"北に1つだけ塞がりがある並びも全員が南を向く", row, set(coord{X: 3, Y: 4}), toNorth, all(dirSouth, row...)},
+		{"東の壁と北の角に接する南北の並びは全員が西を向く", column, set(coord{X: 6, Y: 2}, coord{X: 6, Y: 3}, coord{X: 6, Y: 4}, coord{X: 5, Y: 1}), toEast, all(dirWest, column...)},
+		{"北の壁に接する1台は南を向く", []coord{{X: 5, Y: 5}}, set(coord{X: 5, Y: 4}), toEast, all(dirSouth, coord{X: 5, Y: 5})},
+		{"何にも接しない1台はカメラに近い東を向く", []coord{{X: 5, Y: 5}}, nil, toEast, all(dirEast, coord{X: 5, Y: 5})},
 	}
 	for _, tc := range cases {
 		got := rowFacings(set(tc.facers...), func(c coord) bool { return tc.blocked[c] }, tc.toward)
 		assert.Equal(t, tc.want, got, tc.name)
 	}
 
-	// 北東の角で、北の壁沿いの5台と東の壁沿いの4台が角の1台を分け合う。角は長い北の列にそろう
+	// 北東の角で、北の壁沿いの5台の列と、角を含めて東の壁沿いに4台の列が角の1台を分け合う。角は長い北の列にそろう
 	north5 := []coord{{X: 1, Y: 1}, {X: 2, Y: 1}, {X: 3, Y: 1}, {X: 4, Y: 1}, {X: 5, Y: 1}}
 	east3 := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
 	walls := set(coord{X: 1, Y: 0}, coord{X: 2, Y: 0}, coord{X: 3, Y: 0}, coord{X: 4, Y: 0}, coord{X: 5, Y: 0},
 		coord{X: 6, Y: 1}, coord{X: 6, Y: 2}, coord{X: 6, Y: 3}, coord{X: 6, Y: 4})
-	want := all(south, north5...)
-	maps.Copy(want, all(west, east3...))
+	want := all(dirSouth, north5...)
+	maps.Copy(want, all(dirWest, east3...))
 	facers := set(north5...)
 	maps.Copy(facers, set(east3...))
 	assert.Equal(t, want, rowFacings(facers, func(c coord) bool { return walls[c] }, toEast), "L字")
@@ -517,11 +517,21 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 	// T字では横の3台の並びが縦の3台の並びと (5,4) を分け合う。同じ長さなら先に見つけた縦の並びが取る
 	vertical := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
 	horizontal := []coord{{X: 3, Y: 4}, {X: 4, Y: 4}}
-	want = all(south, horizontal...)
-	maps.Copy(want, all(east, vertical...))
+	want = all(dirSouth, horizontal...)
+	maps.Copy(want, all(dirEast, vertical...))
 	facers = set(vertical...)
 	maps.Copy(facers, set(horizontal...))
 	assert.Equal(t, want, rowFacings(facers, func(coord) bool { return false }, toEast), "T字")
+
+	// 2x2 の塊は上段を東西の並びとして先に決め、残りの下段も東西の並びとして南を向く
+	block := []coord{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}}
+	want = all(dirNorth, block[:2]...)
+	maps.Copy(want, all(dirSouth, block[2:]...))
+	assert.Equal(t, want, rowFacings(set(block...), func(c coord) bool { return set(block...)[c] }, toEast), "2x2")
+
+	// 斜めのカメラで南と東が同点なら、南を先にする
+	toSouthEast := render3d.At(math.Sqrt2/2, 0, math.Sqrt2/2)
+	assert.Equal(t, all(dirSouth, coord{X: 5, Y: 5}), rowFacings(set(coord{X: 5, Y: 5}), func(coord) bool { return false }, toSouthEast), "斜めの同点")
 }
 
 func TestFacingProps_向きを決める置物と塞がる置物を集める(t *testing.T) {
