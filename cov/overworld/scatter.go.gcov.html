@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.6&nbsp;%</td>
+            <td class="headerCovTableEntryHi">91.6&nbsp;%</td>
             <td class="headerCovTableEntry">191</td>
-            <td class="headerCovTableEntry">173</td>
+            <td class="headerCovTableEntry">175</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-17 14:22:34</td>
+            <td class="headerValue">2026-11-17 15:40:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -200,9 +200,9 @@
 <span id="L138"><span class="lineNum">     138</span>              : // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと</span>
 <span id="L139"><span class="lineNum">     139</span>              : // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で</span>
 <span id="L140"><span class="lineNum">     140</span>              : // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。</span>
-<span id="L141"><span class="lineNum">     141</span>              : func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) (scatterCatalog, bool, error) {</span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(raws, runSeed, c, cols) {</span></span>
-<span id="L143"><span class="lineNum">     143</span>              :         case chunkWasteland:</span>
+<span id="L141"><span class="lineNum">     141</span>              : func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) (scatterCatalog, bool, error) {</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(raws, runSeed, c, cols, spawnRow) {</span></span>
+<span id="L143"><span class="lineNum">     143</span>              :         case chunkWasteland, chunkCrashSite:</span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 cat, err := scatterCatalogFrom(raws, outdoorZoneAt(raws, runSeed, c, cols))</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 return cat, err == nil, err</span></span>
 <span id="L146"><span class="lineNum">     146</span>              :         default:</span>
@@ -211,7 +211,7 @@
 <span id="L149"><span class="lineNum">     149</span>              : }</span>
 <span id="L150"><span class="lineNum">     150</span>              : </span>
 <span id="L151"><span class="lineNum">     151</span>              : // openTerrainFeature は開けた地形のチャンクへ草・低木・岩を散布する feature。対象のチャンクとカタログは</span>
-<span id="L152"><span class="lineNum">     152</span>              : // scatterCatalogForChunk が決める。今は wasteland だけが対象で、砂漠など他の開けた地形はそこへ足す。</span>
+<span id="L152"><span class="lineNum">     152</span>              : // scatterCatalogForChunk が決める。荒れ地と、墜落現場の絵の外の土の地面が対象で、砂漠など他の開けた地形はそこへ足す。</span>
 <span id="L153"><span class="lineNum">     153</span>              : type openTerrainFeature struct{}</span>
 <span id="L154"><span class="lineNum">     154</span>              : </span>
 <span id="L155"><span class="lineNum">     155</span>              : // place は散布対象の開けたチャンクへ、まず草と土の飾りを撒き、続けて樹木と岩を疎に撒く。</span>
@@ -219,7 +219,7 @@
 <span id="L157"><span class="lineNum">     157</span>              : // 座標の、樹木と岩はチャンク相対座標と絶対チャンク seed の純関数で選び、帯の整列がずれても再訪一致する。</span>
 <span id="L158"><span class="lineNum">     158</span>              : // 地面判定と占有は帯ローカルの実エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。</span>
 <span id="L159"><span class="lineNum">     159</span>              : func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         cat, ok, err := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         cat, ok, err := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world))</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         if err != nil || !ok {</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 return err</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -410,8 +410,8 @@
 <span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :                 ge := *world.Components.GridElement.Get(q.Entity())</span></span>
 <span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 if ge.X &gt;= loX &amp;&amp; ge.X &lt; hiX &amp;&amp; ge.Y &gt;= loY &amp;&amp; ge.Y &lt; hiY {</span></span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :                         blocked[ge] = true</span></span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :                         blocked[ge] = true</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L353"><span class="lineNum">     353</span>              :         }</span>
 <span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :         return blocked</span></span>
 <span id="L355"><span class="lineNum">     355</span>              : }</span>

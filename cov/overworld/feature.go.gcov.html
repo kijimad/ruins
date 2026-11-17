@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-17 14:22:34</td>
+            <td class="headerValue">2026-11-17 15:40:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -127,7 +127,7 @@
 <span id="L65"><span class="lineNum">      65</span>              :         // 点在ランドマークは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に</span>
 <span id="L66"><span class="lineNum">      66</span>              :         // 評価する。散布は占有と道の実状態を読むため最後に評価する</span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         return []feature{</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 settlementFeature{}, urbanFeature{}, wildernessLandmarkFeature{},</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 settlementFeature{}, urbanFeature{}, crashSiteFeature{}, wildernessLandmarkFeature{},</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 roadFeature{}, openTerrainFeature{},</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L71"><span class="lineNum">      71</span>              : }</span>
@@ -140,42 +140,43 @@
 <span id="L78"><span class="lineNum">      78</span>              :         districtSalt    uint64 = 2</span>
 <span id="L79"><span class="lineNum">      79</span>              :         scatterSalt     uint64 = 5</span>
 <span id="L80"><span class="lineNum">      80</span>              :         outdoorLootSalt uint64 = 6</span>
-<span id="L81"><span class="lineNum">      81</span>              : )</span>
-<span id="L82"><span class="lineNum">      82</span>              : </span>
-<span id="L83"><span class="lineNum">      83</span>              : // pointFeatureOf は地物の種類 kind の raw の行を返す。全ての種類に行があることを raw の検証が保証する</span>
-<span id="L84"><span class="lineNum">      84</span>              : func pointFeatureOf(raws rawschema.Raws, kind rawschema.PointFeatureKind) rawschema.PointFeature {</span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         for _, f := range raw.PtrSlice(raws.PointFeatures) {</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 if f.Id == kind {</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                         return f</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L89"><span class="lineNum">      89</span>              :         }</span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         panic(&quot;point feature has no raw row: &quot; + string(kind))</span></span>
-<span id="L91"><span class="lineNum">      91</span>              : }</span>
-<span id="L92"><span class="lineNum">      92</span>              : </span>
-<span id="L93"><span class="lineNum">      93</span>              : // placementOf は地物の種類 kind の配置ルールを、raw の行の間隔とソルトから作る</span>
-<span id="L94"><span class="lineNum">      94</span>              : func placementOf(raws rawschema.Raws, kind rawschema.PointFeatureKind) Placement {</span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         return placementFrom(pointFeatureOf(raws, kind))</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L97"><span class="lineNum">      97</span>              : </span>
-<span id="L98"><span class="lineNum">      98</span>              : // placementFrom は地物の行 f の配置ルールを作る</span>
-<span id="L99"><span class="lineNum">      99</span>              : func placementFrom(f rawschema.PointFeature) Placement {</span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         return Placement{Spacing: consts.Chunk(f.Spacing), Separation: consts.Chunk(f.Separation), Salt: uint64(f.Salt)}</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L102"><span class="lineNum">     102</span>              : </span>
-<span id="L103"><span class="lineNum">     103</span>              : // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。</span>
-<span id="L104"><span class="lineNum">     104</span>              : // 判定はすべて runSeed・座標・cols の純関数で、開始チャンクの特例は持たない。</span>
-<span id="L105"><span class="lineNum">     105</span>              : func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {</span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         g := chunkGeom{</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH,</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                 tiles: &amp;tileIndex{world: world, loX: offsetX, hiX: offsetX + chunkW},</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         for _, f := range features() {</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 if err := f.place(world, runSeed, c, cols, g); err != nil {</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L114"><span class="lineNum">     114</span>              :         }</span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L116"><span class="lineNum">     116</span>              : }</span>
+<span id="L81"><span class="lineNum">      81</span>              :         crashSiteSalt   uint64 = 7</span>
+<span id="L82"><span class="lineNum">      82</span>              : )</span>
+<span id="L83"><span class="lineNum">      83</span>              : </span>
+<span id="L84"><span class="lineNum">      84</span>              : // pointFeatureOf は地物の種類 kind の raw の行を返す。全ての種類に行があることを raw の検証が保証する</span>
+<span id="L85"><span class="lineNum">      85</span>              : func pointFeatureOf(raws rawschema.Raws, kind rawschema.PointFeatureKind) rawschema.PointFeature {</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         for _, f := range raw.PtrSlice(raws.PointFeatures) {</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                 if f.Id == kind {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                         return f</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L90"><span class="lineNum">      90</span>              :         }</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         panic(&quot;point feature has no raw row: &quot; + string(kind))</span></span>
+<span id="L92"><span class="lineNum">      92</span>              : }</span>
+<span id="L93"><span class="lineNum">      93</span>              : </span>
+<span id="L94"><span class="lineNum">      94</span>              : // placementOf は地物の種類 kind の配置ルールを、raw の行の間隔とソルトから作る</span>
+<span id="L95"><span class="lineNum">      95</span>              : func placementOf(raws rawschema.Raws, kind rawschema.PointFeatureKind) Placement {</span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         return placementFrom(pointFeatureOf(raws, kind))</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L98"><span class="lineNum">      98</span>              : </span>
+<span id="L99"><span class="lineNum">      99</span>              : // placementFrom は地物の行 f の配置ルールを作る</span>
+<span id="L100"><span class="lineNum">     100</span>              : func placementFrom(f rawschema.PointFeature) Placement {</span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         return Placement{Spacing: consts.Chunk(f.Spacing), Separation: consts.Chunk(f.Separation), Salt: uint64(f.Salt)}</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L103"><span class="lineNum">     103</span>              : </span>
+<span id="L104"><span class="lineNum">     104</span>              : // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。</span>
+<span id="L105"><span class="lineNum">     105</span>              : // 判定はすべて runSeed・座標・cols・開始の行の純関数で、開始チャンクの特例は分類の中にだけ置く。</span>
+<span id="L106"><span class="lineNum">     106</span>              : func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {</span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         g := chunkGeom{</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                 offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH,</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 tiles: &amp;tileIndex{world: world, loX: offsetX, hiX: offsetX + chunkW},</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         for _, f := range features() {</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :                 if err := f.place(world, runSeed, c, cols, g); err != nil {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L115"><span class="lineNum">     115</span>              :         }</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L117"><span class="lineNum">     117</span>              : }</span>
         </pre>
               </td>
             </tr>

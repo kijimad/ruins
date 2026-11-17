@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-17 14:22:34</td>
+            <td class="headerValue">2026-11-17 15:40:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -206,7 +206,7 @@
 <span id="L144"><span class="lineNum">     144</span>              : // 生成順に依存しない。</span>
 <span id="L145"><span class="lineNum">     145</span>              : func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         raws := world.Resources.RawMaster</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         r, ok := districtAt(raws, runSeed, c, cols)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         r, ok := districtAt(raws, runSeed, c, cols, spawnRowOf(world))</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         }</span></span>

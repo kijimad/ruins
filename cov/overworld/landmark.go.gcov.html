@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-17 14:22:34</td>
+            <td class="headerValue">2026-11-17 15:40:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,7 +97,7 @@
 <span id="L35"><span class="lineNum">      35</span>              : // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が</span>
 <span id="L36"><span class="lineNum">      36</span>              : // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。</span>
 <span id="L37"><span class="lineNum">      37</span>              : func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols) != chunkLandmark {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world)) != chunkLandmark {</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         loader, err := maptemplate.FacilityTemplates()</span></span>
