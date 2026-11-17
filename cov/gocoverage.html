@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (81.9%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (79.7%)</option>
 				
@@ -569,7 +569,7 @@
 				
 				<option value="file256">github.com/kijimaD/ruins/internal/states/equip_select_state.go (82.5%)</option>
 				
-				<option value="file257">github.com/kijimaD/ruins/internal/states/factories.go (59.5%)</option>
+				<option value="file257">github.com/kijimaD/ruins/internal/states/factories.go (67.7%)</option>
 				
 				<option value="file258">github.com/kijimaD/ruins/internal/states/feed_fuel_menu.go (58.7%)</option>
 				
@@ -579,7 +579,7 @@
 				
 				<option value="file261">github.com/kijimaD/ruins/internal/states/look_around.go (75.4%)</option>
 				
-				<option value="file262">github.com/kijimaD/ruins/internal/states/main_menu.go (82.9%)</option>
+				<option value="file262">github.com/kijimaD/ruins/internal/states/main_menu.go (85.4%)</option>
 				
 				<option value="file263">github.com/kijimaD/ruins/internal/states/mapgen_visualizer.go (75.6%)</option>
 				
@@ -1732,7 +1732,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1886,8 +1886,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -10567,7 +10567,6 @@ func writeLegend(w io.Writer, cells [][]maptemplate.MapCell) error {
 
 import (
         "context"
-        "errors"
         "fmt"
         "log"
         "net/http"
@@ -10710,21 +10709,16 @@ func runPlay(_ context.Context, _ *cli.Command) error {
         })</span>
 }
 
-// initialPlayState は起動時の開始ステートを決める。継続でセーブを読めればその地点から、無ければ
-// メインメニューから始める。ロードの失敗は握りつぶさず返す。
+// initialPlayState は起動時の開始ステートを決める。継続でセーブを読めればその地点から、無いときと読めないときは
+// メインメニューから始める
 func initialPlayState(world w.World, cfg *config.Config) (es.State[w.World], error) {
         <span class="cov0" title="0">if cfg.Continue &amp;&amp; cfg.SaveLoadEnabled </span>{
                 <span class="cov0" title="0">saveManager, err := save.NewSerializationManager()
                 if err != nil </span>{
-                        <span class="cov0" title="0">return nil, fmt.Errorf("continue: create save manager: %w", err)
+                        <span class="cov0" title="0">logger.New(logger.CategorySave).Error("failed to prepare the save directory", "error", err.Error())
+                        return gs.NewMainMenuAfterLoadFailure()
 </span>                }
-                <span class="cov0" title="0">resume, err := gs.ResumeFromLatestSave(world, saveManager)
-                if err != nil &amp;&amp; !errors.Is(err, gs.ErrNoContinuePoint) </span>{
-                        <span class="cov0" title="0">return nil, err
-</span>                }
-                <span class="cov0" title="0">if resume != nil </span>{
-                        <span class="cov0" title="0">return resume, nil
-</span>                }
+                <span class="cov0" title="0">return gs.ContinueOrMainMenu(world, saveManager), nil</span>
         }
         <span class="cov0" title="0">return &amp;gs.MainMenuState{}, nil</span>
 }
@@ -41646,14 +41640,14 @@ func loadSlotChoice(world w.World, saveManager *save.SerializationManager, slotN
         <span class="cov8" title="1">if !saveManager.SaveFileExists(slotName) </span>{
                 <span class="cov8" title="1">return emptySlotChoice()
 </span>        }
-        <span class="cov0" title="0">label, value := formatSaveSlotLabel(world, saveManager, slotName)
+        <span class="cov8" title="1">label, value := formatSaveSlotLabel(world, saveManager, slotName)
         return Choice{Label: label, Value: value, Indent: 1, Run: func(world w.World) (es.Transition[w.World], error) </span>{
-                <span class="cov0" title="0">if err := saveManager.LoadWorld(world, slotName); err != nil </span>{
+                <span class="cov8" title="1">if err := saveManager.LoadWorld(world, slotName); err != nil </span>{
                         // ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
-                        // 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
+                        // 無傷なので、エラーはログに残し、ロードのメニューの上に知らせを重ねる。ゲームループへ返すと
                         // main の log.Fatal まで波及してプロセスごと落ちてしまう
-                        <span class="cov0" title="0">logger.New(logger.CategorySave).Error("failed to load save", "slot", slotName, "error", err.Error())
-                        return es.Transition[w.World]{Type: es.TransPop}, nil
+                        <span class="cov8" title="1">logger.New(logger.CategorySave).Error("failed to load save", "slot", slotName, "error", err.Error())
+                        return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{newLoadFailedMessageState}}, nil
 </span>                }
                 // 復元済みの現在地から再生成せずに復帰する
                 <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newResumeStateFactory(world)}}, nil</span>
@@ -41677,7 +41671,7 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 var ErrNoContinuePoint = errors.New("no save to continue")
 
 // ResumeFromLatestSave は最新のセーブを saveManager から world へ読み込み、その地点の復帰ステートを返す。
-// 読み込めるセーブが無いときは ErrNoContinuePoint を返し、呼び出し側はメニューへ退避する。
+// 一覧に出るセーブが無いときは ErrNoContinuePoint を、最新のセーブを読めないときは読み込みのエラーを返す。
 func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager) (es.State[w.World], error) {
         // 手動と自動を混ぜた全スロットから最新を読む。ListSaves はタイムスタンプ降順で返す
         <span class="cov8" title="1">saves, err := saveManager.ListSaves()
@@ -41689,7 +41683,7 @@ func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager)
 </span>        }
         <span class="cov8" title="1">latest := saves[0]
         if err := saveManager.LoadWorld(world, latest); err != nil </span>{
-                <span class="cov0" title="0">return nil, fmt.Errorf("continue: load save %q: %w", latest, err)
+                <span class="cov8" title="1">return nil, fmt.Errorf("continue: load save %q: %w", latest, err)
 </span>        }
         <span class="cov8" title="1">state, err := newResumeStateFactory(world)()
         if err != nil </span>{
@@ -41698,19 +41692,33 @@ func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager)
         <span class="cov8" title="1">return state, nil</span>
 }
 
+// ContinueOrMainMenu は最新のセーブから続きを始めるステートを返す。セーブが無いときはメインメニューを、
+// 読めないときは読めなかったことを知らせるメインメニューを返す
+func ContinueOrMainMenu(world w.World, saveManager *save.SerializationManager) es.State[w.World] {
+        <span class="cov8" title="1">state, err := ResumeFromLatestSave(world, saveManager)
+        if err != nil </span>{
+                <span class="cov8" title="1">if errors.Is(err, ErrNoContinuePoint) </span>{
+                        <span class="cov8" title="1">return &amp;MainMenuState{}
+</span>                }
+                <span class="cov8" title="1">logger.New(logger.CategorySave).Error("failed to continue from the latest save", "error", err.Error())
+                return &amp;MainMenuState{loadFailed: true}</span>
+        }
+        <span class="cov8" title="1">return state</span>
+}
+
 // formatSaveSlotLabel はスロット行の左ラベルと、値のプレイ時間を返す。時間が無ければ value は空。値は右寄せ列で描く。
 func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, slotName string) (label, value string) {
         <span class="cov8" title="1">if !saveManager.SaveFileExists(slotName) </span>{
                 <span class="cov8" title="1">return "---", ""
 </span>        }
 
-        <span class="cov0" title="0">playerName, nameErr := saveManager.GetSavePlayerName(slotName)
+        <span class="cov8" title="1">playerName, nameErr := saveManager.GetSavePlayerName(slotName)
         playTime, ptErr := saveManager.GetSavePlayTime(slotName)
 </span>
-        <span class="cov0" title="0">if nameErr == nil &amp;&amp; ptErr == nil </span>{
+        <span class="cov8" title="1">if nameErr == nil &amp;&amp; ptErr == nil </span>{
                 <span class="cov0" title="0">return playerName, formatPlayTime(playTime)
 </span>        }
-        <span class="cov0" title="0">return query.T(world, "Has data"), ""</span>
+        <span class="cov8" title="1">return query.T(world, "Has data"), ""</span>
 }
 
 // formatPlayTime は累積プレイ実時間を時:分:秒で表す。時は無制限、分と秒は0埋め。例 101:34:07
@@ -42776,6 +42784,7 @@ import (
         "fmt"
 
         "github.com/kijimaD/ruins/internal/i18n"
+        "github.com/kijimaD/ruins/internal/messagedata"
 
         "github.com/hajimehoshi/ebiten/v2"
         "github.com/kijimaD/ruins/internal/consts"
@@ -42794,7 +42803,14 @@ import (
 type MainMenuState struct {
         es.BaseState[w.World]
         screen *menuloop.Screen[MainMenuProps]
+        // loadFailed は、セーブを読めずにメインメニューへ戻ったことを表す。最初の更新で知らせのモーダルを重ねる
+        loadFailed bool
 }
+
+// NewMainMenuAfterLoadFailure は、セーブを読めなかったことをモーダルで知らせるメインメニューを作る
+func NewMainMenuAfterLoadFailure() (es.State[w.World], error) {
+        <span class="cov8" title="1">return &amp;MainMenuState{loadFailed: true}, nil
+</span>}
 
 // State interface ================
 
@@ -42809,8 +42825,21 @@ func (st *MainMenuState) OnStart(_ w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
-        <span class="cov8" title="1">return st.screen.Update(world)
-</span>}
+        // 知らせの下にメニューの項目を描くため、先に画面を組んでから知らせを積む。入力による遷移があれば先に通す
+        <span class="cov8" title="1">tr, err := st.screen.Update(world)
+        if err != nil || !st.loadFailed || tr.Type != es.TransNone </span>{
+                <span class="cov8" title="1">return tr, err
+</span>        }
+        <span class="cov8" title="1">st.loadFailed = false
+        return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{newLoadFailedMessageState}}, nil</span>
+}
+
+// newLoadFailedMessageState はセーブを読めなかったことを知らせるモーダルを作る
+func newLoadFailedMessageState() (es.State[w.World], error) {
+        <span class="cov8" title="1">return &amp;MessageState{build: func(world w.World) *messagedata.MessageData </span>{
+                <span class="cov8" title="1">return messagedata.NewSystemMessage(query.T(world, "Could not load the save data."))
+</span>        }}, nil
+}
 
 // Draw はスクリーンに描画する
 func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error {
