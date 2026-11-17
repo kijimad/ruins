@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -114,22 +113,6 @@ func TestContinueOrMainMenu(t *testing.T) {
 		_, err = ResumeFromLatestSave(testutil.InitTestWorld(t), saveManager)
 		require.Error(t, err)
 		require.NotErrorIs(t, err, ErrNoContinuePoint)
-
-		menu, ok := ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager).(*MainMenuState)
-		require.True(t, ok)
-		assert.True(t, menu.loadFailed)
-	})
-
-	t.Run("最新のセーブが壊れていれば古いセーブへ進まず知らせを出すメインメニューから始める", func(t *testing.T) {
-		t.Parallel()
-		dir := t.TempDir()
-		saveManager, err := save.NewSerializationManager(save.WithSaveDir(dir))
-		require.NoError(t, err)
-		require.NoError(t, saveManager.SaveWorld(testutil.InitTestWorld(t), "slot1"))
-		broken := filepath.Join(dir, "slot2.json.gz")
-		require.NoError(t, os.WriteFile(broken, []byte("broken"), 0o600))
-		later := time.Now().Add(time.Hour)
-		require.NoError(t, os.Chtimes(broken, later, later))
 
 		menu, ok := ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager).(*MainMenuState)
 		require.True(t, ok)

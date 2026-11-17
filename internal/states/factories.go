@@ -247,19 +247,22 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 	return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.CurrentStage.Name), WithResume())
 }
 
-// ErrNoContinuePoint はセーブが1つも無いことを表す
+// ErrNoContinuePoint は継続できるセーブが無いことを表す。エラーではなく、呼び出し側はこれを見て
+// メニューへ退避する。復元の失敗と区別するためのセンチネル。
 var ErrNoContinuePoint = errors.New("no save to continue")
 
 // ResumeFromLatestSave は最新のセーブを saveManager から world へ読み込み、その地点の復帰ステートを返す。
-// セーブが無いときは ErrNoContinuePoint を返す。最新のセーブを読めないときは、古いセーブへ進まず読み込みのエラーを返す。
+// 読み込めるセーブが無いときは ErrNoContinuePoint を返し、呼び出し側はメニューへ退避する。
 func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager) (es.State[w.World], error) {
-	latest, err := saveManager.LatestSave()
-	if errors.Is(err, save.ErrNoSave) {
+	// 手動と自動を混ぜた全スロットから最新を読む。ListSaves はタイムスタンプ降順で返す
+	saves, err := saveManager.ListSaves()
+	if err != nil {
+		return nil, fmt.Errorf("continue: list saves: %w", err)
+	}
+	if len(saves) == 0 {
 		return nil, ErrNoContinuePoint
 	}
-	if err != nil {
-		return nil, fmt.Errorf("continue: find latest save: %w", err)
-	}
+	latest := saves[0]
 	if err := saveManager.LoadWorld(world, latest); err != nil {
 		return nil, fmt.Errorf("continue: load save %q: %w", latest, err)
 	}
