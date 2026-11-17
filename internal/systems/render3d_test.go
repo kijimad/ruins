@@ -362,6 +362,7 @@ func TestInsetFaces_つながる向きに並ぶ薄い板になる(t *testing.T) 
 	nsTop := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26), render3d.At(25.4, 1, 25)}, flat: true}
 	east := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}}
 	west := insetFace{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}}
+	westEnd := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(25, 1, 25.6), render3d.At(25, 0, 25.6), render3d.At(25, 0, 25.4)}, flat: true}
 	cases := []struct {
 		name string
 		conn connections
@@ -371,9 +372,8 @@ func TestInsetFaces_つながる向きに並ぶ薄い板になる(t *testing.T) 
 		{"南北につながれば南北に張る", connections{north: true, south: true}, []insetFace{nsTop, east, west}},
 		{"北だけにつながれば南の端を描く", connections{north: true}, []insetFace{nsTop, east, west,
 			{p: [4]render3d.Vec{render3d.At(25.4, 1, 26), render3d.At(25.6, 1, 26), render3d.At(25.6, 0, 26), render3d.At(25.4, 0, 26)}, flat: true}}},
-		{"東西と南北の両方につながれば東西に張る", connections{north: true, east: true, south: true, west: true}, []insetFace{top, north, south}},
-		{"つながりが無ければ東西に張って両端を描く", connections{}, []insetFace{top, north, south,
-			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(25, 1, 25.6), render3d.At(25, 0, 25.6), render3d.At(25, 0, 25.4)}, flat: true},
+		{"東西に片側でもつながれば南北より優先して東西に張る", connections{north: true, east: true, south: true}, []insetFace{top, north, south, westEnd}},
+		{"つながりが無ければ東西に張って両端を描く", connections{}, []insetFace{top, north, south, westEnd,
 			{p: [4]render3d.Vec{render3d.At(26, 1, 25.6), render3d.At(26, 1, 25.4), render3d.At(26, 0, 25.4), render3d.At(26, 0, 25.6)}, flat: true}}},
 	}
 	for _, tc := range cases {
