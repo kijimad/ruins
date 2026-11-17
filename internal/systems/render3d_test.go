@@ -352,7 +352,7 @@ func TestInsetConnections_隣の壁と閉じた壁にはめる置物につなが
 	assert.Equal(t, connections{east: true, west: true}, insetConnections(walls, insets, consts.Coord[consts.Tile]{X: 25, Y: 25}))
 }
 
-func TestInsetFaces_閉じた扉はつながる向きに並ぶ薄い板になる(t *testing.T) {
+func TestInsetFaces_つながる向きに並ぶ薄い板になる(t *testing.T) {
 	t.Parallel()
 
 	c := consts.Coord[consts.Tile]{X: 25, Y: 25}
@@ -376,40 +376,7 @@ func TestInsetFaces_閉じた扉はつながる向きに並ぶ薄い板になる
 			{p: [4]render3d.Vec{render3d.At(26, 1, 25.6), render3d.At(26, 1, 25.4), render3d.At(26, 0, 25.4), render3d.At(26, 0, 25.6)}, flat: true}}},
 	}
 	for _, tc := range cases {
-		assertFacesInDelta(t, tc.want, insetFaces(c, tc.conn, true), tc.name)
-	}
-}
-
-func TestInsetFaces_開いた扉はつながる側の脇に寄せて通り道と平行な板になる(t *testing.T) {
-	t.Parallel()
-
-	// 閉じた板を90度倒し、西の脇の x 25.08..25.28 に南北に長く立てる
-	westLeaf := []insetFace{
-		{p: [4]render3d.Vec{render3d.At(25.28, 1, 25), render3d.At(25.28, 1, 26), render3d.At(25.08, 1, 26), render3d.At(25.08, 1, 25)}, flat: true},
-		{p: [4]render3d.Vec{render3d.At(25.28, 1, 26), render3d.At(25.28, 1, 25), render3d.At(25.28, 0, 25), render3d.At(25.28, 0, 26)}},
-		{p: [4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}},
-		{p: [4]render3d.Vec{render3d.At(25.28, 1, 25), render3d.At(25.08, 1, 25), render3d.At(25.08, 0, 25), render3d.At(25.28, 0, 25)}, flat: true},
-		{p: [4]render3d.Vec{render3d.At(25.08, 1, 26), render3d.At(25.28, 1, 26), render3d.At(25.28, 0, 26), render3d.At(25.08, 0, 26)}, flat: true},
-	}
-	// 東の脇は同じ板を x 25.72..25.92 へずらしたもの
-	eastLeaf := make([]insetFace, len(westLeaf))
-	for i, f := range westLeaf {
-		eastLeaf[i] = f
-		for j := range f.p {
-			eastLeaf[i].p[j].X += 0.64
-		}
-	}
-	cases := []struct {
-		name string
-		conn connections
-		want []insetFace
-	}{
-		{"東西につながれば西に寄せる", connections{east: true, west: true}, westLeaf},
-		{"東だけにつながれば東に寄せる", connections{east: true}, eastLeaf},
-		{"つながりが無ければ西に寄せる", connections{}, westLeaf},
-	}
-	for _, tc := range cases {
-		assertFacesInDelta(t, tc.want, insetFaces(consts.Coord[consts.Tile]{X: 25, Y: 25}, tc.conn, false), tc.name)
+		assertFacesInDelta(t, tc.want, insetFaces(c, tc.conn), tc.name)
 	}
 }
 
@@ -459,8 +426,7 @@ func TestCollectBillboards_壁を背にする置物は壁と反対を向く板�
 	quads := sys.collectBillboards(world, nil, projector, visible, walls, nil)
 
 	require.Len(t, quads, 1)
-	right, behind := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), facingMaxTurn)
-	require.False(t, behind)
+	right := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), facingMaxTurn)
 	base := render3d.At(25.5, 0, 25.5)
 	b0, b1 := render3d.Add(base, render3d.Scale(right, -0.45)), render3d.Add(base, render3d.Scale(right, 0.45))
 	top := render3d.At(0, render3d.BillboardHeight, 0)

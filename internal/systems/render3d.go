@@ -448,14 +448,11 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		if sr.Shape == rawschema.Inset {
-			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする
-			closed := !vis || world.Components.BlockPass.Has(e)
-			conn := insetConnections(walls, insets, g.Coord)
-			if !closed {
-				// 開いた扉は蝶番のある壁の側へ寄せるので、隣の閉じた扉とはつながらない
-				conn = insetConnections(walls, nil, g.Coord)
+			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする。
+			// 開いた扉は描かず、開口部だけを残す
+			if !vis || world.Components.BlockPass.Has(e) {
+				sys.addInset(&quads, g.Coord, insetConnections(walls, insets, g.Coord), atlas, ux, uy, uw, uh, tint)
 			}
-			sys.addInset(&quads, g.Coord, conn, closed, atlas, ux, uy, uw, uh, tint)
 			continue
 		}
 		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない。
@@ -463,10 +460,10 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		if !vis {
 			continue
 		}
-		right, behind := cameraRight, false
+		right := cameraRight
 		if sr.Shape == rawschema.Facing {
 			if back, ok := backWall(walls, g.Coord); ok {
-				right, behind = render3d.FacingRight(render3d.At(-float64(back.X), 0, -float64(back.Y)), cameraRight, facingMaxTurn)
+				right = render3d.FacingRight(render3d.At(-float64(back.X), 0, -float64(back.Y)), cameraRight, facingMaxTurn)
 			}
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
@@ -479,12 +476,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		// 立て板の上下は SpriteRender.Depth で決める。同一タイルのプレイヤーとアイテムは4隅が
 		// 一致して奥行きが同値になるので、この副キーが無いと走査順で前後がばらつく
 		depth := int(sr.Depth)
-		if behind {
-			// 裏から見る板は絵を左右反転させず、平均色で塗る
-			sys.addFlatQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
-		} else {
-			sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
-		}
+		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
 		quads[len(quads)-1].depth = depth
 	}
 	return quads
@@ -538,45 +530,20 @@ func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts
 	return connections{north: at(0, -1), east: at(1, 0), south: at(0, 1), west: at(-1, 0)}
 }
 
-// insetFaces は壁にはめる置物の面を返す。つながる向きに並ぶ板にし、つながりが無ければ東西に並べる。
-// 南北の板は東西の板をタイルの中心で回して作る
-func insetFaces(c consts.Coord[consts.Tile], conn connections, closed bool) []insetFace {
+// insetFaces は閉じた壁にはめる置物の面を返す。つながる向きに並ぶ板にし、つながりが無ければ東西に並べ、
+// つながる端を省く。南北の板は東西の板をタイルの中心で回して作る
+func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
 	alongX := conn.west || conn.east || !conn.north && !conn.south
-	first, second := conn.west, conn.east
+	faces := slab(!conn.west, !conn.east)
 	if !alongX {
-		first, second = conn.north, conn.south
+		faces = slab(!conn.north, !conn.south)
 	}
-	faces := slabFaces(first, second, closed)
 	for i := range faces {
 		for j, v := range faces[i].p {
 			if !alongX {
 				v = turnQuarter(v)
 			}
 			faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))
-		}
-	}
-	return faces
-}
-
-// slabFaces は東西に並ぶ壁にはめる置物の面を、タイルの北西の角を原点に返す。west と east は西と東の隣とつながるか。
-// 閉じていれば壁の厚みの真ん中に立つ薄い板にし、つながる端を省く。開いていれば同じ板を90度倒し、
-// 東だけとつながれば東、それ以外は西の脇へ寄せる
-func slabFaces(west, east, closed bool) []insetFace {
-	if closed {
-		return slab(!west, !east)
-	}
-	// 隣の壁の面と重なってちらつかないよう、板を壁から少し離す
-	const gap = 0.08
-	shift := gap + insetThickness/2 - 0.5
-	if east && !west {
-		shift = -shift
-	}
-	faces := slab(true, true)
-	for i := range faces {
-		for j, v := range faces[i].p {
-			v = turnQuarter(v)
-			v.X += shift
-			faces[i].p[j] = v
 		}
 	}
 	return faces
@@ -619,8 +586,8 @@ func faceShade(p [4]render3d.Vec) float64 {
 }
 
 // addInset は壁にはめる置物の面を積む
-func (sys *Render3DSystem) addInset(out *[]r3quad, c consts.Coord[consts.Tile], conn connections, closed bool, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
-	for _, f := range insetFaces(c, conn, closed) {
+func (sys *Render3DSystem) addInset(out *[]r3quad, c consts.Coord[consts.Tile], conn connections, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
+	for _, f := range insetFaces(c, conn) {
 		// 絵を貼る面は立て板と同じ明るさにし、平均色の面にだけ陰影を付ける
 		if f.flat {
 			sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, faceShade(f.p)))

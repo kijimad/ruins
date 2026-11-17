@@ -109,32 +109,27 @@ func TestProjector_Point(t *testing.T) {
 	})
 }
 
-func TestFacingRight_置物の正面か裏の向きからカメラのほうへ45度まで首を振る(t *testing.T) {
+func TestFacingRight_置物の向きからカメラのほうへ45度まで首を振る(t *testing.T) {
 	t.Parallel()
 
 	rightOf := func(yaw float64) Vec { return Vec{math.Cos(yaw), 0, -math.Sin(yaw)} }
 	south := Vec{0, 0, 1}
 	cases := []struct {
 		cameraYaw, want float64
-		behind          bool
 	}{
-		{0, 0, false},
-		{math.Pi / 4, math.Pi / 4, false},
-		{math.Pi / 2, math.Pi / 4, false},
-		{3 * math.Pi / 4, 3 * math.Pi / 4, true},
-		{math.Pi, math.Pi, true},
-		{5 * math.Pi / 4, 5 * math.Pi / 4, true},
-		{3 * math.Pi / 2, -math.Pi / 4, false},
-		{7 * math.Pi / 4, -math.Pi / 4, false},
+		{0, 0},
+		{math.Pi / 4, math.Pi / 4},
+		{math.Pi / 2, math.Pi / 4},
+		{3 * math.Pi / 4, math.Pi / 4},
+		{math.Pi, math.Pi / 4},
+		{5 * math.Pi / 4, -math.Pi / 4},
+		{3 * math.Pi / 2, -math.Pi / 4},
+		{7 * math.Pi / 4, -math.Pi / 4},
 	}
 	for _, c := range cases {
-		got, behind := FacingRight(south, rightOf(c.cameraYaw), math.Pi/4)
-		assertVecInDelta(t, rightOf(c.want), got, 1e-9)
-		assert.Equal(t, c.behind, behind, "yaw %v", c.cameraYaw)
+		assertVecInDelta(t, rightOf(c.want), FacingRight(south, rightOf(c.cameraYaw), math.Pi/4), 1e-9)
 	}
 
 	// 東を向く置物を既定の南のカメラから見ると、東から南へ45度首を振る
-	got, behind := FacingRight(Vec{1, 0, 0}, rightOf(0), math.Pi/4)
-	assertVecInDelta(t, rightOf(math.Pi/4), got, 1e-9)
-	assert.False(t, behind)
+	assertVecInDelta(t, rightOf(math.Pi/4), FacingRight(Vec{1, 0, 0}, rightOf(0), math.Pi/4), 1e-9)
 }
