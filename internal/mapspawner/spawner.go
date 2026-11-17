@@ -167,7 +167,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 			return fmt.Errorf("failed to spawn props (%d, %d): %w", prop.X, prop.Y, err)
 		}
 
-		if f, ok := facings[consts.Coord[consts.Tile]{X: prop.X, Y: prop.Y}]; ok {
+		if f, ok := facings[consts.Coord[consts.Tile]{X: prop.X, Y: prop.Y}]; ok && propRaw.SpriteRender.Shape != nil && *propRaw.SpriteRender.Shape == rawschema.Facing {
 			world.Components.Facing.Add(propEntity, &f)
 		}
 

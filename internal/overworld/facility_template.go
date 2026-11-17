@@ -237,7 +237,7 @@ func cellFacings(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool, prop
 			if facing {
 				facers[c] = true
 			}
-			blockers[c] = facing || prop.BlockPass
+			blockers[c] = blockers[c] || facing || prop.BlockPass
 		}
 	}
 	facings := map[consts.Coord[consts.Tile]]*gc.Facing{}

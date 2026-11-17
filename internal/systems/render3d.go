@@ -488,8 +488,8 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 const insetThickness = 0.2
 
 const (
-	// facingThickness は向きを決めた置物の板の厚み
-	facingThickness = 0.2
+	// facingThickness は向きを決めた置物の板の厚み。扉の板とそろえる
+	facingThickness = insetThickness
 	// facingGap は背の塞がりに寄せた板と背のあいだ。壁の面と重なってちらつかないよう少し離す
 	facingGap = 0.02
 	// facingLift は板の正面と背面から絵を浮かせる距離。奥行きの並べ替えで絵を板の面より後に描かせる
@@ -507,7 +507,7 @@ func facingsAt(world w.World) map[consts.Coord[consts.Tile]]gc.Facing {
 }
 
 // facingFaces は向き f の置物の面を返す。平均色で塗った閉じた6面の板を立て、正面と背面に外向きに絵を貼る。
-// 絵の透明な余白からは板の色が見える。同じ向きの隣が描かれ drawn、端が接するときは、重なってちらつかないよう省く。
+// 絵の透明な余白からは板の色が見える。同じ向きで同じ位置に寄せた隣が描かれ drawn、端が接するときは、重なってちらつかないよう省く。
 // 背が塞がっていれば背の側へ寄せ、空いていればマスの真ん中に立てる。南を向く板を作ってから向きの分だけ回す
 func facingFaces(c consts.Coord[consts.Tile], f gc.Facing, facings map[consts.Coord[consts.Tile]]gc.Facing, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {
 	const h = render3d.WallHeight
@@ -517,7 +517,7 @@ func facingFaces(c consts.Coord[consts.Tile], f gc.Facing, facings map[consts.Co
 			local = consts.Coord[consts.Tile]{X: -local.Y, Y: local.X}
 		}
 		n, ok := facings[c.Add(local)]
-		return ok && n.Dir == f.Dir && drawn(c.Add(local))
+		return ok && n.Dir == f.Dir && n.Backed == f.Backed && drawn(c.Add(local))
 	}
 	z0 := 0.5 - facingThickness/2
 	if f.Backed {

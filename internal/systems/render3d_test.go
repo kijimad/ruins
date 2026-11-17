@@ -463,6 +463,9 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 	// 北の隣が視界の外で描かれなければ、北の端を省かず板を閉じる
 	hidden := func(n consts.Coord[consts.Tile]) bool { return n != consts.Coord[consts.Tile]{X: 5, Y: 4} }
 	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Facing{c: westBacked, {X: 5, Y: 4}: westBacked}, hidden), 8)
+
+	// 区画の境などで隣が同じ向きでも寄せる位置が違えば、継ぎ目に穴が開かないよう端を閉じる
+	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Facing{c: westBacked, {X: 5, Y: 4}: {Dir: consts.TileWest}}, all), 8)
 }
 
 func TestFacingsAt_地図を作るときに決めた向きを座標ごとに集める(t *testing.T) {

@@ -149,5 +149,27 @@ func TestSpawnProps_棚の向きを地図を作るときに決めて付ける(t 
 	for _, e := range shelves {
 		assert.Equal(t, gc.Facing{Dir: consts.TileSouth, Backed: true}, *world.Components.Facing.Get(e))
 	}
+}
 
+func TestPlanFacings_同じマスの置物はどれか1つが塞げば塞がりに数える(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	tiles := make([]rawschema.Tile, 9)
+	// 北に樽と通れる飾り棚が重なり、その南の本棚は重なりを背にして南を向く。重なりの順を入れ替えても同じ
+	for _, order := range [][]string{{"barrel", "soil_crack"}, {"soil_crack", "barrel"}} {
+		plan := &mapplanner.MetaPlan{
+			Level:     gc.Level{TileWidth: 3, TileHeight: 3},
+			RawMaster: &world.Resources.RawMaster,
+			Tiles:     tiles,
+			Props: []mapplanner.PropsSpec{
+				{Coord: consts.Coord[consts.Tile]{X: 1, Y: 0}, Name: order[0]},
+				{Coord: consts.Coord[consts.Tile]{X: 1, Y: 0}, Name: order[1]},
+				{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "book_shelf_2"},
+			},
+		}
+		got, err := planFacings(plan)
+		require.NoError(t, err)
+		assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Facing{{X: 1, Y: 1}: {Dir: consts.TileSouth, Backed: true}}, got, "%v", order)
+	}
 }
