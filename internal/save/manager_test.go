@@ -260,14 +260,31 @@ func TestLatestSave(t *testing.T) {
 		require.ErrorIs(t, err, ErrNoSave)
 	})
 
-	t.Run("読めるセーブは中の時刻で最新を選ぶ", func(t *testing.T) {
+	t.Run("読めるセーブは書いた時刻でなく中の時刻で最新を選ぶ", func(t *testing.T) {
 		t.Parallel()
-		m, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+		dir := t.TempDir()
+		m, err := NewSerializationManager(WithSaveDir(dir))
 		require.NoError(t, err)
 		world := testutil.InitTestWorld(t)
 		require.NoError(t, m.SaveWorld(world, "slot1"))
-		time.Sleep(10 * time.Millisecond)
 		require.NoError(t, m.SaveWorld(world, "slot2"))
+		later := time.Now().Add(time.Hour)
+		require.NoError(t, os.Chtimes(filepath.Join(dir, "slot1"+saveFileExt), later, later))
+
+		latest, err := m.LatestSave()
+		require.NoError(t, err)
+		assert.Equal(t, "slot2", latest)
+	})
+
+	t.Run("中の時刻が無いセーブは書いた時刻で並べる", func(t *testing.T) {
+		t.Parallel()
+		dir := t.TempDir()
+		m, err := NewSerializationManager(WithSaveDir(dir))
+		require.NoError(t, err)
+		require.NoError(t, m.SaveWorld(testutil.InitTestWorld(t), "slot1"))
+		require.NoError(t, m.storeSaveJSON("slot2", []byte(`{"version":"2.0.0"}`)))
+		later := time.Now().Add(time.Hour)
+		require.NoError(t, os.Chtimes(filepath.Join(dir, "slot2"+saveFileExt), later, later))
 
 		latest, err := m.LatestSave()
 		require.NoError(t, err)

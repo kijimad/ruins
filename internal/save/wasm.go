@@ -63,7 +63,6 @@ func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool {
 	return !item.IsNull()
 }
 
-// listSavesImpl はWASM環境でセーブデータ名の一覧を返す
 // errModTimeUnavailable はセーブを書いた時刻を取れない保存先で返す
 var errModTimeUnavailable = errors.New("save modification time is unavailable")
 
@@ -72,6 +71,7 @@ func (sm *SerializationManager) saveModTimeImpl(_ string) (time.Time, error) {
 	return time.Time{}, errModTimeUnavailable
 }
 
+// listSavesImpl はWASM環境でセーブデータ名の一覧を返す
 func (sm *SerializationManager) listSavesImpl() ([]string, error) {
 	localStorage := js.Global().Get("localStorage")
 	if localStorage.IsUndefined() {

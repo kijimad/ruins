@@ -239,7 +239,7 @@ func (sm *SerializationManager) ListSaves() ([]string, error) {
 	return valid, nil
 }
 
-// LatestSave は全てのセーブから最も新しいスロット名を返す。中身を読めないセーブも、書いた時刻で並べて候補に含める。
+// LatestSave は全てのセーブから最も新しいスロット名を返す。中身や中の時刻を読めないセーブも、書いた時刻で並べて候補に含める。
 // 最新のセーブが壊れているとき、古いセーブから黙って続きを始めず、読み込みで失敗させるためである。
 // 書いた時刻も取れないセーブは並べられないので除く。セーブが無ければ ErrNoSave を返す
 func (sm *SerializationManager) LatestSave() (string, error) {
@@ -251,7 +251,7 @@ func (sm *SerializationManager) LatestSave() (string, error) {
 	var latestAt time.Time
 	for _, name := range names {
 		at, err := sm.GetSaveFileTimestamp(name)
-		if err != nil {
+		if err != nil || at.IsZero() {
 			if at, err = sm.saveModTimeImpl(name); err != nil {
 				continue
 			}

@@ -98,7 +98,9 @@ func TestContinueOrMainMenu(t *testing.T) {
 		saveManager, err := save.NewSerializationManager(save.WithSaveDir(t.TempDir()))
 		require.NoError(t, err)
 
-		assert.Equal(t, &MainMenuState{}, ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager))
+		menu, ok := ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager).(*MainMenuState)
+		require.True(t, ok)
+		assert.False(t, menu.loadFailed)
 	})
 
 	t.Run("読めないセーブなら知らせを出すメインメニューから始める", func(t *testing.T) {
@@ -113,7 +115,9 @@ func TestContinueOrMainMenu(t *testing.T) {
 		require.Error(t, err)
 		require.NotErrorIs(t, err, ErrNoContinuePoint)
 
-		assert.Equal(t, &MainMenuState{loadFailed: true}, ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager))
+		menu, ok := ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager).(*MainMenuState)
+		require.True(t, ok)
+		assert.True(t, menu.loadFailed)
 	})
 
 	t.Run("最新のセーブが壊れていれば古いセーブへ進まず知らせを出すメインメニューから始める", func(t *testing.T) {
@@ -127,7 +131,9 @@ func TestContinueOrMainMenu(t *testing.T) {
 		later := time.Now().Add(time.Hour)
 		require.NoError(t, os.Chtimes(broken, later, later))
 
-		assert.Equal(t, &MainMenuState{loadFailed: true}, ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager))
+		menu, ok := ContinueOrMainMenu(testutil.InitTestWorld(t), saveManager).(*MainMenuState)
+		require.True(t, ok)
+		assert.True(t, menu.loadFailed)
 	})
 }
 
@@ -170,7 +176,9 @@ func TestLoadSlotChoice_読めないセーブは知らせを出すメインメ�
 	require.Len(t, tr.NewStateFuncs, 1)
 	state, err := tr.NewStateFuncs[0]()
 	require.NoError(t, err)
-	assert.Equal(t, &MainMenuState{loadFailed: true}, state)
+	menu, ok := state.(*MainMenuState)
+	require.True(t, ok)
+	assert.True(t, menu.loadFailed)
 }
 
 // tamperSaves は dir の全てのセーブの版を書き換え、チェックサムを合わなくして読めなくする

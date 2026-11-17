@@ -54,7 +54,6 @@ func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool {
 	return err == nil
 }
 
-// listSavesImpl はデスクトップ環境でセーブファイル名の一覧を返す
 // saveModTimeImpl はセーブファイルを書いた時刻を返す。中身を読めないセーブを並べるのに使う
 func (sm *SerializationManager) saveModTimeImpl(slotName string) (time.Time, error) {
 	info, err := os.Stat(filepath.Join(sm.saveDirectory, slotName+saveFileExt))
@@ -64,6 +63,7 @@ func (sm *SerializationManager) saveModTimeImpl(slotName string) (time.Time, err
 	return info.ModTime(), nil
 }
 
+// listSavesImpl はデスクトップ環境でセーブファイル名の一覧を返す
 func (sm *SerializationManager) listSavesImpl() ([]string, error) {
 	entries, err := os.ReadDir(sm.saveDirectory)
 	if err != nil {

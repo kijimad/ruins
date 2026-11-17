@@ -150,7 +150,8 @@ func initialPlayState(world w.World, cfg *config.Config) (es.State[w.World], err
 	if cfg.Continue && cfg.SaveLoadEnabled {
 		saveManager, err := save.NewSerializationManager()
 		if err != nil {
-			return nil, fmt.Errorf("continue: create save manager: %w", err)
+			logger.New(logger.CategorySave).Error("failed to prepare the save directory", "error", err.Error())
+			return gs.NewMainMenuAfterLoadFailure()
 		}
 		return gs.ContinueOrMainMenu(world, saveManager), nil
 	}
