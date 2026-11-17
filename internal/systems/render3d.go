@@ -479,7 +479,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		if f, ok := facings[g.Coord]; ok && sr.Shape == rawschema.Facing {
 			drawn := func(n consts.Coord[consts.Tile]) bool {
 				_, _, v := visTint(&gc.GridElement{Coord: n})
-				return v
+				return v && projector.TileOnScreen(n, render3d.BillboardHeight)
 			}
 			sys.addSlab(&quads, facingFaces(g.Coord, f, facings, drawn), atlas, ux, uy, uw, uh, tint)
 			continue
@@ -555,6 +555,8 @@ type facing struct {
 // 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。一番長い並びから1本ずつ決め、
 // 決めた置物を除いた残りから並びを作り直す。L字やT字で交わる置物は長い並びの向きにそろい、塊の残りも並びとして向く。
 // 並びと直角の2方向のうち、背の塞がりの重み weight が大きく前が小さい側を向く。同じなら南・東・西・北の順で先の側を向く。
+// 並びの1台でも背が塞がれば、並び全体を背へ寄せる。軸に沿って隣り合う同じ向きの2台は必ず同じ並びで決まるので、
+// 寄せる位置も同じになり、端を省き合っても継ぎ目に隙間が出ない。
 // 1台だけの置物は4方向から同じく選ぶ
 func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Coord[consts.Tile]) float64) map[consts.Coord[consts.Tile]]facing {
 	order := slices.SortedFunc(maps.Keys(facers), func(a, b consts.Coord[consts.Tile]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) })

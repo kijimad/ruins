@@ -536,6 +536,16 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 	alone := facing{dir: dirSouth}
 	assert.Len(t, facingFaces(c, alone, map[consts.Coord[consts.Tile]]facing{c: alone}, all), 8)
 
+	// 北向きと東向きの1台は、南向きの板を2回と3回回した位置に正面の絵が来る
+	north := facing{dir: dirNorth}
+	assertFacesInDelta(t, []insetFace{
+		{p: [4]render3d.Vec{render3d.At(6, 1, 5.39), render3d.At(5, 1, 5.39), render3d.At(5, 0, 5.39), render3d.At(6, 0, 5.39)}},
+	}, facingFaces(c, north, map[consts.Coord[consts.Tile]]facing{c: north}, all)[6:7], "北向きの正面")
+	east := facing{dir: dirEast}
+	assertFacesInDelta(t, []insetFace{
+		{p: [4]render3d.Vec{render3d.At(5.61, 1, 6), render3d.At(5.61, 1, 5), render3d.At(5.61, 0, 5), render3d.At(5.61, 0, 6)}},
+	}, facingFaces(c, east, map[consts.Coord[consts.Tile]]facing{c: east}, all)[6:7], "東向きの正面")
+
 	// 北の隣が視界の外で描かれなければ、北の端を省かず板を閉じる
 	hidden := func(n consts.Coord[consts.Tile]) bool { return n != consts.Coord[consts.Tile]{X: 5, Y: 4} }
 	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]facing{c: westBacked, {X: 5, Y: 4}: westBacked}, hidden), 8)
