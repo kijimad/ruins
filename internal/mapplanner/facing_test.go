@@ -20,14 +20,7 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 		}
 		return m
 	}
-	weightOf := func(blocked map[coord]bool) func(coord) float64 {
-		return func(c coord) float64 {
-			if blocked[c] {
-				return 1
-			}
-			return 0
-		}
-	}
+	noWall := func(coord) bool { return false }
 	all := func(f gc.Facing, cs ...coord) map[coord]gc.Facing {
 		m := map[coord]gc.Facing{}
 		for _, c := range cs {
@@ -50,7 +43,7 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 		{"何にも接しない1台は南を向き、真ん中に立つ", []coord{{X: 5, Y: 5}}, nil, all(gc.Facing{Dir: consts.TileSouth}, coord{X: 5, Y: 5})},
 	}
 	for _, tc := range cases {
-		assert.Equal(t, tc.want, RowFacings(set(tc.facers...), weightOf(tc.blocked)), tc.name)
+		assert.Equal(t, tc.want, RowFacings(set(tc.facers...), tc.blocked, noWall), tc.name)
 	}
 
 	// 北東の角で、北の壁沿いの5台の列と、角を含めて東の壁沿いに4台の列が角の1台を分け合う。角は長い北の列にそろう
@@ -62,7 +55,7 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 	maps.Copy(want, all(gc.Facing{Dir: consts.TileWest, Backed: true}, east3...))
 	facers := set(north5...)
 	maps.Copy(facers, set(east3...))
-	assert.Equal(t, want, RowFacings(facers, weightOf(walls)), "L字")
+	assert.Equal(t, want, RowFacings(facers, nil, func(c coord) bool { return walls[c] }), "L字")
 
 	// T字では横の3台の並びが縦の3台の並びと (5,4) を分け合う。同じ長さなら先に見つけた縦の並びが取る
 	vertical := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
@@ -71,25 +64,15 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 	maps.Copy(want, all(gc.Facing{Dir: consts.TileEast}, vertical...))
 	facers = set(vertical...)
 	maps.Copy(facers, set(horizontal...))
-	assert.Equal(t, want, RowFacings(facers, weightOf(nil)), "T字")
+	assert.Equal(t, want, RowFacings(facers, nil, noWall), "T字")
 
 	// 2x2 の塊は上段を東西の並びとして先に決め、残りの下段も東西の並びとして背中合わせに南を向く
 	block := []coord{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}}
 	want = all(gc.Facing{Dir: consts.TileNorth, Backed: true}, block[:2]...)
 	maps.Copy(want, all(gc.Facing{Dir: consts.TileSouth, Backed: true}, block[2:]...))
-	assert.Equal(t, want, RowFacings(set(block...), weightOf(set(block...))), "2x2")
+	assert.Equal(t, want, RowFacings(set(block...), set(block...), noWall), "2x2")
 
 	// 北の壁を背にした棚の前に樽があっても、壁を強い根拠にして南を向く
 	shelf := coord{X: 5, Y: 5}
-	weight := func(c coord) float64 {
-		switch c {
-		case coord{X: 5, Y: 4}:
-			return 2
-		case coord{X: 5, Y: 6}:
-			return 1
-		default:
-			return 0
-		}
-	}
-	assert.Equal(t, all(gc.Facing{Dir: consts.TileSouth, Backed: true}, shelf), RowFacings(set(shelf), weight), "壁と樽に挟まれる")
+	assert.Equal(t, all(gc.Facing{Dir: consts.TileSouth, Backed: true}, shelf), RowFacings(set(shelf), set(coord{X: 5, Y: 6}), func(c coord) bool { return c == coord{X: 5, Y: 4} }), "壁と樽に挟まれる")
 }

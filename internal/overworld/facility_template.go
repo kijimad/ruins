@@ -218,8 +218,8 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 	return nil
 }
 
-// cellFacings は施設の絵の、向きを決める置物 facing のマスごとの向きを返す。壁を2、通行を塞ぐ置物と facing の置物を1の
-// 重みで塞がりに数え、並びごとに向きを決める。絵の外は塞がりに数えない
+// cellFacings は施設の絵の、向きを決める置物 facing のマスごとの向きを返す。通行を塞ぐ置物と facing の置物を塞がりに数え、
+// 並びごとに向きを決める。絵の外は塞がりに数えない
 func cellFacings(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool, propOf func(id string) (rawschema.Prop, error)) (map[consts.Coord[consts.Tile]]*gc.Facing, error) {
 	facers := map[consts.Coord[consts.Tile]]bool{}
 	blockers := map[consts.Coord[consts.Tile]]bool{}
@@ -240,18 +240,9 @@ func cellFacings(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool, prop
 			blockers[c] = facing || prop.BlockPass
 		}
 	}
-	weight := func(c consts.Coord[consts.Tile]) float64 {
-		switch {
-		case wallAt(int(c.X), int(c.Y)):
-			return 2
-		case blockers[c]:
-			return 1
-		default:
-			return 0
-		}
-	}
 	facings := map[consts.Coord[consts.Tile]]*gc.Facing{}
-	for c, f := range mapplanner.RowFacings(facers, weight) {
+	wall := func(c consts.Coord[consts.Tile]) bool { return wallAt(int(c.X), int(c.Y)) }
+	for c, f := range mapplanner.RowFacings(facers, blockers, wall) {
 		facings[c] = &f
 	}
 	return facings, nil

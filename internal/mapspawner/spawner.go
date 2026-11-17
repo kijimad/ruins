@@ -215,8 +215,8 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY
 	return nil
 }
 
-// planFacings は計画の、向きを決める置物 facing の座標ごとの向きを返す。通行を塞ぐタイルを2、
-// 通行を塞ぐ置物と facing の置物を1の重みで塞がりに数え、並びごとに向きを決める
+// planFacings は計画の、向きを決める置物 facing の座標ごとの向きを返す。通行を塞ぐタイルを壁、
+// 通行を塞ぐ置物と facing の置物を塞がりに数え、並びごとに向きを決める
 func planFacings(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]gc.Facing, error) {
 	facers := map[consts.Coord[consts.Tile]]bool{}
 	blockers := map[consts.Coord[consts.Tile]]bool{}
@@ -230,20 +230,14 @@ func planFacings(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]g
 		if facing {
 			facers[c] = true
 		}
-		blockers[c] = facing || propRaw.BlockPass
+		// 同じマスに置物が重なっても、どれか1つが塞げば塞がりに数える
+		blockers[c] = blockers[c] || facing || propRaw.BlockPass
 	}
 	width, height := metaPlan.Level.TileWidth, metaPlan.Level.TileHeight
-	weight := func(c consts.Coord[consts.Tile]) float64 {
-		switch {
-		case c.X >= 0 && c.Y >= 0 && c.X < width && c.Y < height && metaPlan.Tiles[int(c.Y*width+c.X)].BlockPass:
-			return 2
-		case blockers[c]:
-			return 1
-		default:
-			return 0
-		}
+	wall := func(c consts.Coord[consts.Tile]) bool {
+		return c.X >= 0 && c.Y >= 0 && c.X < width && c.Y < height && metaPlan.Tiles[int(c.Y*width+c.X)].BlockPass
 	}
-	return mapplanner.RowFacings(facers, weight), nil
+	return mapplanner.RowFacings(facers, blockers, wall), nil
 }
 
 // detectPropDoorOrientation はpropsの扉の向きを隣接タイルから判定する。

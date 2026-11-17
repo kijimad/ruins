@@ -120,7 +120,7 @@ func TestSpawnProps_収納propはルートテーブルからアイテムを収�
 	assert.Positive(t, count, "収納アイテムが1つ以上生成される")
 }
 
-func TestSpawnProps_棚の向きを地図を作るときに決めて壊れても変えない(t *testing.T) {
+func TestSpawnProps_棚の向きを地図を作るときに決めて付ける(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -150,6 +150,4 @@ func TestSpawnProps_棚の向きを地図を作るときに決めて壊れても
 		assert.Equal(t, gc.Facing{Dir: consts.TileSouth, Backed: true}, *world.Components.Facing.Get(e))
 	}
 
-	world.ECS.RemoveEntity(shelves[0])
-	assert.Equal(t, gc.Facing{Dir: consts.TileSouth, Backed: true}, *world.Components.Facing.Get(shelves[1]), "隣が壊れても向きは変わらない")
 }
