@@ -54,7 +54,7 @@ func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool {
 	return err == nil
 }
 
-// saveModTimeImpl はセーブファイルを書いた時刻を返す。中身を読めないセーブを並べるのに使う
+// saveModTimeImpl はセーブファイルを書いた時刻を返す
 func (sm *SerializationManager) saveModTimeImpl(slotName string) (time.Time, error) {
 	info, err := os.Stat(filepath.Join(sm.saveDirectory, slotName+saveFileExt))
 	if err != nil {

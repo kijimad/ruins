@@ -239,9 +239,8 @@ func (sm *SerializationManager) ListSaves() ([]string, error) {
 	return valid, nil
 }
 
-// LatestSave は全てのセーブから最も新しいスロット名を返す。中身や中の時刻を読めないセーブも、書いた時刻で並べて候補に含める。
-// 最新のセーブが壊れているとき、古いセーブから黙って続きを始めず、読み込みで失敗させるためである。
-// 書いた時刻も取れないセーブは並べられないので除く。セーブが無ければ ErrNoSave を返す
+// LatestSave は全てのセーブから最も新しいスロット名を返す。中身や中の時刻を読めないセーブも書いた時刻で並べ、
+// 壊れた最新を飛ばして古いセーブを選ばないようにする。セーブが無ければ ErrNoSave を返す
 func (sm *SerializationManager) LatestSave() (string, error) {
 	names, err := sm.listSavesImpl()
 	if err != nil {

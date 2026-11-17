@@ -247,14 +247,12 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 	return NewDungeonState(d.CurrentStage.Depth, WithDefinitionName(d.CurrentStage.Name), WithResume())
 }
 
-// ErrNoContinuePoint はセーブが1つも無いことを表す。エラーではなく、呼び出し側はこれを見て
-// メニューへ退避する。読めないセーブがあるときの読み込みの失敗と区別するためのセンチネル。
+// ErrNoContinuePoint はセーブが1つも無いことを表す
 var ErrNoContinuePoint = errors.New("no save to continue")
 
 // ResumeFromLatestSave は最新のセーブを saveManager から world へ読み込み、その地点の復帰ステートを返す。
 // セーブが無いときは ErrNoContinuePoint を返す。最新のセーブを読めないときは、古いセーブへ進まず読み込みのエラーを返す。
 func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager) (es.State[w.World], error) {
-	// 手動と自動を混ぜた全スロットから最新を読む。最新が壊れていても古いセーブへは進まない
 	latest, err := saveManager.LatestSave()
 	if errors.Is(err, save.ErrNoSave) {
 		return nil, ErrNoContinuePoint
@@ -273,9 +271,7 @@ func ResumeFromLatestSave(world w.World, saveManager *save.SerializationManager)
 }
 
 // ContinueOrMainMenu は最新のセーブから続きを始めるステートを返す。セーブが無いときはメインメニューを、
-// 読めないときは読めなかったことを知らせるメインメニューを返す。
-// 読めないセーブで起動のたびに止まると、セーブを消すまで起動できなくなる。復元は先に使い捨てのワールドで試すので、
-// 読み込みに失敗しても world は壊れず、メインメニューからそのまま続けられる
+// 読めないときは読めなかったことを知らせるメインメニューを返す
 func ContinueOrMainMenu(world w.World, saveManager *save.SerializationManager) es.State[w.World] {
 	state, err := ResumeFromLatestSave(world, saveManager)
 	if err != nil {
