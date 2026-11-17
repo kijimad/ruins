@@ -57,7 +57,7 @@ func TestRowPoses_並びごとに背が塞がり前が空く側を向く(t *test
 	maps.Copy(facers, set(east3...))
 	assert.Equal(t, want, RowPoses(facers, nil, func(c coord) bool { return walls[c] }), "L字")
 
-	// T字では横の3台の並びが縦の3台の並びと (5,4) を分け合う。同じ長さなら先に見つけた縦の並びが取る
+	// T字では、交わりの (5,4) を含めて横に3台の並びと縦に3台の並びが (5,4) を分け合う。同じ長さなら先に見つけた縦の並びが取る
 	vertical := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
 	horizontal := []coord{{X: 3, Y: 4}, {X: 4, Y: 4}}
 	want = all(gc.Pose{Facing: consts.South}, horizontal...)

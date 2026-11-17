@@ -150,7 +150,7 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 
 // spawnProps はPropsを生成する
 func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
-	facings, err := planPoses(metaPlan)
+	poses, err := planPoses(metaPlan)
 	if err != nil {
 		return err
 	}
@@ -167,7 +167,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 			return fmt.Errorf("failed to spawn props (%d, %d): %w", prop.X, prop.Y, err)
 		}
 
-		if f, ok := facings[consts.Coord[consts.Tile]{X: prop.X, Y: prop.Y}]; ok && propRaw.SpriteRender.Shape != nil && *propRaw.SpriteRender.Shape == rawschema.Facing {
+		if f, ok := poses[consts.Coord[consts.Tile]{X: prop.X, Y: prop.Y}]; ok && propRaw.SpriteRender.HasShape(rawschema.Facing) {
 			world.Components.Pose.Add(propEntity, &f)
 		}
 
@@ -225,11 +225,11 @@ func planPoses(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]gc.
 			return nil, fmt.Errorf("failed to get props (%s): %w", prop.Name, err)
 		}
 		c := consts.Coord[consts.Tile]{X: prop.X, Y: prop.Y}
-		facing := propRaw.SpriteRender.Shape != nil && *propRaw.SpriteRender.Shape == rawschema.Facing
-		if facing {
+		isFacing := propRaw.SpriteRender.HasShape(rawschema.Facing)
+		if isFacing {
 			facers[c] = true
 		}
-		blockers[c] = blockers[c] || facing || propRaw.BlockPass
+		blockers[c] = blockers[c] || isFacing || propRaw.BlockPass
 	}
 	width, height := metaPlan.Level.TileWidth, metaPlan.Level.TileHeight
 	wall := func(c consts.Coord[consts.Tile]) bool {

@@ -420,8 +420,8 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 }
 
 // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
-// inset は壁にはめる板、facing は向きに合わせて回した薄い板にする。床の模様は地面に寝かせる。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, facings map[consts.Coord[consts.Tile]]gc.Pose) []r3quad {
+// inset は壁にはめる板、facing は置き方 Pose に合わせて立てる閉じた板にし、Pose が無ければ立て板にする。床の模様は地面に寝かせる。
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, poses map[consts.Coord[consts.Tile]]gc.Pose) []r3quad {
 	right := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
@@ -460,12 +460,12 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		if !vis {
 			continue
 		}
-		if f, ok := facings[g.Coord]; ok && sr.Shape == rawschema.Facing {
+		if f, ok := poses[g.Coord]; ok && sr.Shape == rawschema.Facing {
 			drawn := func(n consts.Coord[consts.Tile]) bool {
 				_, _, v := visTint(&gc.GridElement{Coord: n})
 				return v && projector.TileOnScreen(n, render3d.BillboardHeight)
 			}
-			sys.addSlab(&quads, facingFaces(g.Coord, f, facings, drawn), atlas, ux, uy, uw, uh, tint)
+			sys.addSlab(&quads, facingFaces(g.Coord, f, poses, drawn), atlas, ux, uy, uw, uh, tint)
 			continue
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
@@ -498,17 +498,17 @@ const (
 
 // posesAt は置き方 Pose を持つエンティティの、座標ごとの置き方を返す。板の端を隣とつなぐのに使う
 func posesAt(world w.World) map[consts.Coord[consts.Tile]]gc.Pose {
-	facings := map[consts.Coord[consts.Tile]]gc.Pose{}
+	poses := map[consts.Coord[consts.Tile]]gc.Pose{}
 	q := query.ActiveFilter2[gc.Pose, gc.GridElement](world).Query()
 	for q.Next() {
-		facings[world.Components.GridElement.Get(q.Entity()).Coord] = *world.Components.Pose.Get(q.Entity())
+		poses[world.Components.GridElement.Get(q.Entity()).Coord] = *world.Components.Pose.Get(q.Entity())
 	}
-	return facings
+	return poses
 }
 
 // facingFaces は置き方 f の置物の面を返す。平均色で塗った閉じた6面の板の正面と背面に、外向きに絵を貼る。
 // 同じ置き方の隣が描かれ drawn、接するときは、重なってちらつかないよう端を省く
-func facingFaces(c consts.Coord[consts.Tile], f gc.Pose, facings map[consts.Coord[consts.Tile]]gc.Pose, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {
+func facingFaces(c consts.Coord[consts.Tile], f gc.Pose, poses map[consts.Coord[consts.Tile]]gc.Pose, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {
 	const h = render3d.WallHeight
 	turns := quarterTurns(f.Facing)
 	connected := func(side consts.Cardinal) bool {
@@ -516,7 +516,7 @@ func facingFaces(c consts.Coord[consts.Tile], f gc.Pose, facings map[consts.Coor
 		for range turns {
 			local = consts.Coord[consts.Tile]{X: -local.Y, Y: local.X}
 		}
-		n, ok := facings[c.Add(local)]
+		n, ok := poses[c.Add(local)]
 		return ok && n.Facing == f.Facing && n.Anchor == f.Anchor && drawn(c.Add(local))
 	}
 	z0 := 0.5 - facingThickness/2
