@@ -1,13 +1,9 @@
 package systems
 
 import (
-	"cmp"
 	"fmt"
 	"image"
 	"image/color"
-	"maps"
-	"math"
-	"slices"
 	"sort"
 	"sync"
 
@@ -189,19 +185,7 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	// 前フレームのバッファを [:0] で使い回す。追記で伸びた容量を最後に持ち越す
 	walls := render3d.BoxTileSet(world)
 	quads := sys.collectTiles(world, sys.quads[:0], projector, visTint, walls)
-	facers, blockers := facingProps(world)
-	facings := rowFacings(facers, func(c consts.Coord[consts.Tile]) float64 {
-		// 動かない壁は置物より強い根拠にする
-		switch {
-		case walls[c]:
-			return 2
-		case blockers[c]:
-			return 1
-		default:
-			return 0
-		}
-	})
-	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world), facings)
+	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world), facingsAt(world))
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
 	// 展開中キューブの野営エリアを囲むレーザー壁も状態従属の装飾として積む
@@ -437,7 +421,7 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 
 // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
 // inset は壁にはめる板、facing は向きに合わせて回した薄い板にする。床の模様は地面に寝かせる。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, facings map[consts.Coord[consts.Tile]]facing) []r3quad {
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, facings map[consts.Coord[consts.Tile]]gc.Facing) []r3quad {
 	right := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
@@ -512,85 +496,12 @@ const (
 	facingLift = 0.01
 )
 
-// facingProps は向きを決める置物 facing の座標の集合と、その向きを決めるときに塞がる置物の座標の集合を返す。
-// 塞がる置物は通行を塞ぐ置物と、通行と関係なく facing の置物で、2列に並べた棚は背中合わせになる。
-// 壁にはめる置物は開け閉めで並びの向きが変わらないよう、塞がる置物に含めない。置物 Prop だけを見るので、
-// Prop でない物に facing を付けても並びに入らず向きが決まらない
-func facingProps(world w.World) (facers, blockers map[consts.Coord[consts.Tile]]bool) {
-	facers, blockers = map[consts.Coord[consts.Tile]]bool{}, map[consts.Coord[consts.Tile]]bool{}
-	q := query.ActiveFilter3[gc.Prop, gc.SpriteRender, gc.GridElement](world).Query()
+// facingsAt は地図を作るときに向きを決めた置物の、座標ごとの向きを返す。板の端を隣とつなぐのに使う
+func facingsAt(world w.World) map[consts.Coord[consts.Tile]]gc.Facing {
+	facings := map[consts.Coord[consts.Tile]]gc.Facing{}
+	q := query.ActiveFilter2[gc.Facing, gc.GridElement](world).Query()
 	for q.Next() {
-		e := q.Entity()
-		shape := world.Components.SpriteRender.Get(e).Shape
-		c := world.Components.GridElement.Get(e).Coord
-		if shape == rawschema.Facing {
-			facers[c] = true
-		}
-		if shape == rawschema.Facing || shape != rawschema.Inset && world.Components.BlockPass.Has(e) {
-			blockers[c] = true
-		}
-	}
-	return facers, blockers
-}
-
-var (
-	dirNorth = consts.Coord[consts.Tile]{X: 0, Y: -1}
-	dirEast  = consts.Coord[consts.Tile]{X: 1, Y: 0}
-	dirSouth = consts.Coord[consts.Tile]{X: 0, Y: 1}
-	dirWest  = consts.Coord[consts.Tile]{X: -1, Y: 0}
-)
-
-// facingRow は向きを1つにそろえる置物の並び。sides は並びが向ける方向の候補
-type facingRow struct {
-	members, sides []consts.Coord[consts.Tile]
-}
-
-// facing は置物の向き dir と、背が塞がっていて背の側へ寄せるか backed
-type facing struct {
-	dir    consts.Coord[consts.Tile]
-	backed bool
-}
-
-// rowFacings は facing の置物ごとの向きを返す。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
-// 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。一番長い並びから1本ずつ決め、
-// 決めた置物を除いた残りから並びを作り直す。L字やT字で交わる置物は長い並びの向きにそろい、塊の残りも並びとして向く。
-// 並びと直角の2方向のうち、背の塞がりの重み weight が大きく前が小さい側を向く。同じなら南・東・西・北の順で先の側を向く。
-// 並びの1台でも背が塞がれば、並び全体を背へ寄せる。軸に沿って隣り合う同じ向きの2台は必ず同じ並びで決まるので、
-// 寄せる位置も同じになり、端を省き合っても継ぎ目に隙間が出ない。
-// 1台だけの置物は4方向から同じく選ぶ
-func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Coord[consts.Tile]) float64) map[consts.Coord[consts.Tile]]facing {
-	order := slices.SortedFunc(maps.Keys(facers), func(a, b consts.Coord[consts.Tile]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) })
-	left := maps.Clone(facers)
-	facings := map[consts.Coord[consts.Tile]]facing{}
-	decide := func(row facingRow) {
-		best, bestScore, back := row.sides[0], math.Inf(-1), 0.0
-		for _, d := range row.sides {
-			score, b := 0.0, 0.0
-			for _, m := range row.members {
-				b += weight(m.Sub(d))
-				score += weight(m.Sub(d)) - weight(m.Add(d))
-			}
-			if score > bestScore {
-				best, bestScore, back = d, score, b
-			}
-		}
-		for _, m := range row.members {
-			facings[m] = facing{dir: best, backed: back > 0}
-			delete(left, m)
-		}
-	}
-	for len(left) > 0 {
-		row := longestRow(order, left)
-		if len(row.members) > 1 {
-			decide(row)
-			continue
-		}
-		// 一番長い並びが1台なら残りはどれも1台なので、並びを探し直さずに順に決める
-		for _, c := range order {
-			if left[c] {
-				decide(facingRow{members: []consts.Coord[consts.Tile]{c}, sides: aloneSides})
-			}
-		}
+		facings[world.Components.GridElement.Get(q.Entity()).Coord] = *world.Components.Facing.Get(q.Entity())
 	}
 	return facings
 }
@@ -598,22 +509,22 @@ func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Co
 // facingFaces は向き f の置物の面を返す。平均色で塗った閉じた6面の板を立て、正面と背面に外向きに絵を貼る。
 // 絵の透明な余白からは板の色が見える。同じ向きの隣が描かれ drawn、端が接するときは、重なってちらつかないよう省く。
 // 背が塞がっていれば背の側へ寄せ、空いていればマスの真ん中に立てる。南を向く板を作ってから向きの分だけ回す
-func facingFaces(c consts.Coord[consts.Tile], f facing, facings map[consts.Coord[consts.Tile]]facing, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {
+func facingFaces(c consts.Coord[consts.Tile], f gc.Facing, facings map[consts.Coord[consts.Tile]]gc.Facing, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {
 	const h = render3d.WallHeight
-	turns := quarterTurns(f.dir)
+	turns := quarterTurns(f.Dir)
 	connected := func(local consts.Coord[consts.Tile]) bool {
 		for range turns {
 			local = consts.Coord[consts.Tile]{X: -local.Y, Y: local.X}
 		}
 		n, ok := facings[c.Add(local)]
-		return ok && n.dir == f.dir && drawn(c.Add(local))
+		return ok && n.Dir == f.Dir && drawn(c.Add(local))
 	}
 	z0 := 0.5 - facingThickness/2
-	if f.backed {
+	if f.Backed {
 		z0 = facingGap
 	}
 	z1 := z0 + facingThickness
-	faces := slab(z0, z1, !connected(dirWest), !connected(dirEast))
+	faces := slab(z0, z1, !connected(consts.TileWest), !connected(consts.TileEast))
 	for i := range faces {
 		faces[i].flat = true
 	}
@@ -636,55 +547,16 @@ func facingFaces(c consts.Coord[consts.Tile], f facing, facings map[consts.Coord
 // quarterTurns は南を向く板を向き dir へ回す90度の回数を返す
 func quarterTurns(dir consts.Coord[consts.Tile]) int {
 	switch dir {
-	case dirSouth:
+	case consts.TileSouth:
 		return 0
-	case dirWest:
+	case consts.TileWest:
 		return 1
-	case dirNorth:
+	case consts.TileNorth:
 		return 2
-	case dirEast:
+	case consts.TileEast:
 		return 3
 	}
 	panic(fmt.Sprintf("facing direction is not one of the four cardinals: %v", dir))
-}
-
-var (
-	// rowAxes は並びの軸。東西の並びを南北より先に探す
-	rowAxes = []struct{ back, ahead consts.Coord[consts.Tile] }{{dirWest, dirEast}, {dirNorth, dirSouth}}
-	// eastWestRowSides、northSouthRowSides、aloneSides は向きの候補。同点なら先の側を向く
-	eastWestRowSides   = []consts.Coord[consts.Tile]{dirSouth, dirNorth}
-	northSouthRowSides = []consts.Coord[consts.Tile]{dirEast, dirWest}
-	aloneSides         = []consts.Coord[consts.Tile]{dirSouth, dirEast, dirWest, dirNorth}
-)
-
-// longestRow は残りの置物 left の中で一番長いまっすぐな並びを返す。order は置物を北西から並べた順。
-// 同じ長さなら北西に近い置物から始まる並び、東西の並びを先にする。並びが無ければ1台だけの並びを返す
-func longestRow(order []consts.Coord[consts.Tile], left map[consts.Coord[consts.Tile]]bool) facingRow {
-	var best facingRow
-	for _, c := range order {
-		if !left[c] {
-			continue
-		}
-		if best.members == nil {
-			best = facingRow{members: []consts.Coord[consts.Tile]{c}}
-		}
-		for _, axis := range rowAxes {
-			if left[c.Add(axis.back)] || !left[c.Add(axis.ahead)] {
-				continue
-			}
-			row := facingRow{sides: eastWestRowSides}
-			if axis.back == dirNorth {
-				row.sides = northSouthRowSides
-			}
-			for m := c; left[m]; m = m.Add(axis.ahead) {
-				row.members = append(row.members, m)
-			}
-			if len(row.members) > len(best.members) {
-				best = row
-			}
-		}
-	}
-	return best
 }
 
 // insetFace は壁にはめる置物の1面。flat は絵を貼らず平均色で塗る面

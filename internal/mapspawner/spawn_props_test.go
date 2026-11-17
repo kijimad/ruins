@@ -119,3 +119,37 @@ func TestSpawnProps_収納propはルートテーブルからアイテムを収�
 	}
 	assert.Positive(t, count, "収納アイテムが1つ以上生成される")
 }
+
+func TestSpawnProps_棚の向きを地図を作るときに決めて壊れても変えない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	// 北の行が壁、その南に本棚が東西に2台並ぶ
+	tiles := make([]rawschema.Tile, 12)
+	for i := range tiles {
+		tiles[i] = rawschema.Tile{BlockPass: i < 4}
+	}
+	plan := &mapplanner.MetaPlan{
+		Level:     gc.Level{TileWidth: 4, TileHeight: 3},
+		RawMaster: &world.Resources.RawMaster,
+		Tiles:     tiles,
+		Props: []mapplanner.PropsSpec{
+			{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "book_shelf_2"},
+			{Coord: consts.Coord[consts.Tile]{X: 2, Y: 1}, Name: "book_shelf_2"},
+		},
+	}
+	require.NoError(t, spawnProps(world, plan, 0, 0))
+
+	var shelves []ecs.Entity
+	q := ecs.NewFilter1[gc.Facing](world.ECS).Query()
+	for q.Next() {
+		shelves = append(shelves, q.Entity())
+	}
+	require.Len(t, shelves, 2)
+	for _, e := range shelves {
+		assert.Equal(t, gc.Facing{Dir: consts.TileSouth, Backed: true}, *world.Components.Facing.Get(e))
+	}
+
+	world.ECS.RemoveEntity(shelves[0])
+	assert.Equal(t, gc.Facing{Dir: consts.TileSouth, Backed: true}, *world.Components.Facing.Get(shelves[1]), "隣が壊れても向きは変わらない")
+}

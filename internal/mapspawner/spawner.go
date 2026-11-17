@@ -150,6 +150,10 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 
 // spawnProps はPropsを生成する
 func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
+	facings, err := planFacings(metaPlan)
+	if err != nil {
+		return err
+	}
 	for _, prop := range metaPlan.Props {
 		tileX, tileY := prop.X+offsetX, prop.Y+offsetY
 
@@ -161,6 +165,10 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 		propEntity, err := lifecycle.SpawnProp(world, prop.Name, tileX, tileY)
 		if err != nil {
 			return fmt.Errorf("failed to spawn props (%d, %d): %w", prop.X, prop.Y, err)
+		}
+
+		if f, ok := facings[consts.Coord[consts.Tile]{X: prop.X, Y: prop.Y}]; ok {
+			world.Components.Facing.Add(propEntity, &f)
 		}
 
 		// Door componentがあれば向きを設定して閉じた状態で初期化
@@ -205,6 +213,37 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY
 	}
 
 	return nil
+}
+
+// planFacings は計画の、向きを決める置物 facing の座標ごとの向きを返す。通行を塞ぐタイルを2、
+// 通行を塞ぐ置物と facing の置物を1の重みで塞がりに数え、並びごとに向きを決める
+func planFacings(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]gc.Facing, error) {
+	facers := map[consts.Coord[consts.Tile]]bool{}
+	blockers := map[consts.Coord[consts.Tile]]bool{}
+	for _, prop := range metaPlan.Props {
+		propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get props (%s): %w", prop.Name, err)
+		}
+		c := consts.Coord[consts.Tile]{X: prop.X, Y: prop.Y}
+		facing := propRaw.SpriteRender.Shape != nil && *propRaw.SpriteRender.Shape == rawschema.Facing
+		if facing {
+			facers[c] = true
+		}
+		blockers[c] = facing || propRaw.BlockPass
+	}
+	width, height := metaPlan.Level.TileWidth, metaPlan.Level.TileHeight
+	weight := func(c consts.Coord[consts.Tile]) float64 {
+		switch {
+		case c.X >= 0 && c.Y >= 0 && c.X < width && c.Y < height && metaPlan.Tiles[int(c.Y*width+c.X)].BlockPass:
+			return 2
+		case blockers[c]:
+			return 1
+		default:
+			return 0
+		}
+	}
+	return mapplanner.RowFacings(facers, weight), nil
 }
 
 // detectPropDoorOrientation はpropsの扉の向きを隣接タイルから判定する。

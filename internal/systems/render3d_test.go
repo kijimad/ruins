@@ -2,7 +2,6 @@ package systems
 
 import (
 	"image/color"
-	"maps"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -427,99 +426,14 @@ func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
 	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil))
 }
 
-func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *testing.T) {
-	t.Parallel()
-
-	type coord = consts.Coord[consts.Tile]
-	set := func(cs ...coord) map[coord]bool {
-		m := map[coord]bool{}
-		for _, c := range cs {
-			m[c] = true
-		}
-		return m
-	}
-	weightOf := func(blocked map[coord]bool) func(coord) float64 {
-		return func(c coord) float64 {
-			if blocked[c] {
-				return 1
-			}
-			return 0
-		}
-	}
-	all := func(f facing, cs ...coord) map[coord]facing {
-		m := map[coord]facing{}
-		for _, c := range cs {
-			m[c] = f
-		}
-		return m
-	}
-	row := []coord{{X: 2, Y: 5}, {X: 3, Y: 5}, {X: 4, Y: 5}}
-	column := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
-	cases := []struct {
-		name    string
-		facers  []coord
-		blocked map[coord]bool
-		want    map[coord]facing
-	}{
-		{"両面とも空いた東西の並びは南を向き、真ん中に立つ", row, nil, all(facing{dir: dirSouth}, row...)},
-		{"北に1つだけ塞がりがある並びも全員が南を向き、背へ寄る", row, set(coord{X: 3, Y: 4}), all(facing{dir: dirSouth, backed: true}, row...)},
-		{"東の壁と北の角に接する南北の並びは全員が西を向く", column, set(coord{X: 6, Y: 2}, coord{X: 6, Y: 3}, coord{X: 6, Y: 4}, coord{X: 5, Y: 1}), all(facing{dir: dirWest, backed: true}, column...)},
-		{"北の壁に接する1台は南を向く", []coord{{X: 5, Y: 5}}, set(coord{X: 5, Y: 4}), all(facing{dir: dirSouth, backed: true}, coord{X: 5, Y: 5})},
-		{"何にも接しない1台は南を向き、真ん中に立つ", []coord{{X: 5, Y: 5}}, nil, all(facing{dir: dirSouth}, coord{X: 5, Y: 5})},
-	}
-	for _, tc := range cases {
-		assert.Equal(t, tc.want, rowFacings(set(tc.facers...), weightOf(tc.blocked)), tc.name)
-	}
-
-	// 北東の角で、北の壁沿いの5台の列と、角を含めて東の壁沿いに4台の列が角の1台を分け合う。角は長い北の列にそろう
-	north5 := []coord{{X: 1, Y: 1}, {X: 2, Y: 1}, {X: 3, Y: 1}, {X: 4, Y: 1}, {X: 5, Y: 1}}
-	east3 := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
-	walls := set(coord{X: 1, Y: 0}, coord{X: 2, Y: 0}, coord{X: 3, Y: 0}, coord{X: 4, Y: 0}, coord{X: 5, Y: 0},
-		coord{X: 6, Y: 1}, coord{X: 6, Y: 2}, coord{X: 6, Y: 3}, coord{X: 6, Y: 4})
-	want := all(facing{dir: dirSouth, backed: true}, north5...)
-	maps.Copy(want, all(facing{dir: dirWest, backed: true}, east3...))
-	facers := set(north5...)
-	maps.Copy(facers, set(east3...))
-	assert.Equal(t, want, rowFacings(facers, weightOf(walls)), "L字")
-
-	// T字では横の3台の並びが縦の3台の並びと (5,4) を分け合う。同じ長さなら先に見つけた縦の並びが取る
-	vertical := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
-	horizontal := []coord{{X: 3, Y: 4}, {X: 4, Y: 4}}
-	want = all(facing{dir: dirSouth}, horizontal...)
-	maps.Copy(want, all(facing{dir: dirEast}, vertical...))
-	facers = set(vertical...)
-	maps.Copy(facers, set(horizontal...))
-	assert.Equal(t, want, rowFacings(facers, weightOf(nil)), "T字")
-
-	// 2x2 の塊は上段を東西の並びとして先に決め、残りの下段も東西の並びとして背中合わせに南を向く
-	block := []coord{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}}
-	want = all(facing{dir: dirNorth, backed: true}, block[:2]...)
-	maps.Copy(want, all(facing{dir: dirSouth, backed: true}, block[2:]...))
-	assert.Equal(t, want, rowFacings(set(block...), weightOf(set(block...))), "2x2")
-
-	// 北の壁を背にした棚の前に樽があっても、壁を強い根拠にして南を向く
-	shelf := coord{X: 5, Y: 5}
-	weight := func(c coord) float64 {
-		switch c {
-		case coord{X: 5, Y: 4}:
-			return 2
-		case coord{X: 5, Y: 6}:
-			return 1
-		default:
-			return 0
-		}
-	}
-	assert.Equal(t, all(facing{dir: dirSouth, backed: true}, shelf), rowFacings(set(shelf), weight), "壁と樽に挟まれる")
-}
-
 func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T) {
 	t.Parallel()
 
 	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
-	westBacked := facing{dir: dirWest, backed: true}
+	westBacked := gc.Facing{Dir: consts.TileWest, Backed: true}
 	// 東の壁を背に西を向く南北の並びの1台。北の隣と接するので北の端を省き、5面の板と正面と背面の絵になる
 	all := func(consts.Coord[consts.Tile]) bool { return true }
-	faces := facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]facing{c: westBacked, {X: 5, Y: 4}: westBacked}, all)
+	faces := facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Facing{c: westBacked, {X: 5, Y: 4}: westBacked}, all)
 	require.Len(t, faces, 7)
 	for _, f := range faces[:5] {
 		assert.True(t, f.flat)
@@ -533,40 +447,33 @@ func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T)
 	}, faces[5:], "絵は板の西の正面と東の背面から、外向きに少し浮かせて貼る")
 
 	// 隣の無い1台は、天面・前後・左右・底面の6面で閉じ、正面と背面に絵を貼る
-	alone := facing{dir: dirSouth}
-	assert.Len(t, facingFaces(c, alone, map[consts.Coord[consts.Tile]]facing{c: alone}, all), 8)
+	alone := gc.Facing{Dir: consts.TileSouth}
+	assert.Len(t, facingFaces(c, alone, map[consts.Coord[consts.Tile]]gc.Facing{c: alone}, all), 8)
 
 	// 北向きと東向きの1台は、南向きの板を2回と3回回した位置に正面の絵が来る
-	north := facing{dir: dirNorth}
+	north := gc.Facing{Dir: consts.TileNorth}
 	assertFacesInDelta(t, []insetFace{
 		{p: [4]render3d.Vec{render3d.At(6, 1, 5.39), render3d.At(5, 1, 5.39), render3d.At(5, 0, 5.39), render3d.At(6, 0, 5.39)}},
-	}, facingFaces(c, north, map[consts.Coord[consts.Tile]]facing{c: north}, all)[6:7], "北向きの正面")
-	east := facing{dir: dirEast}
+	}, facingFaces(c, north, map[consts.Coord[consts.Tile]]gc.Facing{c: north}, all)[6:7], "北向きの正面")
+	east := gc.Facing{Dir: consts.TileEast}
 	assertFacesInDelta(t, []insetFace{
 		{p: [4]render3d.Vec{render3d.At(5.61, 1, 6), render3d.At(5.61, 1, 5), render3d.At(5.61, 0, 5), render3d.At(5.61, 0, 6)}},
-	}, facingFaces(c, east, map[consts.Coord[consts.Tile]]facing{c: east}, all)[6:7], "東向きの正面")
+	}, facingFaces(c, east, map[consts.Coord[consts.Tile]]gc.Facing{c: east}, all)[6:7], "東向きの正面")
 
 	// 北の隣が視界の外で描かれなければ、北の端を省かず板を閉じる
 	hidden := func(n consts.Coord[consts.Tile]) bool { return n != consts.Coord[consts.Tile]{X: 5, Y: 4} }
-	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]facing{c: westBacked, {X: 5, Y: 4}: westBacked}, hidden), 8)
+	assert.Len(t, facingFaces(c, westBacked, map[consts.Coord[consts.Tile]]gc.Facing{c: westBacked, {X: 5, Y: 4}: westBacked}, hidden), 8)
 }
 
-func TestFacingProps_向きを決める置物と塞がる置物を集める(t *testing.T) {
+func TestFacingsAt_地図を作るときに決めた向きを座標ごとに集める(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnProp(world, "book_shelf_2", 3, 3)
+	shelf, err := lifecycle.SpawnProp(world, "book_shelf_2", 3, 3)
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnProp(world, "barrel", 4, 3)
-	require.NoError(t, err)
-	_, err = lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 5, Y: 3}, gc.DoorOrientationHorizontal)
-	require.NoError(t, err)
-
-	// 飾り棚は通行を塞がないが、facing の置物なので塞がりに数える
-	_, err = lifecycle.SpawnProp(world, "artistic_shelf", 6, 3)
+	world.Components.Facing.Add(shelf, &gc.Facing{Dir: consts.TileWest, Backed: true})
+	_, err = lifecycle.SpawnProp(world, "book_shelf_2", 4, 3)
 	require.NoError(t, err)
 
-	facers, blockers := facingProps(world)
-	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 6, Y: 3}: true}, facers)
-	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 4, Y: 3}: true, {X: 6, Y: 3}: true}, blockers)
+	assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Facing{{X: 3, Y: 3}: {Dir: consts.TileWest, Backed: true}}, facingsAt(world))
 }

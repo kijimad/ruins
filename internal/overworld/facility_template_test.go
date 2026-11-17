@@ -181,6 +181,27 @@ func TestSpawnFacility_窓に挟まれた扉は縦向きになる(t *testing.T) 
 	assert.Equal(t, []gc.DoorOrientation{gc.DoorOrientationVertical}, got)
 }
 
+func TestSpawnFacility_棚の向きを施設の絵の並びから決めて付ける(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	// 北の行が壁、その南に本棚が東西に2台並ぶ
+	cells := [][]maptemplate.MapCell{
+		{{Terrain: "wall"}, {Terrain: "wall"}},
+		{{Terrain: "floor_linoleum", Prop: "book_shelf_2"}, {Terrain: "floor_linoleum", Prop: "book_shelf_2"}},
+	}
+	g := chunkGeom{chunkW: 2, chunkH: 2, tiles: &tileIndex{world: world, loX: 0, hiX: 2}}
+	_, _, err := spawnFacility(world, g, cells, 0, 0, "store", raw.MinDanger, 1)
+	require.NoError(t, err)
+
+	var got []gc.Facing
+	q := ecs.NewFilter1[gc.Facing](world.ECS).Query()
+	for q.Next() {
+		got = append(got, *q.Get())
+	}
+	assert.Equal(t, []gc.Facing{{Dir: consts.TileSouth, Backed: true}, {Dir: consts.TileSouth, Backed: true}}, got)
+}
+
 func TestSpawnFacility_扉の向きを決める隣の置物の行が無ければエラー(t *testing.T) {
 	t.Parallel()
 

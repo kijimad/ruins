@@ -61,3 +61,11 @@ func FloorDiv[T ~int](a, b T) T {
 	}
 	return q
 }
+
+// 東西南北の隣のマスへの向き。北は Y が減る向き
+var (
+	TileNorth = Coord[Tile]{X: 0, Y: -1}
+	TileEast  = Coord[Tile]{X: 1, Y: 0}
+	TileSouth = Coord[Tile]{X: 0, Y: 1}
+	TileWest  = Coord[Tile]{X: -1, Y: 0}
+)
