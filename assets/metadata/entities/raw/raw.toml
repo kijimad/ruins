@@ -20282,6 +20282,7 @@
   name = "Artistic Shelf"
   [props.spriteRender]
     depth = 0
+    shape = "facing"
     spriteKey = "artistic_shelf"
     spriteSheetName = "field"
 
@@ -20421,6 +20422,7 @@
   name = "Bookshelf"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "book_shelf_2"
     spriteSheetName = "field"
 
@@ -20445,6 +20447,7 @@
   name = "Bookshelf"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "wooden_bookshelf"
     spriteSheetName = "field"
   [props.storage]
@@ -20667,6 +20670,7 @@
   name = "Dish Shelf"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "dish_shelf"
     spriteSheetName = "field"
   [props.storage]
@@ -20682,13 +20686,14 @@
   id = "door"
   name = "Door"
   [props.door]
-    horizontalClosed = "door_horizontal_closed"
-    horizontalOpen = "door_horizontal_open"
+    horizontalClosed = "door_vertical_closed"
+    horizontalOpen = "door_vertical_closed"
     verticalClosed = "door_vertical_closed"
-    verticalOpen = "door_vertical_open"
+    verticalOpen = "door_vertical_closed"
   [props.spriteRender]
     depth = 3
-    spriteKey = "door_horizontal_closed"
+    shape = "inset"
+    spriteKey = "door_vertical_closed"
     spriteSheetName = "field"
 
 [[props]]
@@ -20800,6 +20805,7 @@
   name = "Goods Shelf"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "goods_shelf"
     spriteSheetName = "field"
   [props.storage]
@@ -20837,6 +20843,7 @@
       id = "iron"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "iron_shelf"
     spriteSheetName = "field"
 
@@ -20881,6 +20888,7 @@
   name = "Window"
   [props.spriteRender]
     depth = 3
+    shape = "inset"
     spriteKey = "window"
     spriteSheetName = "field"
 
@@ -21061,6 +21069,7 @@
   name = "Bookshelf"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "prop_bookshelf"
     spriteSheetName = "field"
 
@@ -21282,6 +21291,7 @@
   name = "Wooden Bookshelf"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "wood_bookshelf"
     spriteSheetName = "field"
 

@@ -2,6 +2,7 @@ package systems
 
 import (
 	"image/color"
+	"math"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -264,7 +265,7 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil)
 
 	require.Len(t, quads, 1)
 	assert.Equal(t, [4]render3d.Vec{
@@ -326,5 +327,159 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 			layer := (&Render3DSystem{}).newSnowLayer(world)
 			assert.InDelta(t, tt.want, layer.amount(world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}), 1e-9)
 		})
+	}
+}
+
+// assertFacesInDelta は面の並びを、頂点を近似で、塗り方を一致で比べる
+func assertFacesInDelta(t *testing.T, want, got []insetFace, msg string) {
+	t.Helper()
+	require.Len(t, got, len(want), msg)
+	for i := range want {
+		assert.Equal(t, want[i].flat, got[i].flat, msg)
+		for j := range want[i].p {
+			assert.InDelta(t, want[i].p[j].X, got[i].p[j].X, 1e-9, msg)
+			assert.InDelta(t, want[i].p[j].Y, got[i].p[j].Y, 1e-9, msg)
+			assert.InDelta(t, want[i].p[j].Z, got[i].p[j].Z, 1e-9, msg)
+		}
+	}
+}
+
+func TestInsetConnections_隣の壁と閉じた壁にはめる置物につながる(t *testing.T) {
+	t.Parallel()
+
+	walls := map[consts.Coord[consts.Tile]]bool{{X: 24, Y: 25}: true}
+	insets := map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}
+	assert.Equal(t, connections{east: true, west: true}, insetConnections(walls, insets, consts.Coord[consts.Tile]{X: 25, Y: 25}))
+}
+
+func TestInsetFaces_つながる向きに並ぶ薄い板になる(t *testing.T) {
+	t.Parallel()
+
+	c := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	top := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, flat: true}
+	north := insetFace{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}}
+	south := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}}
+	nsTop := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26), render3d.At(25.4, 1, 25)}, flat: true}
+	east := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}}
+	west := insetFace{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}}
+	westEnd := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(25, 1, 25.6), render3d.At(25, 0, 25.6), render3d.At(25, 0, 25.4)}, flat: true}
+	cases := []struct {
+		name string
+		conn connections
+		want []insetFace
+	}{
+		{"東西につながれば東西に張り、両端を省く", connections{east: true, west: true}, []insetFace{top, north, south}},
+		{"南北につながれば南北に張る", connections{north: true, south: true}, []insetFace{nsTop, east, west}},
+		{"北だけにつながれば南の端を描く", connections{north: true}, []insetFace{nsTop, east, west,
+			{p: [4]render3d.Vec{render3d.At(25.4, 1, 26), render3d.At(25.6, 1, 26), render3d.At(25.6, 0, 26), render3d.At(25.4, 0, 26)}, flat: true}}},
+		{"東西に片側でもつながれば南北より優先して東西に張る", connections{north: true, east: true, south: true}, []insetFace{top, north, south, westEnd}},
+		{"つながりが無ければ東西に張って両端を描く", connections{}, []insetFace{top, north, south, westEnd,
+			{p: [4]render3d.Vec{render3d.At(26, 1, 25.6), render3d.At(26, 1, 25.4), render3d.At(26, 0, 25.4), render3d.At(26, 0, 25.6)}, flat: true}}},
+	}
+	for _, tc := range cases {
+		assertFacesInDelta(t, tc.want, insetFaces(c, tc.conn), tc.name)
+	}
+}
+
+func TestFaceShade_天面と東西と南北で陰影を分ける(t *testing.T) {
+	t.Parallel()
+
+	assert.InDelta(t, 0.95, faceShade([4]render3d.Vec{render3d.At(0, 1, 0), render3d.At(1, 1, 0), render3d.At(1, 1, 1), render3d.At(0, 1, 1)}), 1e-9)
+	assert.InDelta(t, 0.78, faceShade([4]render3d.Vec{render3d.At(0, 1, 0), render3d.At(0, 1, 1), render3d.At(0, 0, 1), render3d.At(0, 0, 0)}), 1e-9)
+	assert.InDelta(t, 0.6, faceShade([4]render3d.Vec{render3d.At(1, 1, 0), render3d.At(0, 1, 0), render3d.At(0, 0, 0), render3d.At(1, 0, 0)}), 1e-9)
+}
+
+func TestClosedInsets_閉じた壁にはめる置物だけを集める(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 3, Y: 3}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+	opened, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 4, Y: 3}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.OpenDoor(world, opened))
+	_, err = lifecycle.SpawnProp(world, "window", 5, 3)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "barrel", 6, 3)
+	require.NoError(t, err)
+
+	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 5, Y: 3}: true}, closedInsets(world))
+}
+
+func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {
+			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
+			Sprites: map[string]gc.Sprite{"door_vertical_closed": {Width: 32, Height: 32}},
+		},
+	})
+	door, err := lifecycle.SpawnDoor(world, center, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.OpenDoor(world, door))
+	sys := &Render3DSystem{}
+
+	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world)))
+}
+
+func TestCollectBillboards_壁を背にする置物は壁と反対を向く板にする(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {
+			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
+			Sprites: map[string]gc.Sprite{"book_shelf_2": {Width: 32, Height: 32}},
+		},
+	})
+	_, err := lifecycle.SpawnProp(world, "book_shelf_2", center.X, center.Y)
+	require.NoError(t, err)
+	walls := map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}
+	sys := &Render3DSystem{}
+
+	quads := sys.collectBillboards(world, nil, projector, visible, walls, nil)
+
+	require.Len(t, quads, 1)
+	right := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), facingMaxTurn)
+	base := render3d.At(25.5, 0, 25.5)
+	b0, b1 := render3d.Add(base, render3d.Scale(right, -0.45)), render3d.Add(base, render3d.Scale(right, 0.45))
+	top := render3d.At(0, render3d.BillboardHeight, 0)
+	want := [4]render3d.Vec{render3d.Add(b0, top), render3d.Add(b1, top), b1, b0}
+	for i := range want {
+		assert.InDelta(t, want[i].X, quads[0].p[i].X, 1e-9)
+		assert.InDelta(t, want[i].Y, quads[0].p[i].Y, 1e-9)
+		assert.InDelta(t, want[i].Z, quads[0].p[i].Z, 1e-9)
+	}
+	assert.InDelta(t, math.Sqrt2/2, right.X, 1e-9)
+	assert.InDelta(t, math.Sqrt2/2, right.Z, 1e-9)
+}
+
+func TestBackWall_北東西南の順で隣の壁を背にする(t *testing.T) {
+	t.Parallel()
+
+	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	cases := []struct {
+		name   string
+		walls  map[consts.Coord[consts.Tile]]bool
+		want   consts.Coord[consts.Tile]
+		wantOK bool
+	}{
+		{"西の壁", map[consts.Coord[consts.Tile]]bool{{X: 4, Y: 5}: true}, consts.Coord[consts.Tile]{X: -1, Y: 0}, true},
+		{"北東の角は北", map[consts.Coord[consts.Tile]]bool{{X: 5, Y: 4}: true, {X: 6, Y: 5}: true}, consts.Coord[consts.Tile]{X: 0, Y: -1}, true},
+		{"南だけ", map[consts.Coord[consts.Tile]]bool{{X: 5, Y: 6}: true}, consts.Coord[consts.Tile]{X: 0, Y: 1}, true},
+		{"壁なし", map[consts.Coord[consts.Tile]]bool{}, consts.Coord[consts.Tile]{}, false},
+	}
+	for _, tc := range cases {
+		got, ok := backWall(tc.walls, c)
+		assert.Equal(t, tc.wantOK, ok, tc.name)
+		assert.Equal(t, tc.want, got, tc.name)
 	}
 }

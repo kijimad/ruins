@@ -75,3 +75,12 @@ func lookAt(eye, center, up Vec) mat {
 
 // At は座標から点を作る。3成分を並べる式が読みやすくなる
 func At(x, y, z float64) Vec { return Vec{X: x, Y: y, Z: z} }
+
+// FacingRight は向き facing の置物の板を張る右向きの単位ベクトルを返す。板は置物の向きを正面にして、
+// 画面右が cameraRight のカメラのほうへ左右 maxTurn ラジアンまで首を振る。真横から見ても線にならない
+func FacingRight(facing, cameraRight Vec, maxTurn float64) Vec {
+	alpha := math.Atan2(facing.X, facing.Z)
+	phi := math.Atan2(-cameraRight.Z, cameraRight.X)
+	b := alpha + max(-maxTurn, min(maxTurn, math.Remainder(phi-alpha, 2*math.Pi)))
+	return Vec{math.Cos(b), 0, -math.Sin(b)}
+}
