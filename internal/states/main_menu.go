@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/i18n"
+	"github.com/kijimaD/ruins/internal/messagedata"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -22,6 +23,13 @@ import (
 type MainMenuState struct {
 	es.BaseState[w.World]
 	screen *menuloop.Screen[MainMenuProps]
+	// loadFailed は、セーブを読めずにメインメニューへ戻ったことを表す。最初の更新で知らせのモーダルを重ねる
+	loadFailed bool
+}
+
+// NewMainMenuAfterLoadFailure は、セーブを読めなかったことをモーダルで知らせるメインメニューを作る
+func NewMainMenuAfterLoadFailure() (es.State[w.World], error) {
+	return &MainMenuState{loadFailed: true}, nil
 }
 
 // State interface ================
@@ -37,7 +45,20 @@ func (st *MainMenuState) OnStart(_ w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world)
+	// 知らせの下にメニューの項目を描くため、先に画面を組んでから知らせを積む。入力による遷移があれば先に通す
+	tr, err := st.screen.Update(world)
+	if err != nil || !st.loadFailed || tr.Type != es.TransNone {
+		return tr, err
+	}
+	st.loadFailed = false
+	return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{newLoadFailedMessageState}}, nil
+}
+
+// newLoadFailedMessageState はセーブを読めなかったことを知らせるモーダルを作る
+func newLoadFailedMessageState() (es.State[w.World], error) {
+	return &MessageState{build: func(world w.World) *messagedata.MessageData {
+		return messagedata.NewSystemMessage(query.T(world, "Could not load the save data."))
+	}}, nil
 }
 
 // Draw はスクリーンに描画する
