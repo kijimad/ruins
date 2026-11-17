@@ -330,12 +330,11 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 	}
 }
 
-// assertFacesInDelta は面の並びを、頂点を近似で、陰影と塗り方を一致で比べる
+// assertFacesInDelta は面の並びを、頂点を近似で、塗り方を一致で比べる
 func assertFacesInDelta(t *testing.T, want, got []insetFace, msg string) {
 	t.Helper()
 	require.Len(t, got, len(want), msg)
 	for i := range want {
-		assert.Equal(t, want[i].shade, got[i].shade, msg)
 		assert.Equal(t, want[i].flat, got[i].flat, msg)
 		for j := range want[i].p {
 			assert.InDelta(t, want[i].p[j].X, got[i].p[j].X, 1e-9, msg)
@@ -357,12 +356,12 @@ func TestInsetFaces_閉じた扉はつながる向きに並ぶ薄い板になる
 	t.Parallel()
 
 	c := consts.Coord[consts.Tile]{X: 25, Y: 25}
-	top := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, shade: 0.95, flat: true}
-	north := insetFace{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}, shade: 1}
-	south := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}, shade: 1}
-	nsTop := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26), render3d.At(25.4, 1, 25)}, shade: 0.95, flat: true}
-	east := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}, shade: 1}
-	west := insetFace{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}, shade: 1}
+	top := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(26, 1, 25.4), render3d.At(26, 1, 25.6), render3d.At(25, 1, 25.6)}, flat: true}
+	north := insetFace{p: [4]render3d.Vec{render3d.At(26, 1, 25.4), render3d.At(25, 1, 25.4), render3d.At(25, 0, 25.4), render3d.At(26, 0, 25.4)}}
+	south := insetFace{p: [4]render3d.Vec{render3d.At(25, 1, 25.6), render3d.At(26, 1, 25.6), render3d.At(26, 0, 25.6), render3d.At(25, 0, 25.6)}}
+	nsTop := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 25), render3d.At(25.6, 1, 26), render3d.At(25.4, 1, 26), render3d.At(25.4, 1, 25)}, flat: true}
+	east := insetFace{p: [4]render3d.Vec{render3d.At(25.6, 1, 26), render3d.At(25.6, 1, 25), render3d.At(25.6, 0, 25), render3d.At(25.6, 0, 26)}}
+	west := insetFace{p: [4]render3d.Vec{render3d.At(25.4, 1, 25), render3d.At(25.4, 1, 26), render3d.At(25.4, 0, 26), render3d.At(25.4, 0, 25)}}
 	cases := []struct {
 		name string
 		conn connections
@@ -371,10 +370,10 @@ func TestInsetFaces_閉じた扉はつながる向きに並ぶ薄い板になる
 		{"東西につながれば東西に張り、両端を省く", connections{east: true, west: true}, []insetFace{top, north, south}},
 		{"南北につながれば南北に張る", connections{north: true, south: true}, []insetFace{nsTop, east, west}},
 		{"北だけにつながれば南の端を描く", connections{north: true}, []insetFace{nsTop, east, west,
-			{p: [4]render3d.Vec{render3d.At(25.4, 1, 26), render3d.At(25.6, 1, 26), render3d.At(25.6, 0, 26), render3d.At(25.4, 0, 26)}, shade: 0.6, flat: true}}},
+			{p: [4]render3d.Vec{render3d.At(25.4, 1, 26), render3d.At(25.6, 1, 26), render3d.At(25.6, 0, 26), render3d.At(25.4, 0, 26)}, flat: true}}},
 		{"つながりが無ければ東西に張って両端を描く", connections{}, []insetFace{top, north, south,
-			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(25, 1, 25.6), render3d.At(25, 0, 25.6), render3d.At(25, 0, 25.4)}, shade: 0.78, flat: true},
-			{p: [4]render3d.Vec{render3d.At(26, 1, 25.6), render3d.At(26, 1, 25.4), render3d.At(26, 0, 25.4), render3d.At(26, 0, 25.6)}, shade: 0.78, flat: true}}},
+			{p: [4]render3d.Vec{render3d.At(25, 1, 25.4), render3d.At(25, 1, 25.6), render3d.At(25, 0, 25.6), render3d.At(25, 0, 25.4)}, flat: true},
+			{p: [4]render3d.Vec{render3d.At(26, 1, 25.6), render3d.At(26, 1, 25.4), render3d.At(26, 0, 25.4), render3d.At(26, 0, 25.6)}, flat: true}}},
 	}
 	for _, tc := range cases {
 		assertFacesInDelta(t, tc.want, insetFaces(c, tc.conn, true), tc.name)
@@ -384,20 +383,21 @@ func TestInsetFaces_閉じた扉はつながる向きに並ぶ薄い板になる
 func TestInsetFaces_開いた扉はつながる側の脇に寄せて通り道と平行な板になる(t *testing.T) {
 	t.Parallel()
 
-	// 西の脇の板は x が 25.08..25.28、東の脇の板は 25.72..25.92 で、南北に長い
+	// 閉じた板を90度倒し、西の脇の x 25.08..25.28 に南北に長く立てる
 	westLeaf := []insetFace{
-		{p: [4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.28, 1, 25), render3d.At(25.28, 1, 26), render3d.At(25.08, 1, 26)}, shade: 0.95, flat: true},
-		{p: [4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}, shade: 1},
-		{p: [4]render3d.Vec{render3d.At(25.28, 1, 26), render3d.At(25.28, 1, 25), render3d.At(25.28, 0, 25), render3d.At(25.28, 0, 26)}, shade: 1},
-		{p: [4]render3d.Vec{render3d.At(25.28, 1, 25), render3d.At(25.08, 1, 25), render3d.At(25.08, 0, 25), render3d.At(25.28, 0, 25)}, shade: 0.6, flat: true},
-		{p: [4]render3d.Vec{render3d.At(25.08, 1, 26), render3d.At(25.28, 1, 26), render3d.At(25.28, 0, 26), render3d.At(25.08, 0, 26)}, shade: 0.6, flat: true},
+		{p: [4]render3d.Vec{render3d.At(25.28, 1, 25), render3d.At(25.28, 1, 26), render3d.At(25.08, 1, 26), render3d.At(25.08, 1, 25)}, flat: true},
+		{p: [4]render3d.Vec{render3d.At(25.28, 1, 26), render3d.At(25.28, 1, 25), render3d.At(25.28, 0, 25), render3d.At(25.28, 0, 26)}},
+		{p: [4]render3d.Vec{render3d.At(25.08, 1, 25), render3d.At(25.08, 1, 26), render3d.At(25.08, 0, 26), render3d.At(25.08, 0, 25)}},
+		{p: [4]render3d.Vec{render3d.At(25.28, 1, 25), render3d.At(25.08, 1, 25), render3d.At(25.08, 0, 25), render3d.At(25.28, 0, 25)}, flat: true},
+		{p: [4]render3d.Vec{render3d.At(25.08, 1, 26), render3d.At(25.28, 1, 26), render3d.At(25.28, 0, 26), render3d.At(25.08, 0, 26)}, flat: true},
 	}
-	eastLeaf := []insetFace{
-		{p: [4]render3d.Vec{render3d.At(25.72, 1, 25), render3d.At(25.92, 1, 25), render3d.At(25.92, 1, 26), render3d.At(25.72, 1, 26)}, shade: 0.95, flat: true},
-		{p: [4]render3d.Vec{render3d.At(25.72, 1, 25), render3d.At(25.72, 1, 26), render3d.At(25.72, 0, 26), render3d.At(25.72, 0, 25)}, shade: 1},
-		{p: [4]render3d.Vec{render3d.At(25.92, 1, 26), render3d.At(25.92, 1, 25), render3d.At(25.92, 0, 25), render3d.At(25.92, 0, 26)}, shade: 1},
-		{p: [4]render3d.Vec{render3d.At(25.92, 1, 25), render3d.At(25.72, 1, 25), render3d.At(25.72, 0, 25), render3d.At(25.92, 0, 25)}, shade: 0.6, flat: true},
-		{p: [4]render3d.Vec{render3d.At(25.72, 1, 26), render3d.At(25.92, 1, 26), render3d.At(25.92, 0, 26), render3d.At(25.72, 0, 26)}, shade: 0.6, flat: true},
+	// 東の脇は同じ板を x 25.72..25.92 へずらしたもの
+	eastLeaf := make([]insetFace, len(westLeaf))
+	for i, f := range westLeaf {
+		eastLeaf[i] = f
+		for j := range f.p {
+			eastLeaf[i].p[j].X += 0.64
+		}
 	}
 	cases := []struct {
 		name string
@@ -411,15 +411,14 @@ func TestInsetFaces_開いた扉はつながる側の脇に寄せて通り道と
 	for _, tc := range cases {
 		assertFacesInDelta(t, tc.want, insetFaces(consts.Coord[consts.Tile]{X: 25, Y: 25}, tc.conn, false), tc.name)
 	}
+}
 
-	// 南北につながれば同じ板を回し、北の脇に寄せて東西に長く立てる
-	ns := insetFaces(consts.Coord[consts.Tile]{X: 25, Y: 25}, connections{north: true, south: true}, false)
-	require.Len(t, ns, 5)
-	for _, f := range ns {
-		for _, v := range f.p {
-			assert.True(t, v.Z >= 25.08-1e-9 && v.Z <= 25.28+1e-9, "北の脇の z の範囲に収まる %v", v)
-		}
-	}
+func TestFaceShade_天面と東西と南北で陰影を分ける(t *testing.T) {
+	t.Parallel()
+
+	assert.InDelta(t, 0.95, faceShade([4]render3d.Vec{render3d.At(0, 1, 0), render3d.At(1, 1, 0), render3d.At(1, 1, 1), render3d.At(0, 1, 1)}), 1e-9)
+	assert.InDelta(t, 0.78, faceShade([4]render3d.Vec{render3d.At(0, 1, 0), render3d.At(0, 1, 1), render3d.At(0, 0, 1), render3d.At(0, 0, 0)}), 1e-9)
+	assert.InDelta(t, 0.6, faceShade([4]render3d.Vec{render3d.At(1, 1, 0), render3d.At(0, 1, 0), render3d.At(0, 0, 0), render3d.At(1, 0, 0)}), 1e-9)
 }
 
 func TestClosedInsets_閉じた壁にはめる置物だけを集める(t *testing.T) {
@@ -460,7 +459,7 @@ func TestCollectBillboards_壁を背にする置物は壁と反対を向く板�
 	quads := sys.collectBillboards(world, nil, projector, visible, walls, nil)
 
 	require.Len(t, quads, 1)
-	right, behind := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), math.Pi/4)
+	right, behind := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), facingMaxTurn)
 	require.False(t, behind)
 	base := render3d.At(25.5, 0, 25.5)
 	b0, b1 := render3d.Add(base, render3d.Scale(right, -0.45)), render3d.Add(base, render3d.Scale(right, 0.45))

@@ -449,7 +449,13 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		}
 		if sr.Shape == rawschema.Inset {
 			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする
-			sys.addInset(&quads, g.Coord, insetConnections(walls, insets, g.Coord), !vis || world.Components.BlockPass.Has(e), atlas, ux, uy, uw, uh, tint)
+			closed := !vis || world.Components.BlockPass.Has(e)
+			conn := insetConnections(walls, insets, g.Coord)
+			if !closed {
+				// 開いた扉は蝶番のある壁の側へ寄せるので、隣の閉じた扉とはつながらない
+				conn = insetConnections(walls, nil, g.Coord)
+			}
+			sys.addInset(&quads, g.Coord, conn, closed, atlas, ux, uy, uw, uh, tint)
 			continue
 		}
 		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない。
@@ -502,9 +508,8 @@ func backWall(walls map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Ti
 
 // insetFace は壁にはめる置物の1面。flat は絵を貼らず平均色で塗る面
 type insetFace struct {
-	p     [4]render3d.Vec
-	shade float64
-	flat  bool
+	p    [4]render3d.Vec
+	flat bool
 }
 
 // closedInsets は閉じている壁にはめる置物の座標の集合を返す
@@ -534,7 +539,7 @@ func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts
 }
 
 // insetFaces は壁にはめる置物の面を返す。つながる向きに並ぶ板にし、つながりが無ければ東西に並べる。
-// 南北の板は東西の板をタイルの中心で回して作る。絵を貼る面は立て板と同じ明るさにし、平均色の面にだけ陰影を付ける
+// 南北の板は東西の板をタイルの中心で回して作る
 func insetFaces(c consts.Coord[consts.Tile], conn connections, closed bool) []insetFace {
 	alongX := conn.west || conn.east || !conn.north && !conn.south
 	first, second := conn.west, conn.east
@@ -545,14 +550,9 @@ func insetFaces(c consts.Coord[consts.Tile], conn connections, closed bool) []in
 	for i := range faces {
 		for j, v := range faces[i].p {
 			if !alongX {
-				// 西の端が北へ、東の端が南へ来る回転。裏返らないので面の張り順が保たれる
-				v.X, v.Z = 1-v.Z, v.X
+				v = turnQuarter(v)
 			}
 			faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))
-		}
-		faces[i].shade = 1
-		if faces[i].flat {
-			faces[i].shade = faceShade(faces[i].p)
 		}
 	}
 	return faces
@@ -560,41 +560,50 @@ func insetFaces(c consts.Coord[consts.Tile], conn connections, closed bool) []in
 
 // slabFaces は東西に並ぶ壁にはめる置物の面を、タイルの北西の角を原点に返す。west と east は西と東の隣とつながるか。
 // 閉じていれば壁の厚みの真ん中に立つ薄い板にし、つながる端を省く。開いていれば同じ板を90度倒し、
-// つながる側の脇、どちらともつながらなければ西の脇に寄せて、通り道と平行に立てる
+// 東だけとつながれば東、それ以外は西の脇へ寄せる
 func slabFaces(west, east, closed bool) []insetFace {
 	if closed {
-		return slabBox(0, 1, 0.5-insetThickness/2, 0.5+insetThickness/2, !west, !east)
+		return slab(!west, !east)
 	}
 	// 隣の壁の面と重なってちらつかないよう、板を壁から少し離す
 	const gap = 0.08
+	shift := gap + insetThickness/2 - 0.5
 	if east && !west {
-		return slabBox(1-gap-insetThickness, 1-gap, 0, 1, true, true)
+		shift = -shift
 	}
-	return slabBox(gap, gap+insetThickness, 0, 1, true, true)
-}
-
-// slabBox は x0..x1・z0..z1 に立つ板の面を返す。長い2面は表裏とも外向きに絵を貼り、天面と短い端は平均色で塗る。
-// firstEnd と secondEnd は短い端の西と東、南北に長い板なら北と南を描くか。面は外から見て左上から時計回りに張る
-func slabBox(x0, x1, z0, z1 float64, firstEnd, secondEnd bool) []insetFace {
-	const h = render3d.WallHeight
-	alongX := x1-x0 > z1-z0
-	north := insetFace{p: [4]render3d.Vec{render3d.At(x1, h, z0), render3d.At(x0, h, z0), render3d.At(x0, 0, z0), render3d.At(x1, 0, z0)}, flat: !alongX}
-	south := insetFace{p: [4]render3d.Vec{render3d.At(x0, h, z1), render3d.At(x1, h, z1), render3d.At(x1, 0, z1), render3d.At(x0, 0, z1)}, flat: !alongX}
-	west := insetFace{p: [4]render3d.Vec{render3d.At(x0, h, z0), render3d.At(x0, h, z1), render3d.At(x0, 0, z1), render3d.At(x0, 0, z0)}, flat: alongX}
-	east := insetFace{p: [4]render3d.Vec{render3d.At(x1, h, z1), render3d.At(x1, h, z0), render3d.At(x1, 0, z0), render3d.At(x1, 0, z1)}, flat: alongX}
-	faces := []insetFace{{p: [4]render3d.Vec{render3d.At(x0, h, z0), render3d.At(x1, h, z0), render3d.At(x1, h, z1), render3d.At(x0, h, z1)}, flat: true}}
-	long, first, second := []insetFace{north, south}, west, east
-	if !alongX {
-		long, first, second = []insetFace{west, east}, north, south
-	}
-	faces = append(faces, long...)
-	if firstEnd {
-		faces = append(faces, first)
-	}
-	if secondEnd {
-		faces = append(faces, second)
+	faces := slab(true, true)
+	for i := range faces {
+		for j, v := range faces[i].p {
+			v = turnQuarter(v)
+			v.X += shift
+			faces[i].p[j] = v
+		}
 	}
 	return faces
+}
+
+// slab は壁の厚みの真ん中に東西に立つ板の面を返す。南北の2面に絵を貼り、天面と東西の端は平均色で塗る。
+// westEnd と eastEnd は西と東の端を描くか。面は外から見て左上から時計回りに張る
+func slab(westEnd, eastEnd bool) []insetFace {
+	const h = render3d.WallHeight
+	z0, z1 := 0.5-insetThickness/2, 0.5+insetThickness/2
+	faces := []insetFace{
+		{p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(1, h, z0), render3d.At(1, h, z1), render3d.At(0, h, z1)}, flat: true},
+		{p: [4]render3d.Vec{render3d.At(1, h, z0), render3d.At(0, h, z0), render3d.At(0, 0, z0), render3d.At(1, 0, z0)}},
+		{p: [4]render3d.Vec{render3d.At(0, h, z1), render3d.At(1, h, z1), render3d.At(1, 0, z1), render3d.At(0, 0, z1)}},
+	}
+	if westEnd {
+		faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(0, h, z1), render3d.At(0, 0, z1), render3d.At(0, 0, z0)}, flat: true})
+	}
+	if eastEnd {
+		faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(1, h, z1), render3d.At(1, h, z0), render3d.At(1, 0, z0), render3d.At(1, 0, z1)}, flat: true})
+	}
+	return faces
+}
+
+// turnQuarter はタイルの中の点を中心で90度回す。西の端が北へ、東の端が南へ来る。裏返らないので面の張り順が保たれる
+func turnQuarter(v render3d.Vec) render3d.Vec {
+	return render3d.At(1-v.Z, v.Y, v.X)
 }
 
 // faceShade は面の向きから陰影を返す。天面0.95・東西0.78・南北0.6は壁の箱と同じ疑似方向光源
@@ -612,11 +621,12 @@ func faceShade(p [4]render3d.Vec) float64 {
 // addInset は壁にはめる置物の面を積む
 func (sys *Render3DSystem) addInset(out *[]r3quad, c consts.Coord[consts.Tile], conn connections, closed bool, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
 	for _, f := range insetFaces(c, conn, closed) {
+		// 絵を貼る面は立て板と同じ明るさにし、平均色の面にだけ陰影を付ける
 		if f.flat {
-			sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, f.shade))
+			sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, faceShade(f.p)))
 			continue
 		}
-		sys.addQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, f.shade))
+		sys.addQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, tint)
 	}
 }
 
