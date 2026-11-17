@@ -107,7 +107,7 @@
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -485,7 +485,7 @@
 				
 				<option value="file214">github.com/kijimaD/ruins/internal/raw/item_group.go (93.3%)</option>
 				
-				<option value="file215">github.com/kijimaD/ruins/internal/raw/raw.go (95.0%)</option>
+				<option value="file215">github.com/kijimaD/ruins/internal/raw/raw.go (98.4%)</option>
 				
 				<option value="file216">github.com/kijimaD/ruins/internal/raw/validate.go (97.8%)</option>
 				
@@ -5485,7 +5485,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -29463,11 +29463,11 @@ func ItemName(raws rawschema.Raws, id string) i18n.Msgid {
 
 // FindMember は指定された名前のメンバー定義を検索する
 func FindMember(raws rawschema.Raws, name string) (rawschema.Member, error) {
-        <span class="cov8" title="1">member, ok := FindByKey(raws.Members, func(m rawschema.Member) string </span>{ <span class="cov0" title="0">return m.Id }</span>, name)
+        <span class="cov8" title="1">member, ok := FindByKey(raws.Members, func(m rawschema.Member) string </span>{ <span class="cov8" title="1">return m.Id }</span>, name)
         <span class="cov8" title="1">if !ok </span>{
                 <span class="cov8" title="1">return rawschema.Member{}, NewKeyNotFoundError(name, "Members")
 </span>        }
-        <span class="cov0" title="0">return member, nil</span>
+        <span class="cov8" title="1">return member, nil</span>
 }
 
 // FindSpriteSheet は指定された名前のスプライトシートを検索する
@@ -29849,13 +29849,13 @@ func NewWeaponSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 
 // PlayerMemberID は player を持つ member の id を返す。読み込み時にちょうど1つあることを確かめる
 func PlayerMemberID(raws rawschema.Raws) (string, error) {
-        <span class="cov0" title="0">members := PtrSlice(raws.Members)
+        <span class="cov8" title="1">members := PtrSlice(raws.Members)
         for i := range members </span>{
-                <span class="cov0" title="0">if members[i].Player != nil &amp;&amp; *members[i].Player </span>{
-                        <span class="cov0" title="0">return members[i].Id, nil
+                <span class="cov8" title="1">if members[i].Player != nil &amp;&amp; *members[i].Player </span>{
+                        <span class="cov8" title="1">return members[i].Id, nil
 </span>                }
         }
-        <span class="cov0" title="0">return "", errPlayerMemberMissing</span>
+        <span class="cov8" title="1">return "", errPlayerMemberMissing</span>
 }
 
 // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する
@@ -30034,11 +30034,11 @@ func DungeonReachable(d *rawschema.Dungeon) bool {
 
 // GetDungeon は id のダンジョンの行を返す
 func GetDungeon(raws rawschema.Raws, id string) (rawschema.Dungeon, error) {
-        <span class="cov0" title="0">d, ok := FindByKey(raws.Dungeons, func(d rawschema.Dungeon) string </span>{ <span class="cov0" title="0">return d.Id }</span>, id)
-        <span class="cov0" title="0">if !ok </span>{
-                <span class="cov0" title="0">return rawschema.Dungeon{}, NewKeyNotFoundError(id, "Dungeons")
+        <span class="cov8" title="1">d, ok := FindByKey(raws.Dungeons, func(d rawschema.Dungeon) string </span>{ <span class="cov8" title="1">return d.Id }</span>, id)
+        <span class="cov8" title="1">if !ok </span>{
+                <span class="cov8" title="1">return rawschema.Dungeon{}, NewKeyNotFoundError(id, "Dungeons")
 </span>        }
-        <span class="cov0" title="0">return d, nil</span>
+        <span class="cov8" title="1">return d, nil</span>
 }
 
 // GetFacility は id の施設宣言を返す。未登録は false。
@@ -30075,12 +30075,12 @@ func GetMapGlyph(raws rawschema.Raws, id string) (rawschema.MapGlyph, bool) {
 
 // GetChunkGlyph は持ち主の行を持たないチャンクの種類 chunk を描く地図記号の行を返す
 func GetChunkGlyph(raws rawschema.Raws, chunk rawschema.GlyphChunk) (rawschema.MapGlyph, bool) {
-        <span class="cov0" title="0">for _, g := range PtrSlice(raws.MapGlyphs) </span>{
-                <span class="cov0" title="0">if g.Chunk != nil &amp;&amp; *g.Chunk == chunk </span>{
-                        <span class="cov0" title="0">return g, true
+        <span class="cov8" title="1">for _, g := range PtrSlice(raws.MapGlyphs) </span>{
+                <span class="cov8" title="1">if g.Chunk != nil &amp;&amp; *g.Chunk == chunk </span>{
+                        <span class="cov8" title="1">return g, true
 </span>                }
         }
-        <span class="cov0" title="0">return rawschema.MapGlyph{}, false</span>
+        <span class="cov8" title="1">return rawschema.MapGlyph{}, false</span>
 }
 
 // GetTile は指定された名前のタイルを取得する
@@ -30143,10 +30143,10 @@ func TileIsTall(t rawschema.Tile) bool {
 func TileEnvironmentOf(t rawschema.Tile) gc.TileEnvironment {
         <span class="cov8" title="1">env := gc.TileEnvironment{Shelter: TileShelter(t)}
         if t.Foliage != nil </span>{
-                <span class="cov0" title="0">env.Foliage = *t.Foliage
+                <span class="cov8" title="1">env.Foliage = *t.Foliage
 </span>        }
         <span class="cov8" title="1">if t.SnowMeltPercent != nil </span>{
-                <span class="cov0" title="0">env.SnowMeltPercent = *t.SnowMeltPercent
+                <span class="cov8" title="1">env.SnowMeltPercent = *t.SnowMeltPercent
 </span>        }
         <span class="cov8" title="1">return env</span>
 }
@@ -30276,7 +30276,7 @@ func GetProfession(raws rawschema.Raws, id string) (rawschema.Profession, error)
 func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (string, error) {
         <span class="cov8" title="1">i, ok := consts.Pick(rng, ct.Entries, func(e rawschema.CommandTableEntry) float64 </span>{ <span class="cov8" title="1">return e.Weight }</span>)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov0" title="0">return "", nil
+                <span class="cov8" title="1">return "", nil
 </span>        }
         <span class="cov8" title="1">return ct.Entries[i].Id, nil</span>
 }

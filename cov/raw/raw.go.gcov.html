@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">95.1&nbsp;%</td>
+            <td class="headerCovTableEntryHi">97.8&nbsp;%</td>
             <td class="headerCovTableEntry">829</td>
-            <td class="headerCovTableEntry">788</td>
+            <td class="headerCovTableEntry">811</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-17 09:50:14</td>
+            <td class="headerValue">2026-11-17 10:22:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -170,11 +170,11 @@
 <span id="L108"><span class="lineNum">     108</span>              : </span>
 <span id="L109"><span class="lineNum">     109</span>              : // FindMember は指定された名前のメンバー定義を検索する</span>
 <span id="L110"><span class="lineNum">     110</span>              : func FindMember(raws rawschema.Raws, name string) (rawschema.Member, error) {</span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         member, ok := FindByKey(raws.Members, func(m rawschema.Member) string { return m.Id }, name)</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           2 :         member, ok := FindByKey(raws.Members, func(m rawschema.Member) string { return m.Id }, name)</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 return rawschema.Member{}, NewKeyNotFoundError(name, &quot;Members&quot;)</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         return member, nil</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         return member, nil</span></span>
 <span id="L116"><span class="lineNum">     116</span>              : }</span>
 <span id="L117"><span class="lineNum">     117</span>              : </span>
 <span id="L118"><span class="lineNum">     118</span>              : // FindSpriteSheet は指定された名前のスプライトシートを検索する</span>
@@ -556,13 +556,13 @@
 <span id="L494"><span class="lineNum">     494</span>              : </span>
 <span id="L495"><span class="lineNum">     495</span>              : // PlayerMemberID は player を持つ member の id を返す。読み込み時にちょうど1つあることを確かめる</span>
 <span id="L496"><span class="lineNum">     496</span>              : func PlayerMemberID(raws rawschema.Raws) (string, error) {</span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :         members := PtrSlice(raws.Members)</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :         for i := range members {</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :                 if members[i].Player != nil &amp;&amp; *members[i].Player {</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :                         return members[i].Id, nil</span></span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :         members := PtrSlice(raws.Members)</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :         for i := range members {</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :                 if members[i].Player != nil &amp;&amp; *members[i].Player {</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :                         return members[i].Id, nil</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L502"><span class="lineNum">     502</span>              :         }</span>
-<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :         return &quot;&quot;, errPlayerMemberMissing</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :         return &quot;&quot;, errPlayerMemberMissing</span></span>
 <span id="L504"><span class="lineNum">     504</span>              : }</span>
 <span id="L505"><span class="lineNum">     505</span>              : </span>
 <span id="L506"><span class="lineNum">     506</span>              : // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する</span>
@@ -741,11 +741,11 @@
 <span id="L679"><span class="lineNum">     679</span>              : </span>
 <span id="L680"><span class="lineNum">     680</span>              : // GetDungeon は id のダンジョンの行を返す</span>
 <span id="L681"><span class="lineNum">     681</span>              : func GetDungeon(raws rawschema.Raws, id string) (rawschema.Dungeon, error) {</span>
-<span id="L682"><span class="lineNum">     682</span> <span class="tlaUNC">           0 :         d, ok := FindByKey(raws.Dungeons, func(d rawschema.Dungeon) string { return d.Id }, id)</span></span>
-<span id="L683"><span class="lineNum">     683</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L684"><span class="lineNum">     684</span> <span class="tlaUNC">           0 :                 return rawschema.Dungeon{}, NewKeyNotFoundError(id, &quot;Dungeons&quot;)</span></span>
-<span id="L685"><span class="lineNum">     685</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L686"><span class="lineNum">     686</span> <span class="tlaUNC">           0 :         return d, nil</span></span>
+<span id="L682"><span class="lineNum">     682</span> <span class="tlaGNC">           2 :         d, ok := FindByKey(raws.Dungeons, func(d rawschema.Dungeon) string { return d.Id }, id)</span></span>
+<span id="L683"><span class="lineNum">     683</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">           1 :                 return rawschema.Dungeon{}, NewKeyNotFoundError(id, &quot;Dungeons&quot;)</span></span>
+<span id="L685"><span class="lineNum">     685</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">           1 :         return d, nil</span></span>
 <span id="L687"><span class="lineNum">     687</span>              : }</span>
 <span id="L688"><span class="lineNum">     688</span>              : </span>
 <span id="L689"><span class="lineNum">     689</span>              : // GetFacility は id の施設宣言を返す。未登録は false。</span>
@@ -782,12 +782,12 @@
 <span id="L720"><span class="lineNum">     720</span>              : </span>
 <span id="L721"><span class="lineNum">     721</span>              : // GetChunkGlyph は持ち主の行を持たないチャンクの種類 chunk を描く地図記号の行を返す</span>
 <span id="L722"><span class="lineNum">     722</span>              : func GetChunkGlyph(raws rawschema.Raws, chunk rawschema.GlyphChunk) (rawschema.MapGlyph, bool) {</span>
-<span id="L723"><span class="lineNum">     723</span> <span class="tlaUNC">           0 :         for _, g := range PtrSlice(raws.MapGlyphs) {</span></span>
-<span id="L724"><span class="lineNum">     724</span> <span class="tlaUNC">           0 :                 if g.Chunk != nil &amp;&amp; *g.Chunk == chunk {</span></span>
-<span id="L725"><span class="lineNum">     725</span> <span class="tlaUNC">           0 :                         return g, true</span></span>
-<span id="L726"><span class="lineNum">     726</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L723"><span class="lineNum">     723</span> <span class="tlaGNC">           1 :         for _, g := range PtrSlice(raws.MapGlyphs) {</span></span>
+<span id="L724"><span class="lineNum">     724</span> <span class="tlaGNC">           1 :                 if g.Chunk != nil &amp;&amp; *g.Chunk == chunk {</span></span>
+<span id="L725"><span class="lineNum">     725</span> <span class="tlaGNC">           1 :                         return g, true</span></span>
+<span id="L726"><span class="lineNum">     726</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L727"><span class="lineNum">     727</span>              :         }</span>
-<span id="L728"><span class="lineNum">     728</span> <span class="tlaUNC">           0 :         return rawschema.MapGlyph{}, false</span></span>
+<span id="L728"><span class="lineNum">     728</span> <span class="tlaGNC">           1 :         return rawschema.MapGlyph{}, false</span></span>
 <span id="L729"><span class="lineNum">     729</span>              : }</span>
 <span id="L730"><span class="lineNum">     730</span>              : </span>
 <span id="L731"><span class="lineNum">     731</span>              : // GetTile は指定された名前のタイルを取得する</span>
@@ -850,11 +850,11 @@
 <span id="L788"><span class="lineNum">     788</span>              : func TileEnvironmentOf(t rawschema.Tile) gc.TileEnvironment {</span>
 <span id="L789"><span class="lineNum">     789</span> <span class="tlaGNC">           1 :         env := gc.TileEnvironment{Shelter: TileShelter(t)}</span></span>
 <span id="L790"><span class="lineNum">     790</span> <span class="tlaGNC">           1 :         if t.Foliage != nil {</span></span>
-<span id="L791"><span class="lineNum">     791</span> <span class="tlaUNC">           0 :                 env.Foliage = *t.Foliage</span></span>
-<span id="L792"><span class="lineNum">     792</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L791"><span class="lineNum">     791</span> <span class="tlaGNC">           1 :                 env.Foliage = *t.Foliage</span></span>
+<span id="L792"><span class="lineNum">     792</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L793"><span class="lineNum">     793</span> <span class="tlaGNC">           1 :         if t.SnowMeltPercent != nil {</span></span>
-<span id="L794"><span class="lineNum">     794</span> <span class="tlaUNC">           0 :                 env.SnowMeltPercent = *t.SnowMeltPercent</span></span>
-<span id="L795"><span class="lineNum">     795</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L794"><span class="lineNum">     794</span> <span class="tlaGNC">           1 :                 env.SnowMeltPercent = *t.SnowMeltPercent</span></span>
+<span id="L795"><span class="lineNum">     795</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L796"><span class="lineNum">     796</span> <span class="tlaGNC">           1 :         return env</span></span>
 <span id="L797"><span class="lineNum">     797</span>              : }</span>
 <span id="L798"><span class="lineNum">     798</span>              : </span>
@@ -983,8 +983,8 @@
 <span id="L921"><span class="lineNum">     921</span>              : func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (string, error) {</span>
 <span id="L922"><span class="lineNum">     922</span> <span class="tlaGNC">           2 :         i, ok := consts.Pick(rng, ct.Entries, func(e rawschema.CommandTableEntry) float64 { return e.Weight })</span></span>
 <span id="L923"><span class="lineNum">     923</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L924"><span class="lineNum">     924</span> <span class="tlaUNC">           0 :                 return &quot;&quot;, nil</span></span>
-<span id="L925"><span class="lineNum">     925</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L924"><span class="lineNum">     924</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, nil</span></span>
+<span id="L925"><span class="lineNum">     925</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L926"><span class="lineNum">     926</span> <span class="tlaGNC">           1 :         return ct.Entries[i].Id, nil</span></span>
 <span id="L927"><span class="lineNum">     927</span>              : }</span>
 <span id="L928"><span class="lineNum">     928</span>              : </span>
