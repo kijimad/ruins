@@ -16,7 +16,7 @@ type facingRow struct {
 	sides   []consts.Cardinal
 }
 
-// RowFacings は facing の置物ごとの向きを返す。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
+// RowPoses は facing の置物ごとの置き方 Pose を返す。向きと、背へ寄せるかを決める。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
 // 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。一番長い並びから1本ずつ決め、
 // 決めた置物を除いた残りから並びを作り直す。L字やT字で交わる置物は長い並びの向きにそろい、塊の残りも並びとして向く。
 // 並びと直角の2方向のうち、背の塞がりが重く前が軽い側を向く。塞がりの重みは壁 wall を2、置物 blockers を1にして、
@@ -24,7 +24,7 @@ type facingRow struct {
 // 並びの1台でも背が塞がれば、並び全体を背へ寄せる。軸に沿って隣り合う同じ向きの2台は必ず同じ並びで決まるので、
 // 寄せる位置も同じになり、端を省き合っても継ぎ目に隙間が出ない。
 // 1台だけの置物は4方向から同じく選ぶ
-func RowFacings(facers, blockers map[consts.Coord[consts.Tile]]bool, wall func(consts.Coord[consts.Tile]) bool) map[consts.Coord[consts.Tile]]gc.Facing {
+func RowPoses(facers, blockers map[consts.Coord[consts.Tile]]bool, wall func(consts.Coord[consts.Tile]) bool) map[consts.Coord[consts.Tile]]gc.Pose {
 	weight := func(c consts.Coord[consts.Tile]) float64 {
 		switch {
 		case wall(c):
@@ -37,7 +37,7 @@ func RowFacings(facers, blockers map[consts.Coord[consts.Tile]]bool, wall func(c
 	}
 	order := slices.SortedFunc(maps.Keys(facers), func(a, b consts.Coord[consts.Tile]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) })
 	left := maps.Clone(facers)
-	facings := map[consts.Coord[consts.Tile]]gc.Facing{}
+	poses := map[consts.Coord[consts.Tile]]gc.Pose{}
 	decide := func(row facingRow) {
 		best, bestScore, back := row.sides[0], math.Inf(-1), 0.0
 		for _, d := range row.sides {
@@ -50,8 +50,12 @@ func RowFacings(facers, blockers map[consts.Coord[consts.Tile]]bool, wall func(c
 				best, bestScore, back = d, score, b
 			}
 		}
+		anchor := gc.AnchorCenter
+		if back > 0 {
+			anchor = gc.AnchorBack
+		}
 		for _, m := range row.members {
-			facings[m] = gc.Facing{Dir: best, Backed: back > 0}
+			poses[m] = gc.Pose{Facing: best, Anchor: anchor}
 			delete(left, m)
 		}
 	}
@@ -68,7 +72,7 @@ func RowFacings(facers, blockers map[consts.Coord[consts.Tile]]bool, wall func(c
 			}
 		}
 	}
-	return facings
+	return poses
 }
 
 var (

@@ -185,7 +185,7 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	// 前フレームのバッファを [:0] で使い回す。追記で伸びた容量を最後に持ち越す
 	walls := render3d.BoxTileSet(world)
 	quads := sys.collectTiles(world, sys.quads[:0], projector, visTint, walls)
-	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world), facingsAt(world))
+	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world), posesAt(world))
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
 	// 展開中キューブの野営エリアを囲むレーザー壁も状態従属の装飾として積む
@@ -421,7 +421,7 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 
 // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
 // inset は壁にはめる板、facing は向きに合わせて回した薄い板にする。床の模様は地面に寝かせる。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, facings map[consts.Coord[consts.Tile]]gc.Facing) []r3quad {
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, facings map[consts.Coord[consts.Tile]]gc.Pose) []r3quad {
 	right := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
@@ -496,32 +496,32 @@ const (
 	facingLift = 0.01
 )
 
-// facingsAt は地図を作るときに向きを決めた置物の、座標ごとの向きを返す。板の端を隣とつなぐのに使う
-func facingsAt(world w.World) map[consts.Coord[consts.Tile]]gc.Facing {
-	facings := map[consts.Coord[consts.Tile]]gc.Facing{}
-	q := query.ActiveFilter2[gc.Facing, gc.GridElement](world).Query()
+// posesAt は置き方 Pose を持つエンティティの、座標ごとの置き方を返す。板の端を隣とつなぐのに使う
+func posesAt(world w.World) map[consts.Coord[consts.Tile]]gc.Pose {
+	facings := map[consts.Coord[consts.Tile]]gc.Pose{}
+	q := query.ActiveFilter2[gc.Pose, gc.GridElement](world).Query()
 	for q.Next() {
-		facings[world.Components.GridElement.Get(q.Entity()).Coord] = *world.Components.Facing.Get(q.Entity())
+		facings[world.Components.GridElement.Get(q.Entity()).Coord] = *world.Components.Pose.Get(q.Entity())
 	}
 	return facings
 }
 
-// facingFaces は向き f の置物の面を返す。平均色で塗った閉じた6面の板を立て、正面と背面に外向きに絵を貼る。
+// facingFaces は置き方 f の置物の面を返す。平均色で塗った閉じた6面の板を立て、正面と背面に外向きに絵を貼る。
 // 絵の透明な余白からは板の色が見える。同じ向きで同じ位置に寄せた隣が描かれ drawn、端が接するときは、重なってちらつかないよう省く。
-// 背が塞がっていれば背の側へ寄せ、空いていればマスの真ん中に立てる。南を向く板を作ってから向きの分だけ回す
-func facingFaces(c consts.Coord[consts.Tile], f gc.Facing, facings map[consts.Coord[consts.Tile]]gc.Facing, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {
+// 立つ位置が AnchorBack なら背の側へ寄せ、AnchorCenter ならマスの真ん中に立てる。南を向く板を作ってから向きの分だけ回す
+func facingFaces(c consts.Coord[consts.Tile], f gc.Pose, facings map[consts.Coord[consts.Tile]]gc.Pose, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {
 	const h = render3d.WallHeight
-	turns := quarterTurns(f.Dir)
+	turns := quarterTurns(f.Facing)
 	connected := func(side consts.Cardinal) bool {
 		local := side.Delta()
 		for range turns {
 			local = consts.Coord[consts.Tile]{X: -local.Y, Y: local.X}
 		}
 		n, ok := facings[c.Add(local)]
-		return ok && n.Dir == f.Dir && n.Backed == f.Backed && drawn(c.Add(local))
+		return ok && n.Facing == f.Facing && n.Anchor == f.Anchor && drawn(c.Add(local))
 	}
 	z0 := 0.5 - facingThickness/2
-	if f.Backed {
+	if f.Anchor == gc.AnchorBack {
 		z0 = facingGap
 	}
 	z1 := z0 + facingThickness

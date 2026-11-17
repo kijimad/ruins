@@ -194,12 +194,12 @@ func TestSpawnFacility_棚の向きを施設の絵の並びから決めて付け
 	_, _, err := spawnFacility(world, g, cells, 0, 0, "store", raw.MinDanger, 1)
 	require.NoError(t, err)
 
-	var got []gc.Facing
-	q := ecs.NewFilter1[gc.Facing](world.ECS).Query()
+	var got []gc.Pose
+	q := ecs.NewFilter1[gc.Pose](world.ECS).Query()
 	for q.Next() {
 		got = append(got, *q.Get())
 	}
-	assert.Equal(t, []gc.Facing{{Dir: consts.South, Backed: true}, {Dir: consts.South, Backed: true}}, got)
+	assert.Equal(t, []gc.Pose{{Facing: consts.South, Anchor: gc.AnchorBack}, {Facing: consts.South, Anchor: gc.AnchorBack}}, got)
 }
 
 func TestSpawnFacility_扉の向きを決める隣の置物の行が無ければエラー(t *testing.T) {

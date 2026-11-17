@@ -382,12 +382,21 @@ type Door struct {
 	Orientation DoorOrientation // 扉の向き
 }
 
-// Facing は置物が向く向き Dir と、背が塞がっていて背の側へ寄せるか Backed。地図を作るときに並びから決め、
-// 隣の置物が壊れても変えない
-type Facing struct {
-	Dir    consts.Cardinal
-	Backed bool
+// Pose はエンティティがマスの中でどう置かれるか。向く方角 Facing と、マスの中で立つ位置 Anchor
+type Pose struct {
+	Facing consts.Cardinal
+	Anchor PoseAnchor
 }
+
+// PoseAnchor はマスの中で立つ位置
+type PoseAnchor int
+
+const (
+	// AnchorCenter はマスの真ん中に立つ
+	AnchorCenter PoseAnchor = iota
+	// AnchorBack は向きの背の側へ寄せて立つ
+	AnchorBack
+)
 
 // DoorOrientation は扉の向き
 type DoorOrientation int

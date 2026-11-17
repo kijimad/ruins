@@ -141,13 +141,13 @@ func TestSpawnProps_棚の向きを地図を作るときに決めて付ける(t 
 	require.NoError(t, spawnProps(world, plan, 0, 0))
 
 	var shelves []ecs.Entity
-	q := ecs.NewFilter1[gc.Facing](world.ECS).Query()
+	q := ecs.NewFilter1[gc.Pose](world.ECS).Query()
 	for q.Next() {
 		shelves = append(shelves, q.Entity())
 	}
 	require.Len(t, shelves, 2)
 	for _, e := range shelves {
-		assert.Equal(t, gc.Facing{Dir: consts.South, Backed: true}, *world.Components.Facing.Get(e))
+		assert.Equal(t, gc.Pose{Facing: consts.South, Anchor: gc.AnchorBack}, *world.Components.Pose.Get(e))
 	}
 }
 
@@ -168,8 +168,8 @@ func TestPlanFacings_同じマスの置物はどれか1つが塞げば塞がり�
 				{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "book_shelf_2"},
 			},
 		}
-		got, err := planFacings(plan)
+		got, err := planPoses(plan)
 		require.NoError(t, err)
-		assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Facing{{X: 1, Y: 1}: {Dir: consts.South, Backed: true}}, got, "%v", order)
+		assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Pose{{X: 1, Y: 1}: {Facing: consts.South, Anchor: gc.AnchorBack}}, got, "%v", order)
 	}
 }

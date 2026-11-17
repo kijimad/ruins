@@ -49,7 +49,7 @@ var Registry = []Def{
 	{Field: "BlockPass"},       // 通行不可であることを示す
 	{Field: "PassCost"},        // タイルの移動コスト修正を保持する
 	{Field: "Door"},            // 開閉可能な扉であることを表す
-	{Field: "Facing"},          // 地図を作るときに決めた置物の向きを保持する
+	{Field: "Pose"},            // マスの中での置き方として、向く方角と立つ位置を保持する
 	{Field: "Item"},            // 可搬アイテムであることを示す
 	{Field: "Prop"},            // 設置物であることを示す
 	{Field: "Cube"},            // 移動拠点キューブであることを示す

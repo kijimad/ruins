@@ -105,7 +105,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		return b, nil
 	}
 
-	facings, err := cellFacings(cells, wallAt, propOf)
+	facings, err := cellPoses(cells, wallAt, propOf)
 	if err != nil {
 		return nil, nil, fmt.Errorf("facility %q: %w", fac, err)
 	}
@@ -187,7 +187,7 @@ func spawnFacilityTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos c
 }
 
 // spawnFacilityCell はマスの扉、家具と収納の中身、床の戦利品、敵を pos へ置く。扉の向きは呼び出し側が壁から決める
-func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation, facing *gc.Facing, fac string, danger consts.Danger, lootRNG, beingRNG *rand.Rand) error {
+func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation, facing *gc.Pose, fac string, danger consts.Danger, lootRNG, beingRNG *rand.Rand) error {
 	switch {
 	case cell.Prop == "door":
 		if _, err := lifecycle.SpawnDoor(world, pos, orientation); err != nil {
@@ -199,7 +199,7 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 			return fmt.Errorf("failed to place facility prop (%s at %d,%d): %w", cell.Prop, pos.X, pos.Y, err)
 		}
 		if facing != nil {
-			world.Components.Facing.Add(ent, facing)
+			world.Components.Pose.Add(ent, facing)
 		}
 		if err := populateStorageLoot(world, ent, cell.Prop, cell.LootTable, fac, lootRNG); err != nil {
 			return fmt.Errorf("failed to populate storage loot (%s): %w", cell.Prop, err)
@@ -218,9 +218,9 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 	return nil
 }
 
-// cellFacings は施設の絵の、向きを決める置物 facing のマスごとの向きを返す。通行を塞ぐ置物と facing の置物を塞がりに数え、
+// cellPoses は施設の絵の、向きを決める置物 facing のマスごとの置き方 Pose を返す。通行を塞ぐ置物と facing の置物を塞がりに数え、
 // 並びごとに向きを決める。絵の外は塞がりに数えない
-func cellFacings(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool, propOf func(id string) (rawschema.Prop, error)) (map[consts.Coord[consts.Tile]]*gc.Facing, error) {
+func cellPoses(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool, propOf func(id string) (rawschema.Prop, error)) (map[consts.Coord[consts.Tile]]*gc.Pose, error) {
 	facers := map[consts.Coord[consts.Tile]]bool{}
 	blockers := map[consts.Coord[consts.Tile]]bool{}
 	for y, row := range cells {
@@ -240,9 +240,9 @@ func cellFacings(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool, prop
 			blockers[c] = blockers[c] || facing || prop.BlockPass
 		}
 	}
-	facings := map[consts.Coord[consts.Tile]]*gc.Facing{}
+	facings := map[consts.Coord[consts.Tile]]*gc.Pose{}
 	wall := func(c consts.Coord[consts.Tile]) bool { return wallAt(int(c.X), int(c.Y)) }
-	for c, f := range mapplanner.RowFacings(facers, blockers, wall) {
+	for c, f := range mapplanner.RowPoses(facers, blockers, wall) {
 		facings[c] = &f
 	}
 	return facings, nil
