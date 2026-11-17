@@ -2,6 +2,7 @@ package systems
 
 import (
 	"image/color"
+	"maps"
 	"math"
 	"testing"
 
@@ -498,9 +499,29 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 		{"何にも接しない1台はカメラに近い東を向く", []coord{{X: 5, Y: 5}}, nil, toEast, all(east, coord{X: 5, Y: 5})},
 	}
 	for _, tc := range cases {
-		got := rowFacings(set(tc.facers...), func(c coord) bool { return tc.blocked[c] || set(tc.facers...)[c] }, tc.toward)
+		got := rowFacings(set(tc.facers...), func(c coord) bool { return tc.blocked[c] }, tc.toward)
 		assert.Equal(t, tc.want, got, tc.name)
 	}
+
+	// 北東の角で、北の壁沿いの5台と東の壁沿いの4台が角の1台を分け合う。角は長い北の列にそろう
+	north5 := []coord{{X: 1, Y: 1}, {X: 2, Y: 1}, {X: 3, Y: 1}, {X: 4, Y: 1}, {X: 5, Y: 1}}
+	east3 := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
+	walls := set(coord{X: 1, Y: 0}, coord{X: 2, Y: 0}, coord{X: 3, Y: 0}, coord{X: 4, Y: 0}, coord{X: 5, Y: 0},
+		coord{X: 6, Y: 1}, coord{X: 6, Y: 2}, coord{X: 6, Y: 3}, coord{X: 6, Y: 4})
+	want := all(south, north5...)
+	maps.Copy(want, all(west, east3...))
+	facers := set(north5...)
+	maps.Copy(facers, set(east3...))
+	assert.Equal(t, want, rowFacings(facers, func(c coord) bool { return walls[c] }, toEast), "L字")
+
+	// T字では横の3台の並びが縦の3台の並びと (5,4) を分け合う。同じ長さなら先に見つけた縦の並びが取る
+	vertical := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
+	horizontal := []coord{{X: 3, Y: 4}, {X: 4, Y: 4}}
+	want = all(south, horizontal...)
+	maps.Copy(want, all(east, vertical...))
+	facers = set(vertical...)
+	maps.Copy(facers, set(horizontal...))
+	assert.Equal(t, want, rowFacings(facers, func(coord) bool { return false }, toEast), "T字")
 }
 
 func TestFacingProps_向きを決める置物と塞がる置物を集める(t *testing.T) {

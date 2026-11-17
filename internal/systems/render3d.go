@@ -425,7 +425,7 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 }
 
 // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
-// inset は壁にはめる板、facing は壁を背に向く板にする。床の模様は地面に寝かせる。
+// inset は壁にはめる板、facing は並びと隣の空きに合わせて向く板にする。床の模様は地面に寝かせる。
 func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, facings map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]) []r3quad {
 	cameraRight := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
@@ -488,7 +488,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 // insetThickness は壁にはめる置物の板の厚み
 const insetThickness = 0.2
 
-// facingMaxTurn は壁を背にする置物の板がカメラのほうへ首を振れる角度。カメラの向きの1刻み
+// facingMaxTurn は向きを決めた置物の板がカメラのほうへ首を振れる角度。カメラの向きの1刻み
 const facingMaxTurn = 2 * math.Pi / gc.CameraOrientCount
 
 // facingProps は向きを決める置物 facing の座標の集合と、その向きを決めるときに塞がる置物の座標の集合を返す。
@@ -522,38 +522,51 @@ var (
 	west  = consts.Coord[consts.Tile]{X: -1, Y: 0}
 )
 
+// facingRow は向きを1つにそろえる置物の並び。sides は並びが向ける方向の候補
+type facingRow struct {
+	members, sides []consts.Coord[consts.Tile]
+}
+
 // rowFacings は facing の置物ごとに向く方向を返す。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
-// 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。並びと直角の2方向のうち、
-// 背が塞がり前が空くマスの多い側を向く。同じならカメラ toward に近い側を向く。1台だけの置物は4方向から同じく選ぶ
+// 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。L字やT字で2つの並びが交わる置物は、
+// 長い並びから先に決めて、その並びの向きにそろえる。並びと直角の2方向のうち、背が塞がり前が空くマスの多い側を向く。
+// 同じならカメラ toward に近い側、それも同じなら南・東・西・北の順で先の側を向く。1台だけの置物は4方向から同じく選ぶ
 func rowFacings(facers map[consts.Coord[consts.Tile]]bool, blocked func(consts.Coord[consts.Tile]) bool, toward render3d.Vec) map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile] {
-	facings := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{}
+	var rows []facingRow
 	for _, c := range slices.SortedFunc(maps.Keys(facers), func(a, b consts.Coord[consts.Tile]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) }) {
-		if _, done := facings[c]; done {
-			continue
-		}
-		row, sides := []consts.Coord[consts.Tile]{c}, []consts.Coord[consts.Tile]{south, east, west, north}
-		for _, axis := range [][2]consts.Coord[consts.Tile]{{west, east}, {north, south}} {
-			if !facers[c.Add(axis[0])] && !facers[c.Add(axis[1])] {
+		alone := true
+		for _, axis := range []struct{ back, ahead consts.Coord[consts.Tile] }{{west, east}, {north, south}} {
+			if facers[c.Add(axis.back)] || facers[c.Add(axis.ahead)] {
+				alone = false
+			}
+			if facers[c.Add(axis.back)] || !facers[c.Add(axis.ahead)] {
 				continue
 			}
-			row = row[:0]
-			start := c
-			for facers[start.Add(axis[0])] {
-				start = start.Add(axis[0])
+			row := facingRow{sides: []consts.Coord[consts.Tile]{south, north}}
+			if axis.back == north {
+				row.sides = []consts.Coord[consts.Tile]{east, west}
 			}
-			for m := start; facers[m]; m = m.Add(axis[1]) {
-				row = append(row, m)
+			for m := c; facers[m]; m = m.Add(axis.ahead) {
+				row.members = append(row.members, m)
 			}
-			sides = []consts.Coord[consts.Tile]{south, north}
-			if axis[0] == north {
-				sides = []consts.Coord[consts.Tile]{east, west}
-			}
-			break
+			rows = append(rows, row)
 		}
-		best, bestScore := sides[0], math.Inf(-1)
-		for _, d := range sides {
+		if alone {
+			rows = append(rows, facingRow{members: []consts.Coord[consts.Tile]{c}, sides: []consts.Coord[consts.Tile]{south, east, west, north}})
+		}
+	}
+	slices.SortStableFunc(rows, func(a, b facingRow) int { return cmp.Compare(len(b.members), len(a.members)) })
+
+	facings := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{}
+	for _, row := range rows {
+		members := slices.DeleteFunc(row.members, func(m consts.Coord[consts.Tile]) bool { _, done := facings[m]; return done })
+		if len(members) == 0 {
+			continue
+		}
+		best, bestScore := row.sides[0], math.Inf(-1)
+		for _, d := range row.sides {
 			score := 0.0
-			for _, m := range row {
+			for _, m := range members {
 				if blocked(m.Sub(d)) {
 					score++
 				}
@@ -567,7 +580,7 @@ func rowFacings(facers map[consts.Coord[consts.Tile]]bool, blocked func(consts.C
 				best, bestScore = d, score
 			}
 		}
-		for _, m := range row {
+		for _, m := range members {
 			facings[m] = best
 		}
 	}
