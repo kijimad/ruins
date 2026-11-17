@@ -503,7 +503,7 @@ const (
 	facingThickness = 0.2
 	// facingGap は背の塞がりに寄せた板と背のあいだ。壁の面と重なってちらつかないよう少し離す
 	facingGap = 0.02
-	// facingLift は板の正面から絵を浮かせる距離。奥行きの並べ替えで絵を板の正面より後に描かせる
+	// facingLift は板の正面と背面から絵を浮かせる距離。奥行きの並べ替えで絵を板の面より後に描かせる
 	facingLift = 0.01
 )
 
@@ -588,7 +588,7 @@ func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Co
 	return facings
 }
 
-// facingFaces は向き f の置物の面を返す。平均色で塗った閉じた6面の板を立て、正面に絵を貼る。
+// facingFaces は向き f の置物の面を返す。平均色で塗った閉じた6面の板を立て、正面と背面に外向きに絵を貼る。
 // 絵の透明な余白からは板の色が見える。同じ向きの隣と接する端は、重なってちらつかないよう省く。
 // 背が塞がっていれば背の側へ寄せ、空いていればマスの真ん中に立てる。南を向く板を作ってから向きの分だけ回す
 func facingFaces(c consts.Coord[consts.Tile], f facing, facings map[consts.Coord[consts.Tile]]facing) []insetFace {
@@ -613,6 +613,7 @@ func facingFaces(c consts.Coord[consts.Tile], f facing, facings map[consts.Coord
 	faces = append(faces,
 		insetFace{p: [4]render3d.Vec{render3d.At(0, 0, z1), render3d.At(1, 0, z1), render3d.At(1, 0, z0), render3d.At(0, 0, z0)}, flat: true},
 		insetFace{p: [4]render3d.Vec{render3d.At(0, h, z1+facingLift), render3d.At(1, h, z1+facingLift), render3d.At(1, 0, z1+facingLift), render3d.At(0, 0, z1+facingLift)}},
+		insetFace{p: [4]render3d.Vec{render3d.At(1, h, z0-facingLift), render3d.At(0, h, z0-facingLift), render3d.At(0, 0, z0-facingLift), render3d.At(1, 0, z0-facingLift)}},
 	)
 	for i := range faces {
 		for j, v := range faces[i].p {
