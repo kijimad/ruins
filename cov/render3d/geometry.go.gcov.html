@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">43</td>
-            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntry">48</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-17 10:22:26</td>
+            <td class="headerValue">2026-11-17 10:32:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -137,6 +137,15 @@
 <span id="L75"><span class="lineNum">      75</span>              : </span>
 <span id="L76"><span class="lineNum">      76</span>              : // At は座標から点を作る。3成分を並べる式が読みやすくなる</span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 : func At(x, y, z float64) Vec { return Vec{X: x, Y: y, Z: z} }</span></span>
+<span id="L78"><span class="lineNum">      78</span>              : </span>
+<span id="L79"><span class="lineNum">      79</span>              : // FacingRight は向き facing の置物の板を張る右向きの単位ベクトルを返す。板は置物の向きを正面にして、</span>
+<span id="L80"><span class="lineNum">      80</span>              : // 画面右が cameraRight のカメラのほうへ左右 maxTurn ラジアンまで首を振る。真横から見ても線にならない</span>
+<span id="L81"><span class="lineNum">      81</span>              : func FacingRight(facing, cameraRight Vec, maxTurn float64) Vec {</span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         alpha := math.Atan2(facing.X, facing.Z)</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         phi := math.Atan2(-cameraRight.Z, cameraRight.X)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         b := alpha + max(-maxTurn, min(maxTurn, math.Remainder(phi-alpha, 2*math.Pi)))</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         return Vec{math.Cos(b), 0, -math.Sin(b)}</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
