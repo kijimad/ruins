@@ -265,7 +265,7 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil)
 
 	require.Len(t, quads, 1)
 	assert.Equal(t, [4]render3d.Vec{
@@ -424,10 +424,10 @@ func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
 	require.NoError(t, lifecycle.OpenDoor(world, door))
 	sys := &Render3DSystem{}
 
-	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world)))
+	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil))
 }
 
-func TestCollectBillboards_壁を背にする置物は壁と反対を向く板にする(t *testing.T) {
+func TestCollectBillboards_向きを決めた置物はその向きからカメラへ首を振る板にする(t *testing.T) {
 	t.Parallel()
 	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
 	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
@@ -442,10 +442,10 @@ func TestCollectBillboards_壁を背にする置物は壁と反対を向く板�
 	})
 	_, err := lifecycle.SpawnProp(world, "book_shelf_2", center.X, center.Y)
 	require.NoError(t, err)
-	walls := map[consts.Coord[consts.Tile]]bool{{X: 26, Y: 25}: true}
+	facings := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{center: west}
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible, walls, nil)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, facings)
 
 	require.Len(t, quads, 1)
 	right := render3d.FacingRight(render3d.At(-1, 0, 0), projector.Right(), facingMaxTurn)
@@ -462,24 +462,68 @@ func TestCollectBillboards_壁を背にする置物は壁と反対を向く板�
 	assert.InDelta(t, math.Sqrt2/2, right.Z, 1e-9)
 }
 
-func TestBackWall_北東西南の順で隣の壁を背にする(t *testing.T) {
+func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *testing.T) {
 	t.Parallel()
 
-	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	type coord = consts.Coord[consts.Tile]
+	toSouth, toNorth, toEast := render3d.At(0, 0, 1), render3d.At(0, 0, -1), render3d.At(1, 0, 0)
+	set := func(cs ...coord) map[coord]bool {
+		m := map[coord]bool{}
+		for _, c := range cs {
+			m[c] = true
+		}
+		return m
+	}
+	all := func(d coord, cs ...coord) map[coord]coord {
+		m := map[coord]coord{}
+		for _, c := range cs {
+			m[c] = d
+		}
+		return m
+	}
+	row := []coord{{X: 2, Y: 5}, {X: 3, Y: 5}, {X: 4, Y: 5}}
+	column := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
 	cases := []struct {
-		name   string
-		walls  map[consts.Coord[consts.Tile]]bool
-		want   consts.Coord[consts.Tile]
-		wantOK bool
+		name    string
+		facers  []coord
+		blocked map[coord]bool
+		toward  render3d.Vec
+		want    map[coord]coord
 	}{
-		{"西の壁", map[consts.Coord[consts.Tile]]bool{{X: 4, Y: 5}: true}, consts.Coord[consts.Tile]{X: -1, Y: 0}, true},
-		{"北東の角は北", map[consts.Coord[consts.Tile]]bool{{X: 5, Y: 4}: true, {X: 6, Y: 5}: true}, consts.Coord[consts.Tile]{X: 0, Y: -1}, true},
-		{"南だけ", map[consts.Coord[consts.Tile]]bool{{X: 5, Y: 6}: true}, consts.Coord[consts.Tile]{X: 0, Y: 1}, true},
-		{"壁なし", map[consts.Coord[consts.Tile]]bool{}, consts.Coord[consts.Tile]{}, false},
+		{"両面とも空いた東西の並びはカメラに近い南を向く", row, nil, toSouth, all(south, row...)},
+		{"両面とも空いた東西の並びはカメラに近い北を向く", row, nil, toNorth, all(north, row...)},
+		{"北に1つだけ塞がりがある並びも全員が南を向く", row, set(coord{X: 3, Y: 4}), toNorth, all(south, row...)},
+		{"東の壁と北の角に接する南北の並びは全員が西を向く", column, set(coord{X: 6, Y: 2}, coord{X: 6, Y: 3}, coord{X: 6, Y: 4}, coord{X: 5, Y: 1}), toEast, all(west, column...)},
+		{"北の壁に接する1台は南を向く", []coord{{X: 5, Y: 5}}, set(coord{X: 5, Y: 4}), toEast, all(south, coord{X: 5, Y: 5})},
+		{"何にも接しない1台はカメラに近い東を向く", []coord{{X: 5, Y: 5}}, nil, toEast, all(east, coord{X: 5, Y: 5})},
 	}
 	for _, tc := range cases {
-		got, ok := backWall(tc.walls, c)
-		assert.Equal(t, tc.wantOK, ok, tc.name)
+		got := rowFacings(set(tc.facers...), func(c coord) bool { return tc.blocked[c] || set(tc.facers...)[c] }, tc.toward)
 		assert.Equal(t, tc.want, got, tc.name)
 	}
+}
+
+func TestFacingProps_向きを決める置物と塞がる置物を集める(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnProp(world, "book_shelf_2", 3, 3)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "barrel", 4, 3)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 5, Y: 3}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	facers, blockers := facingProps(world)
+	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true}, facers)
+	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 4, Y: 3}: true}, blockers)
+}
+
+func TestCameraToward_既定のカメラは南にいる(t *testing.T) {
+	t.Parallel()
+
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, consts.Coord[consts.Tile]{X: 5, Y: 5}, 960, 720)
+	got := cameraToward(projector.Right())
+	assert.InDelta(t, 0.0, got.X, 1e-9)
+	assert.InDelta(t, 1.0, got.Z, 1e-9)
 }

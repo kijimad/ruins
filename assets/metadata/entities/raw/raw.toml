@@ -20561,6 +20561,7 @@
   name = "Closet"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "closet"
     spriteSheetName = "field"
   [props.storage]
@@ -20721,6 +20722,7 @@
   name = "Electric Locker"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "electric_locker"
     spriteSheetName = "field"
 
@@ -20949,6 +20951,7 @@
   name = "Shoe Cabinet"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "getabako"
     spriteSheetName = "field"
 
@@ -21127,6 +21130,7 @@
       id = "iron"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "refrigerator"
     spriteSheetName = "field"
   [props.storage]
@@ -21556,6 +21560,7 @@
   name = "Locker"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "electric_locker"
     spriteSheetName = "field"
   [props.storage]
@@ -21572,6 +21577,7 @@
   name = "Display Cooler"
   [props.spriteRender]
     depth = 0
+    shape = "facing"
     spriteKey = "display_cooler"
     spriteSheetName = "field"
 
@@ -21584,6 +21590,7 @@
   name = "Magazine Rack"
   [props.spriteRender]
     depth = 0
+    shape = "facing"
     spriteKey = "magazine_rack"
     spriteSheetName = "field"
 
@@ -21596,6 +21603,7 @@
   name = "Vending Machine"
   [props.spriteRender]
     depth = 0
+    shape = "facing"
     spriteKey = "vending_machine"
     spriteSheetName = "field"
 
@@ -21620,6 +21628,7 @@
   name = "Gondola Shelf"
   [props.spriteRender]
     depth = 0
+    shape = "facing"
     spriteKey = "gondola_shelf"
     spriteSheetName = "field"
 
@@ -21692,6 +21701,7 @@
   name = "Medicine Cabinet"
   [props.spriteRender]
     depth = 0
+    shape = "facing"
     spriteKey = "medicine_cabinet"
     spriteSheetName = "field"
   [props.storage]
@@ -21744,6 +21754,7 @@
   name = "Server Rack"
   [props.spriteRender]
     depth = 0
+    shape = "facing"
     spriteKey = "server_rack"
     spriteSheetName = "field"
 
@@ -22309,6 +22320,7 @@
       id = "scrap_iron"
   [props.spriteRender]
     depth = 3
+    shape = "facing"
     spriteKey = "gun_rack"
     spriteSheetName = "field"
   [props.storage]

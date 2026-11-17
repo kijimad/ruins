@@ -1,9 +1,12 @@
 package systems
 
 import (
+	"cmp"
 	"image"
 	"image/color"
+	"maps"
 	"math"
+	"slices"
 	"sort"
 	"sync"
 
@@ -185,7 +188,9 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	// 前フレームのバッファを [:0] で使い回す。追記で伸びた容量を最後に持ち越す
 	walls := render3d.BoxTileSet(world)
 	quads := sys.collectTiles(world, sys.quads[:0], projector, visTint, walls)
-	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world))
+	facers, blockers := facingProps(world)
+	facings := rowFacings(facers, func(c consts.Coord[consts.Tile]) bool { return walls[c] || blockers[c] }, cameraToward(projector.Right()))
+	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world), facings)
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
 	// 展開中キューブの野営エリアを囲むレーザー壁も状態従属の装飾として積む
@@ -421,7 +426,7 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 
 // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
 // inset は壁にはめる板、facing は壁を背に向く板にする。床の模様は地面に寝かせる。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool) []r3quad {
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, facings map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]) []r3quad {
 	cameraRight := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
@@ -461,10 +466,8 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		right := cameraRight
-		if sr.Shape == rawschema.Facing {
-			if back, ok := backWall(walls, g.Coord); ok {
-				right = render3d.FacingRight(render3d.At(-float64(back.X), 0, -float64(back.Y)), cameraRight, facingMaxTurn)
-			}
+		if d, ok := facings[g.Coord]; ok && sr.Shape == rawschema.Facing {
+			right = render3d.FacingRight(render3d.At(float64(d.X), 0, float64(d.Y)), cameraRight, facingMaxTurn)
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
 		const bw = 0.45
@@ -488,14 +491,87 @@ const insetThickness = 0.2
 // facingMaxTurn は壁を背にする置物の板がカメラのほうへ首を振れる角度。カメラの向きの1刻み
 const facingMaxTurn = 2 * math.Pi / gc.CameraOrientCount
 
-// backWall は c の置物が背にする壁の向きを返す。角では既定のカメラがいる南を向くよう、北・東・西・南の順に探す
-func backWall(walls map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
-	for _, d := range []consts.Coord[consts.Tile]{{X: 0, Y: -1}, {X: 1, Y: 0}, {X: -1, Y: 0}, {X: 0, Y: 1}} {
-		if walls[c.Add(d)] {
-			return d, true
+// facingProps は向きを決める置物 facing の座標の集合と、その向きを決めるときに塞がる置物の座標の集合を返す。
+// 壁にはめる置物は開け閉めで並びの向きが変わらないよう、塞がる置物に含めない
+func facingProps(world w.World) (facers, blockers map[consts.Coord[consts.Tile]]bool) {
+	facers, blockers = map[consts.Coord[consts.Tile]]bool{}, map[consts.Coord[consts.Tile]]bool{}
+	q := query.ActiveFilter3[gc.Prop, gc.SpriteRender, gc.GridElement](world).Query()
+	for q.Next() {
+		e := q.Entity()
+		shape := world.Components.SpriteRender.Get(e).Shape
+		c := world.Components.GridElement.Get(e).Coord
+		if shape == rawschema.Facing {
+			facers[c] = true
+		}
+		if shape != rawschema.Inset && world.Components.BlockPass.Has(e) {
+			blockers[c] = true
 		}
 	}
-	return consts.Coord[consts.Tile]{}, false
+	return facers, blockers
+}
+
+// cameraToward は画面右が cameraRight のカメラへ向かう水平の向きを返す
+func cameraToward(cameraRight render3d.Vec) render3d.Vec {
+	return render3d.At(-cameraRight.Z, 0, cameraRight.X)
+}
+
+var (
+	north = consts.Coord[consts.Tile]{X: 0, Y: -1}
+	east  = consts.Coord[consts.Tile]{X: 1, Y: 0}
+	south = consts.Coord[consts.Tile]{X: 0, Y: 1}
+	west  = consts.Coord[consts.Tile]{X: -1, Y: 0}
+)
+
+// rowFacings は facing の置物ごとに向く方向を返す。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
+// 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。並びと直角の2方向のうち、
+// 背が塞がり前が空くマスの多い側を向く。同じならカメラ toward に近い側を向く。1台だけの置物は4方向から同じく選ぶ
+func rowFacings(facers map[consts.Coord[consts.Tile]]bool, blocked func(consts.Coord[consts.Tile]) bool, toward render3d.Vec) map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile] {
+	facings := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{}
+	for _, c := range slices.SortedFunc(maps.Keys(facers), func(a, b consts.Coord[consts.Tile]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) }) {
+		if _, done := facings[c]; done {
+			continue
+		}
+		row, sides := []consts.Coord[consts.Tile]{c}, []consts.Coord[consts.Tile]{south, east, west, north}
+		for _, axis := range [][2]consts.Coord[consts.Tile]{{west, east}, {north, south}} {
+			if !facers[c.Add(axis[0])] && !facers[c.Add(axis[1])] {
+				continue
+			}
+			row = row[:0]
+			start := c
+			for facers[start.Add(axis[0])] {
+				start = start.Add(axis[0])
+			}
+			for m := start; facers[m]; m = m.Add(axis[1]) {
+				row = append(row, m)
+			}
+			sides = []consts.Coord[consts.Tile]{south, north}
+			if axis[0] == north {
+				sides = []consts.Coord[consts.Tile]{east, west}
+			}
+			break
+		}
+		best, bestScore := sides[0], math.Inf(-1)
+		for _, d := range sides {
+			score := 0.0
+			for _, m := range row {
+				if blocked(m.Sub(d)) {
+					score++
+				}
+				if blocked(m.Add(d)) {
+					score--
+				}
+			}
+			// カメラへの近さは塞がりの1マスより軽くし、塞がりが同じときだけ効かせる
+			score += 0.5 * (float64(d.X)*toward.X + float64(d.Y)*toward.Z)
+			if score > bestScore {
+				best, bestScore = d, score
+			}
+		}
+		for _, m := range row {
+			facings[m] = best
+		}
+	}
+	return facings
 }
 
 // insetFace は壁にはめる置物の1面。flat は絵を貼らず平均色で塗る面
