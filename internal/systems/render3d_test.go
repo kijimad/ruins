@@ -475,6 +475,14 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 		}
 		return m
 	}
+	weightOf := func(blocked map[coord]bool) func(coord) float64 {
+		return func(c coord) float64 {
+			if blocked[c] {
+				return 1
+			}
+			return 0
+		}
+	}
 	all := func(d coord, cs ...coord) map[coord]coord {
 		m := map[coord]coord{}
 		for _, c := range cs {
@@ -499,7 +507,7 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 		{"何にも接しない1台はカメラに近い東を向く", []coord{{X: 5, Y: 5}}, nil, toEast, all(dirEast, coord{X: 5, Y: 5})},
 	}
 	for _, tc := range cases {
-		got := rowFacings(set(tc.facers...), func(c coord) bool { return tc.blocked[c] }, tc.toward)
+		got := rowFacings(set(tc.facers...), weightOf(tc.blocked), tc.toward)
 		assert.Equal(t, tc.want, got, tc.name)
 	}
 
@@ -512,7 +520,7 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 	maps.Copy(want, all(dirWest, east3...))
 	facers := set(north5...)
 	maps.Copy(facers, set(east3...))
-	assert.Equal(t, want, rowFacings(facers, func(c coord) bool { return walls[c] }, toEast), "L字")
+	assert.Equal(t, want, rowFacings(facers, weightOf(walls), toEast), "L字")
 
 	// T字では横の3台の並びが縦の3台の並びと (5,4) を分け合う。同じ長さなら先に見つけた縦の並びが取る
 	vertical := []coord{{X: 5, Y: 2}, {X: 5, Y: 3}, {X: 5, Y: 4}}
@@ -521,17 +529,31 @@ func TestRowFacings_並びごとに背が塞がり前が空く側を向く(t *te
 	maps.Copy(want, all(dirEast, vertical...))
 	facers = set(vertical...)
 	maps.Copy(facers, set(horizontal...))
-	assert.Equal(t, want, rowFacings(facers, func(coord) bool { return false }, toEast), "T字")
+	assert.Equal(t, want, rowFacings(facers, weightOf(nil), toEast), "T字")
 
 	// 2x2 の塊は上段を東西の並びとして先に決め、残りの下段も東西の並びとして南を向く
 	block := []coord{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 1}}
 	want = all(dirNorth, block[:2]...)
 	maps.Copy(want, all(dirSouth, block[2:]...))
-	assert.Equal(t, want, rowFacings(set(block...), func(c coord) bool { return set(block...)[c] }, toEast), "2x2")
+	assert.Equal(t, want, rowFacings(set(block...), weightOf(set(block...)), toEast), "2x2")
 
 	// 斜めのカメラで南と東が同点なら、南を先にする
 	toSouthEast := render3d.At(math.Sqrt2/2, 0, math.Sqrt2/2)
-	assert.Equal(t, all(dirSouth, coord{X: 5, Y: 5}), rowFacings(set(coord{X: 5, Y: 5}), func(coord) bool { return false }, toSouthEast), "斜めの同点")
+	assert.Equal(t, all(dirSouth, coord{X: 5, Y: 5}), rowFacings(set(coord{X: 5, Y: 5}), weightOf(nil), toSouthEast), "斜めの同点")
+
+	// 北の壁を背にした棚の前に樽があっても、壁を強い根拠にして南を向く
+	shelf := coord{X: 5, Y: 5}
+	weight := func(c coord) float64 {
+		switch c {
+		case coord{X: 5, Y: 4}:
+			return 2
+		case coord{X: 5, Y: 6}:
+			return 1
+		default:
+			return 0
+		}
+	}
+	assert.Equal(t, all(dirSouth, shelf), rowFacings(set(shelf), weight, toNorth), "壁と樽に挟まれる")
 }
 
 func TestFacingProps_向きを決める置物と塞がる置物を集める(t *testing.T) {
@@ -545,9 +567,13 @@ func TestFacingProps_向きを決める置物と塞がる置物を集める(t *t
 	_, err = lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 5, Y: 3}, gc.DoorOrientationHorizontal)
 	require.NoError(t, err)
 
+	// 飾り棚は通行を塞がないが、facing の置物なので塞がりに数える
+	_, err = lifecycle.SpawnProp(world, "artistic_shelf", 6, 3)
+	require.NoError(t, err)
+
 	facers, blockers := facingProps(world)
-	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true}, facers)
-	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 4, Y: 3}: true}, blockers)
+	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 6, Y: 3}: true}, facers)
+	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 4, Y: 3}: true, {X: 6, Y: 3}: true}, blockers)
 }
 
 func TestCameraToward_既定のカメラは南にいる(t *testing.T) {
@@ -557,4 +583,9 @@ func TestCameraToward_既定のカメラは南にいる(t *testing.T) {
 	got := cameraToward(projector.Right())
 	assert.InDelta(t, 0.0, got.X, 1e-9)
 	assert.InDelta(t, 1.0, got.Z, 1e-9)
+
+	// 90度回したカメラは東にいる
+	got = cameraToward(render3d.NewProjector(gc.Camera{Orient: 2, Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, consts.Coord[consts.Tile]{X: 5, Y: 5}, 960, 720).Right())
+	assert.InDelta(t, 1.0, got.X, 1e-9)
+	assert.InDelta(t, 0.0, got.Z, 1e-9)
 }

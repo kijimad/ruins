@@ -189,7 +189,17 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	walls := render3d.BoxTileSet(world)
 	quads := sys.collectTiles(world, sys.quads[:0], projector, visTint, walls)
 	facers, blockers := facingProps(world)
-	facings := rowFacings(facers, func(c consts.Coord[consts.Tile]) bool { return walls[c] || blockers[c] }, cameraToward(projector.Right()))
+	facings := rowFacings(facers, func(c consts.Coord[consts.Tile]) float64 {
+		// 動かない壁は置物より強い根拠にする
+		switch {
+		case walls[c]:
+			return 2
+		case blockers[c]:
+			return 1
+		default:
+			return 0
+		}
+	}, cameraToward(projector.Right()))
 	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world), facings)
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
@@ -492,6 +502,7 @@ const insetThickness = 0.2
 const facingMaxTurn = 2 * math.Pi / gc.CameraOrientCount
 
 // facingProps は向きを決める置物 facing の座標の集合と、その向きを決めるときに塞がる置物の座標の集合を返す。
+// 塞がる置物は通行を塞ぐ置物と、通行と関係なく facing の置物で、2列に並べた棚は背中合わせになる。
 // 壁にはめる置物は開け閉めで並びの向きが変わらないよう、塞がる置物に含めない。置物 Prop だけを見るので、
 // Prop でない物に facing を付けても並びに入らず向きが決まらない
 func facingProps(world w.World) (facers, blockers map[consts.Coord[consts.Tile]]bool) {
@@ -504,7 +515,7 @@ func facingProps(world w.World) (facers, blockers map[consts.Coord[consts.Tile]]
 		if shape == rawschema.Facing {
 			facers[c] = true
 		}
-		if shape != rawschema.Inset && world.Components.BlockPass.Has(e) {
+		if shape == rawschema.Facing || shape != rawschema.Inset && world.Components.BlockPass.Has(e) {
 			blockers[c] = true
 		}
 	}
@@ -531,23 +542,18 @@ type facingRow struct {
 // rowFacings は facing の置物ごとに向く方向を返す。隣り合う置物は東西か南北のまっすぐな並びにまとめ、
 // 並びごとに1つの向きを決めるので、端の1台だけ向きがずれることは無い。一番長い並びから1本ずつ決め、
 // 決めた置物を除いた残りから並びを作り直す。L字やT字で交わる置物は長い並びの向きにそろい、塊の残りも並びとして向く。
-// 並びと直角の2方向のうち、背が塞がり前が空くマスの多い側を向く。同じならカメラ toward に近い側、
+// 並びと直角の2方向のうち、背の塞がりの重み weight が大きく前が小さい側を向く。同じならカメラ toward に近い側、
 // それも同じなら南・東・西・北の順で先の側を向く。1台だけの置物は4方向から同じく選ぶ
-func rowFacings(facers map[consts.Coord[consts.Tile]]bool, blocked func(consts.Coord[consts.Tile]) bool, toward render3d.Vec) map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile] {
+func rowFacings(facers map[consts.Coord[consts.Tile]]bool, weight func(consts.Coord[consts.Tile]) float64, toward render3d.Vec) map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile] {
+	order := slices.SortedFunc(maps.Keys(facers), func(a, b consts.Coord[consts.Tile]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) })
 	left := maps.Clone(facers)
 	facings := map[consts.Coord[consts.Tile]]consts.Coord[consts.Tile]{}
-	for len(left) > 0 {
-		row := longestRow(left)
+	decide := func(row facingRow) {
 		best, bestScore := row.sides[0], math.Inf(-1)
 		for _, d := range row.sides {
 			score := 0.0
 			for _, m := range row.members {
-				if blocked(m.Sub(d)) {
-					score++
-				}
-				if blocked(m.Add(d)) {
-					score--
-				}
+				score += weight(m.Sub(d)) - weight(m.Add(d))
 			}
 			// カメラへの近さは塞がりの1マスより軽くし、塞がりが同じときだけ効かせる
 			score += 0.5 * (float64(d.X)*toward.X + float64(d.Y)*toward.Z)
@@ -560,26 +566,42 @@ func rowFacings(facers map[consts.Coord[consts.Tile]]bool, blocked func(consts.C
 			delete(left, m)
 		}
 	}
+	for len(left) > 0 {
+		row := longestRow(order, left)
+		if len(row.members) > 1 {
+			decide(row)
+			continue
+		}
+		// 一番長い並びが1台なら残りはどれも1台なので、並びを探し直さずに順に決める
+		for _, c := range order {
+			if left[c] {
+				decide(facingRow{members: []consts.Coord[consts.Tile]{c}, sides: []consts.Coord[consts.Tile]{dirSouth, dirEast, dirWest, dirNorth}})
+			}
+		}
+	}
 	return facings
 }
 
-// longestRow は置物 facers の中で一番長いまっすぐな並びを返す。同じ長さなら北西に近い置物から始まる並び、
-// 東西の並びを先にする。隣り合う置物が無ければ、北西に近い1台を4方向から向きを選ぶ並びとして返す
-func longestRow(facers map[consts.Coord[consts.Tile]]bool) facingRow {
+// longestRow は残りの置物 left の中で一番長いまっすぐな並びを返す。order は置物を北西から並べた順。
+// 同じ長さなら北西に近い置物から始まる並び、東西の並びを先にする。並びが無ければ1台だけの並びを返す
+func longestRow(order []consts.Coord[consts.Tile], left map[consts.Coord[consts.Tile]]bool) facingRow {
 	var best facingRow
-	for _, c := range slices.SortedFunc(maps.Keys(facers), func(a, b consts.Coord[consts.Tile]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) }) {
+	for _, c := range order {
+		if !left[c] {
+			continue
+		}
 		if best.members == nil {
-			best = facingRow{members: []consts.Coord[consts.Tile]{c}, sides: []consts.Coord[consts.Tile]{dirSouth, dirEast, dirWest, dirNorth}}
+			best = facingRow{members: []consts.Coord[consts.Tile]{c}}
 		}
 		for _, axis := range []struct{ back, ahead consts.Coord[consts.Tile] }{{dirWest, dirEast}, {dirNorth, dirSouth}} {
-			if facers[c.Add(axis.back)] || !facers[c.Add(axis.ahead)] {
+			if left[c.Add(axis.back)] || !left[c.Add(axis.ahead)] {
 				continue
 			}
 			row := facingRow{sides: []consts.Coord[consts.Tile]{dirSouth, dirNorth}}
 			if axis.back == dirNorth {
 				row.sides = []consts.Coord[consts.Tile]{dirEast, dirWest}
 			}
-			for m := c; facers[m]; m = m.Add(axis.ahead) {
+			for m := c; left[m]; m = m.Add(axis.ahead) {
 				row.members = append(row.members, m)
 			}
 			if len(row.members) > len(best.members) {
