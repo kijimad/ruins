@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -79,6 +80,47 @@ func TestBenchRegressions(t *testing.T) {
 		pr := map[benchKey][]float64{k("a", "X"): {400}, k("a", "Y"): {100}}
 		assert.Equal(t, []string{"- a: geomean x2.00"}, benchRegressions(base, pr, thr))
 	})
+
+	t.Run("medianが0以下なら比を取らず無視", func(t *testing.T) {
+		t.Parallel()
+		base := map[benchKey][]float64{k("a", "X"): {0, 0}}
+		pr := map[benchKey][]float64{k("a", "X"): {100}}
+		assert.Empty(t, benchRegressions(base, pr, thr), "baseのmedianが0以下")
+
+		base = map[benchKey][]float64{k("a", "X"): {100}}
+		pr = map[benchKey][]float64{k("a", "X"): {0, 0}}
+		assert.Empty(t, benchRegressions(base, pr, thr), "prのmedianが0以下")
+	})
+}
+
+func TestLoadBench_構文エラー行は読み飛ばす(t *testing.T) {
+	t.Parallel()
+
+	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
+	body := header + "BenchmarkBroken-4 abc\nBenchmarkFoo-4 \t1000\t100 ns/op\n"
+	path := filepath.Join(t.TempDir(), "bench.txt")
+	require.NoError(t, os.WriteFile(path, []byte(body), 0o644))
+
+	got, err := loadBench(path)
+	require.NoError(t, err)
+	require.Len(t, got, 1, "構文エラー行はベンチ結果に数えない")
+	vals, ok := got[benchKey{pkg: "example/x", name: "Foo-4"}]
+	require.True(t, ok)
+	require.Len(t, vals, 1)
+	assert.InDelta(t, 1e-7, vals[0], 1e-12, "100 ns/op は sec/op に変換される")
+}
+
+func TestLoadBench_sec_opもns_opも無い測定値は読み飛ばす(t *testing.T) {
+	t.Parallel()
+
+	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
+	body := header + "BenchmarkCustomOnly-4 \t1000\t42 custom/op\n"
+	path := filepath.Join(t.TempDir(), "bench.txt")
+	require.NoError(t, os.WriteFile(path, []byte(body), 0o644))
+
+	got, err := loadBench(path)
+	require.NoError(t, err)
+	assert.Empty(t, got, "時間の単位を持たない測定値は結果に数えない")
 }
 
 func TestBenchGate_ファイルを読んで比較する(t *testing.T) {
@@ -102,6 +144,25 @@ func TestBenchGate_ファイルを読んで比較する(t *testing.T) {
 	assert.Equal(t, "- example/x: geomean x3.00\n", buf.String())
 }
 
+func TestBenchGate_閾値未満の悪化は報告しない(t *testing.T) {
+	t.Parallel()
+
+	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
+	baseBody := header + "BenchmarkFoo-4 \t1000\t100 ns/op\n"
+	prBody := header + "BenchmarkFoo-4 \t1000\t300 ns/op\n"
+
+	dir := t.TempDir()
+	basePath := filepath.Join(dir, "base.txt")
+	prPath := filepath.Join(dir, "pr.txt")
+	require.NoError(t, os.WriteFile(basePath, []byte(baseBody), 0o644))
+	require.NoError(t, os.WriteFile(prPath, []byte(prBody), 0o644))
+
+	// 3倍悪化だが、閾値を5倍にすると報告対象から外れる
+	var buf bytes.Buffer
+	require.NoError(t, benchGate(&buf, basePath, prPath, 5.0))
+	assert.Empty(t, buf.String())
+}
+
 func TestBenchGate_読めないファイルはエラー(t *testing.T) {
 	t.Parallel()
 
@@ -109,6 +170,43 @@ func TestBenchGate_読めないファイルはエラー(t *testing.T) {
 	var buf bytes.Buffer
 	err := benchGate(&buf, filepath.Join(dir, "base.txt"), filepath.Join(dir, "pr.txt"), 2.0)
 	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
+func TestBenchGate_prファイルが読めなければエラー(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	basePath := filepath.Join(dir, "base.txt")
+	require.NoError(t, os.WriteFile(basePath, []byte("goos: linux\n"), 0o644))
+
+	var buf bytes.Buffer
+	err := benchGate(&buf, basePath, filepath.Join(dir, "pr.txt"), 2.0)
+	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
+// errBoom は書き込み失敗を起こす出力先であることを示す。
+var errBoom = errors.New("boom")
+
+// failingWriter は常に書き込みに失敗するio.Writer。
+type failingWriter struct{}
+
+func (failingWriter) Write([]byte) (int, error) { return 0, errBoom }
+
+func TestBenchGate_出力に失敗すればエラーを返す(t *testing.T) {
+	t.Parallel()
+
+	header := "goos: linux\ngoarch: amd64\npkg: example/x\ncpu: TestCPU\n"
+	baseBody := header + "BenchmarkFoo-4 \t1000\t100 ns/op\n"
+	prBody := header + "BenchmarkFoo-4 \t1000\t300 ns/op\n"
+
+	dir := t.TempDir()
+	basePath := filepath.Join(dir, "base.txt")
+	prPath := filepath.Join(dir, "pr.txt")
+	require.NoError(t, os.WriteFile(basePath, []byte(baseBody), 0o644))
+	require.NoError(t, os.WriteFile(prPath, []byte(prBody), 0o644))
+
+	err := benchGate(failingWriter{}, basePath, prPath, 2.0)
+	require.ErrorIs(t, err, errBoom)
 }
 
 func benchgateApp() *cli.Command {
