@@ -168,3 +168,24 @@ func TestExecuteInteraction_1ターンで探し終える収納はその場で開
 	require.NotNil(t, req)
 	assert.Equal(t, gc.OpenStorage{StorageEntity: crate}, req.Payload)
 }
+
+func TestExecuteInteraction_複数ターンかけて探し終えると開く要求を出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+	require.NoError(t, err)
+
+	result, err := ExecuteInteraction(player, crate, gc.InteractionStorage, world)
+	require.NoError(t, err)
+	require.Equal(t, gc.ActivityStateRunning, result.State, "20kg の木箱は1ターンで終わらない")
+	require.Nil(t, lifecycle.ConsumeStateChange(world))
+
+	require.NoError(t, ProcessContinuousActivities(world))
+
+	assert.False(t, world.Components.Unsearched.Has(crate))
+	req := lifecycle.ConsumeStateChange(world)
+	require.NotNil(t, req)
+	assert.Equal(t, gc.OpenStorage{StorageEntity: crate}, req.Payload)
+}
