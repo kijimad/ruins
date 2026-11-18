@@ -767,7 +767,7 @@ func TestStorageLabel(t *testing.T) {
 		want     string
 	}{
 		{"まだ探していない収納は探す", false, true, "Search Wooden Crate (up)"},
-		{"探し終えた空の収納は空と添える", true, false, "Open Wooden Crate (up, empty)"},
+		{"探し終えた空の収納は空と添える", true, false, "Open Wooden Crate (empty) (up)"},
 		{"探し終えた中身のある収納は開く", true, true, "Open Wooden Crate (up)"},
 	}
 	for _, tt := range tests {

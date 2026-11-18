@@ -272,7 +272,7 @@ func storageLabel(world w.World, storage ecs.Entity, dirLabel string) string {
 	case world.Components.Unsearched.Has(storage):
 		return query.T(world, "Search %s (%s)", name, dirLabel)
 	case !query.HasStorageItems(world, storage):
-		return query.T(world, "Open %s (%s, empty)", name, dirLabel)
+		return query.T(world, "Open %s (empty) (%s)", name, dirLabel)
 	}
 	return query.T(world, "Open %s (%s)", name, dirLabel)
 }

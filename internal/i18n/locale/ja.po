@@ -6662,8 +6662,8 @@ msgstr "貨物ポッド"
 msgid "Search %s (%s)"
 msgstr "%sを探す(%s)"
 
-msgid "Open %s (%s, empty)"
-msgstr "%sを開く(%s、空)"
+msgid "Open %s (empty) (%s)"
+msgstr "%s(空)を開く(%s)"
 
 msgid "there is nothing to search"
 msgstr "探すものがない"
