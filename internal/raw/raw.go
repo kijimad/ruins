@@ -848,7 +848,7 @@ func NewRemainsSpec(raws rawschema.Raws, id string, coord consts.Coord[consts.Ti
 		return gc.EntitySpec{}, err
 	}
 	// CUE が候補を1つ以上に縛る
-	h := consts.Mix64(uint64(coord.X)*0x9E3779B97F4A7C15 + uint64(coord.Y)*0xC2B2AE3D27D4EB4F)
+	h := consts.Mix2D(0, coord.X, coord.Y)
 	key := r.SpriteKeys[h%uint64(len(r.SpriteKeys))]
 	return gc.EntitySpec{
 		Name:         &gc.Name{Name: i18n.Msgid(r.Name)},

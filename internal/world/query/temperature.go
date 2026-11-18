@@ -134,7 +134,7 @@ func SnowRankAt(world w.World, x, y consts.Tile) float64 {
 
 // unitHash は格子点 (x, y) から 0 以上 1 未満の決定的な値を返す
 func unitHash(x, y int) float64 {
-	h := consts.Mix64(uint64(int64(x))*0x9E3779B97F4A7C15 + uint64(int64(y))*0xC2B2AE3D27D4EB4F)
+	h := consts.Mix2D(0, x, y)
 	return float64(h>>11) / (1 << 53)
 }
 

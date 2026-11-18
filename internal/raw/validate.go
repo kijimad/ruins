@@ -571,7 +571,7 @@ func validateDecors(raws rawschema.Raws) error {
 var errFlatDepthMismatch = errors.New("flat shape and decal depth must go together")
 
 // validateFlatShapes は床の模様の段と寝かせる形が組になっていることを検証する。寝かせた板は奥行きが床と同じで、
-// 描く順が段だけで決まるため
+// 描く順が段だけで決まるため。跡は raw の行でなくコードで跡の段と寝かせる形に組むので、ここでは見ない
 func validateFlatShapes(raws rawschema.Raws) error {
 	props := PtrSlice(raws.Props)
 	for i := range props {
