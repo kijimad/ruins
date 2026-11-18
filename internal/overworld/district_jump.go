@@ -66,13 +66,16 @@ func (dr *Driver) JumpToDistrict(world w.World, id string) error {
 
 	rowTop := world.Components.GridElement.Get(player).Y / chunkH * chunkH
 	gate := consts.Coord[consts.Tile]{X: (r.anchor.X + r.w/2).Tiles(sb.ChunkW) + urbanStreetW/2, Y: rowTop}
-	spawn := walkableSpawnNear(world, gate)
+	spawn := walkableSpawnNear(world, gate, nil)
 	if err := lifecycle.MovePlayerToPosition(world, spawn); err != nil {
 		return err
 	}
+	taken := map[consts.Coord[consts.Tile]]bool{spawn: true}
 	cubes := query.ActiveFilter2[gc.GridElement, gc.Cube](world).Query()
 	for cubes.Next() {
-		world.Components.GridElement.Get(cubes.Entity()).Coord = walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
+		pos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}), taken)
+		taken[pos] = true
+		world.Components.GridElement.Get(cubes.Entity()).Coord = pos
 	}
 	query.InvalidateSpatialIndex(world)
 	query.GetVisionState(world).RequestUpdate()

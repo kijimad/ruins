@@ -750,16 +750,24 @@ func TestUseItemBehavior_logItemUse(t *testing.T) {
 
 func TestUseItem_キューブの核を使うと隣にキューブが組み上がる(t *testing.T) {
 	t.Parallel()
+	surrounded := []consts.Coord[consts.Tile]{
+		{X: 9, Y: 9}, {X: 10, Y: 9}, {X: 11, Y: 9}, {X: 9, Y: 10},
+		{X: 11, Y: 10}, {X: 9, Y: 11}, {X: 10, Y: 11}, {X: 11, Y: 11},
+	}
+	far := consts.Coord[consts.Tile]{X: 15, Y: 15}
 	tests := []struct {
 		name      string
 		overworld bool
 		cubes     int
-		wantCubes int
+		items     []consts.Coord[consts.Tile]
+		wantCubes []consts.Coord[consts.Tile]
 		wantLog   i18n.Msgid
 	}{
-		{"地上でキューブが無ければ1台組み上がる", true, 0, 1, "A new cube has been assembled."},
-		{"地上でキューブが居ても2台目が組み上がる", true, 1, 2, "A new cube has been assembled."},
-		{"地上でなければ組み上がらず核も残る", false, 0, 0, "The cube can only be assembled outdoors."},
+		{"地上でキューブが無ければ真上のマスに1台組み上がる", true, 0, nil, []consts.Coord[consts.Tile]{{X: 10, Y: 9}}, "A new cube has been assembled."},
+		{"地上でキューブが居ても2台目が組み上がる", true, 1, nil, []consts.Coord[consts.Tile]{far, {X: 10, Y: 9}}, "A new cube has been assembled."},
+		{"落ちている物のあるマスは飛ばす", true, 0, []consts.Coord[consts.Tile]{{X: 10, Y: 9}}, []consts.Coord[consts.Tile]{{X: 11, Y: 10}}, "A new cube has been assembled."},
+		{"周りが埋まっていれば組み上がらず核も残る", true, 0, surrounded, nil, "There is no room to assemble the cube."},
+		{"地上でなければ組み上がらず核も残る", false, 0, nil, nil, "The cube can only be assembled outdoors."},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -771,7 +779,11 @@ func TestUseItem_キューブの核を使うと隣にキューブが組み上が
 			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 			require.NoError(t, err)
 			for range tt.cubes {
-				_, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 15, Y: 15})
+				_, err := lifecycle.SpawnCube(world, far)
+				require.NoError(t, err)
+			}
+			for _, c := range tt.items {
+				_, err := lifecycle.SpawnFieldItem(world, "iron", c.X, c.Y, 1)
 				require.NoError(t, err)
 			}
 			core, err := lifecycle.SpawnFieldItem(world, "cube_core", 10, 10, 1)
@@ -781,8 +793,8 @@ func TestUseItem_キューブの核を使うと隣にキューブが組み上が
 			_, err = Execute(NewUseItemActivity(core), player, world)
 			require.NoError(t, err)
 
-			assert.Len(t, query.CubeTiles(world), tt.wantCubes)
-			assert.Equal(t, !tt.overworld, world.ECS.Alive(core), "組み上がれば核を使い切る")
+			assert.ElementsMatch(t, tt.wantCubes, query.CubeTiles(world))
+			assert.Equal(t, len(tt.wantCubes) == tt.cubes, world.ECS.Alive(core), "組み上がれば核を使い切る")
 			assert.Equal(t, query.T(world, tt.wantLog), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
 		})
 	}

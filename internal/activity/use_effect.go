@@ -135,15 +135,25 @@ func (cubeCoreEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, _ ecs.Ent
 	return nil
 }
 
-// cubeAssemblyTile は actor の周りの8マスから、歩いて入れる最初のマスを返す
+// cubeAssemblyOffsets は組み上げるマスを探す順。上下左右を先に見て、斜めを後に見る
+var cubeAssemblyOffsets = []consts.Coord[consts.Tile]{
+	{X: 0, Y: -1}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: -1, Y: 0},
+	{X: -1, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 1}, {X: -1, Y: 1},
+}
+
+// cubeAssemblyTile は actor の周りの8マスから、歩いて入れて置物もアイテムも無い最初のマスを返す。
+// 遺跡の入口や落ちている物の上に組み上げると、キューブに塞がれて触れなくなる
 func cubeAssemblyTile(world w.World, actor ecs.Entity) (consts.Coord[consts.Tile], bool) {
+	occupied := map[consts.Coord[consts.Tile]]bool{}
+	q := query.ActiveFilter2[gc.GridElement, gc.LocationOnField](world).Query()
+	for q.Next() {
+		occupied[world.Components.GridElement.Get(q.Entity()).Coord] = true
+	}
 	from := world.Components.GridElement.Get(actor).Coord
-	for dy := consts.Tile(-1); dy <= 1; dy++ {
-		for dx := consts.Tile(-1); dx <= 1; dx++ {
-			to := from.Add(consts.Coord[consts.Tile]{X: dx, Y: dy})
-			if to != from && CanMoveTo(world, to, from, actor) {
-				return to, true
-			}
+	for _, d := range cubeAssemblyOffsets {
+		to := from.Add(d)
+		if !occupied[to] && CanMoveTo(world, to, from, actor) {
+			return to, true
 		}
 	}
 	return consts.Coord[consts.Tile]{}, false

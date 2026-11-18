@@ -17814,7 +17814,7 @@
   name = "Cube Core"
   spriteKey = "cube_float_0"
   spriteSheetName = "field"
-  value = 3000
+  value = 1100
   weight = "8 kg"
   [items.consumable]
     targetGroup = "ALLY"

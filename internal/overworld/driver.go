@@ -122,7 +122,7 @@ func (dr *Driver) startInitialBand(world w.World) error {
 		X: start.X.Tiles(chunkW) + chunkW/2,
 		Y: start.Y.Tiles(chunkH) + chunkH/2,
 	}
-	spawn := walkableSpawnNear(world, center)
+	spawn := walkableSpawnNear(world, center, nil)
 	if _, err := query.GetPlayerEntity(world); err != nil {
 		name, perr := raw.PlayerMemberID(world.Resources.RawMaster)
 		if perr != nil {
@@ -136,7 +136,7 @@ func (dr *Driver) startInitialBand(world w.World) error {
 	}
 
 	// 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く
-	cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
+	cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}), map[consts.Coord[consts.Tile]]bool{spawn: true})
 	cube, cerr := lifecycle.SpawnCube(world, cubePos)
 	if cerr != nil {
 		return fmt.Errorf("failed to spawn cube: %w", cerr)
@@ -150,10 +150,10 @@ func (dr *Driver) startInitialBand(world w.World) error {
 	return nil
 }
 
-// walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を
-// 返す。開始チャンクが荒れ地でなく建物でも、プレイヤーを壁の中へ湧かせないための安全策。
+// walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass が無く taken にも無い最初のタイル座標を
+// 返す。taken には先に置いたプレイヤーやキューブの座標を渡す。キューブは BlockPass を持たないので重なりうる。開始チャンクが荒れ地でなく建物でも、プレイヤーを壁の中へ湧かせないための安全策。
 // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。
-func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
+func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile], taken map[consts.Coord[consts.Tile]]bool) consts.Coord[consts.Tile] {
 	blocked := make(map[gc.GridElement]bool)
 	q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
 	for q.Next() {
@@ -163,7 +163,7 @@ func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.C
 	at := func(x, y int) consts.Coord[consts.Tile] {
 		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
 	}
-	isBlocked := func(x, y int) bool { return blocked[gc.GridElement{Coord: at(x, y)}] }
+	isBlocked := func(x, y int) bool { return blocked[gc.GridElement{Coord: at(x, y)}] || taken[at(x, y)] }
 	for r := range 100 {
 		for dy := -r; dy <= r; dy++ {
 			for dx := -r; dx <= r; dx++ {
