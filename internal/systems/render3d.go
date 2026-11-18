@@ -397,7 +397,7 @@ func (l *snowLayer) add(out *[]r3quad, world w.World, e ecs.Entity, c consts.Coo
 	l.sys.addQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), l.atlas, l.ux, l.uy, l.uw, l.uh, tint)
 	q := &(*out)[len(*out)-1]
 	q.alpha = a
-	q.depth = int(gc.DepthNumSnow)
+	q.depth = gc.DepthNumSnow.Rank()
 }
 
 // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。
@@ -420,7 +420,7 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 }
 
 // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
-// inset は壁にはめる板、facing は置き方 Pose に合わせて立てる閉じた板にし、Pose が無ければ立て板にする。跡と床の模様は地面に寝かせる。
+// inset は壁にはめる板、facing は置き方 Pose に合わせて立てる閉じた板にし、Pose が無ければ立て板にする。flat は地面に寝かせる。
 func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, poses map[consts.Coord[consts.Tile]]gc.Pose) []r3quad {
 	right := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
@@ -441,10 +441,10 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		if !vok {
 			continue
 		}
-		if sr.Depth.LiesFlat() {
+		if sr.Shape == rawschema.Flat {
 			// 奥行きが床と同値になるので、副キーの描画順で床の後に段の順に描く
 			sys.addQuad(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)
-			quads[len(quads)-1].depth = int(sr.Depth)
+			quads[len(quads)-1].depth = sr.Depth.Rank()
 			continue
 		}
 		if sr.Shape == rawschema.Inset {
@@ -477,7 +477,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		tl, tr := render3d.Add(b0, top), render3d.Add(b1, top)
 		// 立て板の上下は SpriteRender.Depth で決める。同一タイルの立て板は4隅が一致して奥行きが
 		// 同値になるので、この副キーが無いと走査順で前後がばらつく
-		depth := int(sr.Depth)
+		depth := sr.Depth.Rank()
 		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
 		quads[len(quads)-1].depth = depth
 	}

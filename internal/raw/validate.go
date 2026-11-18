@@ -54,6 +54,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateGrounds,
 		validateNeedStages,
 		validateDecors,
+		validateFlatShapes,
 	}
 	for _, v := range validators {
 		if err := v(raws); err != nil {
@@ -561,6 +562,24 @@ func validateDecors(raws rawschema.Raws) error {
 		}
 		if p.Hp != nil || p.BlockPass || p.BlockView || p.Storage != nil || p.Disassembly != nil {
 			return fmt.Errorf("%w: %s", errDecorNotInert, p.Id)
+		}
+	}
+	return nil
+}
+
+// errFlatDepthMismatch は寝かせる形と床の模様の段が対応していないことを表す
+var errFlatDepthMismatch = errors.New("flat shape and decal depth must go together")
+
+// validateFlatShapes は、床の模様の段の置物が寝かせる形を持ち、寝かせる形の置物が床の模様の段にあることを検証する。
+// 寝かせた板は奥行きが床と同じになり、描く順は段だけで決まるので、段と形が食い違うと立て板の間に寝た板が挟まる
+func validateFlatShapes(raws rawschema.Raws) error {
+	props := PtrSlice(raws.Props)
+	for i := range props {
+		p := &props[i]
+		decal := p.SpriteRender.Depth == rawschema.SpriteDepthDecal
+		flat := p.SpriteRender.Shape != nil && *p.SpriteRender.Shape == rawschema.Flat
+		if decal != flat {
+			return fmt.Errorf("%w: %s", errFlatDepthMismatch, p.Id)
 		}
 	}
 	return nil

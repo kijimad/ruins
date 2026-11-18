@@ -85,29 +85,47 @@ type SpriteRender struct {
 	Options ebiten.DrawImageOptions `json:"-"`
 }
 
-// DepthNum はオブジェクトの描画順。小さい値を先に描画する
-type DepthNum int
+// DepthNum はオブジェクトの描画の段。描く順は Rank で決まり、値は段の名前なので段を足しても保存した値の意味は変わらない
+type DepthNum string
 
 const (
 	// DepthNumFloor は床。最背面に表示する
-	DepthNumFloor DepthNum = iota
+	DepthNumFloor DepthNum = "floor"
 	// DepthNumSnow は地面に重ねる雪の層。3D の描画だけが使い、実体は持たない
-	DepthNumSnow
-	// DepthNumRemains は敵や物が消えた跡。床の模様より下に描き、ワープの穴を隠さない。3D では地面に寝かせて描く
-	DepthNumRemains
-	// DepthNumDecal は床の模様。例: 土のしみ、ワープホール。3D では立て板にせず地面に寝かせて描く
-	DepthNumDecal
+	DepthNumSnow DepthNum = "snow"
+	// DepthNumRemains は敵や物が消えた跡。床の模様より下に描き、ワープの穴を隠さない
+	DepthNumRemains DepthNum = "remains"
+	// DepthNumDecal は床の模様。例: 土のしみ、ワープホール
+	DepthNumDecal DepthNum = "decal"
 	// DepthNumRug は床に置く低いもの。例: 焚き火、開いた扉
-	DepthNumRug
+	DepthNumRug DepthNum = "rug"
 	// DepthNumTaller は高さのあるもの。例: テーブル、棚、閉じた扉、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く
-	DepthNumTaller
+	DepthNumTaller DepthNum = "taller"
 	// DepthNumItem は拾えるアイテム。テーブルのような高さのある置物と同じマスにあっても、その上に出す
-	DepthNumItem
+	DepthNumItem DepthNum = "item"
 	// DepthNumPlayer は操作キャラを最も手前に表示する
-	DepthNumPlayer
+	DepthNumPlayer DepthNum = "player"
 )
 
-// LiesFlat はその段を 3D で地面に寝かせて描くかを返す
-func (d DepthNum) LiesFlat() bool {
-	return d == DepthNumRemains || d == DepthNumDecal
+// Rank は段を描く順を返す。小さいほど先に、つまり下に描く。セーブから来る未知の段は床の順にする
+func (d DepthNum) Rank() int {
+	switch d {
+	case DepthNumFloor:
+		return 0
+	case DepthNumSnow:
+		return 1
+	case DepthNumRemains:
+		return 2
+	case DepthNumDecal:
+		return 3
+	case DepthNumRug:
+		return 4
+	case DepthNumTaller:
+		return 5
+	case DepthNumItem:
+		return 6
+	case DepthNumPlayer:
+		return 7
+	}
+	return 0
 }

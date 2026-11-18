@@ -2753,13 +2753,15 @@ type SpriteRender struct {
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 }
 
-// SpriteShape 3D で置物を立てる形。省くとカメラを向く立て板になる。
-// inset は扉や窓のように壁の並びにはめる薄い板、facing は棚のように並びと隣の空きに合わせて向きを決め、その向きに回した薄い板
+// SpriteShape 3D で置物を描く形。省くとカメラを向く立て板になる。
+// inset は扉や窓のように壁の並びにはめる薄い板、facing は棚のように並びと隣の空きに合わせて向きを決め、その向きに回した薄い板、
+// flat は土の模様やワープの穴のように地面に寝かせた板
 type SpriteShape string
 
 // Defines values for SpriteShape.
 const (
 	Facing SpriteShape = "facing"
+	Flat   SpriteShape = "flat"
 	Inset  SpriteShape = "inset"
 )
 
@@ -2767,6 +2769,8 @@ const (
 func (e SpriteShape) Valid() bool {
 	switch e {
 	case Facing:
+		return true
+	case Flat:
 		return true
 	case Inset:
 		return true
@@ -2777,7 +2781,7 @@ func (e SpriteShape) Valid() bool {
 
 // SpriteShapeValues は SpriteShape の値を、スキーマに書いた順に返す。
 func SpriteShapeValues() []SpriteShape {
-	return []SpriteShape{Inset, Facing}
+	return []SpriteShape{Inset, Facing, Flat}
 }
 
 // SpriteSheet スプライトシート

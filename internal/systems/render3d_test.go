@@ -247,7 +247,7 @@ func TestCollectDeployField(t *testing.T) {
 	})
 }
 
-func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testing.T) {
+func TestCollectBillboards_寝かせる形のpropは地面に寝かせる(t *testing.T) {
 	t.Parallel()
 	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
 	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
@@ -270,7 +270,7 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 	assert.Equal(t, [4]render3d.Vec{
 		render3d.At(25, 0, 25), render3d.At(26, 0, 25), render3d.At(26, 0, 26), render3d.At(25, 0, 26),
 	}, quads[0].p)
-	assert.Equal(t, int(gc.DepthNumDecal), quads[0].depth)
+	assert.Equal(t, gc.DepthNumDecal.Rank(), quads[0].depth)
 }
 
 func TestSnowLayer_道は行の解けやすさの分だけ薄く積もる(t *testing.T) {
@@ -502,7 +502,7 @@ func TestCollectBillboards_同じマスのテーブルとアイテムはアイ�
 	sortQuadsByDepth(quads, projector.Depth)
 
 	require.Len(t, quads, 2)
-	assert.Equal(t, []int{int(gc.DepthNumTaller), int(gc.DepthNumItem)}, []int{quads[0].depth, quads[1].depth}, "後に描くアイテムが手前に出る")
+	assert.Equal(t, []int{gc.DepthNumTaller.Rank(), gc.DepthNumItem.Rank()}, []int{quads[0].depth, quads[1].depth}, "後に描くアイテムが手前に出る")
 }
 
 func TestCollectBillboards_同じマスのアイテムとプレイヤーはプレイヤーを手前に描く(t *testing.T) {
@@ -529,5 +529,5 @@ func TestCollectBillboards_同じマスのアイテムとプレイヤーはプ�
 	sortQuadsByDepth(quads, projector.Depth)
 
 	require.Len(t, quads, 2)
-	assert.Equal(t, []int{int(gc.DepthNumItem), int(gc.DepthNumPlayer)}, []int{quads[0].depth, quads[1].depth}, "後に描くプレイヤーが手前に出る")
+	assert.Equal(t, []int{gc.DepthNumItem.Rank(), gc.DepthNumPlayer.Rank()}, []int{quads[0].depth, quads[1].depth}, "後に描くプレイヤーが手前に出る")
 }

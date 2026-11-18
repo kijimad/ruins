@@ -94,6 +94,30 @@ func TestValidateDecors(t *testing.T) {
 	}
 }
 
+func TestValidateFlatShapes(t *testing.T) {
+	t.Parallel()
+
+	prop := func(depth rawschema.SpriteDepth, shape *rawschema.SpriteShape) rawschema.Raws {
+		return rawschema.Raws{Props: &[]rawschema.Prop{{Id: "p", SpriteRender: rawschema.SpriteRender{Depth: depth, Shape: shape}}}}
+	}
+	tests := []struct {
+		name    string
+		raws    rawschema.Raws
+		wantErr error
+	}{
+		{"床の模様の段を寝かせる", prop(rawschema.SpriteDepthDecal, new(rawschema.Flat)), nil},
+		{"床の段を立てる", prop(rawschema.SpriteDepthFloor, nil), nil},
+		{"床の模様の段を立てるとエラー", prop(rawschema.SpriteDepthDecal, nil), errFlatDepthMismatch},
+		{"高さのある段を寝かせるとエラー", prop(rawschema.SpriteDepthTaller, new(rawschema.Flat)), errFlatDepthMismatch},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.ErrorIs(t, validateFlatShapes(tt.raws), tt.wantErr)
+		})
+	}
+}
+
 func TestRealData_散布の草と土の層の壊せない行は地面の飾り(t *testing.T) {
 	t.Parallel()
 

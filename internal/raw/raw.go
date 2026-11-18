@@ -854,7 +854,7 @@ func NewRemainsSpec(raws rawschema.Raws, id string, coord consts.Coord[consts.Ti
 	key := r.SpriteKeys[h%uint64(len(r.SpriteKeys))]
 	return gc.EntitySpec{
 		Name:         &gc.Name{Name: i18n.Msgid(r.Name)},
-		SpriteRender: &gc.SpriteRender{SpriteSheetName: r.SpriteSheetName, SpriteKey: key, Depth: gc.DepthNumRemains},
+		SpriteRender: &gc.SpriteRender{SpriteSheetName: r.SpriteSheetName, SpriteKey: key, Depth: gc.DepthNumRemains, Shape: rawschema.Flat},
 		Remains:      &gc.Remains{},
 	}, nil
 }

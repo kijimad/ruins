@@ -163,7 +163,7 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 	}
 
 	slices.SortStableFunc(entities[:iSprite], func(a, b ecs.Entity) int {
-		return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)
+		return cmp.Compare(world.Components.SpriteRender.Get(a).Depth.Rank(), world.Components.SpriteRender.Get(b).Depth.Rank())
 	})
 
 	for i := range iSprite {
@@ -211,7 +211,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 	}
 
 	slices.SortStableFunc(entities, func(a, b ecs.Entity) int {
-		return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)
+		return cmp.Compare(world.Components.SpriteRender.Get(a).Depth.Rank(), world.Components.SpriteRender.Get(b).Depth.Rank())
 	})
 
 	for _, entity := range entities {
@@ -246,7 +246,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		spriteRender := world.Components.SpriteRender.Get(entity)
 
 		// 高さのあるものだけが影を落とす
-		if spriteRender.Depth <= gc.DepthNumRug {
+		if spriteRender.Depth.Rank() <= gc.DepthNumRug.Rank() {
 			continue
 		}
 
@@ -302,7 +302,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		spriteRender := world.Components.SpriteRender.Get(entity)
 
 		// 高さのあるものだけが影を落とす
-		if spriteRender.Depth <= gc.DepthNumRug {
+		if spriteRender.Depth.Rank() <= gc.DepthNumRug.Rank() {
 			continue
 		}
 

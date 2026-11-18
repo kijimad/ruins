@@ -47,27 +47,12 @@ func TestTexture_UnmarshalText(t *testing.T) {
 	})
 }
 
-func TestDepthNum_LiesFlat(t *testing.T) {
+func TestDepthNum_Rank(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name  string
-		depth DepthNum
-		want  bool
-	}{
-		{"床の段の草などは立て板で描く", DepthNumFloor, false},
-		{"雪の層は段で描かない", DepthNumSnow, false},
-		{"跡は寝かせる", DepthNumRemains, true},
-		{"床の模様は寝かせる", DepthNumDecal, true},
-		{"床に置くものは立てる", DepthNumRug, false},
-		{"高さのあるものは立てる", DepthNumTaller, false},
-		{"アイテムは立てる", DepthNumItem, false},
-		{"プレイヤーは立てる", DepthNumPlayer, false},
+	order := []DepthNum{DepthNumFloor, DepthNumSnow, DepthNumRemains, DepthNumDecal, DepthNumRug, DepthNumTaller, DepthNumItem, DepthNumPlayer}
+	for i := 1; i < len(order); i++ {
+		assert.Less(t, order[i-1].Rank(), order[i].Rank(), "%s は %s より先に描く", order[i-1], order[i])
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.depth.LiesFlat())
-		})
-	}
+	assert.Equal(t, DepthNumFloor.Rank(), DepthNum("unknown").Rank(), "未知の段は床の順にする")
 }

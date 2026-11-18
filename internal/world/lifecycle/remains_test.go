@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/i18n"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +22,7 @@ func TestSpawnRemains_跡の行から跡の段で描く跡を置く(t *testing.T
 	require.NoError(t, err)
 
 	assert.Equal(t, coord, world.Components.GridElement.Get(e).Coord)
-	assert.Equal(t, gc.SpriteRender{SpriteSheetName: "field", SpriteKey: "oil_stain", Depth: gc.DepthNumRemains}, *world.Components.SpriteRender.Get(e))
+	assert.Equal(t, gc.SpriteRender{SpriteSheetName: "field", SpriteKey: "oil_stain", Depth: gc.DepthNumRemains, Shape: rawschema.Flat}, *world.Components.SpriteRender.Get(e))
 	assert.Equal(t, i18n.Msgid("Oil Stain"), world.Components.Name.Get(e).Name)
 	assert.True(t, world.Components.Remains.Has(e))
 	got, ok := query.RemainsAt(world, coord)

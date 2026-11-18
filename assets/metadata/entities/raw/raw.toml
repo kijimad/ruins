@@ -21473,6 +21473,7 @@
       r = 100
   [props.spriteRender]
     depth = "decal"
+    shape = "flat"
     spriteKey = "warp_next_0"
     spriteSheetName = "field"
   [props.warpNextTrigger]
@@ -21495,6 +21496,7 @@
       r = 100
   [props.spriteRender]
     depth = "decal"
+    shape = "flat"
     spriteKey = "warp_next_0"
     spriteSheetName = "field"
   [props.warpPrevTrigger]
@@ -22243,6 +22245,7 @@
       r = 100
   [props.spriteRender]
     depth = "decal"
+    shape = "flat"
     spriteKey = "warp_escape_0"
     spriteSheetName = "field"
 
@@ -22470,6 +22473,7 @@
   name = "Pebbles"
   [props.spriteRender]
     depth = "decal"
+    shape = "flat"
     spriteKey = "soil_pebbles"
     spriteSheetName = "field"
 
@@ -22482,6 +22486,7 @@
   name = "Dark Soil"
   [props.spriteRender]
     depth = "decal"
+    shape = "flat"
     spriteKey = "soil_dark"
     spriteSheetName = "field"
 
@@ -22494,6 +22499,7 @@
   name = "Dry Soil"
   [props.spriteRender]
     depth = "decal"
+    shape = "flat"
     spriteKey = "soil_dry"
     spriteSheetName = "field"
 
@@ -22506,6 +22512,7 @@
   name = "Cracked Ground"
   [props.spriteRender]
     depth = "decal"
+    shape = "flat"
     spriteKey = "soil_crack"
     spriteSheetName = "field"
 
@@ -22569,6 +22576,7 @@
   name = "Ruins Entrance"
   [props.spriteRender]
     depth = "decal"
+    shape = "flat"
     spriteKey = "warp_next_0"
     spriteSheetName = "field"
 
