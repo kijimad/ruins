@@ -273,6 +273,31 @@ func TestCollectBillboards_寝かせる形のpropは地面に寝かせる(t *tes
 	assert.Equal(t, gc.DepthNumDecal.Rank(), quads[0].depth)
 }
 
+func TestCollectBillboards_視界の外では跡を描かず床の模様は描く(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	remembered := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, false }
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {
+			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
+			Sprites: map[string]gc.Sprite{"soil_crack": {Width: 32, Height: 32}, "oil_stain": {Width: 32, Height: 32}},
+		},
+	})
+	_, err := lifecycle.SpawnProp(world, "soil_crack", center.X, center.Y)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnRemains(world, "oil_stain", consts.Coord[consts.Tile]{X: center.X + 1, Y: center.Y})
+	require.NoError(t, err)
+	sys := &Render3DSystem{}
+
+	quads := sys.collectBillboards(world, nil, projector, remembered, nil, nil, nil)
+
+	require.Len(t, quads, 1, "記憶しているマスには床の模様だけを描く")
+	assert.Equal(t, gc.DepthNumDecal.Rank(), quads[0].depth)
+}
+
 func TestSnowLayer_道は行の解けやすさの分だけ薄く積もる(t *testing.T) {
 	t.Parallel()
 

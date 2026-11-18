@@ -480,3 +480,16 @@ func TestDeadCleanupSystem_燃え尽きた火は燃え残りと跡の両方を�
 	}
 	assert.Equal(t, []consts.Coord[consts.Tile]{coord}, ashes)
 }
+
+func TestDeadCleanupSystem_地面の飾りは置物の行を引いて跡を置かずに消える(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	grass, err := lifecycle.SpawnProp(world, "grass", 3, 3)
+	require.NoError(t, err)
+	world.Components.Dead.Add(grass, &gc.Dead{})
+
+	require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+
+	assert.False(t, world.ECS.Alive(grass))
+	assert.Equal(t, map[consts.Coord[consts.Tile]]i18n.Msgid{}, remainsByCoord(world))
+}

@@ -442,6 +442,11 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		if sr.Shape == rawschema.Flat {
+			// 地面に寝かせるものは床と同じく記憶エリアにも描く。ただし跡はプレイ中に増えるので、視界の外で増えた
+			// 跡を見せないよう、見えているタイルにだけ描く
+			if !vis && world.Components.Remains.Has(e) {
+				continue
+			}
 			// 奥行きが床と同値になるので、副キーの描画順で床の後に段の順に描く
 			sys.addQuad(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)
 			quads[len(quads)-1].depth = sr.Depth.Rank()
@@ -455,8 +460,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			}
 			continue
 		}
-		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない。
-		// 地面に寝かせるものは床と同じく記憶エリアにも描く
+		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない
 		if !vis {
 			continue
 		}
