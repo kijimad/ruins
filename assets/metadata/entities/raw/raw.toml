@@ -17808,6 +17808,21 @@
   [items.escapeDevice]
 
 [[items]]
+  description = "The heart of a cargo cube. Use it to assemble a new cube beside you."
+  id = "cube_core"
+  material = "METAL"
+  name = "Cube Core"
+  spriteKey = "cube_float_0"
+  spriteSheetName = "field"
+  value = 3000
+  weight = "8 kg"
+  [items.consumable]
+    targetGroup = "ALLY"
+    targetNum = "SINGLE"
+    usableScene = "FIELD"
+  [items.cubeCore]
+
+[[items]]
   description = "A scrap of cloth torn from old clothes. Useful as material."
   id = "rag"
   material = "CLOTH"
@@ -22700,6 +22715,26 @@
 
   [[recipes.inputs]]
     amount = 4
+    id = "electric_wire"
+
+[[recipes]]
+  id = "cube_core"
+  name = "キューブの核"
+
+  [[recipes.inputs]]
+    amount = 20
+    id = "iron"
+
+  [[recipes.inputs]]
+    amount = 4
+    id = "ferrite_core"
+
+  [[recipes.inputs]]
+    amount = 2
+    id = "power_cell"
+
+  [[recipes.inputs]]
+    amount = 6
     id = "electric_wire"
 
 [[recipes]]

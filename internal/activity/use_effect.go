@@ -1,7 +1,11 @@
 package activity
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -21,7 +25,7 @@ type useEffect interface {
 }
 
 // useEffects は使用時に働く効果の一覧。順に present を見て、持つ効果だけ適用する
-var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}}
+var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}, cubeCoreEffect{}}
 
 // healEffect は HP を回復する
 type healEffect struct{}
@@ -99,4 +103,48 @@ func (escapeEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error 
 
 func (escapeEffect) apply(_ *UseItemBehavior, _ *gc.Activity, _, _ ecs.Entity, world w.World) error {
 	return lifecycle.RequestStateChange(world, gc.EscapeEvent())
+}
+
+// cubeCoreEffect は使用者の隣に新しいキューブを組み上げる。キューブはいくつあってもよい
+type cubeCoreEffect struct{}
+
+func (cubeCoreEffect) present(world w.World, item ecs.Entity) bool {
+	return world.Components.CubeCore.Has(item)
+}
+
+func (cubeCoreEffect) check(_ *UseItemBehavior, actor, _ ecs.Entity, world w.World) error {
+	if !query.IsOnOverworld(world) {
+		return &UserError{Msg: query.T(world, "The cube can only be assembled outdoors.")}
+	}
+	if _, ok := cubeAssemblyTile(world, actor); !ok {
+		return &UserError{Msg: query.T(world, "There is no room to assemble the cube.")}
+	}
+	return nil
+}
+
+func (cubeCoreEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, _ ecs.Entity, world w.World) error {
+	pos, ok := cubeAssemblyTile(world, actor)
+	if !ok {
+		return fmt.Errorf("no tile to assemble the cube")
+	}
+	if _, err := lifecycle.SpawnCube(world, pos); err != nil {
+		return err
+	}
+	query.InvalidateSpatialIndex(world)
+	gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "A new cube has been assembled.")).Log()
+	return nil
+}
+
+// cubeAssemblyTile は actor の周りの8マスから、歩いて入れる最初のマスを返す
+func cubeAssemblyTile(world w.World, actor ecs.Entity) (consts.Coord[consts.Tile], bool) {
+	from := world.Components.GridElement.Get(actor).Coord
+	for dy := consts.Tile(-1); dy <= 1; dy++ {
+		for dx := consts.Tile(-1); dx <= 1; dx++ {
+			to := from.Add(consts.Coord[consts.Tile]{X: dx, Y: dy})
+			if to != from && CanMoveTo(world, to, from, actor) {
+				return to, true
+			}
+		}
+	}
+	return consts.Coord[consts.Tile]{}, false
 }

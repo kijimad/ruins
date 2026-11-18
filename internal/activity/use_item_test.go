@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -745,4 +746,44 @@ func TestUseItemBehavior_logItemUse(t *testing.T) {
 		assert.Contains(t, recent[0], "damage")
 		assert.Contains(t, recent[0], "10")
 	})
+}
+
+func TestUseItem_キューブの核を使うと隣にキューブが組み上がる(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		overworld bool
+		cubes     int
+		wantCubes int
+		wantLog   i18n.Msgid
+	}{
+		{"地上でキューブが無ければ1台組み上がる", true, 0, 1, "A new cube has been assembled."},
+		{"地上でキューブが居ても2台目が組み上がる", true, 1, 2, "A new cube has been assembled."},
+		{"地上でなければ組み上がらず核も残る", false, 0, 0, "The cube can only be assembled outdoors."},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			if tt.overworld {
+				*query.EnsureSeamlessBand(world) = gc.SeamlessBand{Active: true, ChunkW: 20, ChunkH: 20, Cols: 1, Rows: 1}
+			}
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			for range tt.cubes {
+				_, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 15, Y: 15})
+				require.NoError(t, err)
+			}
+			core, err := lifecycle.SpawnFieldItem(world, "cube_core", 10, 10, 1)
+			require.NoError(t, err)
+			require.NoError(t, lifecycle.MoveToBackpack(world, core, player))
+
+			_, err = Execute(NewUseItemActivity(core), player, world)
+			require.NoError(t, err)
+
+			assert.Len(t, query.CubeTiles(world), tt.wantCubes)
+			assert.Equal(t, !tt.overworld, world.ECS.Alive(core), "組み上がれば核を使い切る")
+			assert.Equal(t, query.T(world, tt.wantLog), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+		})
+	}
 }

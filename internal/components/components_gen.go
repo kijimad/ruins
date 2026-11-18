@@ -15,6 +15,7 @@ type EntitySpec struct {
 	Material           *Material
 	FireStarter        *FireStarter
 	EscapeDevice       *EscapeDevice
+	CubeCore           *CubeCore
 	Perishable         *Perishable
 	WeightCapacity     *WeightCapacity
 	Melee              *Melee
@@ -113,6 +114,7 @@ type Components struct {
 	Material           *ecs.Map[Material]
 	FireStarter        *ecs.Map[FireStarter]
 	EscapeDevice       *ecs.Map[EscapeDevice]
+	CubeCore           *ecs.Map[CubeCore]
 	Perishable         *ecs.Map[Perishable]
 	WeightCapacity     *ecs.Map[WeightCapacity]
 	Melee              *ecs.Map[Melee]
@@ -211,6 +213,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Material = ecs.NewMap[Material](world)
 	c.FireStarter = ecs.NewMap[FireStarter](world)
 	c.EscapeDevice = ecs.NewMap[EscapeDevice](world)
+	c.CubeCore = ecs.NewMap[CubeCore](world)
 	c.Perishable = ecs.NewMap[Perishable](world)
 	c.WeightCapacity = ecs.NewMap[WeightCapacity](world)
 	c.Melee = ecs.NewMap[Melee](world)
@@ -311,6 +314,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Material, entity, spec.Material)
 	addComp(c.FireStarter, entity, spec.FireStarter)
 	addComp(c.EscapeDevice, entity, spec.EscapeDevice)
+	addComp(c.CubeCore, entity, spec.CubeCore)
 	addComp(c.Perishable, entity, spec.Perishable)
 	addComp(c.WeightCapacity, entity, spec.WeightCapacity)
 	addComp(c.Melee, entity, spec.Melee)

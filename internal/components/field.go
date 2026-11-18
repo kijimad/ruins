@@ -72,6 +72,9 @@ type Renderable struct{}
 // Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与する。
 type Cube struct{}
 
+// CubeCore はキューブの核に付くマーカー。使うと隣に新しいキューブが組み上がる
+type CubeCore struct{}
+
 // FuelTank はキューブの燃料ポイントの上限と現在値。
 type FuelTank Pool[consts.Heat]
 
