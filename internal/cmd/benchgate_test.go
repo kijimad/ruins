@@ -158,8 +158,7 @@ func TestBenchGate_prファイルが読めなければエラー(t *testing.T) {
 	t.Parallel()
 
 	dir := t.TempDir()
-	basePath := filepath.Join(dir, "base.txt")
-	require.NoError(t, os.WriteFile(basePath, []byte("goos: linux\n"), 0o644))
+	basePath := writeBenchFile(t, dir, "base.txt", "")
 
 	var buf bytes.Buffer
 	err := benchGate(&buf, basePath, filepath.Join(dir, "pr.txt"), 2.0)
@@ -175,7 +174,7 @@ func writeBenchFile(t *testing.T, dir, name, body string) string {
 	return path
 }
 
-// errBoom は書き込み失敗を起こす出力先であることを示す。
+// errBoom は failingWriter が返す書き込みのエラー。
 var errBoom = errors.New("boom")
 
 // failingWriter は常に書き込みに失敗するio.Writer。

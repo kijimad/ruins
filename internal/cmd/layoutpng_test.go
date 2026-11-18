@@ -37,10 +37,12 @@ func TestRenderLayout_地形と設置物とNPCを塗る(t *testing.T) {
 func TestRenderLayout_マスサイズに応じて境界が変わる(t *testing.T) {
 	t.Parallel()
 
-	cells := [][]maptemplate.MapCell{{{Terrain: "floor"}, {Terrain: "floor"}}}
+	cells := [][]maptemplate.MapCell{{{Terrain: "floor"}, {Terrain: "wall"}}}
 	img := renderLayout(cells, 3)
 
 	assert.Equal(t, image.Rect(0, 0, 6, 3), img.Bounds())
+	assert.Equal(t, terrainColor("floor"), img.NRGBAAt(2, 0))
+	assert.Equal(t, terrainColor("wall"), img.NRGBAAt(3, 0))
 }
 
 func TestWriteLegend_地形の名前の順に色を書く(t *testing.T) {
