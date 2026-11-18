@@ -848,3 +848,29 @@ func TestNearbyPickupActions(t *testing.T) {
 	assert.Equal(t, east, actions[2].Target)
 	assert.Equal(t, southEast, actions[3].Target)
 }
+
+func TestHandleStateChangeRequest_拾うメニューから探した収納は拾うメニューの上に開く(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 3, 3)
+	require.NoError(t, err)
+	st := &DungeonState{}
+
+	require.NoError(t, lifecycle.RequestStateChange(world, gc.StateChangeRequest{Payload: gc.OpenStorage{StorageEntity: crate, OverPickup: true}}))
+	trans, err := st.handleStateChangeRequest(world)
+	require.NoError(t, err)
+	require.Len(t, trans.NewStateFuncs, 2)
+	pickup, err := trans.NewStateFuncs[0]()
+	require.NoError(t, err)
+	assert.IsType(t, &ChoiceMenuState{}, pickup)
+	storage, err := trans.NewStateFuncs[1]()
+	require.NoError(t, err)
+	assert.IsType(t, &StorageMenuState{}, storage)
+
+	// 向きを選んで直接開いた収納は、収納画面だけを開く
+	require.NoError(t, lifecycle.RequestStateChange(world, gc.OpenStorageEvent(crate)))
+	trans, err = st.handleStateChangeRequest(world)
+	require.NoError(t, err)
+	require.Len(t, trans.NewStateFuncs, 1)
+}

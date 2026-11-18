@@ -305,10 +305,12 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}
 		return st.completeSwap(world)
 	case gc.OpenStorage:
-		// 収納メニューを開く
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },
-		}}, nil
+		openStorage := func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) }
+		if p.OverPickup {
+			openPickup := func() (es.State[w.World], error) { return NewChoiceMenu(pickupChoices), nil }
+			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{openPickup, openStorage}}, nil
+		}
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{openStorage}}, nil
 	case gc.OpenFeedFuel:
 		// 火への給油メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{

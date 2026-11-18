@@ -209,7 +209,7 @@ func pickupChoices(world w.World) (string, []Choice) {
 				if err != nil {
 					return es.Transition[w.World]{}, err
 				}
-				if _, err := activity.ExecuteInteraction(player, a.Target, a.Interaction, world); err != nil {
+				if _, err := activity.Execute(activity.NewSearchActivity(a.Target, true, world), player, world); err != nil {
 					return es.Transition[w.World]{}, err
 				}
 				return es.Transition[w.World]{Type: es.TransPop}, nil

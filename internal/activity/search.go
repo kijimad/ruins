@@ -36,13 +36,13 @@ func (b *SearchBehavior) Name() gc.BehaviorName {
 
 // NewSearchActivity は探す収納を指定して探すアクティビティを組む。
 // 容量10kgごとに1ターンかかり、最低1ターンにする
-func NewSearchActivity(target ecs.Entity, world w.World) *gc.Activity {
+func NewSearchActivity(target ecs.Entity, fromPickup bool, world w.World) *gc.Activity {
 	turns := 1
 	if world.ECS.Alive(target) && world.Components.WeightCapacity.Has(target) {
 		turns = max(1, int(world.Components.WeightCapacity.Get(target).Max/consts.MilligramPerKg/searchKgPerTurn))
 	}
 	comp := NewActivity(gc.BehaviorSearch, turns)
-	comp.Params = &gc.SearchParams{Target: target}
+	comp.Params = &gc.SearchParams{Target: target, FromPickup: fromPickup}
 	return comp
 }
 
@@ -94,7 +94,7 @@ func (b *SearchBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	return nil
 }
 
-// Finish は収納を探し終えた印を付け、収納画面を開く
+// Finish は収納を探し終えた印を付け、収納画面を開く。拾うメニューから探し始めたなら、拾うメニューの上に開く
 func (b *SearchBehavior) Finish(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.SearchParams)
 	if !ok {
@@ -106,7 +106,7 @@ func (b *SearchBehavior) Finish(comp *gc.Activity, _ ecs.Entity, world w.World) 
 	if world.Components.Unsearched.Has(p.Target) {
 		world.Components.Unsearched.Remove(p.Target)
 	}
-	if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(p.Target)); err != nil {
+	if err := lifecycle.RequestStateChange(world, gc.StateChangeRequest{Payload: gc.OpenStorage{StorageEntity: p.Target, OverPickup: p.FromPickup}}); err != nil {
 		return fmt.Errorf("storage menu state change request error: %w", err)
 	}
 	return nil
