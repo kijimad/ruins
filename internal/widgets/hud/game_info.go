@@ -17,8 +17,6 @@ import (
 type TempDirection string
 
 const (
-	// TempDirectionSteady は変化がほぼ無い状態
-	TempDirectionSteady TempDirection = "steady"
 	// TempDirectionUp は温まっている状態
 	TempDirectionUp TempDirection = "up"
 	// TempDirectionDown は冷えている状態
@@ -26,7 +24,7 @@ const (
 )
 
 // TemperatureArrow は体温の変化方向を示す矢印。体温ゲージの右に出す。
-// 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ
+// 温まると赤の上向き、冷えると青の下向き。体温がほぼ変わらないときは出さない。色の濃さが変化の速さ
 type TemperatureArrow struct {
 	Visible   bool
 	Direction TempDirection
@@ -122,7 +120,7 @@ func (info *GameInfo) drawGauges(cv uicore.Canvas, data GameInfoData) {
 	drawFlexItems(cv, items)
 }
 
-// arrowWidget は体温変化の矢印を返す。温まると上向き、冷えると下向き、一定は右向き。三角形でなく
+// arrowWidget は体温変化の矢印を返す。温まると上向き、冷えると下向き。三角形でなく
 // アイコンフォントの字で描き、キーキャップの記号と意匠も描画経路もそろえる。非表示なら空を返す。
 func (info *GameInfo) arrowWidget(arrow TemperatureArrow) uicore.Widget {
 	if !arrow.Visible {
@@ -134,8 +132,6 @@ func (info *GameInfo) arrowWidget(arrow TemperatureArrow) uicore.Widget {
 		glyph = consts.IconArrowUp
 	case TempDirectionDown:
 		glyph = consts.IconArrowDown
-	case TempDirectionSteady:
-		glyph = consts.IconArrowRight
 	}
 	// VCenter で体温ゲージの縦中心にそろえる
 	return &uicore.Text{Value: glyph, Face: info.bodyFace, Color: arrow.Color, OutlineColor: theme.HUDTextOutline, VCenter: true, Align: uicore.AlignCenter}

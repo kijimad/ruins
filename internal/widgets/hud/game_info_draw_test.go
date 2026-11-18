@@ -59,7 +59,6 @@ func TestGameInfo_arrowWidget(t *testing.T) {
 	}{
 		{"上向きは上矢印グリフを使う", TempDirectionUp, consts.IconArrowUp},
 		{"下向きは下矢印グリフを使う", TempDirectionDown, consts.IconArrowDown},
-		{"一定は右矢印グリフを使う", TempDirectionSteady, consts.IconArrowRight},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

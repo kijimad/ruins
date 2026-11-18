@@ -448,7 +448,7 @@ func ambientTempDisplayColor(temp int) color.RGBA {
 	return color.RGBA{255, 255, 255, 255}
 }
 
-// temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界
+// temperatureSteadyThreshold はこれ以下の変化量を一定とみなし、矢印を出さない境界
 const temperatureSteadyThreshold = 0.05
 
 // temperatureIntensityMax は矢印の色が最も濃くなる変化量
@@ -465,8 +465,8 @@ func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, b
 	return hud.StatusBadge{}, false
 }
 
-// temperatureArrow はプレイヤーの体温変化の矢印を返す。HealthStatus を持つ間は常時出す。
-// 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ。
+// temperatureArrow はプレイヤーの体温変化の矢印を返す。体温がほぼ変わらないときは出さない。
+// 温まると赤の上向き、冷えると青の下向き。色の濃さが変化の速さ。
 // 変化は実処理と同じ bodyTempRate を読むので、環境が変われば即座に反映される
 func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
 	if !world.Components.HealthStatus.Has(entity) {
@@ -475,22 +475,20 @@ func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
 
 	delta := bodyTempRate(world, entity)
 
-	dir := hud.TempDirectionSteady
+	var dir hud.TempDirection
 	switch {
 	case delta > temperatureSteadyThreshold:
 		dir = hud.TempDirectionUp
 	case delta < -temperatureSteadyThreshold:
 		dir = hud.TempDirectionDown
+	default:
+		return hud.TemperatureArrow{}
 	}
 	return hud.TemperatureArrow{Visible: true, Direction: dir, Color: temperatureDirectionColor(dir, delta)}
 }
 
-// temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は黄。
-// 変化が速いほど濃い。向きの判定は呼び出し側と共有し、横矢印が必ず黄になるようにする
+// temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青。変化が速いほど濃い
 func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA {
-	if dir == hud.TempDirectionSteady {
-		return color.RGBA{255, 200, 0, 255}
-	}
 	intensity := math.Min(math.Abs(delta)/temperatureIntensityMax, 1.0)
 	if dir == hud.TempDirectionUp {
 		return theme.LerpColor(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
