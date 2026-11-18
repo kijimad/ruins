@@ -18419,7 +18419,7 @@
   id = "bat"
   movementPattern = "random"
   name = "Bat"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "dream_fly"
   spriteSheetName = "field"
   [members.abilities]
@@ -18438,7 +18438,7 @@
   id = "gorilla"
   movementPattern = "random"
   name = "Gorilla"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "gorilla"
   spriteSheetName = "field"
   [members.abilities]
@@ -18503,7 +18503,7 @@
   id = "rat"
   movementPattern = "random"
   name = "Rat"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "penguin"
   spriteSheetName = "field"
   [members.abilities]
@@ -18541,7 +18541,7 @@
   id = "penguin"
   movementPattern = "random"
   name = "Penguin"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "penguin"
   spriteSheetName = "field"
   [members.abilities]
@@ -18560,7 +18560,7 @@
   id = "three_headed_dragon"
   movementPattern = "random"
   name = "Three Headed Dragon"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "threehead_dragon"
   spriteSheetName = "field"
   [members.abilities]
@@ -18597,7 +18597,7 @@
   id = "frozen_hunter"
   movementPattern = "random"
   name = "Frozen Hunter"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "crystal_zombie"
   spriteSheetName = "field"
   [members.abilities]
@@ -18642,7 +18642,7 @@
   id = "merchant"
   movementPattern = "wander"
   name = "Merchant"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "merchant_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -18760,7 +18760,7 @@
   id = "shadow_priest"
   movementPattern = "random"
   name = "Shadow Priest"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "shadow_priest"
   spriteSheetName = "field"
   [members.abilities]
@@ -18779,7 +18779,7 @@
   id = "shadow_rat"
   movementPattern = "wallHug"
   name = "Shadow Rat"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "slime_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -18825,7 +18825,7 @@
   id = "dark_doctor"
   movementPattern = "random"
   name = "Dark Doctor"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "dark_doctor_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -18844,7 +18844,7 @@
   id = "decayed_soldier"
   movementPattern = "patrol"
   name = "Decayed Soldier"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "skeleton"
   spriteSheetName = "field"
   [members.abilities]
@@ -19050,7 +19050,7 @@
   id = "fire_cat"
   movementPattern = "random"
   name = "Fire Cat"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "fire_cat"
   spriteSheetName = "field"
   [members.abilities]
@@ -19161,7 +19161,7 @@
   id = "dragon_head"
   movementPattern = "random"
   name = "Dragon Head"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "dragon_head"
   spriteSheetName = "field"
   [members.abilities]
@@ -19218,7 +19218,7 @@
   id = "green_dragon"
   movementPattern = "random"
   name = "Green Dragon"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "green_dinosaurs"
   spriteSheetName = "field"
   [members.abilities]
@@ -19236,7 +19236,7 @@
   id = "old_soldier"
   movementPattern = "wander"
   name = "Old Soldier"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "old_soldier_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -19257,7 +19257,7 @@
   id = "moss_turtle"
   movementPattern = "wander"
   name = "Moss Turtle"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "dark_clab"
   spriteSheetName = "field"
   [members.abilities]
@@ -19276,7 +19276,7 @@
   id = "rainbow_dragon"
   movementPattern = "random"
   name = "Rainbow Dragon"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "rainbow_dragon"
   spriteSheetName = "field"
   [members.abilities]
@@ -19341,7 +19341,7 @@
   id = "red_line_man"
   movementPattern = "random"
   name = "Red Line Man"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "redline_man"
   spriteSheetName = "field"
   [members.abilities]
@@ -19414,7 +19414,7 @@
   id = "stray_dog"
   movementPattern = "territorial"
   name = "Stray Dog"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "ice_dog"
   spriteSheetName = "field"
   [members.abilities]
@@ -19528,7 +19528,7 @@
   id = "guard_soldier"
   movementPattern = "stationary"
   name = "Guard Soldier"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "guard_soldier"
   spriteSheetName = "field"
   [members.abilities]
@@ -19623,7 +19623,7 @@
   id = "black_corpse"
   movementPattern = "random"
   name = "Black Corpse"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "black_zombie"
   spriteSheetName = "field"
   [members.abilities]
@@ -19642,7 +19642,7 @@
   id = "veteran_husk"
   movementPattern = "patrol"
   name = "Veteran Husk"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "skeleton"
   spriteSheetName = "field"
   [members.abilities]
@@ -19661,7 +19661,7 @@
   id = "ash_wolf"
   movementPattern = "territorial"
   name = "Ash Wolf"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "blue_beast"
   spriteSheetName = "field"
   [members.abilities]
@@ -19680,7 +19680,7 @@
   id = "razor_hound"
   movementPattern = "random"
   name = "Razor Hound"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "ice_dog"
   spriteSheetName = "field"
   [members.abilities]
@@ -19794,7 +19794,7 @@
   id = "bleeding_hound"
   movementPattern = "patrol"
   name = "Bleeding Hound"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "dummy_bleeding_hound"
   spriteSheetName = "field"
   [members.abilities]
@@ -19927,7 +19927,7 @@
   id = "storm_drake"
   movementPattern = "patrol"
   name = "Storm Drake"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "dummy_storm_drake"
   spriteSheetName = "field"
   [members.abilities]
@@ -19965,7 +19965,7 @@
   id = "ember_imp"
   movementPattern = "wander"
   name = "Ember Imp"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "dummy_ember_imp"
   spriteSheetName = "field"
   [members.abilities]
@@ -20003,7 +20003,7 @@
   id = "blinder"
   movementPattern = "wander"
   name = "Blinder"
-  remainsId = "blood_stain"
+  remainsId = "red_blood_stain"
   spriteKey = "dummy_blinder"
   spriteSheetName = "field"
   [members.abilities]
@@ -22951,7 +22951,7 @@
   spriteSheetName = "field"
 
 [[remains]]
-  id = "blood_stain"
+  id = "red_blood_stain"
   name = "Blood Stain"
   spriteKeys = ["blood_red_a", "blood_red_b", "blood_red_c", "blood_red_d", "blood_red_e"]
   spriteSheetName = "field"

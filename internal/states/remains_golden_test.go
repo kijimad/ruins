@@ -34,7 +34,7 @@ func TestGolden_Remains(t *testing.T) {
 		_, err := lifecycle.SpawnRemains(world, id, consts.Coord[consts.Tile]{X: pc.X + 2, Y: pc.Y - 1 + consts.Tile(i)})
 		require.NoError(t, err)
 	}
-	for i, id := range []string{"blood_stain", "green_blood_stain", "blue_blood_stain", "oil_stain", "slime_puddle", "scorch_mark", "ectoplasm"} {
+	for i, id := range []string{"red_blood_stain", "green_blood_stain", "blue_blood_stain", "oil_stain", "slime_puddle", "scorch_mark", "ectoplasm"} {
 		_, err := lifecycle.SpawnRemains(world, id, consts.Coord[consts.Tile]{X: pc.X + consts.Tile(i%3), Y: pc.Y - 3 + consts.Tile(i/3)})
 		require.NoError(t, err)
 	}
