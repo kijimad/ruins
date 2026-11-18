@@ -14,8 +14,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// DeadCleanupSystem はDeadコンポーネントを持つ敵エンティティを削除する
-// 削除前にドロップテーブルがあればアイテムをドロップする
+// DeadCleanupSystem は Dead を持つ敵・置物・飾りを消す。プレイヤーは消さない。
+// 消す前に、ドロップ・持ち物・収納の中身・跡を足元に出す
 type DeadCleanupSystem struct{}
 
 // String はシステム名を返す
@@ -24,7 +24,7 @@ func (sys DeadCleanupSystem) String() string {
 	return "DeadCleanupSystem"
 }
 
-// Update はDeadコンポーネントを持つ敵エンティティを削除する
+// Update は Dead を持つ実体を、足元に落とし物と跡を出してから消す
 // w.Updater interfaceを実装
 func (sys *DeadCleanupSystem) Update(world w.World) error {
 	logger := logger.New(logger.CategorySystem)
