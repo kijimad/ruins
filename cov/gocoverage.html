@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (93.2%)</option>
+				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (94.9%)</option>
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (81.9%)</option>
 				
@@ -101,7 +101,7 @@
 				
 				<option value="file22">github.com/kijimaD/ruins/internal/activity/talk.go (89.1%)</option>
 				
-				<option value="file23">github.com/kijimaD/ruins/internal/activity/use_effect.go (100.0%)</option>
+				<option value="file23">github.com/kijimaD/ruins/internal/activity/use_effect.go (95.7%)</option>
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/activity/use_item.go (95.9%)</option>
 				
@@ -109,7 +109,7 @@
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
+				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -451,7 +451,7 @@
 				
 				<option value="file197">github.com/kijimaD/ruins/internal/overworld/district.go (97.8%)</option>
 				
-				<option value="file198">github.com/kijimaD/ruins/internal/overworld/district_jump.go (91.1%)</option>
+				<option value="file198">github.com/kijimaD/ruins/internal/overworld/district_jump.go (92.2%)</option>
 				
 				<option value="file199">github.com/kijimaD/ruins/internal/overworld/driver.go (84.6%)</option>
 				
@@ -491,7 +491,7 @@
 				
 				<option value="file217">github.com/kijimaD/ruins/internal/raw/item_group.go (93.3%)</option>
 				
-				<option value="file218">github.com/kijimaD/ruins/internal/raw/raw.go (98.4%)</option>
+				<option value="file218">github.com/kijimaD/ruins/internal/raw/raw.go (98.2%)</option>
 				
 				<option value="file219">github.com/kijimaD/ruins/internal/raw/validate.go (97.8%)</option>
 				
@@ -910,7 +910,7 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
         case gc.BehaviorDrop:
                 <span class="cov8" title="1">return &amp;DropBehavior{}, nil</span>
         case gc.BehaviorUseItem:
-                <span class="cov0" title="0">return &amp;UseItemBehavior{}, nil</span>
+                <span class="cov8" title="1">return &amp;UseItemBehavior{}, nil</span>
         case gc.BehaviorTalk:
                 <span class="cov8" title="1">return &amp;TalkBehavior{}, nil</span>
         case gc.BehaviorOpenDoor:
@@ -4991,7 +4991,11 @@ func (tb *TalkBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 		<pre class="file" id="file23" style="display: none">package activity
 
 import (
+        "errors"
+
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/gamelog"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/gameaction"
         "github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -5011,7 +5015,7 @@ type useEffect interface {
 }
 
 // useEffects は使用時に働く効果の一覧。順に present を見て、持つ効果だけ適用する
-var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}}
+var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}, cubeCoreEffect{}}
 
 // healEffect は HP を回復する
 type healEffect struct{}
@@ -5090,6 +5094,60 @@ func (escapeEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error 
 func (escapeEffect) apply(_ *UseItemBehavior, _ *gc.Activity, _, _ ecs.Entity, world w.World) error {
         <span class="cov8" title="1">return lifecycle.RequestStateChange(world, gc.EscapeEvent())
 </span>}
+
+// cubeCoreEffect は使用者の隣に新しいキューブを組み上げる。キューブはいくつあってもよい
+type cubeCoreEffect struct{}
+
+func (cubeCoreEffect) present(world w.World, item ecs.Entity) bool {
+        <span class="cov8" title="1">return world.Components.CubeCore.Has(item)
+</span>}
+
+func (cubeCoreEffect) check(_ *UseItemBehavior, actor, _ ecs.Entity, world w.World) error {
+        <span class="cov8" title="1">if !query.IsOnOverworld(world) </span>{
+                <span class="cov8" title="1">return &amp;UserError{Msg: query.T(world, "The cube can only be assembled outdoors.")}
+</span>        }
+        <span class="cov8" title="1">if _, ok := cubeAssemblyTile(world, actor); !ok </span>{
+                <span class="cov8" title="1">return &amp;UserError{Msg: query.T(world, "There is no room to assemble the cube.")}
+</span>        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (cubeCoreEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, _ ecs.Entity, world w.World) error {
+        <span class="cov8" title="1">pos, ok := cubeAssemblyTile(world, actor)
+        if !ok </span>{
+                <span class="cov0" title="0">return errors.New("no tile to assemble the cube")
+</span>        }
+        <span class="cov8" title="1">if _, err := lifecycle.SpawnCube(world, pos); err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
+        <span class="cov8" title="1">query.InvalidateSpatialIndex(world)
+        gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "A new cube has been assembled.")).Log()
+        return nil</span>
+}
+
+// cubeAssemblyOffsets は組み上げるマスを探す順。上下左右を先に見て、斜めを後に見る
+var cubeAssemblyOffsets = []consts.Coord[consts.Tile]{
+        {X: 0, Y: -1}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: -1, Y: 0},
+        {X: -1, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 1}, {X: -1, Y: 1},
+}
+
+// cubeAssemblyTile は actor の周りの8マスから、歩いて入れて置物もアイテムも無い最初のマスを返す。
+// 遺跡の入口や落ちている物の上に組み上げると、キューブに塞がれて触れなくなる
+func cubeAssemblyTile(world w.World, actor ecs.Entity) (consts.Coord[consts.Tile], bool) {
+        <span class="cov8" title="1">occupied := map[consts.Coord[consts.Tile]]bool{}
+        q := query.ActiveFilter2[gc.GridElement, gc.LocationOnField](world).Query()
+        for q.Next() </span>{
+                <span class="cov8" title="1">occupied[world.Components.GridElement.Get(q.Entity()).Coord] = true
+</span>        }
+        <span class="cov8" title="1">from := world.Components.GridElement.Get(actor).Coord
+        for _, d := range cubeAssemblyOffsets </span>{
+                <span class="cov8" title="1">to := from.Add(d)
+                if !occupied[to] &amp;&amp; CanMoveTo(world, to, from, actor) </span>{
+                        <span class="cov8" title="1">return to, true
+</span>                }
+        }
+        <span class="cov8" title="1">return consts.Coord[consts.Tile]{}, false</span>
+}
 </pre>
 		
 		<pre class="file" id="file24" style="display: none">package activity
@@ -5628,7 +5686,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -11815,6 +11873,7 @@ type EntitySpec struct {
         Material           *Material
         FireStarter        *FireStarter
         EscapeDevice       *EscapeDevice
+        CubeCore           *CubeCore
         Perishable         *Perishable
         WeightCapacity     *WeightCapacity
         Melee              *Melee
@@ -11913,6 +11972,7 @@ type Components struct {
         Material           *ecs.Map[Material]
         FireStarter        *ecs.Map[FireStarter]
         EscapeDevice       *ecs.Map[EscapeDevice]
+        CubeCore           *ecs.Map[CubeCore]
         Perishable         *ecs.Map[Perishable]
         WeightCapacity     *ecs.Map[WeightCapacity]
         Melee              *ecs.Map[Melee]
@@ -12011,6 +12071,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
         c.Material = ecs.NewMap[Material](world)
         c.FireStarter = ecs.NewMap[FireStarter](world)
         c.EscapeDevice = ecs.NewMap[EscapeDevice](world)
+        c.CubeCore = ecs.NewMap[CubeCore](world)
         c.Perishable = ecs.NewMap[Perishable](world)
         c.WeightCapacity = ecs.NewMap[WeightCapacity](world)
         c.Melee = ecs.NewMap[Melee](world)
@@ -12111,6 +12172,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
         addComp(c.Material, entity, spec.Material)
         addComp(c.FireStarter, entity, spec.FireStarter)
         addComp(c.EscapeDevice, entity, spec.EscapeDevice)
+        addComp(c.CubeCore, entity, spec.CubeCore)
         addComp(c.Perishable, entity, spec.Perishable)
         addComp(c.WeightCapacity, entity, spec.WeightCapacity)
         addComp(c.Melee, entity, spec.Melee)
@@ -12754,6 +12816,9 @@ type Renderable struct{}
 
 // Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与する。
 type Cube struct{}
+
+// CubeCore はキューブの核に付くマーカー。使うと隣に新しいキューブが組み上がる
+type CubeCore struct{}
 
 // FuelTank はキューブの燃料ポイントの上限と現在値。
 type FuelTank Pool[consts.Heat]
@@ -26928,6 +26993,7 @@ import (
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
+        "github.com/mlange-42/ark/ecs"
 )
 
 var (
@@ -26984,13 +27050,21 @@ func (dr *Driver) JumpToDistrict(world w.World, id string) error {
 </span>
         <span class="cov8" title="1">rowTop := world.Components.GridElement.Get(player).Y / chunkH * chunkH
         gate := consts.Coord[consts.Tile]{X: (r.anchor.X + r.w/2).Tiles(sb.ChunkW) + urbanStreetW/2, Y: rowTop}
-        spawn := walkableSpawnNear(world, gate)
+        spawn := walkableSpawnNear(world, gate, nil)
         if err := lifecycle.MovePlayerToPosition(world, spawn); err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
+        // 置物や落ちている物の上に置くと、キューブに塞がれて触れなくなる
+        <span class="cov8" title="1">taken := map[consts.Coord[consts.Tile]]bool{spawn: true}
+        onField := query.ActiveFilter2[gc.GridElement, gc.LocationOnField](world).Without(ecs.C[gc.Cube]()).Query()
+        for onField.Next() </span>{
+                <span class="cov8" title="1">taken[world.Components.GridElement.Get(onField.Entity()).Coord] = true
+</span>        }
         <span class="cov8" title="1">cubes := query.ActiveFilter2[gc.GridElement, gc.Cube](world).Query()
         for cubes.Next() </span>{
-                <span class="cov8" title="1">world.Components.GridElement.Get(cubes.Entity()).Coord = walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
+                <span class="cov8" title="1">pos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}), taken)
+                taken[pos] = true
+                world.Components.GridElement.Get(cubes.Entity()).Coord = pos
 </span>        }
         <span class="cov8" title="1">query.InvalidateSpatialIndex(world)
         query.GetVisionState(world).RequestUpdate()
@@ -27138,7 +27212,7 @@ func (dr *Driver) startInitialBand(world w.World) error {
                 X: start.X.Tiles(chunkW) + chunkW/2,
                 Y: start.Y.Tiles(chunkH) + chunkH/2,
 </span>        }
-        <span class="cov8" title="1">spawn := walkableSpawnNear(world, center)
+        <span class="cov8" title="1">spawn := walkableSpawnNear(world, center, nil)
         if _, err := query.GetPlayerEntity(world); err != nil </span>{
                 <span class="cov8" title="1">name, perr := raw.PlayerMemberID(world.Resources.RawMaster)
                 if perr != nil </span>{
@@ -27152,7 +27226,7 @@ func (dr *Driver) startInitialBand(world w.World) error {
 </span>        }
 
         // 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く
-        <span class="cov8" title="1">cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
+        <span class="cov8" title="1">cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}), map[consts.Coord[consts.Tile]]bool{spawn: true})
         cube, cerr := lifecycle.SpawnCube(world, cubePos)
         if cerr != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to spawn cube: %w", cerr)
@@ -27166,10 +27240,11 @@ func (dr *Driver) startInitialBand(world w.World) error {
         return nil</span>
 }
 
-// walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass の無い最初のタイル座標を
-// 返す。開始チャンクが荒れ地でなく建物でも、プレイヤーを壁の中へ湧かせないための安全策。
+// walkableSpawnNear は center から外側のリングへ順に探し、BlockPass が無く taken にも無い最初のタイル座標を返す。
+// キューブは BlockPass を持たないので、先に置いたプレイヤーやキューブの座標は taken で避ける。
+// 開始チャンクが荒れ地でなく建物でも、プレイヤーを壁の中へ湧かせないための安全策。
 // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。
-func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
+func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile], taken map[consts.Coord[consts.Tile]]bool) consts.Coord[consts.Tile] {
         <span class="cov8" title="1">blocked := make(map[gc.GridElement]bool)
         q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
         for q.Next() </span>{
@@ -27179,7 +27254,7 @@ func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile]) consts.C
         at := func(x, y int) consts.Coord[consts.Tile] </span>{
                 <span class="cov8" title="1">return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
 </span>        }
-        <span class="cov8" title="1">isBlocked := func(x, y int) bool </span>{ <span class="cov8" title="1">return blocked[gc.GridElement{Coord: at(x, y)}] }</span>
+        <span class="cov8" title="1">isBlocked := func(x, y int) bool </span>{ <span class="cov8" title="1">return blocked[gc.GridElement{Coord: at(x, y)}] || taken[at(x, y)] }</span>
         <span class="cov8" title="1">for r := range 100 </span>{
                 <span class="cov8" title="1">for dy := -r; dy &lt;= r; dy++ </span>{
                         <span class="cov8" title="1">for dx := -r; dx &lt;= r; dx++ </span>{
@@ -30209,6 +30284,9 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
         <span class="cov8" title="1">if item.EscapeDevice != nil </span>{
                 <span class="cov0" title="0">entitySpec.EscapeDevice = &amp;gc.EscapeDevice{}
 </span>        }
+        <span class="cov8" title="1">if item.CubeCore != nil </span>{
+                <span class="cov0" title="0">entitySpec.CubeCore = &amp;gc.CubeCore{}
+</span>        }
 
         // フィールドの相互作用。既定は拾えるアイテム。装着アイテムは applyDeployable が設備に応じて上書きする
         <span class="cov8" title="1">entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
@@ -32152,6 +32230,9 @@ type CrashSite struct {
         Weight int32 `json:"weight"`
 }
 
+// CubeCore キューブの核。使うと隣に新しいキューブが組み上がる
+type CubeCore = map[string]interface{}
+
 // CubeModule キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる
 type CubeModule struct {
         FuelCapacityBonus FuelCapacityBonus `json:"fuelCapacityBonus"`
@@ -33019,6 +33100,9 @@ type Item struct {
         Book *Book `json:"book,omitempty"`
 
         Consumable *Consumable `json:"consumable,omitempty"`
+
+        // CubeCore キューブの核。使うと隣に新しいキューブが組み上がる
+        CubeCore *CubeCore `json:"cubeCore,omitempty"`
 
         CubeModule *CubeModule `json:"cubeModule,omitempty"`
 

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">34</td>
-            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryHi">93.8&nbsp;%</td>
+            <td class="headerCovTableEntry">65</td>
+            <td class="headerCovTableEntry">61</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-18 14:17:03</td>
+            <td class="headerValue">2026-11-18 15:32:46</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,105 +63,163 @@
 <span id="L1"><span class="lineNum">       1</span>              : package activity</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/world/gameaction&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              : )</span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // useEffect は使用時に発動する効果1種。アイテムがその効果 component を持つときだけ働く。</span>
-<span id="L13"><span class="lineNum">      13</span>              : // 効果を1つ足すときは useEffect を実装して useEffects へ1行足す。DoTurn/Validate の本体は触らない</span>
-<span id="L14"><span class="lineNum">      14</span>              : type useEffect interface {</span>
-<span id="L15"><span class="lineNum">      15</span>              :         // present はアイテムがこの効果を持つかを返す</span>
-<span id="L16"><span class="lineNum">      16</span>              :         present(world w.World, item ecs.Entity) bool</span>
-<span id="L17"><span class="lineNum">      17</span>              :         // check は使う前の検証。使えない理由があれば *UserError を返す。既定は問題なし</span>
-<span id="L18"><span class="lineNum">      18</span>              :         check(u *UseItemBehavior, actor, item ecs.Entity, world w.World) error</span>
-<span id="L19"><span class="lineNum">      19</span>              :         // apply は効果を適用する</span>
-<span id="L20"><span class="lineNum">      20</span>              :         apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error</span>
-<span id="L21"><span class="lineNum">      21</span>              : }</span>
-<span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span>              : // useEffects は使用時に働く効果の一覧。順に present を見て、持つ効果だけ適用する</span>
-<span id="L24"><span class="lineNum">      24</span>              : var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}}</span>
-<span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span>              : // healEffect は HP を回復する</span>
-<span id="L27"><span class="lineNum">      27</span>              : type healEffect struct{}</span>
-<span id="L28"><span class="lineNum">      28</span>              : </span>
-<span id="L29"><span class="lineNum">      29</span>              : func (healEffect) present(world w.World, item ecs.Entity) bool {</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         return world.Components.ProvidesHealing.Has(item)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;errors&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/world/gameaction&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              : )</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // useEffect は使用時に発動する効果1種。アイテムがその効果 component を持つときだけ働く。</span>
+<span id="L17"><span class="lineNum">      17</span>              : // 効果を1つ足すときは useEffect を実装して useEffects へ1行足す。DoTurn/Validate の本体は触らない</span>
+<span id="L18"><span class="lineNum">      18</span>              : type useEffect interface {</span>
+<span id="L19"><span class="lineNum">      19</span>              :         // present はアイテムがこの効果を持つかを返す</span>
+<span id="L20"><span class="lineNum">      20</span>              :         present(world w.World, item ecs.Entity) bool</span>
+<span id="L21"><span class="lineNum">      21</span>              :         // check は使う前の検証。使えない理由があれば *UserError を返す。既定は問題なし</span>
+<span id="L22"><span class="lineNum">      22</span>              :         check(u *UseItemBehavior, actor, item ecs.Entity, world w.World) error</span>
+<span id="L23"><span class="lineNum">      23</span>              :         // apply は効果を適用する</span>
+<span id="L24"><span class="lineNum">      24</span>              :         apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error</span>
+<span id="L25"><span class="lineNum">      25</span>              : }</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : // useEffects は使用時に働く効果の一覧。順に present を見て、持つ効果だけ適用する</span>
+<span id="L28"><span class="lineNum">      28</span>              : var useEffects = []useEffect{healEffect{}, nutritionEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}, cubeCoreEffect{}}</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // healEffect は HP を回復する</span>
+<span id="L31"><span class="lineNum">      31</span>              : type healEffect struct{}</span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : func (healEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }</span></span>
-<span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span>              : func (healEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return u.applyHealing(comp, actor, world, world.Components.ProvidesHealing.Get(item), item)</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : func (healEffect) present(world w.World, item ecs.Entity) bool {</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return world.Components.ProvidesHealing.Has(item)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : func (healEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
-<span id="L39"><span class="lineNum">      39</span>              : // nutritionEffect は空腹度を回復する</span>
-<span id="L40"><span class="lineNum">      40</span>              : type nutritionEffect struct{}</span>
-<span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span>              : func (nutritionEffect) present(world w.World, item ecs.Entity) bool {</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return world.Components.ProvidesNutrition.Has(item)</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : func (healEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {</span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return u.applyHealing(comp, actor, world, world.Components.ProvidesHealing.Get(item), item)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              : // nutritionEffect は空腹度を回復する</span>
+<span id="L44"><span class="lineNum">      44</span>              : type nutritionEffect struct{}</span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : func (nutritionEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }</span></span>
-<span id="L47"><span class="lineNum">      47</span>              : </span>
-<span id="L48"><span class="lineNum">      48</span>              : func (nutritionEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return u.applyNutrition(comp, actor, world, world.Components.ProvidesNutrition.Get(item).Amount, item)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : func (nutritionEffect) present(world w.World, item ecs.Entity) bool {</span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         return world.Components.ProvidesNutrition.Has(item)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : </span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : func (nutritionEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
-<span id="L52"><span class="lineNum">      52</span>              : // damageEffect は使用者に自傷ダメージを与える</span>
-<span id="L53"><span class="lineNum">      53</span>              : type damageEffect struct{}</span>
-<span id="L54"><span class="lineNum">      54</span>              : </span>
-<span id="L55"><span class="lineNum">      55</span>              : func (damageEffect) present(world w.World, item ecs.Entity) bool {</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return world.Components.InflictsDamage.Has(item)</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : func (nutritionEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {</span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         return u.applyNutrition(comp, actor, world, world.Components.ProvidesNutrition.Get(item).Amount, item)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span>              : // damageEffect は使用者に自傷ダメージを与える</span>
+<span id="L57"><span class="lineNum">      57</span>              : type damageEffect struct{}</span>
 <span id="L58"><span class="lineNum">      58</span>              : </span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : func (damageEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }</span></span>
-<span id="L60"><span class="lineNum">      60</span>              : </span>
-<span id="L61"><span class="lineNum">      61</span>              : func (damageEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         gameaction.ApplyDamage(world, actor, world.Components.InflictsDamage.Get(item).Amount, actor)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L65"><span class="lineNum">      65</span>              : </span>
-<span id="L66"><span class="lineNum">      66</span>              : // remedyEffect は不調を治療する</span>
-<span id="L67"><span class="lineNum">      67</span>              : type remedyEffect struct{}</span>
-<span id="L68"><span class="lineNum">      68</span>              : </span>
-<span id="L69"><span class="lineNum">      69</span>              : func (remedyEffect) present(world w.World, item ecs.Entity) bool {</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         return world.Components.Remedy.Has(item)</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : func (damageEffect) present(world w.World, item ecs.Entity) bool {</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return world.Components.InflictsDamage.Has(item)</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L62"><span class="lineNum">      62</span>              : </span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 : func (damageEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }</span></span>
+<span id="L64"><span class="lineNum">      64</span>              : </span>
+<span id="L65"><span class="lineNum">      65</span>              : func (damageEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         gameaction.ApplyDamage(world, actor, world.Components.InflictsDamage.Get(item).Amount, actor)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span>              : // remedyEffect は不調を治療する</span>
+<span id="L71"><span class="lineNum">      71</span>              : type remedyEffect struct{}</span>
 <span id="L72"><span class="lineNum">      72</span>              : </span>
-<span id="L73"><span class="lineNum">      73</span>              : // check は治療専用アイテムが治せる不調を今持たないなら使用を弾く。空振りを使う前に止める。</span>
-<span id="L74"><span class="lineNum">      74</span>              : // 併用効果を持つアイテムは他の効果で使えるので弾かない</span>
-<span id="L75"><span class="lineNum">      75</span>              : func (remedyEffect) check(u *UseItemBehavior, actor, item ecs.Entity, world w.World) error {</span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         if !u.isRemedyOnly(world, item) {</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         remedy := world.Components.Remedy.Get(item)</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(actor) || mostSevereTreatable(world.Components.HealthStatus.Get(actor), remedy) == nil {</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 return &amp;UserError{Msg: query.T(world, &quot;Nothing to treat.&quot;)}</span></span>
+<span id="L73"><span class="lineNum">      73</span>              : func (remedyEffect) present(world w.World, item ecs.Entity) bool {</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         return world.Components.Remedy.Has(item)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L76"><span class="lineNum">      76</span>              : </span>
+<span id="L77"><span class="lineNum">      77</span>              : // check は治療専用アイテムが治せる不調を今持たないなら使用を弾く。空振りを使う前に止める。</span>
+<span id="L78"><span class="lineNum">      78</span>              : // 併用効果を持つアイテムは他の効果で使えるので弾かない</span>
+<span id="L79"><span class="lineNum">      79</span>              : func (remedyEffect) check(u *UseItemBehavior, actor, item ecs.Entity, world w.World) error {</span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         if !u.isRemedyOnly(world, item) {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L84"><span class="lineNum">      84</span>              : }</span>
-<span id="L85"><span class="lineNum">      85</span>              : </span>
-<span id="L86"><span class="lineNum">      86</span>              : func (remedyEffect) apply(u *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {</span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         u.applyRemedy(actor, world, world.Components.Remedy.Get(item), item)</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L90"><span class="lineNum">      90</span>              : </span>
-<span id="L91"><span class="lineNum">      91</span>              : // escapeEffect は惑星を脱出してクリアの画面へ移る</span>
-<span id="L92"><span class="lineNum">      92</span>              : type escapeEffect struct{}</span>
-<span id="L93"><span class="lineNum">      93</span>              : </span>
-<span id="L94"><span class="lineNum">      94</span>              : func (escapeEffect) present(world w.World, item ecs.Entity) bool {</span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         return world.Components.EscapeDevice.Has(item)</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         remedy := world.Components.Remedy.Get(item)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(actor) || mostSevereTreatable(world.Components.HealthStatus.Get(actor), remedy) == nil {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 return &amp;UserError{Msg: query.T(world, &quot;Nothing to treat.&quot;)}</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L88"><span class="lineNum">      88</span>              : }</span>
+<span id="L89"><span class="lineNum">      89</span>              : </span>
+<span id="L90"><span class="lineNum">      90</span>              : func (remedyEffect) apply(u *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         u.applyRemedy(actor, world, world.Components.Remedy.Get(item), item)</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L94"><span class="lineNum">      94</span>              : </span>
+<span id="L95"><span class="lineNum">      95</span>              : // escapeEffect は惑星を脱出してクリアの画面へ移る</span>
+<span id="L96"><span class="lineNum">      96</span>              : type escapeEffect struct{}</span>
 <span id="L97"><span class="lineNum">      97</span>              : </span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 : func (escapeEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }</span></span>
-<span id="L99"><span class="lineNum">      99</span>              : </span>
-<span id="L100"><span class="lineNum">     100</span>              : func (escapeEffect) apply(_ *UseItemBehavior, _ *gc.Activity, _, _ ecs.Entity, world w.World) error {</span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         return lifecycle.RequestStateChange(world, gc.EscapeEvent())</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L98"><span class="lineNum">      98</span>              : func (escapeEffect) present(world w.World, item ecs.Entity) bool {</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         return world.Components.EscapeDevice.Has(item)</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L101"><span class="lineNum">     101</span>              : </span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 : func (escapeEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }</span></span>
+<span id="L103"><span class="lineNum">     103</span>              : </span>
+<span id="L104"><span class="lineNum">     104</span>              : func (escapeEffect) apply(_ *UseItemBehavior, _ *gc.Activity, _, _ ecs.Entity, world w.World) error {</span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         return lifecycle.RequestStateChange(world, gc.EscapeEvent())</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span>              : // cubeCoreEffect は使用者の隣に新しいキューブを組み上げる。キューブはいくつあってもよい</span>
+<span id="L109"><span class="lineNum">     109</span>              : type cubeCoreEffect struct{}</span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span>              : func (cubeCoreEffect) present(world w.World, item ecs.Entity) bool {</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         return world.Components.CubeCore.Has(item)</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L114"><span class="lineNum">     114</span>              : </span>
+<span id="L115"><span class="lineNum">     115</span>              : func (cubeCoreEffect) check(_ *UseItemBehavior, actor, _ ecs.Entity, world w.World) error {</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         if !query.IsOnOverworld(world) {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 return &amp;UserError{Msg: query.T(world, &quot;The cube can only be assembled outdoors.&quot;)}</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         if _, ok := cubeAssemblyTile(world, actor); !ok {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 return &amp;UserError{Msg: query.T(world, &quot;There is no room to assemble the cube.&quot;)}</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L123"><span class="lineNum">     123</span>              : }</span>
+<span id="L124"><span class="lineNum">     124</span>              : </span>
+<span id="L125"><span class="lineNum">     125</span>              : func (cubeCoreEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, _ ecs.Entity, world w.World) error {</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         pos, ok := cubeAssemblyTile(world, actor)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                 return errors.New(&quot;no tile to assemble the cube&quot;)</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         if _, err := lifecycle.SpawnCube(world, pos); err != nil {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         gamelog.New(query.GetGameLog(world)).Markup(query.T(world, &quot;A new cube has been assembled.&quot;)).Log()</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L136"><span class="lineNum">     136</span>              : }</span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              : // cubeAssemblyOffsets は組み上げるマスを探す順。上下左右を先に見て、斜めを後に見る</span>
+<span id="L139"><span class="lineNum">     139</span>              : var cubeAssemblyOffsets = []consts.Coord[consts.Tile]{</span>
+<span id="L140"><span class="lineNum">     140</span>              :         {X: 0, Y: -1}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: -1, Y: 0},</span>
+<span id="L141"><span class="lineNum">     141</span>              :         {X: -1, Y: -1}, {X: 1, Y: -1}, {X: 1, Y: 1}, {X: -1, Y: 1},</span>
+<span id="L142"><span class="lineNum">     142</span>              : }</span>
+<span id="L143"><span class="lineNum">     143</span>              : </span>
+<span id="L144"><span class="lineNum">     144</span>              : // cubeAssemblyTile は actor の周りの8マスから、歩いて入れて置物もアイテムも無い最初のマスを返す。</span>
+<span id="L145"><span class="lineNum">     145</span>              : // 遺跡の入口や落ちている物の上に組み上げると、キューブに塞がれて触れなくなる</span>
+<span id="L146"><span class="lineNum">     146</span>              : func cubeAssemblyTile(world w.World, actor ecs.Entity) (consts.Coord[consts.Tile], bool) {</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         occupied := map[consts.Coord[consts.Tile]]bool{}</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.GridElement, gc.LocationOnField](world).Query()</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 occupied[world.Components.GridElement.Get(q.Entity()).Coord] = true</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         from := world.Components.GridElement.Get(actor).Coord</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         for _, d := range cubeAssemblyOffsets {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 to := from.Add(d)</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 if !occupied[to] &amp;&amp; CanMoveTo(world, to, from, actor) {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                         return to, true</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L158"><span class="lineNum">     158</span>              :         }</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         return consts.Coord[consts.Tile]{}, false</span></span>
+<span id="L160"><span class="lineNum">     160</span>              : }</span>
         </pre>
               </td>
             </tr>
