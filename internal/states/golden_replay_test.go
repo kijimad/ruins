@@ -435,6 +435,20 @@ var goldenCases = []struct {
 		},
 		steps: []replayStep{{shot: true}},
 	},
+	// PickupMenuStorage は拾うメニューの、まだ探していない収納・空の収納・アイテムの行の表記を写す
+	{
+		name: "PickupMenuStorage",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			choices := []gs.Choice{
+				{Label: query.T(world, "Search %s (%s)", query.T(world, "Wooden Crate"), query.T(world, "up"))},
+				{Label: query.T(world, "Open %s (empty) (%s)", query.T(world, "Wooden Crate"), query.T(world, "left"))},
+				{Label: query.T(world, "Pick up %s (%s)", query.T(world, "Bread"), query.T(world, "here"))},
+			}
+			menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "", choices })
+			return []es.State[w.World]{menu}, nil
+		},
+		steps: []replayStep{{shot: true}},
+	},
 	// Overworld は新規ゲーム開始直後のオーバーワールド実画面を固定する。
 	{
 		name: "Overworld",

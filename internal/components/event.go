@@ -32,7 +32,8 @@ type ShowDialog struct {
 	SpeakerEntity ecs.Entity
 }
 
-// OpenStorage は収納メニューを開く
+// OpenStorage は収納メニューを開く。収納を開ける経路は拾うメニューだけなので、受ける側は拾うメニューの上に開く。
+// ほかの経路を足すときは戻る先を決め直す
 type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納コンテナのエンティティ
 }
