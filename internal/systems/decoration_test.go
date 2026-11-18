@@ -50,7 +50,19 @@ func TestItemMarkerTiles(t *testing.T) {
 		require.False(t, markers[c])
 	})
 
-	t.Run("中身のある収納の升には出す", func(t *testing.T) {
+	t.Run("まだ探していない収納の升には、空でも出す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		c := consts.Coord[consts.Tile]{X: 4, Y: 4}
+		closet, err := lifecycle.SpawnProp(world, "closet", c.X, c.Y)
+		require.NoError(t, err)
+		require.True(t, world.Components.Unsearched.Has(closet))
+
+		markers := itemMarkerTiles(world, all)
+		require.True(t, markers[c])
+	})
+
+	t.Run("探し終えた中身のある収納の升には出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		c := consts.Coord[consts.Tile]{X: 4, Y: 4}
@@ -58,17 +70,19 @@ func TestItemMarkerTiles(t *testing.T) {
 		require.NoError(t, err)
 		_, err = lifecycle.SpawnStorageItem(world, "healing_potion", 1, closet)
 		require.NoError(t, err)
+		world.Components.Unsearched.Remove(closet)
 
 		markers := itemMarkerTiles(world, all)
 		require.True(t, markers[c])
 	})
 
-	t.Run("空の収納の升には出さない", func(t *testing.T) {
+	t.Run("探し終えた空の収納の升には出さない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		c := consts.Coord[consts.Tile]{X: 4, Y: 4}
-		_, err := lifecycle.SpawnProp(world, "closet", c.X, c.Y)
+		closet, err := lifecycle.SpawnProp(world, "closet", c.X, c.Y)
 		require.NoError(t, err)
+		world.Components.Unsearched.Remove(closet)
 
 		markers := itemMarkerTiles(world, all)
 		require.False(t, markers[c])

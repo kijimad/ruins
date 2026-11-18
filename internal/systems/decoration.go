@@ -68,7 +68,8 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 	return quads
 }
 
-// itemMarkerTiles はマーカーを出す升を返す。対象は「中身のある収納」か「異なる品種が2つ以上重なった升」。
+// itemMarkerTiles はマーカーを出す升を返す。対象は「まだ探していないか中身のある収納」か「異なる品種が2つ以上重なった升」。
+// まだ探していない収納は中身に関係なく出し、探すまで中身の有無を見せない。
 // 同種スタックは1スプライトと個数表示で見えて隠れないので出さず、異なる品種が重なって下が隠れた升だけを指す。
 // 品種数はスタック同一性で束ねたスタック数として導出する。within は調べる升を絞る述語。
 func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool) map[consts.Coord[consts.Tile]]bool {
@@ -100,7 +101,7 @@ func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool)
 		if !slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionStorage) {
 			continue
 		}
-		if query.HasStorageItems(world, e) {
+		if world.Components.Unsearched.Has(e) || query.HasStorageItems(world, e) {
 			markers[c] = true
 		}
 	}
