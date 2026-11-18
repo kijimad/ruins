@@ -35,7 +35,6 @@ type ShowDialog struct {
 // OpenStorage は収納メニューを開く
 type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納コンテナのエンティティ
-	OverPickup    bool       // 拾うメニューを開き直し、その上に重ねる。閉じると拾うメニューへ戻る
 }
 
 // OpenFeedFuel は火への給油メニューを開く。くべる先の火 FireEntity を運ぶ

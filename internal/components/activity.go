@@ -163,8 +163,7 @@ func (*DisassembleParams) isActivityParams() {}
 
 // SearchParams は収納を探すアクティビティのパラメータ。
 type SearchParams struct {
-	Target     ecs.Entity // 探す収納のエンティティ
-	FromPickup bool       // 拾うメニューから探し始めたか。探し終えたら拾うメニューの上に収納画面を開く
+	Target ecs.Entity // 探す収納のエンティティ
 }
 
 func (*SearchParams) isActivityParams() {}
