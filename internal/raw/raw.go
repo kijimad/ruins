@@ -931,6 +931,12 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Interactable = &gc.Interactable{Interactions: interactions}
 	}
 
+	// 地面の飾りは置物として扱わない。置物を数える処理に入らないよう Prop を外す
+	if propRaw.Decor != nil && *propRaw.Decor {
+		entitySpec.Prop = nil
+		entitySpec.Decor = &gc.Decor{}
+	}
+
 	return entitySpec, nil
 }
 

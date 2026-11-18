@@ -1194,6 +1194,9 @@ import (
 	blockView!: #BlocksView
 	passCost?:  #PassCost
 
+	// 草や土の模様のような地面の飾りなら真。置物として扱わず、通行・操作・拾得・積み込みのどれにも関わらない
+	decor?: bool
+
 	// 耐久。省略した prop は殴れない
 	hp?:              #HitPoints
 	lightSource?:     #LightSource

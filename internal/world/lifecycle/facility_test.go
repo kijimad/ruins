@@ -73,7 +73,7 @@ func TestRemoveFacility_装着でない実体は戻さない(t *testing.T) {
 	world, _ := deployedCubeWithPlayer(t)
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
-	prop, err := SpawnProp(world, "grass", 11, 10)
+	prop, err := SpawnProp(world, "carpet", 11, 10)
 	require.NoError(t, err)
 	require.Error(t, RemoveFacility(world, prop, player), "Deployable でない prop は戻せない")
 }
@@ -83,7 +83,7 @@ func TestPlaceFacility_塞がったマスには装着しない(t *testing.T) {
 	world, cube := deployedCubeWithPlayer(t)
 
 	// 先に(11,10)へ prop を置いてマスを塞ぐ
-	_, err := SpawnProp(world, "grass", 11, 10)
+	_, err := SpawnProp(world, "carpet", 11, 10)
 	require.NoError(t, err)
 	item, err := SpawnBackpackItem(world, "deployable_storage", 1)
 	require.NoError(t, err)
@@ -97,7 +97,7 @@ func TestPlaceFacility_塞がったマスには装着しない(t *testing.T) {
 func TestFacilityCellFree_退避中ステージのpropは障害物にしない(t *testing.T) {
 	t.Parallel()
 	world, cube := deployedCubeWithPlayer(t)
-	prop, err := SpawnProp(world, "grass", 11, 10)
+	prop, err := SpawnProp(world, "carpet", 11, 10)
 	require.NoError(t, err)
 	world.Components.Suspended.Add(prop, &gc.Suspended{})
 	query.InvalidateSpatialIndex(world)

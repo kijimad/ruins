@@ -53,6 +53,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateTileEffects,
 		validateGrounds,
 		validateNeedStages,
+		validateDecors,
 	}
 	for _, v := range validators {
 		if err := v(raws); err != nil {
@@ -541,6 +542,25 @@ func validateNeedStages(raws rawschema.Raws) error {
 	if freshness := PtrSlice(raws.FreshnessStages); len(freshness) > 0 {
 		if !slices.ContainsFunc(freshness, func(f rawschema.FreshnessStage) bool { return f.From == 0 }) {
 			return fmt.Errorf("freshness: %w", errNeedStageNoZero)
+		}
+	}
+	return nil
+}
+
+// errDecorNotInert は地面の飾りの行が、置物として扱われる性質を持つことを表す
+var errDecorNotInert = errors.New("decor prop must not have hp, blockPass, blockView, storage or disassembly")
+
+// validateDecors は地面の飾りの行が、殴る・遮る・収納する・解体する性質を持たないことを検証する。飾りは置物を
+// 数える処理に入らないので、これらを持たせると殴っても壊れない、通れないのに数えられない、といった食い違いが出る
+func validateDecors(raws rawschema.Raws) error {
+	props := PtrSlice(raws.Props)
+	for i := range props {
+		p := &props[i]
+		if p.Decor == nil || !*p.Decor {
+			continue
+		}
+		if p.Hp != nil || p.BlockPass || p.BlockView || p.Storage != nil || p.Disassembly != nil {
+			return fmt.Errorf("%w: %s", errDecorNotInert, p.Id)
 		}
 	}
 	return nil

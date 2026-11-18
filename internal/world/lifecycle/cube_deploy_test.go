@@ -60,7 +60,7 @@ func TestDeployCube(t *testing.T) {
 		cube, err := SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 		require.NoError(t, err)
 		// 距離2の外周(12,10)。展開判定を畳み込み範囲と同じ半径2にそろえたので拒否される
-		_, err = SpawnProp(world, "grass", 12, 10)
+		_, err = SpawnProp(world, "carpet", 12, 10)
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 
@@ -176,7 +176,7 @@ func TestStowCube_propも畳み込み展開で相対位置に戻す(t *testing.T
 	require.True(t, DeployCube(world, cube))
 
 	// 展開後にプレイヤーが野営内(11,11)へ prop を設置した状況を作る
-	prop, err := SpawnProp(world, "grass", 11, 11)
+	prop, err := SpawnProp(world, "carpet", 11, 11)
 	require.NoError(t, err)
 	query.InvalidateSpatialIndex(world)
 
@@ -202,7 +202,7 @@ func TestStowCube_展開後に範囲が伸びても元野営外は巻き込ま�
 	require.True(t, DeployCube(world, cube), "半径2で展開する")
 
 	// 展開時の野営半径2の外、距離3にある既存 prop。展開時の空き判定には含まれていない
-	outer, err := SpawnProp(world, "grass", 13, 10)
+	outer, err := SpawnProp(world, "carpet", 13, 10)
 	require.NoError(t, err)
 	query.InvalidateSpatialIndex(world)
 

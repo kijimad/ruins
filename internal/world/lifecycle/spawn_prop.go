@@ -77,7 +77,8 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 	return nil
 }
 
-// SpawnProp は置物を生成する
+// SpawnProp は置物の行から実体を生成する。地面の飾りの行は、置物を数える処理に入らないよう
+// LocationOnField を付けない
 func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
 	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, propName)
 	if err != nil {
@@ -85,7 +86,9 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	}
 
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
-	entitySpec.LocationOnField = &gc.LocationOnField{}
+	if entitySpec.Decor == nil {
+		entitySpec.LocationOnField = &gc.LocationOnField{}
+	}
 
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }

@@ -123,6 +123,7 @@ const (
 	CategoryItem    = "Item"
 	CategoryProp    = "Prop"
 	CategoryRemains = "Remains"
+	CategoryDecor   = "Decor"
 	CategoryTile    = "Tile"
 )
 
@@ -150,6 +151,7 @@ func (c *Components) Categories() map[CategoryGroupKey][]Category {
 			{Name: CategoryItem, Pred: c.has(c.Item)},
 			{Name: CategoryProp, Pred: c.has(c.Prop)},
 			{Name: CategoryRemains, Pred: c.has(c.Remains)},
+			{Name: CategoryDecor, Pred: c.has(c.Decor)},
 			{Name: CategoryTile, Pred: c.has(c.Tile)},
 		},
 	}

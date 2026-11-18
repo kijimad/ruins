@@ -1370,6 +1370,9 @@ msgstr "NPC"
 msgid "Remains"
 msgstr "跡"
 
+msgid "Decor"
+msgstr "地面の飾り"
+
 msgid "Overworld"
 msgstr "オーバーワールド"
 

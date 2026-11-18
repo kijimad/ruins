@@ -21216,6 +21216,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "[dummy] 地面に生えた草の房。屋外散布の下地。透明背景の prop でタイルのオートタイル縁が出ず地面に重なる。歩行可能。実アート未実装の仮素材"
   id = "grass"
   name = "Grass"
@@ -21227,6 +21228,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "[dummy] 乾いた雑草の茂み。屋外散布で草より乾いた色味を混ぜて単調さを崩す。歩行可能。実アート未実装の仮素材"
   id = "weeds"
   name = "Weeds"
@@ -22387,6 +22389,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "A tuft of fresh green grass."
   id = "grass_lush"
   name = "Lush Grass"
@@ -22398,6 +22401,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "A tuft of withered, straw-colored grass."
   id = "grass_dry"
   name = "Dry Grass"
@@ -22409,6 +22413,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "A tuft of dark green grass."
   id = "grass_dark"
   name = "Dark Grass"
@@ -22420,6 +22425,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "A few blades of grass."
   id = "grass_sprig"
   name = "Grass Sprig"
@@ -22431,6 +22437,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "A few withered blades of grass."
   id = "grass_dry_sprig"
   name = "Dry Grass Sprig"
@@ -22442,6 +22449,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "Small stones scattered on the ground."
   id = "soil_pebbles"
   name = "Pebbles"
@@ -22453,6 +22461,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "A patch of damp, dark soil."
   id = "soil_dark"
   name = "Dark Soil"
@@ -22464,6 +22473,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "A patch of pale, dried-out soil."
   id = "soil_dry"
   name = "Dry Soil"
@@ -22475,6 +22485,7 @@
 [[props]]
   blockPass = false
   blockView = false
+  decor = true
   description = "A crack running through dry earth."
   id = "soil_crack"
   name = "Cracked Ground"

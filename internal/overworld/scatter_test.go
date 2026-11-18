@@ -75,13 +75,16 @@ type propAt struct {
 	name string
 }
 
-// collectProps は Prop を持つ全 prop を座標順で集める。草・岩は BlockPass を持たないので、散布物の
-// 網羅は設置物マーカーの Prop で引く。SpawnProp は全 prop へ Prop を付ける。タイルは Prop を持たない。
+// collectProps は置物の行から置いた全ての実体を座標順で集める。岩などの置物は Prop を、草や土の模様のような
+// 地面の飾りは Decor を持つので、どちらかを持つ実体を引く。タイルはどちらも持たない。
 func collectProps(world w.World) []propAt {
 	var out []propAt
-	q := query.ActiveFilter2[gc.GridElement, gc.Prop](world).Query()
+	q := query.ActiveFilter1[gc.GridElement](world).Query()
 	for q.Next() {
 		e := q.Entity()
+		if !world.Components.Prop.Has(e) && !world.Components.Decor.Has(e) {
+			continue
+		}
 		ge := *world.Components.GridElement.Get(e)
 		name := ""
 		if world.Components.Name.Has(e) {

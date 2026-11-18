@@ -124,7 +124,7 @@ func TestDeployChoice_展開できないときログを出しメニューを閉�
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
 	// 野営内(6,5)に prop を置いて展開を塞ぐ
-	_, err = lifecycle.SpawnProp(world, "grass", 6, 5)
+	_, err = lifecycle.SpawnProp(world, "carpet", 6, 5)
 	require.NoError(t, err)
 	query.InvalidateSpatialIndex(world)
 

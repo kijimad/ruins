@@ -67,6 +67,51 @@ func TestRealData_壊せる置物の行は構造物を除いて跡を持つ(t *t
 		"壊れない階段や入口のほかは、壊したときに跡が出るよう remainsId を持つ")
 }
 
+func TestValidateDecors(t *testing.T) {
+	t.Parallel()
+
+	decor := func(mutate func(*rawschema.Prop)) rawschema.Raws {
+		p := rawschema.Prop{Id: "grass", Decor: new(true)}
+		mutate(&p)
+		return rawschema.Raws{Props: &[]rawschema.Prop{p}}
+	}
+	tests := []struct {
+		name    string
+		raws    rawschema.Raws
+		wantErr error
+	}{
+		{"何も持たない飾りは通る", decor(func(*rawschema.Prop) {}), nil},
+		{"HP を持つ飾りはエラー", decor(func(p *rawschema.Prop) { p.Hp = new(rawschema.HitPoints(5)) }), errDecorNotInert},
+		{"通れない飾りはエラー", decor(func(p *rawschema.Prop) { p.BlockPass = true }), errDecorNotInert},
+		{"視界を遮る飾りはエラー", decor(func(p *rawschema.Prop) { p.BlockView = true }), errDecorNotInert},
+		{"飾りでない行は HP を持ってよい", rawschema.Raws{Props: &[]rawschema.Prop{{Id: "chair", Hp: new(rawschema.HitPoints(5))}}}, nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.ErrorIs(t, validateDecors(tt.raws), tt.wantErr)
+		})
+	}
+}
+
+func TestRealData_散布の草と土の層の壊せない行は地面の飾り(t *testing.T) {
+	t.Parallel()
+
+	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	notDecor := []string{}
+	for _, z := range PtrSlice(master.ScatterZones) {
+		for _, e := range append(append([]rawschema.GroundCoverEntry{}, z.Grass...), z.Soil...) {
+			p, err := GetProp(master, e.Ref)
+			require.NoError(t, err)
+			if p.Hp == nil && (p.Decor == nil || !*p.Decor) {
+				notDecor = append(notDecor, p.Id)
+			}
+		}
+	}
+	assert.Equal(t, []string{}, notDecor, "草や土の模様はキューブの展開や設備の置き場を妨げないよう地面の飾りにする")
+}
+
 func TestSchema_正常なアイテムは通る(t *testing.T) {
 	t.Parallel()
 

@@ -2012,6 +2012,9 @@ type Prop struct {
 	// BurnoutItem 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
 	BurnoutItem *EntityID `json:"burnoutItem,omitempty"`
 
+	// Decor 草や土の模様のような地面の飾りなら真。置物として扱わず、通行・操作・拾得・積み込みのどれにも関わらない
+	Decor *bool `json:"decor,omitempty"`
+
 	Description EntityDescription `json:"description"`
 
 	Disassembly *Disassembly `json:"disassembly,omitempty"`
