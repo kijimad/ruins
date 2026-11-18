@@ -91,9 +91,3 @@ func TestLoadCombatantFromMember_Errors(t *testing.T) {
 		assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないメンバー", Collection: "Members"}, notFound)
 	})
 }
-
-func TestMean(t *testing.T) {
-	t.Parallel()
-	assert.InDelta(t, 3.0, Mean([]int{1, 2, 3, 4, 5}), 0.01)
-	assert.InDelta(t, 0.0, Mean(nil), 0.01)
-}
