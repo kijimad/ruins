@@ -881,6 +881,7 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 			return gc.EntitySpec{}, fmt.Errorf("container '%s' max weight: %w", name, err)
 		}
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
+		entitySpec.Unsearched = &gc.Unsearched{}
 		interactions = append(interactions, gc.InteractionStorage)
 	}
 

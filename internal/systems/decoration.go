@@ -25,11 +25,11 @@ import (
 // spawn し、collectBillboards と VisualEffectSystem が描く。
 
 // itemMarkerProximity はマーカーを出すチェビシェフ距離の上限。
-// 隣接だけだと真上に来ないと気づけないので、少し離れていても漁る価値のある升を見せる。
+// 隣接だけだと真上に来ないと気づけないので、少し離れていても漁る価値のあるマスを見せる。
 const itemMarkerProximity = 2
 
 // collectDecorations は状態従属の装飾クアッドを quads へ足す。今は収納マーカーだけを扱い、
-// itemMarkerTiles が返す升のうち視界内のものへマーカーのビルボードを立てる。
+// itemMarkerTiles が返すマスのうち視界内のものへマーカーのビルボードを立てる。
 func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, projector render3d.Projector) []r3quad {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil || !world.Components.GridElement.Has(player) {
@@ -60,7 +60,7 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 					return quads
 				}
 			}
-			// 視界内の升にしか出さないので満照 tint で浮かせる
+			// 視界内のマスにしか出さないので満照 tint で浮かせる
 			height := render3d.BillboardHeight * itemMarkerHeightRatio
 			quads = sys.appendTileBillboard(quads, projector, c, img, iw, ih, height, [3]float64{1, 1, 1})
 		}
@@ -68,13 +68,14 @@ func (sys *Render3DSystem) collectDecorations(world w.World, quads []r3quad, pro
 	return quads
 }
 
-// itemMarkerTiles はマーカーを出す升を返す。対象は「中身のある収納」か「異なる品種が2つ以上重なった升」。
-// 同種スタックは1スプライトと個数表示で見えて隠れないので出さず、異なる品種が重なって下が隠れた升だけを指す。
-// 品種数はスタック同一性で束ねたスタック数として導出する。within は調べる升を絞る述語。
+// itemMarkerTiles はマーカーを出すマスを返す。対象は「まだ探していないか中身のある収納」か「異なる品種が2つ以上重なったマス」。
+// まだ探していない収納は、探すまで中身の有無を見せないよう中身に関係なく出す。
+// 同種スタックは1スプライトと個数表示で見えて隠れないので出さず、異なる品種が重なって下が隠れたマスだけを指す。
+// 品種数はスタック同一性で束ねたスタック数として導出する。within は調べるマスを絞る述語。
 func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool) map[consts.Coord[consts.Tile]]bool {
 	markers := map[consts.Coord[consts.Tile]]bool{}
 
-	// 拾えるフィールドアイテムを升ごとに集める。Item を持つフィールド物が拾える物
+	// 拾えるフィールドアイテムをマスごとに集める。Item を持つフィールド物が拾える物
 	itemsByTile := map[consts.Coord[consts.Tile]][]ecs.Entity{}
 	itemQuery := query.ActiveFilter2[gc.LocationOnField, gc.GridElement](world).With(ecs.C[gc.Item]()).Query()
 	for itemQuery.Next() {
@@ -100,7 +101,7 @@ func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool)
 		if !slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionStorage) {
 			continue
 		}
-		if query.HasStorageItems(world, e) {
+		if world.Components.Unsearched.Has(e) || query.HasStorageItems(world, e) {
 			markers[c] = true
 		}
 	}
@@ -144,7 +145,7 @@ func itemMarkerImage(face text.Face) *ebiten.Image {
 	return itemMarkerImg
 }
 
-// appendTileBillboard は升のビルボード右上隅を基準に、画像1枚をカメラ正面の板として quads へ足す。
+// appendTileBillboard はマスのビルボード右上隅を基準に、画像1枚をカメラ正面の板として quads へ足す。
 // ワールド空間の板なので emit の深度ソートで手前の壁に隠れる。height はビルボード高に対する実寸で、
 // 投影後の見かけの大きさは奥行きやズームに追従する。col は乗算 tint。導出系の装飾はこの幾何を共有する。
 func (sys *Render3DSystem) appendTileBillboard(quads []r3quad, projector render3d.Projector, c consts.Coord[consts.Tile], img *ebiten.Image, iw, ih int, height float64, col [3]float64) []r3quad {

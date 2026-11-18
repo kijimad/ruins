@@ -305,8 +305,9 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}
 		return st.completeSwap(world)
 	case gc.OpenStorage:
-		// 収納メニューを開く
+		// 収納を開ける経路は拾うメニューだけなので、その上に重ねて閉じると一覧へ戻す
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() (es.State[w.World], error) { return NewChoiceMenu(pickupChoices), nil },
 			func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },
 		}}, nil
 	case gc.OpenFeedFuel:

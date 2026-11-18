@@ -46,7 +46,7 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 	case gc.InteractionItem:
 		return executeItem(actor, target, world)
 	case gc.InteractionStorage:
-		return executeStorage(target, world)
+		return executeStorage(actor, target, world)
 	case gc.InteractionMelee:
 		return executeMelee(actor, target, world)
 	case gc.InteractionOpenCubeMenu:
@@ -179,7 +179,11 @@ func executeFeedFuel(fire ecs.Entity, world w.World) (*ActionResult, error) {
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorFeedFuel, Message: "opened fuel feeding"}, nil
 }
 
-func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {
+// executeStorage はまだ探していない収納なら探すアクティビティを始め、探し終えた収納なら収納画面を開く
+func executeStorage(actor, storageEntity ecs.Entity, world w.World) (*ActionResult, error) {
+	if world.Components.Unsearched.Has(storageEntity) {
+		return Execute(NewSearchActivity(storageEntity, world), actor, world)
+	}
 	if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(storageEntity)); err != nil {
 		return nil, fmt.Errorf("storage menu state change request error: %w", err)
 	}

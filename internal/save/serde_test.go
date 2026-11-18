@@ -274,6 +274,36 @@ func TestSerde_Weatherが往復する(t *testing.T) {
 
 // TestSerde_Perishableが往復する は腐敗食の鮮度がセーブ・ロードで保たれることを検証する。
 // RotAccrued と RotUpdatedTurn が失われると復元後に鮮度が狂うため、往復で保たれる必要がある。
+func TestSerde_Unsearchedが往復する(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "wooden_crate", 3, 3)
+	require.NoError(t, err)
+	searched, err := lifecycle.SpawnProp(world, "wooden_crate", 4, 3)
+	require.NoError(t, err)
+	world.Components.Unsearched.Remove(searched)
+
+	require.NoError(t, manager.SaveWorld(world, "unsearched"))
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "unsearched"))
+
+	got := map[consts.Coord[consts.Tile]]bool{}
+	q := ecs.NewFilter2[gc.RawID, gc.GridElement](newWorld.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if newWorld.Components.RawID.Get(e).ID == "wooden_crate" {
+			got[newWorld.Components.GridElement.Get(e).Coord] = newWorld.Components.Unsearched.Has(e)
+		}
+	}
+	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 4, Y: 3}: false}, got)
+}
+
 func TestSerde_Perishableが往復する(t *testing.T) {
 	t.Parallel()
 	testDir := t.TempDir()
