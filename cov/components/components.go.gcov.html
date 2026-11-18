@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-17 15:40:28</td>
+            <td class="headerValue">2026-11-18 00:19:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -444,15 +444,31 @@
 <span id="L382"><span class="lineNum">     382</span>              :         Orientation DoorOrientation // 扉の向き</span>
 <span id="L383"><span class="lineNum">     383</span>              : }</span>
 <span id="L384"><span class="lineNum">     384</span>              : </span>
-<span id="L385"><span class="lineNum">     385</span>              : // DoorOrientation は扉の向き</span>
-<span id="L386"><span class="lineNum">     386</span>              : type DoorOrientation int</span>
-<span id="L387"><span class="lineNum">     387</span>              : </span>
-<span id="L388"><span class="lineNum">     388</span>              : const (</span>
-<span id="L389"><span class="lineNum">     389</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
-<span id="L390"><span class="lineNum">     390</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
-<span id="L391"><span class="lineNum">     391</span>              :         // DoorOrientationVertical は縦向きの扉</span>
-<span id="L392"><span class="lineNum">     392</span>              :         DoorOrientationVertical</span>
-<span id="L393"><span class="lineNum">     393</span>              : )</span>
+<span id="L385"><span class="lineNum">     385</span>              : // Pose はエンティティがマスの中でどう置かれるか。向く方角 Facing と、マスの中で立つ位置 Anchor</span>
+<span id="L386"><span class="lineNum">     386</span>              : type Pose struct {</span>
+<span id="L387"><span class="lineNum">     387</span>              :         Facing consts.Cardinal</span>
+<span id="L388"><span class="lineNum">     388</span>              :         Anchor PoseAnchor</span>
+<span id="L389"><span class="lineNum">     389</span>              : }</span>
+<span id="L390"><span class="lineNum">     390</span>              : </span>
+<span id="L391"><span class="lineNum">     391</span>              : // PoseAnchor はマスの中で立つ位置</span>
+<span id="L392"><span class="lineNum">     392</span>              : type PoseAnchor int</span>
+<span id="L393"><span class="lineNum">     393</span>              : </span>
+<span id="L394"><span class="lineNum">     394</span>              : const (</span>
+<span id="L395"><span class="lineNum">     395</span>              :         // AnchorCenter はマスの真ん中に立つ</span>
+<span id="L396"><span class="lineNum">     396</span>              :         AnchorCenter PoseAnchor = iota</span>
+<span id="L397"><span class="lineNum">     397</span>              :         // AnchorBack は向きの背の側へ寄せて立つ</span>
+<span id="L398"><span class="lineNum">     398</span>              :         AnchorBack</span>
+<span id="L399"><span class="lineNum">     399</span>              : )</span>
+<span id="L400"><span class="lineNum">     400</span>              : </span>
+<span id="L401"><span class="lineNum">     401</span>              : // DoorOrientation は扉の向き</span>
+<span id="L402"><span class="lineNum">     402</span>              : type DoorOrientation int</span>
+<span id="L403"><span class="lineNum">     403</span>              : </span>
+<span id="L404"><span class="lineNum">     404</span>              : const (</span>
+<span id="L405"><span class="lineNum">     405</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
+<span id="L406"><span class="lineNum">     406</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
+<span id="L407"><span class="lineNum">     407</span>              :         // DoorOrientationVertical は縦向きの扉</span>
+<span id="L408"><span class="lineNum">     408</span>              :         DoorOrientationVertical</span>
+<span id="L409"><span class="lineNum">     409</span>              : )</span>
         </pre>
               </td>
             </tr>
