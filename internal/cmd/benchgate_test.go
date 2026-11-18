@@ -81,15 +81,15 @@ func TestBenchRegressions(t *testing.T) {
 		assert.Equal(t, []string{"- a: geomean x2.00"}, benchRegressions(base, pr, thr))
 	})
 
-	t.Run("medianが0以下なら比を取らず無視", func(t *testing.T) {
+	t.Run("medianが0以下のベンチは集約から外し残りで判定する", func(t *testing.T) {
 		t.Parallel()
-		base := map[benchKey][]float64{k("a", "X"): {0, 0}}
-		pr := map[benchKey][]float64{k("a", "X"): {100}}
-		assert.Empty(t, benchRegressions(base, pr, thr), "baseのmedianが0以下")
+		base := map[benchKey][]float64{k("a", "X"): {0, 0}, k("a", "Y"): {100}}
+		pr := map[benchKey][]float64{k("a", "X"): {100}, k("a", "Y"): {400}}
+		assert.Equal(t, []string{"- a: geomean x4.00"}, benchRegressions(base, pr, thr), "baseのmedianが0以下")
 
-		base = map[benchKey][]float64{k("a", "X"): {100}}
-		pr = map[benchKey][]float64{k("a", "X"): {0, 0}}
-		assert.Empty(t, benchRegressions(base, pr, thr), "prのmedianが0以下")
+		base = map[benchKey][]float64{k("a", "X"): {100}, k("a", "Y"): {100}}
+		pr = map[benchKey][]float64{k("a", "X"): {0, 0}, k("a", "Y"): {400}}
+		assert.Equal(t, []string{"- a: geomean x4.00"}, benchRegressions(base, pr, thr), "prのmedianが0以下")
 	})
 }
 

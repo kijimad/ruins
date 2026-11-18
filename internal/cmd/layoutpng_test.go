@@ -37,6 +37,7 @@ func TestRenderLayout_地形と設置物とNPCを塗る(t *testing.T) {
 func TestRenderLayout_マスサイズに応じて境界が変わる(t *testing.T) {
 	t.Parallel()
 
+	require.NotEqual(t, terrainColor("floor"), terrainColor("wall"), "境界の両側を区別できる地形を選ぶ")
 	cells := [][]maptemplate.MapCell{{{Terrain: "floor"}, {Terrain: "wall"}}}
 	img := renderLayout(cells, 3)
 
@@ -122,7 +123,7 @@ func TestRunLayoutPNG_実データのレイアウトをPNGと凡例に書き出�
 	require.Equal(t, want.Bounds(), got.Bounds())
 	for y := want.Bounds().Min.Y; y < want.Bounds().Max.Y; y++ {
 		for x := want.Bounds().Min.X; x < want.Bounds().Max.X; x++ {
-			require.Equal(t, want.NRGBAAt(x, y), color.NRGBAModel.Convert(got.At(x, y)))
+			require.Equal(t, want.NRGBAAt(x, y), color.NRGBAModel.Convert(got.At(x, y)), "(%d,%d)", x, y)
 		}
 	}
 
