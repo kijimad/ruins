@@ -34,7 +34,7 @@ func (b *SearchBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorSearch
 }
 
-// NewSearchActivity は収納 target を探すアクティビティを組む。容量10kgごとに1ターン、最低1ターンかかる
+// NewSearchActivity は収納 target を探すアクティビティを組む。容量10kgごとに1ターンかかり、10kgに満たない端数は数えない。最低1ターン
 func NewSearchActivity(target ecs.Entity, world w.World) *gc.Activity {
 	turns := 1
 	if world.ECS.Alive(target) && world.Components.WeightCapacity.Has(target) {
