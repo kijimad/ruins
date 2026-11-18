@@ -46,3 +46,28 @@ func TestTexture_UnmarshalText(t *testing.T) {
 		assert.Nil(t, tex.Source)
 	})
 }
+
+func TestDepthNum_LiesFlat(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		depth DepthNum
+		want  bool
+	}{
+		{"床の段の草などは立て板で描く", DepthNumFloor, false},
+		{"雪の層は段で描かない", DepthNumSnow, false},
+		{"跡は寝かせる", DepthNumRemains, true},
+		{"床の模様は寝かせる", DepthNumDecal, true},
+		{"床に置くものは立てる", DepthNumRug, false},
+		{"高さのあるものは立てる", DepthNumTaller, false},
+		{"アイテムは立てる", DepthNumItem, false},
+		{"プレイヤーは立てる", DepthNumPlayer, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.depth.LiesFlat())
+		})
+	}
+}

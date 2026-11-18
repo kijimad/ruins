@@ -1232,16 +1232,16 @@ import (
 	ratio!:     #HealRatio
 }
 
-// RGBA色
 // 敵や物が消えた跡に床へ残す装飾。描画順は跡の段に決まっているので行に持たない
 #Remains: {
 	id!:              #EntityID
 	name!:            #EntityName
 	spriteSheetName!: #SpriteSheetName
-	// 跡の形の候補。置くたびにこの中から1つを選ぶ
+	// 跡の形の候補。置くマスの座標から1つを選ぶ
 	spriteKeys!: [...#SpriteKey] & [_, ...]
 }
 
+// RGBA色
 #RGBAColor: {
 	r!: #ColorChannel
 	g!: #ColorChannel

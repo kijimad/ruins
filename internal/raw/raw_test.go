@@ -1393,10 +1393,15 @@ func TestDepthOf(t *testing.T) {
 		{"高さのあるものは高さのあるものの段", rawschema.SpriteDepthTaller, gc.DepthNumTaller},
 		{"描画順を持たない行は床に落ちる", "", gc.DepthNumFloor},
 	}
+	covered := map[rawschema.SpriteDepth]bool{}
 	for _, tt := range tests {
+		covered[tt.depth] = true
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, depthOf(tt.depth))
 		})
+	}
+	for _, d := range rawschema.SpriteDepthValues() {
+		assert.True(t, covered[d], "生成された描画順 %q の写しを表で確かめる", d)
 	}
 }

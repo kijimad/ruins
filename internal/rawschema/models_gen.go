@@ -2061,6 +2061,7 @@ type ProvidesHealing struct {
 	ValueType HealingValueType `json:"valueType"`
 }
 
+// RGBAColor RGBA色
 type RGBAColor struct {
 	A ColorChannel `json:"a"`
 
@@ -2269,14 +2270,13 @@ type RectRoomStart struct {
 // ReloadEffort リロードに必要な行動力
 type ReloadEffort = int
 
-// Remains RGBA色
-// 敵や物が消えた跡に床へ残す装飾。描画順は跡の段に決まっているので行に持たない
+// Remains 敵や物が消えた跡に床へ残す装飾。描画順は跡の段に決まっているので行に持たない
 type Remains struct {
 	Id EntityID `json:"id"`
 
 	Name EntityName `json:"name"`
 
-	// SpriteKeys 跡の形の候補。置くたびにこの中から1つを選ぶ
+	// SpriteKeys 跡の形の候補。置くマスの座標から1つを選ぶ
 	SpriteKeys []SpriteKey `json:"spriteKeys"`
 
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
