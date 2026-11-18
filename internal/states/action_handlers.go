@@ -191,30 +191,11 @@ func startPickup(world w.World) (es.Transition[w.World], error) {
 	}}, nil
 }
 
-// pickupChoices は拾うメニューの選択肢を返す。まだ探していない収納を選ぶとメニューを閉じて探し始める
+// pickupChoices は拾うメニューの選択肢を返す。収納を選ぶとメニューを閉じ、まだ探していなければ探し始める
 func pickupChoices(world w.World) (string, []Choice) {
 	actions := nearbyPickupActions(world)
 	choices := make([]Choice, 0, len(actions))
 	for _, a := range actions {
-		if a.Interaction == gc.InteractionStorage && !world.Components.Unsearched.Has(a.Target) {
-			choices = append(choices, Choice{Label: a.Label, Run: pushChoice(func() (es.State[w.World], error) {
-				return NewStorageMenuState(a.Target)
-			})})
-			continue
-		}
-		if a.Interaction == gc.InteractionStorage {
-			choices = append(choices, Choice{Label: a.Label, Run: func(world w.World) (es.Transition[w.World], error) {
-				player, err := query.GetPlayerEntity(world)
-				if err != nil {
-					return es.Transition[w.World]{}, err
-				}
-				if _, err := activity.Execute(activity.NewSearchActivity(a.Target, world), player, world); err != nil {
-					return es.Transition[w.World]{}, err
-				}
-				return es.Transition[w.World]{Type: es.TransPop}, nil
-			}})
-			continue
-		}
 		choices = append(choices, Choice{Label: a.Label, Run: func(world w.World) (es.Transition[w.World], error) {
 			player, err := query.GetPlayerEntity(world)
 			if err != nil {
@@ -223,7 +204,8 @@ func pickupChoices(world w.World) (string, []Choice) {
 			if _, err := activity.ExecuteInteraction(player, a.Target, a.Interaction, world); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-			if len(nearbyPickupActions(world)) == 0 {
+			// 収納は閉じても、開く要求が拾うメニューごと開き直す
+			if a.Interaction == gc.InteractionStorage || len(nearbyPickupActions(world)) == 0 {
 				return es.Transition[w.World]{Type: es.TransPop}, nil
 			}
 			return es.Transition[w.World]{Type: es.TransNone}, nil

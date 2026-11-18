@@ -717,7 +717,7 @@ func TestPickupChoices(t *testing.T) {
 		assert.True(t, world.Components.LocationInBackpack.Has(second))
 	})
 
-	t.Run("探し終えた収納は収納画面をメニューの上に開く", func(t *testing.T) {
+	t.Run("探し終えた収納は選ぶとメニューを閉じ、収納を開く要求を出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
@@ -731,11 +731,10 @@ func TestPickupChoices(t *testing.T) {
 		trans, err := choices[0].Run(world)
 		require.NoError(t, err)
 
-		assert.Equal(t, es.TransPush, trans.Type)
-		require.Len(t, trans.NewStateFuncs, 1)
-		state, err := trans.NewStateFuncs[0]()
-		require.NoError(t, err)
-		assert.IsType(t, &StorageMenuState{}, state)
+		assert.Equal(t, es.TransPop, trans.Type)
+		req := lifecycle.ConsumeStateChange(world)
+		require.NotNil(t, req)
+		assert.Equal(t, gc.OpenStorage{StorageEntity: crate}, req.Payload)
 	})
 
 	t.Run("まだ探していない収納は選ぶとメニューを閉じて探し始める", func(t *testing.T) {
