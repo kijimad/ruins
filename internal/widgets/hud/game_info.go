@@ -25,7 +25,7 @@ const (
 	TempDirectionDown TempDirection = "down"
 )
 
-// TemperatureArrow は体温の変化方向を示す矢印。体温ゲージの左に出す。
+// TemperatureArrow は体温の変化方向を示す矢印。体温ゲージの右に出す。
 // 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ
 type TemperatureArrow struct {
 	Visible   bool
@@ -33,7 +33,7 @@ type TemperatureArrow struct {
 	Color     color.RGBA
 }
 
-// tempArrowSlotW は体温ゲージの左に確保する矢印スロットの幅
+// tempArrowSlotW は体温ゲージの右に確保する矢印スロットの幅
 const tempArrowSlotW = 26
 
 // GameInfo はHUDの基本ゲーム情報エリア
@@ -65,7 +65,7 @@ func (info *GameInfo) Draw(cv uicore.Canvas, data GameInfoData) {
 		return
 	}
 
-	// 左上ゲージ。体温矢印・体温ゲージ・HPゲージを縦に積む
+	// 左上ゲージ。HPゲージ・体温ゲージと体温矢印を縦に積む
 	info.drawGauges(cv, data)
 
 	// 右下スタック。周囲気温・所持重量・所持通貨をメッセージエリアの上へ下から積む
@@ -100,21 +100,21 @@ const (
 	gaugeSpacing    = 4                              // ゲージ間の間隔
 )
 
-// drawGauges は体温矢印・体温ゲージ・HPゲージを左上へ縦に積む。矢印スロットとゲージを横に並べ、
-// 体温の下へ間隔を空けて HP を置く。位置決めは FlexColumn/Row に委ね、段や右寄せの手計算をしない。
+// drawGauges はHPゲージ・体温ゲージ・体温矢印を左上へ縦に積む。ゲージと矢印スロットを横に並べ、
+// HP の下へ間隔を空けて体温を置く。位置決めは FlexColumn/Row に委ね、段や右寄せの手計算をしない。
 func (info *GameInfo) drawGauges(cv uicore.Canvas, data GameInfoData) {
-	tempRow := uicore.Row([]int{tempArrowSlotW, gaugeWidth},
-		info.arrowWidget(data.TempArrow),
+	tempRow := uicore.Row([]int{gaugeWidth, tempArrowSlotW},
 		info.bodyTempGauge(data),
+		info.arrowWidget(data.TempArrow),
 	)
-	hpRow := uicore.Row([]int{tempArrowSlotW, gaugeWidth},
-		uicore.NewGroup(),
+	hpRow := uicore.Row([]int{gaugeWidth, tempArrowSlotW},
 		info.healthGauge(data),
+		uicore.NewGroup(),
 	)
 	items := []uicore.FlexItem{
-		{W: tempRow, Height: gaugeHeight},
-		{Height: gaugeSpacing},
 		{W: hpRow, Height: gaugeHeight},
+		{Height: gaugeSpacing},
+		{W: tempRow, Height: gaugeHeight},
 		{Grow: true},
 	}
 	inner := image.Rect(gaugeBaseX, gaugeBaseY, gaugeBaseX+tempArrowSlotW+gaugeWidth, data.ScreenDimensions.Height)
@@ -138,7 +138,7 @@ func (info *GameInfo) arrowWidget(arrow TemperatureArrow) uicore.Widget {
 		glyph = consts.IconArrowRight
 	}
 	// VCenter で体温ゲージの縦中心にそろえる
-	return &uicore.Text{Value: glyph, Face: info.bodyFace, Color: arrow.Color, OutlineColor: theme.HUDTextOutline, VCenter: true}
+	return &uicore.Text{Value: glyph, Face: info.bodyFace, Color: arrow.Color, OutlineColor: theme.HUDTextOutline, VCenter: true, Align: uicore.AlignCenter}
 }
 
 // bodyTempGauge は体温ゲージを返す。満タンが平熱、減って青くなるほど冷える片方向。非表示なら空を返す。

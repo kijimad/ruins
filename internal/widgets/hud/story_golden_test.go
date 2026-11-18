@@ -53,6 +53,7 @@ func TestGolden_Story_GameInfoGauges(t *testing.T) {
 				PlayerMaxWeight:   consts.Milligram(21_000_000),
 				BodyTempRatio:     0.3,
 				BodyTempVisible:   true,
+				TempArrow:         hud.TemperatureArrow{Visible: true, Direction: hud.TempDirectionDown, Color: color.RGBA{R: 80, G: 140, B: 255, A: 255}},
 				Currency:          consts.Currency(10000),
 				MessageAreaHeight: hud.DefaultMessageAreaConfig.Height(),
 				ScreenDimensions:  storyScreen,
