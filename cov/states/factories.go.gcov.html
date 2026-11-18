@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-18 15:32:46</td>
+            <td class="headerValue">2026-11-18 15:42:19</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -470,7 +470,7 @@
 <span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :         messageState.build = func(world w.World) *messagedata.MessageData {</span></span>
 <span id="L409"><span class="lineNum">     409</span>              :                 // 背景キーを持たせず、土台のゲーム画面へモーダルとして重ねる</span>
 <span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :                 page := &amp;messagedata.MessageData{Speaker: &quot;&quot;}</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :                 page.AddMarkup(query.T(world, &quot;You are a space traveler, stranded on a\nfrozen planet after your cube broke down.\nHead &lt;keyword&gt;north&lt;/keyword&gt;. A relay station may still remain.\nYou must &lt;keyword&gt;repair&lt;/keyword&gt; the cube and &lt;keyword&gt;escape&lt;/keyword&gt;.&quot;))</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :                 page.AddMarkup(query.T(world, &quot;You are a space traveler. Your ship crashed\non a frozen planet. Only your cargo cube survived.\nHead &lt;keyword&gt;north&lt;/keyword&gt;. A relay station may still remain.\n&lt;keyword&gt;Repair&lt;/keyword&gt; the escape core and &lt;keyword&gt;escape&lt;/keyword&gt; this planet.&quot;))</span></span>
 <span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                 return page</span></span>
 <span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :         return messageState, nil</span></span>
