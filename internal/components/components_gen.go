@@ -31,7 +31,6 @@ type EntitySpec struct {
 	LocationEquipped   *LocationEquipped
 	LocationOnField    *LocationOnField
 	LocationInStorage  *LocationInStorage
-	Unsearched         *Unsearched
 	LocationStowed     *LocationStowed
 	LocationInstalled  *LocationInstalled
 	Tile               *Tile
@@ -52,6 +51,7 @@ type EntitySpec struct {
 	Deployed           *Deployed
 	LightSource        *LightSource
 	Interactable       *Interactable
+	Unsearched         *Unsearched
 	VisualEffects      *VisualEffects
 	TileEnvironment    *TileEnvironment
 	HeatSource         *HeatSource
@@ -129,7 +129,6 @@ type Components struct {
 	LocationEquipped   *ecs.Map[LocationEquipped]
 	LocationOnField    *ecs.Map[LocationOnField]
 	LocationInStorage  *ecs.Map[LocationInStorage]
-	Unsearched         *ecs.Map[Unsearched]
 	LocationStowed     *ecs.Map[LocationStowed]
 	LocationInstalled  *ecs.Map[LocationInstalled]
 	Tile               *ecs.Map[Tile]
@@ -150,6 +149,7 @@ type Components struct {
 	Deployed           *ecs.Map[Deployed]
 	LightSource        *ecs.Map[LightSource]
 	Interactable       *ecs.Map[Interactable]
+	Unsearched         *ecs.Map[Unsearched]
 	VisualEffects      *ecs.Map[VisualEffects]
 	TileEnvironment    *ecs.Map[TileEnvironment]
 	HeatSource         *ecs.Map[HeatSource]
@@ -227,7 +227,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.LocationEquipped = ecs.NewMap[LocationEquipped](world)
 	c.LocationOnField = ecs.NewMap[LocationOnField](world)
 	c.LocationInStorage = ecs.NewMap[LocationInStorage](world)
-	c.Unsearched = ecs.NewMap[Unsearched](world)
 	c.LocationStowed = ecs.NewMap[LocationStowed](world)
 	c.LocationInstalled = ecs.NewMap[LocationInstalled](world)
 	c.Tile = ecs.NewMap[Tile](world)
@@ -248,6 +247,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Deployed = ecs.NewMap[Deployed](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
 	c.Interactable = ecs.NewMap[Interactable](world)
+	c.Unsearched = ecs.NewMap[Unsearched](world)
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
 	c.TileEnvironment = ecs.NewMap[TileEnvironment](world)
 	c.HeatSource = ecs.NewMap[HeatSource](world)
@@ -327,7 +327,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.LocationEquipped, entity, spec.LocationEquipped)
 	addComp(c.LocationOnField, entity, spec.LocationOnField)
 	addComp(c.LocationInStorage, entity, spec.LocationInStorage)
-	addComp(c.Unsearched, entity, spec.Unsearched)
 	addComp(c.LocationStowed, entity, spec.LocationStowed)
 	addComp(c.LocationInstalled, entity, spec.LocationInstalled)
 	addComp(c.Tile, entity, spec.Tile)
@@ -348,6 +347,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Deployed, entity, spec.Deployed)
 	addComp(c.LightSource, entity, spec.LightSource)
 	addComp(c.Interactable, entity, spec.Interactable)
+	addComp(c.Unsearched, entity, spec.Unsearched)
 	addComp(c.VisualEffects, entity, spec.VisualEffects)
 	addComp(c.TileEnvironment, entity, spec.TileEnvironment)
 	addComp(c.HeatSource, entity, spec.HeatSource)
