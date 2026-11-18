@@ -1,7 +1,6 @@
 package balance
 
 import (
-	"math/rand/v2"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -40,33 +39,6 @@ func TestAttackDamagePMF_命中は0ダメージにならない(t *testing.T) {
 	assert.InDelta(t, 1.0, sum, 1e-12, "確率の総和は1")
 }
 
-func TestCombatDistribution_モンテカルロと一致(t *testing.T) {
-	t.Parallel()
-	// 両者が倒し倒される拮抗した組。閉形式のマルコフ連鎖が実戦闘 SimulateBattle と一致することを見る。
-	player := CombatantStats{HP: 40, Strength: 5, Sensation: 5, Dexterity: 5, Agility: 5, Defense: 2}
-	enemy := CombatantStats{HP: 30, Strength: 8, Sensation: 8, Dexterity: 5, Agility: 5, Defense: 2}
-	pw := WeaponStats{Damage: 5, Accuracy: 80}
-	ew := WeaponStats{Damage: 6, Accuracy: 80}
-
-	got := CombatDistribution(player, enemy, pw, ew)
-
-	const trials = 300000
-	rng := rand.New(rand.NewPCG(1, 2))
-	deaths, turnSum := 0, 0
-	for range trials {
-		r := SimulateBattle(player, enemy, pw, ew, rng)
-		if !r.PlayerWon {
-			deaths++
-		}
-		turnSum += r.Turns
-	}
-	mcDeath := float64(deaths) / trials
-	mcTurns := float64(turnSum) / trials
-
-	assert.InDelta(t, mcDeath, got.PlayerDeathProb, 0.01, "死亡確率がMCと一致")
-	assert.InDelta(t, mcTurns, got.ExpectedTurns, 0.1, "期待決着ターンがMCと一致")
-}
-
 func TestCombatDistribution_圧勝は死亡確率ほぼ0で裾も短い(t *testing.T) {
 	t.Parallel()
 	// プレイヤーが厚く敵が薄い一方的な組。死亡確率はほぼ0で、決着は数ターンに収まる。
@@ -98,4 +70,22 @@ func TestCombatRiskCurve_危険度上昇で死亡確率が非減少傾向(t *tes
 	}
 	// 序盤より終盤の方が死にやすい。day1 と day20 を比べて危険度上昇が効いていることを確認する。
 	assert.Greater(t, curve[BaselineDays-1].DeathProb, curve[0].DeathProb, "終盤は序盤より死亡確率が高い")
+}
+
+func TestCombatDistribution_HPが1どうしなら先に当てた側が勝つ式に一致する(t *testing.T) {
+	t.Parallel()
+	player := CombatantStats{HP: 1, Strength: 5, Sensation: 5, Dexterity: 6, Agility: 6}
+	enemy := CombatantStats{HP: 1, Strength: 5, Sensation: 5, Dexterity: 9, Agility: 3}
+	pw := WeaponStats{Damage: 3, Accuracy: 60}
+	ew := WeaponStats{Damage: 3, Accuracy: 80}
+	pp := float64(formula.CalcHitRate(player.Dexterity, enemy.Agility, pw.Accuracy)) / float64(formula.DiceMax)
+	pe := float64(formula.CalcHitRate(enemy.Dexterity, player.Agility, ew.Accuracy)) / float64(formula.DiceMax)
+
+	got := CombatDistribution(player, enemy, pw, ew)
+
+	// プレイヤーが先に攻撃するので、プレイヤーが外し続けるあいだに敵が先に当てると倒される
+	want := (1 - pp) * pe / (1 - (1-pp)*(1-pe))
+	assert.InDelta(t, want, got.PlayerDeathProb, 1e-9)
+	// 毎ターンどちらかが当てれば決着するので、決着ターンは成功確率 1-(1-pp)(1-pe) の幾何分布になる
+	assert.InDelta(t, 1/(1-(1-pp)*(1-pe)), got.ExpectedTurns, 1e-9)
 }

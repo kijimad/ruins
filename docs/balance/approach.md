@@ -15,7 +15,7 @@
 |---|---|---|---|
 | A 閉形式 | 体験指標が少数のパラメータの純関数で書ける | 戦闘・生存タイマー・物流 | `internal/balance` の導出関数。乱数なし・決定論的・ミリ秒 |
 | B 連鎖 | 複数の式を合成すれば決定論的に導ける | 空腹→血液→HP、体温→状態異常→HP | A の関数を組み合わせる。ステートの遷移を1本の式列で表す |
-| C 創発 | 行動依存でランダム。閉形式は定常近似止まり | 経済ループ、複数ドメインの戦略、到達層数依存の探索収入 | モンテカルロ `simulate-balance`、将来はエージェント対戦 |
+| C 創発 | 行動依存でランダム。閉形式は定常近似止まり | 経済ループ、複数ドメインの戦略、到達層数依存の探索収入 | 測る仕組みは無い。設計値で置く。将来はエージェント対戦 |
 
 3層は対立でなく、導出しやすさに応じた使い分け。まず A、無理なら B、それでも無理なら C。
 
@@ -44,7 +44,6 @@
 - **パラメータはベクトルで持つ**。バランスに効くつまみは `balance/params.go` の `Params` に1つのベクトルとして集約し、導出は Params の純関数として書く。ゲーム定数との接点は `DefaultParams` の1箇所に限り、定数変更に自動追従させる。感度・交換レート・探索は `knobRegistry` の成分を摂動する汎用機械にし、つまみの追加は成分とレジストリの1行で済ませる。つまみごとの専用配管を書かない。
 - **公開窓は最小限**。world 抜きで導出するために純関数だけを公開する。既存の窓は `query.DangerLevelForDay`、`systems.CalcBodyTempRate`、`systems.BodyTempColdBand`、`components.TurnsPerDay`。窓を増やすときはこの一覧に足し、乱用しない。
 - **置き場を固定**。A/B の導出は `internal/balance` に置く。ドメインごとにファイルを分ける。`metrics.go`（戦闘）、`survival.go`（生存・疲労・血液）、`logistics.go`（物流）、`economy.go`（経済の純部分）。1ドメイン1ファイル。基準値は共有定数、すなわち `BaselinePlayer` 等や `consts` の公開定数を使い各所へ直書きしない。
-- **モンテカルロは C 専用**。`balance/run.go`・`combat.go` の `Simulate*` は創発ドメインの測定にだけ使う。導出可能なドメインへ拡張しない。拡張したくなったら、それは A か B で書けるはずと疑う。
 - **凍結ゲート**。導出したメトリクスは `balance/targets_test.go` に現状値で pin し、`make check` で変化を検知する。目標帯そのものは assert しない。意図した調整で値が動いたら期待値を更新する。
 - **raw.toml の書き戻しは yq で行う**。導出で決めた値を書き戻すときは jq 風の式で該当フィールドだけを更新する。独自ツールは作らない。yq は書式を崩すので、編集後に `make fmt` で正規形へ戻す。正規形は `go run . fmtraw` がキーを並べ替えてインデントしたもの。
   ```sh
@@ -55,7 +54,6 @@
   go run github.com/mikefarah/yq/v4@v4.53.6 -p toml -o toml -i \
     '(.enemyTables[] | select(.id=="ruins_area").entries[] | select(.id=="slime").maxDanger) = 6' assets/metadata/entities/raw/raw.toml
   ```
-- **モンテカルロの経路**。`simulate-balance` は試行の統計を `balance.md` に出す C 層の補助で、導出系 baseline.md を補う。
 
 ## 導出の前提。静的な保守下限と想定プレイヤー
 

@@ -2,7 +2,6 @@ package balance
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -15,38 +14,14 @@ func ExpectedDamagePerAttack(attacker, defender CombatantStats, weapon WeaponSta
 }
 
 // ExpectedDamagePerAttackWithSkill は熟練度倍率 skillMult を織り込んだ1回の期待ダメージを返す。属性耐性は無いものとする。
-// ダイスと防御の max が非線形なのでダイス6面を列挙して厳密化する。skillMult が PercentBase なら静的下限に一致する。
+// 1回の攻撃のダメージ分布 attackDamagePMF の期待値で、skillMult が PercentBase なら静的下限に一致する。
+// CalcHitRate は MinHitRate 以上へクランプし、命中は MinDamage 以上なので、期待ダメージは常に正になる。
 func ExpectedDamagePerAttackWithSkill(attacker, defender CombatantStats, weapon WeaponStats, skillMult consts.Percent) float64 {
-	// CalcHitRate は MinHitRate 以上へクランプするので hitRate は 0 にならない。よって命中確率と
-	// max(...,1) の下限から期待ダメージは常に正になり、ExpectedTTK もゼロ除算や 0 に落ちない。
-	hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)
-
-	baseAbil := attacker.Strength
-	if weapon.IsRanged {
-		baseAbil = attacker.Sensation
-	}
-
-	// roll 1..DiceMax のうち、1..min(crit,hitRate) がクリティカル、その先 hitRate まで通常命中。
-	critRolls := min(hitRate, formula.CriticalHitThreshold)
-	pCrit := float64(critRolls) / float64(formula.DiceMax)
-	pNormalHit := float64(hitRate-critRolls) / float64(formula.DiceMax)
-
 	sum := 0.0
-	for die := 1; die <= formula.DamageRandomRange; die++ {
-		in := formula.DamageInput{
-			Ability:      baseAbil,
-			Die:          die,
-			WeaponDamage: weapon.Damage,
-			SkillMult:    int(skillMult),
-			ElementMult:  int(consts.PercentBase),
-			Defense:      defender.Defense,
-		}
-		normal := formula.Damage(in)
-		in.Critical = true
-		crit := formula.Damage(in)
-		sum += pCrit*float64(crit) + pNormalHit*float64(normal)
+	for _, dp := range attackDamagePMF(attacker, defender, weapon, skillMult) {
+		sum += float64(dp.dmg) * dp.p
 	}
-	return sum / float64(formula.DamageRandomRange)
+	return sum
 }
 
 // ExpectedTTK は attacker が defender を倒すのに要する撃破所要打数を返す。HP を1撃期待ダメージで割った連続近似で、
