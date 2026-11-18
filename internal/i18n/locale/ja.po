@@ -6659,8 +6659,8 @@ msgstr "残骸"
 msgid "Cargo Pod"
 msgstr "貨物ポッド"
 
-msgid "Search %s (%s)"
-msgstr "%sを探す(%s)"
+msgid "Search %s (unsearched) (%s)"
+msgstr "%s(未)を探す(%s)"
 
 msgid "Open %s (empty) (%s)"
 msgstr "%s(空)を開く(%s)"

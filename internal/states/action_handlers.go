@@ -192,7 +192,7 @@ func startPickup(world w.World) (es.Transition[w.World], error) {
 }
 
 // pickupChoices は拾うメニューの選択肢を返す。探し終えた収納の画面はメニューの上に開き、閉じるとメニューへ戻る。
-// まだ探していない収納は強調色で出し、選ぶとメニューを閉じて探すアクティビティでターンを進める
+// まだ探していない収納は選ぶとメニューを閉じ、探すアクティビティでターンを進める
 func pickupChoices(world w.World) (string, []Choice) {
 	actions := nearbyPickupActions(world)
 	choices := make([]Choice, 0, len(actions))
@@ -204,7 +204,7 @@ func pickupChoices(world w.World) (string, []Choice) {
 			continue
 		}
 		if a.Interaction == gc.InteractionStorage {
-			choices = append(choices, Choice{Label: a.Label, Accent: true, Run: func(world w.World) (es.Transition[w.World], error) {
+			choices = append(choices, Choice{Label: a.Label, Run: func(world w.World) (es.Transition[w.World], error) {
 				player, err := query.GetPlayerEntity(world)
 				if err != nil {
 					return es.Transition[w.World]{}, err
@@ -270,7 +270,7 @@ func storageLabel(world w.World, storage ecs.Entity, dirLabel string) string {
 	name := query.GetEntityName(storage, world)
 	switch {
 	case world.Components.Unsearched.Has(storage):
-		return query.T(world, "Search %s (%s)", name, dirLabel)
+		return query.T(world, "Search %s (unsearched) (%s)", name, dirLabel)
 	case !query.HasStorageItems(world, storage):
 		return query.T(world, "Open %s (empty) (%s)", name, dirLabel)
 	}

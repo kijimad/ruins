@@ -28,8 +28,6 @@ type Choice struct {
 	Indent int
 	// Disabled が真の項目は淡色で出し、カーソルは止まらず選べない。状態で使えない項目を消さずに見せる
 	Disabled bool
-	// Accent は menuframe.Row.Accent へ渡す。選べるまま強調色で出す
-	Accent bool
 }
 
 // ChoiceProps は選択メニューの表示スナップショット
@@ -124,7 +122,7 @@ func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menul
 		if hasValue {
 			cells = styled.TextCells(c.Label, c.Value)
 		}
-		rows[i] = menuframe.Row{Cells: cells, Header: c.Header, Indent: c.Indent, Disabled: c.Disabled, Accent: c.Accent}
+		rows[i] = menuframe.Row{Cells: cells, Header: c.Header, Indent: c.Indent, Disabled: c.Disabled}
 	}
 	perPage := menuframe.ListCapacity(world, false, true)
 	// ページ表示はフッタ行の右端に出す。1ページのメニューは内容を上端から並べる。

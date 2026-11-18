@@ -22,8 +22,6 @@ type Row struct {
 	Indent int
 	// Disabled が真の行は淡色で描く。選べないことを見せるための無効表示で、カーソルは呼び出し側が飛ばす
 	Disabled bool
-	// Accent が真の行は強調色で描く。選べるまま、ほかの行と見分けさせる
-	Accent bool
 }
 
 // ListOpts は一覧描画の方針。HeaderRow は表の先頭に置く列見出し、選択やページ送りの対象には
@@ -65,7 +63,7 @@ func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res
 			items = append(items, headerRow(cellTexts(entry.Item.Cells), colWidths, face, entry.Item.Indent))
 			continue
 		}
-		items = append(items, dataRow(entry.Item.Cells, colWidths, aligns, pg.IsSelectedInPage(entry.Index), entry.Item.Disabled, entry.Item.Accent, face, res, entry.Item.Indent))
+		items = append(items, dataRow(entry.Item.Cells, colWidths, aligns, pg.IsSelectedInPage(entry.Index), entry.Item.Disabled, face, res, entry.Item.Indent))
 	}
 	// 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする
 	if len(rows) > perPage {
@@ -154,9 +152,9 @@ func headerRow(texts []string, colWidths []int, face text.Face, indent int) *uic
 	return indentedRow(indent, colWidths, cells)
 }
 
-// dataRow はデータ行を組む。選択中なら金色の選択バーを敷き文字色を選択色にする。無効行は淡色で、
-// 強調行は強調色で描く。アイコンセルは画像で描く。
-func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected, disabled, accent bool, face text.Face, res resources.UIResources, indent int) *uicore.Container {
+// dataRow はデータ行を組む。選択中なら金色の選択バーを敷き文字色を選択色にする。無効行は淡色で描く。
+// アイコンセルは画像で描く。
+func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, disabled bool, face text.Face, res resources.UIResources, indent int) *uicore.Container {
 	// 非選択は暗く、選択は明るくして、カーソル位置を際立たせる。無効行はさらに淡くして選べないことを示す
 	var textColor color.Color = theme.TextSecondary
 	switch {
@@ -164,8 +162,6 @@ func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, se
 		textColor = theme.TextDisabled
 	case selected:
 		textColor = theme.TextSelected
-	case accent:
-		textColor = theme.TextAccent
 	}
 	cellWidgets := make([]uicore.Widget, len(cells))
 	for i, c := range cells {
