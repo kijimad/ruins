@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">86.6&nbsp;%</td>
-            <td class="headerCovTableEntry">216</td>
-            <td class="headerCovTableEntry">187</td>
+            <td class="headerCovTableEntryMed">86.9&nbsp;%</td>
+            <td class="headerCovTableEntry">222</td>
+            <td class="headerCovTableEntry">193</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-18 11:55:20</td>
+            <td class="headerValue">2026-11-18 13:54:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -253,133 +253,148 @@
 <span id="L191"><span class="lineNum">     191</span>              :         }}, nil</span>
 <span id="L192"><span class="lineNum">     192</span>              : }</span>
 <span id="L193"><span class="lineNum">     193</span>              : </span>
-<span id="L194"><span class="lineNum">     194</span>              : // pickupChoices は拾うメニューの選択肢を返す。収納画面はメニューの上に開き、閉じるとメニューへ戻る</span>
+<span id="L194"><span class="lineNum">     194</span>              : // pickupChoices は拾うメニューの選択肢を返す。収納を選ぶとメニューを閉じ、まだ探していなければ探し始める</span>
 <span id="L195"><span class="lineNum">     195</span>              : func pickupChoices(world w.World) (string, []Choice) {</span>
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         actions := nearbyPickupActions(world)</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         choices := make([]Choice, 0, len(actions))</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         for _, a := range actions {</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 if a.Interaction == gc.InteractionStorage {</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                         choices = append(choices, Choice{Label: a.Label, Run: pushChoice(func() (es.State[w.World], error) {</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                                 return NewStorageMenuState(a.Target)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                         })})</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L204"><span class="lineNum">     204</span>              :                 }</span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 choices = append(choices, Choice{Label: a.Label, Run: func(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                         player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, err</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                         if _, err := activity.ExecuteInteraction(player, a.Target, a.Interaction, world); err != nil {</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, err</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                         if len(nearbyPickupActions(world)) == 0 {</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
-<span id="L217"><span class="lineNum">     217</span>              :                 }})</span>
-<span id="L218"><span class="lineNum">     218</span>              :         }</span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         return &quot;&quot;, choices</span></span>
-<span id="L220"><span class="lineNum">     220</span>              : }</span>
-<span id="L221"><span class="lineNum">     221</span>              : </span>
-<span id="L222"><span class="lineNum">     222</span>              : // nearbyPickupActions は足元と周囲8タイルの収納と、タイルごとにスタックで束ねた床のアイテムを行にする</span>
-<span id="L223"><span class="lineNum">     223</span>              : func nearbyPickupActions(world w.World) []InteractionAction {</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         if err != nil || !world.Components.GridElement.Has(player) {</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         playerGrid := world.Components.GridElement.Get(player)</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         var actions []InteractionAction</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         for dy := consts.Tile(-1); dy &lt;= 1; dy++ {</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 for dx := consts.Tile(-1); dx &lt;= 1; dx++ {</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                         c := consts.Coord[consts.Tile]{X: playerGrid.X + dx, Y: playerGrid.Y + dy}</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                         dirLabel := query.T(world, activity.GetDirectionLabel(playerGrid, &amp;gc.GridElement{Coord: c}))</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                         if storage, ok := interactableAt(world, c, gc.InteractionStorage); ok {</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                                 actions = append(actions, InteractionAction{</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                                         Label:       query.T(world, &quot;Open %s (%s)&quot;, query.GetEntityName(storage, world), dirLabel),</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                                         Target:      storage,</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                                         Interaction: gc.InteractionStorage,</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                                 })</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                         for _, stack := range query.GroupStacks(world, query.PickablesAt(world, c)) {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                                 actions = append(actions, InteractionAction{</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                                         Label:       query.T(world, &quot;Pick up %s (%s)&quot;, query.FormatNameCount(query.GetEntityName(stack.Rep, world), stack.Count), dirLabel),</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                                         Target:      stack.Rep,</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                                         Interaction: gc.InteractionItem,</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                                 })</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L249"><span class="lineNum">     249</span>              :                 }</span>
-<span id="L250"><span class="lineNum">     250</span>              :         }</span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         return actions</span></span>
-<span id="L252"><span class="lineNum">     252</span>              : }</span>
-<span id="L253"><span class="lineNum">     253</span>              : </span>
-<span id="L254"><span class="lineNum">     254</span>              : // getInteractionActions はInteractableに対応するアクションを取得する</span>
-<span id="L255"><span class="lineNum">     255</span>              : func getInteractionActions(world w.World, interactable *gc.Interactable, interactableEntity ecs.Entity, dirLabel string) []InteractionAction {</span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         var result []InteractionAction</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         for _, interaction := range interactable.Interactions {</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 switch interaction {</span></span>
-<span id="L260"><span class="lineNum">     260</span>              :                 case gc.InteractionDoor:</span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                         if world.Components.Door.Has(interactableEntity) {</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                                 door := world.Components.Door.Get(interactableEntity)</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                                 var label string</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                                 if door.IsOpen {</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                                         label = query.T(world, &quot;Close (%s)&quot;, dirLabel)</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                                 } else {</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                                         label = query.T(world, &quot;Open (%s)&quot;, dirLabel)</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                                 result = append(result, InteractionAction{</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                                         Label:       label,</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                                         Target:      interactableEntity,</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                                         Interaction: interaction,</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                                 })</span></span>
-<span id="L274"><span class="lineNum">     274</span>              :                         }</span>
-<span id="L275"><span class="lineNum">     275</span>              :                 case gc.InteractionTalk:</span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                         if world.Components.Name.Has(interactableEntity) {</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                                 result = append(result, InteractionAction{</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                                         Label:       query.T(world, &quot;Talk (%s)&quot;, query.GetEntityName(interactableEntity, world)),</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                                         Target:      interactableEntity,</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                                         Interaction: interaction,</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                                 })</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L283"><span class="lineNum">     283</span>              :                 case gc.InteractionPortalNext:</span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                         result = append(result, InteractionAction{</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Warp (next floor)&quot;),</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L289"><span class="lineNum">     289</span>              :                 case gc.InteractionPortalPrev:</span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                         result = append(result, InteractionAction{</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Warp (previous floor)&quot;),</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L295"><span class="lineNum">     295</span>              :                 case gc.InteractionDungeonEnter:</span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :                         result = append(result, InteractionAction{</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                                 Label:       query.T(world, &quot;Enter ruins&quot;),</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :                                 Target:      interactableEntity,</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :                                 Interaction: interaction,</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                         })</span></span>
-<span id="L301"><span class="lineNum">     301</span>              :                 case gc.InteractionOpenCubeMenu:</span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                         result = append(result, InteractionAction{</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Open cube menu&quot;),</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 case gc.InteractionItem, gc.InteractionMelee, gc.InteractionStorage, gc.InteractionSwap:</span></span>
-<span id="L308"><span class="lineNum">     308</span>              :                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を</span>
-<span id="L309"><span class="lineNum">     309</span>              :                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                 case gc.InteractionIgnite:</span></span>
-<span id="L311"><span class="lineNum">     311</span>              :                         // 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で</span>
-<span id="L312"><span class="lineNum">     312</span>              :                         // タイル単位に組む。ここには来ないが exhaustive のため case を明示する</span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                 case gc.InteractionFeedFuel:</span></span>
-<span id="L314"><span class="lineNum">     314</span>              :                         // 給油も Interactable でなく appendFeedFuelActions が隣接の火を走査して組む。</span>
-<span id="L315"><span class="lineNum">     315</span>              :                         // ここには来ないが exhaustive のため case を明示する</span>
-<span id="L316"><span class="lineNum">     316</span>              :                 }</span>
-<span id="L317"><span class="lineNum">     317</span>              :         }</span>
-<span id="L318"><span class="lineNum">     318</span>              : </span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         return result</span></span>
-<span id="L320"><span class="lineNum">     320</span>              : }</span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 choices = append(choices, Choice{Label: a.Label, Run: func(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, err</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                         result, err := activity.ExecuteInteraction(player, a.Target, a.Interaction, world)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, err</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                         if a.Interaction == gc.InteractionStorage {</span></span>
+<span id="L209"><span class="lineNum">     209</span>              :                                 // 探し始めたか開いたなら閉じ、開く要求が拾うメニューごと開き直す。敵が近くて探せなければ一覧に残す</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                                 if result != nil &amp;&amp; result.Success {</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                                         return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L214"><span class="lineNum">     214</span>              :                         }</span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                         if len(nearbyPickupActions(world)) == 0 {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L219"><span class="lineNum">     219</span>              :                 }})</span>
+<span id="L220"><span class="lineNum">     220</span>              :         }</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         return &quot;&quot;, choices</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : // nearbyPickupActions は足元と周囲8タイルの収納と、タイルごとにスタックで束ねた床のアイテムを行にする</span>
+<span id="L225"><span class="lineNum">     225</span>              : func nearbyPickupActions(world w.World) []InteractionAction {</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         if err != nil || !world.Components.GridElement.Has(player) {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         playerGrid := world.Components.GridElement.Get(player)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         var actions []InteractionAction</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         for dy := consts.Tile(-1); dy &lt;= 1; dy++ {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 for dx := consts.Tile(-1); dx &lt;= 1; dx++ {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                         c := consts.Coord[consts.Tile]{X: playerGrid.X + dx, Y: playerGrid.Y + dy}</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                         dirLabel := query.T(world, activity.GetDirectionLabel(playerGrid, &amp;gc.GridElement{Coord: c}))</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                         if storage, ok := interactableAt(world, c, gc.InteractionStorage); ok {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                                 actions = append(actions, InteractionAction{</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                                         Label:       storageLabel(world, storage, dirLabel),</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                                         Target:      storage,</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                                         Interaction: gc.InteractionStorage,</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                                 })</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                         for _, stack := range query.GroupStacks(world, query.PickablesAt(world, c)) {</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                                 actions = append(actions, InteractionAction{</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                                         Label:       query.T(world, &quot;Pick up %s (%s)&quot;, query.FormatNameCount(query.GetEntityName(stack.Rep, world), stack.Count), dirLabel),</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                                         Target:      stack.Rep,</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                                         Interaction: gc.InteractionItem,</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                                 })</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L251"><span class="lineNum">     251</span>              :                 }</span>
+<span id="L252"><span class="lineNum">     252</span>              :         }</span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         return actions</span></span>
+<span id="L254"><span class="lineNum">     254</span>              : }</span>
+<span id="L255"><span class="lineNum">     255</span>              : </span>
+<span id="L256"><span class="lineNum">     256</span>              : // storageLabel は収納の行の文言を返す。まだ探していない収納、空の収納、中身のある収納を見分けさせる</span>
+<span id="L257"><span class="lineNum">     257</span>              : func storageLabel(world w.World, storage ecs.Entity, dirLabel string) string {</span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         name := query.GetEntityName(storage, world)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L260"><span class="lineNum">     260</span>              :         case world.Components.Unsearched.Has(storage):</span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 return query.T(world, &quot;Search %s (%s)&quot;, name, dirLabel)</span></span>
+<span id="L262"><span class="lineNum">     262</span>              :         case !query.HasStorageItems(world, storage):</span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 return query.T(world, &quot;Open %s (empty) (%s)&quot;, name, dirLabel)</span></span>
+<span id="L264"><span class="lineNum">     264</span>              :         default:</span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 return query.T(world, &quot;Open %s (%s)&quot;, name, dirLabel)</span></span>
+<span id="L266"><span class="lineNum">     266</span>              :         }</span>
+<span id="L267"><span class="lineNum">     267</span>              : }</span>
+<span id="L268"><span class="lineNum">     268</span>              : </span>
+<span id="L269"><span class="lineNum">     269</span>              : // getInteractionActions はInteractableに対応するアクションを取得する</span>
+<span id="L270"><span class="lineNum">     270</span>              : func getInteractionActions(world w.World, interactable *gc.Interactable, interactableEntity ecs.Entity, dirLabel string) []InteractionAction {</span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         var result []InteractionAction</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         for _, interaction := range interactable.Interactions {</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 switch interaction {</span></span>
+<span id="L275"><span class="lineNum">     275</span>              :                 case gc.InteractionDoor:</span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                         if world.Components.Door.Has(interactableEntity) {</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                                 door := world.Components.Door.Get(interactableEntity)</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                                 var label string</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                                 if door.IsOpen {</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                                         label = query.T(world, &quot;Close (%s)&quot;, dirLabel)</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :                                 } else {</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                                         label = query.T(world, &quot;Open (%s)&quot;, dirLabel)</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                                 result = append(result, InteractionAction{</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                                         Label:       label,</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                                         Target:      interactableEntity,</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                                         Interaction: interaction,</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                                 })</span></span>
+<span id="L289"><span class="lineNum">     289</span>              :                         }</span>
+<span id="L290"><span class="lineNum">     290</span>              :                 case gc.InteractionTalk:</span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                         if world.Components.Name.Has(interactableEntity) {</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                                 result = append(result, InteractionAction{</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :                                         Label:       query.T(world, &quot;Talk (%s)&quot;, query.GetEntityName(interactableEntity, world)),</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                                         Target:      interactableEntity,</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                                         Interaction: interaction,</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                                 })</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L298"><span class="lineNum">     298</span>              :                 case gc.InteractionPortalNext:</span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                         result = append(result, InteractionAction{</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Warp (next floor)&quot;),</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                         })</span></span>
+<span id="L304"><span class="lineNum">     304</span>              :                 case gc.InteractionPortalPrev:</span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                         result = append(result, InteractionAction{</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Warp (previous floor)&quot;),</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                         })</span></span>
+<span id="L310"><span class="lineNum">     310</span>              :                 case gc.InteractionDungeonEnter:</span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                         result = append(result, InteractionAction{</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                                 Label:       query.T(world, &quot;Enter ruins&quot;),</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                                 Target:      interactableEntity,</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                                 Interaction: interaction,</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :                         })</span></span>
+<span id="L316"><span class="lineNum">     316</span>              :                 case gc.InteractionOpenCubeMenu:</span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                         result = append(result, InteractionAction{</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                                 Label:       query.T(world, &quot;Open cube menu&quot;),</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                                 Target:      interactableEntity,</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :                                 Interaction: interaction,</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :                         })</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 case gc.InteractionItem, gc.InteractionMelee, gc.InteractionStorage, gc.InteractionSwap:</span></span>
+<span id="L323"><span class="lineNum">     323</span>              :                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を</span>
+<span id="L324"><span class="lineNum">     324</span>              :                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 case gc.InteractionIgnite:</span></span>
+<span id="L326"><span class="lineNum">     326</span>              :                         // 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で</span>
+<span id="L327"><span class="lineNum">     327</span>              :                         // タイル単位に組む。ここには来ないが exhaustive のため case を明示する</span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :                 case gc.InteractionFeedFuel:</span></span>
+<span id="L329"><span class="lineNum">     329</span>              :                         // 給油も Interactable でなく appendFeedFuelActions が隣接の火を走査して組む。</span>
+<span id="L330"><span class="lineNum">     330</span>              :                         // ここには来ないが exhaustive のため case を明示する</span>
+<span id="L331"><span class="lineNum">     331</span>              :                 }</span>
+<span id="L332"><span class="lineNum">     332</span>              :         }</span>
+<span id="L333"><span class="lineNum">     333</span>              : </span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :         return result</span></span>
+<span id="L335"><span class="lineNum">     335</span>              : }</span>
         </pre>
               </td>
             </tr>

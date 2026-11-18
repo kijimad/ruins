@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">73.2&nbsp;%</td>
-            <td class="headerCovTableEntry">97</td>
-            <td class="headerCovTableEntry">71</td>
+            <td class="headerCovTableEntryLo">74.0&nbsp;%</td>
+            <td class="headerCovTableEntry">100</td>
+            <td class="headerCovTableEntry">74</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-18 11:55:20</td>
+            <td class="headerValue">2026-11-18 13:54:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -108,7 +108,7 @@
 <span id="L46"><span class="lineNum">      46</span>              :         case gc.InteractionItem:</span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return executeItem(actor, target, world)</span></span>
 <span id="L48"><span class="lineNum">      48</span>              :         case gc.InteractionStorage:</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 return executeStorage(target, world)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 return executeStorage(actor, target, world)</span></span>
 <span id="L50"><span class="lineNum">      50</span>              :         case gc.InteractionMelee:</span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 return executeMelee(actor, target, world)</span></span>
 <span id="L52"><span class="lineNum">      52</span>              :         case gc.InteractionOpenCubeMenu:</span>
@@ -241,16 +241,20 @@
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         return &amp;ActionResult{Success: true, ActivityName: gc.BehaviorFeedFuel, Message: &quot;opened fuel feeding&quot;}, nil</span></span>
 <span id="L180"><span class="lineNum">     180</span>              : }</span>
 <span id="L181"><span class="lineNum">     181</span>              : </span>
-<span id="L182"><span class="lineNum">     182</span>              : func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {</span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(storageEntity)); err != nil {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;storage menu state change request error: %w&quot;, err)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         return &amp;ActionResult{Success: true, ActivityName: gc.BehaviorStorage, Message: &quot;opened storage&quot;}, nil</span></span>
-<span id="L187"><span class="lineNum">     187</span>              : }</span>
-<span id="L188"><span class="lineNum">     188</span>              : </span>
-<span id="L189"><span class="lineNum">     189</span>              : func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {</span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         return Execute(NewMeleeActivity(target), actor, world)</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : // executeStorage はまだ探していない収納なら探すアクティビティを始め、探し終えた収納なら収納画面を開く</span>
+<span id="L183"><span class="lineNum">     183</span>              : func executeStorage(actor, storageEntity ecs.Entity, world w.World) (*ActionResult, error) {</span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         if world.Components.Unsearched.Has(storageEntity) {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 return Execute(NewSearchActivity(storageEntity, world), actor, world)</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(storageEntity)); err != nil {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;storage menu state change request error: %w&quot;, err)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         return &amp;ActionResult{Success: true, ActivityName: gc.BehaviorStorage, Message: &quot;opened storage&quot;}, nil</span></span>
+<span id="L191"><span class="lineNum">     191</span>              : }</span>
+<span id="L192"><span class="lineNum">     192</span>              : </span>
+<span id="L193"><span class="lineNum">     193</span>              : func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         return Execute(NewMeleeActivity(target), actor, world)</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
