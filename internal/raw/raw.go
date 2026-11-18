@@ -272,7 +272,7 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		SpriteSheetName: spriteSheetName,
 		SpriteKey:       spriteKey,
 		AnimKeys:        PtrSlice(item.AnimKeys),
-		Depth:           gc.DepthNumRug,
+		Depth:           gc.DepthNumItem,
 	}
 
 	if item.Consumable != nil {

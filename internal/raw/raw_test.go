@@ -157,7 +157,7 @@ SpriteKey = "field_item"
 	assert.NotNil(t, entitySpec.SpriteRender, "SpriteRenderコンポーネントが設定されていない")
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName, "SpriteSheetNameが正しくない")
 	assert.Equal(t, "field_item", entitySpec.SpriteRender.SpriteKey, "SpriteKeyが正しくない")
-	assert.Equal(t, gc.DepthNumRug, entitySpec.SpriteRender.Depth, "Depthが正しくない")
+	assert.Equal(t, gc.DepthNumItem, entitySpec.SpriteRender.Depth, "Depthが正しくない")
 }
 
 func TestGenerateMaterialWithoutSprite(t *testing.T) {
