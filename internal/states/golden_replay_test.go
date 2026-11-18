@@ -435,7 +435,7 @@ var goldenCases = []struct {
 		},
 		steps: []replayStep{{shot: true}},
 	},
-	// PickupMenuStorage は拾うメニューの、まだ探していない収納・空の収納・アイテムの行の表記を覆う
+	// PickupMenuStorage は拾うメニューの、まだ探していない収納・空の収納・アイテムの行の表記を写す
 	{
 		name: "PickupMenuStorage",
 		build: func(world w.World) ([]es.State[w.World], error) {
