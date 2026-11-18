@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -278,4 +279,39 @@ func TestCanMoveTo(t *testing.T) {
 		canMove := CanMoveTo(world, consts.Coord[consts.Tile]{X: 11, Y: 9}, consts.Coord[consts.Tile]{X: 10, Y: 10}, player)
 		assert.True(t, canMove, "隣接1方向のみ壁なら斜め移動は可能")
 	})
+}
+
+func TestMoveBehavior_Validate_キューブを置き去りにする移動を止める(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name    string
+		cubeY   consts.Tile
+		destY   consts.Tile
+		wantErr bool
+	}{
+		{"南端の行のキューブを残して北へシフトする移動は止める", 25, 9, true},
+		{"キューブが南端の行になければ北へシフトしてよい", 15, 9, false},
+		{"北へシフトしない移動は南端の行のキューブがあってもよい", 25, 11, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			*query.EnsureSeamlessBand(world) = gc.SeamlessBand{Active: true, ChunkW: 20, ChunkH: 10, Cols: 1, Rows: 3}
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			_, err = lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 12, Y: tt.cubeY})
+			require.NoError(t, err)
+
+			err = (&MoveBehavior{}).Validate(NewMoveActivity(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: tt.destY}}), player, world)
+
+			if !tt.wantErr {
+				assert.NoError(t, err)
+				return
+			}
+			var ue *UserError
+			require.ErrorAs(t, err, &ue)
+			assert.Equal(t, query.T(world, "I can't leave the cube behind."), ue.Msg)
+		})
+	}
 }

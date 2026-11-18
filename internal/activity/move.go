@@ -89,6 +89,10 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return fmt.Errorf("destination is not movable")
 	}
 
+	if world.Components.Player.Has(actor) && query.LeavesCubeBehind(world, p.Destination.Coord) {
+		return &UserError{Msg: query.T(world, "I can't leave the cube behind.")}
+	}
+
 	// 所持重量が最大の1.5倍を超えていたら動けない
 	if world.Components.WeightCapacity.Has(actor) {
 		cw := world.Components.WeightCapacity.Get(actor)

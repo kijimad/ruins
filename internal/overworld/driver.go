@@ -250,7 +250,7 @@ func (dr *Driver) warnStrandedCube(world w.World) {
 	for _, tile := range query.CubeTiles(world) {
 		if dr.band.InSouthRow(tile.Y) {
 			gamelog.New(query.GetGameLog(world)).
-				Markup(query.T(world, "The cube is too far behind. Go further north and it will be left behind.")).
+				Markup(query.T(world, "The cube is too far behind. Bring it along to go further north.")).
 				Log()
 			return
 		}

@@ -448,7 +448,7 @@ func TestDriver_MaybeShift_キューブが南端の行に入ると警告する(t
 
 			warned := false
 			for _, e := range query.GetGameLog(world).GetRecentEntries(10) {
-				if e.Text() == query.T(world, "The cube is too far behind. Go further north and it will be left behind.") {
+				if e.Text() == query.T(world, "The cube is too far behind. Bring it along to go further north.") {
 					warned = true
 				}
 			}

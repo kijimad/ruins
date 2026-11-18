@@ -52,6 +52,22 @@ func (sb SeamlessBand) AbsChunkRow(localY consts.Tile) consts.Chunk {
 	return consts.Chunk(int(localY)/int(sb.ChunkH)) - sb.NorthIndex
 }
 
+// ShiftsNorthAt はプレイヤーが帯ローカル Y の localY に立つと帯が北へシフトするかを返す。
+// 中央の行より北へ出たらシフトする。
+func (sb SeamlessBand) ShiftsNorthAt(localY consts.Tile) bool {
+	return localY < (sb.Rows / 2).Tiles(sb.ChunkH)
+}
+
+// SouthRowTop は南端の行の上端の帯ローカル Y を返す。南端の行は次の北シフトで破棄される。
+func (sb SeamlessBand) SouthRowTop() consts.Tile {
+	return (sb.Rows - 1).Tiles(sb.ChunkH)
+}
+
+// InSouthRow は帯ローカル Y が南端の行、すなわち次の北シフトで破棄される行にあるかを返す。
+func (sb SeamlessBand) InSouthRow(localY consts.Tile) bool {
+	return localY >= sb.SouthRowTop()
+}
+
 // SpawnChunkY はプレイヤーが湧いた位置の絶対チャンク Y。奥行きの起点。プレイヤーは初期帯の中央行に
 // 湧くので Rows/2 で確定し、以後 NorthIndex がいくつでも変わらない不変値になる。
 func (sb SeamlessBand) SpawnChunkY() consts.Chunk {

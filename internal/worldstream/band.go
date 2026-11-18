@@ -59,20 +59,19 @@ func (b *Band) Rows() consts.Chunk { return b.rows }
 // Height は帯の総高。帯ローカル Y の有効範囲は [0, Height())。
 func (b *Band) Height() consts.Tile { return b.rows.Tiles(b.chunkH) }
 
-// centerSlot は中央チャンクの行スロット番号。rows が奇数なら真ん中。
-func (b *Band) centerSlot() consts.Chunk { return b.rows / 2 }
+// layout は行の判定に要る寸法だけを持つ帯の永続状態を返す。判定は永続状態の側に1つだけ置く。
+func (b *Band) layout() gc.SeamlessBand { return gc.SeamlessBand{ChunkH: b.chunkH, Rows: b.rows} }
 
-// ShouldShiftNorth はプレイヤーの帯ローカル Y が中央チャンクを北へ出たかを返す。判定はヒステリシスを持つ。
-// 北は -Y なので、中央行より上、すなわち localY が中央行の上端未満へ入ったらシフトする。
+// ShouldShiftNorth はプレイヤーの帯ローカル Y が中央チャンクを北へ出たかを返す。
 func (b *Band) ShouldShiftNorth(playerLocalY consts.Tile) bool {
-	return playerLocalY < b.centerSlot().Tiles(b.chunkH)
+	return b.layout().ShiftsNorthAt(playerLocalY)
 }
 
 // southRowTop は南端の行の上端の帯ローカル Y を返す。南端の行は次の北シフトで破棄される。
-func (b *Band) southRowTop() consts.Tile { return (b.rows - 1).Tiles(b.chunkH) }
+func (b *Band) southRowTop() consts.Tile { return b.layout().SouthRowTop() }
 
 // InSouthRow は帯ローカル Y が南端の行、すなわち次の北シフトで破棄される行にあるかを返す。
-func (b *Band) InSouthRow(localY consts.Tile) bool { return localY >= b.southRowTop() }
+func (b *Band) InSouthRow(localY consts.Tile) bool { return b.layout().InSouthRow(localY) }
 
 // ShiftNorth は帯を北へ1チャンク進める。
 // 南端行の破棄 → リベース → 座標キー Map 追従 → northIndex 前進 → 北端行の生成。

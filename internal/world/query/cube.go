@@ -18,6 +18,20 @@ func CubeTiles(world w.World) []consts.Coord[consts.Tile] {
 	return out
 }
 
+// LeavesCubeBehind はプレイヤーが帯ローカルの dest へ動くと、帯の北シフトでキューブが破棄されるかを返す。
+func LeavesCubeBehind(world w.World, dest consts.Coord[consts.Tile]) bool {
+	sb := GetSeamlessBand(world)
+	if sb == nil || !sb.Active || !sb.ShiftsNorthAt(dest.Y) {
+		return false
+	}
+	for _, tile := range CubeTiles(world) {
+		if sb.InSouthRow(tile.Y) {
+			return true
+		}
+	}
+	return false
+}
+
 // DiscoveredChunks は探索済みタイルを含むチャンクの集合を絶対チャンク座標で返す。タイル単位の
 // フォグ ExploredTiles をチャンク粒度へ畳み込み、マクロ地図のフォグにする。StageField が無ければ nil。
 // 全画面の地形俯瞰図と HUD の右上地図が同じフォグを共有する。
