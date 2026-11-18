@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (81.9%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (87.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (79.7%)</option>
 				
@@ -643,7 +643,7 @@
 				
 				<option value="file293">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file294">github.com/kijimaD/ruins/internal/systems/render3d.go (60.9%)</option>
+				<option value="file294">github.com/kijimaD/ruins/internal/systems/render3d.go (64.8%)</option>
 				
 				<option value="file295">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.4%)</option>
 				
@@ -1742,7 +1742,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1896,8 +1896,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -14630,10 +14630,12 @@ const (
         DepthNumFloor DepthNum = iota
         // DepthNumDecal は床の模様。例: 土のしみ、ワープホール。3D では立て板にせず地面に寝かせて描く
         DepthNumDecal
-        // DepthNumRug は床に置くもの。例: アイテム、焚き火
+        // DepthNumRug は床に置く低いもの。例: 焚き火、開いた扉
         DepthNumRug
-        // DepthNumTaller は高さのあるもの。例: 操作対象エンティティ、敵シンボル、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く
+        // DepthNumTaller は高さのあるもの。例: テーブル、棚、閉じた扉、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く
         DepthNumTaller
+        // DepthNumItem は拾えるアイテム。テーブルのような高さのある置物と同じマスにあっても、その上に出す
+        DepthNumItem
         // DepthNumPlayer は操作キャラを最も手前に表示する
         DepthNumPlayer
 )
@@ -30088,7 +30090,7 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
                 SpriteSheetName: spriteSheetName,
                 SpriteKey:       spriteKey,
                 AnimKeys:        PtrSlice(item.AnimKeys),
-                Depth:           gc.DepthNumRug,
+                Depth:           gc.DepthNumItem,
 </span>        }
 
         <span class="cov8" title="1">if item.Consumable != nil </span>{
@@ -34325,7 +34327,6 @@ const (
         N1 SpriteDepth = 1
         N2 SpriteDepth = 2
         N3 SpriteDepth = 3
-        N4 SpriteDepth = 4
 )
 
 // Valid indicates whether the value is a known member of the SpriteDepth enum.
@@ -34338,8 +34339,6 @@ func (e SpriteDepth) Valid() bool {
         case N2:
                 <span class="cov0" title="0">return true</span>
         case N3:
-                <span class="cov0" title="0">return true</span>
-        case N4:
                 <span class="cov0" title="0">return true</span>
         default:
                 <span class="cov0" title="0">return false</span>
@@ -47521,10 +47520,10 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
                 }
                 // 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない。
                 // 地面に寝かせるものは床と同じく記憶エリアにも描く
-                <span class="cov0" title="0">if !vis </span>{
+                <span class="cov8" title="1">if !vis </span>{
                         <span class="cov0" title="0">continue</span>
                 }
-                <span class="cov0" title="0">if f, ok := poses[g.Coord]; ok &amp;&amp; sr.Shape == rawschema.Facing </span>{
+                <span class="cov8" title="1">if f, ok := poses[g.Coord]; ok &amp;&amp; sr.Shape == rawschema.Facing </span>{
                         <span class="cov0" title="0">drawn := func(n consts.Coord[consts.Tile]) bool </span>{
                                 <span class="cov0" title="0">_, _, v := visTint(&amp;gc.GridElement{Coord: n})
                                 return v &amp;&amp; projector.TileOnScreen(n, render3d.BillboardHeight)
@@ -47532,16 +47531,16 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
                         <span class="cov0" title="0">sys.addSlab(&amp;quads, facingFaces(g.Coord, f, poses, drawn), atlas, ux, uy, uw, uh, tint)
                         continue</span>
                 }
-                <span class="cov0" title="0">base := render3d.At(fx+0.5, 0, fz+0.5)
+                <span class="cov8" title="1">base := render3d.At(fx+0.5, 0, fz+0.5)
                 const bw = 0.45
                 const bh = render3d.BillboardHeight
                 b0 := render3d.Add(base, render3d.Scale(right, -bw))
                 b1 := render3d.Add(base, render3d.Scale(right, bw))
                 top := render3d.At(0, bh, 0)
                 tl, tr := render3d.Add(b0, top), render3d.Add(b1, top)
-</span>                // 立て板の上下は SpriteRender.Depth で決める。同一タイルのプレイヤーとアイテムは4隅が
-                // 一致して奥行きが同値になるので、この副キーが無いと走査順で前後がばらつく
-                <span class="cov0" title="0">depth := int(sr.Depth)
+</span>                // 立て板の上下は SpriteRender.Depth で決める。同一タイルの立て板は4隅が一致して奥行きが
+                // 同値になるので、この副キーが無いと走査順で前後がばらつく
+                <span class="cov8" title="1">depth := int(sr.Depth)
                 sys.addQuad(&amp;quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
                 quads[len(quads)-1].depth = depth</span>
         }
