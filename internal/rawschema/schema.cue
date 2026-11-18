@@ -764,6 +764,9 @@ import (
 // 脱出の装置。使うと惑星を脱出してクリアになる
 #EscapeDevice: {}
 
+// キューブの核。使うと隣に新しいキューブが組み上がる
+#CubeCore: {}
+
 // タイルの植生
 #Foliage: "grass" | "forest" @rawgen(prefix)
 
@@ -917,6 +920,9 @@ import (
 
 	// 脱出の装置。使うとクリアになる
 	escapeDevice?: #EscapeDevice
+
+	// キューブの核。使うと隣に新しいキューブが組み上がる
+	cubeCore?: #CubeCore
 }
 
 // アイテムコレクション。各エントリを chance の確率で独立に判定する。複数当選することもありうる

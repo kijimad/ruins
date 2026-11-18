@@ -6542,6 +6542,21 @@ msgstr "大容量の電源セル。脱出装置を動かせそうだ"
 msgid "Escape Core"
 msgstr "脱出コア"
 
+msgid "Cube Core"
+msgstr "キューブの核"
+
+msgid "The heart of a cargo cube. Use it to assemble a new cube beside you."
+msgstr "荷運びキューブの心臓部。使うとそばに新しいキューブが組み上がる"
+
+msgid "The cube can only be assembled outdoors."
+msgstr "キューブは地上でしか組み上げられない。"
+
+msgid "There is no room to assemble the cube."
+msgstr "キューブを組み上げる場所がない。"
+
+msgid "A new cube has been assembled."
+msgstr "新しいキューブが組み上がった。"
+
 msgid "A repaired escape device. Use it to leave this planet."
 msgstr "直した脱出装置。使えばこの惑星を離れられる"
 

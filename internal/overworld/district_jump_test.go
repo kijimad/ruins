@@ -3,12 +3,15 @@ package overworld
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -41,6 +44,34 @@ func TestDriver_JumpToDistrict_北で一番近い区域の南の門の前へ行�
 	}
 
 	require.ErrorIs(t, s.JumpToDistrict(world, "no_such"), errDistrictNotFound)
+}
+
+func TestDriver_JumpToDistrict_キューブが2台あっても別々のマスに置く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, 7, 9), &NewGameParams{RunSeed: 5})
+	require.NoError(t, s.Start(world))
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnCube(world, world.Components.GridElement.Get(player).Add(consts.Coord[consts.Tile]{X: -2}))
+	require.NoError(t, err)
+
+	require.NoError(t, s.JumpToDistrict(world, "lab_campus"))
+
+	tiles := map[consts.Coord[consts.Tile]]bool{world.Components.GridElement.Get(player).Coord: true}
+	for _, c := range query.CubeTiles(world) {
+		tiles[c] = true
+	}
+	assert.Len(t, tiles, 3, "プレイヤーと2台のキューブがそれぞれ別のマスにいる")
+
+	onField := map[consts.Coord[consts.Tile]]bool{}
+	q := query.ActiveFilter2[gc.GridElement, gc.LocationOnField](world).Without(ecs.C[gc.Cube]()).Query()
+	for q.Next() {
+		onField[world.Components.GridElement.Get(q.Entity()).Coord] = true
+	}
+	for _, c := range query.CubeTiles(world) {
+		assert.False(t, onField[c], "キューブは置物や落ちている物の上に置かない")
+	}
 }
 
 func TestNearestDistrictNorth_先の種類に重なって出ない区域しか無ければ見つからない(t *testing.T) {
