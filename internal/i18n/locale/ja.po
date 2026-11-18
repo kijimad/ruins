@@ -6467,6 +6467,30 @@ msgstr "乾いた土"
 msgid "Cracked Ground"
 msgstr "地割れ"
 
+msgid "Gravel"
+msgstr "砂利"
+
+msgid "Fine gravel strewn across frozen soil."
+msgstr "凍った土に散らばる細かい砂利"
+
+msgid "Frost"
+msgstr "霜"
+
+msgid "A thin crust of frost on the ground."
+msgstr "地面に薄く張った霜"
+
+msgid "Flat Stones"
+msgstr "平たい石"
+
+msgid "A few flat stones half-sunk in the soil."
+msgstr "土に半ば埋もれた平たい石がいくつか"
+
+msgid "Frozen Puddle"
+msgstr "凍った水たまり"
+
+msgid "A shallow puddle frozen solid."
+msgstr "浅い水たまりが凍りついている"
+
 msgid "Shrub"
 msgstr "灌木"
 

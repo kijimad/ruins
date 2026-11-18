@@ -22301,6 +22301,50 @@
 [[props]]
   blockPass = false
   blockView = false
+  description = "Fine gravel strewn across frozen soil."
+  id = "soil_gravel"
+  name = "Gravel"
+  [props.spriteRender]
+    depth = 1
+    spriteKey = "soil_gravel"
+    spriteSheetName = "field"
+
+[[props]]
+  blockPass = false
+  blockView = false
+  description = "A thin crust of frost on the ground."
+  id = "soil_frost"
+  name = "Frost"
+  [props.spriteRender]
+    depth = 1
+    spriteKey = "soil_frost"
+    spriteSheetName = "field"
+
+[[props]]
+  blockPass = false
+  blockView = false
+  description = "A few flat stones half-sunk in the soil."
+  id = "soil_stones"
+  name = "Flat Stones"
+  [props.spriteRender]
+    depth = 1
+    spriteKey = "soil_stones"
+    spriteSheetName = "field"
+
+[[props]]
+  blockPass = false
+  blockView = false
+  description = "A shallow puddle frozen solid."
+  id = "soil_ice"
+  name = "Frozen Puddle"
+  [props.spriteRender]
+    depth = 1
+    spriteKey = "soil_ice"
+    spriteSheetName = "field"
+
+[[props]]
+  blockPass = false
+  blockView = false
   description = "A low, leafy shrub."
   hp = 6
   id = "bush"
@@ -22848,6 +22892,22 @@
     ref = "soil_crack"
     weight = 2
 
+  [[scatterZones.soil]]
+    ref = "soil_gravel"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_frost"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_stones"
+    weight = 2
+
+  [[scatterZones.soil]]
+    ref = "soil_ice"
+    weight = 1
+
 [[scatterZones]]
   grassDensity = 0.19
   ground = "dirt_tundra"
@@ -22943,6 +23003,22 @@
   [[scatterZones.soil]]
     ref = "soil_crack"
     weight = 2
+
+  [[scatterZones.soil]]
+    ref = "soil_gravel"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_frost"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_stones"
+    weight = 2
+
+  [[scatterZones.soil]]
+    ref = "soil_ice"
+    weight = 1
 
 [[seasons]]
   id = "spring"
