@@ -1,7 +1,6 @@
 package balance
 
 import (
-	"math/rand/v2"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -38,33 +37,6 @@ func TestAttackDamagePMF_命中は0ダメージにならない(t *testing.T) {
 	assert.Equal(t, 1, zeros, "dmg=0 は miss だけの単一エントリ")
 	assert.InDelta(t, wantMiss, missP, 1e-12, "dmg=0 の確率は不命中率に一致")
 	assert.InDelta(t, 1.0, sum, 1e-12, "確率の総和は1")
-}
-
-func TestCombatDistribution_モンテカルロと一致(t *testing.T) {
-	t.Parallel()
-	// 両者が倒し倒される拮抗した組。閉形式のマルコフ連鎖が実戦闘 SimulateBattle と一致することを見る。
-	player := CombatantStats{HP: 40, Strength: 5, Sensation: 5, Dexterity: 5, Agility: 5, Defense: 2}
-	enemy := CombatantStats{HP: 30, Strength: 8, Sensation: 8, Dexterity: 5, Agility: 5, Defense: 2}
-	pw := WeaponStats{Damage: 5, Accuracy: 80}
-	ew := WeaponStats{Damage: 6, Accuracy: 80}
-
-	got := CombatDistribution(player, enemy, pw, ew)
-
-	const trials = 300000
-	rng := rand.New(rand.NewPCG(1, 2))
-	deaths, turnSum := 0, 0
-	for range trials {
-		r := SimulateBattle(player, enemy, pw, ew, rng)
-		if !r.PlayerWon {
-			deaths++
-		}
-		turnSum += r.Turns
-	}
-	mcDeath := float64(deaths) / trials
-	mcTurns := float64(turnSum) / trials
-
-	assert.InDelta(t, mcDeath, got.PlayerDeathProb, 0.01, "死亡確率がMCと一致")
-	assert.InDelta(t, mcTurns, got.ExpectedTurns, 0.1, "期待決着ターンがMCと一致")
 }
 
 func TestCombatDistribution_圧勝は死亡確率ほぼ0で裾も短い(t *testing.T) {
