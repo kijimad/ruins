@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">88.4&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">69</td>
-            <td class="headerCovTableEntry">61</td>
+            <td class="headerCovTableEntry">69</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-18 00:19:42</td>
+            <td class="headerValue">2026-11-18 11:55:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -108,12 +108,12 @@
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         pr, err := loadBench(prPath)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;read pr: %w&quot;, err)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;read pr: %w&quot;, err)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         for _, line := range benchRegressions(base, pr, threshold) {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 if _, err := fmt.Fprintln(out, line); err != nil {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                         return err</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L55"><span class="lineNum">      55</span>              :         }</span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L57"><span class="lineNum">      57</span>              : }</span>
@@ -133,12 +133,12 @@
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         for r.Scan() {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 res, ok := r.Result().(*benchfmt.Result)</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L75"><span class="lineNum">      75</span>              :                 }</span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 v, ok := res.Value(&quot;sec/op&quot;)</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                         if v, ok = res.Value(&quot;ns/op&quot;); !ok {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                                 continue</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                         if v, ok = res.Value(&quot;ns/op&quot;); !ok {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L80"><span class="lineNum">      80</span>              :                         }</span>
 <span id="L81"><span class="lineNum">      81</span>              :                 }</span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 k := benchKey{res.GetConfig(&quot;pkg&quot;), res.Name.String()}</span></span>
@@ -163,7 +163,7 @@
 <span id="L101"><span class="lineNum">     101</span>              :                 }</span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 bm, pm := benchMedian(bvals), benchMedian(pvals)</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 if bm &lt;= 0 || pm &lt;= 0 {</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L105"><span class="lineNum">     105</span>              :                 }</span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 a := byPkg[k.pkg]</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 if a == nil {</span></span>

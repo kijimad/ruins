@@ -169,7 +169,7 @@
 				
 				<option value="file56">github.com/kijimaD/ruins/internal/cmd/balance_report.go (0.0%)</option>
 				
-				<option value="file57">github.com/kijimaD/ruins/internal/cmd/benchgate.go (89.8%)</option>
+				<option value="file57">github.com/kijimaD/ruins/internal/cmd/benchgate.go (100.0%)</option>
 				
 				<option value="file58">github.com/kijimaD/ruins/internal/cmd/cmd.go (100.0%)</option>
 				
@@ -183,7 +183,7 @@
 				
 				<option value="file63">github.com/kijimaD/ruins/internal/cmd/genreadme.go (96.6%)</option>
 				
-				<option value="file64">github.com/kijimaD/ruins/internal/cmd/layoutpng.go (67.4%)</option>
+				<option value="file64">github.com/kijimaD/ruins/internal/cmd/layoutpng.go (88.4%)</option>
 				
 				<option value="file65">github.com/kijimaD/ruins/internal/cmd/play.go (0.0%)</option>
 				
@@ -9743,11 +9743,11 @@ func benchGate(out io.Writer, basePath, prPath string, threshold float64) error 
 </span>        }
         <span class="cov8" title="1">pr, err := loadBench(prPath)
         if err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("read pr: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("read pr: %w", err)
 </span>        }
         <span class="cov8" title="1">for _, line := range benchRegressions(base, pr, threshold) </span>{
                 <span class="cov8" title="1">if _, err := fmt.Fprintln(out, line); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>
@@ -9768,12 +9768,12 @@ func loadBench(path string) (map[benchKey][]float64, error) {
         for r.Scan() </span>{
                 <span class="cov8" title="1">res, ok := r.Result().(*benchfmt.Result)
                 if !ok </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">v, ok := res.Value("sec/op")
                 if !ok </span>{
-                        <span class="cov0" title="0">if v, ok = res.Value("ns/op"); !ok </span>{
-                                <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">if v, ok = res.Value("ns/op"); !ok </span>{
+                                <span class="cov8" title="1">continue</span>
                         }
                 }
                 <span class="cov8" title="1">k := benchKey{res.GetConfig("pkg"), res.Name.String()}
@@ -9798,7 +9798,7 @@ func benchRegressions(base, pr map[benchKey][]float64, threshold float64) []stri
                 }
                 <span class="cov8" title="1">bm, pm := benchMedian(bvals), benchMedian(pvals)
                 if bm &lt;= 0 || pm &lt;= 0 </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">a := byPkg[k.pkg]
                 if a == nil </span>{
@@ -10491,24 +10491,24 @@ var CmdLayoutPNG = &amp;cli.Command{
 }
 
 func runLayoutPNG(_ context.Context, cmd *cli.Command) error {
-        <span class="cov0" title="0">if !cmd.Args().Present() </span>{
-                <span class="cov0" title="0">return errNoLayoutArg
+        <span class="cov8" title="1">if !cmd.Args().Present() </span>{
+                <span class="cov8" title="1">return errNoLayoutArg
 </span>        }
-        <span class="cov0" title="0">loader := maptemplate.NewTemplateLoader()
+        <span class="cov8" title="1">loader := maptemplate.NewTemplateLoader()
         if err := loader.RegisterAllChunks([]string{"levels/chunks", "levels/facilities", "levels/layouts"}); err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov0" title="0">if err := loader.RegisterAllPalettes([]string{"levels/palettes"}); err != nil </span>{
+        <span class="cov8" title="1">if err := loader.RegisterAllPalettes([]string{"levels/palettes"}); err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov0" title="0">_, _, cells, err := loader.LoadTemplateByName(cmd.Args().First(), cmd.Uint64("seed"))
+        <span class="cov8" title="1">_, _, cells, err := loader.LoadTemplateByName(cmd.Args().First(), cmd.Uint64("seed"))
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov0" title="0">if err := writePNG(cmd.String(outFlag), renderLayout(cells, layoutCellSize)); err != nil </span>{
+        <span class="cov8" title="1">if err := writePNG(cmd.String(outFlag), renderLayout(cells, layoutCellSize)); err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov0" title="0">return writeLegend(cmd.Writer, cells)</span>
+        <span class="cov8" title="1">return writeLegend(cmd.Writer, cells)</span>
 }
 
 var (
