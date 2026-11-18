@@ -1238,7 +1238,8 @@ import (
 	id!:              #EntityID
 	name!:            #EntityName
 	spriteSheetName!: #SpriteSheetName
-	spriteKey!:       #SpriteKey
+	// 跡の形の候補。置くたびにこの中から1つを選ぶ
+	spriteKeys!: [...#SpriteKey] & [_, ...]
 }
 
 #RGBAColor: {

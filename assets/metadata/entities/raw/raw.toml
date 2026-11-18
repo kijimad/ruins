@@ -18579,7 +18579,7 @@
   id = "glow_bug"
   movementPattern = "random"
   name = "Glow Bug"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "golden_slime"
   spriteSheetName = "field"
   [members.abilities]
@@ -18703,7 +18703,7 @@
   id = "dream_moth"
   movementPattern = "random"
   name = "Dream Moth"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "dream_fly"
   spriteSheetName = "field"
   [members.abilities]
@@ -18722,7 +18722,7 @@
   id = "dream_whale"
   movementPattern = "random"
   name = "Dream Whale"
-  remainsId = "blood_stain"
+  remainsId = "blue_blood_stain"
   spriteKey = "dream_whale"
   spriteSheetName = "field"
   [members.abilities]
@@ -18741,7 +18741,7 @@
   id = "giant_bee"
   movementPattern = "random"
   name = "Giant Bee"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "dream_fly"
   spriteSheetName = "field"
   [members.abilities]
@@ -18901,7 +18901,7 @@
   id = "poison_frog"
   movementPattern = "random"
   name = "Poison Frog"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "dark_clab"
   spriteSheetName = "field"
   [members.abilities]
@@ -18920,7 +18920,7 @@
   id = "poison_spider"
   movementPattern = "wallHug"
   name = "Poison Spider"
-  remainsId = "blood_stain"
+  remainsId = "blue_blood_stain"
   spriteKey = "black_spider"
   spriteSheetName = "field"
   [members.abilities]
@@ -18958,7 +18958,7 @@
   id = "ice_dog"
   movementPattern = "random"
   name = "Ice Dog"
-  remainsId = "blood_stain"
+  remainsId = "blue_blood_stain"
   spriteKey = "ice_dog"
   spriteSheetName = "field"
   [members.abilities]
@@ -19004,7 +19004,7 @@
   id = "floating_eye"
   movementPattern = "random"
   name = "Floating Eye"
-  remainsId = "blood_stain"
+  remainsId = "blue_blood_stain"
   spriteKey = "red_ball_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -19115,7 +19115,7 @@
   id = "ash_bug"
   movementPattern = "random"
   name = "Ash Bug"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "golden_slime"
   spriteSheetName = "field"
   [members.abilities]
@@ -19180,7 +19180,7 @@
   id = "purple_floater"
   movementPattern = "random"
   name = "Purple Floater"
-  remainsId = "blood_stain"
+  remainsId = "blue_blood_stain"
   spriteKey = "violet_ball"
   spriteSheetName = "field"
   [members.abilities]
@@ -19199,7 +19199,7 @@
   id = "green_devourer"
   movementPattern = "random"
   name = "Green Devourer"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "green_eater"
   spriteSheetName = "field"
   [members.abilities]
@@ -19295,7 +19295,7 @@
   id = "butterfly"
   movementPattern = "random"
   name = "Butterfly"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "butterfly"
   spriteSheetName = "field"
   [members.abilities]
@@ -19509,7 +19509,7 @@
   id = "dark_crab"
   movementPattern = "random"
   name = "Dark Crab"
-  remainsId = "blood_stain"
+  remainsId = "blue_blood_stain"
   spriteKey = "dark_clab"
   spriteSheetName = "field"
   [members.abilities]
@@ -19566,7 +19566,7 @@
   id = "blue_figure"
   movementPattern = "random"
   name = "Blue Figure"
-  remainsId = "blood_stain"
+  remainsId = "blue_blood_stain"
   spriteKey = "blue_human"
   spriteSheetName = "field"
   [members.abilities]
@@ -19585,7 +19585,7 @@
   id = "blue_beast"
   movementPattern = "random"
   name = "Blue Beast"
-  remainsId = "blood_stain"
+  remainsId = "blue_blood_stain"
   spriteKey = "blue_beast"
   spriteSheetName = "field"
   [members.abilities]
@@ -19756,7 +19756,7 @@
   id = "frost_lurker"
   movementPattern = "patrol"
   name = "Frost Lurker"
-  remainsId = "blood_stain"
+  remainsId = "blue_blood_stain"
   spriteKey = "dummy_frost_lurker"
   spriteSheetName = "field"
   [members.abilities]
@@ -19775,7 +19775,7 @@
   id = "venom_crawler"
   movementPattern = "wander"
   name = "Venom Crawler"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "dummy_venom_crawler"
   spriteSheetName = "field"
   [members.abilities]
@@ -19813,7 +19813,7 @@
   id = "prism_eye"
   movementPattern = "stationary"
   name = "Prism Eye"
-  remainsId = "blood_stain"
+  remainsId = "blue_blood_stain"
   spriteKey = "dummy_prism_eye"
   spriteSheetName = "field"
   [members.abilities]
@@ -19832,7 +19832,7 @@
   id = "static_mite"
   movementPattern = "wander"
   name = "Static Mite"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "dummy_static_mite"
   spriteSheetName = "field"
   [members.abilities]
@@ -19870,7 +19870,7 @@
   id = "sunbug"
   movementPattern = "wander"
   name = "Sunbug"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "dummy_sunbug"
   spriteSheetName = "field"
   [members.abilities]
@@ -19889,7 +19889,7 @@
   id = "paralyzer"
   movementPattern = "patrol"
   name = "Paralyzer"
-  remainsId = "blood_stain"
+  remainsId = "green_blood_stain"
   spriteKey = "dummy_paralyzer"
   spriteSheetName = "field"
   [members.abilities]
@@ -22913,49 +22913,61 @@
 [[remains]]
   id = "wood_splinters"
   name = "Wood Splinters"
-  spriteKey = "debris"
+  spriteKeys = ["debris"]
   spriteSheetName = "field"
 
 [[remains]]
   id = "metal_fragments"
   name = "Metal Fragments"
-  spriteKey = "scrap_metal"
+  spriteKeys = ["scrap_metal"]
   spriteSheetName = "field"
 
 [[remains]]
   id = "stone_rubble"
   name = "Stone Rubble"
-  spriteKey = "rubble"
+  spriteKeys = ["rubble"]
   spriteSheetName = "field"
 
 [[remains]]
   id = "blood_stain"
   name = "Blood Stain"
-  spriteKey = "blood_stain"
+  spriteKeys = ["blood_red_a", "blood_red_b", "blood_red_c", "blood_red_d", "blood_red_e"]
   spriteSheetName = "field"
 
 [[remains]]
   id = "oil_stain"
   name = "Oil Stain"
-  spriteKey = "oil_stain"
+  spriteKeys = ["oil_stain"]
   spriteSheetName = "field"
 
 [[remains]]
   id = "slime_puddle"
   name = "Slime Puddle"
-  spriteKey = "slime_puddle"
+  spriteKeys = ["slime_puddle"]
   spriteSheetName = "field"
 
 [[remains]]
   id = "scorch_mark"
   name = "Scorch Mark"
-  spriteKey = "scorch_mark"
+  spriteKeys = ["scorch_mark"]
   spriteSheetName = "field"
 
 [[remains]]
   id = "ectoplasm"
   name = "Ectoplasm"
-  spriteKey = "ectoplasm"
+  spriteKeys = ["ectoplasm"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "green_blood_stain"
+  name = "Green Blood Stain"
+  spriteKeys = ["blood_green_a", "blood_green_b", "blood_green_c", "blood_green_d", "blood_green_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "blue_blood_stain"
+  name = "Blue Blood Stain"
+  spriteKeys = ["blood_blue_a", "blood_blue_b", "blood_blue_c", "blood_blue_d", "blood_blue_e"]
   spriteSheetName = "field"
 
 [[ruinedPathSteps]]

@@ -839,15 +839,18 @@ func GetRemains(raws rawschema.Raws, id string) (rawschema.Remains, error) {
 	return r, nil
 }
 
-// NewRemainsSpec は跡の行から跡の EntitySpec を組む。描画順は跡の段に決まっているので行から取らない
-func NewRemainsSpec(raws rawschema.Raws, id string) (gc.EntitySpec, error) {
+// NewRemainsSpec は跡の行から跡の EntitySpec を組む。形は行の候補から rng で1つ選ぶ。描画順は跡の段に
+// 決まっているので行から取らない
+func NewRemainsSpec(raws rawschema.Raws, id string, rng *rand.Rand) (gc.EntitySpec, error) {
 	r, err := GetRemains(raws, id)
 	if err != nil {
 		return gc.EntitySpec{}, err
 	}
+	// CUE が候補を1つ以上に縛る
+	key := r.SpriteKeys[rng.IntN(len(r.SpriteKeys))]
 	return gc.EntitySpec{
 		Name:         &gc.Name{Name: i18n.Msgid(r.Name)},
-		SpriteRender: &gc.SpriteRender{SpriteSheetName: r.SpriteSheetName, SpriteKey: r.SpriteKey, Depth: gc.DepthNumRemains},
+		SpriteRender: &gc.SpriteRender{SpriteSheetName: r.SpriteSheetName, SpriteKey: key, Depth: gc.DepthNumRemains},
 		Remains:      &gc.Remains{},
 	}, nil
 }

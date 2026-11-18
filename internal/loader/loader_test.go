@@ -238,7 +238,9 @@ func TestSpriteOrphan(t *testing.T) {
 		addAnim(mb.AnimKeys)
 	}
 	for _, r := range raw.PtrSlice(rawMaster.Remains) {
-		add(r.SpriteKey)
+		for _, k := range r.SpriteKeys {
+			add(k)
+		}
 	}
 
 	// covered はスプライト名 s が raw から参照されているかを返す

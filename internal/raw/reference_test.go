@@ -326,8 +326,10 @@ func TestSpriteSheetFiles(t *testing.T) {
 		for _, r := range PtrSlice(raws.Remains) {
 			sprites, ok := spriteSheetSprites[r.SpriteSheetName]
 			require.True(t, ok, "跡 '%s' が参照するSpriteSheet '%s' が存在しません", r.Id, r.SpriteSheetName)
-			assert.True(t, sprites[r.SpriteKey], "跡 '%s' が参照するSpriteKey '%s' がSpriteSheet '%s' 内に存在しません",
-				r.Id, r.SpriteKey, r.SpriteSheetName)
+			for _, key := range r.SpriteKeys {
+				assert.True(t, sprites[key], "跡 '%s' が参照するSpriteKey '%s' がSpriteSheet '%s' 内に存在しません",
+					r.Id, key, r.SpriteSheetName)
+			}
 		}
 	})
 

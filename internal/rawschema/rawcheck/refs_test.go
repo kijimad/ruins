@@ -53,7 +53,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Landmarks: &[]rawschema.Landmark{
 			{Id: "house", Weight: 1},
 		},
-		Remains: &[]rawschema.Remains{{Id: "splinters", Name: "Splinters", SpriteSheetName: "field", SpriteKey: "debris"}},
+		Remains: &[]rawschema.Remains{{Id: "splinters", Name: "Splinters", SpriteSheetName: "field", SpriteKeys: []rawschema.SpriteKey{"debris"}}},
 		PointFeatures: &[]rawschema.PointFeature{
 			{Id: rawschema.PointFeatureKindSettlement, Spacing: 3, Separation: 1, Salt: 1, Road: &rawschema.Road{Tile: "floor", Width: 2}},
 		},

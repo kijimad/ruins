@@ -2276,7 +2276,8 @@ type Remains struct {
 
 	Name EntityName `json:"name"`
 
-	SpriteKey SpriteKey `json:"spriteKey"`
+	// SpriteKeys 跡の形の候補。置くたびにこの中から1つを選ぶ
+	SpriteKeys []SpriteKey `json:"spriteKeys"`
 
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 }

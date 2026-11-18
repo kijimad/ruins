@@ -61,3 +61,18 @@ func TestStowCube_跡は畳まずにその場に残り展開できる(t *testing
 
 	assert.True(t, DeployCube(world, cube), "跡のある野営でも展開できる")
 }
+
+func TestSpawnRemains_形を行の候補から選ぶ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	got := map[string]bool{}
+	for i := range 100 {
+		e, err := SpawnRemains(world, "blood_stain", consts.Coord[consts.Tile]{X: consts.Tile(i), Y: 0})
+		require.NoError(t, err)
+		got[world.Components.SpriteRender.Get(e).SpriteKey] = true
+	}
+	assert.Equal(t, map[string]bool{
+		"blood_red_a": true, "blood_red_b": true, "blood_red_c": true, "blood_red_d": true, "blood_red_e": true,
+	}, got, "100回置けば5つの形が全て選ばれる")
+}

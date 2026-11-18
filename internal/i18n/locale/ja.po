@@ -6721,3 +6721,9 @@ msgstr "焦げ跡"
 
 msgid "Ectoplasm"
 msgstr "霊の残滓"
+
+msgid "Green Blood Stain"
+msgstr "緑の血痕"
+
+msgid "Blue Blood Stain"
+msgstr "青い血痕"
