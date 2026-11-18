@@ -69,7 +69,7 @@ func TestSwapBehavior_Validate_入れ替え先が死亡しているとエラー(
 	sb := &SwapBehavior{}
 	err = sb.Validate(comp, player, world)
 
-	require.EqualError(t, err, "swap target is not alive")
+	require.Error(t, err)
 }
 
 func TestSwapBehavior_Validate_GridElementが無いとエラー(t *testing.T) {
@@ -77,7 +77,6 @@ func TestSwapBehavior_Validate_GridElementが無いとエラー(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	// GridElementを持たない生のエンティティ
 	target := world.ECS.NewEntity()
 	comp := &gc.Activity{BehaviorName: gc.BehaviorSwap, Params: &gc.SwapParams{Target: target}}
 

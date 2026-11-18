@@ -103,7 +103,7 @@ func TestGainSkillExp_既にStatsChangedが付いていれば二重に付けな�
 	world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current = gc.LevelUpExp - 1
 	require.True(t, world.Components.StatsChanged.Has(player), "spawn時に既にStatsChangedが付いている前提")
 
-	gainSkillExp(player, world, rawschema.SkillIdMechanic)
+	assert.NotPanics(t, func() { gainSkillExp(player, world, rawschema.SkillIdMechanic) })
 
 	require.True(t, world.Components.StatsChanged.Has(player))
 	assert.Equal(t, 1, world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Value, "スキルアップ自体は起こる")
