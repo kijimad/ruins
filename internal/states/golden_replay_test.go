@@ -440,7 +440,7 @@ var goldenCases = []struct {
 		name: "PickupMenuStorage",
 		build: func(world w.World) ([]es.State[w.World], error) {
 			choices := []gs.Choice{
-				{Label: query.T(world, "Search %s (unsearched) (%s)", query.T(world, "Wooden Crate"), query.T(world, "up"))},
+				{Label: query.T(world, "Search %s (%s)", query.T(world, "Wooden Crate"), query.T(world, "up"))},
 				{Label: query.T(world, "Open %s (empty) (%s)", query.T(world, "Wooden Crate"), query.T(world, "left"))},
 				{Label: query.T(world, "Pick up %s (%s)", query.T(world, "Bread"), query.T(world, "here"))},
 			}

@@ -201,11 +201,18 @@ func pickupChoices(world w.World) (string, []Choice) {
 			if err != nil {
 				return es.Transition[w.World]{}, err
 			}
-			if _, err := activity.ExecuteInteraction(player, a.Target, a.Interaction, world); err != nil {
+			result, err := activity.ExecuteInteraction(player, a.Target, a.Interaction, world)
+			if err != nil {
 				return es.Transition[w.World]{}, err
 			}
-			// 収納は閉じても、開く要求が拾うメニューごと開き直す
-			if a.Interaction == gc.InteractionStorage || len(nearbyPickupActions(world)) == 0 {
+			if a.Interaction == gc.InteractionStorage {
+				// 探し始めたか開いたなら閉じ、開く要求が拾うメニューごと開き直す。敵が近くて探せなければ一覧に残す
+				if result != nil && result.Success {
+					return es.Transition[w.World]{Type: es.TransPop}, nil
+				}
+				return es.Transition[w.World]{Type: es.TransNone}, nil
+			}
+			if len(nearbyPickupActions(world)) == 0 {
 				return es.Transition[w.World]{Type: es.TransPop}, nil
 			}
 			return es.Transition[w.World]{Type: es.TransNone}, nil
@@ -251,7 +258,7 @@ func storageLabel(world w.World, storage ecs.Entity, dirLabel string) string {
 	name := query.GetEntityName(storage, world)
 	switch {
 	case world.Components.Unsearched.Has(storage):
-		return query.T(world, "Search %s (unsearched) (%s)", name, dirLabel)
+		return query.T(world, "Search %s (%s)", name, dirLabel)
 	case !query.HasStorageItems(world, storage):
 		return query.T(world, "Open %s (empty) (%s)", name, dirLabel)
 	}

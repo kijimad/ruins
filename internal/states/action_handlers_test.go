@@ -666,7 +666,7 @@ func TestStartPickup(t *testing.T) {
 
 		assert.Equal(t, es.TransPush, trans.Type)
 		assert.Equal(t, []InteractionAction{
-			{Label: "Search Wooden Crate (unsearched) (upper left)", Target: crate, Interaction: gc.InteractionStorage},
+			{Label: "Search Wooden Crate (upper left)", Target: crate, Interaction: gc.InteractionStorage},
 		}, nearbyPickupActions(world))
 	})
 
@@ -747,7 +747,7 @@ func TestPickupChoices(t *testing.T) {
 
 		_, choices := pickupChoices(world)
 		require.Len(t, choices, 1)
-		assert.Equal(t, "Search Wooden Crate (unsearched) (up)", choices[0].Label)
+		assert.Equal(t, "Search Wooden Crate (up)", choices[0].Label)
 		trans, err := choices[0].Run(world)
 		require.NoError(t, err)
 
@@ -765,7 +765,7 @@ func TestStorageLabel(t *testing.T) {
 		item     bool
 		want     string
 	}{
-		{"まだ探していない収納は探す", false, true, "Search Wooden Crate (unsearched) (up)"},
+		{"まだ探していない収納は探す", false, true, "Search Wooden Crate (up)"},
 		{"探し終えた空の収納は空と添える", true, false, "Open Wooden Crate (empty) (up)"},
 		{"探し終えた中身のある収納は開く", true, true, "Open Wooden Crate (up)"},
 	}
@@ -838,7 +838,7 @@ func TestNearbyPickupActions(t *testing.T) {
 	}
 
 	assert.Equal(t, []row{
-		{Label: "Search Wooden Crate (unsearched) (up)", Interaction: gc.InteractionStorage},
+		{Label: "Search Wooden Crate (up)", Interaction: gc.InteractionStorage},
 		{Label: "Pick up 3 Bread (here)", Interaction: gc.InteractionItem},
 		{Label: "Pick up Healing Potion (right)", Interaction: gc.InteractionItem},
 		{Label: "Pick up Healing Potion (lower right)", Interaction: gc.InteractionItem},
@@ -866,5 +866,23 @@ func TestHandleStateChangeRequest_収納は拾うメニューの上に開く(t *
 	storage, err := trans.NewStateFuncs[1]()
 	require.NoError(t, err)
 	assert.IsType(t, &StorageMenuState{}, storage)
+}
 
+func TestPickupChoices_敵が近くて探せない収納を選ぶと一覧に残る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
+	require.NoError(t, err)
+
+	_, choices := pickupChoices(world)
+	require.Len(t, choices, 1)
+	trans, err := choices[0].Run(world)
+	require.NoError(t, err)
+
+	assert.Equal(t, es.TransNone, trans.Type)
+	assert.Nil(t, query.GetActivity(world, player))
 }

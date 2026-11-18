@@ -12,8 +12,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// searchKgPerTurn は収納を探すのに1ターンかかる容量
-const searchKgPerTurn = 10
+// searchPerTurn は収納を探すのに1ターンかかる容量
+const searchPerTurn consts.Milligram = 10 * consts.MilligramPerKg
 
 // SearchBehavior はまだ探していない収納を探し、終えると収納画面を開くアクティビティの実装
 type SearchBehavior struct{}
@@ -38,7 +38,7 @@ func (b *SearchBehavior) Name() gc.BehaviorName {
 func NewSearchActivity(target ecs.Entity, world w.World) *gc.Activity {
 	turns := 1
 	if world.ECS.Alive(target) && world.Components.WeightCapacity.Has(target) {
-		turns = max(1, int(world.Components.WeightCapacity.Get(target).Max/consts.MilligramPerKg/searchKgPerTurn))
+		turns = max(1, int(world.Components.WeightCapacity.Get(target).Max/searchPerTurn))
 	}
 	comp := NewActivity(gc.BehaviorSearch, turns)
 	comp.Params = &gc.SearchParams{Target: target}
