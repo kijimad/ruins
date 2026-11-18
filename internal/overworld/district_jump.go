@@ -10,6 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 )
 
 var (
@@ -70,7 +71,12 @@ func (dr *Driver) JumpToDistrict(world w.World, id string) error {
 	if err := lifecycle.MovePlayerToPosition(world, spawn); err != nil {
 		return err
 	}
+	// 置物や落ちている物の上に置くと、キューブに塞がれて触れなくなる
 	taken := map[consts.Coord[consts.Tile]]bool{spawn: true}
+	onField := query.ActiveFilter2[gc.GridElement, gc.LocationOnField](world).Without(ecs.C[gc.Cube]()).Query()
+	for onField.Next() {
+		taken[world.Components.GridElement.Get(onField.Entity()).Coord] = true
+	}
 	cubes := query.ActiveFilter2[gc.GridElement, gc.Cube](world).Query()
 	for cubes.Next() {
 		pos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}), taken)

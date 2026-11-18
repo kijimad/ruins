@@ -799,7 +799,9 @@ func TestUseItem_キューブの核を使うと隣にキューブが組み上が
 
 			assert.ElementsMatch(t, tt.wantCubes, query.CubeTiles(world))
 			assert.Equal(t, tt.wantCoreLeft, world.ECS.Alive(core))
-			assert.Equal(t, query.T(world, tt.wantLog), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+			entries := query.GetGameLog(world).GetRecentEntries(1)
+			require.Len(t, entries, 1)
+			assert.Equal(t, query.T(world, tt.wantLog), entries[0].Text())
 		})
 	}
 }
