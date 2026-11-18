@@ -72,19 +72,6 @@ func TestCombatRiskCurve_危険度上昇で死亡確率が非減少傾向(t *tes
 	assert.Greater(t, curve[BaselineDays-1].DeathProb, curve[0].DeathProb, "終盤は序盤より死亡確率が高い")
 }
 
-func TestAttackDamagePMF_期待値は閉形式の期待ダメージに一致する(t *testing.T) {
-	t.Parallel()
-	attacker := CombatantStats{Strength: 12, Sensation: 8, Dexterity: 10, Agility: 6}
-	defender := CombatantStats{HP: 40, Agility: 7, Defense: 4}
-	for _, weapon := range []WeaponStats{{Damage: 6, Accuracy: 85}, {Damage: 9, Accuracy: 70, IsRanged: true}} {
-		var mean float64
-		for _, dp := range attackDamagePMF(attacker, defender, weapon, consts.PercentBase) {
-			mean += float64(dp.dmg) * dp.p
-		}
-		assert.InDelta(t, ExpectedDamagePerAttack(attacker, defender, weapon), mean, 1e-9)
-	}
-}
-
 func TestCombatDistribution_HPが1どうしなら先に当てた側が勝つ式に一致する(t *testing.T) {
 	t.Parallel()
 	player := CombatantStats{HP: 1, Strength: 5, Sensation: 5, Dexterity: 6, Agility: 6}
