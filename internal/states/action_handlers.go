@@ -191,8 +191,7 @@ func startPickup(world w.World) (es.Transition[w.World], error) {
 	}}, nil
 }
 
-// pickupChoices は拾うメニューの選択肢を返す。探し終えた収納の画面はメニューの上に開き、閉じるとメニューへ戻る。
-// まだ探していない収納は選ぶとメニューを閉じ、探すアクティビティでターンを進める
+// pickupChoices は拾うメニューの選択肢を返す。まだ探していない収納を選ぶとメニューを閉じて探し始める
 func pickupChoices(world w.World) (string, []Choice) {
 	actions := nearbyPickupActions(world)
 	choices := make([]Choice, 0, len(actions))

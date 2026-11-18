@@ -34,8 +34,7 @@ func (b *SearchBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorSearch
 }
 
-// NewSearchActivity は探す収納を指定して探すアクティビティを組む。
-// 容量10kgごとに1ターンかかり、最低1ターンにする
+// NewSearchActivity は収納 target を探すアクティビティを組む。容量10kgごとに1ターン、最低1ターンかかる
 func NewSearchActivity(target ecs.Entity, world w.World) *gc.Activity {
 	turns := 1
 	if world.ECS.Alive(target) && world.Components.WeightCapacity.Has(target) {
@@ -112,7 +111,7 @@ func (b *SearchBehavior) Finish(comp *gc.Activity, _ ecs.Entity, world w.World) 
 	return nil
 }
 
-// Canceled は探すのを中断したときの処理を実行する。対象が消えたことによる中断もあるため、名前は対象が残っている場合だけ出す
+// Canceled は探すのを中断したときのログを出す。対象が消えての中断もあるので、名前は対象が残るときだけ出す
 func (b *SearchBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if !world.Components.Player.Has(actor) {
 		return nil
