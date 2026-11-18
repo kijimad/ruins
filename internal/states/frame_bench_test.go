@@ -1,6 +1,7 @@
 package states_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/require"
@@ -96,6 +98,45 @@ func BenchmarkTurn(b *testing.B) {
 				for query.GetTurnState(world).TurnNumber == start {
 					require.NoError(b, sm.Update(world))
 				}
+			}
+		})
+	}
+}
+
+// BenchmarkRemains は跡が溜まった階で、1ターンと1フレームの描画の実時間を測る。跡は消えないので、溜まった数ごとの
+// 重さを見て、時間で消す仕組みが要るかを判断する。跡はプレイヤーの周りのマスへ重ならないように敷き詰める
+func BenchmarkRemains(b *testing.B) {
+	for _, n := range []int{0, 300, 1000} {
+		world := vrt.InitReplayWorld(b)
+		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DebugID, BuilderType: mapplanner.LayoutPlannerType("big_room")}, world)
+		require.NoError(b, err)
+		world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionWait, true }
+		for range 5 {
+			require.NoError(b, sm.Update(world))
+		}
+		player, err := query.GetPlayerEntity(world)
+		require.NoError(b, err)
+		pc := world.Components.GridElement.Get(player).Coord
+		for i := range n {
+			c := consts.Coord[consts.Tile]{X: pc.X - 20 + consts.Tile(i%40), Y: pc.Y - 12 + consts.Tile(i/40)}
+			_, err := lifecycle.SpawnRemains(world, "red_blood_stain", c)
+			require.NoError(b, err)
+		}
+		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+
+		b.Run(fmt.Sprintf("%d/Turn", n), func(b *testing.B) {
+			for range b.N {
+				hp := world.Components.HP.Get(player)
+				hp.Current = hp.Max
+				start := query.GetTurnState(world).TurnNumber
+				for query.GetTurnState(world).TurnNumber == start {
+					require.NoError(b, sm.Update(world))
+				}
+			}
+		})
+		b.Run(fmt.Sprintf("%d/Draw", n), func(b *testing.B) {
+			for range b.N {
+				require.NoError(b, sm.Draw(world, screen))
 			}
 		})
 	}

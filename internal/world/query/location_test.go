@@ -7,9 +7,11 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetStorageItems_収納内のアイテムだけを返す(t *testing.T) {
@@ -194,4 +196,36 @@ func TestCanAddStackToStorage(t *testing.T) {
 		storage := world.ECS.NewEntity()
 		assert.False(t, query.CanAddStackToStorage(world, storage, newItems(world, "1 kg", 1)))
 	})
+}
+
+func TestRemainsAt(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		suspended bool
+		at        consts.Coord[consts.Tile]
+		want      bool
+	}{
+		{"同じマスの跡を返す", false, consts.Coord[consts.Tile]{X: 3, Y: 4}, true},
+		{"違うマスの跡は返さない", false, consts.Coord[consts.Tile]{X: 4, Y: 4}, false},
+		{"退避中のステージの跡は返さない", true, consts.Coord[consts.Tile]{X: 3, Y: 4}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			e, err := lifecycle.SpawnRemains(world, "oil_stain", consts.Coord[consts.Tile]{X: 3, Y: 4})
+			require.NoError(t, err)
+			if tt.suspended {
+				world.Components.Suspended.Add(e, &gc.Suspended{})
+			}
+
+			got, ok := query.RemainsAt(world, tt.at)
+			assert.Equal(t, tt.want, ok)
+			if tt.want {
+				assert.Equal(t, e, got)
+			}
+		})
+	}
 }
