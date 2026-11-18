@@ -6727,3 +6727,12 @@ msgstr "緑の血痕"
 
 msgid "Blue Blood Stain"
 msgstr "青い血痕"
+
+msgid "Glass Shards"
+msgstr "ガラス片"
+
+msgid "Plant Debris"
+msgstr "植物のくず"
+
+msgid "Cloth Scraps"
+msgstr "布きれ"

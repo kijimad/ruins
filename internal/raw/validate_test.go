@@ -52,6 +52,21 @@ func TestRealData_プレイヤー以外の全てのmemberの行が跡を持つ(t
 	assert.Equal(t, []string{}, missing, "倒したときに跡が出るよう、敵と NPC の行は remainsId を持つ")
 }
 
+func TestRealData_壊せる置物の行は構造物を除いて跡を持つ(t *testing.T) {
+	t.Parallel()
+
+	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	missing := []string{}
+	for _, p := range PtrSlice(master.Props) {
+		if p.Hp != nil && p.RemainsId == nil {
+			missing = append(missing, p.Id)
+		}
+	}
+	assert.Equal(t, []string{"warp_next", "warp_prev", "warp_escape", "dungeon_entrance"}, missing,
+		"壊れない階段や入口のほかは、壊したときに跡が出るよう remainsId を持つ")
+}
+
 func TestSchema_正常なアイテムは通る(t *testing.T) {
 	t.Parallel()
 

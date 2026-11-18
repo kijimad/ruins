@@ -20400,6 +20400,7 @@
   hp = 5
   id = "alarm_clock"
   name = "Alarm Clock"
+  remainsId = "metal_fragments"
   [props.spriteRender]
     depth = "floor"
     spriteKey = "alarm_clock"
@@ -20536,6 +20537,7 @@
   hp = 9999
   id = "fire"
   name = "Fire"
+  remainsId = "scorch_mark"
   [props.heatSource]
     radius = 2
     warmth = 0.75
@@ -20604,6 +20606,7 @@
   hp = 3
   id = "candle"
   name = "Candle"
+  remainsId = "scorch_mark"
   [props.spriteRender]
     depth = "floor"
     spriteKey = "candle"
@@ -20617,6 +20620,7 @@
   id = "carpet"
   name = "Carpet"
   passCost = 10
+  remainsId = "cloth_scraps"
   [props.spriteRender]
     depth = "floor"
     spriteKey = "carpet"
@@ -20629,6 +20633,7 @@
   hp = 20
   id = "rubble"
   name = "Rubble"
+  remainsId = "stone_rubble"
   [props.spriteRender]
     depth = "floor"
     spriteKey = "rubble"
@@ -20641,6 +20646,7 @@
   hp = 1
   id = "debris"
   name = "Debris"
+  remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "floor"
     spriteKey = "debris"
@@ -20653,6 +20659,7 @@
   hp = 3
   id = "plant"
   name = "Plant"
+  remainsId = "plant_debris"
   [props.spriteRender]
     depth = "floor"
     spriteKey = "houseplants"
@@ -20691,6 +20698,7 @@
   hp = 5
   id = "clock"
   name = "Clock"
+  remainsId = "metal_fragments"
   [props.spriteRender]
     depth = "floor"
     spriteKey = "clock"
@@ -21053,6 +21061,7 @@
   hp = 15
   id = "window"
   name = "Window"
+  remainsId = "glass_shards"
   [props.spriteRender]
     depth = "taller"
     shape = "inset"
@@ -21079,6 +21088,7 @@
   hp = 25
   id = "fence"
   name = "Fence"
+  remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
     spriteKey = "fence"
@@ -21144,6 +21154,7 @@
   hp = 5
   id = "mirror"
   name = "Mirror"
+  remainsId = "glass_shards"
   [props.spriteRender]
     depth = "floor"
     spriteKey = "mirror"
@@ -22116,6 +22127,7 @@
   hp = 30
   id = "big_tree"
   name = "Big Tree"
+  remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "chopping"
     toolRequired = true
@@ -22140,6 +22152,7 @@
   hp = 20
   id = "tree_a"
   name = "Tree"
+  remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "chopping"
     toolRequired = true
@@ -22164,6 +22177,7 @@
   hp = 20
   id = "tree_b"
   name = "Tree"
+  remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "chopping"
     toolRequired = true
@@ -22299,6 +22313,7 @@
   id = "dummy_thicket"
   name = "Thicket"
   passCost = 60
+  remainsId = "plant_debris"
   [props.spriteRender]
     depth = "rug"
     spriteKey = "dummy_thicket"
@@ -22357,6 +22372,7 @@
   id = "dummy_scrap_heap"
   name = "Scrap Heap"
   passCost = 40
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -22474,6 +22490,7 @@
   hp = 6
   id = "bush"
   name = "Shrub"
+  remainsId = "plant_debris"
   [props.disassembly]
 
     [[props.disassembly.yields]]
@@ -22491,6 +22508,7 @@
   hp = 6
   id = "bush_dry"
   name = "Withered Shrub"
+  remainsId = "plant_debris"
   [props.disassembly]
 
     [[props.disassembly.yields]]
@@ -22509,6 +22527,7 @@
   hp = 200
   id = "cube"
   name = "Cube"
+  remainsId = "metal_fragments"
   [props.spriteRender]
     depth = "taller"
     spriteKey = "cube_float_0"
@@ -22657,6 +22676,7 @@
   hp = 5
   id = "crop"
   name = "Crops"
+  remainsId = "plant_debris"
   [props.spriteRender]
     depth = "taller"
     spriteKey = "crop"
@@ -22669,6 +22689,7 @@
   hp = 20
   id = "debug_crate"
   name = "Debug Crate"
+  remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
     spriteKey = "wooden_crate"
@@ -22708,6 +22729,7 @@
   id = "wreck_debris"
   name = "Wreckage"
   passCost = 40
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -22913,19 +22935,19 @@
 [[remains]]
   id = "wood_splinters"
   name = "Wood Splinters"
-  spriteKeys = ["debris"]
+  spriteKeys = ["wood_splinters_a", "wood_splinters_b", "wood_splinters_c", "wood_splinters_d", "wood_splinters_e"]
   spriteSheetName = "field"
 
 [[remains]]
   id = "metal_fragments"
   name = "Metal Fragments"
-  spriteKeys = ["scrap_metal"]
+  spriteKeys = ["metal_fragments_a", "metal_fragments_b", "metal_fragments_c", "metal_fragments_d", "metal_fragments_e"]
   spriteSheetName = "field"
 
 [[remains]]
   id = "stone_rubble"
   name = "Stone Rubble"
-  spriteKeys = ["rubble"]
+  spriteKeys = ["stone_rubble_a", "stone_rubble_b", "stone_rubble_c", "stone_rubble_d", "stone_rubble_e"]
   spriteSheetName = "field"
 
 [[remains]]
@@ -22968,6 +22990,24 @@
   id = "blue_blood_stain"
   name = "Blue Blood Stain"
   spriteKeys = ["blood_blue_a", "blood_blue_b", "blood_blue_c", "blood_blue_d", "blood_blue_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "glass_shards"
+  name = "Glass Shards"
+  spriteKeys = ["glass_shards_a", "glass_shards_b", "glass_shards_c", "glass_shards_d", "glass_shards_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "plant_debris"
+  name = "Plant Debris"
+  spriteKeys = ["plant_debris_a", "plant_debris_b", "plant_debris_c", "plant_debris_d", "plant_debris_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "cloth_scraps"
+  name = "Cloth Scraps"
+  spriteKeys = ["cloth_scraps_a", "cloth_scraps_b", "cloth_scraps_c", "cloth_scraps_d", "cloth_scraps_e"]
   spriteSheetName = "field"
 
 [[ruinedPathSteps]]

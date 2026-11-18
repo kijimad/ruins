@@ -839,15 +839,16 @@ func GetRemains(raws rawschema.Raws, id string) (rawschema.Remains, error) {
 	return r, nil
 }
 
-// NewRemainsSpec は跡の行から跡の EntitySpec を組む。形は行の候補から rng で1つ選ぶ。描画順は跡の段に
-// 決まっているので行から取らない
-func NewRemainsSpec(raws rawschema.Raws, id string, rng *rand.Rand) (gc.EntitySpec, error) {
+// NewRemainsSpec は跡の行から、coord に置く跡の EntitySpec を組む。形は行の候補から座標の撹拌で1つ選ぶので、
+// 隣り合うマスでばらけ、ゲームの乱数を消費しない。描画順は跡の段に決まっているので行から取らない
+func NewRemainsSpec(raws rawschema.Raws, id string, coord consts.Coord[consts.Tile]) (gc.EntitySpec, error) {
 	r, err := GetRemains(raws, id)
 	if err != nil {
 		return gc.EntitySpec{}, err
 	}
 	// CUE が候補を1つ以上に縛る
-	key := r.SpriteKeys[rng.IntN(len(r.SpriteKeys))]
+	h := consts.Mix64(uint64(coord.X)*0x9E3779B97F4A7C15 + uint64(coord.Y)*0xC2B2AE3D27D4EB4F)
+	key := r.SpriteKeys[h%uint64(len(r.SpriteKeys))]
 	return gc.EntitySpec{
 		Name:         &gc.Name{Name: i18n.Msgid(r.Name)},
 		SpriteRender: &gc.SpriteRender{SpriteSheetName: r.SpriteSheetName, SpriteKey: key, Depth: gc.DepthNumRemains},

@@ -17,12 +17,12 @@ func TestSpawnRemains_跡の行から跡の段で描く跡を置く(t *testing.T
 	world := testutil.InitTestWorld(t)
 	coord := consts.Coord[consts.Tile]{X: 3, Y: 4}
 
-	e, err := SpawnRemains(world, "wood_splinters", coord)
+	e, err := SpawnRemains(world, "oil_stain", coord)
 	require.NoError(t, err)
 
 	assert.Equal(t, coord, world.Components.GridElement.Get(e).Coord)
-	assert.Equal(t, gc.SpriteRender{SpriteSheetName: "field", SpriteKey: "debris", Depth: gc.DepthNumRemains}, *world.Components.SpriteRender.Get(e))
-	assert.Equal(t, i18n.Msgid("Wood Splinters"), world.Components.Name.Get(e).Name)
+	assert.Equal(t, gc.SpriteRender{SpriteSheetName: "field", SpriteKey: "oil_stain", Depth: gc.DepthNumRemains}, *world.Components.SpriteRender.Get(e))
+	assert.Equal(t, i18n.Msgid("Oil Stain"), world.Components.Name.Get(e).Name)
 	assert.True(t, world.Components.Remains.Has(e))
 	got, ok := query.RemainsAt(world, coord)
 	require.True(t, ok)
@@ -62,7 +62,7 @@ func TestStowCube_跡は畳まずにその場に残り展開できる(t *testing
 	assert.True(t, DeployCube(world, cube), "跡のある野営でも展開できる")
 }
 
-func TestSpawnRemains_形を行の候補から選ぶ(t *testing.T) {
+func TestSpawnRemains_形を行の候補から座標で選ぶ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -74,5 +74,11 @@ func TestSpawnRemains_形を行の候補から選ぶ(t *testing.T) {
 	}
 	assert.Equal(t, map[string]bool{
 		"blood_red_a": true, "blood_red_b": true, "blood_red_c": true, "blood_red_d": true, "blood_red_e": true,
-	}, got, "100回置けば5つの形が全て選ばれる")
+	}, got, "100マスに置けば5つの形が全て選ばれる")
+
+	a, err := SpawnRemains(world, "blood_stain", consts.Coord[consts.Tile]{X: 3, Y: 9})
+	require.NoError(t, err)
+	b, err := SpawnRemains(world, "blood_stain", consts.Coord[consts.Tile]{X: 3, Y: 9})
+	require.NoError(t, err)
+	assert.Equal(t, world.Components.SpriteRender.Get(a).SpriteKey, world.Components.SpriteRender.Get(b).SpriteKey, "同じマスなら同じ形")
 }
