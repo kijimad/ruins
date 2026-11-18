@@ -407,6 +407,9 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	if item.EscapeDevice != nil {
 		entitySpec.EscapeDevice = &gc.EscapeDevice{}
 	}
+	if item.CubeCore != nil {
+		entitySpec.CubeCore = &gc.CubeCore{}
+	}
 
 	// フィールドの相互作用。既定は拾えるアイテム。装着アイテムは applyDeployable が設備に応じて上書きする
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}

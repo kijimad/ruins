@@ -10,6 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 )
 
 var (
@@ -66,13 +67,21 @@ func (dr *Driver) JumpToDistrict(world w.World, id string) error {
 
 	rowTop := world.Components.GridElement.Get(player).Y / chunkH * chunkH
 	gate := consts.Coord[consts.Tile]{X: (r.anchor.X + r.w/2).Tiles(sb.ChunkW) + urbanStreetW/2, Y: rowTop}
-	spawn := walkableSpawnNear(world, gate)
+	spawn := walkableSpawnNear(world, gate, nil)
 	if err := lifecycle.MovePlayerToPosition(world, spawn); err != nil {
 		return err
 	}
+	// 置物や落ちている物の上に置くと、キューブに塞がれて触れなくなる
+	taken := map[consts.Coord[consts.Tile]]bool{spawn: true}
+	onField := query.ActiveFilter2[gc.GridElement, gc.LocationOnField](world).Without(ecs.C[gc.Cube]()).Query()
+	for onField.Next() {
+		taken[world.Components.GridElement.Get(onField.Entity()).Coord] = true
+	}
 	cubes := query.ActiveFilter2[gc.GridElement, gc.Cube](world).Query()
 	for cubes.Next() {
-		world.Components.GridElement.Get(cubes.Entity()).Coord = walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
+		pos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}), taken)
+		taken[pos] = true
+		world.Components.GridElement.Get(cubes.Entity()).Coord = pos
 	}
 	query.InvalidateSpatialIndex(world)
 	query.GetVisionState(world).RequestUpdate()

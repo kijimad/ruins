@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -745,4 +746,62 @@ func TestUseItemBehavior_logItemUse(t *testing.T) {
 		assert.Contains(t, recent[0], "damage")
 		assert.Contains(t, recent[0], "10")
 	})
+}
+
+func TestUseItem_キューブの核を使うと隣にキューブが組み上がる(t *testing.T) {
+	t.Parallel()
+	surrounded := []consts.Coord[consts.Tile]{
+		{X: 9, Y: 9}, {X: 10, Y: 9}, {X: 11, Y: 9}, {X: 9, Y: 10},
+		{X: 11, Y: 10}, {X: 9, Y: 11}, {X: 10, Y: 11}, {X: 11, Y: 11},
+	}
+	far := consts.Coord[consts.Tile]{X: 15, Y: 15}
+	above := consts.Coord[consts.Tile]{X: 10, Y: 9}
+	right := consts.Coord[consts.Tile]{X: 11, Y: 10}
+	tests := []struct {
+		name         string
+		overworld    bool
+		cubes        []consts.Coord[consts.Tile]
+		items        []consts.Coord[consts.Tile]
+		wantCubes    []consts.Coord[consts.Tile]
+		wantCoreLeft bool
+		wantLog      i18n.Msgid
+	}{
+		{"地上でキューブが無ければ真上のマスに1台組み上がる", true, nil, nil, []consts.Coord[consts.Tile]{above}, false, "A new cube has been assembled."},
+		{"地上でキューブが居ても2台目が組み上がる", true, []consts.Coord[consts.Tile]{far}, nil, []consts.Coord[consts.Tile]{far, above}, false, "A new cube has been assembled."},
+		{"真上にキューブが居ればそのマスを飛ばす", true, []consts.Coord[consts.Tile]{above}, nil, []consts.Coord[consts.Tile]{above, right}, false, "A new cube has been assembled."},
+		{"落ちている物のあるマスは飛ばす", true, nil, []consts.Coord[consts.Tile]{above}, []consts.Coord[consts.Tile]{right}, false, "A new cube has been assembled."},
+		{"周りが埋まっていれば組み上がらず核も残る", true, nil, surrounded, nil, true, "There is no room to assemble the cube."},
+		{"地上でなければ組み上がらず核も残る", false, nil, nil, nil, true, "The cube can only be assembled outdoors."},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			if tt.overworld {
+				*query.EnsureSeamlessBand(world) = gc.SeamlessBand{Active: true, ChunkW: 20, ChunkH: 20, Cols: 1, Rows: 1}
+			}
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			for _, c := range tt.cubes {
+				_, err := lifecycle.SpawnCube(world, c)
+				require.NoError(t, err)
+			}
+			for _, c := range tt.items {
+				_, err := lifecycle.SpawnFieldItem(world, "iron", c.X, c.Y, 1)
+				require.NoError(t, err)
+			}
+			core, err := lifecycle.SpawnFieldItem(world, "cube_core", 10, 10, 1)
+			require.NoError(t, err)
+			require.NoError(t, lifecycle.MoveToBackpack(world, core, player))
+
+			_, err = Execute(NewUseItemActivity(core), player, world)
+			require.NoError(t, err)
+
+			assert.ElementsMatch(t, tt.wantCubes, query.CubeTiles(world))
+			assert.Equal(t, tt.wantCoreLeft, world.ECS.Alive(core))
+			entries := query.GetGameLog(world).GetRecentEntries(1)
+			require.Len(t, entries, 1)
+			assert.Equal(t, query.T(world, tt.wantLog), entries[0].Text())
+		})
+	}
 }

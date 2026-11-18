@@ -411,7 +411,7 @@ func TestWalkableSpawnNear_壁に囲まれた中心でも歩行可能タイル�
 		}
 	}
 
-	got := walkableSpawnNear(world, center)
+	got := walkableSpawnNear(world, center, nil)
 
 	assert.Falsef(t, blockedCoords[got], "返り値 %v は壁でない", got)
 	assert.NotEqual(t, center, got, "壁の中心そのものは返さず外へ逃げる")

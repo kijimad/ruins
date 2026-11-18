@@ -512,6 +512,9 @@ type CrashSite struct {
 	Weight int32 `json:"weight"`
 }
 
+// CubeCore キューブの核。使うと隣に新しいキューブが組み上がる
+type CubeCore = map[string]interface{}
+
 // CubeModule キューブモジュール設定。装着すると展開野営の範囲や燃料タンクの容量を広げる
 type CubeModule struct {
 	FuelCapacityBonus FuelCapacityBonus `json:"fuelCapacityBonus"`
@@ -1379,6 +1382,9 @@ type Item struct {
 	Book *Book `json:"book,omitempty"`
 
 	Consumable *Consumable `json:"consumable,omitempty"`
+
+	// CubeCore キューブの核。使うと隣に新しいキューブが組み上がる
+	CubeCore *CubeCore `json:"cubeCore,omitempty"`
 
 	CubeModule *CubeModule `json:"cubeModule,omitempty"`
 
