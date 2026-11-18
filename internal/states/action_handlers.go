@@ -261,8 +261,9 @@ func storageLabel(world w.World, storage ecs.Entity, dirLabel string) string {
 		return query.T(world, "Search %s (%s)", name, dirLabel)
 	case !query.HasStorageItems(world, storage):
 		return query.T(world, "Open %s (empty) (%s)", name, dirLabel)
+	default:
+		return query.T(world, "Open %s (%s)", name, dirLabel)
 	}
-	return query.T(world, "Open %s (%s)", name, dirLabel)
 }
 
 // getInteractionActions はInteractableに対応するアクションを取得する

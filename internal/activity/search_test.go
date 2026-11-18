@@ -121,7 +121,7 @@ func TestSearchBehavior_DoTurn_収納が消えると中断する(t *testing.T) {
 	assert.Equal(t, i18n.Msgid("interrupted because the container is gone"), comp.CancelReason)
 }
 
-func TestSearchBehavior_Canceled_収納が残れば名前を出し消えていれば出さない(t *testing.T) {
+func TestSearchBehavior_Canceled(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
@@ -129,20 +129,42 @@ func TestSearchBehavior_Canceled_収納が残れば名前を出し消えてい�
 		remove bool
 		want   string
 	}{
-		{"残る", false, "interrupted searching Wooden Crate"},
-		{"消えた", true, "interrupted searching"},
+		{"収納が残れば名前を出す", false, "interrupted searching Wooden Crate"},
+		{"収納が消えていれば名前を出さない", true, "interrupted searching"},
 	} {
-		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
-		require.NoError(t, err)
-		comp := NewSearchActivity(crate, world)
-		if tc.remove {
-			world.ECS.RemoveEntity(crate)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+			require.NoError(t, err)
+			comp := NewSearchActivity(crate, world)
+			if tc.remove {
+				world.ECS.RemoveEntity(crate)
+			}
 
-		require.NoError(t, (&SearchBehavior{}).Canceled(comp, player, world))
-		assert.Equal(t, []string{tc.want}, query.GetGameLog(world).GetRecent(1), tc.name)
+			require.NoError(t, (&SearchBehavior{}).Canceled(comp, player, world))
+			assert.Equal(t, []string{tc.want}, query.GetGameLog(world).GetRecent(1))
+		})
 	}
+}
+
+func TestExecuteInteraction_1ターンで探し終える収納はその場で開く要求を出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
+	require.NoError(t, err)
+	world.Components.WeightCapacity.Get(crate).Max = 5 * consts.MilligramPerKg
+
+	result, err := ExecuteInteraction(player, crate, gc.InteractionStorage, world)
+	require.NoError(t, err)
+
+	assert.Equal(t, gc.ActivityStateCompleted, result.State)
+	assert.False(t, world.Components.Unsearched.Has(crate))
+	req := lifecycle.ConsumeStateChange(world)
+	require.NotNil(t, req)
+	assert.Equal(t, gc.OpenStorage{StorageEntity: crate}, req.Payload)
 }

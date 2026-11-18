@@ -362,9 +362,6 @@ type LocationInStorage struct {
 	Owner ecs.Entity // 収納コンテナのエンティティ
 }
 
-// Unsearched はまだ探していない収納を示すマーカー。世界に生成された収納だけが持ち、探し終えると外れる
-type Unsearched struct{}
-
 // Item は可搬アイテムであることを示すマーカーコンポーネント。拾えてバックパックへ入る
 type Item struct{}
 
