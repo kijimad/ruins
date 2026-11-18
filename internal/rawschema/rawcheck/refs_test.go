@@ -12,7 +12,7 @@ import (
 // makeRefRaws は参照する側とされる側の行を表ごとに持ち、検証を通る raws を作り、mutate で崩す
 func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	render := func(key string) rawschema.SpriteRender {
-		return rawschema.SpriteRender{SpriteSheetName: "field", SpriteKey: key, Depth: rawschema.N0}
+		return rawschema.SpriteRender{SpriteSheetName: "field", SpriteKey: key, Depth: rawschema.SpriteDepthFloor}
 	}
 	tile := func(id string, spawn *rawschema.TileSpawn) rawschema.Tile {
 		return rawschema.Tile{Id: id, Name: id, Description: id, SpriteRender: render(id), Spawn: spawn}

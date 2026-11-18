@@ -1528,8 +1528,8 @@ import (
 // 天候のスペルの基準長。ターン
 #SpellTurns: int & >=1 & <=100000
 
-// スプライト描画深度
-#SpriteDepth: 0 | 1 | 2 | 3 @rawgen(enum=float32)
+// スプライトの描画順。跡とプレイヤーの段は raw の行が使わないので持たない
+#SpriteDepth: "floor" | "decal" | "rug" | "taller" @rawgen(prefix)
 
 // スプライトキー
 #SpriteKey: string & strings.MinRunes(

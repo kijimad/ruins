@@ -129,9 +129,25 @@ func toGCSpriteRender(s rawschema.SpriteRender) gc.SpriteRender {
 	return gc.SpriteRender{
 		SpriteSheetName: s.SpriteSheetName,
 		SpriteKey:       s.SpriteKey,
-		Depth:           gc.DepthNum(int(s.Depth)),
+		Depth:           depthOf(s.Depth),
 		Shape:           deref(s.Shape),
 	}
+}
+
+// depthOf は raw の描画順の名前を段に写す。CUE が列挙を検査するので未知の値は来ないが、raw から来る値なので
+// panic せず床に落とす。描画順を持たない行の空の値も床になる
+func depthOf(d rawschema.SpriteDepth) gc.DepthNum {
+	switch d {
+	case rawschema.SpriteDepthFloor:
+		return gc.DepthNumFloor
+	case rawschema.SpriteDepthDecal:
+		return gc.DepthNumDecal
+	case rawschema.SpriteDepthRug:
+		return gc.DepthNumRug
+	case rawschema.SpriteDepthTaller:
+		return gc.DepthNumTaller
+	}
+	return gc.DepthNumFloor
 }
 
 // toGCLightSource はrawschema.LightSourceからgc.LightSourceに変換する
@@ -782,7 +798,7 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 // TileIsTall はタイルの行が高さのあるタイルかを返す。描画順が高さのあるもの DepthNumTaller なら高い。
 // 高いタイルのオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い塊の内側は虚空にする
 func TileIsTall(t rawschema.Tile) bool {
-	return gc.DepthNum(int(t.SpriteRender.Depth)) == gc.DepthNumTaller
+	return depthOf(t.SpriteRender.Depth) == gc.DepthNumTaller
 }
 
 // TileEnvironmentOf はタイルの行だけから決まる環境属性を返す。水の影響は周りのタイルで決まるので含まない

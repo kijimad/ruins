@@ -518,7 +518,7 @@ AnimKeys = ["fire_0_", "fire_1_"]
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "fire_0_"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -549,7 +549,7 @@ BlockView = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "prop_table"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -579,7 +579,7 @@ PassCost = 100
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "prop_table"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -602,7 +602,7 @@ Hp = 20
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "prop_table"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -632,7 +632,7 @@ hp = 30
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "prop_table"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -659,7 +659,7 @@ hp = 30
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "wooden_chest"
-Depth = 2
+Depth = "rug"
 
 [Props.Storage]
 MaxWeight = "20 kg"
@@ -691,7 +691,7 @@ BlockView = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "warp_next_0"
-Depth = 1
+Depth = "decal"
 
 [Props.WarpPrevTrigger]
 `
@@ -719,7 +719,7 @@ BlockView = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "table"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -1368,13 +1368,35 @@ func TestWallMaterialTiles_dwallと同じ描画順と通れなさと視界で並
 	dwall, err := GetTile(raws, "dwall")
 	require.NoError(t, err)
 	type traits struct {
-		depth                int
+		depth                rawschema.SpriteDepth
 		blockPass, blockView bool
 	}
-	want := traits{int(dwall.SpriteRender.Depth), dwall.BlockPass, dwall.BlockView}
+	want := traits{dwall.SpriteRender.Depth, dwall.BlockPass, dwall.BlockView}
 	for _, id := range wallMaterialTiles() {
 		tile, err := GetTile(raws, id)
 		require.NoError(t, err, id)
-		assert.Equal(t, want, traits{int(tile.SpriteRender.Depth), tile.BlockPass, tile.BlockView}, id)
+		assert.Equal(t, want, traits{tile.SpriteRender.Depth, tile.BlockPass, tile.BlockView}, id)
+	}
+}
+
+func TestDepthOf(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		depth rawschema.SpriteDepth
+		want  gc.DepthNum
+	}{
+		{"床は床の段", rawschema.SpriteDepthFloor, gc.DepthNumFloor},
+		{"床の模様は床の模様の段", rawschema.SpriteDepthDecal, gc.DepthNumDecal},
+		{"床に置くものは床に置くものの段", rawschema.SpriteDepthRug, gc.DepthNumRug},
+		{"高さのあるものは高さのあるものの段", rawschema.SpriteDepthTaller, gc.DepthNumTaller},
+		{"描画順を持たない行は床に落ちる", "", gc.DepthNumFloor},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, depthOf(tt.depth))
+		})
 	}
 }

@@ -2678,31 +2678,36 @@ type SnowMeltPercent = int
 // SpellTurns 天候のスペルの基準長。ターン
 type SpellTurns = int
 
-// SpriteDepth スプライト描画深度
-type SpriteDepth float32
+// SpriteDepth スプライトの描画順。跡とプレイヤーの段は raw の行が使わないので持たない
+type SpriteDepth string
 
 // Defines values for SpriteDepth.
 const (
-	N0 SpriteDepth = 0
-	N1 SpriteDepth = 1
-	N2 SpriteDepth = 2
-	N3 SpriteDepth = 3
+	SpriteDepthDecal  SpriteDepth = "decal"
+	SpriteDepthFloor  SpriteDepth = "floor"
+	SpriteDepthRug    SpriteDepth = "rug"
+	SpriteDepthTaller SpriteDepth = "taller"
 )
 
 // Valid indicates whether the value is a known member of the SpriteDepth enum.
 func (e SpriteDepth) Valid() bool {
 	switch e {
-	case N0:
+	case SpriteDepthDecal:
 		return true
-	case N1:
+	case SpriteDepthFloor:
 		return true
-	case N2:
+	case SpriteDepthRug:
 		return true
-	case N3:
+	case SpriteDepthTaller:
 		return true
 	default:
 		return false
 	}
+}
+
+// SpriteDepthValues は SpriteDepth の値を、スキーマに書いた順に返す。
+func SpriteDepthValues() []SpriteDepth {
+	return []SpriteDepth{SpriteDepthFloor, SpriteDepthDecal, SpriteDepthRug, SpriteDepthTaller}
 }
 
 // SpriteKey スプライトキー

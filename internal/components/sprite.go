@@ -91,6 +91,10 @@ type DepthNum int
 const (
 	// DepthNumFloor は床。最背面に表示する
 	DepthNumFloor DepthNum = iota
+	// DepthNumSnow は地面に重ねる雪の層。3D の描画だけが使い、実体は持たない
+	DepthNumSnow
+	// DepthNumRemains は敵や物が消えた跡。床の模様より下に描き、ワープの穴を隠さない。3D では地面に寝かせて描く
+	DepthNumRemains
 	// DepthNumDecal は床の模様。例: 土のしみ、ワープホール。3D では立て板にせず地面に寝かせて描く
 	DepthNumDecal
 	// DepthNumRug は床に置く低いもの。例: 焚き火、開いた扉
@@ -102,3 +106,8 @@ const (
 	// DepthNumPlayer は操作キャラを最も手前に表示する
 	DepthNumPlayer
 )
+
+// LiesFlat はその段を 3D で地面に寝かせて描くかを返す
+func (d DepthNum) LiesFlat() bool {
+	return d == DepthNumRemains || d == DepthNumDecal
+}
