@@ -6706,3 +6706,18 @@ msgstr "金属片"
 
 msgid "Stone Rubble"
 msgstr "石くず"
+
+msgid "Blood Stain"
+msgstr "血痕"
+
+msgid "Oil Stain"
+msgstr "油の染み"
+
+msgid "Slime Puddle"
+msgstr "粘液"
+
+msgid "Scorch Mark"
+msgstr "焦げ跡"
+
+msgid "Ectoplasm"
+msgstr "霊の残滓"

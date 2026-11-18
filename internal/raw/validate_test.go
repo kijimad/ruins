@@ -38,6 +38,20 @@ func TestRealData_HasCrashSites(t *testing.T) {
 	require.NotEmpty(t, PtrSlice(master.CrashSites), "開始チャンクに墜落現場を必ず置くので実 raw.toml は crashSites を持つべき")
 }
 
+func TestRealData_プレイヤー以外の全てのmemberの行が跡を持つ(t *testing.T) {
+	t.Parallel()
+
+	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	missing := []string{}
+	for _, m := range PtrSlice(master.Members) {
+		if isPlayer := m.Player != nil && *m.Player; !isPlayer && m.RemainsId == nil {
+			missing = append(missing, m.Id)
+		}
+	}
+	assert.Equal(t, []string{}, missing, "倒したときに跡が出るよう、敵と NPC の行は remainsId を持つ")
+}
+
 func TestSchema_正常なアイテムは通る(t *testing.T) {
 	t.Parallel()
 

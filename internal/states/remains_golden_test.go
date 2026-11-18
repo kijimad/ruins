@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestGolden_Remains は床に寝かせて描く跡の見え方を固定する。木片・金属片・石くずを並べ、ワープの穴に重なる
+// TestGolden_Remains は床に寝かせて描く跡の見え方を固定する。物の跡と敵の跡を並べ、ワープの穴に重なる
 // 跡は穴の下に描かれる
 func TestGolden_Remains(t *testing.T) {
 	t.Parallel()
@@ -32,6 +32,10 @@ func TestGolden_Remains(t *testing.T) {
 
 	for i, id := range []string{"wood_splinters", "metal_fragments", "stone_rubble"} {
 		_, err := lifecycle.SpawnRemains(world, id, consts.Coord[consts.Tile]{X: pc.X + 2, Y: pc.Y - 1 + consts.Tile(i)})
+		require.NoError(t, err)
+	}
+	for i, id := range []string{"blood_stain", "oil_stain", "slime_puddle", "scorch_mark", "ectoplasm"} {
+		_, err := lifecycle.SpawnRemains(world, id, consts.Coord[consts.Tile]{X: pc.X, Y: pc.Y - 3 + consts.Tile(i)})
 		require.NoError(t, err)
 	}
 	warp := consts.Coord[consts.Tile]{X: pc.X + 1, Y: pc.Y + 1}

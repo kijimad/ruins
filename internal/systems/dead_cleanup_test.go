@@ -347,13 +347,13 @@ func remainsByCoord(world w.World) map[consts.Coord[consts.Tile]]i18n.Msgid {
 	return got
 }
 
-// setMemberRemains は world の raw の敵の行 id にだけ跡を持たせる。ほかの world と共有する行の表は書き換えず、
-// 写しを差し替える
-func setMemberRemains(world w.World, id, remainsID string) {
+// setMemberRemains は world の raw の敵の行 id の跡を remainsID にする。nil なら跡を外す。ほかの world と
+// 共有する行の表は書き換えず、写しを差し替える
+func setMemberRemains(world w.World, id string, remainsID *string) {
 	members := slices.Clone(raw.PtrSlice(world.Resources.RawMaster.Members))
 	for i := range members {
 		if members[i].Id == id {
-			members[i].RemainsId = &remainsID
+			members[i].RemainsId = remainsID
 		}
 	}
 	world.Resources.RawMaster.Members = &members
@@ -374,7 +374,7 @@ func setPropRemains(world w.World, id, remainsID string) {
 func TestDeadCleanupSystem_死んだ敵と壊れた物の座標に行の跡を置く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	setMemberRemains(world, "moss_turtle", "metal_fragments")
+	setMemberRemains(world, "moss_turtle", nil)
 
 	// 草の上で壊れた椅子。ドロップ表を持たない置物の行から跡を引く
 	_, err := lifecycle.SpawnProp(world, "grass", 3, 3)
@@ -383,13 +383,13 @@ func TestDeadCleanupSystem_死んだ敵と壊れた物の座標に行の跡を�
 	require.NoError(t, err)
 	world.Components.Dead.Add(chair, &gc.Dead{})
 	// 跡を持つ敵の行
-	turtle, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "moss_turtle")
-	require.NoError(t, err)
-	world.Components.Dead.Add(turtle, &gc.Dead{})
-	// 跡を持たない敵の行
-	bat, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 7, Y: 7}, "bat")
+	bat, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "bat")
 	require.NoError(t, err)
 	world.Components.Dead.Add(bat, &gc.Dead{})
+	// 跡を外した敵の行
+	turtle, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 7, Y: 7}, "moss_turtle")
+	require.NoError(t, err)
+	world.Components.Dead.Add(turtle, &gc.Dead{})
 	// 行を持たない実体
 	other := world.ECS.NewEntity()
 	world.Components.GridElement.Add(other, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}})
@@ -399,14 +399,13 @@ func TestDeadCleanupSystem_死んだ敵と壊れた物の座標に行の跡を�
 
 	assert.Equal(t, map[consts.Coord[consts.Tile]]i18n.Msgid{
 		{X: 3, Y: 3}: "Wood Splinters",
-		{X: 5, Y: 5}: "Metal Fragments",
+		{X: 5, Y: 5}: "Blood Stain",
 	}, remainsByCoord(world))
 }
 
 func TestDeadCleanupSystem_跡のあるマスには重ねて置かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	setMemberRemains(world, "moss_turtle", "metal_fragments")
 
 	// 石くずのあるマスで敵が死ぬ
 	_, err := lifecycle.SpawnRemains(world, "stone_rubble", consts.Coord[consts.Tile]{X: 2, Y: 2})
