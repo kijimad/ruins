@@ -86,4 +86,6 @@ func TestCombatDistribution_HPが1どうしなら先に当てた側が勝つ式�
 	// プレイヤーが先に攻撃するので、プレイヤーが外し続けるあいだに敵が先に当てると倒される
 	want := (1 - pp) * pe / (1 - (1-pp)*(1-pe))
 	assert.InDelta(t, want, got.PlayerDeathProb, 1e-9)
+	// 毎ターンどちらかが当てれば決着するので、決着ターンは成功確率 1-(1-pp)(1-pe) の幾何分布になる
+	assert.InDelta(t, 1/(1-(1-pp)*(1-pe)), got.ExpectedTurns, 1e-9)
 }

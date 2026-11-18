@@ -28,7 +28,5 @@ cdda/
 /report.json
 # make test が出力するカバレッジプロファイル
 /coverage.out
-# ゲームバランスコマンドが出力する
-balance.md
 # graphify(コード知識グラフ)が出力する
 graphify-out/
