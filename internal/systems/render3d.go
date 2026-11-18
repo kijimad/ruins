@@ -475,8 +475,8 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		b1 := render3d.Add(base, render3d.Scale(right, bw))
 		top := render3d.At(0, bh, 0)
 		tl, tr := render3d.Add(b0, top), render3d.Add(b1, top)
-		// 立て板の上下は SpriteRender.Depth で決める。同一タイルのプレイヤーとアイテムは4隅が
-		// 一致して奥行きが同値になるので、この副キーが無いと走査順で前後がばらつく
+		// 立て板の上下は SpriteRender.Depth で決める。同一タイルの立て板は4隅が一致して奥行きが
+		// 同値になるので、この副キーが無いと走査順で前後がばらつく
 		depth := int(sr.Depth)
 		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
 		quads[len(quads)-1].depth = depth

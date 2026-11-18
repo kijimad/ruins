@@ -95,7 +95,7 @@ const (
 	DepthNumDecal
 	// DepthNumRug は床に置く低いもの。例: 焚き火、開いた扉
 	DepthNumRug
-	// DepthNumTaller は高さのあるもの。例: 操作対象エンティティ、敵シンボル、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く
+	// DepthNumTaller は高さのあるもの。例: テーブル、棚、閉じた扉、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く
 	DepthNumTaller
 	// DepthNumItem は拾えるアイテム。テーブルのような高さのある置物と同じマスにあっても、その上に出す
 	DepthNumItem

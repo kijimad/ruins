@@ -504,3 +504,30 @@ func TestCollectBillboards_同じマスのテーブルとアイテムはアイ�
 	require.Len(t, quads, 2)
 	assert.Equal(t, []int{int(gc.DepthNumTaller), int(gc.DepthNumItem)}, []int{quads[0].depth, quads[1].depth}, "後に描くアイテムが手前に出る")
 }
+
+func TestCollectBillboards_同じマスのアイテムとプレイヤーはプレイヤーを手前に描く(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, center, "ash")
+	require.NoError(t, err)
+	playerKey := world.Components.SpriteRender.Get(player).SpriteKey
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {
+			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
+			Sprites: map[string]gc.Sprite{playerKey: {Width: 32, Height: 32}, "donut": {Width: 32, Height: 32}},
+		},
+	})
+	_, err = lifecycle.SpawnFieldItem(world, "donut", center.X, center.Y, 1)
+	require.NoError(t, err)
+	sys := &Render3DSystem{}
+
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil)
+	sortQuadsByDepth(quads, projector.Depth)
+
+	require.Len(t, quads, 2)
+	assert.Equal(t, []int{int(gc.DepthNumItem), int(gc.DepthNumPlayer)}, []int{quads[0].depth, quads[1].depth}, "後に描くプレイヤーが手前に出る")
+}

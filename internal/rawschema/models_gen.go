@@ -2687,7 +2687,6 @@ const (
 	N1 SpriteDepth = 1
 	N2 SpriteDepth = 2
 	N3 SpriteDepth = 3
-	N4 SpriteDepth = 4
 )
 
 // Valid indicates whether the value is a known member of the SpriteDepth enum.
@@ -2700,8 +2699,6 @@ func (e SpriteDepth) Valid() bool {
 	case N2:
 		return true
 	case N3:
-		return true
-	case N4:
 		return true
 	default:
 		return false

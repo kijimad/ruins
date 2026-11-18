@@ -1529,7 +1529,7 @@ import (
 #SpellTurns: int & >=1 & <=100000
 
 // スプライト描画深度
-#SpriteDepth: 0 | 1 | 2 | 3 | 4 @rawgen(enum=float32)
+#SpriteDepth: 0 | 1 | 2 | 3 @rawgen(enum=float32)
 
 // スプライトキー
 #SpriteKey: string & strings.MinRunes(
