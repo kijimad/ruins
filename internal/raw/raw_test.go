@@ -1405,3 +1405,24 @@ func TestDepthOf(t *testing.T) {
 		assert.True(t, covered[d], "生成された描画順 %q の写しを表で確かめる", d)
 	}
 }
+
+func TestNewPropSpec_地面の飾りの行は置物でなく飾りにする(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	spec, err := NewPropSpec(raws, "grass")
+	require.NoError(t, err)
+
+	assert.Nil(t, spec.Prop)
+	assert.Equal(t, &gc.Decor{}, spec.Decor)
+}
+
+func TestGetRemains_無い跡の行はエラー(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	_, err = GetRemains(raws, "no_such_remains")
+	assert.ErrorIs(t, err, KeyNotFoundError{Key: "no_such_remains", Collection: "Remains"})
+}

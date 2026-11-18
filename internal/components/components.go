@@ -374,7 +374,7 @@ type Prop struct{}
 type Remains struct{}
 
 // Decor は草や土の模様のような地面の飾りであることを示すマーカーコンポーネント。置物の行のうち decor の行から
-// 作る。置物でもアイテムでもなく、通行・操作・拾得・積み込みのどれにも関わらない
+// 作り、Remains と同じく置物でもアイテムでもない
 type Decor struct{}
 
 // LightSource は光源コンポーネント

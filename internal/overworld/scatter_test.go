@@ -75,8 +75,7 @@ type propAt struct {
 	name string
 }
 
-// collectProps は置物の行から置いた全ての実体を座標順で集める。岩などの置物は Prop を、草や土の模様のような
-// 地面の飾りは Decor を持つので、どちらかを持つ実体を引く。タイルはどちらも持たない。
+// collectProps は置物の行から置いた全ての実体を座標順で集める。岩などの置物は Prop を、草や土の模様は Decor を持つ
 func collectProps(world w.World) []propAt {
 	var out []propAt
 	q := query.ActiveFilter1[gc.GridElement](world).Query()

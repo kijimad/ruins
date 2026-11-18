@@ -50,9 +50,9 @@ func TestTexture_UnmarshalText(t *testing.T) {
 func TestDepthNum_Rank(t *testing.T) {
 	t.Parallel()
 
-	order := []DepthNum{DepthNumFloor, DepthNumSnow, DepthNumRemains, DepthNumDecal, DepthNumRug, DepthNumTaller, DepthNumItem, DepthNumPlayer}
-	for i := 1; i < len(order); i++ {
-		assert.Less(t, order[i-1].Rank(), order[i].Rank(), "%s は %s より先に描く", order[i-1], order[i])
-	}
+	assert.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7}, []int{
+		DepthNumFloor.Rank(), DepthNumSnow.Rank(), DepthNumRemains.Rank(), DepthNumDecal.Rank(),
+		DepthNumRug.Rank(), DepthNumTaller.Rank(), DepthNumItem.Rank(), DepthNumPlayer.Rank(),
+	}, "全ての段が depthOrder にあり、床から手前へ並ぶ")
 	assert.Equal(t, DepthNumFloor.Rank(), DepthNum("unknown").Rank(), "未知の段は床の順にする")
 }

@@ -134,8 +134,7 @@ func toGCSpriteRender(s rawschema.SpriteRender) gc.SpriteRender {
 	}
 }
 
-// depthOf は raw の描画順の名前を段に写す。CUE が列挙を検査するので未知の値は来ないが、raw から来る値なので
-// panic せず床に落とす。描画順を持たない行の空の値も床になる
+// depthOf は raw の描画順の名前を段に写す。raw から来る値なので、未知の値と空の値は panic せず床にする
 func depthOf(d rawschema.SpriteDepth) gc.DepthNum {
 	switch d {
 	case rawschema.SpriteDepthFloor:
@@ -842,8 +841,7 @@ func GetRemains(raws rawschema.Raws, id string) (rawschema.Remains, error) {
 	return r, nil
 }
 
-// NewRemainsSpec は跡の行から、coord に置く跡の EntitySpec を組む。形は行の候補から座標の撹拌で1つ選ぶので、
-// 隣り合うマスでばらけ、ゲームの乱数を消費しない。描画順は跡の段に決まっているので行から取らない
+// NewRemainsSpec は跡の行から、coord に置く跡の EntitySpec を組む。形は座標の撹拌で選び、ゲームの乱数を消費しない
 func NewRemainsSpec(raws rawschema.Raws, id string, coord consts.Coord[consts.Tile]) (gc.EntitySpec, error) {
 	r, err := GetRemains(raws, id)
 	if err != nil {
@@ -934,7 +932,7 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Interactable = &gc.Interactable{Interactions: interactions}
 	}
 
-	// 地面の飾りは置物として扱わない。置物を数える処理に入らないよう Prop を外す
+	// 地面の飾りは置物を数える処理に入らないよう Prop を外す
 	if propRaw.Decor != nil && *propRaw.Decor {
 		entitySpec.Prop = nil
 		entitySpec.Decor = &gc.Decor{}

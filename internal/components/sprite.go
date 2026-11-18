@@ -3,6 +3,7 @@ package components
 import (
 	"bytes"
 	"image"
+	"slices"
 
 	// テクスチャは PNG。image.Decode が読めるよう復号器を登録する
 	_ "image/png"
@@ -85,7 +86,7 @@ type SpriteRender struct {
 	Options ebiten.DrawImageOptions `json:"-"`
 }
 
-// DepthNum はオブジェクトの描画の段。描く順は Rank で決まり、値は段の名前なので段を足しても保存した値の意味は変わらない
+// DepthNum はオブジェクトの描画の段。描く順は depthOrder の並びで決まる
 type DepthNum string
 
 const (
@@ -93,7 +94,7 @@ const (
 	DepthNumFloor DepthNum = "floor"
 	// DepthNumSnow は地面に重ねる雪の層。3D の描画だけが使い、実体は持たない
 	DepthNumSnow DepthNum = "snow"
-	// DepthNumRemains は敵や物が消えた跡。床の模様より下に描き、ワープの穴を隠さない
+	// DepthNumRemains は敵や物が消えた跡
 	DepthNumRemains DepthNum = "remains"
 	// DepthNumDecal は床の模様。例: 土のしみ、ワープホール
 	DepthNumDecal DepthNum = "decal"
@@ -107,25 +108,16 @@ const (
 	DepthNumPlayer DepthNum = "player"
 )
 
-// Rank は段を描く順を返す。小さいほど先に、つまり下に描く。セーブから来る未知の段は床の順にする
+// depthOrder は段を描く順。先にあるほど先に、つまり下に描く
+var depthOrder = []DepthNum{
+	DepthNumFloor, DepthNumSnow, DepthNumRemains, DepthNumDecal,
+	DepthNumRug, DepthNumTaller, DepthNumItem, DepthNumPlayer,
+}
+
+// Rank は depthOrder の中の位置を返す。セーブから来る未知の段は床の順にする
 func (d DepthNum) Rank() int {
-	switch d {
-	case DepthNumFloor:
-		return 0
-	case DepthNumSnow:
-		return 1
-	case DepthNumRemains:
-		return 2
-	case DepthNumDecal:
-		return 3
-	case DepthNumRug:
-		return 4
-	case DepthNumTaller:
-		return 5
-	case DepthNumItem:
-		return 6
-	case DepthNumPlayer:
-		return 7
+	if i := slices.Index(depthOrder, d); i >= 0 {
+		return i
 	}
 	return 0
 }

@@ -359,7 +359,7 @@ func setMemberRemains(world w.World, id string, remainsID *string) {
 	world.Resources.RawMaster.Members = &members
 }
 
-// setPropRemains は world の raw の置物の行 id にだけ跡を持たせる。ほかの world と共有する行の表は書き換えず、
+// setPropRemains は world の raw の置物の行 id の跡を remainsID にする。ほかの world と共有する行の表は書き換えず、
 // 写しを差し替える
 func setPropRemains(world w.World, id, remainsID string) {
 	props := slices.Clone(raw.PtrSlice(world.Resources.RawMaster.Props))
@@ -382,15 +382,12 @@ func TestDeadCleanupSystem_死んだ敵と壊れた物の座標に行の跡を�
 	chair, err := lifecycle.SpawnProp(world, "chair", 3, 3)
 	require.NoError(t, err)
 	world.Components.Dead.Add(chair, &gc.Dead{})
-	// 跡を持つ敵の行
 	bat, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "bat")
 	require.NoError(t, err)
 	world.Components.Dead.Add(bat, &gc.Dead{})
-	// 跡を外した敵の行
 	turtle, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 7, Y: 7}, "moss_turtle")
 	require.NoError(t, err)
 	world.Components.Dead.Add(turtle, &gc.Dead{})
-	// 行を持たない実体
 	other := world.ECS.NewEntity()
 	world.Components.GridElement.Add(other, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}})
 	world.Components.Dead.Add(other, &gc.Dead{})
@@ -407,7 +404,6 @@ func TestDeadCleanupSystem_跡のあるマスには重ねて置かない(t *test
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// 石くずのあるマスで敵が死ぬ
 	_, err := lifecycle.SpawnRemains(world, "stone_rubble", consts.Coord[consts.Tile]{X: 2, Y: 2})
 	require.NoError(t, err)
 	turtle, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 2, Y: 2}, "moss_turtle")

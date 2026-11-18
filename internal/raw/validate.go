@@ -551,8 +551,8 @@ func validateNeedStages(raws rawschema.Raws) error {
 // errDecorNotInert は地面の飾りの行が、置物として扱われる性質を持つことを表す
 var errDecorNotInert = errors.New("decor prop must not have hp, blockPass, blockView, storage or disassembly")
 
-// validateDecors は地面の飾りの行が、殴る・遮る・収納する・解体する性質を持たないことを検証する。飾りは置物を
-// 数える処理に入らないので、これらを持たせると殴っても壊れない、通れないのに数えられない、といった食い違いが出る
+// validateDecors は地面の飾りの行が、殴る・遮る・収納する・解体する性質を持たないことを検証する。
+// 飾りは置物を数える処理に入らないので、これらの性質と食い違う
 func validateDecors(raws rawschema.Raws) error {
 	props := PtrSlice(raws.Props)
 	for i := range props {
@@ -570,8 +570,8 @@ func validateDecors(raws rawschema.Raws) error {
 // errFlatDepthMismatch は寝かせる形と床の模様の段が対応していないことを表す
 var errFlatDepthMismatch = errors.New("flat shape and decal depth must go together")
 
-// validateFlatShapes は、床の模様の段の置物が寝かせる形を持ち、寝かせる形の置物が床の模様の段にあることを検証する。
-// 寝かせた板は奥行きが床と同じになり、描く順は段だけで決まるので、段と形が食い違うと立て板の間に寝た板が挟まる
+// validateFlatShapes は床の模様の段と寝かせる形が組になっていることを検証する。寝かせた板は奥行きが床と同じで、
+// 描く順が段だけで決まるため
 func validateFlatShapes(raws rawschema.Raws) error {
 	props := PtrSlice(raws.Props)
 	for i := range props {

@@ -104,7 +104,7 @@ func BenchmarkTurn(b *testing.B) {
 }
 
 // BenchmarkRemains は跡が溜まった階で、1ターンと1フレームの描画の実時間を測る。跡は消えないので、溜まった数ごとの
-// 重さを見て、時間で消す仕組みが要るかを判断する。跡はプレイヤーの周りのマスへ重ならないように敷き詰める
+// 重さを見て、時間で消す仕組みが要るかを判断する
 func BenchmarkRemains(b *testing.B) {
 	for _, n := range []int{0, 300, 1000} {
 		world := vrt.InitReplayWorld(b)
