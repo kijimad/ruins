@@ -1,13 +1,18 @@
 package systems
 
 import (
+	"maps"
 	"math/rand/v2"
+	"slices"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/i18n"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -329,4 +334,154 @@ func TestDeadCleanupSystem_壊れた収納propは中身を足元へ出す(t *tes
 	assert.True(t, world.ECS.Alive(item), "中身は消えず残る")
 	assert.True(t, world.Components.LocationOnField.Has(item), "中身は足元のフィールドへ出る")
 	assert.False(t, world.Components.LocationInStorage.Has(item), "収納内位置は解除される")
+}
+
+// remainsByCoord は置かれた跡を座標から名前への対応で集める
+func remainsByCoord(world w.World) map[consts.Coord[consts.Tile]]i18n.Msgid {
+	got := map[consts.Coord[consts.Tile]]i18n.Msgid{}
+	q := query.ActiveFilter3[gc.GridElement, gc.Name, gc.Remains](world).Query()
+	for q.Next() {
+		e := q.Entity()
+		got[world.Components.GridElement.Get(e).Coord] = world.Components.Name.Get(e).Name
+	}
+	return got
+}
+
+// setMemberRemains は world の raw の敵の行 id にだけ跡を持たせる。ほかの world と共有する行の表は書き換えず、
+// 写しを差し替える
+func setMemberRemains(world w.World, id, remainsID string) {
+	members := slices.Clone(raw.PtrSlice(world.Resources.RawMaster.Members))
+	for i := range members {
+		if members[i].Id == id {
+			members[i].RemainsId = &remainsID
+		}
+	}
+	world.Resources.RawMaster.Members = &members
+}
+
+// setPropRemains は world の raw の置物の行 id にだけ跡を持たせる。ほかの world と共有する行の表は書き換えず、
+// 写しを差し替える
+func setPropRemains(world w.World, id, remainsID string) {
+	props := slices.Clone(raw.PtrSlice(world.Resources.RawMaster.Props))
+	for i := range props {
+		if props[i].Id == id {
+			props[i].RemainsId = &remainsID
+		}
+	}
+	world.Resources.RawMaster.Props = &props
+}
+
+func TestDeadCleanupSystem_死んだ敵と壊れた物の座標に行の跡を置く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	setMemberRemains(world, "moss_turtle", "metal_fragments")
+
+	// 草の上で壊れた椅子。ドロップ表を持たない置物の行から跡を引く
+	_, err := lifecycle.SpawnProp(world, "grass", 3, 3)
+	require.NoError(t, err)
+	chair, err := lifecycle.SpawnProp(world, "chair", 3, 3)
+	require.NoError(t, err)
+	world.Components.Dead.Add(chair, &gc.Dead{})
+	// 跡を持つ敵の行
+	turtle, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "moss_turtle")
+	require.NoError(t, err)
+	world.Components.Dead.Add(turtle, &gc.Dead{})
+	// 跡を持たない敵の行
+	bat, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 7, Y: 7}, "bat")
+	require.NoError(t, err)
+	world.Components.Dead.Add(bat, &gc.Dead{})
+	// 行を持たない実体
+	other := world.ECS.NewEntity()
+	world.Components.GridElement.Add(other, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}})
+	world.Components.Dead.Add(other, &gc.Dead{})
+
+	require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+
+	assert.Equal(t, map[consts.Coord[consts.Tile]]i18n.Msgid{
+		{X: 3, Y: 3}: "Wood Splinters",
+		{X: 5, Y: 5}: "Metal Fragments",
+	}, remainsByCoord(world))
+}
+
+func TestDeadCleanupSystem_跡のあるマスには重ねて置かない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	setMemberRemains(world, "moss_turtle", "metal_fragments")
+
+	// 石くずのあるマスで敵が死ぬ
+	_, err := lifecycle.SpawnRemains(world, "stone_rubble", consts.Coord[consts.Tile]{X: 2, Y: 2})
+	require.NoError(t, err)
+	turtle, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 2, Y: 2}, "moss_turtle")
+	require.NoError(t, err)
+	world.Components.Dead.Add(turtle, &gc.Dead{})
+	// 同じ tick に同じマスで2つ壊れる
+	for _, id := range []string{"chair", "refrigerator"} {
+		e, err := lifecycle.SpawnProp(world, id, 4, 4)
+		require.NoError(t, err)
+		world.Components.Dead.Add(e, &gc.Dead{})
+	}
+
+	require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+
+	got := remainsByCoord(world)
+	assert.ElementsMatch(t, []consts.Coord[consts.Tile]{{X: 2, Y: 2}, {X: 4, Y: 4}}, slices.Collect(maps.Keys(got)))
+	assert.Equal(t, i18n.Msgid("Stone Rubble"), got[consts.Coord[consts.Tile]{X: 2, Y: 2}], "先にあった跡が残る")
+}
+
+func TestDeadCleanupSystem_キューブに置いた設備は跡を置かずに消える(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
+	require.NoError(t, err)
+	require.True(t, lifecycle.DeployCube(world, cube))
+	item, err := lifecycle.SpawnBackpackItem(world, "deployable_storage", 1)
+	require.NoError(t, err)
+	query.InvalidateSpatialIndex(world)
+	facility, err := lifecycle.PlaceFacility(world, cube, item, consts.Coord[consts.Tile]{X: 11, Y: 10})
+	require.NoError(t, err)
+	world.Components.Dead.Add(facility, &gc.Dead{})
+
+	require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+
+	assert.False(t, world.ECS.Alive(facility))
+	assert.Equal(t, map[consts.Coord[consts.Tile]]i18n.Msgid{}, remainsByCoord(world))
+}
+
+func TestDeadCleanupSystem_置物の行が無い置物はエラーを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	chair, err := lifecycle.SpawnProp(world, "chair", 3, 3)
+	require.NoError(t, err)
+	world.Components.RawID.Get(chair).ID = "no_such_prop"
+	world.Components.Dead.Add(chair, &gc.Dead{})
+
+	var keyErr raw.KeyNotFoundError
+	require.ErrorAs(t, (&DeadCleanupSystem{}).Update(world), &keyErr)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "no_such_prop", Collection: "Props"}, keyErr)
+}
+
+func TestDeadCleanupSystem_燃え尽きた火は燃え残りと跡の両方を残す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	setPropRemains(world, "fire", "stone_rubble")
+	coord := consts.Coord[consts.Tile]{X: 4, Y: 7}
+	// 着火と同じく、火の置物に残ターン数を付けて燃やす
+	fire, err := lifecycle.SpawnProp(world, "fire", coord.X, coord.Y)
+	require.NoError(t, err)
+	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 1})
+
+	require.NoError(t, (&FireSystem{}).Update(world))
+	require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+
+	assert.Equal(t, map[consts.Coord[consts.Tile]]i18n.Msgid{coord: "Stone Rubble"}, remainsByCoord(world))
+	var ashes []consts.Coord[consts.Tile]
+	q := query.ActiveFilter2[gc.GridElement, gc.RawID](world).Query()
+	for q.Next() {
+		if world.Components.RawID.Get(q.Entity()).ID == "ashes" {
+			ashes = append(ashes, world.Components.GridElement.Get(q.Entity()).Coord)
+		}
+	}
+	assert.Equal(t, []consts.Coord[consts.Tile]{coord}, ashes)
 }

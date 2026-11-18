@@ -1094,6 +1094,12 @@ import (
 		dropTableId_ref: _dropTableIDs[dropTableId] @rawgen(-)
 	}
 
+	// 死んだときに足元へ残す跡。省くと何も残さない
+	remainsId?: #EntityID
+	if remainsId != _|_ {
+		remainsId_ref: _remainsIDs[remainsId] @rawgen(-)
+	}
+
 	// 生成時に装備して持たせるアイテム。startingItems より先に持たせる
 	startingEquips?: [...#ProfessionEquip]
 	if startingEquips != _|_ {
@@ -1204,6 +1210,12 @@ import (
 	if burnoutItem != _|_ {
 		burnoutItem_ref: _itemIDs[burnoutItem] @rawgen(-)
 	}
+
+	// 壊れたときに足元へ残す跡。省くと何も残さない
+	remainsId?: #EntityID
+	if remainsId != _|_ {
+		remainsId_ref: _remainsIDs[remainsId] @rawgen(-)
+	}
 }
 
 // 基準点から相対の位置に置くエンティティ1個
@@ -1221,6 +1233,14 @@ import (
 }
 
 // RGBA色
+// 敵や物が消えた跡に床へ残す装飾。描画順は跡の段に決まっているので行に持たない
+#Remains: {
+	id!:              #EntityID
+	name!:            #EntityName
+	spriteSheetName!: #SpriteSheetName
+	spriteKey!:       #SpriteKey
+}
+
 #RGBAColor: {
 	r!: #ColorChannel
 	g!: #ColorChannel
@@ -1252,6 +1272,7 @@ import (
 	districts?: [...#District]
 	pointFeatures?: [...#PointFeature]
 	landmarks?: [...#Landmark]
+	remains?: [...#Remains]
 	crashSites?: [...#CrashSite]
 	scatterZones?: [...#ScatterZone]
 	mapGlyphs?: [...#MapGlyph]
@@ -1302,6 +1323,7 @@ import (
 	facilityIds_unique: {if facilities != _|_ for i, x in facilities {(x.id): i}} @rawgen(-)
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
+	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)
 	scatterZoneIds_unique: {if scatterZones != _|_ for i, x in scatterZones {(x.id): i}} @rawgen(-)
 	mapGlyphIds_unique: {if mapGlyphs != _|_ for i, x in mapGlyphs {(x.id): i}} @rawgen(-)
 	settlementIds_unique: {if settlements != _|_ for i, x in settlements {(x.id): i}} @rawgen(-)

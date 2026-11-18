@@ -114,6 +114,13 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		lifecycle.MoveMembersToField(world, items, coord, owner)
 	}
 
+	// 跡を置く。ドロップの loop は落とす物の無い実体を飛ばすので、それとは別に全ての実体を見る
+	for _, entity := range toDelete {
+		if err := placeRemains(world, entity); err != nil {
+			return err
+		}
+	}
+
 	// エンティティを削除する
 	for _, entity := range toDelete {
 		// スプライトフェードアウトエフェクトを生成
@@ -136,5 +143,41 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		logger.Debug("Dead cleanup completed", "deleted_count", len(toDelete))
 	}
 
+	return nil
+}
+
+// placeRemains は死んだ実体 e の行が持つ跡を、e の座標へ置く。そのマスにすでに跡があれば置かない。
+// 引く表は実体の種類で決め、Prop を持てば置物の行、持たなければ敵の行を引く。キューブに置いた設備は
+// アイテムの行から作られて跡を持てないので、行を引かずに飛ばす
+func placeRemains(world w.World, e ecs.Entity) error {
+	if !world.Components.GridElement.Has(e) || !world.Components.RawID.Has(e) || world.Components.Deployable.Has(e) {
+		return nil
+	}
+	raws := world.Resources.RawMaster
+	id := world.Components.RawID.Get(e).ID
+	var remainsID *string
+	if world.Components.Prop.Has(e) {
+		prop, err := raw.GetProp(raws, id)
+		if err != nil {
+			return fmt.Errorf("failed to get prop for remains: %w", err)
+		}
+		remainsID = prop.RemainsId
+	} else {
+		member, err := raw.FindMember(raws, id)
+		if err != nil {
+			return fmt.Errorf("failed to get member for remains: %w", err)
+		}
+		remainsID = member.RemainsId
+	}
+	if remainsID == nil {
+		return nil
+	}
+	coord := world.Components.GridElement.Get(e).Coord
+	if _, ok := query.RemainsAt(world, coord); ok {
+		return nil
+	}
+	if _, err := lifecycle.SpawnRemains(world, *remainsID, coord); err != nil {
+		return fmt.Errorf("failed to spawn remains: %w", err)
+	}
 	return nil
 }

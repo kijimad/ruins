@@ -29,6 +29,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			Id: "slime", Name: "Slime", SpriteSheetName: "field", SpriteKey: "slime",
 			CommandTableId: new("fists"),
 			DropTableId:    new("remains"),
+			RemainsId:      new("splinters"),
 			Dialog:         &rawschema.Dialog{MessageKey: "greeting"},
 			StartingEquips: &[]rawschema.ProfessionEquip{{Name: "iron", Slot: rawschema.EquipSlotWEAPON1}},
 			StartingItems:  &[]rawschema.ProfessionItem{{Name: "iron", Count: 1}},
@@ -52,6 +53,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Landmarks: &[]rawschema.Landmark{
 			{Id: "house", Weight: 1},
 		},
+		Remains: &[]rawschema.Remains{{Id: "splinters", Name: "Splinters", SpriteSheetName: "field", SpriteKey: "debris"}},
 		PointFeatures: &[]rawschema.PointFeature{
 			{Id: rawschema.PointFeatureKindSettlement, Spacing: 3, Separation: 1, Salt: 1, Road: &rawschema.Road{Tile: "floor", Width: 2}},
 		},
@@ -69,6 +71,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			Id: "bed", Name: "Bed", Description: "Bed", SpriteRender: render("bed"),
 			Hp:          new(rawschema.HitPoints(1)),
 			BurnoutItem: new("iron"),
+			RemainsId:   new("splinters"),
 			Disassembly: &rawschema.Disassembly{
 				Yields: []rawschema.DisassemblyYield{{Id: "iron", Count: "1d1"}},
 				Bonus:  &[]rawschema.DisassemblyBonus{{Id: "iron", Count: "1d1"}},
@@ -159,6 +162,8 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"分解の産出", func(r *rawschema.Raws) { (*r.Props)[0].Disassembly.Yields[0].Id = "none" }, "props.0.disassembly.yields.0.id_ref"},
 		{"分解のボーナス", func(r *rawschema.Raws) { (*(*r.Props)[0].Disassembly.Bonus)[0].Id = "none" }, "props.0.disassembly.bonus.0.id_ref"},
 		{"燃え残り", func(r *rawschema.Raws) { (*r.Props)[0].BurnoutItem = new("none") }, "props.0.burnoutItem_ref"},
+		{"member の跡", func(r *rawschema.Raws) { (*r.Members)[0].RemainsId = new("none") }, "members.0.remainsId_ref"},
+		{"置物の跡", func(r *rawschema.Raws) { (*r.Props)[0].RemainsId = new("none") }, "props.0.remainsId_ref"},
 		{"不調の部位", func(r *rawschema.Raws) { (*(*r.Conditions)[0].Parts)[0] = "tail" }, "conditions.0.parts_ref.0"},
 		{"治療の対象", func(r *rawschema.Raws) { (*r.Items)[0].Remedy.Treats[0] = "bruise" }, "items.0.remedy.treats_ref.0"},
 		{"材質の分解の戻し先", func(r *rawschema.Raws) { (*r.Materials)[0].Disassembly.Item = "none" }, "materials.0.disassembly.item_ref"},
@@ -199,6 +204,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 	}{
 		{"施設", func(r *rawschema.Raws) { *r.Facilities = append(*r.Facilities, (*r.Facilities)[0]) }, "facilityIds_unique.house"},
 		{"ランドマーク", func(r *rawschema.Raws) { *r.Landmarks = append(*r.Landmarks, (*r.Landmarks)[0]) }, "landmarkIds_unique.house"},
+		{"跡", func(r *rawschema.Raws) { *r.Remains = append(*r.Remains, (*r.Remains)[0]) }, "remainsIds_unique.splinters"},
 		{"散布ゾーン", func(r *rawschema.Raws) { *r.ScatterZones = append(*r.ScatterZones, (*r.ScatterZones)[0]) }, "scatterZoneIds_unique.meadow"},
 		{"地図記号", func(r *rawschema.Raws) { *r.MapGlyphs = append(*r.MapGlyphs, (*r.MapGlyphs)[0]) }, "mapGlyphIds_unique.house"},
 		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.village"},

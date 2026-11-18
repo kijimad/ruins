@@ -830,6 +830,28 @@ func GetProp(raws rawschema.Raws, name string) (rawschema.Prop, error) {
 	return prop, nil
 }
 
+// GetRemains は id の跡の行を返す
+func GetRemains(raws rawschema.Raws, id string) (rawschema.Remains, error) {
+	r, ok := FindByKey(raws.Remains, func(r rawschema.Remains) string { return r.Id }, id)
+	if !ok {
+		return rawschema.Remains{}, NewKeyNotFoundError(id, "Remains")
+	}
+	return r, nil
+}
+
+// NewRemainsSpec は跡の行から跡の EntitySpec を組む。描画順は跡の段に決まっているので行から取らない
+func NewRemainsSpec(raws rawschema.Raws, id string) (gc.EntitySpec, error) {
+	r, err := GetRemains(raws, id)
+	if err != nil {
+		return gc.EntitySpec{}, err
+	}
+	return gc.EntitySpec{
+		Name:         &gc.Name{Name: i18n.Msgid(r.Name)},
+		SpriteRender: &gc.SpriteRender{SpriteSheetName: r.SpriteSheetName, SpriteKey: r.SpriteKey, Depth: gc.DepthNumRemains},
+		Remains:      &gc.Remains{},
+	}, nil
+}
+
 // NewPropSpec は指定された名前の置物のEntitySpecを生成する
 func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	propRaw, err := GetProp(raws, name)

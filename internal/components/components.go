@@ -369,6 +369,10 @@ type Item struct{}
 // 家具・構造物・自然物・場の効果の総称
 type Prop struct{}
 
+// Remains は敵や物が消えた跡に床へ残す装飾であることを示すマーカーコンポーネント。
+// 置物でもアイテムでもなく、通行・操作・拾得・積み込みのどれにも関わらない
+type Remains struct{}
+
 // LightSource は光源コンポーネント
 type LightSource struct {
 	Radius  consts.Tile // 照明範囲

@@ -1364,6 +1364,12 @@ msgstr "敵"
 msgid "Tile"
 msgstr "タイル"
 
+msgid "NPC"
+msgstr "NPC"
+
+msgid "Remains"
+msgstr "跡"
+
 msgid "Overworld"
 msgstr "オーバーワールド"
 
@@ -6691,3 +6697,12 @@ msgstr "探す"
 
 msgid "Search a container"
 msgstr "収納を探す"
+
+msgid "Wood Splinters"
+msgstr "木片"
+
+msgid "Metal Fragments"
+msgstr "金属片"
+
+msgid "Stone Rubble"
+msgstr "石くず"

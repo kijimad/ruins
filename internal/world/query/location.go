@@ -73,3 +73,15 @@ func CanAddStackToStorage(world w.World, storage ecs.Entity, items []ecs.Entity)
 	wc := world.Components.WeightCapacity.Get(storage)
 	return wc.Current+total <= wc.Max
 }
+
+// RemainsAt は coord にある跡を返す。無ければ false
+func RemainsAt(world w.World, coord consts.Coord[consts.Tile]) (ecs.Entity, bool) {
+	q := ActiveFilter2[gc.GridElement, gc.Remains](world).Query()
+	defer q.Close()
+	for q.Next() {
+		if world.Components.GridElement.Get(q.Entity()).Coord == coord {
+			return q.Entity(), true
+		}
+	}
+	return gc.InvalidEntity, false
+}

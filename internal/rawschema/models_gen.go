@@ -1710,6 +1710,9 @@ type Member struct {
 
 	Player *IsPlayer `json:"player,omitempty"`
 
+	// RemainsId 死んだときに足元へ残す跡。省くと何も残さない
+	RemainsId *EntityID `json:"remainsId,omitempty"`
+
 	SpriteKey SpriteKey `json:"spriteKey"`
 
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
@@ -2028,6 +2031,9 @@ type Prop struct {
 
 	PassCost *PassCost `json:"passCost,omitempty"`
 
+	// RemainsId 壊れたときに足元へ残す跡。省くと何も残さない
+	RemainsId *EntityID `json:"remainsId,omitempty"`
+
 	SpriteRender SpriteRender `json:"spriteRender"`
 
 	Storage *StorageRaw `json:"storage,omitempty"`
@@ -2055,7 +2061,6 @@ type ProvidesHealing struct {
 	ValueType HealingValueType `json:"valueType"`
 }
 
-// RGBAColor RGBA色
 type RGBAColor struct {
 	A ColorChannel `json:"a"`
 
@@ -2157,6 +2162,8 @@ type Raws struct {
 	Recipes *[]Recipe `json:"recipes,omitempty"`
 
 	RectRoomStarts *[]RectRoomStart `json:"rectRoomStarts,omitempty"`
+
+	Remains *[]Remains `json:"remains,omitempty"`
 
 	RuinedPathSteps *[]RuinedPathStep `json:"ruinedPathSteps,omitempty"`
 
@@ -2261,6 +2268,18 @@ type RectRoomStart struct {
 
 // ReloadEffort リロードに必要な行動力
 type ReloadEffort = int
+
+// Remains RGBA色
+// 敵や物が消えた跡に床へ残す装飾。描画順は跡の段に決まっているので行に持たない
+type Remains struct {
+	Id EntityID `json:"id"`
+
+	Name EntityName `json:"name"`
+
+	SpriteKey SpriteKey `json:"spriteKey"`
+
+	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
+}
 
 // Remedy 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
 type Remedy struct {

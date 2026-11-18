@@ -117,12 +117,13 @@ const (
 
 // フィールド観察カテゴリ名の定数。値は query.T の msgid として使う
 const (
-	CategoryPlayer = "Self"
-	CategoryEnemy  = "Enemy"
-	CategoryNPC    = "NPC"
-	CategoryItem   = "Item"
-	CategoryProp   = "Prop"
-	CategoryTile   = "Tile"
+	CategoryPlayer  = "Self"
+	CategoryEnemy   = "Enemy"
+	CategoryNPC     = "NPC"
+	CategoryItem    = "Item"
+	CategoryProp    = "Prop"
+	CategoryRemains = "Remains"
+	CategoryTile    = "Tile"
 )
 
 // has は Components のフィールド名を自動解決して Has を生成する。
@@ -148,6 +149,7 @@ func (c *Components) Categories() map[CategoryGroupKey][]Category {
 			{Name: CategoryNPC, Pred: Or{c.has(c.FactionAlly), c.has(c.FactionNeutral)}},
 			{Name: CategoryItem, Pred: c.has(c.Item)},
 			{Name: CategoryProp, Pred: c.has(c.Prop)},
+			{Name: CategoryRemains, Pred: c.has(c.Remains)},
 			{Name: CategoryTile, Pred: c.has(c.Tile)},
 		},
 	}
