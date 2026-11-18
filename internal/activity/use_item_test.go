@@ -755,19 +755,23 @@ func TestUseItem_キューブの核を使うと隣にキューブが組み上が
 		{X: 11, Y: 10}, {X: 9, Y: 11}, {X: 10, Y: 11}, {X: 11, Y: 11},
 	}
 	far := consts.Coord[consts.Tile]{X: 15, Y: 15}
+	above := consts.Coord[consts.Tile]{X: 10, Y: 9}
+	right := consts.Coord[consts.Tile]{X: 11, Y: 10}
 	tests := []struct {
-		name      string
-		overworld bool
-		cubes     int
-		items     []consts.Coord[consts.Tile]
-		wantCubes []consts.Coord[consts.Tile]
-		wantLog   i18n.Msgid
+		name         string
+		overworld    bool
+		cubes        []consts.Coord[consts.Tile]
+		items        []consts.Coord[consts.Tile]
+		wantCubes    []consts.Coord[consts.Tile]
+		wantCoreLeft bool
+		wantLog      i18n.Msgid
 	}{
-		{"地上でキューブが無ければ真上のマスに1台組み上がる", true, 0, nil, []consts.Coord[consts.Tile]{{X: 10, Y: 9}}, "A new cube has been assembled."},
-		{"地上でキューブが居ても2台目が組み上がる", true, 1, nil, []consts.Coord[consts.Tile]{far, {X: 10, Y: 9}}, "A new cube has been assembled."},
-		{"落ちている物のあるマスは飛ばす", true, 0, []consts.Coord[consts.Tile]{{X: 10, Y: 9}}, []consts.Coord[consts.Tile]{{X: 11, Y: 10}}, "A new cube has been assembled."},
-		{"周りが埋まっていれば組み上がらず核も残る", true, 0, surrounded, nil, "There is no room to assemble the cube."},
-		{"地上でなければ組み上がらず核も残る", false, 0, nil, nil, "The cube can only be assembled outdoors."},
+		{"地上でキューブが無ければ真上のマスに1台組み上がる", true, nil, nil, []consts.Coord[consts.Tile]{above}, false, "A new cube has been assembled."},
+		{"地上でキューブが居ても2台目が組み上がる", true, []consts.Coord[consts.Tile]{far}, nil, []consts.Coord[consts.Tile]{far, above}, false, "A new cube has been assembled."},
+		{"真上にキューブが居ればそのマスを飛ばす", true, []consts.Coord[consts.Tile]{above}, nil, []consts.Coord[consts.Tile]{above, right}, false, "A new cube has been assembled."},
+		{"落ちている物のあるマスは飛ばす", true, nil, []consts.Coord[consts.Tile]{above}, []consts.Coord[consts.Tile]{right}, false, "A new cube has been assembled."},
+		{"周りが埋まっていれば組み上がらず核も残る", true, nil, surrounded, nil, true, "There is no room to assemble the cube."},
+		{"地上でなければ組み上がらず核も残る", false, nil, nil, nil, true, "The cube can only be assembled outdoors."},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -778,8 +782,8 @@ func TestUseItem_キューブの核を使うと隣にキューブが組み上が
 			}
 			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 			require.NoError(t, err)
-			for range tt.cubes {
-				_, err := lifecycle.SpawnCube(world, far)
+			for _, c := range tt.cubes {
+				_, err := lifecycle.SpawnCube(world, c)
 				require.NoError(t, err)
 			}
 			for _, c := range tt.items {
@@ -794,7 +798,7 @@ func TestUseItem_キューブの核を使うと隣にキューブが組み上が
 			require.NoError(t, err)
 
 			assert.ElementsMatch(t, tt.wantCubes, query.CubeTiles(world))
-			assert.Equal(t, len(tt.wantCubes) == tt.cubes, world.ECS.Alive(core), "組み上がれば核を使い切る")
+			assert.Equal(t, tt.wantCoreLeft, world.ECS.Alive(core))
 			assert.Equal(t, query.T(world, tt.wantLog), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
 		})
 	}

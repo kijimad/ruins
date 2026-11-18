@@ -150,8 +150,9 @@ func (dr *Driver) startInitialBand(world w.World) error {
 	return nil
 }
 
-// walkableSpawnNear は (cx, cy) から外側のリングへ順に探し、BlockPass が無く taken にも無い最初のタイル座標を
-// 返す。taken には先に置いたプレイヤーやキューブの座標を渡す。キューブは BlockPass を持たないので重なりうる。開始チャンクが荒れ地でなく建物でも、プレイヤーを壁の中へ湧かせないための安全策。
+// walkableSpawnNear は center から外側のリングへ順に探し、BlockPass が無く taken にも無い最初のタイル座標を返す。
+// キューブは BlockPass を持たないので、先に置いたプレイヤーやキューブの座標は taken で避ける。
+// 開始チャンクが荒れ地でなく建物でも、プレイヤーを壁の中へ湧かせないための安全策。
 // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。
 func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile], taken map[consts.Coord[consts.Tile]]bool) consts.Coord[consts.Tile] {
 	blocked := make(map[gc.GridElement]bool)

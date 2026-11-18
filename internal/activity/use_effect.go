@@ -1,7 +1,7 @@
 package activity
 
 import (
-	"fmt"
+	"errors"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -125,7 +125,7 @@ func (cubeCoreEffect) check(_ *UseItemBehavior, actor, _ ecs.Entity, world w.Wor
 func (cubeCoreEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, _ ecs.Entity, world w.World) error {
 	pos, ok := cubeAssemblyTile(world, actor)
 	if !ok {
-		return fmt.Errorf("no tile to assemble the cube")
+		return errors.New("no tile to assemble the cube")
 	}
 	if _, err := lifecycle.SpawnCube(world, pos); err != nil {
 		return err
