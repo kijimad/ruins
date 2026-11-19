@@ -5972,9 +5972,6 @@ msgstr "病気"
 msgid "Injury"
 msgstr "外傷"
 
-msgid "debug"
-msgstr "デバッグ"
-
 msgid "Not tired enough to sleep."
 msgstr "まだ眠くない。"
 

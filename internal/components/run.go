@@ -28,7 +28,7 @@ var deathCauseDisplayNames = map[DeathCause]i18n.Msgid{
 	CauseIllness:     "Illness",
 	CauseBloodLoss:   "Blood loss",
 	CauseInjury:      "Injury",
-	CauseDebug:       "debug",
+	CauseDebug:       "Debug",
 }
 
 // DisplayName は死因の表示名を返す。

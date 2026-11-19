@@ -21,7 +21,7 @@ func TestDeathCause_DisplayName(t *testing.T) {
 		{CauseIllness, "Illness"},
 		{CauseBloodLoss, "Blood loss"},
 		{CauseInjury, "Injury"},
-		{CauseDebug, "debug"},
+		{CauseDebug, "Debug"},
 	}
 	for _, tt := range tests {
 		t.Run(string(tt.cause), func(t *testing.T) {
