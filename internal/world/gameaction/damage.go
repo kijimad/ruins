@@ -39,7 +39,7 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 		// ダメージで倒れたプレイヤーは、攻撃か自傷かを問わず外傷として死因を記録する
 		if isPlayerEntity(target, world) {
 			if rs := query.GetRunStats(world); rs != nil {
-				rs.Cause = gc.CauseKilled
+				rs.Cause = gc.CauseInjury
 			}
 		}
 		logDeath(world, target, source)

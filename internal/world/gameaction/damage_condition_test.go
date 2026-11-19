@@ -93,7 +93,7 @@ func TestApplyDamage_戦闘死はkilledを記録する(t *testing.T) {
 		require.True(t, world.Components.Dead.Has(player))
 		rs := query.GetRunStats(world)
 		require.NotNil(t, rs)
-		assert.Equal(t, gc.CauseKilled, rs.Cause)
+		assert.Equal(t, gc.CauseInjury, rs.Cause)
 	})
 
 	t.Run("敵の戦闘死では死因を記録しない", func(t *testing.T) {

@@ -20,7 +20,7 @@ func TestDeathCause_DisplayName(t *testing.T) {
 		{CauseFrozen, "froze to death"},
 		{CauseIllness, "died of illness"},
 		{CauseBloodLoss, "bled out"},
-		{CauseKilled, "injury"},
+		{CauseInjury, "died of injuries"},
 		{CauseDebug, "debug"},
 	}
 	for _, tt := range tests {
