@@ -11,7 +11,7 @@ type WeaponSelection struct {
 
 // Validate は選択中の武器スロットが SlotWeapon1 から SlotWeapon5 の間にあるかを検査する。ロード直後など信頼できない入力に使う
 func (s WeaponSelection) Validate() error {
-	if s.Slot < SlotWeapon1 || s.Slot > SlotWeapon5 {
+	if _, ok := s.Slot.WeaponIndex(); !ok {
 		return fmt.Errorf("weapon selection slot is not a weapon slot: %d", s.Slot)
 	}
 	return nil

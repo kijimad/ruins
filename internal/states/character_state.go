@@ -271,7 +271,7 @@ func characterEquipSlots(world w.World, character ecs.Entity) []equipItemData {
 		if weapon != nil {
 			name = query.GetEntityName(*weapon, world)
 		}
-		items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: gc.EquipmentSlotNumber(int(gc.SlotWeapon1) + i), Entity: weapon, Character: character})
+		items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: gc.SlotWeapon1 + gc.EquipmentSlotNumber(i), Entity: weapon, Character: character})
 	}
 
 	// armor・armorLabels・armorSlots は防具7スロットに対応する並行配列。

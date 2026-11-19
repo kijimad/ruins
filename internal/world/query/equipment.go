@@ -25,9 +25,8 @@ func GetWeapons(world w.World, owner ecs.Entity) [gc.WeaponSlotCount]*ecs.Entity
 		}
 		equipped := world.Components.LocationEquipped.Get(entity)
 		if owner == equipped.Owner {
-			if equipped.EquipmentSlot >= gc.SlotWeapon1 && equipped.EquipmentSlot <= gc.SlotWeapon5 {
-				index := int(equipped.EquipmentSlot) - int(gc.SlotWeapon1)
-				weapons[index] = &entity
+			if i, ok := equipped.EquipmentSlot.WeaponIndex(); ok {
+				weapons[i] = &entity
 			}
 		}
 	}
@@ -35,9 +34,15 @@ func GetWeapons(world w.World, owner ecs.Entity) [gc.WeaponSlotCount]*ecs.Entity
 	return weapons
 }
 
-// SelectedWeapon は owner が選択中の武器スロットに装備している武器を返す。空きスロットなら ok は偽
+// SelectedWeapon は owner が選択中の武器スロットに装備している武器を返す。空きスロットなら ok は偽。
+// 選択が武器スロットであることはロードの検査と数字キーの処理が保証するので、破れていれば panic する
 func SelectedWeapon(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
-	weapon := GetWeapons(world, owner)[GetWeaponSelection(world).Slot-gc.SlotWeapon1]
+	slot := GetWeaponSelection(world).Slot
+	i, ok := slot.WeaponIndex()
+	if !ok {
+		panic(fmt.Sprintf("weapon selection is not a weapon slot: %d", slot))
+	}
+	weapon := GetWeapons(world, owner)[i]
 	if weapon == nil {
 		return ecs.Entity{}, false
 	}
