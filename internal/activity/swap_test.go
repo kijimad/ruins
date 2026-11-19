@@ -43,3 +43,58 @@ func TestExecuteMoveAction_展開中のキューブとは入れ替えない(t *t
 	require.Len(t, entries, 1)
 	assert.Equal(t, query.T(world, "The deployed cube cannot be moved."), entries[0].Text())
 }
+
+func TestSwapBehavior_Validate_パラメータの型が不正ならエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	comp := &gc.Activity{BehaviorName: gc.BehaviorSwap}
+
+	sb := &SwapBehavior{}
+	err = sb.Validate(comp, player, world)
+
+	require.ErrorIs(t, err, ErrParamsTypeMismatch)
+}
+
+func TestSwapBehavior_Validate_入れ替え先が死亡しているとエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	dead := world.ECS.NewEntity()
+	world.ECS.RemoveEntity(dead)
+	comp := &gc.Activity{BehaviorName: gc.BehaviorSwap, Params: &gc.SwapParams{Target: dead}}
+
+	sb := &SwapBehavior{}
+	err = sb.Validate(comp, player, world)
+
+	require.Error(t, err)
+}
+
+func TestSwapBehavior_Validate_GridElementが無いとエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	target := world.ECS.NewEntity()
+	comp := &gc.Activity{BehaviorName: gc.BehaviorSwap, Params: &gc.SwapParams{Target: target}}
+
+	sb := &SwapBehavior{}
+	err = sb.Validate(comp, player, world)
+
+	require.ErrorIs(t, err, ErrGridElementNotFound)
+}
+
+func TestSwapBehavior_DoTurn_パラメータの型が不正ならエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	comp := &gc.Activity{BehaviorName: gc.BehaviorSwap}
+
+	sb := &SwapBehavior{}
+	err = sb.DoTurn(comp, player, world)
+
+	require.ErrorIs(t, err, ErrParamsTypeMismatch)
+}
