@@ -74,7 +74,7 @@ func TestDropSalvage_分解定義が無ければ何もせず終わる(t *testing
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	target, err := lifecycle.SpawnProp(world, "grass", 10, 9)
+	target, err := lifecycle.SpawnProp(world, "carpet", 10, 9)
 	require.NoError(t, err)
 
 	err = dropSalvage(world, player, target)
