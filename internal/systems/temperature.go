@@ -39,7 +39,7 @@ const (
 	// bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
 	bodyTempHomeostasisPerTurn = 0.1
 	// bodyTempComfortTemp はこれ以上なら体温が下がらない有効温度
-	bodyTempComfortTemp = 10
+	bodyTempComfortTemp = 12
 	// bodyTempColdPerDegree は有効温度が適温を1℃下回るごとに1ターンで下がる体温
 	bodyTempColdPerDegree = 0.002
 )

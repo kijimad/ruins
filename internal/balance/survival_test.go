@@ -20,12 +20,12 @@ func TestDaysUntilStarving_手計算と一致(t *testing.T) {
 
 func TestTurnsToHypothermia_温度帯ごとに一致(t *testing.T) {
 	t.Parallel()
-	// 低体温帯2.0 / |冷却率|。冷却率は適温10℃を下回った1℃ごとに0.002。
-	// -50℃は0.12で約16.7ターン、0℃は0.02で100ターン、5℃は0.01で200ターン、適温は冷えないので0。
-	assert.InDelta(t, 2.0/0.12, TurnsToHypothermia(-50), 1e-9)
-	assert.InDelta(t, 100, TurnsToHypothermia(0), 1e-9)
-	assert.InDelta(t, 200, TurnsToHypothermia(5), 1e-9)
-	assert.Equal(t, 0.0, TurnsToHypothermia(10))
+	// 低体温帯2.0 / |冷却率|。冷却率は適温12℃を下回った1℃ごとに0.002。
+	// 0℃は0.024で約83ターン、10℃は0.004で500ターン、適温は冷えないので0。
+	assert.InDelta(t, 2.0/0.124, TurnsToHypothermia(-50), 1e-9)
+	assert.InDelta(t, 2.0/0.024, TurnsToHypothermia(0), 1e-9)
+	assert.InDelta(t, 500, TurnsToHypothermia(10), 1e-9)
+	assert.Equal(t, 0.0, TurnsToHypothermia(12))
 }
 
 func TestHPDrainPerTurnAtBlood_崖と段階(t *testing.T) {
