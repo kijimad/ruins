@@ -156,11 +156,12 @@ func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) i18n.Msgid {
 	return "right"
 }
 
-// showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する
+// showTileInteractionMessage は範囲内の全Manual相互作用のメッセージと、足元の置物を表示する
 func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 	entities := GetAllInteractiveInteractablesInRange(world, playerGrid)
 	// 同一スタックは1行にまとめる。床の同種エンティティごとに重複ログを出さない
 	loggedItemStacks := map[query.StackKey]bool{}
+	logged := map[ecs.Entity]bool{}
 	for _, entity := range entities {
 		interactable := world.Components.Interactable.Get(entity)
 		entityGrid := world.Components.GridElement.Get(entity)
@@ -191,19 +192,33 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is a warp gate. Press Enter to move.")).
 					Log()
+				logged[entity] = true
 			case gc.InteractionPortalPrev:
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is an up staircase. Press Enter to move.")).
 					Log()
+				logged[entity] = true
 			case gc.InteractionDungeonEnter:
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
 					Log()
+				logged[entity] = true
 			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionIgnite, gc.InteractionFeedFuel,
 				gc.InteractionOpenCubeMenu, gc.InteractionSwap:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}
 		}
+	}
+
+	// 置物は通れて殴れても足元の相互作用を持たないので、乗ったことが分かるよう名前を出す。
+	// ワープのように専用の文を出した置物は重ねて出さない
+	for _, e := range query.GetEntitiesAt(world, playerGrid.X, playerGrid.Y) {
+		if !world.Components.Prop.Has(e) || world.Components.Dead.Has(e) || logged[e] {
+			continue
+		}
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "%s is here.", query.GetEntityName(e, world))).
+			Log()
 	}
 }

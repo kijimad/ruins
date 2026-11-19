@@ -161,6 +161,43 @@ func TestShowTileInteractionMessage_床の同種スタックは1行にまとめ�
 	assert.Contains(t, hits[0], "3", "1行に個数がまとめて出る")
 }
 
+func TestShowTileInteractionMessage_足元の置物の名前を出す(t *testing.T) {
+	t.Parallel()
+
+	t.Run("灌木の上に乗ると名前を出す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnProp(world, "bush", 10, 10)
+		require.NoError(t, err)
+
+		showTileInteractionMessage(world, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+
+		assert.Equal(t, []string{"Shrub is here."}, query.GetGameLog(world).GetHistory())
+	})
+
+	t.Run("専用の文を出すワープは名前を重ねて出さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnProp(world, "warp_next", 10, 10)
+		require.NoError(t, err)
+
+		showTileInteractionMessage(world, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+
+		assert.Equal(t, []string{"There is a warp gate. Press Enter to move."}, query.GetGameLog(world).GetHistory())
+	})
+
+	t.Run("隣のマスの置物は出さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnProp(world, "bush", 11, 10)
+		require.NoError(t, err)
+
+		showTileInteractionMessage(world, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+
+		assert.Equal(t, []string{}, query.GetGameLog(world).GetHistory())
+	})
+}
+
 func TestExecuteWaitAction(t *testing.T) {
 	t.Parallel()
 
