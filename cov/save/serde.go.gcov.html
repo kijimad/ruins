@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">97.1&nbsp;%</td>
-            <td class="headerCovTableEntry">104</td>
-            <td class="headerCovTableEntry">101</td>
+            <td class="headerCovTableEntryHi">97.3&nbsp;%</td>
+            <td class="headerCovTableEntry">112</td>
+            <td class="headerCovTableEntry">109</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 12:56:41</td>
+            <td class="headerValue">2026-11-19 13:19:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -213,43 +213,56 @@
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L152"><span class="lineNum">     152</span>              : }</span>
 <span id="L153"><span class="lineNum">     153</span>              : </span>
-<span id="L154"><span class="lineNum">     154</span>              : // extractPlayerName はワールドからプレイヤー名を取得する。存在しなければ空文字を返す。</span>
-<span id="L155"><span class="lineNum">     155</span>              : // クエリを途中でreturnするとワールドがロックされたままになるため、必ず最後まで反復する</span>
-<span id="L156"><span class="lineNum">     156</span>              : func extractPlayerName(world w.World) string {</span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         name := &quot;&quot;</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter1[gc.Player](world.ECS).Query()</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 if name == &quot;&quot; &amp;&amp; world.Components.Name.Has(entity) {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                         n := world.Components.Name.Get(entity)</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                         name = n.Custom</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                         if name == &quot;&quot; {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                                 name = string(n.Name)</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L167"><span class="lineNum">     167</span>              :                 }</span>
-<span id="L168"><span class="lineNum">     168</span>              :         }</span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         return name</span></span>
-<span id="L170"><span class="lineNum">     170</span>              : }</span>
-<span id="L171"><span class="lineNum">     171</span>              : </span>
-<span id="L172"><span class="lineNum">     172</span>              : // checksumOf は破損検知用にチェックサムを除いたenvelopeのSHA-256を計算する。</span>
-<span id="L173"><span class="lineNum">     173</span>              : // json.Marshal は json.RawMessage を compact するため、保存ファイルが</span>
-<span id="L174"><span class="lineNum">     174</span>              : // MarshalIndent で整形されていても検証時に同一バイト列へ正規化され、値が一致する。</span>
-<span id="L175"><span class="lineNum">     175</span>              : // envelopeは全てJSON互換型のためMarshalは失敗しないが、万一失敗した場合はpanicする</span>
-<span id="L176"><span class="lineNum">     176</span>              : func checksumOf(env *saveEnvelope) string {</span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         target := saveEnvelope{</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 Version:    env.Version,</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 Timestamp:  env.Timestamp,</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 PlayTime:   env.PlayTime,</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 PlayerName: env.PlayerName,</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 World:      env.World,</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         jsonBytes, err := json.Marshal(target)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                 panic(fmt.Sprintf(&quot;failed to marshal for checksum: %v&quot;, err))</span></span>
-<span id="L187"><span class="lineNum">     187</span>              :         }</span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         hash := sha256.Sum256(jsonBytes)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:])</span></span>
-<span id="L190"><span class="lineNum">     190</span>              : }</span>
+<span id="L154"><span class="lineNum">     154</span>              : // validateWeaponSelection はシングルトンが武器の選択を持ち、その選択が武器スロットかを検査する。使う側は選択の有無も</span>
+<span id="L155"><span class="lineNum">     155</span>              : // 範囲も検査せず武器の並びを引くので、ここで弾かないとロード後に止まる</span>
+<span id="L156"><span class="lineNum">     156</span>              : func validateWeaponSelection(world w.World) error {</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         singleton := world.Resources.SingletonEntity</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         if !world.Components.WeaponSelection.Has(singleton) {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: singleton has no weapon selection&quot;, errInvalidWeaponSelection)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         if err := world.Components.WeaponSelection.Get(singleton).Validate(); err != nil {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %w&quot;, errInvalidWeaponSelection, err)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L165"><span class="lineNum">     165</span>              : }</span>
+<span id="L166"><span class="lineNum">     166</span>              : </span>
+<span id="L167"><span class="lineNum">     167</span>              : // extractPlayerName はワールドからプレイヤー名を取得する。存在しなければ空文字を返す。</span>
+<span id="L168"><span class="lineNum">     168</span>              : // クエリを途中でreturnするとワールドがロックされたままになるため、必ず最後まで反復する</span>
+<span id="L169"><span class="lineNum">     169</span>              : func extractPlayerName(world w.World) string {</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         name := &quot;&quot;</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter1[gc.Player](world.ECS).Query()</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 if name == &quot;&quot; &amp;&amp; world.Components.Name.Has(entity) {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                         n := world.Components.Name.Get(entity)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                         name = n.Custom</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                         if name == &quot;&quot; {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                                 name = string(n.Name)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L180"><span class="lineNum">     180</span>              :                 }</span>
+<span id="L181"><span class="lineNum">     181</span>              :         }</span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         return name</span></span>
+<span id="L183"><span class="lineNum">     183</span>              : }</span>
+<span id="L184"><span class="lineNum">     184</span>              : </span>
+<span id="L185"><span class="lineNum">     185</span>              : // checksumOf は破損検知用にチェックサムを除いたenvelopeのSHA-256を計算する。</span>
+<span id="L186"><span class="lineNum">     186</span>              : // json.Marshal は json.RawMessage を compact するため、保存ファイルが</span>
+<span id="L187"><span class="lineNum">     187</span>              : // MarshalIndent で整形されていても検証時に同一バイト列へ正規化され、値が一致する。</span>
+<span id="L188"><span class="lineNum">     188</span>              : // envelopeは全てJSON互換型のためMarshalは失敗しないが、万一失敗した場合はpanicする</span>
+<span id="L189"><span class="lineNum">     189</span>              : func checksumOf(env *saveEnvelope) string {</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         target := saveEnvelope{</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 Version:    env.Version,</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 Timestamp:  env.Timestamp,</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 PlayTime:   env.PlayTime,</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 PlayerName: env.PlayerName,</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 World:      env.World,</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         jsonBytes, err := json.Marshal(target)</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                 panic(fmt.Sprintf(&quot;failed to marshal for checksum: %v&quot;, err))</span></span>
+<span id="L200"><span class="lineNum">     200</span>              :         }</span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         hash := sha256.Sum256(jsonBytes)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:])</span></span>
+<span id="L203"><span class="lineNum">     203</span>              : }</span>
         </pre>
               </td>
             </tr>

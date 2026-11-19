@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 12:56:41</td>
+            <td class="headerValue">2026-11-19 13:19:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,8 +82,8 @@
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         if def.ToolCategory == nil || !world.Components.Player.Has(actor) {</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return 0, false</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         weapon, ok, err := selectedWeapon(world, actor)</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if err != nil || !ok {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         weapon, ok := query.SelectedWeapon(world, actor)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return 0, false</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))</span></span>
