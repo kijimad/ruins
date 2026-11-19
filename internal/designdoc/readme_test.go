@@ -52,19 +52,6 @@ func TestTitleCell(t *testing.T) {
 	assert.Equal(t, "タイトルのみ", titleCell(&Document{Title: "タイトルのみ", Path: ""}))
 }
 
-func TestRenderLabel_未知のテンプレート名はパニックする(t *testing.T) {
-	t.Parallel()
-
-	defer func() {
-		r := recover()
-		require.NotNil(t, r)
-		err, ok := r.(error)
-		require.True(t, ok, "panic値はerrorであるべき")
-		require.ErrorIs(t, err, errTemplateNotFound)
-	}()
-	renderLabel("存在しないラベル", nil)
-}
-
 func TestProgressCell(t *testing.T) {
 	t.Parallel()
 

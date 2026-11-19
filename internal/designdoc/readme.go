@@ -1,41 +1,19 @@
 package designdoc
 
 import (
-	_ "embed"
-	"errors"
 	"fmt"
 	"strings"
-	"text/template"
 )
 
-// statusSectionTmplSrc は状況テーブルのラベルを持つ雛形。README の文言を Go ソースから外して埋め込みで持つ。
-//
-//go:embed status_section.tmpl
-var statusSectionTmplSrc string
-
-// statusSectionTmpl は埋め込んだ雛形を解析したもの。名前付きテンプレートを個別に実行する。
-var statusSectionTmpl = template.Must(template.New("status_section").Parse(statusSectionTmplSrc))
+// 状況テーブルの見出しと、行が無いときの行
+const (
+	statusHeader = "| status | Document | Progress | tags |\n|---|---|---|---|\n"
+	statusEmpty  = "| | No open documents | | |\n"
+)
 
 // statusDisplayOrder は状況テーブルで status を並べる順。着手対象を上に置く。
 var statusDisplayOrder = []Status{
 	StatusInProgress, StatusAccepted, StatusDraft, StatusDone, StatusSuperseded, StatusDropped,
-}
-
-// errTemplateNotFound は名前付きテンプレートが雛形に無いときに返す
-var errTemplateNotFound = errors.New("template not found")
-
-// renderLabel は名前付きテンプレートを data で実行した文字列を返す。
-// テンプレートは埋め込みでゴールデンテストが担保するため、実行時に失敗し得ない。
-func renderLabel(name string, data any) string {
-	if statusSectionTmpl.Lookup(name) == nil {
-		panic(fmt.Errorf("%w: %q", errTemplateNotFound, name))
-	}
-	var b strings.Builder
-	if err := statusSectionTmpl.ExecuteTemplate(&b, name, data); err != nil {
-		panic(err)
-	}
-
-	return b.String()
 }
 
 // RenderStatusSection は README に埋め込む未完了ドキュメントの一覧を Markdown で返す。
@@ -44,7 +22,7 @@ func renderLabel(name string, data any) string {
 // 頻繁に衝突するため。
 func RenderStatusSection(docs []*Document) string {
 	var b strings.Builder
-	b.WriteString(renderLabel("header", nil))
+	b.WriteString(statusHeader)
 	found := false
 	for _, s := range statusDisplayOrder {
 		if !s.IsOpen() {
@@ -60,7 +38,7 @@ func RenderStatusSection(docs []*Document) string {
 		}
 	}
 	if !found {
-		b.WriteString(renderLabel("empty", nil))
+		b.WriteString(statusEmpty)
 	}
 
 	return b.String()
@@ -74,7 +52,7 @@ func titleCell(d *Document) string {
 		label = d.Path
 	}
 	if label == "" {
-		return renderLabel("notitle", nil)
+		return "(untitled)"
 	}
 	if d.Path != "" {
 		return fmt.Sprintf("[%s](%s)", label, d.Path)
@@ -91,7 +69,7 @@ func progressCell(d *Document) string {
 
 	s := fmt.Sprintf("%d/%d", d.DoneTasks, d.DoneTasks+d.OpenTasks)
 	if d.SkippedTasks > 0 {
-		s += renderLabel("skipped", d.SkippedTasks)
+		s += fmt.Sprintf(" (%d skipped)", d.SkippedTasks)
 	}
 
 	return s
