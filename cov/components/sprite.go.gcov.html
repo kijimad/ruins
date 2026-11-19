@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -139,31 +139,13 @@
 <span id="L77"><span class="lineNum">      77</span>              :         SpriteKey string</span>
 <span id="L78"><span class="lineNum">      78</span>              :         // アニメーション用スプライトキー配列。空ならアニメーションなし</span>
 <span id="L79"><span class="lineNum">      79</span>              :         AnimKeys []string</span>
-<span id="L80"><span class="lineNum">      80</span>              :         // 描画順。小さい順に先に(下に)描画する</span>
-<span id="L81"><span class="lineNum">      81</span>              :         Depth DepthNum</span>
+<span id="L80"><span class="lineNum">      80</span>              :         // 描画の段。描く順は段の Rank で決まる</span>
+<span id="L81"><span class="lineNum">      81</span>              :         Depth rawschema.SpriteDepth</span>
 <span id="L82"><span class="lineNum">      82</span>              :         // 3D で立てる形。空ならカメラを向く立て板</span>
 <span id="L83"><span class="lineNum">      83</span>              :         Shape rawschema.SpriteShape</span>
 <span id="L84"><span class="lineNum">      84</span>              :         // Draw options（実行時の描画オプション。serde対象外）</span>
 <span id="L85"><span class="lineNum">      85</span>              :         Options ebiten.DrawImageOptions `json:&quot;-&quot;`</span>
 <span id="L86"><span class="lineNum">      86</span>              : }</span>
-<span id="L87"><span class="lineNum">      87</span>              : </span>
-<span id="L88"><span class="lineNum">      88</span>              : // DepthNum はオブジェクトの描画順。小さい値を先に描画する</span>
-<span id="L89"><span class="lineNum">      89</span>              : type DepthNum int</span>
-<span id="L90"><span class="lineNum">      90</span>              : </span>
-<span id="L91"><span class="lineNum">      91</span>              : const (</span>
-<span id="L92"><span class="lineNum">      92</span>              :         // DepthNumFloor は床。最背面に表示する</span>
-<span id="L93"><span class="lineNum">      93</span>              :         DepthNumFloor DepthNum = iota</span>
-<span id="L94"><span class="lineNum">      94</span>              :         // DepthNumDecal は床の模様。例: 土のしみ、ワープホール。3D では立て板にせず地面に寝かせて描く</span>
-<span id="L95"><span class="lineNum">      95</span>              :         DepthNumDecal</span>
-<span id="L96"><span class="lineNum">      96</span>              :         // DepthNumRug は床に置く低いもの。例: 焚き火、開いた扉</span>
-<span id="L97"><span class="lineNum">      97</span>              :         DepthNumRug</span>
-<span id="L98"><span class="lineNum">      98</span>              :         // DepthNumTaller は高さのあるもの。例: テーブル、棚、閉じた扉、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く</span>
-<span id="L99"><span class="lineNum">      99</span>              :         DepthNumTaller</span>
-<span id="L100"><span class="lineNum">     100</span>              :         // DepthNumItem は拾えるアイテム。テーブルのような高さのある置物と同じマスにあっても、その上に出す</span>
-<span id="L101"><span class="lineNum">     101</span>              :         DepthNumItem</span>
-<span id="L102"><span class="lineNum">     102</span>              :         // DepthNumPlayer は操作キャラを最も手前に表示する</span>
-<span id="L103"><span class="lineNum">     103</span>              :         DepthNumPlayer</span>
-<span id="L104"><span class="lineNum">     104</span>              : )</span>
         </pre>
               </td>
             </tr>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">65.2&nbsp;%</td>
+            <td class="headerCovTableEntryLo">68.1&nbsp;%</td>
             <td class="headerCovTableEntry">69</td>
-            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntry">47</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -203,8 +203,8 @@
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 out.Violations = append(out.Violations, v)</span></span>
 <span id="L142"><span class="lineNum">     142</span>              :         }</span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         slices.SortFunc(out.Violations, func(a, b Violation) int {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 return cmp.Or(cmp.Compare(a.Path, b.Path), cmp.Compare(a.Message, b.Message))</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 return cmp.Or(cmp.Compare(a.Path, b.Path), cmp.Compare(a.Message, b.Message))</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         return &amp;out</span></span>
 <span id="L147"><span class="lineNum">     147</span>              : }</span>
         </pre>

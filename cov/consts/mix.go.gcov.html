@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">9</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,6 +71,20 @@
 <span id="L9"><span class="lineNum">       9</span> <span class="tlaUNC">           0 :         x ^= x &gt;&gt; 31</span></span>
 <span id="L10"><span class="lineNum">      10</span> <span class="tlaUNC">           0 :         return x</span></span>
 <span id="L11"><span class="lineNum">      11</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L12"><span class="lineNum">      12</span>              : </span>
+<span id="L13"><span class="lineNum">      13</span>              : // Mix2D は seed と2次元の座標 (x, y) を撹拌した決定的な値を返す。チャンクごとの抽選の seed や、マスごとの見た目の</span>
+<span id="L14"><span class="lineNum">      14</span>              : // ばらつきの源にする。</span>
+<span id="L15"><span class="lineNum">      15</span>              : //</span>
+<span id="L16"><span class="lineNum">      16</span>              : // x と y を別々の大きな奇数で混ぜてから Mix64 で撹拌する。狙いは2つ。</span>
+<span id="L17"><span class="lineNum">      17</span>              : //   - 転置で散らす: x と y に別の定数を掛けるので (x,y) と (y,x) が別の値になる。同じ定数だと対称になり、転置した</span>
+<span id="L18"><span class="lineNum">      18</span>              : //     座標が衝突して対角線状の反復が出る。</span>
+<span id="L19"><span class="lineNum">      19</span>              : //   - 隣接で散らす: 撹拌の雪崩効果で (x,y) と (x+1,y) のような1違いの入力が無相関の値になる。撹拌しないと隣接の値が</span>
+<span id="L20"><span class="lineNum">      20</span>              : //     定数差の線形関係になり、隣り合う場所が似てしまう。</span>
+<span id="L21"><span class="lineNum">      21</span>              : //</span>
+<span id="L22"><span class="lineNum">      22</span>              : // 奇数を掛けるのは 2^64 を法として可逆で座標の情報を落とさないため。定数を変えると同じ seed でも別の世界になる</span>
+<span id="L23"><span class="lineNum">      23</span>              : func Mix2D[T ~int](seed uint64, x, y T) uint64 {</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         return Mix64(seed + uint64(x)*0x9E3779B97F4A7C15 + uint64(y)*0xC2B2AE3D27D4EB4F)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>
             </tr>

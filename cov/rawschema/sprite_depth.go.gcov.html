@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - rawschema/sprite_depth.go</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory rawschema">rawschema</a> - sprite_depth.go</td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package rawschema</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;slices&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // depthOrder は段を描く順。先にあるほど先に、つまり下に描く</span>
+<span id="L6"><span class="lineNum">       6</span>              : var depthOrder = []SpriteDepth{</span>
+<span id="L7"><span class="lineNum">       7</span>              :         SpriteDepthFloor,   // 床</span>
+<span id="L8"><span class="lineNum">       8</span>              :         SpriteDepthSnow,    // 地面に重ねる雪の層。3D の描画だけが使い、実体は持たない</span>
+<span id="L9"><span class="lineNum">       9</span>              :         SpriteDepthRemains, // 敵や物が消えた跡</span>
+<span id="L10"><span class="lineNum">      10</span>              :         SpriteDepthDecal,   // 床の模様。例: 土のしみ、ワープホール</span>
+<span id="L11"><span class="lineNum">      11</span>              :         SpriteDepthRug,     // 床に置く低いもの。例: 焚き火、開いた扉</span>
+<span id="L12"><span class="lineNum">      12</span>              :         SpriteDepthTaller,  // 高さのあるもの。例: テーブル、棚、閉じた扉、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く</span>
+<span id="L13"><span class="lineNum">      13</span>              :         SpriteDepthItem,    // 拾えるアイテム。テーブルのような高さのある置物と同じマスにあっても、その上に出す</span>
+<span id="L14"><span class="lineNum">      14</span>              :         SpriteDepthPlayer,  // 操作キャラ。最も手前に描く</span>
+<span id="L15"><span class="lineNum">      15</span>              : }</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // Rank は depthOrder の中の位置を返す。セーブから来る未知の段と、段を持たない行の空の値は床の順にする</span>
+<span id="L18"><span class="lineNum">      18</span>              : func (d SpriteDepth) Rank() int {</span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         if i := slices.Index(depthOrder, d); i &gt;= 0 {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return i</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return 0</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

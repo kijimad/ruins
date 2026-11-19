@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -431,44 +431,52 @@
 <span id="L369"><span class="lineNum">     369</span>              : // 家具・構造物・自然物・場の効果の総称</span>
 <span id="L370"><span class="lineNum">     370</span>              : type Prop struct{}</span>
 <span id="L371"><span class="lineNum">     371</span>              : </span>
-<span id="L372"><span class="lineNum">     372</span>              : // LightSource は光源コンポーネント</span>
-<span id="L373"><span class="lineNum">     373</span>              : type LightSource struct {</span>
-<span id="L374"><span class="lineNum">     374</span>              :         Radius  consts.Tile // 照明範囲</span>
-<span id="L375"><span class="lineNum">     375</span>              :         Color   color.RGBA  // 光の色</span>
-<span id="L376"><span class="lineNum">     376</span>              :         Enabled bool        // 有効/無効</span>
-<span id="L377"><span class="lineNum">     377</span>              : }</span>
-<span id="L378"><span class="lineNum">     378</span>              : </span>
-<span id="L379"><span class="lineNum">     379</span>              : // Door は開閉可能な扉コンポーネント</span>
-<span id="L380"><span class="lineNum">     380</span>              : type Door struct {</span>
-<span id="L381"><span class="lineNum">     381</span>              :         IsOpen      bool            // 開いているかどうか</span>
-<span id="L382"><span class="lineNum">     382</span>              :         Orientation DoorOrientation // 扉の向き</span>
-<span id="L383"><span class="lineNum">     383</span>              : }</span>
-<span id="L384"><span class="lineNum">     384</span>              : </span>
-<span id="L385"><span class="lineNum">     385</span>              : // Pose はエンティティがマスの中でどう置かれるか。向く方角 Facing と、マスの中で立つ位置 Anchor</span>
-<span id="L386"><span class="lineNum">     386</span>              : type Pose struct {</span>
-<span id="L387"><span class="lineNum">     387</span>              :         Facing consts.Cardinal</span>
-<span id="L388"><span class="lineNum">     388</span>              :         Anchor PoseAnchor</span>
-<span id="L389"><span class="lineNum">     389</span>              : }</span>
-<span id="L390"><span class="lineNum">     390</span>              : </span>
-<span id="L391"><span class="lineNum">     391</span>              : // PoseAnchor はマスの中で立つ位置</span>
-<span id="L392"><span class="lineNum">     392</span>              : type PoseAnchor int</span>
-<span id="L393"><span class="lineNum">     393</span>              : </span>
-<span id="L394"><span class="lineNum">     394</span>              : const (</span>
-<span id="L395"><span class="lineNum">     395</span>              :         // AnchorCenter はマスの真ん中に立つ</span>
-<span id="L396"><span class="lineNum">     396</span>              :         AnchorCenter PoseAnchor = iota</span>
-<span id="L397"><span class="lineNum">     397</span>              :         // AnchorBack は向きの背の側へ寄せて立つ</span>
-<span id="L398"><span class="lineNum">     398</span>              :         AnchorBack</span>
-<span id="L399"><span class="lineNum">     399</span>              : )</span>
-<span id="L400"><span class="lineNum">     400</span>              : </span>
-<span id="L401"><span class="lineNum">     401</span>              : // DoorOrientation は扉の向き</span>
-<span id="L402"><span class="lineNum">     402</span>              : type DoorOrientation int</span>
-<span id="L403"><span class="lineNum">     403</span>              : </span>
-<span id="L404"><span class="lineNum">     404</span>              : const (</span>
-<span id="L405"><span class="lineNum">     405</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
-<span id="L406"><span class="lineNum">     406</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
-<span id="L407"><span class="lineNum">     407</span>              :         // DoorOrientationVertical は縦向きの扉</span>
-<span id="L408"><span class="lineNum">     408</span>              :         DoorOrientationVertical</span>
-<span id="L409"><span class="lineNum">     409</span>              : )</span>
+<span id="L372"><span class="lineNum">     372</span>              : // Remains は敵や物が消えた跡に床へ残す装飾であることを示すマーカーコンポーネント。</span>
+<span id="L373"><span class="lineNum">     373</span>              : // 置物でもアイテムでもなく、通行・操作・拾得・積み込みのどれにも関わらない</span>
+<span id="L374"><span class="lineNum">     374</span>              : type Remains struct{}</span>
+<span id="L375"><span class="lineNum">     375</span>              : </span>
+<span id="L376"><span class="lineNum">     376</span>              : // Decor は草や土の模様のような地面の飾りであることを示すマーカーコンポーネント。地面の飾りの表 decors の行から</span>
+<span id="L377"><span class="lineNum">     377</span>              : // 作り、Remains と同じく置物でもアイテムでもない</span>
+<span id="L378"><span class="lineNum">     378</span>              : type Decor struct{}</span>
+<span id="L379"><span class="lineNum">     379</span>              : </span>
+<span id="L380"><span class="lineNum">     380</span>              : // LightSource は光源コンポーネント</span>
+<span id="L381"><span class="lineNum">     381</span>              : type LightSource struct {</span>
+<span id="L382"><span class="lineNum">     382</span>              :         Radius  consts.Tile // 照明範囲</span>
+<span id="L383"><span class="lineNum">     383</span>              :         Color   color.RGBA  // 光の色</span>
+<span id="L384"><span class="lineNum">     384</span>              :         Enabled bool        // 有効/無効</span>
+<span id="L385"><span class="lineNum">     385</span>              : }</span>
+<span id="L386"><span class="lineNum">     386</span>              : </span>
+<span id="L387"><span class="lineNum">     387</span>              : // Door は開閉可能な扉コンポーネント</span>
+<span id="L388"><span class="lineNum">     388</span>              : type Door struct {</span>
+<span id="L389"><span class="lineNum">     389</span>              :         IsOpen      bool            // 開いているかどうか</span>
+<span id="L390"><span class="lineNum">     390</span>              :         Orientation DoorOrientation // 扉の向き</span>
+<span id="L391"><span class="lineNum">     391</span>              : }</span>
+<span id="L392"><span class="lineNum">     392</span>              : </span>
+<span id="L393"><span class="lineNum">     393</span>              : // Pose はエンティティがマスの中でどう置かれるか。向く方角 Facing と、マスの中で立つ位置 Anchor</span>
+<span id="L394"><span class="lineNum">     394</span>              : type Pose struct {</span>
+<span id="L395"><span class="lineNum">     395</span>              :         Facing consts.Cardinal</span>
+<span id="L396"><span class="lineNum">     396</span>              :         Anchor PoseAnchor</span>
+<span id="L397"><span class="lineNum">     397</span>              : }</span>
+<span id="L398"><span class="lineNum">     398</span>              : </span>
+<span id="L399"><span class="lineNum">     399</span>              : // PoseAnchor はマスの中で立つ位置</span>
+<span id="L400"><span class="lineNum">     400</span>              : type PoseAnchor int</span>
+<span id="L401"><span class="lineNum">     401</span>              : </span>
+<span id="L402"><span class="lineNum">     402</span>              : const (</span>
+<span id="L403"><span class="lineNum">     403</span>              :         // AnchorCenter はマスの真ん中に立つ</span>
+<span id="L404"><span class="lineNum">     404</span>              :         AnchorCenter PoseAnchor = iota</span>
+<span id="L405"><span class="lineNum">     405</span>              :         // AnchorBack は向きの背の側へ寄せて立つ</span>
+<span id="L406"><span class="lineNum">     406</span>              :         AnchorBack</span>
+<span id="L407"><span class="lineNum">     407</span>              : )</span>
+<span id="L408"><span class="lineNum">     408</span>              : </span>
+<span id="L409"><span class="lineNum">     409</span>              : // DoorOrientation は扉の向き</span>
+<span id="L410"><span class="lineNum">     410</span>              : type DoorOrientation int</span>
+<span id="L411"><span class="lineNum">     411</span>              : </span>
+<span id="L412"><span class="lineNum">     412</span>              : const (</span>
+<span id="L413"><span class="lineNum">     413</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
+<span id="L414"><span class="lineNum">     414</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
+<span id="L415"><span class="lineNum">     415</span>              :         // DoorOrientationVertical は縦向きの扉</span>
+<span id="L416"><span class="lineNum">     416</span>              :         DoorOrientationVertical</span>
+<span id="L417"><span class="lineNum">     417</span>              : )</span>
         </pre>
               </td>
             </tr>

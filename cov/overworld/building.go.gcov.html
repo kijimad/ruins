@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -123,7 +123,7 @@
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                                 taken[anchor.Add(consts.Coord[consts.Chunk]{X: dx, Y: dy})] = true</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L63"><span class="lineNum">      63</span>              :                 }</span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 lots = append(lots, buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: ChunkSeed2D(r.seed, anchor.X, anchor.Y)})</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 lots = append(lots, buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: consts.Mix2D(r.seed, anchor.X, anchor.Y)})</span></span>
 <span id="L65"><span class="lineNum">      65</span>              :         }</span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         if f, ok := facilities[r.landmark()]; ok {</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 if anchor, w, h, ok := landmarkLot(r, f, fits); ok {</span></span>
@@ -139,7 +139,7 @@
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                         z := r.zoneAt(l)</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                         // 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。</span></span>
 <span id="L79"><span class="lineNum">      79</span>              :                         // ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                         frng := rand.New(rand.NewPCG(ChunkSeed2D(r.seed, x, y), 0x1))</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                         frng := rand.New(rand.NewPCG(consts.Mix2D(r.seed, x, y), 0x1))</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                         f := facilities[rollFacilityInZone(frng, cat, z, r.span(), danger, r.landmark())]</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                         fps := facilityFootprints(f)</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           2 :                         i, _ := consts.Pick(frng, fps, func(fp rawschema.FacilityFootprint) float64 { return float64(fp.Weight) })</span></span>
@@ -269,7 +269,7 @@
 <span id="L207"><span class="lineNum">     207</span>              : // 帯は区画の外周なら街路、内側なら隣の部屋との繋ぎにする。isTall は高さのある地形かを返す</span>
 <span id="L208"><span class="lineNum">     208</span>              : func roomChunkCells(loader *maptemplate.TemplateLoader, b buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, streets streetTiles, isTall func(terrain string) bool) ([][]maptemplate.MapCell, error) {</span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         edges := b.roomEdges(l)</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         _, room, err := loader.FacilityRoom(b.facility, edges, ChunkSeed2D(b.seed, l.X, l.Y))</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         _, room, err := loader.FacilityRoom(b.facility, edges, consts.Mix2D(b.seed, l.X, l.Y))</span></span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                 return nil, err</span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         }</span></span>

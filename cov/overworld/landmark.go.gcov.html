@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,7 +79,7 @@
 <span id="L17"><span class="lineNum">      17</span>              : // landmarkKindAt は当選チャンクに置くランドマークの施設の id を出現重みで抽選する。</span>
 <span id="L18"><span class="lineNum">      18</span>              : func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {</span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         lms := raw.PtrSlice(raws.Landmarks)</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         i, ok := consts.Pick(consts.HashRoll(ChunkSeed2D(runSeed^placementOf(raws, rawschema.PointFeatureKindLandmark).Salt, c.X, c.Y)), lms, func(l rawschema.Landmark) float64 { return float64(l.Weight) })</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         i, ok := consts.Pick(consts.HashRoll(consts.Mix2D(runSeed^placementOf(raws, rawschema.PointFeatureKindLandmark).Salt, c.X, c.Y)), lms, func(l rawschema.Landmark) float64 { return float64(l.Weight) })</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L22"><span class="lineNum">      22</span>              :                 // スキーマの weight&gt;=1 と TestRealData_HasLandmarks が候補の存在を保証する</span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 panic(&quot;landmarkKindAt: no landmark to pick&quot;)</span></span>
@@ -104,7 +104,7 @@
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to load facility templates: %w&quot;, err)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         seed := ChunkSeed2D(runSeed^placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindLandmark).Salt, c.X, c.Y)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         seed := consts.Mix2D(runSeed^placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindLandmark).Salt, c.X, c.Y)</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         // ストリーム 0 は絵と原点の抽選。spawnFacility が戦利品と敵に使う 0x4 と 0x5 と分ける</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         fac := landmarkKindAt(world.Resources.RawMaster, runSeed, c)</span></span>

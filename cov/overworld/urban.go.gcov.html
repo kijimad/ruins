@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -224,7 +224,7 @@
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;district %q street enemies: %w&quot;, r.kind.Id, err)</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), enemies, lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, fenceProp, streetTilesOf(r.kind))</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         return renderUrbanChunk(world, g, consts.Mix2D(r.seed, l.X, l.Y), enemies, lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, fenceProp, streetTilesOf(r.kind))</span></span>
 <span id="L166"><span class="lineNum">     166</span>              : }</span>
 <span id="L167"><span class="lineNum">     167</span>              : </span>
 <span id="L168"><span class="lineNum">     168</span>              : // gateColumns は塀を巡らせる区域 r の、北と南の門を開ける絶対チャンク列を、区域を埋めた区画 lots から返す。</span>

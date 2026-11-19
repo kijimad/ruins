@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -101,7 +101,7 @@
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         for i := range rows {</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 total += int(rows[i].Weight)</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         roll := int(ChunkSeed2D(runSeed^placementOf(raws, rawschema.PointFeatureKindSettlement).Salt, c.X, c.Y) % uint64(total))</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         roll := int(consts.Mix2D(runSeed^placementOf(raws, rawschema.PointFeatureKindSettlement).Salt, c.X, c.Y) % uint64(total))</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         for i := range rows {</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 roll -= int(rows[i].Weight)</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 if roll &lt; 0 {</span></span>

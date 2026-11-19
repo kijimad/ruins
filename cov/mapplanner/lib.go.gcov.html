@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">86.0&nbsp;%</td>
-            <td class="headerCovTableEntry">186</td>
-            <td class="headerCovTableEntry">160</td>
+            <td class="headerCovTableEntryMed">86.1&nbsp;%</td>
+            <td class="headerCovTableEntry">187</td>
+            <td class="headerCovTableEntry">161</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,421 +85,430 @@
 <span id="L23"><span class="lineNum">      23</span>              :         Name string // Prop名</span>
 <span id="L24"><span class="lineNum">      24</span>              : }</span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span>              : // DoorSpec はドア配置仕様を表す</span>
-<span id="L27"><span class="lineNum">      27</span>              : type DoorSpec struct {</span>
+<span id="L26"><span class="lineNum">      26</span>              : // DecorSpec は地面の飾りの配置仕様を表す</span>
+<span id="L27"><span class="lineNum">      27</span>              : type DecorSpec struct {</span>
 <span id="L28"><span class="lineNum">      28</span>              :         consts.Coord[consts.Tile]</span>
-<span id="L29"><span class="lineNum">      29</span>              :         Orientation gc.DoorOrientation</span>
+<span id="L29"><span class="lineNum">      29</span>              :         Name string // 地面の飾りの id</span>
 <span id="L30"><span class="lineNum">      30</span>              : }</span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span>              : // MetaPlan は階層のタイルを作る元になる概念の集合体</span>
-<span id="L33"><span class="lineNum">      33</span>              : type MetaPlan struct {</span>
-<span id="L34"><span class="lineNum">      34</span>              :         // Danger はこのプランに適用する危険度。敵やアイテムの湧きフィルタに使う。1以上であること。</span>
-<span id="L35"><span class="lineNum">      35</span>              :         // 呼び出し側が世界の現在地から確定して渡す。</span>
-<span id="L36"><span class="lineNum">      36</span>              :         Danger consts.Danger</span>
-<span id="L37"><span class="lineNum">      37</span>              :         // Ground は計画の下地のタイル。地上の計画は全面を埋め、森は孤立した壁を、絵は下地を残す地形のマスをこれで置く</span>
-<span id="L38"><span class="lineNum">      38</span>              :         Ground string</span>
-<span id="L39"><span class="lineNum">      39</span>              :         // NeedsGround は間取りのタイルが下地 ground を指すか。立っていて Ground が空なら計画できない</span>
-<span id="L40"><span class="lineNum">      40</span>              :         NeedsGround bool</span>
-<span id="L41"><span class="lineNum">      41</span>              :         // FixedPortals はポータルを手続きで置かないか。絵がポータルを持つ計画と、ポータルを持たない地上の計画で立てる</span>
-<span id="L42"><span class="lineNum">      42</span>              :         FixedPortals bool</span>
-<span id="L43"><span class="lineNum">      43</span>              :         // 階層情報</span>
-<span id="L44"><span class="lineNum">      44</span>              :         Level gc.Level</span>
-<span id="L45"><span class="lineNum">      45</span>              :         // 部屋群。部屋は長方形の移動可能な空間のことをいう。</span>
-<span id="L46"><span class="lineNum">      46</span>              :         // 部屋はタイルの集合体である</span>
-<span id="L47"><span class="lineNum">      47</span>              :         Rooms []gc.Rect</span>
-<span id="L48"><span class="lineNum">      48</span>              :         // 廊下群。廊下は部屋と部屋をつなぐ移動可能な空間のことをいう。</span>
-<span id="L49"><span class="lineNum">      49</span>              :         // 廊下はタイルの集合体である</span>
-<span id="L50"><span class="lineNum">      50</span>              :         Corridors [][]gc.TileIdx</span>
-<span id="L51"><span class="lineNum">      51</span>              :         // 乱数生成器</span>
-<span id="L52"><span class="lineNum">      52</span>              :         RNG *rand.Rand</span>
-<span id="L53"><span class="lineNum">      53</span>              :         // 階層を構成するタイル群。長さはステージの大きさで決まる</span>
-<span id="L54"><span class="lineNum">      54</span>              :         // 通行可能かを判定するための情報を保持している必要がある</span>
-<span id="L55"><span class="lineNum">      55</span>              :         Tiles []rawschema.Tile</span>
-<span id="L56"><span class="lineNum">      56</span>              :         // Environments は Tiles と同じ並びのタイルの環境。EnvironmentPlanner が計算する。計算前は nil</span>
-<span id="L57"><span class="lineNum">      57</span>              :         Environments []gc.TileEnvironment</span>
-<span id="L58"><span class="lineNum">      58</span>              :         // NextPortals は次の階へ進むポータルリスト</span>
-<span id="L59"><span class="lineNum">      59</span>              :         NextPortals []consts.Coord[consts.Tile]</span>
-<span id="L60"><span class="lineNum">      60</span>              :         // NPCs は配置予定のNPCリスト</span>
-<span id="L61"><span class="lineNum">      61</span>              :         NPCs []NPCSpec</span>
-<span id="L62"><span class="lineNum">      62</span>              :         // Items は配置予定のアイテムリスト</span>
-<span id="L63"><span class="lineNum">      63</span>              :         Items []ItemSpec</span>
-<span id="L64"><span class="lineNum">      64</span>              :         // Props は配置予定のPropsリスト</span>
-<span id="L65"><span class="lineNum">      65</span>              :         Props []PropsSpec</span>
-<span id="L66"><span class="lineNum">      66</span>              :         // Doors は配置予定のドアリスト</span>
-<span id="L67"><span class="lineNum">      67</span>              :         Doors []DoorSpec</span>
-<span id="L68"><span class="lineNum">      68</span>              :         // SpawnPoints はプレイヤーのスポーン地点リスト</span>
-<span id="L69"><span class="lineNum">      69</span>              :         SpawnPoints []maptemplate.SpawnPoint</span>
-<span id="L70"><span class="lineNum">      70</span>              :         // RawMaster はタイル生成に使用するマスターデータ</span>
-<span id="L71"><span class="lineNum">      71</span>              :         RawMaster *rawschema.Raws</span>
-<span id="L72"><span class="lineNum">      72</span>              : }</span>
-<span id="L73"><span class="lineNum">      73</span>              : </span>
-<span id="L74"><span class="lineNum">      74</span>              : // IsSpawnableTile は指定タイル座標がスポーン可能かを返す</span>
-<span id="L75"><span class="lineNum">      75</span>              : func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bool {</span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         pos := consts.Coord[consts.Tile]{X: tx, Y: ty}</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         idx := bm.Level.CoordToIndex(pos)</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         tile := bm.Tiles[idx]</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         // 通行不可なのでスポーン不可</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         if tile.BlockPass {</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L83"><span class="lineNum">      83</span>              : </span>
-<span id="L84"><span class="lineNum">      84</span>              :         // planning段階では、MetaPlan内の計画済みエンティティをチェック</span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         if bm.existPlannedEntityOnTile(pos) {</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L88"><span class="lineNum">      88</span>              : </span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         return true</span></span>
-<span id="L90"><span class="lineNum">      90</span>              : }</span>
+<span id="L32"><span class="lineNum">      32</span>              : // DoorSpec はドア配置仕様を表す</span>
+<span id="L33"><span class="lineNum">      33</span>              : type DoorSpec struct {</span>
+<span id="L34"><span class="lineNum">      34</span>              :         consts.Coord[consts.Tile]</span>
+<span id="L35"><span class="lineNum">      35</span>              :         Orientation gc.DoorOrientation</span>
+<span id="L36"><span class="lineNum">      36</span>              : }</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : // MetaPlan は階層のタイルを作る元になる概念の集合体</span>
+<span id="L39"><span class="lineNum">      39</span>              : type MetaPlan struct {</span>
+<span id="L40"><span class="lineNum">      40</span>              :         // Danger はこのプランに適用する危険度。敵やアイテムの湧きフィルタに使う。1以上であること。</span>
+<span id="L41"><span class="lineNum">      41</span>              :         // 呼び出し側が世界の現在地から確定して渡す。</span>
+<span id="L42"><span class="lineNum">      42</span>              :         Danger consts.Danger</span>
+<span id="L43"><span class="lineNum">      43</span>              :         // Ground は計画の下地のタイル。地上の計画は全面を埋め、森は孤立した壁を、絵は下地を残す地形のマスをこれで置く</span>
+<span id="L44"><span class="lineNum">      44</span>              :         Ground string</span>
+<span id="L45"><span class="lineNum">      45</span>              :         // NeedsGround は間取りのタイルが下地 ground を指すか。立っていて Ground が空なら計画できない</span>
+<span id="L46"><span class="lineNum">      46</span>              :         NeedsGround bool</span>
+<span id="L47"><span class="lineNum">      47</span>              :         // FixedPortals はポータルを手続きで置かないか。絵がポータルを持つ計画と、ポータルを持たない地上の計画で立てる</span>
+<span id="L48"><span class="lineNum">      48</span>              :         FixedPortals bool</span>
+<span id="L49"><span class="lineNum">      49</span>              :         // 階層情報</span>
+<span id="L50"><span class="lineNum">      50</span>              :         Level gc.Level</span>
+<span id="L51"><span class="lineNum">      51</span>              :         // 部屋群。部屋は長方形の移動可能な空間のことをいう。</span>
+<span id="L52"><span class="lineNum">      52</span>              :         // 部屋はタイルの集合体である</span>
+<span id="L53"><span class="lineNum">      53</span>              :         Rooms []gc.Rect</span>
+<span id="L54"><span class="lineNum">      54</span>              :         // 廊下群。廊下は部屋と部屋をつなぐ移動可能な空間のことをいう。</span>
+<span id="L55"><span class="lineNum">      55</span>              :         // 廊下はタイルの集合体である</span>
+<span id="L56"><span class="lineNum">      56</span>              :         Corridors [][]gc.TileIdx</span>
+<span id="L57"><span class="lineNum">      57</span>              :         // 乱数生成器</span>
+<span id="L58"><span class="lineNum">      58</span>              :         RNG *rand.Rand</span>
+<span id="L59"><span class="lineNum">      59</span>              :         // 階層を構成するタイル群。長さはステージの大きさで決まる</span>
+<span id="L60"><span class="lineNum">      60</span>              :         // 通行可能かを判定するための情報を保持している必要がある</span>
+<span id="L61"><span class="lineNum">      61</span>              :         Tiles []rawschema.Tile</span>
+<span id="L62"><span class="lineNum">      62</span>              :         // Environments は Tiles と同じ並びのタイルの環境。EnvironmentPlanner が計算する。計算前は nil</span>
+<span id="L63"><span class="lineNum">      63</span>              :         Environments []gc.TileEnvironment</span>
+<span id="L64"><span class="lineNum">      64</span>              :         // NextPortals は次の階へ進むポータルリスト</span>
+<span id="L65"><span class="lineNum">      65</span>              :         NextPortals []consts.Coord[consts.Tile]</span>
+<span id="L66"><span class="lineNum">      66</span>              :         // NPCs は配置予定のNPCリスト</span>
+<span id="L67"><span class="lineNum">      67</span>              :         NPCs []NPCSpec</span>
+<span id="L68"><span class="lineNum">      68</span>              :         // Items は配置予定のアイテムリスト</span>
+<span id="L69"><span class="lineNum">      69</span>              :         Items []ItemSpec</span>
+<span id="L70"><span class="lineNum">      70</span>              :         // Props は配置予定のPropsリスト</span>
+<span id="L71"><span class="lineNum">      71</span>              :         Props []PropsSpec</span>
+<span id="L72"><span class="lineNum">      72</span>              :         // Decors は配置予定の地面の飾りのリスト</span>
+<span id="L73"><span class="lineNum">      73</span>              :         Decors []DecorSpec</span>
+<span id="L74"><span class="lineNum">      74</span>              :         // Doors は配置予定のドアリスト</span>
+<span id="L75"><span class="lineNum">      75</span>              :         Doors []DoorSpec</span>
+<span id="L76"><span class="lineNum">      76</span>              :         // SpawnPoints はプレイヤーのスポーン地点リスト</span>
+<span id="L77"><span class="lineNum">      77</span>              :         SpawnPoints []maptemplate.SpawnPoint</span>
+<span id="L78"><span class="lineNum">      78</span>              :         // RawMaster はタイル生成に使用するマスターデータ</span>
+<span id="L79"><span class="lineNum">      79</span>              :         RawMaster *rawschema.Raws</span>
+<span id="L80"><span class="lineNum">      80</span>              : }</span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span>              : // IsSpawnableTile は指定タイル座標がスポーン可能かを返す</span>
+<span id="L83"><span class="lineNum">      83</span>              : func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bool {</span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         pos := consts.Coord[consts.Tile]{X: tx, Y: ty}</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         idx := bm.Level.CoordToIndex(pos)</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         tile := bm.Tiles[idx]</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         // 通行不可なのでスポーン不可</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         if tile.BlockPass {</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L91"><span class="lineNum">      91</span>              : </span>
-<span id="L92"><span class="lineNum">      92</span>              : // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック</span>
-<span id="L93"><span class="lineNum">      93</span>              : func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool {</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         return slices.Contains(bm.NextPortals, pos) ||</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           2 :                 slices.ContainsFunc(bm.NPCs, func(npc NPCSpec) bool { return npc.Coord == pos }) ||</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 slices.ContainsFunc(bm.Items, func(item ItemSpec) bool { return item.Coord == pos }) ||</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                 slices.ContainsFunc(bm.Props, func(prop PropsSpec) bool { return prop.Coord == pos }) ||</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                 slices.ContainsFunc(bm.Doors, func(door DoorSpec) bool { return door.Coord == pos })</span></span>
-<span id="L99"><span class="lineNum">      99</span>              : }</span>
-<span id="L100"><span class="lineNum">     100</span>              : </span>
-<span id="L101"><span class="lineNum">     101</span>              : // outsideTile は地図の外を表すタイル。id を持たず、通れない</span>
-<span id="L102"><span class="lineNum">     102</span>              : var outsideTile = rawschema.Tile{BlockPass: true}</span>
-<span id="L103"><span class="lineNum">     103</span>              : </span>
-<span id="L104"><span class="lineNum">     104</span>              : // UpTile は上にあるタイルを調べる。地図の外は outsideTile を返す</span>
-<span id="L105"><span class="lineNum">     105</span>              : func (bm MetaPlan) UpTile(idx gc.TileIdx) rawschema.Tile {</span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         targetIdx := gc.TileIdx(int(idx) - int(bm.Level.TileWidth))</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         if targetIdx &lt; 0 {</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                 return outsideTile</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L110"><span class="lineNum">     110</span>              : </span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         return bm.Tiles[targetIdx]</span></span>
-<span id="L112"><span class="lineNum">     112</span>              : }</span>
-<span id="L113"><span class="lineNum">     113</span>              : </span>
-<span id="L114"><span class="lineNum">     114</span>              : // DownTile は下にあるタイルを調べる。地図の外は outsideTile を返す</span>
-<span id="L115"><span class="lineNum">     115</span>              : func (bm MetaPlan) DownTile(idx gc.TileIdx) rawschema.Tile {</span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         targetIdx := int(idx) + int(bm.Level.TileWidth)</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         if targetIdx &gt; len(bm.Tiles)-1 {</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 return outsideTile</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L120"><span class="lineNum">     120</span>              : </span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         return bm.Tiles[targetIdx]</span></span>
-<span id="L122"><span class="lineNum">     122</span>              : }</span>
-<span id="L123"><span class="lineNum">     123</span>              : </span>
-<span id="L124"><span class="lineNum">     124</span>              : // LeftTile は左にあるタイルを調べる。地図の外は outsideTile を返す</span>
-<span id="L125"><span class="lineNum">     125</span>              : func (bm MetaPlan) LeftTile(idx gc.TileIdx) rawschema.Tile {</span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         pos := bm.Level.IndexToCoord(idx)</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         if pos.X == 0 {</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 return outsideTile</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L130"><span class="lineNum">     130</span>              : </span>
-<span id="L131"><span class="lineNum">     131</span>              :         // 左のタイルが同じ行であることを確認</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         targetIdx := idx - 1</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         if bm.Level.IndexToCoord(targetIdx).Y != pos.Y {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 return outsideTile</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L136"><span class="lineNum">     136</span>              : </span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         return bm.Tiles[targetIdx]</span></span>
-<span id="L138"><span class="lineNum">     138</span>              : }</span>
-<span id="L139"><span class="lineNum">     139</span>              : </span>
-<span id="L140"><span class="lineNum">     140</span>              : // RightTile は右にあるタイルを調べる。地図の外は outsideTile を返す</span>
-<span id="L141"><span class="lineNum">     141</span>              : func (bm MetaPlan) RightTile(idx gc.TileIdx) rawschema.Tile {</span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         pos := bm.Level.IndexToCoord(idx)</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         if pos.X == bm.Level.TileWidth-1 {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 return outsideTile</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L146"><span class="lineNum">     146</span>              : </span>
-<span id="L147"><span class="lineNum">     147</span>              :         // 右のタイルが同じ行であることを確認</span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         targetIdx := idx + 1</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         if bm.Level.IndexToCoord(targetIdx).Y != pos.Y {</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 return outsideTile</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L152"><span class="lineNum">     152</span>              : </span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         return bm.Tiles[targetIdx]</span></span>
-<span id="L154"><span class="lineNum">     154</span>              : }</span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span>              : // AdjacentAnyFloor は直交・斜めを含む近傍8タイルに床があるか判定する</span>
-<span id="L157"><span class="lineNum">     157</span>              : func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {</span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         pos := bm.Level.IndexToCoord(idx)</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         width := int(bm.Level.TileWidth)</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         height := int(bm.Level.TileHeight)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L162"><span class="lineNum">     162</span>              :         // 8方向の隣接タイル座標をチェック</span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         directions := [][2]int{</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 {-1, -1}, {-1, 0}, {-1, 1}, // 上段</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 {0, -1}, {0, 1}, // 中段（中心を除く）</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 {1, -1}, {1, 0}, {1, 1}, // 下段</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L168"><span class="lineNum">     168</span>              : </span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         for _, dir := range directions {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 nx, ny := int(pos.X)+dir[0], int(pos.Y)+dir[1]</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L172"><span class="lineNum">     172</span>              :                 // 境界チェック</span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 if nx &lt; 0 || nx &gt;= width || ny &lt; 0 || ny &gt;= height {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L175"><span class="lineNum">     175</span>              :                 }</span>
+<span id="L92"><span class="lineNum">      92</span>              :         // planning段階では、MetaPlan内の計画済みエンティティをチェック</span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         if bm.existPlannedEntityOnTile(pos) {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L96"><span class="lineNum">      96</span>              : </span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         return true</span></span>
+<span id="L98"><span class="lineNum">      98</span>              : }</span>
+<span id="L99"><span class="lineNum">      99</span>              : </span>
+<span id="L100"><span class="lineNum">     100</span>              : // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック</span>
+<span id="L101"><span class="lineNum">     101</span>              : func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool {</span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         return slices.Contains(bm.NextPortals, pos) ||</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           2 :                 slices.ContainsFunc(bm.NPCs, func(npc NPCSpec) bool { return npc.Coord == pos }) ||</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 slices.ContainsFunc(bm.Items, func(item ItemSpec) bool { return item.Coord == pos }) ||</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :                 slices.ContainsFunc(bm.Props, func(prop PropsSpec) bool { return prop.Coord == pos }) ||</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 slices.ContainsFunc(bm.Doors, func(door DoorSpec) bool { return door.Coord == pos })</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : }</span>
+<span id="L108"><span class="lineNum">     108</span>              : </span>
+<span id="L109"><span class="lineNum">     109</span>              : // outsideTile は地図の外を表すタイル。id を持たず、通れない</span>
+<span id="L110"><span class="lineNum">     110</span>              : var outsideTile = rawschema.Tile{BlockPass: true}</span>
+<span id="L111"><span class="lineNum">     111</span>              : </span>
+<span id="L112"><span class="lineNum">     112</span>              : // UpTile は上にあるタイルを調べる。地図の外は outsideTile を返す</span>
+<span id="L113"><span class="lineNum">     113</span>              : func (bm MetaPlan) UpTile(idx gc.TileIdx) rawschema.Tile {</span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         targetIdx := gc.TileIdx(int(idx) - int(bm.Level.TileWidth))</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         if targetIdx &lt; 0 {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 return outsideTile</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L118"><span class="lineNum">     118</span>              : </span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         return bm.Tiles[targetIdx]</span></span>
+<span id="L120"><span class="lineNum">     120</span>              : }</span>
+<span id="L121"><span class="lineNum">     121</span>              : </span>
+<span id="L122"><span class="lineNum">     122</span>              : // DownTile は下にあるタイルを調べる。地図の外は outsideTile を返す</span>
+<span id="L123"><span class="lineNum">     123</span>              : func (bm MetaPlan) DownTile(idx gc.TileIdx) rawschema.Tile {</span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         targetIdx := int(idx) + int(bm.Level.TileWidth)</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         if targetIdx &gt; len(bm.Tiles)-1 {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 return outsideTile</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L128"><span class="lineNum">     128</span>              : </span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         return bm.Tiles[targetIdx]</span></span>
+<span id="L130"><span class="lineNum">     130</span>              : }</span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span>              : // LeftTile は左にあるタイルを調べる。地図の外は outsideTile を返す</span>
+<span id="L133"><span class="lineNum">     133</span>              : func (bm MetaPlan) LeftTile(idx gc.TileIdx) rawschema.Tile {</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         pos := bm.Level.IndexToCoord(idx)</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         if pos.X == 0 {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 return outsideTile</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L138"><span class="lineNum">     138</span>              : </span>
+<span id="L139"><span class="lineNum">     139</span>              :         // 左のタイルが同じ行であることを確認</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         targetIdx := idx - 1</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         if bm.Level.IndexToCoord(targetIdx).Y != pos.Y {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                 return outsideTile</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L144"><span class="lineNum">     144</span>              : </span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         return bm.Tiles[targetIdx]</span></span>
+<span id="L146"><span class="lineNum">     146</span>              : }</span>
+<span id="L147"><span class="lineNum">     147</span>              : </span>
+<span id="L148"><span class="lineNum">     148</span>              : // RightTile は右にあるタイルを調べる。地図の外は outsideTile を返す</span>
+<span id="L149"><span class="lineNum">     149</span>              : func (bm MetaPlan) RightTile(idx gc.TileIdx) rawschema.Tile {</span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         pos := bm.Level.IndexToCoord(idx)</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         if pos.X == bm.Level.TileWidth-1 {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 return outsideTile</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L154"><span class="lineNum">     154</span>              : </span>
+<span id="L155"><span class="lineNum">     155</span>              :         // 右のタイルが同じ行であることを確認</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         targetIdx := idx + 1</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         if bm.Level.IndexToCoord(targetIdx).Y != pos.Y {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :                 return outsideTile</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L160"><span class="lineNum">     160</span>              : </span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         return bm.Tiles[targetIdx]</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : }</span>
+<span id="L163"><span class="lineNum">     163</span>              : </span>
+<span id="L164"><span class="lineNum">     164</span>              : // AdjacentAnyFloor は直交・斜めを含む近傍8タイルに床があるか判定する</span>
+<span id="L165"><span class="lineNum">     165</span>              : func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         pos := bm.Level.IndexToCoord(idx)</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         width := int(bm.Level.TileWidth)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         height := int(bm.Level.TileHeight)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L170"><span class="lineNum">     170</span>              :         // 8方向の隣接タイル座標をチェック</span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         directions := [][2]int{</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 {-1, -1}, {-1, 0}, {-1, 1}, // 上段</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 {0, -1}, {0, 1}, // 中段（中心を除く）</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 {1, -1}, {1, 0}, {1, 1}, // 下段</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L176"><span class="lineNum">     176</span>              : </span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 neighborIdx := bm.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 tile := bm.Tiles[neighborIdx]</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         for _, dir := range directions {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 nx, ny := int(pos.X)+dir[0], int(pos.Y)+dir[1]</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L180"><span class="lineNum">     180</span>              :                 // 歩行可能</span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 if !tile.BlockPass {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                         return true</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L184"><span class="lineNum">     184</span>              :         }</span>
-<span id="L185"><span class="lineNum">     185</span>              : </span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         return false</span></span>
-<span id="L187"><span class="lineNum">     187</span>              : }</span>
-<span id="L188"><span class="lineNum">     188</span>              : </span>
-<span id="L189"><span class="lineNum">     189</span>              : // PlannerChain は階層データMetaPlanに対して適用する生成ロジックを保持する構造体</span>
-<span id="L190"><span class="lineNum">     190</span>              : type PlannerChain struct {</span>
-<span id="L191"><span class="lineNum">     191</span>              :         Starter   *InitialMapPlanner</span>
-<span id="L192"><span class="lineNum">     192</span>              :         Planners  []MetaMapPlanner</span>
-<span id="L193"><span class="lineNum">     193</span>              :         PlanData  MetaPlan</span>
-<span id="L194"><span class="lineNum">     194</span>              :         Snapshots []Snapshot // フェーズごとのスナップショット</span>
-<span id="L195"><span class="lineNum">     195</span>              :         Recording bool       // trueの場合、各フェーズ完了時にスナップショットを記録する</span>
-<span id="L196"><span class="lineNum">     196</span>              : }</span>
-<span id="L197"><span class="lineNum">     197</span>              : </span>
-<span id="L198"><span class="lineNum">     198</span>              : // NewPlannerChain はシード値を指定してプランナーチェーンを作成する</span>
-<span id="L199"><span class="lineNum">     199</span>              : // シードが0の場合はランダムなシードを生成する</span>
-<span id="L200"><span class="lineNum">     200</span>              : func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *PlannerChain {</span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         tileCount := int(width) * int(height)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         tiles := make([]rawschema.Tile, tileCount)</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L204"><span class="lineNum">     204</span>              :         // シードが0の場合はランダムなシードを生成</span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         if seed == 0 {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 seed = uint64(time.Now().UnixNano())</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L208"><span class="lineNum">     208</span>              : </span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         return &amp;PlannerChain{</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 Starter:  nil,</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 Planners: []MetaMapPlanner{},</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 PlanData: MetaPlan{</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                         Level: gc.Level{</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                                 TileWidth:  width,</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                                 TileHeight: height,</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                         },</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                         Tiles:       tiles,</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                         Rooms:       []gc.Rect{},</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                         Corridors:   [][]gc.TileIdx{},</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                         RNG:         rand.New(rand.NewPCG(seed, seed+1)),</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                         NextPortals: []consts.Coord[consts.Tile]{},</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                         NPCs:        []NPCSpec{},</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                         Items:       []ItemSpec{},</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                         Props:       []PropsSpec{},</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                         Doors:       []DoorSpec{},</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L228"><span class="lineNum">     228</span>              : }</span>
-<span id="L229"><span class="lineNum">     229</span>              : </span>
-<span id="L230"><span class="lineNum">     230</span>              : // StartWith は初期プランナーを設定する</span>
-<span id="L231"><span class="lineNum">     231</span>              : func (b *PlannerChain) StartWith(initialMapPlanner InitialMapPlanner) {</span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         b.Starter = &amp;initialMapPlanner</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L234"><span class="lineNum">     234</span>              : </span>
-<span id="L235"><span class="lineNum">     235</span>              : // With はメタプランナーを追加する</span>
-<span id="L236"><span class="lineNum">     236</span>              : func (b *PlannerChain) With(metaMapPlanner MetaMapPlanner) {</span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         b.Planners = append(b.Planners, metaMapPlanner)</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L239"><span class="lineNum">     239</span>              : </span>
-<span id="L240"><span class="lineNum">     240</span>              : // Plan はプランナーチェーンを実行してマップを生成する</span>
-<span id="L241"><span class="lineNum">     241</span>              : func (b *PlannerChain) Plan() error {</span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         if b.Starter == nil {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;empty starter planner&quot;)</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         if b.PlanData.NeedsGround &amp;&amp; b.PlanData.Ground == &quot;&quot; {</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 return ErrGroundNotSet</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         if err := (*b.Starter).PlanInitial(&amp;b.PlanData); err != nil {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;PlanInitial failed: %w&quot;, err)</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         b.takeSnapshot(&quot;Initial&quot;)</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         for _, meta := range b.Planners {</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 if err := meta.PlanMeta(&amp;b.PlanData); err != nil {</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;PlanMeta failed: %w&quot;, err)</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :                 b.takeSnapshot(plannerName(meta))</span></span>
-<span id="L258"><span class="lineNum">     258</span>              :         }</span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L260"><span class="lineNum">     260</span>              : }</span>
-<span id="L261"><span class="lineNum">     261</span>              : </span>
-<span id="L262"><span class="lineNum">     262</span>              : // plannerName はMetaMapPlannerの型名を返す</span>
-<span id="L263"><span class="lineNum">     263</span>              : func plannerName(p MetaMapPlanner) string {</span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         t := reflect.TypeOf(p)</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         if t.Kind() == reflect.Pointer {</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 t = t.Elem()</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         return t.Name()</span></span>
+<span id="L180"><span class="lineNum">     180</span>              :                 // 境界チェック</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 if nx &lt; 0 || nx &gt;= width || ny &lt; 0 || ny &gt;= height {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L183"><span class="lineNum">     183</span>              :                 }</span>
+<span id="L184"><span class="lineNum">     184</span>              : </span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 neighborIdx := bm.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 tile := bm.Tiles[neighborIdx]</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L188"><span class="lineNum">     188</span>              :                 // 歩行可能</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 if !tile.BlockPass {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                         return true</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L192"><span class="lineNum">     192</span>              :         }</span>
+<span id="L193"><span class="lineNum">     193</span>              : </span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         return false</span></span>
+<span id="L195"><span class="lineNum">     195</span>              : }</span>
+<span id="L196"><span class="lineNum">     196</span>              : </span>
+<span id="L197"><span class="lineNum">     197</span>              : // PlannerChain は階層データMetaPlanに対して適用する生成ロジックを保持する構造体</span>
+<span id="L198"><span class="lineNum">     198</span>              : type PlannerChain struct {</span>
+<span id="L199"><span class="lineNum">     199</span>              :         Starter   *InitialMapPlanner</span>
+<span id="L200"><span class="lineNum">     200</span>              :         Planners  []MetaMapPlanner</span>
+<span id="L201"><span class="lineNum">     201</span>              :         PlanData  MetaPlan</span>
+<span id="L202"><span class="lineNum">     202</span>              :         Snapshots []Snapshot // フェーズごとのスナップショット</span>
+<span id="L203"><span class="lineNum">     203</span>              :         Recording bool       // trueの場合、各フェーズ完了時にスナップショットを記録する</span>
+<span id="L204"><span class="lineNum">     204</span>              : }</span>
+<span id="L205"><span class="lineNum">     205</span>              : </span>
+<span id="L206"><span class="lineNum">     206</span>              : // NewPlannerChain はシード値を指定してプランナーチェーンを作成する</span>
+<span id="L207"><span class="lineNum">     207</span>              : // シードが0の場合はランダムなシードを生成する</span>
+<span id="L208"><span class="lineNum">     208</span>              : func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *PlannerChain {</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         tileCount := int(width) * int(height)</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         tiles := make([]rawschema.Tile, tileCount)</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L212"><span class="lineNum">     212</span>              :         // シードが0の場合はランダムなシードを生成</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         if seed == 0 {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 seed = uint64(time.Now().UnixNano())</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L216"><span class="lineNum">     216</span>              : </span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         return &amp;PlannerChain{</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 Starter:  nil,</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                 Planners: []MetaMapPlanner{},</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 PlanData: MetaPlan{</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                         Level: gc.Level{</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                                 TileWidth:  width,</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                                 TileHeight: height,</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                         },</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                         Tiles:       tiles,</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                         Rooms:       []gc.Rect{},</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                         Corridors:   [][]gc.TileIdx{},</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                         RNG:         rand.New(rand.NewPCG(seed, seed+1)),</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                         NextPortals: []consts.Coord[consts.Tile]{},</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                         NPCs:        []NPCSpec{},</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                         Items:       []ItemSpec{},</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                         Props:       []PropsSpec{},</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                         Decors:      []DecorSpec{},</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                         Doors:       []DoorSpec{},</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L237"><span class="lineNum">     237</span>              : }</span>
+<span id="L238"><span class="lineNum">     238</span>              : </span>
+<span id="L239"><span class="lineNum">     239</span>              : // StartWith は初期プランナーを設定する</span>
+<span id="L240"><span class="lineNum">     240</span>              : func (b *PlannerChain) StartWith(initialMapPlanner InitialMapPlanner) {</span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         b.Starter = &amp;initialMapPlanner</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span>              : // With はメタプランナーを追加する</span>
+<span id="L245"><span class="lineNum">     245</span>              : func (b *PlannerChain) With(metaMapPlanner MetaMapPlanner) {</span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         b.Planners = append(b.Planners, metaMapPlanner)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L248"><span class="lineNum">     248</span>              : </span>
+<span id="L249"><span class="lineNum">     249</span>              : // Plan はプランナーチェーンを実行してマップを生成する</span>
+<span id="L250"><span class="lineNum">     250</span>              : func (b *PlannerChain) Plan() error {</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         if b.Starter == nil {</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;empty starter planner&quot;)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         if b.PlanData.NeedsGround &amp;&amp; b.PlanData.Ground == &quot;&quot; {</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                 return ErrGroundNotSet</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         if err := (*b.Starter).PlanInitial(&amp;b.PlanData); err != nil {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;PlanInitial failed: %w&quot;, err)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         b.takeSnapshot(&quot;Initial&quot;)</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         for _, meta := range b.Planners {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 if err := meta.PlanMeta(&amp;b.PlanData); err != nil {</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;PlanMeta failed: %w&quot;, err)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 b.takeSnapshot(plannerName(meta))</span></span>
+<span id="L267"><span class="lineNum">     267</span>              :         }</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L269"><span class="lineNum">     269</span>              : }</span>
 <span id="L270"><span class="lineNum">     270</span>              : </span>
-<span id="L271"><span class="lineNum">     271</span>              : // InitialMapPlanner は初期マップをプランするインターフェース</span>
-<span id="L272"><span class="lineNum">     272</span>              : // タイルへの描画は行わず、構造体フィールドの値を初期化するだけ</span>
-<span id="L273"><span class="lineNum">     273</span>              : type InitialMapPlanner interface {</span>
-<span id="L274"><span class="lineNum">     274</span>              :         PlanInitial(*MetaPlan) error</span>
-<span id="L275"><span class="lineNum">     275</span>              : }</span>
-<span id="L276"><span class="lineNum">     276</span>              : </span>
-<span id="L277"><span class="lineNum">     277</span>              : // MetaMapPlanner はメタ情報をプランするインターフェース</span>
-<span id="L278"><span class="lineNum">     278</span>              : type MetaMapPlanner interface {</span>
-<span id="L279"><span class="lineNum">     279</span>              :         PlanMeta(*MetaPlan) error</span>
-<span id="L280"><span class="lineNum">     280</span>              : }</span>
-<span id="L281"><span class="lineNum">     281</span>              : </span>
-<span id="L282"><span class="lineNum">     282</span>              : // SpawnEntry はスポーン対象のエントリを表す。</span>
-<span id="L283"><span class="lineNum">     283</span>              : type SpawnEntry struct {</span>
-<span id="L284"><span class="lineNum">     284</span>              :         Name   string</span>
-<span id="L285"><span class="lineNum">     285</span>              :         Weight float64</span>
-<span id="L286"><span class="lineNum">     286</span>              :         Pack   consts.Dice // 1山あたりの個数</span>
-<span id="L287"><span class="lineNum">     287</span>              : }</span>
-<span id="L288"><span class="lineNum">     288</span>              : </span>
-<span id="L289"><span class="lineNum">     289</span>              : // PackSize はダイス表記からパックサイズを抽選する</span>
-<span id="L290"><span class="lineNum">     290</span>              : func (e SpawnEntry) PackSize(rng *rand.Rand) int {</span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         return e.Pack.Roll(rng)</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L293"><span class="lineNum">     293</span>              : </span>
-<span id="L294"><span class="lineNum">     294</span>              : // PlannerType はマップ生成の設定を表す構造体</span>
-<span id="L295"><span class="lineNum">     295</span>              : type PlannerType struct {</span>
-<span id="L296"><span class="lineNum">     296</span>              :         // プランナー名</span>
-<span id="L297"><span class="lineNum">     297</span>              :         Name string</span>
-<span id="L298"><span class="lineNum">     298</span>              :         // 敵テーブル名。RawMasterから敵エントリを解決する際に使用する</span>
-<span id="L299"><span class="lineNum">     299</span>              :         EnemyTableName string</span>
-<span id="L300"><span class="lineNum">     300</span>              :         // アイテムテーブル名。RawMasterからアイテムエントリを解決する際に使用する</span>
-<span id="L301"><span class="lineNum">     301</span>              :         ItemTableName string</span>
-<span id="L302"><span class="lineNum">     302</span>              :         // フロアに置く敵の数</span>
-<span id="L303"><span class="lineNum">     303</span>              :         EnemyCount rawschema.RandInt</span>
-<span id="L304"><span class="lineNum">     304</span>              :         // フロアに置くアイテムの数</span>
-<span id="L305"><span class="lineNum">     305</span>              :         ItemCount rawschema.RandInt</span>
-<span id="L306"><span class="lineNum">     306</span>              :         // 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。</span>
-<span id="L307"><span class="lineNum">     307</span>              :         Danger consts.Danger</span>
-<span id="L308"><span class="lineNum">     308</span>              :         // 地面を埋める下地のタイル。地上と森の間取りが使い、空ならエラーにする</span>
-<span id="L309"><span class="lineNum">     309</span>              :         Ground string</span>
-<span id="L310"><span class="lineNum">     310</span>              :         // プランナー関数。間取りの行は raws から引く</span>
-<span id="L311"><span class="lineNum">     311</span>              :         PlannerFunc func(raws rawschema.Raws, width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)</span>
-<span id="L312"><span class="lineNum">     312</span>              : }</span>
-<span id="L313"><span class="lineNum">     313</span>              : </span>
-<span id="L314"><span class="lineNum">     314</span>              : var (</span>
-<span id="L315"><span class="lineNum">     315</span>              :         // PlannerTypeRandom はランダム選択用のプランナータイプ</span>
-<span id="L316"><span class="lineNum">     316</span>              :         PlannerTypeRandom = PlannerType{</span>
-<span id="L317"><span class="lineNum">     317</span>              :                 Name:        &quot;Random&quot;,</span>
-<span id="L318"><span class="lineNum">     318</span>              :                 PlannerFunc: NewRandomPlanner,</span>
-<span id="L319"><span class="lineNum">     319</span>              :         }</span>
-<span id="L320"><span class="lineNum">     320</span>              : </span>
-<span id="L321"><span class="lineNum">     321</span>              :         // PlannerTypeOverworldField はシームレスワールドの開けた地形チャンクのプランナータイプ。</span>
-<span id="L322"><span class="lineNum">     322</span>              :         // 通行可能がデフォルトで障壁は例外。チャンクを継いでも東西通行が保証される。</span>
-<span id="L323"><span class="lineNum">     323</span>              :         // 下地は区分ごとに決まるので持たない。使う側が Ground を補わないと ErrGroundNotSet になる。</span>
-<span id="L324"><span class="lineNum">     324</span>              :         PlannerTypeOverworldField = PlannerType{</span>
-<span id="L325"><span class="lineNum">     325</span>              :                 Name: &quot;Overworld Field&quot;,</span>
-<span id="L326"><span class="lineNum">     326</span>              :                 PlannerFunc: func(_ rawschema.Raws, width, height consts.Tile, seed uint64) (*PlannerChain, error) {</span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                         return NewOverworldFieldPlanner(width, height, seed)</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L329"><span class="lineNum">     329</span>              :         }</span>
-<span id="L330"><span class="lineNum">     330</span>              : )</span>
-<span id="L331"><span class="lineNum">     331</span>              : </span>
-<span id="L332"><span class="lineNum">     332</span>              : // NewRandomPlanner は絵を使わない間取りの行からシード値で1つ選び、その間取りのチェーンを作成する</span>
-<span id="L333"><span class="lineNum">     333</span>              : func NewRandomPlanner(raws rawschema.Raws, width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {</span>
-<span id="L334"><span class="lineNum">     334</span>              :         // シードが0の場合はランダムなシードを生成する。後続のビルダーに渡される</span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :         if seed == 0 {</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 seed = uint64(time.Now().UnixNano())</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         candidates := proceduralLayoutIDs(raws)</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :         if len(candidates) == 0 {</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;random planner selection error: %w&quot;, ErrNoLayout)</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :         chain, err := newLayoutChain(raws, candidates[rng.IntN(len(candidates))], width, height, seed)</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;random planner selection error: %w&quot;, err)</span></span>
+<span id="L271"><span class="lineNum">     271</span>              : // plannerName はMetaMapPlannerの型名を返す</span>
+<span id="L272"><span class="lineNum">     272</span>              : func plannerName(p MetaMapPlanner) string {</span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         t := reflect.TypeOf(p)</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         if t.Kind() == reflect.Pointer {</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                 t = t.Elem()</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         return t.Name()</span></span>
+<span id="L278"><span class="lineNum">     278</span>              : }</span>
+<span id="L279"><span class="lineNum">     279</span>              : </span>
+<span id="L280"><span class="lineNum">     280</span>              : // InitialMapPlanner は初期マップをプランするインターフェース</span>
+<span id="L281"><span class="lineNum">     281</span>              : // タイルへの描画は行わず、構造体フィールドの値を初期化するだけ</span>
+<span id="L282"><span class="lineNum">     282</span>              : type InitialMapPlanner interface {</span>
+<span id="L283"><span class="lineNum">     283</span>              :         PlanInitial(*MetaPlan) error</span>
+<span id="L284"><span class="lineNum">     284</span>              : }</span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span>              : // MetaMapPlanner はメタ情報をプランするインターフェース</span>
+<span id="L287"><span class="lineNum">     287</span>              : type MetaMapPlanner interface {</span>
+<span id="L288"><span class="lineNum">     288</span>              :         PlanMeta(*MetaPlan) error</span>
+<span id="L289"><span class="lineNum">     289</span>              : }</span>
+<span id="L290"><span class="lineNum">     290</span>              : </span>
+<span id="L291"><span class="lineNum">     291</span>              : // SpawnEntry はスポーン対象のエントリを表す。</span>
+<span id="L292"><span class="lineNum">     292</span>              : type SpawnEntry struct {</span>
+<span id="L293"><span class="lineNum">     293</span>              :         Name   string</span>
+<span id="L294"><span class="lineNum">     294</span>              :         Weight float64</span>
+<span id="L295"><span class="lineNum">     295</span>              :         Pack   consts.Dice // 1山あたりの個数</span>
+<span id="L296"><span class="lineNum">     296</span>              : }</span>
+<span id="L297"><span class="lineNum">     297</span>              : </span>
+<span id="L298"><span class="lineNum">     298</span>              : // PackSize はダイス表記からパックサイズを抽選する</span>
+<span id="L299"><span class="lineNum">     299</span>              : func (e SpawnEntry) PackSize(rng *rand.Rand) int {</span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :         return e.Pack.Roll(rng)</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L302"><span class="lineNum">     302</span>              : </span>
+<span id="L303"><span class="lineNum">     303</span>              : // PlannerType はマップ生成の設定を表す構造体</span>
+<span id="L304"><span class="lineNum">     304</span>              : type PlannerType struct {</span>
+<span id="L305"><span class="lineNum">     305</span>              :         // プランナー名</span>
+<span id="L306"><span class="lineNum">     306</span>              :         Name string</span>
+<span id="L307"><span class="lineNum">     307</span>              :         // 敵テーブル名。RawMasterから敵エントリを解決する際に使用する</span>
+<span id="L308"><span class="lineNum">     308</span>              :         EnemyTableName string</span>
+<span id="L309"><span class="lineNum">     309</span>              :         // アイテムテーブル名。RawMasterからアイテムエントリを解決する際に使用する</span>
+<span id="L310"><span class="lineNum">     310</span>              :         ItemTableName string</span>
+<span id="L311"><span class="lineNum">     311</span>              :         // フロアに置く敵の数</span>
+<span id="L312"><span class="lineNum">     312</span>              :         EnemyCount rawschema.RandInt</span>
+<span id="L313"><span class="lineNum">     313</span>              :         // フロアに置くアイテムの数</span>
+<span id="L314"><span class="lineNum">     314</span>              :         ItemCount rawschema.RandInt</span>
+<span id="L315"><span class="lineNum">     315</span>              :         // 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。</span>
+<span id="L316"><span class="lineNum">     316</span>              :         Danger consts.Danger</span>
+<span id="L317"><span class="lineNum">     317</span>              :         // 地面を埋める下地のタイル。地上と森の間取りが使い、空ならエラーにする</span>
+<span id="L318"><span class="lineNum">     318</span>              :         Ground string</span>
+<span id="L319"><span class="lineNum">     319</span>              :         // プランナー関数。間取りの行は raws から引く</span>
+<span id="L320"><span class="lineNum">     320</span>              :         PlannerFunc func(raws rawschema.Raws, width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)</span>
+<span id="L321"><span class="lineNum">     321</span>              : }</span>
+<span id="L322"><span class="lineNum">     322</span>              : </span>
+<span id="L323"><span class="lineNum">     323</span>              : var (</span>
+<span id="L324"><span class="lineNum">     324</span>              :         // PlannerTypeRandom はランダム選択用のプランナータイプ</span>
+<span id="L325"><span class="lineNum">     325</span>              :         PlannerTypeRandom = PlannerType{</span>
+<span id="L326"><span class="lineNum">     326</span>              :                 Name:        &quot;Random&quot;,</span>
+<span id="L327"><span class="lineNum">     327</span>              :                 PlannerFunc: NewRandomPlanner,</span>
+<span id="L328"><span class="lineNum">     328</span>              :         }</span>
+<span id="L329"><span class="lineNum">     329</span>              : </span>
+<span id="L330"><span class="lineNum">     330</span>              :         // PlannerTypeOverworldField はシームレスワールドの開けた地形チャンクのプランナータイプ。</span>
+<span id="L331"><span class="lineNum">     331</span>              :         // 通行可能がデフォルトで障壁は例外。チャンクを継いでも東西通行が保証される。</span>
+<span id="L332"><span class="lineNum">     332</span>              :         // 下地は区分ごとに決まるので持たない。使う側が Ground を補わないと ErrGroundNotSet になる。</span>
+<span id="L333"><span class="lineNum">     333</span>              :         PlannerTypeOverworldField = PlannerType{</span>
+<span id="L334"><span class="lineNum">     334</span>              :                 Name: &quot;Overworld Field&quot;,</span>
+<span id="L335"><span class="lineNum">     335</span>              :                 PlannerFunc: func(_ rawschema.Raws, width, height consts.Tile, seed uint64) (*PlannerChain, error) {</span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                         return NewOverworldFieldPlanner(width, height, seed)</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L338"><span class="lineNum">     338</span>              :         }</span>
+<span id="L339"><span class="lineNum">     339</span>              : )</span>
+<span id="L340"><span class="lineNum">     340</span>              : </span>
+<span id="L341"><span class="lineNum">     341</span>              : // NewRandomPlanner は絵を使わない間取りの行からシード値で1つ選び、その間取りのチェーンを作成する</span>
+<span id="L342"><span class="lineNum">     342</span>              : func NewRandomPlanner(raws rawschema.Raws, width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {</span>
+<span id="L343"><span class="lineNum">     343</span>              :         // シードが0の場合はランダムなシードを生成する。後続のビルダーに渡される</span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         if seed == 0 {</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 seed = uint64(time.Now().UnixNano())</span></span>
 <span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         return chain, nil</span></span>
-<span id="L348"><span class="lineNum">     348</span>              : }</span>
-<span id="L349"><span class="lineNum">     349</span>              : </span>
-<span id="L350"><span class="lineNum">     350</span>              : // selectSpawnEntry はSpawnEntryリストから重み付き抽選で1つ選択する</span>
-<span id="L351"><span class="lineNum">     351</span>              : func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, bool) {</span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           2 :         i, ok := consts.Pick(rng, entries, func(e SpawnEntry) float64 { return e.Weight })</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 return SpawnEntry{}, false</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         candidates := proceduralLayoutIDs(raws)</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         if len(candidates) == 0 {</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;random planner selection error: %w&quot;, ErrNoLayout)</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           1 :         chain, err := newLayoutChain(raws, candidates[rng.IntN(len(candidates))], width, height, seed)</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;random planner selection error: %w&quot;, err)</span></span>
 <span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           1 :         return entries[i], true</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           1 :         return chain, nil</span></span>
 <span id="L357"><span class="lineNum">     357</span>              : }</span>
 <span id="L358"><span class="lineNum">     358</span>              : </span>
-<span id="L359"><span class="lineNum">     359</span>              : // selectRoom は部屋リストから面積で重み付けして1つ選択し、部屋とそのインデックスを返す</span>
-<span id="L360"><span class="lineNum">     360</span>              : // 大きな部屋ほど選ばれやすくなり、配置可能タイル数に比例した自然な分布になる</span>
-<span id="L361"><span class="lineNum">     361</span>              : func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {</span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 :         i, ok := consts.Pick(bm.RNG, bm.Rooms, func(r gc.Rect) float64 {</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :                 w, h := int(r.Width()), int(r.Height())</span></span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :                 if w &lt;= 0 || h &lt;= 0 {</span></span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                         return 0</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :                 return float64(w * h)</span></span>
-<span id="L368"><span class="lineNum">     368</span>              :         })</span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :                 return gc.Rect{}, 0, false</span></span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         return bm.Rooms[i], i, true</span></span>
-<span id="L373"><span class="lineNum">     373</span>              : }</span>
-<span id="L374"><span class="lineNum">     374</span>              : </span>
-<span id="L375"><span class="lineNum">     375</span>              : // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す</span>
-<span id="L376"><span class="lineNum">     376</span>              : // maxAttemptsを超えても見つからない場合はfalseを返す</span>
-<span id="L377"><span class="lineNum">     377</span>              : func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {</span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :         rw, rh := int(room.Width()), int(room.Height())</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :         if rw &lt;= 0 || rh &lt;= 0 {</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                 return 0, 0, false</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :         for range maxAttempts {</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :                 tx := consts.Tile(int(room.Min.X) + bm.RNG.IntN(rw))</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 :                 ty := consts.Tile(int(room.Min.Y) + bm.RNG.IntN(rh))</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :                 if bm.IsSpawnableTile(world, tx, ty) {</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :                         return tx, ty, true</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L388"><span class="lineNum">     388</span>              :         }</span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         return 0, 0, false</span></span>
-<span id="L390"><span class="lineNum">     390</span>              : }</span>
-<span id="L391"><span class="lineNum">     391</span>              : </span>
-<span id="L392"><span class="lineNum">     392</span>              : // randomPositionNear は指定座標の近く、かつ部屋内からスポーン可能なランダム座標を探す。</span>
-<span id="L393"><span class="lineNum">     393</span>              : // 大部屋でクラスタメンバーを密集させるために使用する</span>
-<span id="L394"><span class="lineNum">     394</span>              : func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int, room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {</span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :         for range maxAttempts {</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :                 dx := bm.RNG.IntN(radius*2+1) - radius</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :                 dy := bm.RNG.IntN(radius*2+1) - radius</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :                 tx := consts.Tile(int(centerX) + dx)</span></span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :                 ty := consts.Tile(int(centerY) + dy)</span></span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :                 if tx &lt; room.Min.X || tx &gt; room.Max.X || ty &lt; room.Min.Y || ty &gt; room.Max.Y {</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L402"><span class="lineNum">     402</span>              :                 }</span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :                 if bm.IsSpawnableTile(world, tx, ty) {</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :                         return tx, ty, true</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L406"><span class="lineNum">     406</span>              :         }</span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :         return 0, 0, false</span></span>
-<span id="L408"><span class="lineNum">     408</span>              : }</span>
-<span id="L409"><span class="lineNum">     409</span>              : </span>
-<span id="L410"><span class="lineNum">     410</span>              : // GetTile はタイルを生成する</span>
-<span id="L411"><span class="lineNum">     411</span>              : // TODO: エラーを潰しているだけなので直す</span>
-<span id="L412"><span class="lineNum">     412</span>              : func (bm *MetaPlan) GetTile(name string) rawschema.Tile {</span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :         if name == maptemplate.GroundTerrain {</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :                 name = bm.Ground</span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :         if bm.RawMaster == nil {</span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :                 panic(&quot;RawMaster is not set; tile generation from TOML is required&quot;)</span></span>
-<span id="L418"><span class="lineNum">     418</span>              :         }</span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :         tile, err := raw.GetTile(*bm.RawMaster, name)</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;tile generation error: %v&quot;, err))</span></span>
-<span id="L422"><span class="lineNum">     422</span>              :         }</span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :         return tile</span></span>
-<span id="L424"><span class="lineNum">     424</span>              : }</span>
-<span id="L425"><span class="lineNum">     425</span>              : </span>
-<span id="L426"><span class="lineNum">     426</span>              : // isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する</span>
-<span id="L427"><span class="lineNum">     427</span>              : func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {</span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         for _, room := range bm.Rooms {</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :                 if x &gt;= room.Min.X &amp;&amp; x &lt;= room.Max.X &amp;&amp; y &gt;= room.Min.Y &amp;&amp; y &lt;= room.Max.Y {</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :                         return true</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L432"><span class="lineNum">     432</span>              :         }</span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :         return false</span></span>
-<span id="L434"><span class="lineNum">     434</span>              : }</span>
-<span id="L435"><span class="lineNum">     435</span>              : </span>
-<span id="L436"><span class="lineNum">     436</span>              : // GetPlayerStartPosition はプレイヤーの開始位置を取得する</span>
-<span id="L437"><span class="lineNum">     437</span>              : // ポータルへの到達性も確認し、到達可能な位置を返す</span>
-<span id="L438"><span class="lineNum">     438</span>              : func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[consts.Tile], error) {</span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :         return NewPathFinder(bm).FindPlayerStartPosition()</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L359"><span class="lineNum">     359</span>              : // selectSpawnEntry はSpawnEntryリストから重み付き抽選で1つ選択する</span>
+<span id="L360"><span class="lineNum">     360</span>              : func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, bool) {</span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           2 :         i, ok := consts.Pick(rng, entries, func(e SpawnEntry) float64 { return e.Weight })</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                 return SpawnEntry{}, false</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :         return entries[i], true</span></span>
+<span id="L366"><span class="lineNum">     366</span>              : }</span>
+<span id="L367"><span class="lineNum">     367</span>              : </span>
+<span id="L368"><span class="lineNum">     368</span>              : // selectRoom は部屋リストから面積で重み付けして1つ選択し、部屋とそのインデックスを返す</span>
+<span id="L369"><span class="lineNum">     369</span>              : // 大きな部屋ほど選ばれやすくなり、配置可能タイル数に比例した自然な分布になる</span>
+<span id="L370"><span class="lineNum">     370</span>              : func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {</span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :         i, ok := consts.Pick(bm.RNG, bm.Rooms, func(r gc.Rect) float64 {</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :                 w, h := int(r.Width()), int(r.Height())</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :                 if w &lt;= 0 || h &lt;= 0 {</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :                         return 0</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 :                 return float64(w * h)</span></span>
+<span id="L377"><span class="lineNum">     377</span>              :         })</span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                 return gc.Rect{}, 0, false</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :         return bm.Rooms[i], i, true</span></span>
+<span id="L382"><span class="lineNum">     382</span>              : }</span>
+<span id="L383"><span class="lineNum">     383</span>              : </span>
+<span id="L384"><span class="lineNum">     384</span>              : // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す</span>
+<span id="L385"><span class="lineNum">     385</span>              : // maxAttemptsを超えても見つからない場合はfalseを返す</span>
+<span id="L386"><span class="lineNum">     386</span>              : func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {</span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         rw, rh := int(room.Width()), int(room.Height())</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         if rw &lt;= 0 || rh &lt;= 0 {</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :                 return 0, 0, false</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :         for range maxAttempts {</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :                 tx := consts.Tile(int(room.Min.X) + bm.RNG.IntN(rw))</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :                 ty := consts.Tile(int(room.Min.Y) + bm.RNG.IntN(rh))</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :                 if bm.IsSpawnableTile(world, tx, ty) {</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                         return tx, ty, true</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L397"><span class="lineNum">     397</span>              :         }</span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :         return 0, 0, false</span></span>
+<span id="L399"><span class="lineNum">     399</span>              : }</span>
+<span id="L400"><span class="lineNum">     400</span>              : </span>
+<span id="L401"><span class="lineNum">     401</span>              : // randomPositionNear は指定座標の近く、かつ部屋内からスポーン可能なランダム座標を探す。</span>
+<span id="L402"><span class="lineNum">     402</span>              : // 大部屋でクラスタメンバーを密集させるために使用する</span>
+<span id="L403"><span class="lineNum">     403</span>              : func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int, room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {</span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :         for range maxAttempts {</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :                 dx := bm.RNG.IntN(radius*2+1) - radius</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :                 dy := bm.RNG.IntN(radius*2+1) - radius</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :                 tx := consts.Tile(int(centerX) + dx)</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :                 ty := consts.Tile(int(centerY) + dy)</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :                 if tx &lt; room.Min.X || tx &gt; room.Max.X || ty &lt; room.Min.Y || ty &gt; room.Max.Y {</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L411"><span class="lineNum">     411</span>              :                 }</span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                 if bm.IsSpawnableTile(world, tx, ty) {</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :                         return tx, ty, true</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L415"><span class="lineNum">     415</span>              :         }</span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :         return 0, 0, false</span></span>
+<span id="L417"><span class="lineNum">     417</span>              : }</span>
+<span id="L418"><span class="lineNum">     418</span>              : </span>
+<span id="L419"><span class="lineNum">     419</span>              : // GetTile はタイルを生成する</span>
+<span id="L420"><span class="lineNum">     420</span>              : // TODO: エラーを潰しているだけなので直す</span>
+<span id="L421"><span class="lineNum">     421</span>              : func (bm *MetaPlan) GetTile(name string) rawschema.Tile {</span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :         if name == maptemplate.GroundTerrain {</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                 name = bm.Ground</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :         if bm.RawMaster == nil {</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :                 panic(&quot;RawMaster is not set; tile generation from TOML is required&quot;)</span></span>
+<span id="L427"><span class="lineNum">     427</span>              :         }</span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         tile, err := raw.GetTile(*bm.RawMaster, name)</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;tile generation error: %v&quot;, err))</span></span>
+<span id="L431"><span class="lineNum">     431</span>              :         }</span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :         return tile</span></span>
+<span id="L433"><span class="lineNum">     433</span>              : }</span>
+<span id="L434"><span class="lineNum">     434</span>              : </span>
+<span id="L435"><span class="lineNum">     435</span>              : // isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する</span>
+<span id="L436"><span class="lineNum">     436</span>              : func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {</span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :         for _, room := range bm.Rooms {</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                 if x &gt;= room.Min.X &amp;&amp; x &lt;= room.Max.X &amp;&amp; y &gt;= room.Min.Y &amp;&amp; y &lt;= room.Max.Y {</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :                         return true</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L441"><span class="lineNum">     441</span>              :         }</span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :         return false</span></span>
+<span id="L443"><span class="lineNum">     443</span>              : }</span>
+<span id="L444"><span class="lineNum">     444</span>              : </span>
+<span id="L445"><span class="lineNum">     445</span>              : // GetPlayerStartPosition はプレイヤーの開始位置を取得する</span>
+<span id="L446"><span class="lineNum">     446</span>              : // ポータルへの到達性も確認し、到達可能な位置を返す</span>
+<span id="L447"><span class="lineNum">     447</span>              : func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[consts.Tile], error) {</span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :         return NewPathFinder(bm).FindPlayerStartPosition()</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

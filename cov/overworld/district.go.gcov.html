@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -114,7 +114,7 @@
 <span id="L52"><span class="lineNum">      52</span>              : // [ry*spacing, (ry+1)*spacing - separation) に収まるよう位置を引く。区域が自分のリージョンから</span>
 <span id="L53"><span class="lineNum">      53</span>              : // はみ出さないので、チャンクを含む区域はそのチャンクの行が属するリージョンだけを見れば決まる</span>
 <span id="L54"><span class="lineNum">      54</span>              : func (d district) regionIn(runSeed uint64, ry, cols consts.Chunk) districtRegion {</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^d.salt, ry, 0), 0))</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(consts.Mix2D(runSeed^d.salt, ry, 0), 0))</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         i, ok := consts.Pick(rng, d.row.Sizes, func(s rawschema.DistrictSize) float64 { return float64(s.Weight) })</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L58"><span class="lineNum">      58</span>              :                 // 大きさの候補が1つ以上あり重みが1以上であることを raw のスキーマが保証する</span>
@@ -131,7 +131,7 @@
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 anchor: anchor,</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 w:      w,</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 h:      consts.Chunk(size.H),</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 seed:   ChunkSeed2D(runSeed^d.salt, anchor.X, anchor.Y),</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 seed:   consts.Mix2D(runSeed^d.salt, anchor.X, anchor.Y),</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L74"><span class="lineNum">      74</span>              : }</span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>

@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">55</td>
-            <td class="headerCovTableEntry">55</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntry">57</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -179,52 +179,56 @@
 <span id="L117"><span class="lineNum">     117</span>              : </span>
 <span id="L118"><span class="lineNum">     118</span>              : // フィールド観察カテゴリ名の定数。値は query.T の msgid として使う</span>
 <span id="L119"><span class="lineNum">     119</span>              : const (</span>
-<span id="L120"><span class="lineNum">     120</span>              :         CategoryPlayer = &quot;Self&quot;</span>
-<span id="L121"><span class="lineNum">     121</span>              :         CategoryEnemy  = &quot;Enemy&quot;</span>
-<span id="L122"><span class="lineNum">     122</span>              :         CategoryNPC    = &quot;NPC&quot;</span>
-<span id="L123"><span class="lineNum">     123</span>              :         CategoryItem   = &quot;Item&quot;</span>
-<span id="L124"><span class="lineNum">     124</span>              :         CategoryProp   = &quot;Prop&quot;</span>
-<span id="L125"><span class="lineNum">     125</span>              :         CategoryTile   = &quot;Tile&quot;</span>
-<span id="L126"><span class="lineNum">     126</span>              : )</span>
-<span id="L127"><span class="lineNum">     127</span>              : </span>
-<span id="L128"><span class="lineNum">     128</span>              : // has は Components のフィールド名を自動解決して Has を生成する。</span>
-<span id="L129"><span class="lineNum">     129</span>              : // Map ハンドルのポインタ同一性でフィールドを特定する</span>
-<span id="L130"><span class="lineNum">     130</span>              : func (c *Components) has(comp hasser) Has {</span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         val := reflect.ValueOf(c).Elem()</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         typ := val.Type()</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         for i := range val.NumField() {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 if val.Field(i).Interface() == comp {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                         return Has{Label: typ.Field(i).Name, Comp: comp}</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L137"><span class="lineNum">     137</span>              :         }</span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         panic(&quot;component not found in Components&quot;)</span></span>
-<span id="L139"><span class="lineNum">     139</span>              : }</span>
-<span id="L140"><span class="lineNum">     140</span>              : </span>
-<span id="L141"><span class="lineNum">     141</span>              : // Categories は観点ごとにグループ化されたカテゴリ定義を返す</span>
-<span id="L142"><span class="lineNum">     142</span>              : func (c *Components) Categories() map[CategoryGroupKey][]Category {</span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         return map[CategoryGroupKey][]Category{</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 FieldLookCategoryKey: {</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                         // Player を先に判定する。Player は FactionAlly も持つため</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                         {Name: CategoryPlayer, Pred: c.has(c.Player)},</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                         {Name: CategoryEnemy, Pred: c.has(c.FactionEnemy)},</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                         {Name: CategoryNPC, Pred: Or{c.has(c.FactionAlly), c.has(c.FactionNeutral)}},</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                         {Name: CategoryItem, Pred: c.has(c.Item)},</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                         {Name: CategoryProp, Pred: c.has(c.Prop)},</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                         {Name: CategoryTile, Pred: c.has(c.Tile)},</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L154"><span class="lineNum">     154</span>              : }</span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span>              : // CategoryOf は指定グループ内でエンティティが属するカテゴリ名を返す。</span>
-<span id="L157"><span class="lineNum">     157</span>              : // どのカテゴリにも属さない場合は空文字とfalseを返す</span>
-<span id="L158"><span class="lineNum">     158</span>              : func (c *Components) CategoryOf(key CategoryGroupKey, entity ecs.Entity) (string, bool) {</span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         for _, cat := range c.Categories()[key] {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 if cat.Eval(entity) {</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                         return cat.Name, true</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L163"><span class="lineNum">     163</span>              :         }</span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         return &quot;&quot;, false</span></span>
-<span id="L165"><span class="lineNum">     165</span>              : }</span>
+<span id="L120"><span class="lineNum">     120</span>              :         CategoryPlayer  = &quot;Self&quot;</span>
+<span id="L121"><span class="lineNum">     121</span>              :         CategoryEnemy   = &quot;Enemy&quot;</span>
+<span id="L122"><span class="lineNum">     122</span>              :         CategoryNPC     = &quot;NPC&quot;</span>
+<span id="L123"><span class="lineNum">     123</span>              :         CategoryItem    = &quot;Item&quot;</span>
+<span id="L124"><span class="lineNum">     124</span>              :         CategoryProp    = &quot;Prop&quot;</span>
+<span id="L125"><span class="lineNum">     125</span>              :         CategoryRemains = &quot;Remains&quot;</span>
+<span id="L126"><span class="lineNum">     126</span>              :         CategoryDecor   = &quot;Decor&quot;</span>
+<span id="L127"><span class="lineNum">     127</span>              :         CategoryTile    = &quot;Tile&quot;</span>
+<span id="L128"><span class="lineNum">     128</span>              : )</span>
+<span id="L129"><span class="lineNum">     129</span>              : </span>
+<span id="L130"><span class="lineNum">     130</span>              : // has は Components のフィールド名を自動解決して Has を生成する。</span>
+<span id="L131"><span class="lineNum">     131</span>              : // Map ハンドルのポインタ同一性でフィールドを特定する</span>
+<span id="L132"><span class="lineNum">     132</span>              : func (c *Components) has(comp hasser) Has {</span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         val := reflect.ValueOf(c).Elem()</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         typ := val.Type()</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         for i := range val.NumField() {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 if val.Field(i).Interface() == comp {</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                         return Has{Label: typ.Field(i).Name, Comp: comp}</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L139"><span class="lineNum">     139</span>              :         }</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         panic(&quot;component not found in Components&quot;)</span></span>
+<span id="L141"><span class="lineNum">     141</span>              : }</span>
+<span id="L142"><span class="lineNum">     142</span>              : </span>
+<span id="L143"><span class="lineNum">     143</span>              : // Categories は観点ごとにグループ化されたカテゴリ定義を返す</span>
+<span id="L144"><span class="lineNum">     144</span>              : func (c *Components) Categories() map[CategoryGroupKey][]Category {</span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         return map[CategoryGroupKey][]Category{</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 FieldLookCategoryKey: {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                         // Player を先に判定する。Player は FactionAlly も持つため</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                         {Name: CategoryPlayer, Pred: c.has(c.Player)},</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                         {Name: CategoryEnemy, Pred: c.has(c.FactionEnemy)},</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                         {Name: CategoryNPC, Pred: Or{c.has(c.FactionAlly), c.has(c.FactionNeutral)}},</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                         {Name: CategoryItem, Pred: c.has(c.Item)},</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         {Name: CategoryProp, Pred: c.has(c.Prop)},</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                         {Name: CategoryRemains, Pred: c.has(c.Remains)},</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                         {Name: CategoryDecor, Pred: c.has(c.Decor)},</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                         {Name: CategoryTile, Pred: c.has(c.Tile)},</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L158"><span class="lineNum">     158</span>              : }</span>
+<span id="L159"><span class="lineNum">     159</span>              : </span>
+<span id="L160"><span class="lineNum">     160</span>              : // CategoryOf は指定グループ内でエンティティが属するカテゴリ名を返す。</span>
+<span id="L161"><span class="lineNum">     161</span>              : // どのカテゴリにも属さない場合は空文字とfalseを返す</span>
+<span id="L162"><span class="lineNum">     162</span>              : func (c *Components) CategoryOf(key CategoryGroupKey, entity ecs.Entity) (string, bool) {</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         for _, cat := range c.Categories()[key] {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 if cat.Eval(entity) {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                         return cat.Name, true</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L167"><span class="lineNum">     167</span>              :         }</span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         return &quot;&quot;, false</span></span>
+<span id="L169"><span class="lineNum">     169</span>              : }</span>
         </pre>
               </td>
             </tr>

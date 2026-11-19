@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -196,7 +196,7 @@
 <span id="L134"><span class="lineNum">     134</span>              : </span>
 <span id="L135"><span class="lineNum">     135</span>              : // unitHash は格子点 (x, y) から 0 以上 1 未満の決定的な値を返す</span>
 <span id="L136"><span class="lineNum">     136</span>              : func unitHash(x, y int) float64 {</span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         h := consts.Mix64(uint64(int64(x))*0x9E3779B97F4A7C15 + uint64(int64(y))*0xC2B2AE3D27D4EB4F)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         h := consts.Mix2D(0, x, y)</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         return float64(h&gt;&gt;11) / (1 &lt;&lt; 53)</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L140"><span class="lineNum">     140</span>              : </span>

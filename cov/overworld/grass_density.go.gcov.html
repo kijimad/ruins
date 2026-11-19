@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,7 +80,7 @@
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         fx := smoothstep(float64(p.X-cx*grassPatchCell) / float64(grassPatchCell))</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         fy := smoothstep(float64(p.Y-cy*grassPatchCell) / float64(grassPatchCell))</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         corner := func(dx, dy consts.Tile) float64 {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return consts.HashRoll(hashTileCoord(seed, consts.Coord[consts.Tile]{X: cx + dx, Y: cy + dy})).Float64()</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return consts.HashRoll(consts.Mix2D(seed, cx+dx, cy+dy)).Float64()</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         top := lerp(corner(0, 0), corner(1, 0), fx)</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         bottom := lerp(corner(0, 1), corner(1, 1), fx)</span></span>
@@ -90,7 +90,7 @@
 <span id="L28"><span class="lineNum">      28</span>              : </span>
 <span id="L29"><span class="lineNum">      29</span>              : // placesGrass は絶対タイル座標 p に草を置くかを、密度 density と茂みの倍率から決める</span>
 <span id="L30"><span class="lineNum">      30</span>              : func placesGrass(seed uint64, density float64, p consts.Coord[consts.Tile]) bool {</span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return consts.HashRoll(hashTileCoord(seed, p)).Float64() &lt; density*grassPatchFactor(seed^grassNoiseChannel, p)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return consts.HashRoll(consts.Mix2D(seed, p.X, p.Y)).Float64() &lt; density*grassPatchFactor(seed^grassNoiseChannel, p)</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : func lerp(a, b, t float64) float64 {</span>

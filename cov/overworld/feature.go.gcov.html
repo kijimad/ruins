@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -100,7 +100,7 @@
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 panic(&quot;Placement: Spacing must be greater than Separation&quot;)</span></span>
 <span id="L39"><span class="lineNum">      39</span>              :         }</span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         span := uint64(p.Spacing - p.Separation)</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         h := ChunkSeed2D(runSeed^p.Salt, ry, 0)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         h := consts.Mix2D(runSeed^p.Salt, ry, 0)</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         return consts.Coord[consts.Chunk]{</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 X: consts.Chunk((h / span) % uint64(cols)),</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 Y: ry*p.Spacing + consts.Chunk(h%span),</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 11:06:22</td>
+            <td class="headerValue">2026-11-19 12:14:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -92,7 +92,7 @@
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L31"><span class="lineNum">      31</span>              :         // タイル選択の seed とアイテム抽選の rng を別チャネルにする。同一 seed だと「どこに置くか」と「何を置くか」が</span>
 <span id="L32"><span class="lineNum">      32</span>              :         // 相関しうるので、アイテム側は専用チャネルを XOR して無相関にする</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         selSeed := ChunkSeed2D(runSeed^outdoorLootSalt, c.X, c.Y)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         selSeed := consts.Mix2D(runSeed^outdoorLootSalt, c.X, c.Y)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(selSeed^outdoorLootItemChannel, outdoorLootSalt))</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         // 置くタイル数は散布ゾーンの密度から面積で導く。反復乱数でなく密度で決めるので純関数のまま</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         count := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.LootDensity))</span></span>
