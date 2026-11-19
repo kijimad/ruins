@@ -1466,6 +1466,9 @@ msgstr "移動できません"
 msgid "Too heavy to move"
 msgstr "重すぎて動けない"
 
+msgid "Too full to eat"
+msgstr "満腹でこれ以上食べられない"
+
 msgid "obtained %d items"
 msgstr "%d個を入手した"
 

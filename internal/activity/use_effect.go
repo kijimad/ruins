@@ -47,7 +47,16 @@ func (nutritionEffect) present(world w.World, item ecs.Entity) bool {
 	return world.Components.ProvidesNutrition.Has(item)
 }
 
-func (nutritionEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
+// check は満腹度が上限なら食べさせない。栄養を持つ物は、ほかの効果を併せ持っても食べ物として止める
+func (nutritionEffect) check(_ *UseItemBehavior, actor, _ ecs.Entity, world w.World) error {
+	if !world.Components.Hunger.Has(actor) {
+		return nil
+	}
+	if h := world.Components.Hunger.Get(actor); h.Current >= h.Max {
+		return &UserError{Msg: query.T(world, "Too full to eat")}
+	}
+	return nil
+}
 
 func (nutritionEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	return u.applyNutrition(comp, actor, world, world.Components.ProvidesNutrition.Get(item).Amount, item)
