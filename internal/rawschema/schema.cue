@@ -1560,8 +1560,7 @@ import (
 // 天候のスペルの基準長。ターン
 #SpellTurns: int & >=1 & <=100000
 
-// スプライトの描画の段。描く順は depthOrder で決まる。snow・remains・item・player はコードだけが組む段で、
-// raw の行には書けないことを validateSpriteDepths で検査する
+// スプライトの描画の段。描く順は depthOrder で決まる
 #SpriteDepth: "floor" | "snow" | "remains" | "decal" | "rug" | "taller" | "item" | "player" @rawgen(prefix)
 
 // スプライトキー
@@ -1573,8 +1572,9 @@ import (
 #SpriteRender: {
 	spriteSheetName!: #SpriteSheetName
 	spriteKey!:       #SpriteKey
-	depth!:           #SpriteDepth
-	shape?:           #SpriteShape
+	// snow・remains・item・player はコードだけが組む段なので、raw の行には書けない
+	depth!: #SpriteDepth & ("floor" | "decal" | "rug" | "taller")
+	shape?: #SpriteShape
 }
 
 // 3D で置物を描く形。省くとカメラを向く立て板になる。

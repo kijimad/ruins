@@ -55,7 +55,6 @@ func validateRules(raws rawschema.Raws) error {
 		validateNeedStages,
 		validateDecors,
 		validateFlatShapes,
-		validateSpriteDepths,
 	}
 	for _, v := range validators {
 		if err := v(raws); err != nil {
@@ -578,34 +577,9 @@ func validateFlatShapes(raws rawschema.Raws) error {
 	for i := range props {
 		p := &props[i]
 		decal := p.SpriteRender.Depth == rawschema.SpriteDepthDecal
-		flat := p.SpriteRender.Shape != nil && *p.SpriteRender.Shape == rawschema.Flat
+		flat := p.SpriteRender.HasShape(rawschema.Flat)
 		if decal != flat {
 			return fmt.Errorf("%w: %s", errFlatDepthMismatch, p.Id)
-		}
-	}
-	return nil
-}
-
-// errCodeOnlyDepth は raw の行が、コードだけが組む描画の段を書いていることを表す
-var errCodeOnlyDepth = errors.New("raw rows must not use code-only sprite depth")
-
-// rawDepths は raw の行が書ける描画の段。雪・跡・アイテム・プレイヤーの段はコードだけが組む
-var rawDepths = []rawschema.SpriteDepth{
-	rawschema.SpriteDepthFloor, rawschema.SpriteDepthDecal, rawschema.SpriteDepthRug, rawschema.SpriteDepthTaller,
-}
-
-// validateSpriteDepths は置物とタイルの行が、raw の行の書ける描画の段だけを使うことを検証する
-func validateSpriteDepths(raws rawschema.Raws) error {
-	props := PtrSlice(raws.Props)
-	for i := range props {
-		if !slices.Contains(rawDepths, props[i].SpriteRender.Depth) {
-			return fmt.Errorf("%w: prop %s uses %q", errCodeOnlyDepth, props[i].Id, props[i].SpriteRender.Depth)
-		}
-	}
-	tiles := PtrSlice(raws.Tiles)
-	for i := range tiles {
-		if !slices.Contains(rawDepths, tiles[i].SpriteRender.Depth) {
-			return fmt.Errorf("%w: tile %s uses %q", errCodeOnlyDepth, tiles[i].Id, tiles[i].SpriteRender.Depth)
 		}
 	}
 	return nil

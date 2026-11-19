@@ -2707,8 +2707,7 @@ type SnowMeltPercent = int
 // SpellTurns 天候のスペルの基準長。ターン
 type SpellTurns = int
 
-// SpriteDepth スプライトの描画の段。描く順は depthOrder で決まる。snow・remains・item・player はコードだけが組む段で、
-// raw の行には書けないことを validateSpriteDepths で検査する
+// SpriteDepth スプライトの描画の段。描く順は depthOrder で決まる
 type SpriteDepth string
 
 // Defines values for SpriteDepth.
@@ -2757,6 +2756,7 @@ type SpriteKey = string
 
 // SpriteRender スプライトレンダー設定
 type SpriteRender struct {
+	// Depth snow・remains・item・player はコードだけが組む段なので、raw の行には書けない
 	Depth SpriteDepth `json:"depth"`
 
 	Shape *SpriteShape `json:"shape,omitempty"`
