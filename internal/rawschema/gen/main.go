@@ -1,5 +1,7 @@
 // Command gen は rawschema の CUE の定義から Go の型を生成する。
 //
+// 引数のディレクトリにある CUE を読み、同じディレクトリに models_gen.go を書く。引数が無ければカレントディレクトリを読む。
+//
 // CUE のファイルを構文として読み、限られた書き方だけを Go へ写す。想定外の書き方はエラーで止め、黙って
 // 読み飛ばさない。写し方は次のとおり。
 //
@@ -39,10 +41,13 @@ const (
 
 var errUnsupported = errors.New("unsupported CUE expression")
 
-// main は引数のディレクトリ、無ければカレントディレクトリの CUE から models_gen.go を書く
 func main() {
+	if len(os.Args) > 2 {
+		fmt.Fprintln(os.Stderr, "usage: gen [dir]")
+		os.Exit(2)
+	}
 	dir := "."
-	if len(os.Args) > 1 {
+	if len(os.Args) == 2 {
 		dir = os.Args[1]
 	}
 	if err := run(dir); err != nil {
