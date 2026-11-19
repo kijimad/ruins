@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">84.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">50</td>
-            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntry">50</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 00:25:22</td>
+            <td class="headerValue">2026-11-19 11:06:22</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -104,15 +104,15 @@
 <span id="L42"><span class="lineNum">      42</span>              : func (sb *SwapBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.SwapParams)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 return ErrParamsTypeMismatch</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 return ErrParamsTypeMismatch</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L47"><span class="lineNum">      47</span>              :         // ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く</span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         if !world.ECS.Alive(p.Target) {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;swap target is not alive&quot;)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;swap target is not alive&quot;)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         if !world.Components.GridElement.Has(actor) || !world.Components.GridElement.Has(p.Target) {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 return ErrGridElementNotFound</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 return ErrGridElementNotFound</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L54"><span class="lineNum">      54</span>              :         // 展開中のキューブは野営の中心に据え付けてあるので動かさない</span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         if world.Components.Deployed.Has(p.Target) {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 return &amp;UserError{Msg: query.T(world, &quot;The deployed cube cannot be moved.&quot;)}</span></span>
@@ -130,8 +130,8 @@
 <span id="L68"><span class="lineNum">      68</span>              : func (sb *SwapBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.SwapParams)</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 return ErrParamsTypeMismatch</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 return ErrParamsTypeMismatch</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         actorGrid := world.Components.GridElement.Get(actor)</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         targetGrid := world.Components.GridElement.Get(p.Target)</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         actorGrid.Coord, targetGrid.Coord = targetGrid.Coord, actorGrid.Coord</span></span>
