@@ -192,9 +192,9 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 			var name string
 			switch {
 			case placesGrass(grassSeed, cat.GrassDensity, abs):
-				name = pickScatterEntry(cat.Grass, true, hashTileCoord(grassSeed^scatterVariantChannel, abs)).Ref
-			case consts.HashRoll(hashTileCoord(grassSeed^scatterSoilChannel, abs)).Float64() < cat.SoilDensity:
-				name = pickScatterEntry(cat.Soil, true, hashTileCoord(grassSeed^scatterSoilChannel^scatterVariantChannel, abs)).Ref
+				name = pickScatterEntry(cat.Grass, true, consts.Mix2D(grassSeed^scatterVariantChannel, abs.X, abs.Y)).Ref
+			case consts.HashRoll(consts.Mix2D(grassSeed^scatterSoilChannel, abs.X, abs.Y)).Float64() < cat.SoilDensity:
+				name = pickScatterEntry(cat.Soil, true, consts.Mix2D(grassSeed^scatterSoilChannel^scatterVariantChannel, abs.X, abs.Y)).Ref
 			default:
 				continue
 			}
@@ -207,12 +207,12 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 	}
 
 	// 続けて樹木・岩を疎に撒く。Big の大物は位相 0 かつ経路外のタイルにだけ乗せ、二段で通行性を担保する。
-	selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
+	selSeed := consts.Mix2D(runSeed^scatterSalt, c.X, c.Y)
 	propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
 	route := scatterRoute(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world), g)
 	for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, propCount) {
 		bigAllowed := onBigPhase(rel) && !onScatterRoute(route, absTile(rel))
-		roll := hashTileCoord(selSeed, rel)
+		roll := consts.Mix2D(selSeed, rel.X, rel.Y)
 		entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
 		if entry.Ref == "" {
 			continue // null 重み。ここは置かない
@@ -357,13 +357,6 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
 // at は帯ローカル座標 pos のタイルが土の地面かを返す。道や壁、他の地物が置いたタイルは土でない
 func (e earthTiles) at(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
 	return e[tileIDAt(world, tiles, pos)]
-}
-
-// hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ
-// なのでタイル座標にも使えるが、引数型が consts.Chunk なのでキャストをここへ隔離し、呼び出し側の意味を
-// 「タイル単位の抽選」に保つ。散布物やアクセントの per-tile 抽選に使う。
-func hashTileCoord(seed uint64, p consts.Coord[consts.Tile]) uint64 {
-	return ChunkSeed2D(seed, consts.Chunk(p.X), consts.Chunk(p.Y))
 }
 
 // tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。

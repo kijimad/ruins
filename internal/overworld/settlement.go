@@ -39,7 +39,7 @@ func settlementAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chu
 	for i := range rows {
 		total += int(rows[i].Weight)
 	}
-	roll := int(ChunkSeed2D(runSeed^placementOf(raws, rawschema.PointFeatureKindSettlement).Salt, c.X, c.Y) % uint64(total))
+	roll := int(consts.Mix2D(runSeed^placementOf(raws, rawschema.PointFeatureKindSettlement).Salt, c.X, c.Y) % uint64(total))
 	for i := range rows {
 		roll -= int(rows[i].Weight)
 		if roll < 0 {

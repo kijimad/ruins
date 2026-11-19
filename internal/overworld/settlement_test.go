@@ -68,7 +68,7 @@ func TestSettlementAt_重みの比で種類を選ぶ(t *testing.T) {
 	for x := range consts.Chunk(10) {
 		for y := range consts.Chunk(10) {
 			id := "hamlet"
-			if ChunkSeed2D(7^placementOf(testutil.InitTestWorld(t).Resources.RawMaster, rawschema.PointFeatureKindSettlement).Salt, x, y)%10 < 6 {
+			if consts.Mix2D(7^placementOf(testutil.InitTestWorld(t).Resources.RawMaster, rawschema.PointFeatureKindSettlement).Salt, x, y)%10 < 6 {
 				id = "village"
 			}
 			want[id]++

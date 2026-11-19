@@ -13,21 +13,6 @@ import (
 	"github.com/kijimaD/ruins/internal/worldstream"
 )
 
-// ChunkSeed2D は runSeed とチャンク座標 (cx, cy) から、そのチャンク固有の決定的な seed を導く。
-// 地形や地物の per-chunk 抽選はすべてこの seed を源にする。
-//
-// cx と cy を別々の大きな奇数で混ぜてから splitmix64 の finalizer で撹拌する。狙いは2つ。
-//   - 転置で散らす: cx と cy に別の定数を掛けるので (cx,cy) と (cy,cx) が別 seed になる。同じ
-//     定数だと cx*K+cy*K が対称になり、転置した座標が衝突して世界に対角線状の反復が出る。
-//   - 隣接で散らす: finalizer の雪崩効果で (cx,cy) と (cx+1,cy) のような1違いの入力が無相関の
-//     出力になる。撹拌しないと隣接 seed が定数差の線形関係になり、隣り合うチャンクが似てしまう。
-//
-// 奇数を掛けるのは 2^64 を法として可逆で座標の情報を落とさないため。定数を変えると同じ runSeed
-// でも別の世界になる。
-func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {
-	return consts.Mix2D(runSeed, cx, cy)
-}
-
 // NewChunkGen は Band に渡す worldstream.ChunkGen を返す。
 // チャンク座標ごとに (runSeed, 座標) から決定的に、地形→地物の層の順で生成し、
 // 帯ローカルの (offsetX, offsetY) へ配置する。南北は北へ無限にストリーミングし、東西は帯の列数に有界。
@@ -40,7 +25,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, cols
 		}
 		zoned := planner
 		zoned.Ground = zone.Ground
-		plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), zoned)
+		plan, err := mapplanner.Plan(world, chunkW, chunkH, consts.Mix2D(runSeed, c.X, c.Y), zoned)
 		if err != nil {
 			return fmt.Errorf("failed to generate chunk (x=%d, y=%d): %w", c.X, c.Y, err)
 		}
