@@ -20,8 +20,8 @@ func wieldedTool(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (i
 	if def.ToolCategory == nil || !world.Components.Player.Has(actor) {
 		return 0, false
 	}
-	weapon, ok, err := selectedWeapon(world, actor)
-	if err != nil || !ok {
+	weapon, ok := query.SelectedWeapon(world, actor)
+	if !ok {
 		return 0, false
 	}
 	tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))

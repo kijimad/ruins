@@ -13,10 +13,9 @@ func IsWeapon(world w.World, entity ecs.Entity) bool {
 	return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
 }
 
-// GetWeapons は武器一覧を取得する（スロット1〜5）
-// 必ず長さ5のスライスを返す
-func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
-	weapons := make([]*ecs.Entity, 5)
+// GetWeapons は武器スロットごとの武器を、SlotWeapon1 から順に並べて返す。空きスロットは nil
+func GetWeapons(world w.World, owner ecs.Entity) [gc.WeaponSlotCount]*ecs.Entity {
+	var weapons [gc.WeaponSlotCount]*ecs.Entity
 
 	weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
 	for weaponsQuery.Next() {
@@ -26,14 +25,28 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 		}
 		equipped := world.Components.LocationEquipped.Get(entity)
 		if owner == equipped.Owner {
-			if equipped.EquipmentSlot >= gc.SlotWeapon1 && equipped.EquipmentSlot <= gc.SlotWeapon5 {
-				index := int(equipped.EquipmentSlot) - int(gc.SlotWeapon1)
-				weapons[index] = &entity
+			if i, ok := equipped.EquipmentSlot.WeaponIndex(); ok {
+				weapons[i] = &entity
 			}
 		}
 	}
 
 	return weapons
+}
+
+// SelectedWeapon は owner が選択中の武器スロットに装備している武器を返す。空きスロットなら ok は偽。
+// 選択が武器スロットであることはロードの検査と数字キーの処理が保証するので、破れていれば panic する
+func SelectedWeapon(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
+	slot := GetWeaponSelection(world).Slot
+	i, ok := slot.WeaponIndex()
+	if !ok {
+		panic(fmt.Sprintf("weapon selection is not a weapon slot: %d", slot))
+	}
+	weapon := GetWeapons(world, owner)[i]
+	if weapon == nil {
+		return ecs.Entity{}, false
+	}
+	return *weapon, true
 }
 
 // GetArmorEquipments は防具一覧を取得する（HEAD, TORSO, ARMS, HANDS, LEGS, FEET, JEWELRY）

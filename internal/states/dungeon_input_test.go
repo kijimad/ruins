@@ -38,3 +38,21 @@ func TestDungeonState_DoAction_拾得は継続アクティビティ中に中断�
 	assert.Equal(t, es.TransNone, tr.Type)
 	assert.True(t, query.HasActivity(world, player), "拾得は継続アクティビティを中断しない")
 }
+
+func TestDungeonState_DoAction_数字キーで武器スロットを選び装備中の武器名を出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	st := &DungeonState{}
+
+	_, err = st.DoAction(world, inputmapper.ActionSwitchWeaponSlot2)
+	require.NoError(t, err)
+	assert.Equal(t, gc.SlotWeapon2, query.GetWeaponSelection(world).Slot)
+	assert.Equal(t, []string{}, query.GetGameLog(world).GetHistory(), "空きスロットでは何も出さない")
+
+	_, err = st.DoAction(world, inputmapper.ActionSwitchWeaponSlot1)
+	require.NoError(t, err)
+	assert.Equal(t, gc.SlotWeapon1, query.GetWeaponSelection(world).Slot)
+	assert.Equal(t, []string{"Readied Torch."}, query.GetGameLog(world).GetHistory(), "初期装備の松明を構える")
+}

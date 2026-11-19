@@ -221,19 +221,19 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 
 	// 武器スロット切り替え系アクション
 	case inputmapper.ActionSwitchWeaponSlot1:
-		st.switchWeaponSlot(world, 1)
+		st.switchWeaponSlot(world, gc.SlotWeapon1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionSwitchWeaponSlot2:
-		st.switchWeaponSlot(world, 2)
+		st.switchWeaponSlot(world, gc.SlotWeapon2)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionSwitchWeaponSlot3:
-		st.switchWeaponSlot(world, 3)
+		st.switchWeaponSlot(world, gc.SlotWeapon3)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionSwitchWeaponSlot4:
-		st.switchWeaponSlot(world, 4)
+		st.switchWeaponSlot(world, gc.SlotWeapon4)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionSwitchWeaponSlot5:
-		st.switchWeaponSlot(world, 5)
+		st.switchWeaponSlot(world, gc.SlotWeapon5)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
 	default:
@@ -340,20 +340,16 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	}
 }
 
-// switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
-func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
-	query.GetWeaponSelection(world).Slot = slotNumber
+// switchWeaponSlot は武器スロット slot に武器を切り替える
+func (st *DungeonState) switchWeaponSlot(world w.World, slot gc.EquipmentSlotNumber) {
+	query.GetWeaponSelection(world).Slot = slot
 
 	// プレイヤーの武器スロット情報を取得してログメッセージを出力
 	query.Player(world, func(playerEntity ecs.Entity) {
-		weapons := query.GetWeapons(world, playerEntity)
-		weaponIndex := slotNumber - 1 // 1-based to 0-based
-		weapon := weapons[weaponIndex]
-
-		if weapon != nil {
+		if weapon, ok := query.SelectedWeapon(world, playerEntity); ok {
 			// 武器が装備されている場合は武器名を表示
-			if world.Components.Name.Has(*weapon) {
-				weaponName := query.GetEntityName(*weapon, world)
+			if world.Components.Name.Has(weapon) {
+				weaponName := query.GetEntityName(weapon, world)
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "Readied %s.", gamelog.Tag("item", weaponName))).
 					Log()

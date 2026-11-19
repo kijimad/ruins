@@ -90,20 +90,6 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	return nil
 }
 
-// selectedWeapon はプレイヤーが選択中の武器スロットの武器を返す。空きスロットなら ok は偽
-func selectedWeapon(world w.World, actor ecs.Entity) (ecs.Entity, bool, error) {
-	selectedSlot := query.GetWeaponSelection(world).Slot
-	weaponIndex := selectedSlot - 1
-	if weaponIndex < 0 || weaponIndex >= 5 {
-		return ecs.Entity{}, false, fmt.Errorf("%w: %d", ErrInvalidWeaponSlot, selectedSlot)
-	}
-	weapon := query.GetWeapons(world, actor)[weaponIndex]
-	if weapon == nil {
-		return ecs.Entity{}, false, nil
-	}
-	return *weapon, true, nil
-}
-
 // Start はBehaviorの実装
 func (ab *MeleeBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	if p, ok := comp.Params.(*gc.MeleeParams); ok {
@@ -221,11 +207,7 @@ func getBareHandsAttack(world w.World) (gc.Attacker, i18n.Msgid, error) {
 func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, i18n.Msgid, error) {
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if world.Components.Player.Has(attacker) {
-		weapon, ok, err := selectedWeapon(world, attacker)
-		if err != nil {
-			return nil, "", err
-		}
-		if ok {
+		if weapon, ok := query.SelectedWeapon(world, attacker); ok {
 			attack, weaponName, err := query.GetMeleeFromWeapon(world, weapon)
 			if err == nil && attack != nil {
 				return attack, weaponName, nil

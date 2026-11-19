@@ -73,6 +73,17 @@ const (
 	SlotWeapon5 EquipmentSlotNumber = 11 // 武器スロット5
 )
 
+// WeaponSlotCount は武器スロットの数
+const WeaponSlotCount = int(SlotWeapon5-SlotWeapon1) + 1
+
+// WeaponIndex は武器スロットの、SlotWeapon1 から並べた武器の並びでの添字を返す。武器スロットでなければ ok は偽
+func (s EquipmentSlotNumber) WeaponIndex() (int, bool) {
+	if s < SlotWeapon1 || s > SlotWeapon5 {
+		return 0, false
+	}
+	return int(s - SlotWeapon1), true
+}
+
 // Name は装備スロット番号の表示名を返す
 func (s EquipmentSlotNumber) Name() i18n.Msgid {
 	switch s {

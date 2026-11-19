@@ -128,13 +128,11 @@ func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
 	if err != nil {
 		return ""
 	}
-	selectedSlot := query.GetWeaponSelection(world).Slot
-	weapons := query.GetWeapons(world, playerEntity)
-	weaponIndex := selectedSlot - 1
-	if weaponIndex < 0 || weaponIndex >= len(weapons) || weapons[weaponIndex] == nil {
+	weapon, ok := query.SelectedWeapon(world, playerEntity)
+	if !ok {
 		return query.T(world, "No ranged weapon equipped")
 	}
-	fire := world.Components.Fire.Get(*weapons[weaponIndex])
+	fire := world.Components.Fire.Get(weapon)
 	if fire == nil {
 		return query.T(world, "No ranged weapon equipped")
 	}
@@ -268,26 +266,18 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 
 // drawWeaponInfo は武器情報を描画する
 func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, drawText func(string)) {
-	selectedSlot := query.GetWeaponSelection(world).Slot
-	weapons := query.GetWeapons(world, playerEntity)
-	weaponIndex := selectedSlot - 1
-	if weaponIndex < 0 || weaponIndex >= len(weapons) {
-		drawText(query.T(world, "Weapon slot: invalid"))
-		return
-	}
-
-	weaponEntity := weapons[weaponIndex]
-	if weaponEntity == nil {
+	weapon, ok := query.SelectedWeapon(world, playerEntity)
+	if !ok {
 		drawText(query.T(world, "Weapon: none"))
 		return
 	}
 
 	// 武器名
-	weaponName := query.GetEntityName(*weaponEntity, world)
+	weaponName := query.GetEntityName(weapon, world)
 	drawText(fmt.Sprintf("%s: %s", query.T(world, "Weapon"), weaponName))
 
 	// 残弾表示
-	fireComp := world.Components.Fire.Get(*weaponEntity)
+	fireComp := world.Components.Fire.Get(weapon)
 	if fireComp != nil {
 		drawText(fmt.Sprintf("%s: %d/%d", query.T(world, "Ammo"), fireComp.Magazine, fireComp.MagazineSize))
 	} else {

@@ -284,7 +284,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	world.Components.HP.Add(enemyEntity, &gc.HP{Max: 10, Current: 10})
 
 	// 武器スロット1を選択
-	query.GetWeaponSelection(world).Slot = 1
+	query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
 
 	result, err := ExecuteInteraction(player, enemyEntity, gc.InteractionMelee, world)
 	require.NoError(t, err)
@@ -420,7 +420,7 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 			Interactions: []gc.InteractionKind{gc.InteractionMelee},
 		})
 
-		query.GetWeaponSelection(world).Slot = 1
+		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
 
 		result, err := ExecuteInteraction(player, prop, gc.InteractionMelee, world)
 		require.NoError(t, err)

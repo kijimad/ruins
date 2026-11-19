@@ -426,7 +426,7 @@ func TestGetAttackParams_プレイヤーが装備した近接武器のパラメ�
 	weapon, err := lifecycle.SpawnBackpackItem(world, "torch", 1)
 	require.NoError(t, err)
 	lifecycle.MoveToEquip(world, weapon, player, gc.SlotWeapon1)
-	query.GetWeaponSelection(world).Slot = 1
+	query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
 
 	attack, name, err := getAttackParams(player, world)
 	require.NoError(t, err)
@@ -445,7 +445,7 @@ func TestGetAttackParams_プレイヤーが武器未装備なら素手にフォ�
 	require.NoError(t, err)
 	// プレイヤーは生成時に松明を武器スロット1へ装備している。外して未装備の状態を作る
 	require.NoError(t, lifecycle.UnequipAll(world, player))
-	query.GetWeaponSelection(world).Slot = 1
+	query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
 
 	attack, name, err := getAttackParams(player, world)
 	require.NoError(t, err)
@@ -454,19 +454,6 @@ func TestGetAttackParams_プレイヤーが武器未装備なら素手にフォ�
 	require.True(t, ok)
 	// 素手の Damage 値は getBareHandsAttack のテストで固定する。ここは素手へ落ちる契約だけを見る
 	assert.Positive(t, melee.Damage)
-}
-
-func TestGetAttackParams_不正なスロット番号でエラーになる(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-	// 武器スロットは1-5が正当範囲
-	query.GetWeaponSelection(world).Slot = 6
-
-	_, _, err = getAttackParams(player, world)
-	require.ErrorIs(t, err, ErrInvalidWeaponSlot)
 }
 
 func TestGetAttackParams_敵はCommandTableから攻撃を取得する(t *testing.T) {
@@ -658,7 +645,7 @@ func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
 			weapon, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
 			require.NoError(t, err)
 			lifecycle.MoveToEquip(world, weapon, player, gc.SlotWeapon1)
-			query.GetWeaponSelection(world).Slot = 1
+			query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
 			tree, err := lifecycle.SpawnProp(world, "tree_a", 10, 9)
 			require.NoError(t, err)
 			attack, name, err := getAttackParams(player, world)

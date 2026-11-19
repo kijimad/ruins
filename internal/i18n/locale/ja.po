@@ -167,9 +167,6 @@ msgstr "射撃対象がいません"
 msgid "Tab: Switch  Enter: Fire  R: Reload  Esc: Back"
 msgstr "Tab:切替 Enter:射撃 R:装填 Esc:戻る"
 
-msgid "Weapon slot: invalid"
-msgstr "武器スロット: 無効"
-
 msgid "Weapon: none"
 msgstr "武器: なし"
 
