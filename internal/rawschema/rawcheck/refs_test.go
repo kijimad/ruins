@@ -54,6 +54,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			{Id: "house", Weight: 1},
 		},
 		Remains: &[]rawschema.Remains{{Id: "splinters", Name: "Splinters", SpriteSheetName: "field", SpriteKeys: []rawschema.SpriteKey{"debris"}}},
+		Decors:  &[]rawschema.Decor{{Id: "moss", Name: "Moss", SpriteRender: render("moss")}},
 		PointFeatures: &[]rawschema.PointFeature{
 			{Id: rawschema.PointFeatureKindSettlement, Spacing: 3, Separation: 1, Salt: 1, Road: &rawschema.Road{Tile: "floor", Width: 2}},
 		},
@@ -64,7 +65,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 				{Ref: "bed", Weight: 1, Satellites: &[]rawschema.PropSpot{{Name: "bed"}}},
 			},
 			Grass: []rawschema.GroundCoverEntry{{Ref: "bed", Weight: 1}},
-			Soil:  []rawschema.GroundCoverEntry{{Ref: "bed", Weight: 1}},
+			Soil:  []rawschema.GroundCoverEntry{{Ref: "moss", Weight: 1}},
 		}},
 		MapGlyphs: &[]rawschema.MapGlyph{{Id: "house", Glyph: "h", Name: "House"}},
 		Props: &[]rawschema.Prop{{
@@ -152,7 +153,7 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"散布の prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Entries[1].Ref = "none" }, "scatterZones.0.entries.1.ref_ref"},
 		{"散布の衛星の prop", func(r *rawschema.Raws) { (*(*r.ScatterZones)[0].Entries[1].Satellites)[0].Name = "none" }, "scatterZones.0.entries.1.satellites_ref.0"},
 		{"草の prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Grass[0].Ref = "none" }, "scatterZones.0.grass_ref.0"},
-		{"土の飾りの prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Soil[0].Ref = "none" }, "scatterZones.0.soil_ref.0"},
+		{"土の飾り", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Soil[0].Ref = "none" }, "scatterZones.0.soil_ref.0"},
 		{"member のコマンドテーブル", func(r *rawschema.Raws) { (*r.Members)[0].CommandTableId = new("none") }, "members.0.commandTableId_ref"},
 		{"member のドロップテーブル", func(r *rawschema.Raws) { (*r.Members)[0].DropTableId = new("none") }, "members.0.dropTableId_ref"},
 		{"member の会話", func(r *rawschema.Raws) { (*r.Members)[0].Dialog.MessageKey = "none" }, "members.0.dialog.messageKey_ref"},
@@ -205,6 +206,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"施設", func(r *rawschema.Raws) { *r.Facilities = append(*r.Facilities, (*r.Facilities)[0]) }, "facilityIds_unique.house"},
 		{"ランドマーク", func(r *rawschema.Raws) { *r.Landmarks = append(*r.Landmarks, (*r.Landmarks)[0]) }, "landmarkIds_unique.house"},
 		{"跡", func(r *rawschema.Raws) { *r.Remains = append(*r.Remains, (*r.Remains)[0]) }, "remainsIds_unique.splinters"},
+		{"置物と地面の飾り", func(r *rawschema.Raws) { (*r.Decors)[0].Id = (*r.Props)[0].Id }, "propDecorIds_unique.bed"},
 		{"散布ゾーン", func(r *rawschema.Raws) { *r.ScatterZones = append(*r.ScatterZones, (*r.ScatterZones)[0]) }, "scatterZoneIds_unique.meadow"},
 		{"地図記号", func(r *rawschema.Raws) { *r.MapGlyphs = append(*r.MapGlyphs, (*r.MapGlyphs)[0]) }, "mapGlyphIds_unique.house"},
 		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.village"},

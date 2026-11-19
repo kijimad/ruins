@@ -53,7 +53,6 @@ func validateRules(raws rawschema.Raws) error {
 		validateTileEffects,
 		validateGrounds,
 		validateNeedStages,
-		validateDecors,
 		validateFlatShapes,
 	}
 	for _, v := range validators {
@@ -548,38 +547,28 @@ func validateNeedStages(raws rawschema.Raws) error {
 	return nil
 }
 
-// errDecorNotInert は地面の飾りの行が、置物として扱われる性質を持つことを表す
-var errDecorNotInert = errors.New("decor prop must not have hp, blockPass, blockView, storage or disassembly")
-
-// validateDecors は地面の飾りの行が、殴る・遮る・収納する・解体する性質を持たないことを検証する。
-// 飾りは置物を数える処理に入らないので、これらの性質と食い違う
-func validateDecors(raws rawschema.Raws) error {
-	props := PtrSlice(raws.Props)
-	for i := range props {
-		p := &props[i]
-		if p.Decor == nil || !*p.Decor {
-			continue
-		}
-		if p.Hp != nil || p.BlockPass || p.BlockView || p.Storage != nil || p.Disassembly != nil {
-			return fmt.Errorf("%w: %s", errDecorNotInert, p.Id)
-		}
-	}
-	return nil
-}
-
 // errFlatDepthMismatch は寝かせる形と床の模様の段が対応していないことを表す
 var errFlatDepthMismatch = errors.New("flat shape and decal depth must go together")
 
 // validateFlatShapes は床の模様の段と寝かせる形が組になっていることを検証する。寝かせた板は奥行きが床と同じで、
 // 描く順が段だけで決まるため。跡は raw の行でなくコードで跡の段と寝かせる形に組むので、ここでは見ない
 func validateFlatShapes(raws rawschema.Raws) error {
+	check := func(id string, sr rawschema.SpriteRender) error {
+		if (sr.Depth == rawschema.SpriteDepthDecal) != sr.HasShape(rawschema.Flat) {
+			return fmt.Errorf("%w: %s", errFlatDepthMismatch, id)
+		}
+		return nil
+	}
 	props := PtrSlice(raws.Props)
 	for i := range props {
-		p := &props[i]
-		decal := p.SpriteRender.Depth == rawschema.SpriteDepthDecal
-		flat := p.SpriteRender.HasShape(rawschema.Flat)
-		if decal != flat {
-			return fmt.Errorf("%w: %s", errFlatDepthMismatch, p.Id)
+		if err := check(props[i].Id, props[i].SpriteRender); err != nil {
+			return err
+		}
+	}
+	decors := PtrSlice(raws.Decors)
+	for i := range decors {
+		if err := check(decors[i].Id, decors[i].SpriteRender); err != nil {
+			return err
 		}
 	}
 	return nil

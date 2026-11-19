@@ -1379,16 +1379,19 @@ func TestWallMaterialTiles_dwallと同じ描画順と通れなさと視界で並
 	}
 }
 
-func TestNewPropSpec_地面の飾りの行は置物でなく飾りにする(t *testing.T) {
+func TestNewDecorSpec(t *testing.T) {
 	t.Parallel()
 
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
-	spec, err := NewPropSpec(raws, "grass")
+	spec, err := NewDecorSpec(raws, "grass")
 	require.NoError(t, err)
-
-	assert.Nil(t, spec.Prop)
+	assert.Nil(t, spec.Prop, "置物を数える処理に入らない")
 	assert.Equal(t, &gc.Decor{}, spec.Decor)
+	assert.Equal(t, &gc.RawID{ID: "grass"}, spec.RawID)
+
+	_, err = NewDecorSpec(raws, "no_such_decor")
+	assert.ErrorIs(t, err, KeyNotFoundError{Key: "no_such_decor", Collection: "Decors"})
 }
 
 func TestGetRemains_無い跡の行はエラー(t *testing.T) {

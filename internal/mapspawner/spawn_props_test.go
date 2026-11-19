@@ -156,7 +156,7 @@ func TestPlanPoses_同じマスの置物はどれか1つが塞げば塞がりに
 	world := testutil.InitTestWorld(t)
 	tiles := make([]rawschema.Tile, 9)
 	// 重なりの順を入れ替えても、樽が塞ぐので本棚は南を向く
-	for _, order := range [][]string{{"barrel", "soil_crack"}, {"soil_crack", "barrel"}} {
+	for _, order := range [][]string{{"barrel", "carpet"}, {"carpet", "barrel"}} {
 		plan := &mapplanner.MetaPlan{
 			Level:     gc.Level{TileWidth: 3, TileHeight: 3},
 			RawMaster: &world.Resources.RawMaster,

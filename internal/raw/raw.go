@@ -817,6 +817,26 @@ func GetProp(raws rawschema.Raws, name string) (rawschema.Prop, error) {
 	return prop, nil
 }
 
+// GetDecor は id の地面の飾りの行を返す
+func GetDecor(raws rawschema.Raws, id string) (rawschema.Decor, bool) {
+	return FindByKey(raws.Decors, func(d rawschema.Decor) string { return d.Id }, id)
+}
+
+// NewDecorSpec は地面の飾りの行から EntitySpec を組む
+func NewDecorSpec(raws rawschema.Raws, id string) (gc.EntitySpec, error) {
+	d, ok := GetDecor(raws, id)
+	if !ok {
+		return gc.EntitySpec{}, NewKeyNotFoundError(id, "Decors")
+	}
+	sr := toGCSpriteRender(d.SpriteRender)
+	return gc.EntitySpec{
+		Name:         &gc.Name{Name: i18n.Msgid(d.Name)},
+		RawID:        &gc.RawID{ID: d.Id},
+		SpriteRender: &sr,
+		Decor:        &gc.Decor{},
+	}, nil
+}
+
 // GetRemains は id の跡の行を返す
 func GetRemains(raws rawschema.Raws, id string) (rawschema.Remains, error) {
 	r, ok := FindByKey(raws.Remains, func(r rawschema.Remains) string { return r.Id }, id)
@@ -915,12 +935,6 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 
 	if len(interactions) > 0 {
 		entitySpec.Interactable = &gc.Interactable{Interactions: interactions}
-	}
-
-	// 地面の飾りは置物を数える処理に入らないよう Prop を外す
-	if propRaw.Decor != nil && *propRaw.Decor {
-		entitySpec.Prop = nil
-		entitySpec.Decor = &gc.Decor{}
 	}
 
 	return entitySpec, nil

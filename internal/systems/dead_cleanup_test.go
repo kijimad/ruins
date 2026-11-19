@@ -377,7 +377,7 @@ func TestDeadCleanupSystem_死んだ敵と壊れた物の座標に行の跡を�
 	setMemberRemains(world, "moss_turtle", nil)
 
 	// 草の上で壊れた椅子。ドロップ表を持たない置物の行から跡を引く
-	_, err := lifecycle.SpawnProp(world, "grass", 3, 3)
+	_, err := lifecycle.SpawnDecor(world, "grass", 3, 3)
 	require.NoError(t, err)
 	chair, err := lifecycle.SpawnProp(world, "chair", 3, 3)
 	require.NoError(t, err)
@@ -481,10 +481,10 @@ func TestDeadCleanupSystem_燃え尽きた火は燃え残りと跡の両方を�
 	assert.Equal(t, []consts.Coord[consts.Tile]{coord}, ashes)
 }
 
-func TestDeadCleanupSystem_地面の飾りは置物の行を引いて跡を置かずに消える(t *testing.T) {
+func TestDeadCleanupSystem_地面の飾りは跡を置かずに消える(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	grass, err := lifecycle.SpawnProp(world, "grass", 3, 3)
+	grass, err := lifecycle.SpawnDecor(world, "grass", 3, 3)
 	require.NoError(t, err)
 	world.Components.Dead.Add(grass, &gc.Dead{})
 

@@ -1123,6 +1123,134 @@
   id = "crash_site"
   weight = 1
 
+[[decors]]
+  id = "grass"
+  name = "Grass"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "weeds"
+  name = "Weeds"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "weeds"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "grass_lush"
+  name = "Lush Grass"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass_lush"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "grass_dry"
+  name = "Dry Grass"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass_dry"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "grass_dark"
+  name = "Dark Grass"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass_dark"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "grass_sprig"
+  name = "Grass Sprig"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass_sprig"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "grass_dry_sprig"
+  name = "Dry Grass Sprig"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass_dry_sprig"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_pebbles"
+  name = "Pebbles"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_pebbles"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_dark"
+  name = "Dark Soil"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_dark"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_dry"
+  name = "Dry Soil"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_dry"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_crack"
+  name = "Cracked Ground"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_crack"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_gravel"
+  name = "Gravel"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_gravel"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_frost"
+  name = "Frost"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_frost"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_stones"
+  name = "Flat Stones"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_stones"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_ice"
+  name = "Frozen Puddle"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_ice"
+    spriteSheetName = "field"
+
 [[dialogues]]
   id = "old_soldier_greeting"
   pages = ["\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\"", "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""]
@@ -21231,30 +21359,6 @@
 [[props]]
   blockPass = false
   blockView = false
-  decor = true
-  description = "[dummy] 地面に生えた草の房。屋外散布の下地。透明背景の prop でタイルのオートタイル縁が出ず地面に重なる。歩行可能。実アート未実装の仮素材"
-  id = "grass"
-  name = "Grass"
-  [props.spriteRender]
-    depth = "floor"
-    spriteKey = "grass"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "[dummy] 乾いた雑草の茂み。屋外散布で草より乾いた色味を混ぜて単調さを崩す。歩行可能。実アート未実装の仮素材"
-  id = "weeds"
-  name = "Weeds"
-  [props.spriteRender]
-    depth = "floor"
-    spriteKey = "weeds"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
   description = "古びた黒枠のランタン。中に暖色の光。まだ灯る"
   hp = 5
   id = "old_lamp"
@@ -22402,170 +22506,6 @@
   [props.spriteRender]
     depth = "rug"
     spriteKey = "dummy_scrap_heap"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A tuft of fresh green grass."
-  id = "grass_lush"
-  name = "Lush Grass"
-  [props.spriteRender]
-    depth = "floor"
-    spriteKey = "grass_lush"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A tuft of withered, straw-colored grass."
-  id = "grass_dry"
-  name = "Dry Grass"
-  [props.spriteRender]
-    depth = "floor"
-    spriteKey = "grass_dry"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A tuft of dark green grass."
-  id = "grass_dark"
-  name = "Dark Grass"
-  [props.spriteRender]
-    depth = "floor"
-    spriteKey = "grass_dark"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A few blades of grass."
-  id = "grass_sprig"
-  name = "Grass Sprig"
-  [props.spriteRender]
-    depth = "floor"
-    spriteKey = "grass_sprig"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A few withered blades of grass."
-  id = "grass_dry_sprig"
-  name = "Dry Grass Sprig"
-  [props.spriteRender]
-    depth = "floor"
-    spriteKey = "grass_dry_sprig"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "Small stones scattered on the ground."
-  id = "soil_pebbles"
-  name = "Pebbles"
-  [props.spriteRender]
-    depth = "decal"
-    shape = "flat"
-    spriteKey = "soil_pebbles"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A patch of damp, dark soil."
-  id = "soil_dark"
-  name = "Dark Soil"
-  [props.spriteRender]
-    depth = "decal"
-    shape = "flat"
-    spriteKey = "soil_dark"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A patch of pale, dried-out soil."
-  id = "soil_dry"
-  name = "Dry Soil"
-  [props.spriteRender]
-    depth = "decal"
-    shape = "flat"
-    spriteKey = "soil_dry"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A crack running through dry earth."
-  id = "soil_crack"
-  name = "Cracked Ground"
-  [props.spriteRender]
-    depth = "decal"
-    shape = "flat"
-    spriteKey = "soil_crack"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "Fine gravel strewn across frozen soil."
-  id = "soil_gravel"
-  name = "Gravel"
-  [props.spriteRender]
-    depth = "decal"
-    shape = "flat"
-    spriteKey = "soil_gravel"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A thin crust of frost on the ground."
-  id = "soil_frost"
-  name = "Frost"
-  [props.spriteRender]
-    depth = "decal"
-    shape = "flat"
-    spriteKey = "soil_frost"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A few flat stones half-sunk in the soil."
-  id = "soil_stones"
-  name = "Flat Stones"
-  [props.spriteRender]
-    depth = "decal"
-    shape = "flat"
-    spriteKey = "soil_stones"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  decor = true
-  description = "A shallow puddle frozen solid."
-  id = "soil_ice"
-  name = "Frozen Puddle"
-  [props.spriteRender]
-    depth = "decal"
-    shape = "flat"
-    spriteKey = "soil_ice"
     spriteSheetName = "field"
 
 [[props]]

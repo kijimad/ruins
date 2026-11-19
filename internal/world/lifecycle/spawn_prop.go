@@ -77,8 +77,7 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 	return nil
 }
 
-// SpawnProp は置物の行から実体を生成する。地面の飾りの行は、置物を数える処理に入らないよう
-// LocationOnField を付けない
+// SpawnProp は置物を生成する
 func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
 	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, propName)
 	if err != nil {
@@ -86,11 +85,28 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	}
 
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
-	if entitySpec.Decor == nil {
-		entitySpec.LocationOnField = &gc.LocationOnField{}
-	}
+	entitySpec.LocationOnField = &gc.LocationOnField{}
 
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
+}
+
+// SpawnDecor は地面の飾りを生成する。置物を数える処理に入らないよう LocationOnField を付けない
+func SpawnDecor(world w.World, id string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
+	entitySpec, err := raw.NewDecorSpec(world.Resources.RawMaster, id)
+	if err != nil {
+		return gc.InvalidEntity, err
+	}
+	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
+	return world.Components.AddEntity(world.ECS, &entitySpec), nil
+}
+
+// SpawnPropOrDecor は id が地面の飾りの表にあれば飾りを、無ければ置物を生成する。散布やパレットのように、置物と
+// 飾りを同じ id の並びで指す場所が使う
+func SpawnPropOrDecor(world w.World, id string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
+	if _, ok := raw.GetDecor(world.Resources.RawMaster, id); ok {
+		return SpawnDecor(world, id, x, y)
+	}
+	return SpawnProp(world, id, x, y)
 }
 
 // SpawnDungeonEntrance は raw の dungeon_entrance prop から遺跡入口を生成する。触れて Enter で definitionName の遺跡へ入る。

@@ -199,7 +199,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 				continue
 			}
 			bl := bandLocal(rel)
-			if _, err := lifecycle.SpawnProp(world, name, bl.X, bl.Y); err != nil {
+			if _, err := lifecycle.SpawnPropOrDecor(world, name, bl.X, bl.Y); err != nil {
 				return fmt.Errorf("failed to place ground cover (%s): %w", name, err)
 			}
 			occupied[gc.GridElement{Coord: bl}] = true

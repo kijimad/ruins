@@ -528,6 +528,15 @@ type DamageBonus = int
 // DangerLevel 危険度。経過日数から決まる
 type DangerLevel = int
 
+// Decor 草や土の模様のような地面の飾り。置物でもアイテムでもなく、通行・操作・拾得・積み込みのどれにも関わらない
+type Decor struct {
+	Id EntityID `json:"id"`
+
+	Name EntityName `json:"name"`
+
+	SpriteRender SpriteRender `json:"spriteRender"`
+}
+
 // Defense 防御力。被ダメージを軽減する
 type Defense = int
 
@@ -2018,9 +2027,6 @@ type Prop struct {
 	// BurnoutItem 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
 	BurnoutItem *EntityID `json:"burnoutItem,omitempty"`
 
-	// Decor 草や土の模様のような地面の飾りなら真。置物として扱わない
-	Decor *bool `json:"decor,omitempty"`
-
 	Description EntityDescription `json:"description"`
 
 	Disassembly *Disassembly `json:"disassembly,omitempty"`
@@ -2118,6 +2124,8 @@ type Raws struct {
 	CorridorSteps *[]CorridorStep `json:"corridorSteps,omitempty"`
 
 	CrashSites *[]CrashSite `json:"crashSites,omitempty"`
+
+	Decors *[]Decor `json:"decors,omitempty"`
 
 	Dialogues *[]Dialogue `json:"dialogues,omitempty"`
 

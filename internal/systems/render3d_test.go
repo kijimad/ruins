@@ -260,7 +260,7 @@ func TestCollectBillboards_寝かせる形のpropは地面に寝かせる(t *tes
 			Sprites: map[string]gc.Sprite{"soil_crack": {Width: 32, Height: 32}},
 		},
 	})
-	_, err := lifecycle.SpawnProp(world, "soil_crack", center.X, center.Y)
+	_, err := lifecycle.SpawnDecor(world, "soil_crack", center.X, center.Y)
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
@@ -286,7 +286,7 @@ func TestCollectBillboards_視界の外では跡を描かず床の模様は描�
 			Sprites: map[string]gc.Sprite{"soil_crack": {Width: 32, Height: 32}, "oil_stain": {Width: 32, Height: 32}},
 		},
 	})
-	_, err := lifecycle.SpawnProp(world, "soil_crack", center.X, center.Y)
+	_, err := lifecycle.SpawnDecor(world, "soil_crack", center.X, center.Y)
 	require.NoError(t, err)
 	_, err = lifecycle.SpawnRemains(world, "oil_stain", consts.Coord[consts.Tile]{X: center.X + 1, Y: center.Y})
 	require.NoError(t, err)

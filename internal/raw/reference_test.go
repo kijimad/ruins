@@ -320,6 +320,17 @@ func TestSpriteSheetFiles(t *testing.T) {
 		}
 	})
 
+	t.Run("地面の飾りが参照するSpriteKeyがJSON内に存在する", func(t *testing.T) {
+		t.Parallel()
+		spriteSheetSprites := buildSpriteSheetSprites(t, raws)
+		for _, d := range PtrSlice(raws.Decors) {
+			sprites, ok := spriteSheetSprites[d.SpriteRender.SpriteSheetName]
+			require.True(t, ok, "飾り '%s' が参照するSpriteSheet '%s' が存在しません", d.Id, d.SpriteRender.SpriteSheetName)
+			assert.True(t, sprites[d.SpriteRender.SpriteKey], "飾り '%s' が参照するSpriteKey '%s' がSpriteSheet '%s' 内に存在しません",
+				d.Id, d.SpriteRender.SpriteKey, d.SpriteRender.SpriteSheetName)
+		}
+	})
+
 	t.Run("跡が参照するSpriteKeyがJSON内に存在する", func(t *testing.T) {
 		t.Parallel()
 		spriteSheetSprites := buildSpriteSheetSprites(t, raws)

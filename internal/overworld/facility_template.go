@@ -38,6 +38,26 @@ func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, r
 	return maptemplate.TransformCells(cells, turns, rng.IntN(2) == 0), nil
 }
 
+// cachedPropRows は施設の絵のマスの id から置物の行を引く関数を返す。同じ id は一度だけ引く。地面の飾りは通れて
+// 向きも持たないので、何も持たない置物の行として返す
+func cachedPropRows(raws rawschema.Raws) func(id string) (rawschema.Prop, error) {
+	rows := map[string]rawschema.Prop{}
+	return func(id string) (rawschema.Prop, error) {
+		if p, ok := rows[id]; ok {
+			return p, nil
+		}
+		if _, ok := raw.GetDecor(raws, id); ok {
+			return rawschema.Prop{}, nil
+		}
+		p, err := raw.GetProp(raws, id)
+		if err != nil {
+			return rawschema.Prop{}, err
+		}
+		rows[id] = p
+		return p, nil
+	}
+}
+
 // spawnFacility は施設の絵のマスを、チャンク内の区画の左上 (ox, oy) から実体として置く。
 // 扉は左右か上下の壁から向きを決める。
 // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする
@@ -67,18 +87,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		return err == nil && t.BlockPass
 	}
 
-	propRows := map[string]rawschema.Prop{}
-	propOf := func(id string) (rawschema.Prop, error) {
-		if p, ok := propRows[id]; ok {
-			return p, nil
-		}
-		p, err := raw.GetProp(world.Resources.RawMaster, id)
-		if err != nil {
-			return rawschema.Prop{}, err
-		}
-		propRows[id] = p
-		return p, nil
-	}
+	propOf := cachedPropRows(world.Resources.RawMaster)
 	propBlocksPass := func(id string) (bool, error) {
 		if id == "" {
 			return false, nil
@@ -194,9 +203,12 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 			return fmt.Errorf("failed to place facility door at %d,%d: %w", pos.X, pos.Y, err)
 		}
 	case cell.Prop != "" && !slices.ContainsFunc(query.GetEntitiesAt(world, pos.X, pos.Y), world.Components.Prop.Has):
-		ent, err := lifecycle.SpawnProp(world, cell.Prop, pos.X, pos.Y)
+		ent, err := lifecycle.SpawnPropOrDecor(world, cell.Prop, pos.X, pos.Y)
 		if err != nil {
 			return fmt.Errorf("failed to place facility prop (%s at %d,%d): %w", cell.Prop, pos.X, pos.Y, err)
+		}
+		if world.Components.Decor.Has(ent) {
+			break
 		}
 		if pose != nil {
 			world.Components.Pose.Add(ent, pose)

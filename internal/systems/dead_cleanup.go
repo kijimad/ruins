@@ -147,15 +147,16 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 }
 
 // placeRemains は死んだ実体 e の行が持つ跡を、e の座標へ置く。そのマスにすでに跡があれば置かない。
-// Prop か Decor を持てば置物の行、どちらも持たなければ敵の行を引く。キューブに置いた設備はアイテムの行から作られるので飛ばす
+// Prop を持てば置物の行、持たなければ敵の行を引く。キューブに置いた設備はアイテムの行から作られ、地面の飾りは跡を
+// 持たないので飛ばす
 func placeRemains(world w.World, e ecs.Entity) error {
-	if !world.Components.GridElement.Has(e) || !world.Components.RawID.Has(e) || world.Components.Deployable.Has(e) {
+	if !world.Components.GridElement.Has(e) || !world.Components.RawID.Has(e) || world.Components.Deployable.Has(e) || world.Components.Decor.Has(e) {
 		return nil
 	}
 	raws := world.Resources.RawMaster
 	id := world.Components.RawID.Get(e).ID
 	var remainsID *string
-	if world.Components.Prop.Has(e) || world.Components.Decor.Has(e) {
+	if world.Components.Prop.Has(e) {
 		prop, err := raw.GetProp(raws, id)
 		if err != nil {
 			return fmt.Errorf("failed to get prop for remains: %w", err)

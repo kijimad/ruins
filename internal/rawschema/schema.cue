@@ -1200,9 +1200,6 @@ import (
 	blockView!: #BlocksView
 	passCost?:  #PassCost
 
-	// 草や土の模様のような地面の飾りなら真。置物として扱わない
-	decor?: bool
-
 	// 耐久。省略した prop は殴れない
 	hp?:              #HitPoints
 	lightSource?:     #LightSource
@@ -1239,6 +1236,13 @@ import (
 	valueType!: #HealingValueType
 	amount!:    #HealAmount
 	ratio!:     #HealRatio
+}
+
+// 草や土の模様のような地面の飾り。置物でもアイテムでもなく、通行・操作・拾得・積み込みのどれにも関わらない
+#Decor: {
+	id!:           #EntityID
+	name!:         #EntityName
+	spriteRender!: #SpriteRender
 }
 
 // 敵や物が消えた跡に床へ残す装飾。描画順は跡の段に決まっているので行に持たない
@@ -1283,6 +1287,7 @@ import (
 	pointFeatures?: [...#PointFeature]
 	landmarks?: [...#Landmark]
 	remains?: [...#Remains]
+	decors?: [...#Decor]
 	crashSites?: [...#CrashSite]
 	scatterZones?: [...#ScatterZone]
 	mapGlyphs?: [...#MapGlyph]
@@ -1334,6 +1339,11 @@ import (
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)
+	// 散布やパレットは置物と飾りを同じ id の並びで指すので、2つの表で id が重ならない
+	propDecorIds_unique: {
+		if props != _|_ for i, x in props {(x.id): "props.\(i)"}
+		if decors != _|_ for i, x in decors {(x.id): "decors.\(i)"}
+	} @rawgen(-)
 	scatterZoneIds_unique: {if scatterZones != _|_ for i, x in scatterZones {(x.id): i}} @rawgen(-)
 	mapGlyphIds_unique: {if mapGlyphs != _|_ for i, x in mapGlyphs {(x.id): i}} @rawgen(-)
 	settlementIds_unique: {if settlements != _|_ for i, x in settlements {(x.id): i}} @rawgen(-)
@@ -1453,9 +1463,9 @@ import (
 	lootGroup_ref: _itemGroupIDs[lootGroup] @rawgen(-)
 	entries!: [...#ScatterEntry]
 	grass!: [...#GroundCoverEntry]
-	grass_ref: [for x in grass {_propIDs[x.ref]}] @rawgen(-)
+	grass_ref: [for x in grass {_propOrDecorIDs[x.ref]}] @rawgen(-)
 	soil!: [...#GroundCoverEntry]
-	soil_ref: [for x in soil {_propIDs[x.ref]}] @rawgen(-)
+	soil_ref: [for x in soil {_propOrDecorIDs[x.ref]}] @rawgen(-)
 }
 
 // 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ

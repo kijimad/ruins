@@ -30,7 +30,7 @@ func TestRawTranslationCoverage(t *testing.T) {
 	shelters, weathers, attacks := raw.PtrSlice(raws.ShelterEffects), raw.PtrSlice(raws.Weathers), raw.PtrSlice(raws.AttackTypes)
 	freshness, materials := raw.PtrSlice(raws.FreshnessStages), raw.PtrSlice(raws.Materials)
 	timesOfDay, seasons, dungeons := raw.PtrSlice(raws.TimesOfDay), raw.PtrSlice(raws.Seasons), raw.PtrSlice(raws.Dungeons)
-	dialogues, remains := raw.PtrSlice(raws.Dialogues), raw.PtrSlice(raws.Remains)
+	dialogues, remains, decors := raw.PtrSlice(raws.Dialogues), raw.PtrSlice(raws.Remains), raw.PtrSlice(raws.Decors)
 	texts := make([]string, 0, len(items)*2+len(members)+len(props)+len(tiles)+len(profs)*2+len(glyphs)+len(conds)*2+len(parts)+len(skills)*4+len(skillCats)+len(hungers)+len(fatigues)+len(shelters)+len(weathers)+len(attacks)+len(freshness)+len(materials)+len(timesOfDay)+len(seasons)+len(dungeons)+len(dialogues)*2)
 	for _, it := range items {
 		texts = append(texts, it.Name, it.Description)
@@ -43,6 +43,9 @@ func TestRawTranslationCoverage(t *testing.T) {
 	}
 	for _, r := range remains {
 		texts = append(texts, r.Name)
+	}
+	for _, d := range decors {
+		texts = append(texts, d.Name)
 	}
 	for _, tl := range tiles {
 		texts = append(texts, tl.Name)
