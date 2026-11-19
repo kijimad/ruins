@@ -79,7 +79,7 @@
 				
 				<option value="file11">github.com/kijimaD/ruins/internal/activity/pickup.go (89.3%)</option>
 				
-				<option value="file12">github.com/kijimaD/ruins/internal/activity/player_actions.go (89.6%)</option>
+				<option value="file12">github.com/kijimaD/ruins/internal/activity/player_actions.go (93.4%)</option>
 				
 				<option value="file13">github.com/kijimaD/ruins/internal/activity/read.go (90.7%)</option>
 				
@@ -3379,11 +3379,12 @@ func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) i18n.Msgid {
         <span class="cov8" title="1">return "right"</span>
 }
 
-// showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する
+// showTileInteractionMessage は範囲内の全Manual相互作用のメッセージと、足元の置物を表示する
 func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
         <span class="cov8" title="1">entities := GetAllInteractiveInteractablesInRange(world, playerGrid)
 </span>        // 同一スタックは1行にまとめる。床の同種エンティティごとに重複ログを出さない
         <span class="cov8" title="1">loggedItemStacks := map[query.StackKey]bool{}
+        logged := map[ecs.Entity]bool{}
         for _, entity := range entities </span>{
                 <span class="cov8" title="1">interactable := world.Components.Interactable.Get(entity)
                 entityGrid := world.Components.GridElement.Get(entity)
@@ -3411,23 +3412,39 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
                                         Markup(query.T(world, "%s is here.", gamelog.Tag("item", formattedName))).
                                         Log()</span>
                         case gc.InteractionPortalNext:
-                                <span class="cov0" title="0">gamelog.New(query.GetGameLog(world)).
+                                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                                         Markup(query.T(world, "There is a warp gate. Press Enter to move.")).
-                                        Log()</span>
+                                        Log()
+                                logged[entity] = true</span>
                         case gc.InteractionPortalPrev:
-                                <span class="cov0" title="0">gamelog.New(query.GetGameLog(world)).
+                                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                                         Markup(query.T(world, "There is an up staircase. Press Enter to move.")).
-                                        Log()</span>
+                                        Log()
+                                logged[entity] = true</span>
                         case gc.InteractionDungeonEnter:
-                                <span class="cov0" title="0">gamelog.New(query.GetGameLog(world)).
+                                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                                         Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
-                                        Log()</span>
+                                        Log()
+                                logged[entity] = true</span>
                         case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionIgnite, gc.InteractionFeedFuel,
                                 gc.InteractionOpenCubeMenu, gc.InteractionSwap:<span class="cov8" title="1"></span>
                                 // 足元ログを出さない種類。default を置かず exhaustive に全種別を
                                 // 明示させ、新しい InteractionKind の対応漏れを lint で検知する
                         }
                 }
+        }
+
+        // 置物は通れて殴れても足元の相互作用を持たないので、乗ったことが分かるよう名前を出す。
+        // ワープのように専用の文を出した置物は重ねて出さない。開いた扉は通り道なので出さない
+        <span class="cov8" title="1">q := query.ActiveFilter2[gc.GridElement, gc.Prop](world).Without(ecs.C[gc.Dead](), ecs.C[gc.Door]()).Query()
+        for q.Next() </span>{
+                <span class="cov8" title="1">e := q.Entity()
+                if world.Components.GridElement.Get(e).Coord != playerGrid.Coord || logged[e] </span>{
+                        <span class="cov8" title="1">continue</span>
+                }
+                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
+                        Markup(query.T(world, "%s is here.", query.GetEntityName(e, world))).
+                        Log()</span>
         }
 }
 </pre>
