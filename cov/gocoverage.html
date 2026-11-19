@@ -109,7 +109,7 @@
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -5663,7 +5663,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -13204,14 +13204,14 @@ import (
 type DeathCause string
 
 const (
-        // CauseFrozen は低体温で凍死したときの死因
-        CauseFrozen DeathCause = "frozen"
+        // CauseHypothermia は低体温で死んだときの死因
+        CauseHypothermia DeathCause = "hypothermia"
         // CauseIllness は病気で死んだときの死因
         CauseIllness DeathCause = "illness"
         // CauseBloodLoss は外傷の失血で死んだときの死因
         CauseBloodLoss DeathCause = "blood_loss"
-        // CauseKilled は戦闘のダメージで倒れたときの死因
-        CauseKilled DeathCause = "killed"
+        // CauseInjury はダメージで HP が尽きたときの死因。攻撃も自傷も含む
+        CauseInjury DeathCause = "injury"
         // CauseDebug はデバッグで結果画面を確認するための死因
         CauseDebug DeathCause = "debug"
 )
@@ -13219,11 +13219,11 @@ const (
 // deathCauseDisplayNames は死因ごとの表示名。結果画面が query.T で訳す。
 // データなので表で持ち、死因を足すときはここへ1行足す
 var deathCauseDisplayNames = map[DeathCause]i18n.Msgid{
-        CauseFrozen:    "froze to death",
-        CauseIllness:   "died of illness",
-        CauseBloodLoss: "bled out",
-        CauseKilled:    "killed in battle",
-        CauseDebug:     "debug",
+        CauseHypothermia: "Hypothermia",
+        CauseIllness:     "Illness",
+        CauseBloodLoss:   "Blood loss",
+        CauseInjury:      "Injury",
+        CauseDebug:       "Debug",
 }
 
 // DisplayName は死因の表示名を返す。
@@ -31130,9 +31130,9 @@ type ConditionDeathCause string
 
 // Defines values for ConditionDeathCause.
 const (
-        BloodLoss ConditionDeathCause = "blood_loss"
-        Frozen    ConditionDeathCause = "frozen"
-        Illness   ConditionDeathCause = "illness"
+        BloodLoss   ConditionDeathCause = "blood_loss"
+        Hypothermia ConditionDeathCause = "hypothermia"
+        Illness     ConditionDeathCause = "illness"
 )
 
 // Valid indicates whether the value is a known member of the ConditionDeathCause enum.
@@ -31140,7 +31140,7 @@ func (e ConditionDeathCause) Valid() bool {
         <span class="cov0" title="0">switch e </span>{
         case BloodLoss:
                 <span class="cov0" title="0">return true</span>
-        case Frozen:
+        case Hypothermia:
                 <span class="cov0" title="0">return true</span>
         case Illness:
                 <span class="cov0" title="0">return true</span>
@@ -31151,7 +31151,7 @@ func (e ConditionDeathCause) Valid() bool {
 
 // ConditionDeathCauseValues は ConditionDeathCause の値を、スキーマに書いた順に返す。
 func ConditionDeathCauseValues() []ConditionDeathCause {
-        <span class="cov0" title="0">return []ConditionDeathCause{Frozen, Illness, BloodLoss}
+        <span class="cov0" title="0">return []ConditionDeathCause{Hypothermia, Illness, BloodLoss}
 </span>}
 
 // ConditionOnset 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ
@@ -54988,10 +54988,10 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
         <span class="cov8" title="1">reactToHostileAction(world, target)
 </span>
         <span class="cov8" title="1">if died </span>{
-                // 戦闘のダメージで倒れたプレイヤーは戦闘死として死因を記録する
+                // ダメージで倒れたプレイヤーは、攻撃か自傷かを問わず外傷として死因を記録する
                 <span class="cov8" title="1">if isPlayerEntity(target, world) </span>{
                         <span class="cov8" title="1">if rs := query.GetRunStats(world); rs != nil </span>{
-                                <span class="cov8" title="1">rs.Cause = gc.CauseKilled
+                                <span class="cov8" title="1">rs.Cause = gc.CauseInjury
 </span>                        }
                 }
                 <span class="cov8" title="1">logDeath(world, target, source)</span>

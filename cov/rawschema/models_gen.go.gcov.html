@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 13:52:44</td>
+            <td class="headerValue">2026-11-19 14:45:29</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -458,9 +458,9 @@
 <span id="L396"><span class="lineNum">     396</span>              : </span>
 <span id="L397"><span class="lineNum">     397</span>              : // Defines values for ConditionDeathCause.</span>
 <span id="L398"><span class="lineNum">     398</span>              : const (</span>
-<span id="L399"><span class="lineNum">     399</span>              :         BloodLoss ConditionDeathCause = &quot;blood_loss&quot;</span>
-<span id="L400"><span class="lineNum">     400</span>              :         Frozen    ConditionDeathCause = &quot;frozen&quot;</span>
-<span id="L401"><span class="lineNum">     401</span>              :         Illness   ConditionDeathCause = &quot;illness&quot;</span>
+<span id="L399"><span class="lineNum">     399</span>              :         BloodLoss   ConditionDeathCause = &quot;blood_loss&quot;</span>
+<span id="L400"><span class="lineNum">     400</span>              :         Hypothermia ConditionDeathCause = &quot;hypothermia&quot;</span>
+<span id="L401"><span class="lineNum">     401</span>              :         Illness     ConditionDeathCause = &quot;illness&quot;</span>
 <span id="L402"><span class="lineNum">     402</span>              : )</span>
 <span id="L403"><span class="lineNum">     403</span>              : </span>
 <span id="L404"><span class="lineNum">     404</span>              : // Valid indicates whether the value is a known member of the ConditionDeathCause enum.</span>
@@ -468,7 +468,7 @@
 <span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :         switch e {</span></span>
 <span id="L407"><span class="lineNum">     407</span>              :         case BloodLoss:</span>
 <span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L409"><span class="lineNum">     409</span>              :         case Frozen:</span>
+<span id="L409"><span class="lineNum">     409</span>              :         case Hypothermia:</span>
 <span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :                 return true</span></span>
 <span id="L411"><span class="lineNum">     411</span>              :         case Illness:</span>
 <span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :                 return true</span></span>
@@ -479,7 +479,7 @@
 <span id="L417"><span class="lineNum">     417</span>              : </span>
 <span id="L418"><span class="lineNum">     418</span>              : // ConditionDeathCauseValues は ConditionDeathCause の値を、スキーマに書いた順に返す。</span>
 <span id="L419"><span class="lineNum">     419</span>              : func ConditionDeathCauseValues() []ConditionDeathCause {</span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         return []ConditionDeathCause{Frozen, Illness, BloodLoss}</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         return []ConditionDeathCause{Hypothermia, Illness, BloodLoss}</span></span>
 <span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L422"><span class="lineNum">     422</span>              : </span>
 <span id="L423"><span class="lineNum">     423</span>              : // ConditionOnset 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ</span>

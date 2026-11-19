@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 13:52:44</td>
+            <td class="headerValue">2026-11-19 14:45:29</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,14 +71,14 @@
 <span id="L9"><span class="lineNum">       9</span>              : type DeathCause string</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : const (</span>
-<span id="L12"><span class="lineNum">      12</span>              :         // CauseFrozen は低体温で凍死したときの死因</span>
-<span id="L13"><span class="lineNum">      13</span>              :         CauseFrozen DeathCause = &quot;frozen&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         // CauseHypothermia は低体温で死んだときの死因</span>
+<span id="L13"><span class="lineNum">      13</span>              :         CauseHypothermia DeathCause = &quot;hypothermia&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         // CauseIllness は病気で死んだときの死因</span>
 <span id="L15"><span class="lineNum">      15</span>              :         CauseIllness DeathCause = &quot;illness&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              :         // CauseBloodLoss は外傷の失血で死んだときの死因</span>
 <span id="L17"><span class="lineNum">      17</span>              :         CauseBloodLoss DeathCause = &quot;blood_loss&quot;</span>
-<span id="L18"><span class="lineNum">      18</span>              :         // CauseKilled は戦闘のダメージで倒れたときの死因</span>
-<span id="L19"><span class="lineNum">      19</span>              :         CauseKilled DeathCause = &quot;killed&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              :         // CauseInjury はダメージで HP が尽きたときの死因。攻撃も自傷も含む</span>
+<span id="L19"><span class="lineNum">      19</span>              :         CauseInjury DeathCause = &quot;injury&quot;</span>
 <span id="L20"><span class="lineNum">      20</span>              :         // CauseDebug はデバッグで結果画面を確認するための死因</span>
 <span id="L21"><span class="lineNum">      21</span>              :         CauseDebug DeathCause = &quot;debug&quot;</span>
 <span id="L22"><span class="lineNum">      22</span>              : )</span>
@@ -86,11 +86,11 @@
 <span id="L24"><span class="lineNum">      24</span>              : // deathCauseDisplayNames は死因ごとの表示名。結果画面が query.T で訳す。</span>
 <span id="L25"><span class="lineNum">      25</span>              : // データなので表で持ち、死因を足すときはここへ1行足す</span>
 <span id="L26"><span class="lineNum">      26</span>              : var deathCauseDisplayNames = map[DeathCause]i18n.Msgid{</span>
-<span id="L27"><span class="lineNum">      27</span>              :         CauseFrozen:    &quot;froze to death&quot;,</span>
-<span id="L28"><span class="lineNum">      28</span>              :         CauseIllness:   &quot;died of illness&quot;,</span>
-<span id="L29"><span class="lineNum">      29</span>              :         CauseBloodLoss: &quot;bled out&quot;,</span>
-<span id="L30"><span class="lineNum">      30</span>              :         CauseKilled:    &quot;killed in battle&quot;,</span>
-<span id="L31"><span class="lineNum">      31</span>              :         CauseDebug:     &quot;debug&quot;,</span>
+<span id="L27"><span class="lineNum">      27</span>              :         CauseHypothermia: &quot;Hypothermia&quot;,</span>
+<span id="L28"><span class="lineNum">      28</span>              :         CauseIllness:     &quot;Illness&quot;,</span>
+<span id="L29"><span class="lineNum">      29</span>              :         CauseBloodLoss:   &quot;Blood loss&quot;,</span>
+<span id="L30"><span class="lineNum">      30</span>              :         CauseInjury:      &quot;Injury&quot;,</span>
+<span id="L31"><span class="lineNum">      31</span>              :         CauseDebug:       &quot;Debug&quot;,</span>
 <span id="L32"><span class="lineNum">      32</span>              : }</span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // DisplayName は死因の表示名を返す。</span>
