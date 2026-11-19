@@ -60,7 +60,7 @@ func TestBaselineSnapshot_生存圧(t *testing.T) {
 	t.Parallel()
 	assert.InDelta(t, 0.67, DaysUntilStarving(DefaultParams(loadTestMaster(t))), 0.02, "栄養失調まで日数")
 	assert.InDelta(t, 1.00, DaysUntilHungerEmpty(DefaultParams(loadTestMaster(t))), 0.02, "満腹度が尽きるまで日数")
-	assert.InDelta(t, 10, TurnsToHypothermia(0), 0.5, "0度で低体温まで")
+	assert.InDelta(t, 100, TurnsToHypothermia(0), 0.5, "0度で低体温まで")
 }
 
 func TestBaselineSnapshot_物流(t *testing.T) {

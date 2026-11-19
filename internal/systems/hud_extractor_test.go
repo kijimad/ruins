@@ -453,12 +453,12 @@ func TestTemperatureArrow_状態が無くても寒い環境なら早期警告を
 
 func TestTemperatureDirectionColor_変化が速いほど濃くなる(t *testing.T) {
 	t.Parallel()
-	slow := temperatureDirectionColor(hud.TempDirectionUp, 0.25)
-	fast := temperatureDirectionColor(hud.TempDirectionUp, 1.0)
+	slow := temperatureDirectionColor(hud.TempDirectionUp, 0.03)
+	fast := temperatureDirectionColor(hud.TempDirectionUp, 0.12)
 	assert.Greater(t, slow.G, fast.G, "温まる向きは速いほど濃い赤になる")
 
-	slowCool := temperatureDirectionColor(hud.TempDirectionDown, -0.25)
-	fastCool := temperatureDirectionColor(hud.TempDirectionDown, -1.0)
+	slowCool := temperatureDirectionColor(hud.TempDirectionDown, -0.03)
+	fastCool := temperatureDirectionColor(hud.TempDirectionDown, -0.12)
 	assert.Greater(t, slowCool.R, fastCool.R, "冷える向きは速いほど濃い青になる")
 }
 

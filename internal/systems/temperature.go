@@ -38,6 +38,10 @@ const (
 	bodyTempMax = 0.0
 	// bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
 	bodyTempHomeostasisPerTurn = 0.1
+	// bodyTempComfortTemp はこれ以上なら体温が下がらない有効温度
+	bodyTempComfortTemp = 10
+	// bodyTempColdPerDegree は有効温度が適温を1℃下回るごとに1ターンで下がる体温
+	bodyTempColdPerDegree = 0.002
 )
 
 // Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める
@@ -156,18 +160,13 @@ const BodyTempColdBand = bodyTempColdBand
 // CalcBodyTempRate は実効温度から1ターンの体温変化量を返す純関数。バランス導出用の公開窓。
 func CalcBodyTempRate(effectiveTemp int) float64 { return calcBodyTempRate(effectiveTemp) }
 
-// calcBodyTempRate は有効温度から体温の変化量を計算する。寒いほど負へ大きく、適温以上は0で正の値は返さない
+// calcBodyTempRate は有効温度から体温の変化量を計算する。適温を下回った分に比例して負へ大きくなり、
+// 適温以上は0で正の値は返さない。比例にするのは、屋内で少し暖かいだけでも冷え方が変わるようにするため
 func calcBodyTempRate(effectiveTemp int) float64 {
-	switch {
-	case effectiveTemp <= -50:
-		return -0.5 // 極寒。最も厳しい区分で、居座れば急速に凍える
-	case effectiveTemp <= 0:
-		return -0.2 // 非常に寒い
-	case effectiveTemp <= 10:
-		return -0.1 // 寒い
-	default:
-		return 0 // 適温以上
+	if effectiveTemp >= bodyTempComfortTemp {
+		return 0
 	}
+	return -float64(bodyTempComfortTemp-effectiveTemp) * bodyTempColdPerDegree
 }
 
 // logTemperatureChange は状態変化をログ出力する

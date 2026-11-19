@@ -166,7 +166,7 @@ func TestAmbientTemperatureAt_ダンジョンの囲われたタイルは世界�
 
 	temp, err := query.AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
-	assert.Equal(t, -5, temp, "屋内はアンカー10へ半分寄せた 10+(-20-10)/2 = -5 になる")
+	assert.Equal(t, 7, temp, "屋内はアンカー15へ外気の1/4だけ寄せた 15+(-20-15)/4 = 7 になる")
 }
 
 func TestAmbientTemperatureAt_ダンジョンの囲われていないタイルは世界温度をそのまま受ける(t *testing.T) {
@@ -193,7 +193,7 @@ func TestAmbientTemperatureAt_オーバーワールドの屋内タイルは世�
 
 	temp, err := query.AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
-	assert.Equal(t, -5, temp, "オーバーワールドの屋内はアンカー10へ半分寄せた -5 になる")
+	assert.Equal(t, 7, temp, "オーバーワールドの屋内はアンカー15へ外気の1/4だけ寄せた 7 になる")
 }
 
 func TestAmbientTemperatureAt_温暖時も屋内は屋外より寒くならない(t *testing.T) {
@@ -209,7 +209,7 @@ func TestAmbientTemperatureAt_温暖時も屋内は屋外より寒くならな�
 
 	temp, err := query.AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
-	assert.Equal(t, 8, temp, "屋内はアンカー10へ半分寄せた 10+(5-10)/2 = 8 で屋外の 5 より暖かい")
+	assert.Equal(t, 13, temp, "屋内はアンカー15へ外気の1/4だけ寄せた 15+(5-15)/4 = 13 で屋外の 5 より暖かい")
 }
 
 func TestAmbientTemperatureAt_熱源は環境気温を押し上げる(t *testing.T) {
@@ -241,7 +241,7 @@ func TestAmbientTemperatureAt_半屋外タイルは世界温度を中間の強�
 
 	temp, err := query.AmbientTemperatureAt(world, 0, 0)
 	require.NoError(t, err)
-	assert.Equal(t, -12, temp, "半屋外はアンカー10へ 3/4 寄せた 10+(-30)*3/4 = -12 になる")
+	assert.Equal(t, -7, temp, "半屋外はアンカー12へ外気の6割だけ寄せた 12+(-20-12)*0.6 = -7 になる")
 }
 
 func TestAmbientTemperatureAt_冬の屋内は屋外より暖かい(t *testing.T) {

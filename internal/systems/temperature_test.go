@@ -34,13 +34,11 @@ func TestCalcBodyTempRate_閾値ごとの変化量を固定する(t *testing.T) 
 		effectiveTemp int
 		expected      float64
 	}{
-		{"極寒(-50度以下)", -100, -0.5},
-		{"極寒(-50度)", -50, -0.5},
-		{"非常に寒い(-49度)", -49, -0.2},
-		{"非常に寒い(0度以下)", -10, -0.2},
-		{"非常に寒い(0度)", 0, -0.2},
-		{"寒い(1-10度)", 5, -0.1},
-		{"寒い(10度)", 10, -0.1},
+		{"極寒(-50度)は適温から60度下で0.12下がる", -50, -0.12},
+		{"0度は適温から10度下で0.02下がる", 0, -0.02},
+		{"5度は適温から5度下で0.01下がる", 5, -0.01},
+		{"9度は適温から1度下で0.002下がる", 9, -0.002},
+		{"適温の10度では下がらない", 10, 0},
 		{"やや寒い(11-15度)", 12, 0},
 		{"やや寒い(15度)", 15, 0},
 		{"快適(16-25度)", 20, 0},
@@ -56,7 +54,7 @@ func TestCalcBodyTempRate_閾値ごとの変化量を固定する(t *testing.T) 
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			result := calcBodyTempRate(tt.effectiveTemp)
-			assert.Equal(t, tt.expected, result)
+			assert.InDelta(t, tt.expected, result, 1e-9)
 		})
 	}
 }
@@ -161,11 +159,14 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		assert.Negative(t, hs.BodyTempOffset)
 		assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia")), "正常帯の内はタイマーが進まない")
 
-		// 冷やし続けると正常帯を割って低体温が付く
-		for range 25 {
+		// 冷やし続けると正常帯を割って低体温が付く。冷え方は気温に比例するので、付くまで回す
+		var cond *gc.HealthCondition
+		for range 2000 {
 			require.NoError(t, sys.Update(world))
+			if cond = hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia")); cond != nil {
+				break
+			}
 		}
-		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia"))
 		require.NotNil(t, cond)
 		assert.Greater(t, cond.Timer, 0.0)
 	})
