@@ -460,7 +460,7 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 	}{
 		{gc.ConditionType("hypothermia"), gc.ConditionDef{
 			Name: "Hypothermia", Description: "The body is dangerously cold. Warm up to recover.",
-			PainPerSeverity: 6, BodyFuncDropPerSeverity: 10, BloodDropPerSeverity: 22, Cause: gc.CauseFrozen, Onset: rawschema.Cold,
+			PainPerSeverity: 6, BodyFuncDropPerSeverity: 10, BloodDropPerSeverity: 22, Cause: gc.CauseHypothermia, Onset: rawschema.Cold,
 		}},
 		{gc.ConditionType("fracture"), gc.ConditionDef{
 			Name: "Fracture", Description: "A broken bone. It will not heal until treated.",
@@ -525,4 +525,16 @@ func TestOrdinalEnumMaps_スキーマのenumの全値を持つ(t *testing.T) {
 	assert.ElementsMatch(t, enumStrings(rawschema.SeasonIdValues()), mapKeys(seasons))
 	assert.ElementsMatch(t, enumStrings(rawschema.TimeOfDayIdValues()), mapKeys(timesOfDay))
 	assert.ElementsMatch(t, enumStrings(rawschema.ConditionSeverityValues()), mapKeys(severities))
+}
+
+func TestConditionDeathCauseValues_不調の死因はどれも死因の定数に当たる(t *testing.T) {
+	t.Parallel()
+
+	values := rawschema.ConditionDeathCauseValues()
+	got := make([]gc.DeathCause, 0, len(values))
+	for _, v := range values {
+		got = append(got, gc.DeathCause(v))
+	}
+	assert.Equal(t, []gc.DeathCause{gc.CauseHypothermia, gc.CauseIllness, gc.CauseBloodLoss}, got,
+		"raw の値をそのまま死因にするので、列挙値と定数の文字列が一致しないと表示名が引けない")
 }

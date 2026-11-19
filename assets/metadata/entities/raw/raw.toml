@@ -1049,7 +1049,7 @@
 [[conditions]]
   bloodDropPerSeverity = 22
   bodyFuncDropPerSeverity = 10
-  cause = "frozen"
+  cause = "hypothermia"
   description = "The body is dangerously cold. Warm up to recover."
   id = "hypothermia"
   name = "Hypothermia"

@@ -9,14 +9,14 @@ import (
 type DeathCause string
 
 const (
-	// CauseFrozen は低体温で凍死したときの死因
-	CauseFrozen DeathCause = "frozen"
+	// CauseHypothermia は低体温で死んだときの死因
+	CauseHypothermia DeathCause = "hypothermia"
 	// CauseIllness は病気で死んだときの死因
 	CauseIllness DeathCause = "illness"
 	// CauseBloodLoss は外傷の失血で死んだときの死因
 	CauseBloodLoss DeathCause = "blood_loss"
-	// CauseKilled は戦闘のダメージで倒れたときの死因
-	CauseKilled DeathCause = "killed"
+	// CauseInjury はダメージで HP が尽きたときの死因。攻撃も自傷も含む
+	CauseInjury DeathCause = "injury"
 	// CauseDebug はデバッグで結果画面を確認するための死因
 	CauseDebug DeathCause = "debug"
 )
@@ -24,11 +24,11 @@ const (
 // deathCauseDisplayNames は死因ごとの表示名。結果画面が query.T で訳す。
 // データなので表で持ち、死因を足すときはここへ1行足す
 var deathCauseDisplayNames = map[DeathCause]i18n.Msgid{
-	CauseFrozen:    "froze to death",
-	CauseIllness:   "died of illness",
-	CauseBloodLoss: "bled out",
-	CauseKilled:    "killed in battle",
-	CauseDebug:     "debug",
+	CauseHypothermia: "Hypothermia",
+	CauseIllness:     "Illness",
+	CauseBloodLoss:   "Blood loss",
+	CauseInjury:      "Injury",
+	CauseDebug:       "Debug",
 }
 
 // DisplayName は死因の表示名を返す。

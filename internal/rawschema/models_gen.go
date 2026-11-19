@@ -396,9 +396,9 @@ type ConditionDeathCause string
 
 // Defines values for ConditionDeathCause.
 const (
-	BloodLoss ConditionDeathCause = "blood_loss"
-	Frozen    ConditionDeathCause = "frozen"
-	Illness   ConditionDeathCause = "illness"
+	BloodLoss   ConditionDeathCause = "blood_loss"
+	Hypothermia ConditionDeathCause = "hypothermia"
+	Illness     ConditionDeathCause = "illness"
 )
 
 // Valid indicates whether the value is a known member of the ConditionDeathCause enum.
@@ -406,7 +406,7 @@ func (e ConditionDeathCause) Valid() bool {
 	switch e {
 	case BloodLoss:
 		return true
-	case Frozen:
+	case Hypothermia:
 		return true
 	case Illness:
 		return true
@@ -417,7 +417,7 @@ func (e ConditionDeathCause) Valid() bool {
 
 // ConditionDeathCauseValues は ConditionDeathCause の値を、スキーマに書いた順に返す。
 func ConditionDeathCauseValues() []ConditionDeathCause {
-	return []ConditionDeathCause{Frozen, Illness, BloodLoss}
+	return []ConditionDeathCause{Hypothermia, Illness, BloodLoss}
 }
 
 // ConditionOnset 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ

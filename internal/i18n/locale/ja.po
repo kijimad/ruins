@@ -5966,20 +5966,11 @@ msgstr "%s を発症した。"
 msgid "Cause of death"
 msgstr "死因"
 
-msgid "froze to death"
-msgstr "凍死"
+msgid "Illness"
+msgstr "病気"
 
-msgid "died of illness"
-msgstr "病死"
-
-msgid "bled out"
-msgstr "失血死"
-
-msgid "killed in battle"
-msgstr "戦闘で斃れた"
-
-msgid "debug"
-msgstr "デバッグ"
+msgid "Injury"
+msgstr "外傷"
 
 msgid "Not tired enough to sleep."
 msgstr "まだ眠くない。"
