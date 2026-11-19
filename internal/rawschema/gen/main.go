@@ -39,8 +39,13 @@ const (
 
 var errUnsupported = errors.New("unsupported CUE expression")
 
+// main は引数のディレクトリ、無ければカレントディレクトリの CUE から models_gen.go を書く
 func main() {
-	if err := run("."); err != nil {
+	dir := "."
+	if len(os.Args) > 1 {
+		dir = os.Args[1]
+	}
+	if err := run(dir); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
