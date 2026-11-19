@@ -87,12 +87,24 @@ func TestGainSkillExp_Skillsコンポーネントが無ければ何もしない(
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	before := query.GetGameLog(world).GetRecentEntries(10)
 
 	gainSkillExp(actor, world, rawschema.SkillIdMechanic)
 
-	after := query.GetGameLog(world).GetRecentEntries(10)
-	assert.Equal(t, before, after, "Skillsが無ければログも増えない")
+	assert.Empty(t, query.GetGameLog(world).GetRecentEntries(10), "Skillsが無ければスキルアップのログを出さない")
+}
+
+func TestGainSkillExp_スキルが上がるとStatsChangedを付ける(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current = gc.LevelUpExp - 1
+	world.Components.StatsChanged.Remove(player)
+
+	gainSkillExp(player, world, rawschema.SkillIdMechanic)
+
+	assert.True(t, world.Components.StatsChanged.Has(player))
+	assert.Equal(t, 1, world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Value)
 }
 
 func TestGainSkillExp_既にStatsChangedが付いていれば二重に付けない(t *testing.T) {
