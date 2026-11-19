@@ -2,7 +2,7 @@
 
 ![Ruins](docs/steam/generated/library_header.png)
 
-ローグライク。
+極寒の惑星に墜落した宇宙トラベラーが、荷運びのキューブを連れて北へ進むターン制のサバイバルローグライク。廃墟を漁って寒さと飢えをしのぎ、脱出コアを修理して惑星から脱出する。
 
 - [Steam](https://store.steampowered.com/app/4791810/Ruins/)
 - [Play](https://kijimad.github.io/ruins/)
