@@ -24,7 +24,7 @@ func TestRenderStatusSection(t *testing.T) {
 	// 未完了リストは status・タイトルリンク・進捗・tags を並べる。No. 列は持たない。
 	assert.Contains(t, out, "| in-progress | [走り](docs/design/260715123045.md) | 13/26 |  |")
 	// 見送りは分母から外し、別表記で添える。
-	assert.Contains(t, out, "| in-progress | [Ark移行](docs/design/260710091500.md) | 30/33（見送り2） | ecs |")
+	assert.Contains(t, out, "| in-progress | [Ark移行](docs/design/260710091500.md) | 30/33 (2 skipped) | ecs |")
 	// draft も未完了リストに出す。
 	assert.Contains(t, out, "| draft | [下書き](docs/design/260122084500.md) | - |  |")
 	// done は未完了リストに出さない。
@@ -36,7 +36,7 @@ func TestRenderStatusSection_未完了なし(t *testing.T) {
 
 	docs := []*Document{{Title: "完了", Front: Frontmatter{Status: StatusDone}}}
 	out := RenderStatusSection(docs)
-	assert.Contains(t, out, "未完了のドキュメントなし")
+	assert.Contains(t, out, "No open documents")
 }
 
 func TestTitleCell(t *testing.T) {
@@ -47,7 +47,7 @@ func TestTitleCell(t *testing.T) {
 	// タイトルが空ならパスをラベルにしてリンクする。
 	assert.Equal(t, "[docs/design/x.md](docs/design/x.md)", titleCell(&Document{Title: "", Path: "docs/design/x.md"}))
 	// パスも無ければ代替文字列。
-	assert.Equal(t, "(タイトルなし)", titleCell(&Document{Title: "", Path: ""}))
+	assert.Equal(t, "(untitled)", titleCell(&Document{Title: "", Path: ""}))
 	// パスが無くタイトルがあれば、リンクにせずタイトルをそのまま返す。
 	assert.Equal(t, "タイトルのみ", titleCell(&Document{Title: "タイトルのみ", Path: ""}))
 }
@@ -71,7 +71,7 @@ func TestProgressCell(t *testing.T) {
 	assert.Equal(t, "-", progressCell(&Document{HasProgress: false}))
 	assert.Equal(t, "3/5", progressCell(&Document{HasProgress: true, DoneTasks: 3, OpenTasks: 2}))
 	// 見送りは分母から外し、括弧で添える。
-	assert.Equal(t, "3/3（見送り2）", progressCell(&Document{HasProgress: true, DoneTasks: 3, OpenTasks: 0, SkippedTasks: 2}))
+	assert.Equal(t, "3/3 (2 skipped)", progressCell(&Document{HasProgress: true, DoneTasks: 3, OpenTasks: 0, SkippedTasks: 2}))
 }
 
 func TestParse_Title(t *testing.T) {

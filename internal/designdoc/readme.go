@@ -8,8 +8,7 @@ import (
 	"text/template"
 )
 
-// statusSectionTmplSrc は状況テーブルの日本語ラベルを持つ雛形。
-// 日本語ドキュメントの体裁を維持するため、リテラルを Go ソースから外して埋め込みで持つ。
+// statusSectionTmplSrc は状況テーブルのラベルを持つ雛形。README の文言を Go ソースから外して埋め込みで持つ。
 //
 //go:embed status_section.tmpl
 var statusSectionTmplSrc string

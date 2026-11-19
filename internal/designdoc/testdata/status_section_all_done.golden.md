@@ -1,3 +1,3 @@
-| status | ドキュメント | 進捗 | tags |
+| status | Document | Progress | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| | No open documents | | |
