@@ -6,10 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMix64_入力0は0を返す(t *testing.T) {
+func TestMix2D_同じ入力なら同じ値を返す(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, uint64(0), Mix64(0))
+	first := Mix2D(42, 5, 2)
+	again := Mix2D(42, 5, 2)
+	assert.Equal(t, first, again)
 }
 
 func TestMix2D_座標を転置すると異なる値になる(t *testing.T) {
@@ -28,12 +30,13 @@ func TestMix2D_隣接する座標同士は衝突しない(t *testing.T) {
 	t.Parallel()
 
 	const seed = uint64(7)
-	seen := map[uint64]bool{}
+	seen := map[uint64]Coord[int]{}
 	for x := -8; x <= 8; x++ {
 		for y := -8; y <= 8; y++ {
 			v := Mix2D(seed, x, y)
-			assert.False(t, seen[v], "座標(%d,%d)が別座標と衝突した", x, y)
-			seen[v] = true
+			prev, dup := seen[v]
+			assert.False(t, dup, "座標(%d,%d)が(%d,%d)と衝突した", x, y, prev.X, prev.Y)
+			seen[v] = Coord[int]{X: x, Y: y}
 		}
 	}
 }
