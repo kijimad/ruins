@@ -826,9 +826,10 @@ func TestUseItem_満腹なら食べずにログを出す(t *testing.T) {
 			item, err := lifecycle.SpawnBackpackItem(world, "almond", 1)
 			require.NoError(t, err)
 
-			_, err = Execute(NewUseItemActivity(item), player, world)
+			result, err := Execute(NewUseItemActivity(item), player, world)
 			require.NoError(t, err)
 
+			assert.Equal(t, tt.wantEaten, result.Success)
 			assert.Equal(t, !tt.wantEaten, world.ECS.Alive(item))
 			assert.Equal(t, gc.DefaultMaxHunger, world.Components.Hunger.Get(player).Current)
 			if !tt.wantEaten {
