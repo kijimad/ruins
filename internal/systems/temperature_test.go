@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"math"
 	"strconv"
 	"testing"
 
@@ -26,7 +27,7 @@ func setStage(world w.World, key gc.StageKey) {
 	query.EnsureStageField(world, key).BaseTemp = dungeon.BaseTemperatureFor(world.Resources.RawMaster, key.Name)
 }
 
-func TestCalcBodyTempRate_閾値ごとの変化量を固定する(t *testing.T) {
+func TestCalcBodyTempRate_適温を下回った分に比例して下がる(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -39,15 +40,7 @@ func TestCalcBodyTempRate_閾値ごとの変化量を固定する(t *testing.T) 
 		{"10度は適温から2度下で0.004下がる", 10, -0.004},
 		{"11度は適温から1度下で0.002下がる", 11, -0.002},
 		{"適温の12度では下がらない", 12, 0},
-		{"やや寒い(11-15度)", 12, 0},
-		{"やや寒い(15度)", 15, 0},
-		{"快適(16-25度)", 20, 0},
-		{"快適(25度)", 25, 0},
-		{"適温(26-30度)", 28, 0},
-		{"適温(30度)", 30, 0},
-		{"暑くても害はない(33度)", 33, 0},
-		{"暑くても害はない(35度)", 35, 0},
-		{"非常に暑くても害はない(40度)", 40, 0},
+		{"適温より暑くても下がらない", 40, 0},
 	}
 
 	for _, tt := range tests {
@@ -159,9 +152,13 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		assert.Negative(t, hs.BodyTempOffset)
 		assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia")), "正常帯の内はタイマーが進まない")
 
-		// 冷やし続けると正常帯を割って低体温が付く。冷え方は気温に比例するので、付くまで回す
+		// 冷やし続けると正常帯を割って低体温が付く。正常帯の幅を1ターンの冷え方で割ったターン数で付く
+		ambient, err := query.AmbientTemperatureAt(world, 0, 0)
+		require.NoError(t, err)
+		rate := calcBodyTempRate(ambient + query.CalculateEquippedInsulation(world, player).Cold)
+		require.Negative(t, rate)
 		var cond *gc.HealthCondition
-		for range 2000 {
+		for range int(math.Ceil(bodyTempColdBand/-rate)) + 1 {
 			require.NoError(t, sys.Update(world))
 			if cond = hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia")); cond != nil {
 				break
