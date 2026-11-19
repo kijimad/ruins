@@ -809,13 +809,12 @@ func TestUseItem_キューブの核を使うと隣にキューブが組み上が
 func TestUseItem_満腹なら食べずにログを出す(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		name        string
-		current     int
-		wantEaten   bool
-		wantLogText i18n.Msgid
+		name      string
+		current   int
+		wantEaten bool
 	}{
-		{"満腹度が上限なら食べず食べ物も残る", gc.DefaultMaxHunger, false, "Too full to eat"},
-		{"上限より1でも少なければ食べる", gc.DefaultMaxHunger - 1, true, ""},
+		{"満腹度が上限なら食べず食べ物も残る", gc.DefaultMaxHunger, false},
+		{"上限より1でも少なければ食べて上限で頭打ちになる", gc.DefaultMaxHunger - 1, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -831,11 +830,11 @@ func TestUseItem_満腹なら食べずにログを出す(t *testing.T) {
 			require.NoError(t, err)
 
 			assert.Equal(t, !tt.wantEaten, world.ECS.Alive(item))
+			assert.Equal(t, gc.DefaultMaxHunger, world.Components.Hunger.Get(player).Current)
 			if !tt.wantEaten {
-				assert.Equal(t, tt.current, world.Components.Hunger.Get(player).Current)
 				entries := query.GetGameLog(world).GetRecentEntries(1)
 				require.Len(t, entries, 1)
-				assert.Equal(t, query.T(world, tt.wantLogText), entries[0].Text())
+				assert.Equal(t, query.T(world, "Too full to eat"), entries[0].Text())
 			}
 		})
 	}
