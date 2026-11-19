@@ -148,7 +148,7 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 	return nil
 }
 
-// spawnProps はPropsを生成する
+// spawnProps は計画の置物を生成する。地面の飾りの id は飾りとして置き、向き・扉・収納の処理を飛ばす
 func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	poses, err := planPoses(metaPlan)
 	if err != nil {
@@ -156,6 +156,13 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 	}
 	for _, prop := range metaPlan.Props {
 		tileX, tileY := prop.X+offsetX, prop.Y+offsetY
+
+		if _, ok := raw.GetDecor(*metaPlan.RawMaster, prop.Name); ok {
+			if _, err := lifecycle.SpawnDecor(world, prop.Name, tileX, tileY); err != nil {
+				return fmt.Errorf("failed to spawn decor (%d, %d): %w", prop.X, prop.Y, err)
+			}
+			continue
+		}
 
 		propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
 		if err != nil {
@@ -215,11 +222,14 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY
 	return nil
 }
 
-// planPoses は計画の facing の置物ごとの置き方を返す
+// planPoses は計画の facing の置物ごとの置き方を返す。地面の飾りは向きも塞がりも持たないので数えない
 func planPoses(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]gc.Pose, error) {
 	facers := map[consts.Coord[consts.Tile]]bool{}
 	blockers := map[consts.Coord[consts.Tile]]bool{}
 	for _, prop := range metaPlan.Props {
+		if _, ok := raw.GetDecor(*metaPlan.RawMaster, prop.Name); ok {
+			continue
+		}
 		propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get props (%s): %w", prop.Name, err)
