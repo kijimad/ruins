@@ -489,6 +489,22 @@ candidates = [{ id = "bookshelf", weight = 1 }]
 [palette.props.d]
 tile = "floor"
 `, errPalettePropIDAmbiguous},
+		{"地面の飾りは id が要る", `
+[palette.decors.g]
+tile = "ground"
+`, errPaletteDecorIDRequired},
+		{"地面の飾りは下に敷く地形が要る", `
+[palette.decors.g]
+id = "weeds"
+`, errPaletteTileRequired},
+		{"地面の飾りは置物と同じ文字を使えない", `
+[palette.props.g]
+tile = "ground"
+id = "bush"
+[palette.decors.g]
+tile = "ground"
+id = "weeds"
+`, errPaletteCharDuplicated},
 		{"候補の重みは正", `
 [palette.props.d]
 tile = "floor"
@@ -562,16 +578,18 @@ func TestResolveMapCells_施設の文字(t *testing.T) {
 		Props: map[string]PaletteEntry{
 			"d": {Tile: "floor", LootTable: "house_closet", Candidates: []WeightedID{{ID: "dresser", Weight: 1}, {ID: "bookshelf", Weight: 1}}},
 		},
+		Decors: map[string]DecorEntry{"g": {Tile: "ground", ID: "weeds"}},
 		Items:  map[string]ItemEntry{"f": {Tile: "floor", ItemGroup: "food"}},
 		Beings: map[string]BeingEntry{"Z": {Tile: "floor"}},
 	}
 
-	cells := ResolveMapCells("dfZ.", palette, rand.New(rand.NewPCG(1, 1)))
+	cells := ResolveMapCells("dgfZ.", palette, rand.New(rand.NewPCG(1, 1)))
 	require.Len(t, cells, 1)
 	assert.Contains(t, []string{"dresser", "bookshelf"}, cells[0][0].Prop)
 	cells[0][0].Prop = ""
 	assert.Equal(t, []MapCell{
 		{Terrain: "floor", LootTable: "house_closet"},
+		{Terrain: "ground", Decor: "weeds"},
 		{Terrain: "floor", ItemGroup: "food", ItemCount: 1},
 		{Terrain: "floor", Being: true},
 		{Terrain: "floor"},

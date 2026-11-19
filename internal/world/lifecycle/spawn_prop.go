@@ -100,15 +100,6 @@ func SpawnDecor(world w.World, id string, x consts.Tile, y consts.Tile) (ecs.Ent
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 
-// SpawnPropOrDecor は id が地面の飾りの表にあれば飾りを、無ければ置物を生成する。散布やパレットのように、置物と
-// 飾りを同じ id の並びで指す場所が使う
-func SpawnPropOrDecor(world w.World, id string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
-	if _, ok := raw.GetDecor(world.Resources.RawMaster, id); ok {
-		return SpawnDecor(world, id, x, y)
-	}
-	return SpawnProp(world, id, x, y)
-}
-
 // SpawnDungeonEntrance は raw の dungeon_entrance prop から遺跡入口を生成する。触れて Enter で definitionName の遺跡へ入る。
 // 入口はオーバーワールドの地物なので StageBound{overworld} を直接持たせ、遺跡進入時に帯と共に退避されるようにする
 func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitionName string) (ecs.Entity, error) {

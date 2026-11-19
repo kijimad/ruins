@@ -1339,11 +1339,7 @@ import (
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)
-	// 施設の絵のパレットは置物と飾りを同じ id の並びで指すので、2つの表で id が重ならない
-	propDecorIds_unique: {
-		if props != _|_ for i, x in props {(x.id): "props.\(i)"}
-		if decors != _|_ for i, x in decors {(x.id): "decors.\(i)"}
-	} @rawgen(-)
+	decorIds_unique: {if decors != _|_ for i, x in decors {(x.id): i}} @rawgen(-)
 	scatterZoneIds_unique: {if scatterZones != _|_ for i, x in scatterZones {(x.id): i}} @rawgen(-)
 	mapGlyphIds_unique: {if mapGlyphs != _|_ for i, x in mapGlyphs {(x.id): i}} @rawgen(-)
 	settlementIds_unique: {if settlements != _|_ for i, x in settlements {(x.id): i}} @rawgen(-)

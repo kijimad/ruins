@@ -27,12 +27,12 @@ func TestPalettes_rawの行を参照するidは全て実在する(t *testing.T) 
 	}
 	// 下地を残す地形は raw の行を持たない
 	tileIDs[GroundTerrain] = true
-	// パレットの置物の欄は、置物と地面の飾りを同じ id の並びで指す
 	for _, x := range raw.PtrSlice(raws.Props) {
 		propIDs[x.Id] = true
 	}
+	decorIDs := map[string]bool{}
 	for _, x := range raw.PtrSlice(raws.Decors) {
-		propIDs[x.Id] = true
+		decorIDs[x.Id] = true
 	}
 	for _, x := range raw.PtrSlice(raws.Members) {
 		memberIDs[x.Id] = true
@@ -72,6 +72,10 @@ func TestPalettes_rawの行を参照するidは全て実在する(t *testing.T) 
 			if e.LootTable != "" {
 				check(name, "props.lootTable", char, e.LootTable, tableIDs)
 			}
+		}
+		for char, e := range p.Decors {
+			check(name, "decors.tile", char, e.Tile, tileIDs)
+			check(name, "decors.id", char, e.ID, decorIDs)
 		}
 		for char, e := range p.NPCs {
 			if e.Tile != "" {

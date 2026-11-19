@@ -50,16 +50,16 @@ func TestSpawnProps_未知のprops名はエラー(t *testing.T) {
 	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないprops", Collection: "Props"}, notFound)
 }
 
-func TestSpawnProps_地面の飾りのidは飾りとして置く(t *testing.T) {
+func TestSpawnDecors_地面の飾りをオフセット込みで置く(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	plan := newTestSpawnPlan(world)
-	plan.Props = []mapplanner.PropsSpec{
+	plan.Decors = []mapplanner.DecorSpec{
 		{Coord: consts.Coord[consts.Tile]{X: 2, Y: 3}, Name: "weeds"},
 	}
 
-	require.NoError(t, spawnProps(world, plan, 10, 20))
+	require.NoError(t, spawnDecors(world, plan, 10, 20))
 
 	got := []string{}
 	q := ecs.NewFilter2[gc.GridElement, gc.Decor](world.ECS).Query()

@@ -28,6 +28,8 @@ var (
 	errPaletteCharDuplicated = errors.New("char is duplicated")
 	// errPalettePropIDAmbiguous は prop の id と候補の両方か、どちらも無いときに返す
 	errPalettePropIDAmbiguous = errors.New("prop needs exactly one of id or candidates")
+	// errPaletteDecorIDRequired は地面の飾りの id が未指定のときに返す
+	errPaletteDecorIDRequired = errors.New("decor id is required")
 	// errPaletteItemGroupRequired は床の戦利品の itemGroup が未指定のときに返す
 	errPaletteItemGroupRequired = errors.New("itemGroup is required")
 	// errPaletteChanceOutOfRange は確率が 1 から 100 の外のときに返す
@@ -44,6 +46,14 @@ type PaletteEntry struct {
 	Candidates []WeightedID `toml:"candidates,omitempty"`
 	// LootTable は収納の中身を引く itemTables の id。収納でなければ空
 	LootTable string `toml:"lootTable,omitempty"`
+}
+
+// DecorEntry は草のような地面の飾りを置く文字の定義
+type DecorEntry struct {
+	// Tile は下に敷く地形
+	Tile string `toml:"tile"`
+	// ID は地面の飾りの表 decors の id
+	ID string `toml:"id"`
 }
 
 // WeightedID は重み付きの候補の1つ
@@ -96,6 +106,7 @@ type Palette struct {
 	Description string                  `toml:"description"`
 	Terrain     map[string]string       `toml:"terrain,omitempty"` // {文字: terrain名}
 	Props       map[string]PaletteEntry `toml:"props,omitempty"`   // {文字: Prop定義}
+	Decors      map[string]DecorEntry   `toml:"decors,omitempty"`  // {文字: 地面の飾り}
 	NPCs        map[string]PaletteEntry `toml:"npcs,omitempty"`    // {文字: NPC定義}
 	Items       map[string]ItemEntry    `toml:"items,omitempty"`   // {文字: 床の戦利品}
 	Beings      map[string]BeingEntry   `toml:"beings,omitempty"`  // {文字: 施設の敵の表から引く敵}
@@ -151,7 +162,7 @@ func (l *PaletteLoader) validate(p *Palette) error {
 		return errPaletteIDEmpty
 	}
 
-	if len(p.Terrain)+len(p.Props)+len(p.NPCs)+len(p.Items)+len(p.Beings)+len(p.Nested) == 0 {
+	if len(p.Terrain)+len(p.Props)+len(p.Decors)+len(p.NPCs)+len(p.Items)+len(p.Beings)+len(p.Nested) == 0 {
 		return errPaletteNoDefinition
 	}
 
@@ -171,6 +182,14 @@ func (l *PaletteLoader) validate(p *Palette) error {
 			if c.Weight <= 0 {
 				return fmt.Errorf("props %q candidate %q: %w: %d", char, c.ID, errNonPositiveWeight, c.Weight)
 			}
+		}
+	}
+	for char, entry := range p.Decors {
+		if err := validateTileChar("decors", char, entry.Tile); err != nil {
+			return err
+		}
+		if entry.ID == "" {
+			return fmt.Errorf("decors %w: %q", errPaletteDecorIDRequired, char)
 		}
 	}
 	for char, entry := range p.NPCs {
@@ -202,6 +221,7 @@ func (l *PaletteLoader) validate(p *Palette) error {
 	}{
 		{"terrain", keysOf(p.Terrain)},
 		{"props", keysOf(p.Props)},
+		{"decors", keysOf(p.Decors)},
 		{"npcs", keysOf(p.NPCs)},
 		{"beings", keysOf(p.Beings)},
 		{"nested", keysOf(p.Nested)},
@@ -278,6 +298,7 @@ func MergePalettes(palettes ...*Palette) *Palette {
 		Description: "merged palette",
 		Terrain:     make(map[string]string),
 		Props:       make(map[string]PaletteEntry),
+		Decors:      make(map[string]DecorEntry),
 		NPCs:        make(map[string]PaletteEntry),
 		Items:       make(map[string]ItemEntry),
 		Beings:      make(map[string]BeingEntry),
@@ -287,6 +308,7 @@ func MergePalettes(palettes ...*Palette) *Palette {
 	for _, p := range palettes {
 		maps.Copy(merged.Terrain, p.Terrain)
 		maps.Copy(merged.Props, p.Props)
+		maps.Copy(merged.Decors, p.Decors)
 		maps.Copy(merged.NPCs, p.NPCs)
 		maps.Copy(merged.Items, p.Items)
 		maps.Copy(merged.Beings, p.Beings)
@@ -297,12 +319,15 @@ func MergePalettes(palettes ...*Palette) *Palette {
 }
 
 // GetTerrain は文字からterrain名を取得する。
-// Terrain定義を優先し、なければProps/NPCsのTileフィールドを参照する
+// Terrain定義を優先し、なければProps/Decors/NPCsのTileフィールドを参照する
 func (p *Palette) GetTerrain(char string) (string, bool) {
 	if terrain, ok := p.Terrain[char]; ok {
 		return terrain, true
 	}
 	if entry, ok := p.Props[char]; ok && entry.Tile != "" {
+		return entry.Tile, true
+	}
+	if entry, ok := p.Decors[char]; ok {
 		return entry.Tile, true
 	}
 	if entry, ok := p.NPCs[char]; ok && entry.Tile != "" {

@@ -77,6 +77,13 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 				}
 			}
 
+			if cell.Decor != "" {
+				metaPlan.Decors = append(metaPlan.Decors, DecorSpec{
+					Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)},
+					Name:  cell.Decor,
+				})
+			}
+
 			if cell.NPC != "" {
 				metaPlan.NPCs = append(metaPlan.NPCs, NPCSpec{
 					Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)},

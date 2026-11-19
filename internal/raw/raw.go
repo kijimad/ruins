@@ -817,14 +817,9 @@ func GetProp(raws rawschema.Raws, name string) (rawschema.Prop, error) {
 	return prop, nil
 }
 
-// GetDecor は id の地面の飾りの行を返す
-func GetDecor(raws rawschema.Raws, id string) (rawschema.Decor, bool) {
-	return FindByKey(raws.Decors, func(d rawschema.Decor) string { return d.Id }, id)
-}
-
 // NewDecorSpec は地面の飾りの行から EntitySpec を組む
 func NewDecorSpec(raws rawschema.Raws, id string) (gc.EntitySpec, error) {
-	d, ok := GetDecor(raws, id)
+	d, ok := FindByKey(raws.Decors, func(d rawschema.Decor) string { return d.Id }, id)
 	if !ok {
 		return gc.EntitySpec{}, NewKeyNotFoundError(id, "Decors")
 	}

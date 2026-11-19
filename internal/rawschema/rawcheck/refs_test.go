@@ -206,7 +206,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"施設", func(r *rawschema.Raws) { *r.Facilities = append(*r.Facilities, (*r.Facilities)[0]) }, "facilityIds_unique.house"},
 		{"ランドマーク", func(r *rawschema.Raws) { *r.Landmarks = append(*r.Landmarks, (*r.Landmarks)[0]) }, "landmarkIds_unique.house"},
 		{"跡", func(r *rawschema.Raws) { *r.Remains = append(*r.Remains, (*r.Remains)[0]) }, "remainsIds_unique.splinters"},
-		{"置物と地面の飾り", func(r *rawschema.Raws) { (*r.Decors)[0].Id = (*r.Props)[0].Id }, "propDecorIds_unique.bed"},
+		{"地面の飾り", func(r *rawschema.Raws) { *r.Decors = append(*r.Decors, (*r.Decors)[0]) }, "decorIds_unique.moss"},
 		{"散布ゾーン", func(r *rawschema.Raws) { *r.ScatterZones = append(*r.ScatterZones, (*r.ScatterZones)[0]) }, "scatterZoneIds_unique.meadow"},
 		{"地図記号", func(r *rawschema.Raws) { *r.MapGlyphs = append(*r.MapGlyphs, (*r.MapGlyphs)[0]) }, "mapGlyphIds_unique.house"},
 		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.village"},

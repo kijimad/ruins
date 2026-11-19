@@ -52,6 +52,9 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
 	if err := spawnItems(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
+	if err := spawnDecors(world, metaPlan, offsetX, offsetY); err != nil {
+		return gc.Level{}, err
+	}
 	if err := spawnProps(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
@@ -148,7 +151,17 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 	return nil
 }
 
-// spawnProps は計画の置物を生成する。地面の飾りの id は飾りとして置き、向き・扉・収納の処理を飛ばす
+// spawnDecors は計画の地面の飾りを生成する
+func spawnDecors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
+	for _, d := range metaPlan.Decors {
+		if _, err := lifecycle.SpawnDecor(world, d.Name, d.X+offsetX, d.Y+offsetY); err != nil {
+			return fmt.Errorf("failed to spawn decor (%d, %d): %w", d.X, d.Y, err)
+		}
+	}
+	return nil
+}
+
+// spawnProps はPropsを生成する
 func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	poses, err := planPoses(metaPlan)
 	if err != nil {
@@ -156,13 +169,6 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 	}
 	for _, prop := range metaPlan.Props {
 		tileX, tileY := prop.X+offsetX, prop.Y+offsetY
-
-		if _, ok := raw.GetDecor(*metaPlan.RawMaster, prop.Name); ok {
-			if _, err := lifecycle.SpawnDecor(world, prop.Name, tileX, tileY); err != nil {
-				return fmt.Errorf("failed to spawn decor (%d, %d): %w", prop.X, prop.Y, err)
-			}
-			continue
-		}
 
 		propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
 		if err != nil {
@@ -222,14 +228,11 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY
 	return nil
 }
 
-// planPoses は計画の facing の置物ごとの置き方を返す。地面の飾りは向きも塞がりも持たないので数えない
+// planPoses は計画の facing の置物ごとの置き方を返す
 func planPoses(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]gc.Pose, error) {
 	facers := map[consts.Coord[consts.Tile]]bool{}
 	blockers := map[consts.Coord[consts.Tile]]bool{}
 	for _, prop := range metaPlan.Props {
-		if _, ok := raw.GetDecor(*metaPlan.RawMaster, prop.Name); ok {
-			continue
-		}
 		propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get props (%s): %w", prop.Name, err)
