@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/i18n"
+	w "github.com/kijimaD/ruins/internal/world"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -164,38 +165,61 @@ func TestShowTileInteractionMessage_床の同種スタックは1行にまとめ�
 func TestShowTileInteractionMessage_足元の置物の名前を出す(t *testing.T) {
 	t.Parallel()
 
-	t.Run("灌木の上に乗ると名前を出す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		_, err := lifecycle.SpawnProp(world, "bush", 10, 10)
-		require.NoError(t, err)
+	here := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
+	tests := []struct {
+		name  string
+		setup func(t *testing.T, world w.World)
+		want  []string
+	}{
+		{"灌木の上に乗ると名前を出す", func(t *testing.T, world w.World) {
+			t.Helper()
+			_, err := lifecycle.SpawnProp(world, "bush", 10, 10)
+			require.NoError(t, err)
+		}, []string{"Shrub is here."}},
+		{"下り階段は専用の文だけ出す", func(t *testing.T, world w.World) {
+			t.Helper()
+			_, err := lifecycle.SpawnProp(world, "warp_next", 10, 10)
+			require.NoError(t, err)
+		}, []string{"There is a warp gate. Press Enter to move."}},
+		{"上り階段は専用の文だけ出す", func(t *testing.T, world w.World) {
+			t.Helper()
+			_, err := lifecycle.SpawnProp(world, "warp_prev", 10, 10)
+			require.NoError(t, err)
+		}, []string{"There is an up staircase. Press Enter to move."}},
+		{"遺跡の入口は専用の文だけ出す", func(t *testing.T, world w.World) {
+			t.Helper()
+			_, err := lifecycle.SpawnDungeonEntrance(world, 10, 10, "森")
+			require.NoError(t, err)
+		}, []string{"There is a ruins entrance. Press Enter to enter."}},
+		{"開いた扉の上では出さない", func(t *testing.T, world w.World) {
+			t.Helper()
+			door, err := lifecycle.SpawnDoor(world, here.Coord, gc.DoorOrientationHorizontal)
+			require.NoError(t, err)
+			require.NoError(t, lifecycle.OpenDoor(world, door))
+		}, []string{}},
+		{"壊れた置物は出さない", func(t *testing.T, world w.World) {
+			t.Helper()
+			bush, err := lifecycle.SpawnProp(world, "bush", 10, 10)
+			require.NoError(t, err)
+			world.Components.Dead.Add(bush, &gc.Dead{})
+		}, []string{}},
+		{"隣のマスの置物は出さない", func(t *testing.T, world w.World) {
+			t.Helper()
+			_, err := lifecycle.SpawnProp(world, "bush", 11, 10)
+			require.NoError(t, err)
+		}, []string{}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			tt.setup(t, world)
 
-		showTileInteractionMessage(world, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+			showTileInteractionMessage(world, here)
 
-		assert.Equal(t, []string{"Shrub is here."}, query.GetGameLog(world).GetHistory())
-	})
-
-	t.Run("専用の文を出すワープは名前を重ねて出さない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		_, err := lifecycle.SpawnProp(world, "warp_next", 10, 10)
-		require.NoError(t, err)
-
-		showTileInteractionMessage(world, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		assert.Equal(t, []string{"There is a warp gate. Press Enter to move."}, query.GetGameLog(world).GetHistory())
-	})
-
-	t.Run("隣のマスの置物は出さない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		_, err := lifecycle.SpawnProp(world, "bush", 11, 10)
-		require.NoError(t, err)
-
-		showTileInteractionMessage(world, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-
-		assert.Equal(t, []string{}, query.GetGameLog(world).GetHistory())
-	})
+			assert.Equal(t, tt.want, query.GetGameLog(world).GetHistory())
+		})
+	}
 }
 
 func TestExecuteWaitAction(t *testing.T) {

@@ -212,9 +212,11 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 	}
 
 	// 置物は通れて殴れても足元の相互作用を持たないので、乗ったことが分かるよう名前を出す。
-	// ワープのように専用の文を出した置物は重ねて出さない
-	for _, e := range query.GetEntitiesAt(world, playerGrid.X, playerGrid.Y) {
-		if !world.Components.Prop.Has(e) || world.Components.Dead.Has(e) || logged[e] {
+	// ワープのように専用の文を出した置物は重ねて出さない。開いた扉は通り道なので出さない
+	q := query.ActiveFilter2[gc.GridElement, gc.Prop](world).Without(ecs.C[gc.Dead](), ecs.C[gc.Door]()).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.GridElement.Get(e).Coord != playerGrid.Coord || logged[e] {
 			continue
 		}
 		gamelog.New(query.GetGameLog(world)).
