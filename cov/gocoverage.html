@@ -295,7 +295,7 @@
 				
 				<option value="file119">github.com/kijimaD/ruins/internal/designdoc/parse.go (97.9%)</option>
 				
-				<option value="file120">github.com/kijimaD/ruins/internal/designdoc/readme.go (97.1%)</option>
+				<option value="file120">github.com/kijimaD/ruins/internal/designdoc/readme.go (100.0%)</option>
 				
 				<option value="file121">github.com/kijimaD/ruins/internal/dungeon/definition.go (95.0%)</option>
 				
@@ -15978,42 +15978,19 @@ func Render(front Frontmatter, body string) (string, error) {
 		<pre class="file" id="file120" style="display: none">package designdoc
 
 import (
-        _ "embed"
-        "errors"
         "fmt"
         "strings"
-        "text/template"
 )
 
-// statusSectionTmplSrc は状況テーブルの日本語ラベルを持つ雛形。
-// 日本語ドキュメントの体裁を維持するため、リテラルを Go ソースから外して埋め込みで持つ。
-//
-//go:embed status_section.tmpl
-var statusSectionTmplSrc string
-
-// statusSectionTmpl は埋め込んだ雛形を解析したもの。名前付きテンプレートを個別に実行する。
-var statusSectionTmpl = template.Must(template.New("status_section").Parse(statusSectionTmplSrc))
+// 状況テーブルの見出しと、行が無いときの行
+const (
+        statusHeader = "| status | Document | Progress | tags |\n|---|---|---|---|\n"
+        statusEmpty  = "| | No open documents | | |\n"
+)
 
 // statusDisplayOrder は状況テーブルで status を並べる順。着手対象を上に置く。
 var statusDisplayOrder = []Status{
         StatusInProgress, StatusAccepted, StatusDraft, StatusDone, StatusSuperseded, StatusDropped,
-}
-
-// errTemplateNotFound は名前付きテンプレートが雛形に無いときに返す
-var errTemplateNotFound = errors.New("template not found")
-
-// renderLabel は名前付きテンプレートを data で実行した文字列を返す。
-// テンプレートは埋め込みでゴールデンテストが担保するため、実行時に失敗し得ない。
-func renderLabel(name string, data any) string {
-        <span class="cov8" title="1">if statusSectionTmpl.Lookup(name) == nil </span>{
-                <span class="cov8" title="1">panic(fmt.Errorf("%w: %q", errTemplateNotFound, name))</span>
-        }
-        <span class="cov8" title="1">var b strings.Builder
-        if err := statusSectionTmpl.ExecuteTemplate(&amp;b, name, data); err != nil </span>{
-                <span class="cov0" title="0">panic(err)</span>
-        }
-
-        <span class="cov8" title="1">return b.String()</span>
 }
 
 // RenderStatusSection は README に埋め込む未完了ドキュメントの一覧を Markdown で返す。
@@ -16022,7 +15999,7 @@ func renderLabel(name string, data any) string {
 // 頻繁に衝突するため。
 func RenderStatusSection(docs []*Document) string {
         <span class="cov8" title="1">var b strings.Builder
-        b.WriteString(renderLabel("header", nil))
+        b.WriteString(statusHeader)
         found := false
         for _, s := range statusDisplayOrder </span>{
                 <span class="cov8" title="1">if !s.IsOpen() </span>{
@@ -16038,7 +16015,7 @@ func RenderStatusSection(docs []*Document) string {
                 }
         }
         <span class="cov8" title="1">if !found </span>{
-                <span class="cov8" title="1">b.WriteString(renderLabel("empty", nil))
+                <span class="cov8" title="1">b.WriteString(statusEmpty)
 </span>        }
 
         <span class="cov8" title="1">return b.String()</span>
@@ -16052,7 +16029,7 @@ func titleCell(d *Document) string {
                 <span class="cov8" title="1">label = d.Path
 </span>        }
         <span class="cov8" title="1">if label == "" </span>{
-                <span class="cov8" title="1">return renderLabel("notitle", nil)
+                <span class="cov8" title="1">return "(untitled)"
 </span>        }
         <span class="cov8" title="1">if d.Path != "" </span>{
                 <span class="cov8" title="1">return fmt.Sprintf("[%s](%s)", label, d.Path)
@@ -16069,7 +16046,7 @@ func progressCell(d *Document) string {
 
         <span class="cov8" title="1">s := fmt.Sprintf("%d/%d", d.DoneTasks, d.DoneTasks+d.OpenTasks)
         if d.SkippedTasks &gt; 0 </span>{
-                <span class="cov8" title="1">s += renderLabel("skipped", d.SkippedTasks)
+                <span class="cov8" title="1">s += fmt.Sprintf(" (%d skipped)", d.SkippedTasks)
 </span>        }
 
         <span class="cov8" title="1">return s</span>
