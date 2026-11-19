@@ -101,7 +101,7 @@
 				
 				<option value="file22">github.com/kijimaD/ruins/internal/activity/talk.go (89.1%)</option>
 				
-				<option value="file23">github.com/kijimaD/ruins/internal/activity/use_effect.go (95.7%)</option>
+				<option value="file23">github.com/kijimaD/ruins/internal/activity/use_effect.go (94.0%)</option>
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/activity/use_item.go (95.9%)</option>
 				
@@ -109,7 +109,7 @@
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -5029,7 +5029,16 @@ func (nutritionEffect) present(world w.World, item ecs.Entity) bool {
         <span class="cov8" title="1">return world.Components.ProvidesNutrition.Has(item)
 </span>}
 
-func (nutritionEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { <span class="cov8" title="1">return nil }</span>
+// check は満腹度が上限なら食べさせない。栄養を持つ物は、ほかの効果を併せ持っても食べ物として止める
+func (nutritionEffect) check(_ *UseItemBehavior, actor, _ ecs.Entity, world w.World) error {
+        <span class="cov8" title="1">if !world.Components.Hunger.Has(actor) </span>{
+                <span class="cov0" title="0">return nil
+</span>        }
+        <span class="cov8" title="1">if h := world.Components.Hunger.Get(actor); h.Current &gt;= h.Max </span>{
+                <span class="cov8" title="1">return &amp;UserError{Msg: query.T(world, "Too full to eat")}
+</span>        }
+        <span class="cov8" title="1">return nil</span>
+}
 
 func (nutritionEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
         <span class="cov8" title="1">return u.applyNutrition(comp, actor, world, world.Components.ProvidesNutrition.Get(item).Amount, item)
@@ -5678,7 +5687,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
