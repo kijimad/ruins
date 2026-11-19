@@ -1560,8 +1560,9 @@ import (
 // 天候のスペルの基準長。ターン
 #SpellTurns: int & >=1 & <=100000
 
-// スプライトの描画順。跡とプレイヤーの段は raw の行が使わないので持たない
-#SpriteDepth: "floor" | "decal" | "rug" | "taller" @rawgen(prefix)
+// スプライトの描画の段。描く順は depthOrder で決まる。snow・remains・item・player はコードだけが組む段で、
+// raw の行には書けないことを validateSpriteDepths で検査する
+#SpriteDepth: "floor" | "snow" | "remains" | "decal" | "rug" | "taller" | "item" | "player" @rawgen(prefix)
 
 // スプライトキー
 #SpriteKey: string & strings.MinRunes(

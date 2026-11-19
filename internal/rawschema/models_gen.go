@@ -2707,15 +2707,20 @@ type SnowMeltPercent = int
 // SpellTurns 天候のスペルの基準長。ターン
 type SpellTurns = int
 
-// SpriteDepth スプライトの描画順。跡とプレイヤーの段は raw の行が使わないので持たない
+// SpriteDepth スプライトの描画の段。描く順は depthOrder で決まる。snow・remains・item・player はコードだけが組む段で、
+// raw の行には書けないことを validateSpriteDepths で検査する
 type SpriteDepth string
 
 // Defines values for SpriteDepth.
 const (
-	SpriteDepthDecal  SpriteDepth = "decal"
-	SpriteDepthFloor  SpriteDepth = "floor"
-	SpriteDepthRug    SpriteDepth = "rug"
-	SpriteDepthTaller SpriteDepth = "taller"
+	SpriteDepthDecal   SpriteDepth = "decal"
+	SpriteDepthFloor   SpriteDepth = "floor"
+	SpriteDepthItem    SpriteDepth = "item"
+	SpriteDepthPlayer  SpriteDepth = "player"
+	SpriteDepthRemains SpriteDepth = "remains"
+	SpriteDepthRug     SpriteDepth = "rug"
+	SpriteDepthSnow    SpriteDepth = "snow"
+	SpriteDepthTaller  SpriteDepth = "taller"
 )
 
 // Valid indicates whether the value is a known member of the SpriteDepth enum.
@@ -2725,7 +2730,15 @@ func (e SpriteDepth) Valid() bool {
 		return true
 	case SpriteDepthFloor:
 		return true
+	case SpriteDepthItem:
+		return true
+	case SpriteDepthPlayer:
+		return true
+	case SpriteDepthRemains:
+		return true
 	case SpriteDepthRug:
+		return true
+	case SpriteDepthSnow:
 		return true
 	case SpriteDepthTaller:
 		return true
@@ -2736,7 +2749,7 @@ func (e SpriteDepth) Valid() bool {
 
 // SpriteDepthValues は SpriteDepth の値を、スキーマに書いた順に返す。
 func SpriteDepthValues() []SpriteDepth {
-	return []SpriteDepth{SpriteDepthFloor, SpriteDepthDecal, SpriteDepthRug, SpriteDepthTaller}
+	return []SpriteDepth{SpriteDepthFloor, SpriteDepthSnow, SpriteDepthRemains, SpriteDepthDecal, SpriteDepthRug, SpriteDepthTaller, SpriteDepthItem, SpriteDepthPlayer}
 }
 
 // SpriteKey スプライトキー

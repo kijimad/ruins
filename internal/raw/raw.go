@@ -129,24 +129,9 @@ func toGCSpriteRender(s rawschema.SpriteRender) gc.SpriteRender {
 	return gc.SpriteRender{
 		SpriteSheetName: s.SpriteSheetName,
 		SpriteKey:       s.SpriteKey,
-		Depth:           depthOf(s.Depth),
+		Depth:           s.Depth,
 		Shape:           deref(s.Shape),
 	}
-}
-
-// depthOf は raw の描画順の名前を段に写す。raw から来る値なので、未知の値と空の値は panic せず床にする
-func depthOf(d rawschema.SpriteDepth) gc.DepthNum {
-	switch d {
-	case rawschema.SpriteDepthFloor:
-		return gc.DepthNumFloor
-	case rawschema.SpriteDepthDecal:
-		return gc.DepthNumDecal
-	case rawschema.SpriteDepthRug:
-		return gc.DepthNumRug
-	case rawschema.SpriteDepthTaller:
-		return gc.DepthNumTaller
-	}
-	return gc.DepthNumFloor
 }
 
 // toGCLightSource はrawschema.LightSourceからgc.LightSourceに変換する
@@ -287,7 +272,7 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		SpriteSheetName: spriteSheetName,
 		SpriteKey:       spriteKey,
 		AnimKeys:        PtrSlice(item.AnimKeys),
-		Depth:           gc.DepthNumItem,
+		Depth:           rawschema.SpriteDepthItem,
 	}
 
 	if item.Consumable != nil {
@@ -537,7 +522,7 @@ func NewMemberSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		SpriteSheetName: member.SpriteSheetName,
 		SpriteKey:       member.SpriteKey,
 		AnimKeys:        PtrSlice(member.AnimKeys),
-		Depth:           gc.DepthNumPlayer,
+		Depth:           rawschema.SpriteDepthPlayer,
 	}
 	entitySpec.Abilities = &gc.Abilities{
 		Vitality:  gc.Ability{Base: member.Abilities.Vitality},
@@ -797,10 +782,10 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	return entitySpec, nil
 }
 
-// TileIsTall はタイルの行が高さのあるタイルかを返す。描画順が高さのあるもの DepthNumTaller なら高い。
+// TileIsTall はタイルの行が高さのあるタイルかを返す。描画の段が高さのあるもの taller なら高い。
 // 高いタイルのオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い塊の内側は虚空にする
 func TileIsTall(t rawschema.Tile) bool {
-	return depthOf(t.SpriteRender.Depth) == gc.DepthNumTaller
+	return t.SpriteRender.Depth == rawschema.SpriteDepthTaller
 }
 
 // TileEnvironmentOf はタイルの行だけから決まる環境属性を返す。水の影響は周りのタイルで決まるので含まない
@@ -852,7 +837,7 @@ func NewRemainsSpec(raws rawschema.Raws, id string, coord consts.Coord[consts.Ti
 	key := r.SpriteKeys[h%uint64(len(r.SpriteKeys))]
 	return gc.EntitySpec{
 		Name:         &gc.Name{Name: i18n.Msgid(r.Name)},
-		SpriteRender: &gc.SpriteRender{SpriteSheetName: r.SpriteSheetName, SpriteKey: key, Depth: gc.DepthNumRemains, Shape: rawschema.Flat},
+		SpriteRender: &gc.SpriteRender{SpriteSheetName: r.SpriteSheetName, SpriteKey: key, Depth: rawschema.SpriteDepthRemains, Shape: rawschema.Flat},
 		Remains:      &gc.Remains{},
 	}, nil
 }

@@ -3,7 +3,6 @@ package components
 import (
 	"bytes"
 	"image"
-	"slices"
 
 	// テクスチャは PNG。image.Decode が読めるよう復号器を登録する
 	_ "image/png"
@@ -78,46 +77,10 @@ type SpriteRender struct {
 	SpriteKey string
 	// アニメーション用スプライトキー配列。空ならアニメーションなし
 	AnimKeys []string
-	// 描画順。小さい順に先に(下に)描画する
-	Depth DepthNum
+	// 描画の段。描く順は段の Rank で決まる
+	Depth rawschema.SpriteDepth
 	// 3D で立てる形。空ならカメラを向く立て板
 	Shape rawschema.SpriteShape
 	// Draw options（実行時の描画オプション。serde対象外）
 	Options ebiten.DrawImageOptions `json:"-"`
-}
-
-// DepthNum はオブジェクトの描画の段。描く順は depthOrder の並びで決まる
-type DepthNum string
-
-const (
-	// DepthNumFloor は床。最背面に表示する
-	DepthNumFloor DepthNum = "floor"
-	// DepthNumSnow は地面に重ねる雪の層。3D の描画だけが使い、実体は持たない
-	DepthNumSnow DepthNum = "snow"
-	// DepthNumRemains は敵や物が消えた跡
-	DepthNumRemains DepthNum = "remains"
-	// DepthNumDecal は床の模様。例: 土のしみ、ワープホール
-	DepthNumDecal DepthNum = "decal"
-	// DepthNumRug は床に置く低いもの。例: 焚き火、開いた扉
-	DepthNumRug DepthNum = "rug"
-	// DepthNumTaller は高さのあるもの。例: テーブル、棚、閉じた扉、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く
-	DepthNumTaller DepthNum = "taller"
-	// DepthNumItem は拾えるアイテム。テーブルのような高さのある置物と同じマスにあっても、その上に出す
-	DepthNumItem DepthNum = "item"
-	// DepthNumPlayer は操作キャラを最も手前に表示する
-	DepthNumPlayer DepthNum = "player"
-)
-
-// depthOrder は段を描く順。先にあるほど先に、つまり下に描く
-var depthOrder = []DepthNum{
-	DepthNumFloor, DepthNumSnow, DepthNumRemains, DepthNumDecal,
-	DepthNumRug, DepthNumTaller, DepthNumItem, DepthNumPlayer,
-}
-
-// Rank は depthOrder の中の位置を返す。セーブから来る未知の段は床の順にする
-func (d DepthNum) Rank() int {
-	if i := slices.Index(depthOrder, d); i >= 0 {
-		return i
-	}
-	return 0
 }

@@ -51,9 +51,9 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 			spriteRender.SpriteKey = doorSpriteKey(door, orientation, isOpen)
 		}
 		if isOpen {
-			spriteRender.Depth = gc.DepthNumRug
+			spriteRender.Depth = rawschema.SpriteDepthRug
 		} else {
-			spriteRender.Depth = gc.DepthNumTaller
+			spriteRender.Depth = rawschema.SpriteDepthTaller
 		}
 	}
 

@@ -94,6 +94,35 @@ func TestValidateDecors(t *testing.T) {
 	}
 }
 
+func TestValidateSpriteDepths(t *testing.T) {
+	t.Parallel()
+
+	prop := func(depth rawschema.SpriteDepth) rawschema.Raws {
+		return rawschema.Raws{Props: &[]rawschema.Prop{{Id: "p", SpriteRender: rawschema.SpriteRender{Depth: depth}}}}
+	}
+	tile := func(depth rawschema.SpriteDepth) rawschema.Raws {
+		return rawschema.Raws{Tiles: &[]rawschema.Tile{{Id: "t", SpriteRender: rawschema.SpriteRender{Depth: depth}}}}
+	}
+	tests := []struct {
+		name    string
+		raws    rawschema.Raws
+		wantErr error
+	}{
+		{"置物は床・床の模様・床に置くもの・高さのあるものを書ける", prop(rawschema.SpriteDepthRug), nil},
+		{"タイルは高さのあるものを書ける", tile(rawschema.SpriteDepthTaller), nil},
+		{"置物は跡の段を書けない", prop(rawschema.SpriteDepthRemains), errCodeOnlyDepth},
+		{"置物はプレイヤーの段を書けない", prop(rawschema.SpriteDepthPlayer), errCodeOnlyDepth},
+		{"タイルは雪の段を書けない", tile(rawschema.SpriteDepthSnow), errCodeOnlyDepth},
+		{"タイルはアイテムの段を書けない", tile(rawschema.SpriteDepthItem), errCodeOnlyDepth},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.ErrorIs(t, validateSpriteDepths(tt.raws), tt.wantErr)
+		})
+	}
+}
+
 func TestValidateFlatShapes(t *testing.T) {
 	t.Parallel()
 

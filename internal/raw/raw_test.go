@@ -105,7 +105,7 @@ Defense = 0
 	assert.NotNil(t, entitySpec.SpriteRender, "SpriteRenderコンポーネントが設定されていない")
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName, "SpriteSheetNameが正しくない")
 	assert.Equal(t, "player", entitySpec.SpriteRender.SpriteKey, "SpriteKeyが正しくない")
-	assert.Equal(t, gc.DepthNumPlayer, entitySpec.SpriteRender.Depth, "Depthが正しくない")
+	assert.Equal(t, rawschema.SpriteDepthPlayer, entitySpec.SpriteRender.Depth, "Depthが正しくない")
 }
 
 func TestGenerateMemberWithoutSprite(t *testing.T) {
@@ -157,7 +157,7 @@ SpriteKey = "field_item"
 	assert.NotNil(t, entitySpec.SpriteRender, "SpriteRenderコンポーネントが設定されていない")
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName, "SpriteSheetNameが正しくない")
 	assert.Equal(t, "field_item", entitySpec.SpriteRender.SpriteKey, "SpriteKeyが正しくない")
-	assert.Equal(t, gc.DepthNumItem, entitySpec.SpriteRender.Depth, "Depthが正しくない")
+	assert.Equal(t, rawschema.SpriteDepthItem, entitySpec.SpriteRender.Depth, "Depthが正しくない")
 }
 
 func TestGenerateMaterialWithoutSprite(t *testing.T) {
@@ -1376,33 +1376,6 @@ func TestWallMaterialTiles_dwallと同じ描画順と通れなさと視界で並
 		tile, err := GetTile(raws, id)
 		require.NoError(t, err, id)
 		assert.Equal(t, want, traits{tile.SpriteRender.Depth, tile.BlockPass, tile.BlockView}, id)
-	}
-}
-
-func TestDepthOf(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name  string
-		depth rawschema.SpriteDepth
-		want  gc.DepthNum
-	}{
-		{"床は床の段", rawschema.SpriteDepthFloor, gc.DepthNumFloor},
-		{"床の模様は床の模様の段", rawschema.SpriteDepthDecal, gc.DepthNumDecal},
-		{"床に置くものは床に置くものの段", rawschema.SpriteDepthRug, gc.DepthNumRug},
-		{"高さのあるものは高さのあるものの段", rawschema.SpriteDepthTaller, gc.DepthNumTaller},
-		{"描画順を持たない行は床に落ちる", "", gc.DepthNumFloor},
-	}
-	covered := map[rawschema.SpriteDepth]bool{}
-	for _, tt := range tests {
-		covered[tt.depth] = true
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, depthOf(tt.depth))
-		})
-	}
-	for _, d := range rawschema.SpriteDepthValues() {
-		assert.True(t, covered[d], "生成された描画順 %q の写しを表で確かめる", d)
 	}
 }
 

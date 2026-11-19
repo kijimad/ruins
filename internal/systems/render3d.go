@@ -397,7 +397,7 @@ func (l *snowLayer) add(out *[]r3quad, world w.World, e ecs.Entity, c consts.Coo
 	l.sys.addQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), l.atlas, l.ux, l.uy, l.uw, l.uh, tint)
 	q := &(*out)[len(*out)-1]
 	q.alpha = a
-	q.depth = gc.DepthNumSnow.Rank()
+	q.depth = rawschema.SpriteDepthSnow.Rank()
 }
 
 // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。

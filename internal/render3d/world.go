@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -46,7 +47,7 @@ func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {
 
 // IsBoxTile はそのタイルが高さのある箱として描かれるかを返す。
 //
-// 箱になるのは、描画順が高さのあるもの DepthNumTaller のタイルだけである。扉やキューブは通行を
+// 箱になるのは、描画の段が高さのあるもの taller のタイルだけである。扉やキューブは通行を
 // 塞ぐが箱にはならないので、通れるかで代わりに判定してはいけない。全てのエンティティでなく
 // 箱のタイルだけを走査する。
 //
@@ -69,7 +70,7 @@ func IsBoxTile(world w.World, c consts.Coord[consts.Tile]) bool {
 // 座標からエンティティを引く IsBoxTile とはこの点が異なる。
 func IsBoxTileEntity(world w.World, e ecs.Entity) bool {
 	return world.Components.Tile.Has(e) && world.Components.SpriteRender.Has(e) &&
-		world.Components.SpriteRender.Get(e).Depth == gc.DepthNumTaller
+		world.Components.SpriteRender.Get(e).Depth == rawschema.SpriteDepthTaller
 }
 
 // BoxTileSet は箱として描かれるタイルの集合を組む。壁の側面を隣と突き合わせて省くのに使う
