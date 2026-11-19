@@ -641,7 +641,7 @@
 				
 				<option value="file292">github.com/kijimaD/ruins/internal/systems/stats_changed.go (97.4%)</option>
 				
-				<option value="file293">github.com/kijimaD/ruins/internal/systems/temperature.go (90.7%)</option>
+				<option value="file293">github.com/kijimaD/ruins/internal/systems/temperature.go (90.4%)</option>
 				
 				<option value="file294">github.com/kijimaD/ruins/internal/systems/turn_system.go (88.7%)</option>
 				
@@ -8689,7 +8689,7 @@ func DomainTargets(master rawschema.Raws) []TargetCheck {
         return []TargetCheck{
                 {"生存・飢え", "DaysUntilHungerEmpty(日)", DaysUntilHungerEmpty(p), 0.8, 1.3},
                 {"生存・疲労", "SleepTimeFraction", SleepTimeFraction(p), 0.20, 0.33},
-                {"生存・寒さ", "TurnsToHypothermia(0℃)", TurnsToHypothermia(0), 8, 20},
+                {"生存・寒さ", "TurnsToHypothermia(0℃)", TurnsToHypothermia(0), 80, 150},
                 {"物流", "FollowRangeTiles(満タン,積荷0,歩)", FollowRangeTiles(consts.CubeFuelCapacityBase, 0), 400, 800},
                 {"進行・成長", "AttacksToSkillLevel(能力0,Lv30)", float64(AttacksToSkillLevel(0, 30)), 1000, 2500},
 </span>        }
@@ -46054,10 +46054,10 @@ func ambientTempDisplayColor(temp int) color.RGBA {
 }
 
 // temperatureSteadyThreshold はこれ以下の変化量を一定とみなし、矢印を出さない境界
-const temperatureSteadyThreshold = 0.05
+const temperatureSteadyThreshold = 0.001
 
 // temperatureIntensityMax は矢印の色が最も濃くなる変化量
-const temperatureIntensityMax = 0.5
+const temperatureIntensityMax = 0.12
 
 // temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温の状態があるとき ok=true。
 // 表示名で状態と重症度を、色で寒さを示す。変化の向きは矢印が別に担う
@@ -47699,6 +47699,10 @@ const (
         bodyTempMax = 0.0
         // bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
         bodyTempHomeostasisPerTurn = 0.1
+        // bodyTempComfortTemp はこれ以上なら体温が下がらない有効温度
+        bodyTempComfortTemp = 12
+        // bodyTempColdPerDegree は有効温度が適温を1℃下回るごとに1ターンで下がる体温
+        bodyTempColdPerDegree = 0.002
 )
 
 // Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める
@@ -47817,18 +47821,13 @@ const BodyTempColdBand = bodyTempColdBand
 // CalcBodyTempRate は実効温度から1ターンの体温変化量を返す純関数。バランス導出用の公開窓。
 func CalcBodyTempRate(effectiveTemp int) float64 { <span class="cov8" title="1">return calcBodyTempRate(effectiveTemp) }</span>
 
-// calcBodyTempRate は有効温度から体温の変化量を計算する。寒いほど負へ大きく、適温以上は0で正の値は返さない
+// calcBodyTempRate は有効温度から体温の変化量を計算する。適温を下回った分に比例して負へ大きくなり、
+// 適温以上は0で正の値は返さない。比例にするのは、屋内で少し暖かいだけでも冷え方が変わるようにするため
 func calcBodyTempRate(effectiveTemp int) float64 {
-        <span class="cov8" title="1">switch </span>{
-        case effectiveTemp &lt;= -50:
-                <span class="cov8" title="1">return -0.5</span> // 極寒。最も厳しい区分で、居座れば急速に凍える
-        case effectiveTemp &lt;= 0:
-                <span class="cov8" title="1">return -0.2</span> // 非常に寒い
-        case effectiveTemp &lt;= 10:
-                <span class="cov8" title="1">return -0.1</span> // 寒い
-        default:
-                <span class="cov8" title="1">return 0</span> // 適温以上
-        }
+        <span class="cov8" title="1">if effectiveTemp &gt;= bodyTempComfortTemp </span>{
+                <span class="cov8" title="1">return 0
+</span>        }
+        <span class="cov8" title="1">return -float64(bodyTempComfortTemp-effectiveTemp) * bodyTempColdPerDegree</span>
 }
 
 // logTemperatureChange は状態変化をログ出力する
