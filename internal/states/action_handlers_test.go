@@ -293,7 +293,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		require.NoError(t, err)
 		_, err = lifecycle.SpawnProp(world, "wooden_crate", 10, 11)
 		require.NoError(t, err)
-		_, err = lifecycle.SpawnProp(world, "grass", 11, 10)
+		_, err = lifecycle.SpawnDecor(world, "grass", 11, 10)
 		require.NoError(t, err)
 		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 9, Y: 10}, "fireball")
 		require.NoError(t, err)

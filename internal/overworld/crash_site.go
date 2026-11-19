@@ -18,7 +18,7 @@ func spawnChunkOf(cols, spawnRow consts.Chunk) consts.Coord[consts.Chunk] {
 // crashSiteAt は開始チャンク c に置く墜落現場の施設の id を、候補の重みで引く
 func crashSiteAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
 	sites := raw.PtrSlice(raws.CrashSites)
-	i, ok := consts.Pick(consts.HashRoll(ChunkSeed2D(runSeed^crashSiteSalt, c.X, c.Y)), sites, func(s rawschema.CrashSite) float64 { return float64(s.Weight) })
+	i, ok := consts.Pick(consts.HashRoll(consts.Mix2D(runSeed^crashSiteSalt, c.X, c.Y)), sites, func(s rawschema.CrashSite) float64 { return float64(s.Weight) })
 	if !ok {
 		// スキーマが重みを1以上に縛り、TestRealData_HasCrashSites が実 raw の候補の存在を固定する
 		panic("crashSiteAt: no crash site to pick")
@@ -41,7 +41,7 @@ func (crashSiteFeature) place(world w.World, runSeed uint64, c consts.Coord[cons
 		return fmt.Errorf("failed to load facility templates: %w", err)
 	}
 	fac := crashSiteAt(raws, runSeed, c)
-	seed := ChunkSeed2D(runSeed^crashSiteSalt, c.X, c.Y)
+	seed := consts.Mix2D(runSeed^crashSiteSalt, c.X, c.Y)
 	_, cells, err := loader.FacilityChunk(fac, seed)
 	if err != nil {
 		return fmt.Errorf("failed to plan crash site %q: %w", fac, err)

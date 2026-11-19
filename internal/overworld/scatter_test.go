@@ -75,13 +75,15 @@ type propAt struct {
 	name string
 }
 
-// collectProps は Prop を持つ全 prop を座標順で集める。草・岩は BlockPass を持たないので、散布物の
-// 網羅は設置物マーカーの Prop で引く。SpawnProp は全 prop へ Prop を付ける。タイルは Prop を持たない。
+// collectProps は置物の行から置いた全ての実体を座標順で集める。岩などの置物は Prop を、草や土の模様は Decor を持つ
 func collectProps(world w.World) []propAt {
 	var out []propAt
-	q := query.ActiveFilter2[gc.GridElement, gc.Prop](world).Query()
+	q := query.ActiveFilter1[gc.GridElement](world).Query()
 	for q.Next() {
 		e := q.Entity()
+		if !world.Components.Prop.Has(e) && !world.Components.Decor.Has(e) {
+			continue
+		}
 		ge := *world.Components.GridElement.Get(e)
 		name := ""
 		if world.Components.Name.Has(e) {
@@ -360,7 +362,7 @@ func TestScatterCatalogFrom_地面を覆う草と土の実データ(t *testing.T
 	grass := []scatterEntry{
 		{Ref: "grass", Weight: 30}, {Ref: "grass_lush", Weight: 15}, {Ref: "grass_sprig", Weight: 15},
 		{Ref: "weeds", Weight: 10}, {Ref: "grass_dry", Weight: 10}, {Ref: "grass_dark", Weight: 10},
-		{Ref: "grass_dry_sprig", Weight: 10}, {Ref: "bush", Weight: 4}, {Ref: "bush_dry", Weight: 3},
+		{Ref: "grass_dry_sprig", Weight: 10},
 	}
 	soil := []scatterEntry{
 		{Ref: "soil_pebbles", Weight: 3}, {Ref: "soil_dark", Weight: 3}, {Ref: "soil_dry", Weight: 3}, {Ref: "soil_crack", Weight: 2},

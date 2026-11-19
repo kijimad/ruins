@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/i18n"
+	"github.com/kijimaD/ruins/internal/rawschema"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -38,7 +39,7 @@ func TestSpawnFieldItem(t *testing.T) {
 	sprite := world.Components.SpriteRender.Get(item)
 	assert.Equal(t, "field", sprite.SpriteSheetName, "スプライトシート名が正しくない")
 	assert.Equal(t, "healing_potion", sprite.SpriteKey, "スプライトキーが正しくない")
-	assert.Equal(t, gc.DepthNumItem, sprite.Depth, "描画深度が正しくない")
+	assert.Equal(t, rawschema.SpriteDepthItem, sprite.Depth, "描画深度が正しくない")
 
 	// LocationOnFieldコンポーネントの確認
 	assert.True(t, world.Components.LocationOnField.Has(item), "LocationOnFieldコンポーネントが必要")

@@ -52,6 +52,9 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
 	if err := spawnItems(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
+	if err := spawnDecors(world, metaPlan, offsetX, offsetY); err != nil {
+		return gc.Level{}, err
+	}
 	if err := spawnProps(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
@@ -143,6 +146,16 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 		_, err := lifecycle.SpawnFieldItem(world, item.Name, tileX, tileY, item.Count)
 		if err != nil {
 			return fmt.Errorf("failed to spawn item (%d, %d): %w", item.X, item.Y, err)
+		}
+	}
+	return nil
+}
+
+// spawnDecors は計画の地面の飾りを生成する
+func spawnDecors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
+	for _, d := range metaPlan.Decors {
+		if _, err := lifecycle.SpawnDecor(world, d.Name, d.X+offsetX, d.Y+offsetY); err != nil {
+			return fmt.Errorf("failed to spawn decor (%d, %d): %w", d.X, d.Y, err)
 		}
 	}
 	return nil

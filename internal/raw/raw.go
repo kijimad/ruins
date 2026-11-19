@@ -129,7 +129,7 @@ func toGCSpriteRender(s rawschema.SpriteRender) gc.SpriteRender {
 	return gc.SpriteRender{
 		SpriteSheetName: s.SpriteSheetName,
 		SpriteKey:       s.SpriteKey,
-		Depth:           gc.DepthNum(int(s.Depth)),
+		Depth:           s.Depth,
 		Shape:           deref(s.Shape),
 	}
 }
@@ -272,7 +272,7 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		SpriteSheetName: spriteSheetName,
 		SpriteKey:       spriteKey,
 		AnimKeys:        PtrSlice(item.AnimKeys),
-		Depth:           gc.DepthNumItem,
+		Depth:           rawschema.SpriteDepthItem,
 	}
 
 	if item.Consumable != nil {
@@ -522,7 +522,7 @@ func NewMemberSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		SpriteSheetName: member.SpriteSheetName,
 		SpriteKey:       member.SpriteKey,
 		AnimKeys:        PtrSlice(member.AnimKeys),
-		Depth:           gc.DepthNumPlayer,
+		Depth:           rawschema.SpriteDepthPlayer,
 	}
 	entitySpec.Abilities = &gc.Abilities{
 		Vitality:  gc.Ability{Base: member.Abilities.Vitality},
@@ -782,10 +782,10 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	return entitySpec, nil
 }
 
-// TileIsTall はタイルの行が高さのあるタイルかを返す。描画順が高さのあるもの DepthNumTaller なら高い。
+// TileIsTall はタイルの行が高さのあるタイルかを返す。描画の段が高さのあるもの taller なら高い。
 // 高いタイルのオートタイルは細い輪郭を前提にするので、通れるマスに接しない厚い塊の内側は虚空にする
 func TileIsTall(t rawschema.Tile) bool {
-	return gc.DepthNum(int(t.SpriteRender.Depth)) == gc.DepthNumTaller
+	return t.SpriteRender.Depth == rawschema.SpriteDepthTaller
 }
 
 // TileEnvironmentOf はタイルの行だけから決まる環境属性を返す。水の影響は周りのタイルで決まるので含まない
@@ -815,6 +815,46 @@ func GetProp(raws rawschema.Raws, name string) (rawschema.Prop, error) {
 		return rawschema.Prop{}, NewKeyNotFoundError(name, "Props")
 	}
 	return prop, nil
+}
+
+// NewDecorSpec は地面の飾りの行から EntitySpec を組む
+func NewDecorSpec(raws rawschema.Raws, id string) (gc.EntitySpec, error) {
+	d, ok := FindByKey(raws.Decors, func(d rawschema.Decor) string { return d.Id }, id)
+	if !ok {
+		return gc.EntitySpec{}, NewKeyNotFoundError(id, "Decors")
+	}
+	sr := toGCSpriteRender(d.SpriteRender)
+	return gc.EntitySpec{
+		Name:         &gc.Name{Name: i18n.Msgid(d.Name)},
+		RawID:        &gc.RawID{ID: d.Id},
+		SpriteRender: &sr,
+		Decor:        &gc.Decor{},
+	}, nil
+}
+
+// GetRemains は id の跡の行を返す
+func GetRemains(raws rawschema.Raws, id string) (rawschema.Remains, error) {
+	r, ok := FindByKey(raws.Remains, func(r rawschema.Remains) string { return r.Id }, id)
+	if !ok {
+		return rawschema.Remains{}, NewKeyNotFoundError(id, "Remains")
+	}
+	return r, nil
+}
+
+// NewRemainsSpec は跡の行から、coord に置く跡の EntitySpec を組む。形は座標の撹拌で選び、ゲームの乱数を消費しない
+func NewRemainsSpec(raws rawschema.Raws, id string, coord consts.Coord[consts.Tile]) (gc.EntitySpec, error) {
+	r, err := GetRemains(raws, id)
+	if err != nil {
+		return gc.EntitySpec{}, err
+	}
+	// CUE が候補を1つ以上に縛る
+	h := consts.Mix2D(0, coord.X, coord.Y)
+	key := r.SpriteKeys[h%uint64(len(r.SpriteKeys))]
+	return gc.EntitySpec{
+		Name:         &gc.Name{Name: i18n.Msgid(r.Name)},
+		SpriteRender: &gc.SpriteRender{SpriteSheetName: r.SpriteSheetName, SpriteKey: key, Depth: rawschema.SpriteDepthRemains, Shape: rawschema.Flat},
+		Remains:      &gc.Remains{},
+	}, nil
 }
 
 // NewPropSpec は指定された名前の置物のEntitySpecを生成する

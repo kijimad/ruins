@@ -59,6 +59,30 @@ func overworldAtTurn(turns consts.Turn) func(world w.World) ([]es.State[w.World]
 	}
 }
 
+// remainsOverworldState は地上を始めた直後に、プレイヤーの左右の土の地面へ跡を置く。開始地点の墜落現場の
+// 窪みは土でなく雪が積もらないので、絵の外の土のマスに置く
+type remainsOverworldState struct {
+	*gs.DungeonState
+}
+
+// OnStart は地上を始めてから、跡を置く
+func (s remainsOverworldState) OnStart(world w.World) error {
+	if err := s.DungeonState.OnStart(world); err != nil {
+		return err
+	}
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	pc := world.Components.GridElement.Get(player).Coord
+	for dx, id := range map[consts.Tile]string{-5: "wood_splinters", 5: "metal_fragments", 6: "stone_rubble"} {
+		if _, err := lifecycle.SpawnRemains(world, id, consts.Coord[consts.Tile]{X: pc.X + dx, Y: pc.Y}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // indoorOverworldState は地上を始めた直後に、プレイヤーを最も近い屋内の通れるマスへ動かす。
 // 開始地点は屋根の無い墜落現場なので、屋根の下の明るさを撮るために使う。撮る場所は地上の生成で決まるので、
 // 生成を変えると撮る建物も変わる
@@ -475,6 +499,22 @@ var goldenCases = []struct {
 	{name: "Overworld_Snowfall", build: overworldAtTurn(16*1500 + 625), steps: []replayStep{{shot: true}}},
 	// Overworld_Winter は冬の底の25日目の昼を撮る。屋根の無い土の地面の全てが雪に覆われる
 	{name: "Overworld_Winter", build: overworldAtTurn(24*1500 + 625), steps: []replayStep{{shot: true}}},
+	// Overworld_Winter_Remains は冬の底の昼に、雪の積もった土の上へ置いた跡を撮る。跡は雪の上に描かれる
+	{
+		name: "Overworld_Winter_Remains",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			states, err := overworldAtTurn(24*1500 + 625)(world)
+			if err != nil {
+				return nil, err
+			}
+			ds, ok := states[0].(*gs.DungeonState)
+			if !ok {
+				return nil, fmt.Errorf("unexpected state type %T", states[0])
+			}
+			return []es.State[w.World]{remainsOverworldState{ds}}, nil
+		},
+		steps: []replayStep{{shot: true}},
+	},
 	// Overworld_Indoor は昼に建物の中に立つ画面を撮る。屋根の下は日照を減らして受け、屋外より暗い
 	{
 		name: "Overworld_Indoor",

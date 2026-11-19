@@ -38,7 +38,7 @@ func (p Placement) WinnerOf(runSeed uint64, ry, cols consts.Chunk) consts.Coord[
 		panic("Placement: Spacing must be greater than Separation")
 	}
 	span := uint64(p.Spacing - p.Separation)
-	h := ChunkSeed2D(runSeed^p.Salt, ry, 0)
+	h := consts.Mix2D(runSeed^p.Salt, ry, 0)
 	return consts.Coord[consts.Chunk]{
 		X: consts.Chunk((h / span) % uint64(cols)),
 		Y: ry*p.Spacing + consts.Chunk(h%span),

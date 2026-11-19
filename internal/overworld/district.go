@@ -52,7 +52,7 @@ func districtsFrom(raws rawschema.Raws) []district {
 // [ry*spacing, (ry+1)*spacing - separation) に収まるよう位置を引く。区域が自分のリージョンから
 // はみ出さないので、チャンクを含む区域はそのチャンクの行が属するリージョンだけを見れば決まる
 func (d district) regionIn(runSeed uint64, ry, cols consts.Chunk) districtRegion {
-	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^d.salt, ry, 0), 0))
+	rng := rand.New(rand.NewPCG(consts.Mix2D(runSeed^d.salt, ry, 0), 0))
 	i, ok := consts.Pick(rng, d.row.Sizes, func(s rawschema.DistrictSize) float64 { return float64(s.Weight) })
 	if !ok {
 		// 大きさの候補が1つ以上あり重みが1以上であることを raw のスキーマが保証する
@@ -69,7 +69,7 @@ func (d district) regionIn(runSeed uint64, ry, cols consts.Chunk) districtRegion
 		anchor: anchor,
 		w:      w,
 		h:      consts.Chunk(size.H),
-		seed:   ChunkSeed2D(runSeed^d.salt, anchor.X, anchor.Y),
+		seed:   consts.Mix2D(runSeed^d.salt, anchor.X, anchor.Y),
 	}
 }
 

@@ -337,7 +337,7 @@ func TestSpawnDoor(t *testing.T) {
 		sprite := world.Components.SpriteRender.Get(door)
 		assert.Equal(t, "field", sprite.SpriteSheetName)
 		assert.Equal(t, "door_vertical_closed", sprite.SpriteKey)
-		assert.Equal(t, gc.DepthNumTaller, sprite.Depth)
+		assert.Equal(t, rawschema.SpriteDepthTaller, sprite.Depth)
 
 		// Doorコンポーネントを確認
 		require.True(t, world.Components.Door.Has(door))
@@ -375,15 +375,15 @@ func TestDoor_開閉で高さが切り替わる(t *testing.T) {
 	require.NoError(t, err)
 
 	// 閉じた扉は高さのある障壁で、ドロップシャドウを落とす高さ
-	assert.Equal(t, gc.DepthNumTaller, world.Components.SpriteRender.Get(door).Depth)
+	assert.Equal(t, rawschema.SpriteDepthTaller, world.Components.SpriteRender.Get(door).Depth)
 
 	// 開くと平らな低い物になり、影を落とさない高さへ下がる
 	require.NoError(t, OpenDoor(world, door))
-	assert.Equal(t, gc.DepthNumRug, world.Components.SpriteRender.Get(door).Depth)
+	assert.Equal(t, rawschema.SpriteDepthRug, world.Components.SpriteRender.Get(door).Depth)
 
 	// 閉じると高さが戻る
 	require.NoError(t, CloseDoor(world, door))
-	assert.Equal(t, gc.DepthNumTaller, world.Components.SpriteRender.Get(door).Depth)
+	assert.Equal(t, rawschema.SpriteDepthTaller, world.Components.SpriteRender.Get(door).Depth)
 }
 
 func TestSpawnVisualEffect(t *testing.T) {

@@ -162,7 +162,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	if err != nil {
 		return fmt.Errorf("district %q street enemies: %w", r.kind.Id, err)
 	}
-	return renderUrbanChunk(world, g, ChunkSeed2D(r.seed, l.X, l.Y), enemies, lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, fenceProp, streetTilesOf(r.kind))
+	return renderUrbanChunk(world, g, consts.Mix2D(r.seed, l.X, l.Y), enemies, lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, fenceProp, streetTilesOf(r.kind))
 }
 
 // gateColumns は塀を巡らせる区域 r の、北と南の門を開ける絶対チャンク列を、区域を埋めた区画 lots から返す。

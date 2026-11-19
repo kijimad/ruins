@@ -38,6 +38,60 @@ func TestRealData_HasCrashSites(t *testing.T) {
 	require.NotEmpty(t, PtrSlice(master.CrashSites), "開始チャンクに墜落現場を必ず置くので実 raw.toml は crashSites を持つべき")
 }
 
+func TestRealData_プレイヤー以外の全てのmemberの行が跡を持つ(t *testing.T) {
+	t.Parallel()
+
+	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	missing := []string{}
+	for _, m := range PtrSlice(master.Members) {
+		if isPlayer := m.Player != nil && *m.Player; !isPlayer && m.RemainsId == nil {
+			missing = append(missing, m.Id)
+		}
+	}
+	assert.Equal(t, []string{}, missing, "倒したときに跡が出るよう、敵と NPC の行は remainsId を持つ")
+}
+
+func TestRealData_壊せる置物の行は構造物を除いて跡を持つ(t *testing.T) {
+	t.Parallel()
+
+	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	missing := []string{}
+	for _, p := range PtrSlice(master.Props) {
+		if p.Hp != nil && p.RemainsId == nil {
+			missing = append(missing, p.Id)
+		}
+	}
+	assert.Equal(t, []string{"warp_next", "warp_prev", "warp_escape", "dungeon_entrance"}, missing,
+		"壊れない階段や入口のほかは、壊したときに跡が出るよう remainsId を持つ")
+}
+
+func TestValidateFlatShapes(t *testing.T) {
+	t.Parallel()
+
+	prop := func(depth rawschema.SpriteDepth, shape *rawschema.SpriteShape) rawschema.Raws {
+		return rawschema.Raws{Props: &[]rawschema.Prop{{Id: "p", SpriteRender: rawschema.SpriteRender{Depth: depth, Shape: shape}}}}
+	}
+	tests := []struct {
+		name    string
+		raws    rawschema.Raws
+		wantErr error
+	}{
+		{"床の模様の段を寝かせる", prop(rawschema.SpriteDepthDecal, new(rawschema.Flat)), nil},
+		{"床の段を立てる", prop(rawschema.SpriteDepthFloor, nil), nil},
+		{"床の模様の段を立てるとエラー", prop(rawschema.SpriteDepthDecal, nil), errFlatDepthMismatch},
+		{"高さのある段を寝かせるとエラー", prop(rawschema.SpriteDepthTaller, new(rawschema.Flat)), errFlatDepthMismatch},
+		{"床の模様の段の飾りを立てるとエラー", rawschema.Raws{Decors: &[]rawschema.Decor{{Id: "d", SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthDecal}}}}, errFlatDepthMismatch},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.ErrorIs(t, validateFlatShapes(tt.raws), tt.wantErr)
+		})
+	}
+}
+
 func TestSchema_正常なアイテムは通る(t *testing.T) {
 	t.Parallel()
 

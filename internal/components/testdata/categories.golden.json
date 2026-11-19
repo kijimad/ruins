@@ -21,6 +21,14 @@
       "pred": "Prop"
     },
     {
+      "name": "Remains",
+      "pred": "Remains"
+    },
+    {
+      "name": "Decor",
+      "pred": "Decor"
+    },
+    {
       "name": "Tile",
       "pred": "Tile"
     }

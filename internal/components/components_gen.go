@@ -47,6 +47,8 @@ type EntitySpec struct {
 	Pose               *Pose
 	Item               *Item
 	Prop               *Prop
+	Remains            *Remains
+	Decor              *Decor
 	Cube               *Cube
 	FuelTank           *FuelTank
 	Deployed           *Deployed
@@ -146,6 +148,8 @@ type Components struct {
 	Pose               *ecs.Map[Pose]
 	Item               *ecs.Map[Item]
 	Prop               *ecs.Map[Prop]
+	Remains            *ecs.Map[Remains]
+	Decor              *ecs.Map[Decor]
 	Cube               *ecs.Map[Cube]
 	FuelTank           *ecs.Map[FuelTank]
 	Deployed           *ecs.Map[Deployed]
@@ -245,6 +249,8 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Pose = ecs.NewMap[Pose](world)
 	c.Item = ecs.NewMap[Item](world)
 	c.Prop = ecs.NewMap[Prop](world)
+	c.Remains = ecs.NewMap[Remains](world)
+	c.Decor = ecs.NewMap[Decor](world)
 	c.Cube = ecs.NewMap[Cube](world)
 	c.FuelTank = ecs.NewMap[FuelTank](world)
 	c.Deployed = ecs.NewMap[Deployed](world)
@@ -346,6 +352,8 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Pose, entity, spec.Pose)
 	addComp(c.Item, entity, spec.Item)
 	addComp(c.Prop, entity, spec.Prop)
+	addComp(c.Remains, entity, spec.Remains)
+	addComp(c.Decor, entity, spec.Decor)
 	addComp(c.Cube, entity, spec.Cube)
 	addComp(c.FuelTank, entity, spec.FuelTank)
 	addComp(c.Deployed, entity, spec.Deployed)

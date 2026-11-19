@@ -17,7 +17,7 @@ import (
 // landmarkKindAt は当選チャンクに置くランドマークの施設の id を出現重みで抽選する。
 func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
 	lms := raw.PtrSlice(raws.Landmarks)
-	i, ok := consts.Pick(consts.HashRoll(ChunkSeed2D(runSeed^placementOf(raws, rawschema.PointFeatureKindLandmark).Salt, c.X, c.Y)), lms, func(l rawschema.Landmark) float64 { return float64(l.Weight) })
+	i, ok := consts.Pick(consts.HashRoll(consts.Mix2D(runSeed^placementOf(raws, rawschema.PointFeatureKindLandmark).Salt, c.X, c.Y)), lms, func(l rawschema.Landmark) float64 { return float64(l.Weight) })
 	if !ok {
 		// スキーマの weight>=1 と TestRealData_HasLandmarks が候補の存在を保証する
 		panic("landmarkKindAt: no landmark to pick")
@@ -42,7 +42,7 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 	if err != nil {
 		return fmt.Errorf("failed to load facility templates: %w", err)
 	}
-	seed := ChunkSeed2D(runSeed^placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindLandmark).Salt, c.X, c.Y)
+	seed := consts.Mix2D(runSeed^placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindLandmark).Salt, c.X, c.Y)
 	// ストリーム 0 は絵と原点の抽選。spawnFacility が戦利品と敵に使う 0x4 と 0x5 と分ける
 	rng := rand.New(rand.NewPCG(seed, 0))
 	fac := landmarkKindAt(world.Resources.RawMaster, runSeed, c)

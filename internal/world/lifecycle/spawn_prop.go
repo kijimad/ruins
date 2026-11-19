@@ -51,9 +51,9 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 			spriteRender.SpriteKey = doorSpriteKey(door, orientation, isOpen)
 		}
 		if isOpen {
-			spriteRender.Depth = gc.DepthNumRug
+			spriteRender.Depth = rawschema.SpriteDepthRug
 		} else {
-			spriteRender.Depth = gc.DepthNumTaller
+			spriteRender.Depth = rawschema.SpriteDepthTaller
 		}
 	}
 
@@ -87,6 +87,16 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 	entitySpec.LocationOnField = &gc.LocationOnField{}
 
+	return world.Components.AddEntity(world.ECS, &entitySpec), nil
+}
+
+// SpawnDecor は地面の飾りを生成する。置物を数える処理に入らないよう LocationOnField を付けない
+func SpawnDecor(world w.World, id string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
+	entitySpec, err := raw.NewDecorSpec(world.Resources.RawMaster, id)
+	if err != nil {
+		return gc.InvalidEntity, err
+	}
+	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 	return world.Components.AddEntity(world.ECS, &entitySpec), nil
 }
 

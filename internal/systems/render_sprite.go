@@ -13,6 +13,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/colorm"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -163,7 +164,7 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 	}
 
 	slices.SortStableFunc(entities[:iSprite], func(a, b ecs.Entity) int {
-		return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)
+		return cmp.Compare(world.Components.SpriteRender.Get(a).Depth.Rank(), world.Components.SpriteRender.Get(b).Depth.Rank())
 	})
 
 	for i := range iSprite {
@@ -211,7 +212,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 	}
 
 	slices.SortStableFunc(entities, func(a, b ecs.Entity) int {
-		return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)
+		return cmp.Compare(world.Components.SpriteRender.Get(a).Depth.Rank(), world.Components.SpriteRender.Get(b).Depth.Rank())
 	})
 
 	for _, entity := range entities {
@@ -246,7 +247,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		spriteRender := world.Components.SpriteRender.Get(entity)
 
 		// 高さのあるものだけが影を落とす
-		if spriteRender.Depth <= gc.DepthNumRug {
+		if spriteRender.Depth.Rank() <= rawschema.SpriteDepthRug.Rank() {
 			continue
 		}
 
@@ -302,7 +303,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		spriteRender := world.Components.SpriteRender.Get(entity)
 
 		// 高さのあるものだけが影を落とす
-		if spriteRender.Depth <= gc.DepthNumRug {
+		if spriteRender.Depth.Rank() <= rawschema.SpriteDepthRug.Rank() {
 			continue
 		}
 
@@ -318,7 +319,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 			continue // 下が床でなければ影を描画しない
 		}
 		belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)
-		if belowSpriteRender.Depth != gc.DepthNumFloor {
+		if belowSpriteRender.Depth != rawschema.SpriteDepthFloor {
 			continue // 下が床でなければ影を描画しない
 		}
 

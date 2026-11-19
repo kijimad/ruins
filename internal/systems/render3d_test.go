@@ -247,7 +247,7 @@ func TestCollectDeployField(t *testing.T) {
 	})
 }
 
-func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testing.T) {
+func TestCollectBillboards_寝かせる形のpropは地面に寝かせる(t *testing.T) {
 	t.Parallel()
 	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
 	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
@@ -260,7 +260,7 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 			Sprites: map[string]gc.Sprite{"soil_crack": {Width: 32, Height: 32}},
 		},
 	})
-	_, err := lifecycle.SpawnProp(world, "soil_crack", center.X, center.Y)
+	_, err := lifecycle.SpawnDecor(world, "soil_crack", center.X, center.Y)
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
@@ -270,7 +270,32 @@ func TestCollectBillboards_床の模様のpropは地面に寝かせる(t *testin
 	assert.Equal(t, [4]render3d.Vec{
 		render3d.At(25, 0, 25), render3d.At(26, 0, 25), render3d.At(26, 0, 26), render3d.At(25, 0, 26),
 	}, quads[0].p)
-	assert.Equal(t, int(gc.DepthNumDecal), quads[0].depth)
+	assert.Equal(t, rawschema.SpriteDepthDecal.Rank(), quads[0].depth)
+}
+
+func TestCollectBillboards_視界の外では跡を描かず床の模様は描く(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	remembered := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, false }
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {
+			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
+			Sprites: map[string]gc.Sprite{"soil_crack": {Width: 32, Height: 32}, "oil_stain": {Width: 32, Height: 32}},
+		},
+	})
+	_, err := lifecycle.SpawnDecor(world, "soil_crack", center.X, center.Y)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnRemains(world, "oil_stain", consts.Coord[consts.Tile]{X: center.X + 1, Y: center.Y})
+	require.NoError(t, err)
+	sys := &Render3DSystem{}
+
+	quads := sys.collectBillboards(world, nil, projector, remembered, nil, nil, nil)
+
+	require.Len(t, quads, 1, "記憶しているマスには床の模様だけを描く")
+	assert.Equal(t, rawschema.SpriteDepthDecal.Rank(), quads[0].depth)
 }
 
 func TestSnowLayer_道は行の解けやすさの分だけ薄く積もる(t *testing.T) {
@@ -502,7 +527,7 @@ func TestCollectBillboards_同じマスのテーブルとアイテムはアイ�
 	sortQuadsByDepth(quads, projector.Depth)
 
 	require.Len(t, quads, 2)
-	assert.Equal(t, []int{int(gc.DepthNumTaller), int(gc.DepthNumItem)}, []int{quads[0].depth, quads[1].depth}, "後に描くアイテムが手前に出る")
+	assert.Equal(t, []int{rawschema.SpriteDepthTaller.Rank(), rawschema.SpriteDepthItem.Rank()}, []int{quads[0].depth, quads[1].depth}, "後に描くアイテムが手前に出る")
 }
 
 func TestCollectBillboards_同じマスのアイテムとプレイヤーはプレイヤーを手前に描く(t *testing.T) {
@@ -529,5 +554,5 @@ func TestCollectBillboards_同じマスのアイテムとプレイヤーはプ�
 	sortQuadsByDepth(quads, projector.Depth)
 
 	require.Len(t, quads, 2)
-	assert.Equal(t, []int{int(gc.DepthNumItem), int(gc.DepthNumPlayer)}, []int{quads[0].depth, quads[1].depth}, "後に描くプレイヤーが手前に出る")
+	assert.Equal(t, []int{rawschema.SpriteDepthItem.Rank(), rawschema.SpriteDepthPlayer.Rank()}, []int{quads[0].depth, quads[1].depth}, "後に描くプレイヤーが手前に出る")
 }

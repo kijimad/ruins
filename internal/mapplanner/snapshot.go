@@ -19,6 +19,7 @@ type Snapshot struct {
 	NPCs         []NPCSpec
 	Items        []ItemSpec
 	Props        []PropsSpec
+	Decors       []DecorSpec
 	Doors        []DoorSpec
 	NextPortals  []consts.Coord[consts.Tile]
 	SpawnPoints  []maptemplate.SpawnPoint
@@ -39,6 +40,7 @@ func (b *PlannerChain) takeSnapshot(label string) {
 		NPCs:         slices.Clone(d.NPCs),
 		Items:        slices.Clone(d.Items),
 		Props:        slices.Clone(d.Props),
+		Decors:       slices.Clone(d.Decors),
 		Doors:        slices.Clone(d.Doors),
 		NextPortals:  slices.Clone(d.NextPortals),
 		SpawnPoints:  slices.Clone(d.SpawnPoints),

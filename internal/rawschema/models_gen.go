@@ -528,6 +528,15 @@ type DamageBonus = int
 // DangerLevel 危険度。経過日数から決まる
 type DangerLevel = int
 
+// Decor 草や土の模様のような地面の飾り。置物でもアイテムでもなく、通行・操作・拾得・積み込みのどれにも関わらない
+type Decor struct {
+	Id EntityID `json:"id"`
+
+	Name EntityName `json:"name"`
+
+	SpriteRender SpriteRender `json:"spriteRender"`
+}
+
 // Defense 防御力。被ダメージを軽減する
 type Defense = int
 
@@ -1716,6 +1725,9 @@ type Member struct {
 
 	Player *IsPlayer `json:"player,omitempty"`
 
+	// RemainsId 死んだときに足元へ残す跡。省くと何も残さない
+	RemainsId *EntityID `json:"remainsId,omitempty"`
+
 	SpriteKey SpriteKey `json:"spriteKey"`
 
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
@@ -2034,6 +2046,9 @@ type Prop struct {
 
 	PassCost *PassCost `json:"passCost,omitempty"`
 
+	// RemainsId 壊れたときに足元へ残す跡。省くと何も残さない
+	RemainsId *EntityID `json:"remainsId,omitempty"`
+
 	SpriteRender SpriteRender `json:"spriteRender"`
 
 	Storage *StorageRaw `json:"storage,omitempty"`
@@ -2110,6 +2125,8 @@ type Raws struct {
 
 	CrashSites *[]CrashSite `json:"crashSites,omitempty"`
 
+	Decors *[]Decor `json:"decors,omitempty"`
+
 	Dialogues *[]Dialogue `json:"dialogues,omitempty"`
 
 	Districts *[]District `json:"districts,omitempty"`
@@ -2163,6 +2180,8 @@ type Raws struct {
 	Recipes *[]Recipe `json:"recipes,omitempty"`
 
 	RectRoomStarts *[]RectRoomStart `json:"rectRoomStarts,omitempty"`
+
+	Remains *[]Remains `json:"remains,omitempty"`
 
 	RuinedPathSteps *[]RuinedPathStep `json:"ruinedPathSteps,omitempty"`
 
@@ -2268,6 +2287,18 @@ type RectRoomStart struct {
 // ReloadEffort リロードに必要な行動力
 type ReloadEffort = int
 
+// Remains 敵や物が消えた跡に床へ残す装飾。描画順は跡の段に決まっているので行に持たない
+type Remains struct {
+	Id EntityID `json:"id"`
+
+	Name EntityName `json:"name"`
+
+	// SpriteKeys 跡の形の候補。置くマスの座標から1つを選ぶ
+	SpriteKeys []SpriteKey `json:"spriteKeys"`
+
+	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
+}
+
 // Remedy 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
 type Remedy struct {
 	Potency Potency `json:"potency"`
@@ -2321,7 +2352,8 @@ type ScatterWallStep struct {
 	Id EntityID `json:"id"`
 }
 
-// ScatterZone 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
+// ScatterZone 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り。
+// entries は木・低木・岩のような置物
 type ScatterZone struct {
 	Entries []ScatterEntry `json:"entries"`
 
@@ -2684,31 +2716,48 @@ type SnowMeltPercent = int
 // SpellTurns 天候のスペルの基準長。ターン
 type SpellTurns = int
 
-// SpriteDepth スプライト描画深度
-type SpriteDepth float32
+// SpriteDepth スプライトの描画の段。描く順は depthOrder で決まる
+type SpriteDepth string
 
 // Defines values for SpriteDepth.
 const (
-	N0 SpriteDepth = 0
-	N1 SpriteDepth = 1
-	N2 SpriteDepth = 2
-	N3 SpriteDepth = 3
+	SpriteDepthDecal   SpriteDepth = "decal"
+	SpriteDepthFloor   SpriteDepth = "floor"
+	SpriteDepthItem    SpriteDepth = "item"
+	SpriteDepthPlayer  SpriteDepth = "player"
+	SpriteDepthRemains SpriteDepth = "remains"
+	SpriteDepthRug     SpriteDepth = "rug"
+	SpriteDepthSnow    SpriteDepth = "snow"
+	SpriteDepthTaller  SpriteDepth = "taller"
 )
 
 // Valid indicates whether the value is a known member of the SpriteDepth enum.
 func (e SpriteDepth) Valid() bool {
 	switch e {
-	case N0:
+	case SpriteDepthDecal:
 		return true
-	case N1:
+	case SpriteDepthFloor:
 		return true
-	case N2:
+	case SpriteDepthItem:
 		return true
-	case N3:
+	case SpriteDepthPlayer:
+		return true
+	case SpriteDepthRemains:
+		return true
+	case SpriteDepthRug:
+		return true
+	case SpriteDepthSnow:
+		return true
+	case SpriteDepthTaller:
 		return true
 	default:
 		return false
 	}
+}
+
+// SpriteDepthValues は SpriteDepth の値を、スキーマに書いた順に返す。
+func SpriteDepthValues() []SpriteDepth {
+	return []SpriteDepth{SpriteDepthFloor, SpriteDepthSnow, SpriteDepthRemains, SpriteDepthDecal, SpriteDepthRug, SpriteDepthTaller, SpriteDepthItem, SpriteDepthPlayer}
 }
 
 // SpriteKey スプライトキー
@@ -2716,6 +2765,7 @@ type SpriteKey = string
 
 // SpriteRender スプライトレンダー設定
 type SpriteRender struct {
+	// Depth snow・remains・item・player はコードだけが組む段なので、raw の行には書けない
 	Depth SpriteDepth `json:"depth"`
 
 	Shape *SpriteShape `json:"shape,omitempty"`
@@ -2725,13 +2775,15 @@ type SpriteRender struct {
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 }
 
-// SpriteShape 3D で置物を立てる形。省くとカメラを向く立て板になる。
-// inset は扉や窓のように壁の並びにはめる薄い板、facing は棚のように並びと隣の空きに合わせて向きを決め、その向きに回した薄い板
+// SpriteShape 3D で置物を描く形。省くとカメラを向く立て板になる。
+// inset は扉や窓のように壁の並びにはめる薄い板、facing は棚のように並びと隣の空きに合わせて向きを決め、その向きに回した薄い板、
+// flat は土の模様やワープの穴のように地面に寝かせた板
 type SpriteShape string
 
 // Defines values for SpriteShape.
 const (
 	Facing SpriteShape = "facing"
+	Flat   SpriteShape = "flat"
 	Inset  SpriteShape = "inset"
 )
 
@@ -2739,6 +2791,8 @@ const (
 func (e SpriteShape) Valid() bool {
 	switch e {
 	case Facing:
+		return true
+	case Flat:
 		return true
 	case Inset:
 		return true
@@ -2749,7 +2803,7 @@ func (e SpriteShape) Valid() bool {
 
 // SpriteShapeValues は SpriteShape の値を、スキーマに書いた順に返す。
 func SpriteShapeValues() []SpriteShape {
-	return []SpriteShape{Inset, Facing}
+	return []SpriteShape{Inset, Facing, Flat}
 }
 
 // SpriteSheet スプライトシート

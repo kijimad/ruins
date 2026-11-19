@@ -21,23 +21,23 @@ import (
 func TestChunkSeed2D_決定的(t *testing.T) {
 	t.Parallel()
 
-	first := overworld.ChunkSeed2D(42, 5, 2)
-	again := overworld.ChunkSeed2D(42, 5, 2)
+	first := consts.Mix2D(42, 5, 2)
+	again := consts.Mix2D(42, 5, 2)
 	assert.Equal(t, first, again, "同じ入力なら同じ seed（決定的）")
-	assert.NotEqual(t, overworld.ChunkSeed2D(1, 5, 2), overworld.ChunkSeed2D(2, 5, 2), "runSeed が変われば seed も変わる")
+	assert.NotEqual(t, consts.Mix2D(1, 5, 2), consts.Mix2D(2, 5, 2), "runSeed が変われば seed も変わる")
 }
 
 func TestChunkSeed2D_転置と隣接で散る(t *testing.T) {
 	t.Parallel()
 
-	assert.NotEqual(t, overworld.ChunkSeed2D(42, 1, 2), overworld.ChunkSeed2D(42, 2, 1), "転置した座標は別の seed になる")
+	assert.NotEqual(t, consts.Mix2D(42, 1, 2), consts.Mix2D(42, 2, 1), "転置した座標は別の seed になる")
 
 	// 負を含む近傍グリッド全域で seed が衝突しないことを確認する。
 	// シードの世代間互換は保証しないため、特定の値との一致は検証しない
 	seen := map[uint64]consts.Coord[consts.Chunk]{}
 	for cy := consts.Chunk(-8); cy <= 8; cy++ {
 		for cx := consts.Chunk(-8); cx <= 8; cx++ {
-			s := overworld.ChunkSeed2D(42, cx, cy)
+			s := consts.Mix2D(42, cx, cy)
 			prev, dup := seen[s]
 			assert.False(t, dup, "(%d,%d) の seed が (%d,%d) と衝突しない", cx, cy, prev.X, prev.Y)
 			seen[s] = consts.Coord[consts.Chunk]{X: cx, Y: cy}

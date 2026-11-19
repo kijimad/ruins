@@ -1123,6 +1123,134 @@
   id = "crash_site"
   weight = 1
 
+[[decors]]
+  id = "grass"
+  name = "Grass"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "weeds"
+  name = "Weeds"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "weeds"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "grass_lush"
+  name = "Lush Grass"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass_lush"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "grass_dry"
+  name = "Dry Grass"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass_dry"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "grass_dark"
+  name = "Dark Grass"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass_dark"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "grass_sprig"
+  name = "Grass Sprig"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass_sprig"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "grass_dry_sprig"
+  name = "Dry Grass Sprig"
+  [decors.spriteRender]
+    depth = "floor"
+    spriteKey = "grass_dry_sprig"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_pebbles"
+  name = "Pebbles"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_pebbles"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_dark"
+  name = "Dark Soil"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_dark"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_dry"
+  name = "Dry Soil"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_dry"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_crack"
+  name = "Cracked Ground"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_crack"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_gravel"
+  name = "Gravel"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_gravel"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_frost"
+  name = "Frost"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_frost"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_stones"
+  name = "Flat Stones"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_stones"
+    spriteSheetName = "field"
+
+[[decors]]
+  id = "soil_ice"
+  name = "Frozen Puddle"
+  [decors.spriteRender]
+    depth = "decal"
+    shape = "flat"
+    spriteKey = "soil_ice"
+    spriteSheetName = "field"
+
 [[dialogues]]
   id = "old_soldier_greeting"
   pages = ["\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\"", "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""]
@@ -18434,6 +18562,7 @@
   id = "bat"
   movementPattern = "random"
   name = "Bat"
+  remainsId = "red_blood_stain"
   spriteKey = "dream_fly"
   spriteSheetName = "field"
   [members.abilities]
@@ -18452,6 +18581,7 @@
   id = "gorilla"
   movementPattern = "random"
   name = "Gorilla"
+  remainsId = "red_blood_stain"
   spriteKey = "gorilla"
   spriteSheetName = "field"
   [members.abilities]
@@ -18470,6 +18600,7 @@
   id = "jeep"
   movementPattern = "random"
   name = "Jeep"
+  remainsId = "oil_stain"
   spriteKey = "cherokee"
   spriteSheetName = "field"
   [members.abilities]
@@ -18496,6 +18627,7 @@
   id = "slime"
   movementPattern = "swarm"
   name = "Slime"
+  remainsId = "slime_puddle"
   spriteKey = "slime_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -18514,6 +18646,7 @@
   id = "rat"
   movementPattern = "random"
   name = "Rat"
+  remainsId = "red_blood_stain"
   spriteKey = "penguin"
   spriteSheetName = "field"
   [members.abilities]
@@ -18532,6 +18665,7 @@
   id = "pink_slime"
   movementPattern = "swarm"
   name = "Pink Slime"
+  remainsId = "slime_puddle"
   spriteKey = "pink_ball"
   spriteSheetName = "field"
   [members.abilities]
@@ -18550,6 +18684,7 @@
   id = "penguin"
   movementPattern = "random"
   name = "Penguin"
+  remainsId = "red_blood_stain"
   spriteKey = "penguin"
   spriteSheetName = "field"
   [members.abilities]
@@ -18568,6 +18703,7 @@
   id = "three_headed_dragon"
   movementPattern = "random"
   name = "Three Headed Dragon"
+  remainsId = "red_blood_stain"
   spriteKey = "threehead_dragon"
   spriteSheetName = "field"
   [members.abilities]
@@ -18586,6 +18722,7 @@
   id = "glow_bug"
   movementPattern = "random"
   name = "Glow Bug"
+  remainsId = "green_blood_stain"
   spriteKey = "golden_slime"
   spriteSheetName = "field"
   [members.abilities]
@@ -18603,6 +18740,7 @@
   id = "frozen_hunter"
   movementPattern = "random"
   name = "Frozen Hunter"
+  remainsId = "red_blood_stain"
   spriteKey = "crystal_zombie"
   spriteSheetName = "field"
   [members.abilities]
@@ -18621,6 +18759,7 @@
   id = "chemical_tank"
   movementPattern = "random"
   name = "Chemical Tank"
+  remainsId = "oil_stain"
   spriteKey = "chemical_tank"
   spriteSheetName = "field"
   [members.abilities]
@@ -18646,6 +18785,7 @@
   id = "merchant"
   movementPattern = "wander"
   name = "Merchant"
+  remainsId = "red_blood_stain"
   spriteKey = "merchant_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -18706,6 +18846,7 @@
   id = "dream_moth"
   movementPattern = "random"
   name = "Dream Moth"
+  remainsId = "green_blood_stain"
   spriteKey = "dream_fly"
   spriteSheetName = "field"
   [members.abilities]
@@ -18724,6 +18865,7 @@
   id = "dream_whale"
   movementPattern = "random"
   name = "Dream Whale"
+  remainsId = "blue_blood_stain"
   spriteKey = "dream_whale"
   spriteSheetName = "field"
   [members.abilities]
@@ -18742,6 +18884,7 @@
   id = "giant_bee"
   movementPattern = "random"
   name = "Giant Bee"
+  remainsId = "green_blood_stain"
   spriteKey = "dream_fly"
   spriteSheetName = "field"
   [members.abilities]
@@ -18760,6 +18903,7 @@
   id = "shadow_priest"
   movementPattern = "random"
   name = "Shadow Priest"
+  remainsId = "red_blood_stain"
   spriteKey = "shadow_priest"
   spriteSheetName = "field"
   [members.abilities]
@@ -18778,6 +18922,7 @@
   id = "shadow_rat"
   movementPattern = "wallHug"
   name = "Shadow Rat"
+  remainsId = "red_blood_stain"
   spriteKey = "slime_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -18796,6 +18941,7 @@
   id = "old_tank"
   movementPattern = "random"
   name = "Old Tank"
+  remainsId = "oil_stain"
   spriteKey = "old_tank"
   spriteSheetName = "field"
   [members.abilities]
@@ -18822,6 +18968,7 @@
   id = "dark_doctor"
   movementPattern = "random"
   name = "Dark Doctor"
+  remainsId = "red_blood_stain"
   spriteKey = "dark_doctor_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -18840,6 +18987,7 @@
   id = "decayed_soldier"
   movementPattern = "patrol"
   name = "Decayed Soldier"
+  remainsId = "red_blood_stain"
   spriteKey = "skeleton"
   spriteSheetName = "field"
   [members.abilities]
@@ -18858,6 +19006,7 @@
   id = "tree_spirit"
   movementPattern = "random"
   name = "Tree Spirit"
+  remainsId = "wood_splinters"
   spriteKey = "tree_monster"
   spriteSheetName = "field"
   [members.abilities]
@@ -18876,6 +19025,7 @@
   id = "poison_mushroom"
   movementPattern = "random"
   name = "Poison Mushroom"
+  remainsId = "slime_puddle"
   spriteKey = "tree_monster"
   spriteSheetName = "field"
   [members.abilities]
@@ -18894,6 +19044,7 @@
   id = "poison_frog"
   movementPattern = "random"
   name = "Poison Frog"
+  remainsId = "green_blood_stain"
   spriteKey = "dark_clab"
   spriteSheetName = "field"
   [members.abilities]
@@ -18912,6 +19063,7 @@
   id = "poison_spider"
   movementPattern = "wallHug"
   name = "Poison Spider"
+  remainsId = "blue_blood_stain"
   spriteKey = "black_spider"
   spriteSheetName = "field"
   [members.abilities]
@@ -18930,6 +19082,7 @@
   id = "crystal_wraith"
   movementPattern = "random"
   name = "Crystal Wraith"
+  remainsId = "ectoplasm"
   spriteKey = "crystal_ghost"
   spriteSheetName = "field"
   [members.abilities]
@@ -18948,6 +19101,7 @@
   id = "ice_dog"
   movementPattern = "random"
   name = "Ice Dog"
+  remainsId = "blue_blood_stain"
   spriteKey = "ice_dog"
   spriteSheetName = "field"
   [members.abilities]
@@ -18966,6 +19120,7 @@
   id = "frozen_tank"
   movementPattern = "random"
   name = "Frozen Tank"
+  remainsId = "oil_stain"
   spriteKey = "ice_tank"
   spriteSheetName = "field"
   [members.abilities]
@@ -18992,6 +19147,7 @@
   id = "floating_eye"
   movementPattern = "random"
   name = "Floating Eye"
+  remainsId = "blue_blood_stain"
   spriteKey = "red_ball_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -19010,6 +19166,7 @@
   id = "fireball"
   movementPattern = "random"
   name = "Fireball"
+  remainsId = "scorch_mark"
   spriteKey = "red_ball_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -19036,6 +19193,7 @@
   id = "fire_cat"
   movementPattern = "random"
   name = "Fire Cat"
+  remainsId = "red_blood_stain"
   spriteKey = "fire_cat"
   spriteSheetName = "field"
   [members.abilities]
@@ -19054,6 +19212,7 @@
   id = "ash_idol"
   movementPattern = "random"
   name = "Ash Idol"
+  remainsId = "scorch_mark"
   spriteKey = "magic_ring"
   spriteSheetName = "field"
   [members.abilities]
@@ -19072,6 +19231,7 @@
   id = "gray_tank"
   movementPattern = "random"
   name = "Gray Tank"
+  remainsId = "oil_stain"
   spriteKey = "gray_tank"
   spriteSheetName = "field"
   [members.abilities]
@@ -19098,6 +19258,7 @@
   id = "ash_bug"
   movementPattern = "random"
   name = "Ash Bug"
+  remainsId = "green_blood_stain"
   spriteKey = "golden_slime"
   spriteSheetName = "field"
   [members.abilities]
@@ -19116,6 +19277,7 @@
   id = "desert_tank"
   movementPattern = "random"
   name = "Desert Tank"
+  remainsId = "oil_stain"
   spriteKey = "desert_tank"
   spriteSheetName = "field"
   [members.abilities]
@@ -19142,6 +19304,7 @@
   id = "dragon_head"
   movementPattern = "random"
   name = "Dragon Head"
+  remainsId = "red_blood_stain"
   spriteKey = "dragon_head"
   spriteSheetName = "field"
   [members.abilities]
@@ -19160,6 +19323,7 @@
   id = "purple_floater"
   movementPattern = "random"
   name = "Purple Floater"
+  remainsId = "blue_blood_stain"
   spriteKey = "violet_ball"
   spriteSheetName = "field"
   [members.abilities]
@@ -19178,6 +19342,7 @@
   id = "green_devourer"
   movementPattern = "random"
   name = "Green Devourer"
+  remainsId = "green_blood_stain"
   spriteKey = "green_eater"
   spriteSheetName = "field"
   [members.abilities]
@@ -19196,6 +19361,7 @@
   id = "green_dragon"
   movementPattern = "random"
   name = "Green Dragon"
+  remainsId = "red_blood_stain"
   spriteKey = "green_dinosaurs"
   spriteSheetName = "field"
   [members.abilities]
@@ -19213,6 +19379,7 @@
   id = "old_soldier"
   movementPattern = "wander"
   name = "Old Soldier"
+  remainsId = "red_blood_stain"
   spriteKey = "old_soldier_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -19233,6 +19400,7 @@
   id = "moss_turtle"
   movementPattern = "wander"
   name = "Moss Turtle"
+  remainsId = "red_blood_stain"
   spriteKey = "dark_clab"
   spriteSheetName = "field"
   [members.abilities]
@@ -19251,6 +19419,7 @@
   id = "rainbow_dragon"
   movementPattern = "random"
   name = "Rainbow Dragon"
+  remainsId = "red_blood_stain"
   spriteKey = "rainbow_dragon"
   spriteSheetName = "field"
   [members.abilities]
@@ -19269,6 +19438,7 @@
   id = "butterfly"
   movementPattern = "random"
   name = "Butterfly"
+  remainsId = "green_blood_stain"
   spriteKey = "butterfly"
   spriteSheetName = "field"
   [members.abilities]
@@ -19287,6 +19457,7 @@
   id = "red_tank"
   movementPattern = "random"
   name = "Red Tank"
+  remainsId = "oil_stain"
   spriteKey = "red_tank"
   spriteSheetName = "field"
   [members.abilities]
@@ -19313,6 +19484,7 @@
   id = "red_line_man"
   movementPattern = "random"
   name = "Red Line Man"
+  remainsId = "red_blood_stain"
   spriteKey = "redline_man"
   spriteSheetName = "field"
   [members.abilities]
@@ -19331,6 +19503,7 @@
   id = "light_tank"
   movementPattern = "random"
   name = "Light Tank"
+  remainsId = "oil_stain"
   spriteKey = "light_tank_0"
   spriteSheetName = "field"
   [members.abilities]
@@ -19357,6 +19530,7 @@
   id = "heavy_artillery_tank"
   movementPattern = "random"
   name = "Heavy Artillery Tank"
+  remainsId = "oil_stain"
   spriteKey = "canon_tank"
   spriteSheetName = "field"
   [members.abilities]
@@ -19383,6 +19557,7 @@
   id = "stray_dog"
   movementPattern = "territorial"
   name = "Stray Dog"
+  remainsId = "red_blood_stain"
   spriteKey = "ice_dog"
   spriteSheetName = "field"
   [members.abilities]
@@ -19401,6 +19576,7 @@
   id = "gold_slime"
   movementPattern = "swarm"
   name = "Gold Slime"
+  remainsId = "slime_puddle"
   spriteKey = "golden_slime"
   spriteSheetName = "field"
   [members.abilities]
@@ -19419,6 +19595,7 @@
   id = "iron_sentinel"
   movementPattern = "stationary"
   name = "Iron Sentinel"
+  remainsId = "oil_stain"
   spriteKey = "canon_tank"
   spriteSheetName = "field"
   [members.abilities]
@@ -19437,6 +19614,7 @@
   id = "rusted_doll"
   movementPattern = "random"
   name = "Rusted Doll"
+  remainsId = "oil_stain"
   spriteKey = "black_zombie"
   spriteSheetName = "field"
   [members.abilities]
@@ -19455,6 +19633,7 @@
   id = "armor_ghost"
   movementPattern = "random"
   name = "Armor Ghost"
+  remainsId = "ectoplasm"
   spriteKey = "armor_ghost"
   spriteSheetName = "field"
   [members.abilities]
@@ -19473,6 +19652,7 @@
   id = "dark_crab"
   movementPattern = "random"
   name = "Dark Crab"
+  remainsId = "blue_blood_stain"
   spriteKey = "dark_clab"
   spriteSheetName = "field"
   [members.abilities]
@@ -19491,6 +19671,7 @@
   id = "guard_soldier"
   movementPattern = "stationary"
   name = "Guard Soldier"
+  remainsId = "red_blood_stain"
   spriteKey = "guard_soldier"
   spriteSheetName = "field"
   [members.abilities]
@@ -19509,6 +19690,7 @@
   id = "shock_orb"
   movementPattern = "random"
   name = "Shock Orb"
+  remainsId = "scorch_mark"
   spriteKey = "tesla_coil_ball"
   spriteSheetName = "field"
   [members.abilities]
@@ -19527,6 +19709,7 @@
   id = "blue_figure"
   movementPattern = "random"
   name = "Blue Figure"
+  remainsId = "blue_blood_stain"
   spriteKey = "blue_human"
   spriteSheetName = "field"
   [members.abilities]
@@ -19545,6 +19728,7 @@
   id = "blue_beast"
   movementPattern = "random"
   name = "Blue Beast"
+  remainsId = "blue_blood_stain"
   spriteKey = "blue_beast"
   spriteSheetName = "field"
   [members.abilities]
@@ -19563,6 +19747,7 @@
   id = "skeleton_soldier"
   movementPattern = "patrol"
   name = "Skeleton Soldier"
+  remainsId = "ectoplasm"
   spriteKey = "skeleton"
   spriteSheetName = "field"
   [members.abilities]
@@ -19581,6 +19766,7 @@
   id = "black_corpse"
   movementPattern = "random"
   name = "Black Corpse"
+  remainsId = "red_blood_stain"
   spriteKey = "black_zombie"
   spriteSheetName = "field"
   [members.abilities]
@@ -19599,6 +19785,7 @@
   id = "veteran_husk"
   movementPattern = "patrol"
   name = "Veteran Husk"
+  remainsId = "red_blood_stain"
   spriteKey = "skeleton"
   spriteSheetName = "field"
   [members.abilities]
@@ -19617,6 +19804,7 @@
   id = "ash_wolf"
   movementPattern = "territorial"
   name = "Ash Wolf"
+  remainsId = "red_blood_stain"
   spriteKey = "blue_beast"
   spriteSheetName = "field"
   [members.abilities]
@@ -19635,6 +19823,7 @@
   id = "razor_hound"
   movementPattern = "random"
   name = "Razor Hound"
+  remainsId = "red_blood_stain"
   spriteKey = "ice_dog"
   spriteSheetName = "field"
   [members.abilities]
@@ -19653,6 +19842,7 @@
   id = "rust_golem"
   movementPattern = "stationary"
   name = "Rust Golem"
+  remainsId = "metal_fragments"
   spriteKey = "old_tank"
   spriteSheetName = "field"
   [members.abilities]
@@ -19671,6 +19861,7 @@
   id = "ember_moth"
   movementPattern = "random"
   name = "Ember Moth"
+  remainsId = "scorch_mark"
   spriteKey = "butterfly"
   spriteSheetName = "field"
   [members.abilities]
@@ -19689,6 +19880,7 @@
   id = "spark_wisp"
   movementPattern = "wander"
   name = "Spark Wisp"
+  remainsId = "scorch_mark"
   spriteKey = "dummy_spark_wisp"
   spriteSheetName = "field"
   [members.abilities]
@@ -19707,6 +19899,7 @@
   id = "frost_lurker"
   movementPattern = "patrol"
   name = "Frost Lurker"
+  remainsId = "blue_blood_stain"
   spriteKey = "dummy_frost_lurker"
   spriteSheetName = "field"
   [members.abilities]
@@ -19725,6 +19918,7 @@
   id = "venom_crawler"
   movementPattern = "wander"
   name = "Venom Crawler"
+  remainsId = "green_blood_stain"
   spriteKey = "dummy_venom_crawler"
   spriteSheetName = "field"
   [members.abilities]
@@ -19743,6 +19937,7 @@
   id = "bleeding_hound"
   movementPattern = "patrol"
   name = "Bleeding Hound"
+  remainsId = "red_blood_stain"
   spriteKey = "dummy_bleeding_hound"
   spriteSheetName = "field"
   [members.abilities]
@@ -19761,6 +19956,7 @@
   id = "prism_eye"
   movementPattern = "stationary"
   name = "Prism Eye"
+  remainsId = "blue_blood_stain"
   spriteKey = "dummy_prism_eye"
   spriteSheetName = "field"
   [members.abilities]
@@ -19779,6 +19975,7 @@
   id = "static_mite"
   movementPattern = "wander"
   name = "Static Mite"
+  remainsId = "green_blood_stain"
   spriteKey = "dummy_static_mite"
   spriteSheetName = "field"
   [members.abilities]
@@ -19797,6 +19994,7 @@
   id = "chill_slime"
   movementPattern = "random"
   name = "Chill Slime"
+  remainsId = "slime_puddle"
   spriteKey = "dummy_chill_slime"
   spriteSheetName = "field"
   [members.abilities]
@@ -19815,6 +20013,7 @@
   id = "sunbug"
   movementPattern = "wander"
   name = "Sunbug"
+  remainsId = "green_blood_stain"
   spriteKey = "dummy_sunbug"
   spriteSheetName = "field"
   [members.abilities]
@@ -19833,6 +20032,7 @@
   id = "paralyzer"
   movementPattern = "patrol"
   name = "Paralyzer"
+  remainsId = "green_blood_stain"
   spriteKey = "dummy_paralyzer"
   spriteSheetName = "field"
   [members.abilities]
@@ -19851,6 +20051,7 @@
   id = "curse_wraith"
   movementPattern = "wander"
   name = "Curse Wraith"
+  remainsId = "ectoplasm"
   spriteKey = "dummy_curse_wraith"
   spriteSheetName = "field"
   [members.abilities]
@@ -19869,6 +20070,7 @@
   id = "storm_drake"
   movementPattern = "patrol"
   name = "Storm Drake"
+  remainsId = "red_blood_stain"
   spriteKey = "dummy_storm_drake"
   spriteSheetName = "field"
   [members.abilities]
@@ -19887,6 +20089,7 @@
   id = "glacier_golem"
   movementPattern = "stationary"
   name = "Glacier Golem"
+  remainsId = "stone_rubble"
   spriteKey = "dummy_glacier_golem"
   spriteSheetName = "field"
   [members.abilities]
@@ -19905,6 +20108,7 @@
   id = "ember_imp"
   movementPattern = "wander"
   name = "Ember Imp"
+  remainsId = "red_blood_stain"
   spriteKey = "dummy_ember_imp"
   spriteSheetName = "field"
   [members.abilities]
@@ -19923,6 +20127,7 @@
   id = "dozer"
   movementPattern = "random"
   name = "Dozer"
+  remainsId = "oil_stain"
   spriteKey = "dummy_dozer"
   spriteSheetName = "field"
   [members.abilities]
@@ -19941,6 +20146,7 @@
   id = "blinder"
   movementPattern = "wander"
   name = "Blinder"
+  remainsId = "red_blood_stain"
   spriteKey = "dummy_blinder"
   spriteSheetName = "field"
   [members.abilities]
@@ -20337,8 +20543,9 @@
   hp = 5
   id = "alarm_clock"
   name = "Alarm Clock"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "alarm_clock"
     spriteSheetName = "field"
 
@@ -20349,8 +20556,9 @@
   hp = 20
   id = "artistic_shelf"
   name = "Artistic Shelf"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     shape = "facing"
     spriteKey = "artistic_shelf"
     spriteSheetName = "field"
@@ -20362,6 +20570,7 @@
   hp = 20
   id = "barrel"
   name = "Barrel"
+  remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -20379,7 +20588,7 @@
       count = "1d1"
       id = "rusted_chain"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wood_barrel"
     spriteSheetName = "field"
   [props.storage]
@@ -20394,8 +20603,9 @@
   hp = 30
   id = "bathtub"
   name = "Bathtub"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "bathtub"
     spriteSheetName = "field"
 
@@ -20406,10 +20616,11 @@
   hp = 25
   id = "bed"
   name = "Bed"
+  remainsId = "wood_splinters"
   [props.bedding]
     quality = 150
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "bed"
     spriteSheetName = "field"
 
@@ -20420,6 +20631,7 @@
   hp = 5
   id = "bed_lamp"
   name = "Bed Lamp"
+  remainsId = "metal_fragments"
   [props.lightSource]
     enabled = false
     radius = 4
@@ -20429,7 +20641,7 @@
       g = 255
       r = 255
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "bed_lamp"
     spriteSheetName = "field"
 
@@ -20440,8 +20652,9 @@
   hp = 20
   id = "bench"
   name = "Bench"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "bench"
     spriteSheetName = "field"
 
@@ -20452,8 +20665,9 @@
   hp = 20
   id = "hearth"
   name = "Hearth"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "hearth"
     spriteSheetName = "field"
 
@@ -20466,6 +20680,7 @@
   hp = 9999
   id = "fire"
   name = "Fire"
+  remainsId = "scorch_mark"
   [props.heatSource]
     radius = 2
     warmth = 0.75
@@ -20478,7 +20693,7 @@
       g = 180
       r = 255
   [props.spriteRender]
-    depth = 2
+    depth = "rug"
     spriteKey = "fire_0"
     spriteSheetName = "field"
 
@@ -20489,8 +20704,9 @@
   hp = 25
   id = "book_shelf_2"
   name = "Bookshelf"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "book_shelf_2"
     spriteSheetName = "field"
@@ -20502,8 +20718,9 @@
   hp = 20
   id = "book_showcase"
   name = "Book Showcase"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "book_showcase"
     spriteSheetName = "field"
 
@@ -20514,8 +20731,9 @@
   hp = 25
   id = "bookshelf"
   name = "Bookshelf"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "wooden_bookshelf"
     spriteSheetName = "field"
@@ -20531,8 +20749,9 @@
   hp = 3
   id = "candle"
   name = "Candle"
+  remainsId = "scorch_mark"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "candle"
     spriteSheetName = "field"
 
@@ -20544,8 +20763,9 @@
   id = "carpet"
   name = "Carpet"
   passCost = 10
+  remainsId = "cloth_scraps"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "carpet"
     spriteSheetName = "field"
 
@@ -20556,8 +20776,9 @@
   hp = 20
   id = "rubble"
   name = "Rubble"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "rubble"
     spriteSheetName = "field"
 
@@ -20568,8 +20789,9 @@
   hp = 1
   id = "debris"
   name = "Debris"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "debris"
     spriteSheetName = "field"
 
@@ -20580,8 +20802,9 @@
   hp = 3
   id = "plant"
   name = "Plant"
+  remainsId = "plant_debris"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "houseplants"
     spriteSheetName = "field"
 
@@ -20592,8 +20815,9 @@
   hp = 15
   id = "washer"
   name = "Washer"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "wash_machine_empty"
     spriteSheetName = "field"
 
@@ -20604,8 +20828,9 @@
   hp = 15
   id = "chair"
   name = "Chair"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "chair"
     spriteSheetName = "field"
 
@@ -20616,8 +20841,9 @@
   hp = 5
   id = "clock"
   name = "Clock"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "clock"
     spriteSheetName = "field"
 
@@ -20628,8 +20854,9 @@
   hp = 25
   id = "closet"
   name = "Closet"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "closet"
     spriteSheetName = "field"
@@ -20645,8 +20872,9 @@
   hp = 8
   id = "coffee_maker"
   name = "Coffee Maker"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "coffee_maker"
     spriteSheetName = "field"
 
@@ -20658,8 +20886,9 @@
   id = "construction_sign"
   name = "Construction Sign"
   passCost = 30
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "construction_sign"
     spriteSheetName = "field"
 
@@ -20670,6 +20899,7 @@
   hp = 30
   id = "crate"
   name = "Crate"
+  remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -20687,7 +20917,7 @@
       count = "1d1"
       id = "scrap_iron"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wooden_crate"
     spriteSheetName = "field"
 
@@ -20698,8 +20928,9 @@
   hp = 20
   id = "desk"
   name = "Desk"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wood_desk"
     spriteSheetName = "field"
   [props.storage]
@@ -20714,8 +20945,9 @@
   hp = 5
   id = "desk_light"
   name = "Desk Light"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "desk_light"
     spriteSheetName = "field"
 
@@ -20726,8 +20958,9 @@
   hp = 20
   id = "desktop_pc"
   name = "Desktop PC"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "desktop_pc"
     spriteSheetName = "field"
 
@@ -20738,8 +20971,9 @@
   hp = 20
   id = "dish_shelf"
   name = "Dish Shelf"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "dish_shelf"
     spriteSheetName = "field"
@@ -20755,13 +20989,14 @@
   hp = 50
   id = "door"
   name = "Door"
+  remainsId = "wood_splinters"
   [props.door]
     horizontalClosed = "door_vertical_closed"
     horizontalOpen = "door_vertical_closed"
     verticalClosed = "door_vertical_closed"
     verticalOpen = "door_vertical_closed"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "inset"
     spriteKey = "door_vertical_closed"
     spriteSheetName = "field"
@@ -20773,8 +21008,9 @@
   hp = 20
   id = "drawer_chest"
   name = "Chest of Drawers"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "drawer_chest"
     spriteSheetName = "field"
   [props.storage]
@@ -20789,8 +21025,9 @@
   hp = 35
   id = "electric_locker"
   name = "Electric Locker"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "electric_locker"
     spriteSheetName = "field"
@@ -20802,8 +21039,9 @@
   hp = 5
   id = "flag_pot"
   name = "Flag Stand"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "flag_pot"
     spriteSheetName = "field"
 
@@ -20814,8 +21052,9 @@
   hp = 50
   id = "forklift"
   name = "Forklift"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "forklift"
     spriteSheetName = "field"
 
@@ -20826,8 +21065,9 @@
   hp = 40
   id = "furnace"
   name = "Furnace"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "furnace"
     spriteSheetName = "field"
 
@@ -20838,8 +21078,9 @@
   hp = 30
   id = "gauge_machine"
   name = "Gauge Machine"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "gauge_machine"
     spriteSheetName = "field"
 
@@ -20850,8 +21091,9 @@
   hp = 40
   id = "generator_green"
   name = "Generator"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "generator_green"
     spriteSheetName = "field"
 
@@ -20862,8 +21104,9 @@
   hp = 40
   id = "generator_yellow"
   name = "Generator"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "generator_yellow"
     spriteSheetName = "field"
 
@@ -20874,8 +21117,9 @@
   hp = 20
   id = "goods_shelf"
   name = "Goods Shelf"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "goods_shelf"
     spriteSheetName = "field"
@@ -20891,6 +21135,7 @@
   hp = 30
   id = "iron_shelf"
   name = "Iron Shelf"
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -20913,7 +21158,7 @@
       count = "1d1"
       id = "iron"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "iron_shelf"
     spriteSheetName = "field"
@@ -20925,6 +21170,7 @@
   hp = 15
   id = "lantern"
   name = "Lantern"
+  remainsId = "metal_fragments"
   [props.lightSource]
     enabled = true
     radius = 4
@@ -20934,7 +21180,7 @@
       g = 200
       r = 255
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "prop_lantern"
     spriteSheetName = "field"
 
@@ -20945,8 +21191,9 @@
   hp = 30
   id = "laundry"
   name = "Laundry"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "laundry"
     spriteSheetName = "field"
 
@@ -20957,8 +21204,9 @@
   hp = 15
   id = "window"
   name = "Window"
+  remainsId = "glass_shards"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "inset"
     spriteKey = "window"
     spriteSheetName = "field"
@@ -20970,8 +21218,9 @@
   hp = 40
   id = "shutter"
   name = "Shutter"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "shutter"
     spriteSheetName = "field"
 
@@ -20982,8 +21231,9 @@
   hp = 25
   id = "fence"
   name = "Fence"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "fence"
     spriteSheetName = "field"
 
@@ -20994,8 +21244,9 @@
   hp = 25
   id = "buddhist_altar"
   name = "Buddhist Altar"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "butsudan"
     spriteSheetName = "field"
 
@@ -21006,8 +21257,9 @@
   hp = 15
   id = "household_shrine"
   name = "Household Shrine"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "kamidana"
     spriteSheetName = "field"
 
@@ -21018,8 +21270,9 @@
   hp = 20
   id = "shoe_cabinet"
   name = "Shoe Cabinet"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "getabako"
     spriteSheetName = "field"
@@ -21031,8 +21284,9 @@
   hp = 20
   id = "microwave"
   name = "Microwave"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "microwave"
     spriteSheetName = "field"
 
@@ -21043,8 +21297,9 @@
   hp = 5
   id = "mirror"
   name = "Mirror"
+  remainsId = "glass_shards"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "mirror"
     spriteSheetName = "field"
 
@@ -21055,8 +21310,9 @@
   hp = 8
   id = "mixer"
   name = "Mixer"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "mixer"
     spriteSheetName = "field"
 
@@ -21068,8 +21324,9 @@
   id = "moving_stone"
   name = "Moving Stone"
   passCost = 50
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "moving_stone"
     spriteSheetName = "field"
 
@@ -21081,6 +21338,7 @@
   id = "rock"
   name = "Rock"
   passCost = 50
+  remainsId = "stone_rubble"
   [props.disassembly]
     toolCategory = "mining"
     toolRequired = true
@@ -21094,30 +21352,8 @@
       count = "1d1"
       id = "sharp_stone"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "rock"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "[dummy] 地面に生えた草の房。屋外散布の下地。透明背景の prop でタイルのオートタイル縁が出ず地面に重なる。歩行可能。実アート未実装の仮素材"
-  id = "grass"
-  name = "Grass"
-  [props.spriteRender]
-    depth = 0
-    spriteKey = "grass"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "[dummy] 乾いた雑草の茂み。屋外散布で草より乾いた色味を混ぜて単調さを崩す。歩行可能。実アート未実装の仮素材"
-  id = "weeds"
-  name = "Weeds"
-  [props.spriteRender]
-    depth = 0
-    spriteKey = "weeds"
     spriteSheetName = "field"
 
 [[props]]
@@ -21127,8 +21363,9 @@
   hp = 5
   id = "old_lamp"
   name = "Old Lamp"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "old_lamp"
     spriteSheetName = "field"
 
@@ -21139,8 +21376,9 @@
   hp = 25
   id = "prop_bookshelf"
   name = "Bookshelf"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "prop_bookshelf"
     spriteSheetName = "field"
@@ -21152,8 +21390,9 @@
   hp = 15
   id = "prop_chair"
   name = "Chair"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "prop_chair"
     spriteSheetName = "field"
 
@@ -21164,8 +21403,9 @@
   hp = 20
   id = "prop_table"
   name = "Table"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "prop_table"
     spriteSheetName = "field"
 
@@ -21176,6 +21416,7 @@
   hp = 35
   id = "refrigerator"
   name = "Refrigerator"
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "cutting"
 
@@ -21198,7 +21439,7 @@
       count = "1d1"
       id = "iron"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "refrigerator"
     spriteSheetName = "field"
@@ -21214,6 +21455,7 @@
   hp = 15
   id = "register"
   name = "Cash Register"
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "precision"
 
@@ -21231,7 +21473,7 @@
       count = "1d1"
       id = "cord_bundle"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "register"
     spriteSheetName = "field"
   [props.storage]
@@ -21246,8 +21488,9 @@
   hp = 25
   id = "sink"
   name = "Sink"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "sink"
     spriteSheetName = "field"
 
@@ -21258,8 +21501,9 @@
   hp = 20
   id = "sofa"
   name = "Sofa"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "sofa"
     spriteSheetName = "field"
 
@@ -21270,8 +21514,9 @@
   hp = 50
   id = "stone_pillar"
   name = "Stone Pillar"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "stone_pillar"
     spriteSheetName = "field"
 
@@ -21282,8 +21527,9 @@
   hp = 25
   id = "table"
   name = "Table"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "dining_table"
     spriteSheetName = "field"
 
@@ -21294,8 +21540,9 @@
   hp = 8
   id = "tall_lamp"
   name = "Tall Lamp"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "tall_lamp"
     spriteSheetName = "field"
 
@@ -21306,8 +21553,9 @@
   hp = 15
   id = "toilet"
   name = "Toilet"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "toilet"
     spriteSheetName = "field"
 
@@ -21328,7 +21576,8 @@
       g = 200
       r = 100
   [props.spriteRender]
-    depth = 1
+    depth = "decal"
+    shape = "flat"
     spriteKey = "warp_next_0"
     spriteSheetName = "field"
   [props.warpNextTrigger]
@@ -21350,7 +21599,8 @@
       g = 200
       r = 100
   [props.spriteRender]
-    depth = 1
+    depth = "decal"
+    shape = "flat"
     spriteKey = "warp_next_0"
     spriteSheetName = "field"
   [props.warpPrevTrigger]
@@ -21362,8 +21612,9 @@
   hp = 25
   id = "wood_bookshelf"
   name = "Wooden Bookshelf"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "wood_bookshelf"
     spriteSheetName = "field"
@@ -21375,8 +21626,9 @@
   hp = 25
   id = "wood_chest"
   name = "Wooden Chest"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wood_chest"
     spriteSheetName = "field"
 
@@ -21387,8 +21639,9 @@
   hp = 10
   id = "wooden_map_sign"
   name = "Map Sign"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "wooden_map_sign"
     spriteSheetName = "field"
 
@@ -21399,8 +21652,9 @@
   hp = 10
   id = "wooden_sign"
   name = "Wooden Sign"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "wooden_sign"
     spriteSheetName = "field"
 
@@ -21411,8 +21665,9 @@
   hp = 25
   id = "kitchen_sink"
   name = "Kitchen Sink"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "kitchen_sink"
     spriteSheetName = "field"
 
@@ -21423,8 +21678,9 @@
   hp = 20
   id = "dresser"
   name = "Dresser"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "dresser"
     spriteSheetName = "field"
   [props.storage]
@@ -21439,8 +21695,9 @@
   hp = 10
   id = "bedside_table"
   name = "Bedside Table"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "bedside"
     spriteSheetName = "field"
 
@@ -21451,8 +21708,9 @@
   hp = 25
   id = "two_seat_sofa"
   name = "Two-Seat Sofa"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "two_seat_sofa"
     spriteSheetName = "field"
 
@@ -21463,8 +21721,9 @@
   hp = 20
   id = "work_desk"
   name = "Work Desk"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "work_desk"
     spriteSheetName = "field"
 
@@ -21475,8 +21734,9 @@
   hp = 40
   id = "fireplace"
   name = "Fireplace"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "fireplace"
     spriteSheetName = "field"
 
@@ -21487,8 +21747,9 @@
   hp = 15
   id = "poison_barrel"
   name = "Poison Barrel"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "barrel_poison"
     spriteSheetName = "field"
 
@@ -21499,8 +21760,9 @@
   hp = 20
   id = "fur_upholstered_chair"
   name = "Fur-Upholstered Chair"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "fur_chair"
     spriteSheetName = "field"
 
@@ -21511,8 +21773,9 @@
   hp = 30
   id = "washing_machine"
   name = "Washing Machine"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wash_machine_empty"
     spriteSheetName = "field"
 
@@ -21523,8 +21786,9 @@
   hp = 35
   id = "washing_machine_full"
   name = "Full Washing Machine"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "washing_machine_fill"
     spriteSheetName = "field"
 
@@ -21535,8 +21799,9 @@
   hp = 20
   id = "white_barrel"
   name = "White Barrel"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "barrel_white"
     spriteSheetName = "field"
 
@@ -21547,8 +21812,9 @@
   hp = 30
   id = "green_drum"
   name = "Green Drum"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "drum_green"
     spriteSheetName = "field"
 
@@ -21559,8 +21825,9 @@
   hp = 30
   id = "red_drum"
   name = "Red Drum"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "drum_red"
     spriteSheetName = "field"
 
@@ -21571,8 +21838,9 @@
   hp = 20
   id = "black_chair"
   name = "Black Chair"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "black_chair"
     spriteSheetName = "field"
 
@@ -21583,8 +21851,9 @@
   hp = 5
   id = "black_vase"
   name = "Black Vase"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "vase_black"
     spriteSheetName = "field"
 
@@ -21595,6 +21864,7 @@
   hp = 20
   id = "wooden_crate"
   name = "Wooden Crate"
+  remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -21612,7 +21882,7 @@
       count = "1d1"
       id = "scrap_iron"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wooden_crate"
     spriteSheetName = "field"
   [props.storage]
@@ -21627,8 +21897,9 @@
   hp = 40
   id = "locker"
   name = "Locker"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "electric_locker"
     spriteSheetName = "field"
@@ -21644,8 +21915,9 @@
   hp = 15
   id = "display_cooler"
   name = "Display Cooler"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     shape = "facing"
     spriteKey = "display_cooler"
     spriteSheetName = "field"
@@ -21657,8 +21929,9 @@
   hp = 15
   id = "magazine_rack"
   name = "Magazine Rack"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     shape = "facing"
     spriteKey = "magazine_rack"
     spriteSheetName = "field"
@@ -21670,8 +21943,9 @@
   hp = 15
   id = "vending_machine"
   name = "Vending Machine"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     shape = "facing"
     spriteKey = "vending_machine"
     spriteSheetName = "field"
@@ -21683,8 +21957,9 @@
   hp = 15
   id = "shopping_basket"
   name = "Shopping Basket"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "shopping_basket"
     spriteSheetName = "field"
 
@@ -21695,8 +21970,9 @@
   hp = 15
   id = "gondola_shelf"
   name = "Gondola Shelf"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     shape = "facing"
     spriteKey = "gondola_shelf"
     spriteSheetName = "field"
@@ -21708,8 +21984,9 @@
   hp = 15
   id = "checkout_counter"
   name = "Checkout Counter"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "checkout_counter"
     spriteSheetName = "field"
 
@@ -21720,8 +21997,9 @@
   hp = 15
   id = "exam_bed"
   name = "Exam Bed"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "exam_bed"
     spriteSheetName = "field"
 
@@ -21732,8 +22010,9 @@
   hp = 15
   id = "iv_stand"
   name = "IV Stand"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "iv_stand"
     spriteSheetName = "field"
 
@@ -21744,8 +22023,9 @@
   hp = 15
   id = "wheelchair"
   name = "Wheelchair"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "wheelchair"
     spriteSheetName = "field"
 
@@ -21756,8 +22036,9 @@
   hp = 15
   id = "stretcher"
   name = "Stretcher"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "stretcher"
     spriteSheetName = "field"
 
@@ -21768,8 +22049,9 @@
   hp = 15
   id = "medicine_cabinet"
   name = "Medicine Cabinet"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     shape = "facing"
     spriteKey = "medicine_cabinet"
     spriteSheetName = "field"
@@ -21785,8 +22067,9 @@
   hp = 15
   id = "reception_counter"
   name = "Reception Counter"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "reception_counter"
     spriteSheetName = "field"
 
@@ -21797,8 +22080,9 @@
   hp = 15
   id = "medical_monitor"
   name = "Medical Monitor"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "medical_monitor"
     spriteSheetName = "field"
 
@@ -21809,8 +22093,9 @@
   hp = 15
   id = "cubicle_partition"
   name = "Cubicle Partition"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "cubicle_partition"
     spriteSheetName = "field"
 
@@ -21821,8 +22106,9 @@
   hp = 15
   id = "server_rack"
   name = "Server Rack"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     shape = "facing"
     spriteKey = "server_rack"
     spriteSheetName = "field"
@@ -21834,8 +22120,9 @@
   hp = 15
   id = "printer"
   name = "Printer"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "printer"
     spriteSheetName = "field"
 
@@ -21846,8 +22133,9 @@
   hp = 15
   id = "whiteboard"
   name = "Whiteboard"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "whiteboard"
     spriteSheetName = "field"
 
@@ -21858,8 +22146,9 @@
   hp = 15
   id = "water_cooler"
   name = "Water Cooler"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "water_cooler"
     spriteSheetName = "field"
 
@@ -21870,8 +22159,9 @@
   hp = 15
   id = "pallet"
   name = "Pallet"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "pallet"
     spriteSheetName = "field"
 
@@ -21882,8 +22172,9 @@
   hp = 15
   id = "cage"
   name = "Cage"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "cage"
     spriteSheetName = "field"
 
@@ -21894,8 +22185,9 @@
   hp = 15
   id = "torii_small"
   name = "Small Torii"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "torii_small"
     spriteSheetName = "field"
 
@@ -21906,8 +22198,9 @@
   hp = 15
   id = "offering_box"
   name = "Offering Box"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "offering_box"
     spriteSheetName = "field"
 
@@ -21918,8 +22211,9 @@
   hp = 15
   id = "komainu"
   name = "Guardian Lion"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "komainu"
     spriteSheetName = "field"
 
@@ -21930,8 +22224,9 @@
   hp = 15
   id = "ema_rack"
   name = "Ema Rack"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "ema_rack"
     spriteSheetName = "field"
 
@@ -21942,8 +22237,9 @@
   hp = 15
   id = "incense_burner"
   name = "Incense Burner"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "incense_burner"
     spriteSheetName = "field"
 
@@ -21954,6 +22250,7 @@
   hp = 30
   id = "big_tree"
   name = "Big Tree"
+  remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "chopping"
     toolRequired = true
@@ -21967,7 +22264,7 @@
       count = "1d3"
       id = "firewood"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "big_tree"
     spriteSheetName = "field"
 
@@ -21978,6 +22275,7 @@
   hp = 20
   id = "tree_a"
   name = "Tree"
+  remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "chopping"
     toolRequired = true
@@ -21991,7 +22289,7 @@
       count = "1d2"
       id = "firewood"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "tree_a"
     spriteSheetName = "field"
 
@@ -22002,6 +22300,7 @@
   hp = 20
   id = "tree_b"
   name = "Tree"
+  remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "chopping"
     toolRequired = true
@@ -22015,7 +22314,7 @@
       count = "1d2"
       id = "firewood"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "tree_b"
     spriteSheetName = "field"
 
@@ -22026,8 +22325,9 @@
   hp = 10
   id = "phonograph"
   name = "Phonograph"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "phonograph"
     spriteSheetName = "field"
 
@@ -22048,7 +22348,8 @@
       g = 200
       r = 100
   [props.spriteRender]
-    depth = 1
+    depth = "decal"
+    shape = "flat"
     spriteKey = "warp_escape_0"
     spriteSheetName = "field"
 
@@ -22059,6 +22360,7 @@
   hp = 30
   id = "dummy_supply_locker"
   name = "Supply Locker"
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -22066,7 +22368,7 @@
       count = "1d2"
       id = "scrap_iron"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "dummy_supply_locker"
     spriteSheetName = "field"
   [props.storage]
@@ -22081,6 +22383,7 @@
   hp = 20
   id = "dummy_ration_crate"
   name = "Ration Crate"
+  remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -22088,7 +22391,7 @@
       count = "1d2"
       id = "firewood"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "dummy_ration_crate"
     spriteSheetName = "field"
   [props.storage]
@@ -22103,8 +22406,9 @@
   hp = 20
   id = "dummy_med_cabinet"
   name = "Med Cabinet"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "dummy_med_cabinet"
     spriteSheetName = "field"
   [props.storage]
@@ -22119,8 +22423,9 @@
   hp = 80
   id = "dummy_boulder"
   name = "Boulder"
+  remainsId = "stone_rubble"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "dummy_boulder"
     spriteSheetName = "field"
 
@@ -22132,8 +22437,9 @@
   id = "dummy_thicket"
   name = "Thicket"
   passCost = 60
+  remainsId = "plant_debris"
   [props.spriteRender]
-    depth = 2
+    depth = "rug"
     spriteKey = "dummy_thicket"
     spriteSheetName = "field"
 
@@ -22144,6 +22450,7 @@
   hp = 10
   id = "dummy_brazier"
   name = "Brazier"
+  remainsId = "metal_fragments"
   [props.heatSource]
     radius = 2
     warmth = 0.6
@@ -22156,7 +22463,7 @@
       g = 170
       r = 255
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "dummy_brazier"
     spriteSheetName = "field"
 
@@ -22167,6 +22474,7 @@
   hp = 5
   id = "dummy_floor_lamp"
   name = "Floor Lamp"
+  remainsId = "metal_fragments"
   [props.lightSource]
     enabled = true
     radius = 5
@@ -22176,7 +22484,7 @@
       g = 240
       r = 255
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "dummy_floor_lamp"
     spriteSheetName = "field"
 
@@ -22188,6 +22496,7 @@
   id = "dummy_scrap_heap"
   name = "Scrap Heap"
   passCost = 40
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -22195,151 +22504,8 @@
       count = "1d3"
       id = "scrap_iron"
   [props.spriteRender]
-    depth = 2
+    depth = "rug"
     spriteKey = "dummy_scrap_heap"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A tuft of fresh green grass."
-  id = "grass_lush"
-  name = "Lush Grass"
-  [props.spriteRender]
-    depth = 0
-    spriteKey = "grass_lush"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A tuft of withered, straw-colored grass."
-  id = "grass_dry"
-  name = "Dry Grass"
-  [props.spriteRender]
-    depth = 0
-    spriteKey = "grass_dry"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A tuft of dark green grass."
-  id = "grass_dark"
-  name = "Dark Grass"
-  [props.spriteRender]
-    depth = 0
-    spriteKey = "grass_dark"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A few blades of grass."
-  id = "grass_sprig"
-  name = "Grass Sprig"
-  [props.spriteRender]
-    depth = 0
-    spriteKey = "grass_sprig"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A few withered blades of grass."
-  id = "grass_dry_sprig"
-  name = "Dry Grass Sprig"
-  [props.spriteRender]
-    depth = 0
-    spriteKey = "grass_dry_sprig"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "Small stones scattered on the ground."
-  id = "soil_pebbles"
-  name = "Pebbles"
-  [props.spriteRender]
-    depth = 1
-    spriteKey = "soil_pebbles"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A patch of damp, dark soil."
-  id = "soil_dark"
-  name = "Dark Soil"
-  [props.spriteRender]
-    depth = 1
-    spriteKey = "soil_dark"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A patch of pale, dried-out soil."
-  id = "soil_dry"
-  name = "Dry Soil"
-  [props.spriteRender]
-    depth = 1
-    spriteKey = "soil_dry"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A crack running through dry earth."
-  id = "soil_crack"
-  name = "Cracked Ground"
-  [props.spriteRender]
-    depth = 1
-    spriteKey = "soil_crack"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "Fine gravel strewn across frozen soil."
-  id = "soil_gravel"
-  name = "Gravel"
-  [props.spriteRender]
-    depth = 1
-    spriteKey = "soil_gravel"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A thin crust of frost on the ground."
-  id = "soil_frost"
-  name = "Frost"
-  [props.spriteRender]
-    depth = 1
-    spriteKey = "soil_frost"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A few flat stones half-sunk in the soil."
-  id = "soil_stones"
-  name = "Flat Stones"
-  [props.spriteRender]
-    depth = 1
-    spriteKey = "soil_stones"
-    spriteSheetName = "field"
-
-[[props]]
-  blockPass = false
-  blockView = false
-  description = "A shallow puddle frozen solid."
-  id = "soil_ice"
-  name = "Frozen Puddle"
-  [props.spriteRender]
-    depth = 1
-    spriteKey = "soil_ice"
     spriteSheetName = "field"
 
 [[props]]
@@ -22349,13 +22515,14 @@
   hp = 6
   id = "bush"
   name = "Shrub"
+  remainsId = "plant_debris"
   [props.disassembly]
 
     [[props.disassembly.yields]]
       count = "1d2"
       id = "branch"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "bush"
     spriteSheetName = "field"
 
@@ -22366,13 +22533,14 @@
   hp = 6
   id = "bush_dry"
   name = "Withered Shrub"
+  remainsId = "plant_debris"
   [props.disassembly]
 
     [[props.disassembly.yields]]
       count = "1d3"
       id = "branch"
   [props.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "bush_dry"
     spriteSheetName = "field"
 
@@ -22384,8 +22552,9 @@
   hp = 200
   id = "cube"
   name = "Cube"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "cube_float_0"
     spriteSheetName = "field"
 
@@ -22398,7 +22567,8 @@
   id = "dungeon_entrance"
   name = "Ruins Entrance"
   [props.spriteRender]
-    depth = 1
+    depth = "decal"
+    shape = "flat"
     spriteKey = "warp_next_0"
     spriteSheetName = "field"
 
@@ -22409,8 +22579,9 @@
   hp = 60
   id = "classified_case"
   name = "Classified Case"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "electric_locker"
     spriteSheetName = "field"
   [props.storage]
@@ -22425,6 +22596,7 @@
   hp = 40
   id = "gun_rack"
   name = "Gun Rack"
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -22432,7 +22604,7 @@
       count = "1d2"
       id = "scrap_iron"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     shape = "facing"
     spriteKey = "gun_rack"
     spriteSheetName = "field"
@@ -22448,6 +22620,7 @@
   hp = 30
   id = "ammo_crate"
   name = "Ammo Crate"
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -22455,7 +22628,7 @@
       count = "1d2"
       id = "scrap_iron"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "ammo_crate"
     spriteSheetName = "field"
   [props.storage]
@@ -22470,6 +22643,7 @@
   hp = 30
   id = "radio_console"
   name = "Radio Console"
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -22477,7 +22651,7 @@
       count = "1d2"
       id = "electric_wire"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "radio_console"
     spriteSheetName = "field"
   [props.storage]
@@ -22492,8 +22666,9 @@
   hp = 80
   id = "radio_mast"
   name = "Radio Mast"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "radio_mast"
     spriteSheetName = "field"
 
@@ -22504,6 +22679,7 @@
   hp = 40
   id = "control_panel"
   name = "Control Panel"
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -22511,7 +22687,7 @@
       count = "1d2"
       id = "electric_wire"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "control_panel"
     spriteSheetName = "field"
   [props.storage]
@@ -22526,8 +22702,9 @@
   hp = 5
   id = "crop"
   name = "Crops"
+  remainsId = "plant_debris"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "crop"
     spriteSheetName = "field"
 
@@ -22538,8 +22715,9 @@
   hp = 20
   id = "debug_crate"
   name = "Debug Crate"
+  remainsId = "wood_splinters"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wooden_crate"
     spriteSheetName = "field"
   [props.storage]
@@ -22565,7 +22743,7 @@
       g = 150
       r = 255
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "dummy_brazier"
     spriteSheetName = "field"
 
@@ -22577,6 +22755,7 @@
   id = "wreck_debris"
   name = "Wreckage"
   passCost = 40
+  remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"
 
@@ -22589,7 +22768,7 @@
       count = "1d1"
       id = "electric_wire"
   [props.spriteRender]
-    depth = 2
+    depth = "rug"
     spriteKey = "dummy_scrap_heap"
     spriteSheetName = "field"
 
@@ -22600,8 +22779,9 @@
   hp = 20
   id = "cargo_pod"
   name = "Cargo Pod"
+  remainsId = "metal_fragments"
   [props.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "ammo_crate"
     spriteSheetName = "field"
   [props.storage]
@@ -22798,6 +22978,84 @@
     base = 4
     spread = 10
 
+[[remains]]
+  id = "wood_splinters"
+  name = "Wood Splinters"
+  spriteKeys = ["wood_splinters_a", "wood_splinters_b", "wood_splinters_c", "wood_splinters_d", "wood_splinters_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "metal_fragments"
+  name = "Metal Fragments"
+  spriteKeys = ["metal_fragments_a", "metal_fragments_b", "metal_fragments_c", "metal_fragments_d", "metal_fragments_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "stone_rubble"
+  name = "Stone Rubble"
+  spriteKeys = ["stone_rubble_a", "stone_rubble_b", "stone_rubble_c", "stone_rubble_d", "stone_rubble_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "red_blood_stain"
+  name = "Blood Stain"
+  spriteKeys = ["blood_red_a", "blood_red_b", "blood_red_c", "blood_red_d", "blood_red_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "oil_stain"
+  name = "Oil Stain"
+  spriteKeys = ["oil_stain"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "slime_puddle"
+  name = "Slime Puddle"
+  spriteKeys = ["slime_puddle"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "scorch_mark"
+  name = "Scorch Mark"
+  spriteKeys = ["scorch_mark"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "ectoplasm"
+  name = "Ectoplasm"
+  spriteKeys = ["ectoplasm"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "green_blood_stain"
+  name = "Green Blood Stain"
+  spriteKeys = ["blood_green_a", "blood_green_b", "blood_green_c", "blood_green_d", "blood_green_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "blue_blood_stain"
+  name = "Blue Blood Stain"
+  spriteKeys = ["blood_blue_a", "blood_blue_b", "blood_blue_c", "blood_blue_d", "blood_blue_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "glass_shards"
+  name = "Glass Shards"
+  spriteKeys = ["glass_shards_a", "glass_shards_b", "glass_shards_c", "glass_shards_d", "glass_shards_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "plant_debris"
+  name = "Plant Debris"
+  spriteKeys = ["plant_debris_a", "plant_debris_b", "plant_debris_c", "plant_debris_d", "plant_debris_e"]
+  spriteSheetName = "field"
+
+[[remains]]
+  id = "cloth_scraps"
+  name = "Cloth Scraps"
+  spriteKeys = ["cloth_scraps_a", "cloth_scraps_b", "cloth_scraps_c", "cloth_scraps_d", "cloth_scraps_e"]
+  spriteSheetName = "field"
+
 [[ruinedPathSteps]]
   chance = 0.3
   id = "ruined_paths"
@@ -22817,8 +23075,18 @@
   id = "roadside"
   lootDensity = 0.002
   lootGroup = "scrap_of_paper"
-  propDensity = 0.015
+  propDensity = 0.02
   soilDensity = 0.03
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "bush"
+    weight = 19
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "bush_dry"
+    weight = 14
 
   [[scatterZones.entries]]
     big = false
@@ -22868,14 +23136,6 @@
     ref = "grass_dry_sprig"
     weight = 10
 
-  [[scatterZones.grass]]
-    ref = "bush"
-    weight = 4
-
-  [[scatterZones.grass]]
-    ref = "bush_dry"
-    weight = 3
-
   [[scatterZones.soil]]
     ref = "soil_pebbles"
     weight = 3
@@ -22914,8 +23174,18 @@
   id = "wild"
   lootDensity = 0.002
   lootGroup = "junk"
-  propDensity = 0.035
+  propDensity = 0.046
   soilDensity = 0.03
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "bush"
+    weight = 19
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "bush_dry"
+    weight = 14
 
   [[scatterZones.entries]]
     big = false
@@ -22979,14 +23249,6 @@
   [[scatterZones.grass]]
     ref = "grass_dry_sprig"
     weight = 10
-
-  [[scatterZones.grass]]
-    ref = "bush"
-    weight = 4
-
-  [[scatterZones.grass]]
-    ref = "bush_dry"
-    weight = 3
 
   [[scatterZones.soil]]
     ref = "soil_pebbles"
@@ -23541,7 +23803,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "dirt_orange"
     spriteSheetName = "tile"
 
@@ -23555,7 +23817,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "dirt_tundra"
     spriteSheetName = "tile"
 
@@ -23569,7 +23831,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "dirt_peat"
     spriteSheetName = "tile"
 
@@ -23583,7 +23845,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "dirt_ash"
     spriteSheetName = "tile"
 
@@ -23597,7 +23859,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "floor"
     spriteSheetName = "tile"
 
@@ -23608,7 +23870,7 @@
   id = "pavement"
   name = "Pavement"
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "floor_concrete"
     spriteSheetName = "tile"
 
@@ -23622,7 +23884,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "dirt_loam"
     spriteSheetName = "tile"
 
@@ -23635,7 +23897,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "dwall"
     spriteSheetName = "tile"
 
@@ -23649,7 +23911,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "floor"
     spriteSheetName = "tile"
 
@@ -23662,7 +23924,7 @@
   [tiles.spawn]
     autotile = false
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "void"
     spriteSheetName = "tile"
 
@@ -23676,7 +23938,7 @@
     autotile = true
     tile = "dwall"
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall"
     spriteSheetName = "tile"
 
@@ -23688,7 +23950,7 @@
   name = "Linoleum Floor"
   shelter = "indoor"
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "floor_linoleum"
     spriteSheetName = "tile"
 
@@ -23700,7 +23962,7 @@
   name = "Tile Floor"
   shelter = "indoor"
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "floor_tile"
     spriteSheetName = "tile"
 
@@ -23712,7 +23974,7 @@
   name = "Concrete Floor"
   shelter = "indoor"
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "floor_concrete"
     spriteSheetName = "tile"
 
@@ -23724,7 +23986,7 @@
   name = "Wooden Floor"
   shelter = "indoor"
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "floor_wood"
     spriteSheetName = "tile"
 
@@ -23736,7 +23998,7 @@
   name = "Tatami"
   shelter = "indoor"
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "floor_tatami"
     spriteSheetName = "tile"
 
@@ -23749,7 +24011,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "brick_cyan"
     spriteSheetName = "tile"
 
@@ -23762,7 +24024,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "cobble_teal"
     spriteSheetName = "tile"
 
@@ -23775,7 +24037,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "cobble_gold"
     spriteSheetName = "tile"
 
@@ -23788,7 +24050,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "brick_gray"
     spriteSheetName = "tile"
 
@@ -23801,7 +24063,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "grass_green"
     spriteSheetName = "tile"
 
@@ -23814,7 +24076,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "cobble_cream"
     spriteSheetName = "tile"
 
@@ -23827,7 +24089,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "brick_blue"
     spriteSheetName = "tile"
 
@@ -23840,7 +24102,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "grass_olive"
     spriteSheetName = "tile"
 
@@ -23853,7 +24115,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "cobble_red"
     spriteSheetName = "tile"
 
@@ -23866,7 +24128,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "brick_navy"
     spriteSheetName = "tile"
 
@@ -23879,7 +24141,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "cobble_purple"
     spriteSheetName = "tile"
 
@@ -23892,7 +24154,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "cobble_slate"
     spriteSheetName = "tile"
 
@@ -23906,7 +24168,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "sand_pink"
     spriteSheetName = "tile"
 
@@ -23919,7 +24181,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "brick_amber"
     spriteSheetName = "tile"
 
@@ -23933,7 +24195,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "smooth_cream"
     spriteSheetName = "tile"
 
@@ -23947,7 +24209,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "sand_orange"
     spriteSheetName = "tile"
 
@@ -23960,7 +24222,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "brick_terracotta"
     spriteSheetName = "tile"
 
@@ -23974,7 +24236,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "smooth_white"
     spriteSheetName = "tile"
 
@@ -23988,7 +24250,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "sand_red"
     spriteSheetName = "tile"
 
@@ -24001,7 +24263,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "brick_beige"
     spriteSheetName = "tile"
 
@@ -24015,7 +24277,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "smooth_teal"
     spriteSheetName = "tile"
 
@@ -24028,7 +24290,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "sand_slate"
     spriteSheetName = "tile"
 
@@ -24041,7 +24303,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "brick_rust"
     spriteSheetName = "tile"
 
@@ -24055,7 +24317,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "smooth_bluegray"
     spriteSheetName = "tile"
 
@@ -24069,7 +24331,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "plank_orange"
     spriteSheetName = "tile"
 
@@ -24083,7 +24345,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "plank_brown"
     spriteSheetName = "tile"
 
@@ -24097,7 +24359,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "plank_navy"
     spriteSheetName = "tile"
 
@@ -24111,7 +24373,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "plank_blue"
     spriteSheetName = "tile"
 
@@ -24122,7 +24384,7 @@
   id = "snow"
   name = "Snow"
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "snow"
     spriteSheetName = "tile"
 
@@ -24135,7 +24397,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_stone_1"
     spriteSheetName = "tile"
 
@@ -24148,7 +24410,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_stone_2"
     spriteSheetName = "tile"
 
@@ -24161,7 +24423,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_stone_3"
     spriteSheetName = "tile"
 
@@ -24174,7 +24436,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_stone_4"
     spriteSheetName = "tile"
 
@@ -24187,7 +24449,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_rubble_1"
     spriteSheetName = "tile"
 
@@ -24200,7 +24462,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_rubble_2"
     spriteSheetName = "tile"
 
@@ -24213,7 +24475,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_rubble_3"
     spriteSheetName = "tile"
 
@@ -24226,7 +24488,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_rubble_4"
     spriteSheetName = "tile"
 
@@ -24239,7 +24501,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_siding_1"
     spriteSheetName = "tile"
 
@@ -24252,7 +24514,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_siding_2"
     spriteSheetName = "tile"
 
@@ -24265,7 +24527,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_siding_3"
     spriteSheetName = "tile"
 
@@ -24278,7 +24540,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_siding_4"
     spriteSheetName = "tile"
 
@@ -24291,7 +24553,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_plaster_1"
     spriteSheetName = "tile"
 
@@ -24304,7 +24566,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_plaster_2"
     spriteSheetName = "tile"
 
@@ -24317,7 +24579,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_plaster_3"
     spriteSheetName = "tile"
 
@@ -24330,7 +24592,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_plaster_4"
     spriteSheetName = "tile"
 
@@ -24343,7 +24605,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_pillar_1"
     spriteSheetName = "tile"
 
@@ -24356,7 +24618,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_pillar_2"
     spriteSheetName = "tile"
 
@@ -24369,7 +24631,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_pillar_3"
     spriteSheetName = "tile"
 
@@ -24382,7 +24644,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_pillar_4"
     spriteSheetName = "tile"
 
@@ -24395,7 +24657,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_cobble_1"
     spriteSheetName = "tile"
 
@@ -24408,7 +24670,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_cobble_2"
     spriteSheetName = "tile"
 
@@ -24421,7 +24683,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_cobble_3"
     spriteSheetName = "tile"
 
@@ -24434,7 +24696,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_cobble_4"
     spriteSheetName = "tile"
 
@@ -24447,7 +24709,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_board_1"
     spriteSheetName = "tile"
 
@@ -24460,7 +24722,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_board_2"
     spriteSheetName = "tile"
 
@@ -24473,7 +24735,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_board_3"
     spriteSheetName = "tile"
 
@@ -24486,7 +24748,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_board_4"
     spriteSheetName = "tile"
 
@@ -24499,7 +24761,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_concrete_1"
     spriteSheetName = "tile"
 
@@ -24512,7 +24774,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_concrete_2"
     spriteSheetName = "tile"
 
@@ -24525,7 +24787,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_concrete_3"
     spriteSheetName = "tile"
 
@@ -24538,7 +24800,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_concrete_4"
     spriteSheetName = "tile"
 
@@ -24551,7 +24813,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_wood_1"
     spriteSheetName = "tile"
 
@@ -24564,7 +24826,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_wood_2"
     spriteSheetName = "tile"
 
@@ -24577,7 +24839,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_wood_3"
     spriteSheetName = "tile"
 
@@ -24590,7 +24852,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_wood_4"
     spriteSheetName = "tile"
 
@@ -24603,7 +24865,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_brick_1"
     spriteSheetName = "tile"
 
@@ -24616,7 +24878,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_brick_2"
     spriteSheetName = "tile"
 
@@ -24629,7 +24891,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_brick_3"
     spriteSheetName = "tile"
 
@@ -24642,7 +24904,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_brick_4"
     spriteSheetName = "tile"
 
@@ -24655,7 +24917,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_reed_1"
     spriteSheetName = "tile"
 
@@ -24668,7 +24930,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_reed_2"
     spriteSheetName = "tile"
 
@@ -24681,7 +24943,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_reed_3"
     spriteSheetName = "tile"
 
@@ -24694,7 +24956,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_reed_4"
     spriteSheetName = "tile"
 
@@ -24707,7 +24969,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_ice_1"
     spriteSheetName = "tile"
 
@@ -24720,7 +24982,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_ice_2"
     spriteSheetName = "tile"
 
@@ -24733,7 +24995,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_ice_3"
     spriteSheetName = "tile"
 
@@ -24746,7 +25008,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 3
+    depth = "taller"
     spriteKey = "wall_ice_4"
     spriteSheetName = "tile"
 
@@ -24759,7 +25021,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "dirt_peat"
     spriteSheetName = "tile"
 
@@ -24772,7 +25034,7 @@
   [tiles.spawn]
     autotile = true
   [tiles.spriteRender]
-    depth = 0
+    depth = "floor"
     spriteKey = "dirt_ash"
     spriteSheetName = "tile"
 

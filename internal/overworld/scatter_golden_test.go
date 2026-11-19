@@ -77,8 +77,8 @@ func renderOverworldRegion(t *testing.T, world w.World, x0, y0, wTiles, hTiles i
 	}
 	// Depth 昇順で床を先に、prop を後に。同 Depth は座標で安定化して再現性を保つ
 	sort.SliceStable(ents, func(i, j int) bool {
-		if ents[i].sr.Depth != ents[j].sr.Depth {
-			return ents[i].sr.Depth < ents[j].sr.Depth
+		if ents[i].sr.Depth.Rank() != ents[j].sr.Depth.Rank() {
+			return ents[i].sr.Depth.Rank() < ents[j].sr.Depth.Rank()
 		}
 		if isTile := ents[i].sr.SpriteSheetName == "tile"; isTile != (ents[j].sr.SpriteSheetName == "tile") {
 			return isTile

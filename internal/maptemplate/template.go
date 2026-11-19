@@ -86,6 +86,7 @@ var (
 type MapCell struct {
 	Terrain   string // 地形名
 	Prop      string // Prop ID（なければ空文字）
+	Decor     string // 地面の飾りの id。無ければ空
 	NPC       string // NPC ID（なければ空文字）
 	LootTable string // 収納の中身を引く itemTables の id。収納でなければ空
 	ItemGroup string // 床に落ちる戦利品の itemGroup の id。無ければ空
@@ -111,6 +112,9 @@ func ResolveMapCells(mapStr string, palette *Palette, rng *rand.Rand) [][]MapCel
 				if prop, lootTable, ok := palette.GetProp(charStr, rng); ok {
 					cell.Prop = prop
 					cell.LootTable = lootTable
+				}
+				if decor, ok := palette.Decors[charStr]; ok {
+					cell.Decor = decor.ID
 				}
 				if npc, ok := palette.GetNPC(charStr); ok {
 					cell.NPC = npc

@@ -15,6 +15,8 @@ enemyTables?:      _
 facilities?:       _
 tiles?:            _
 props?:            _
+remains?:          _
+decors?:           _
 conditions?:       _
 bodyParts?:        _
 skills?:           _
@@ -49,6 +51,8 @@ _enemyTableIDs: {if enemyTables != _|_ for x in enemyTables {(x.id): true}}
 _facilityIDs: {if facilities != _|_ for x in facilities {(x.id): true}}
 _tileIDs: {if tiles != _|_ for x in tiles {(x.id): true}}
 _propIDs: {if props != _|_ for x in props {(x.id): true}}
+_remainsIDs: {if remains != _|_ for x in remains {(x.id): true}}
+_decorIDs: {if decors != _|_ for x in decors {(x.id): true}}
 _conditionIDs: {if conditions != _|_ for x in conditions {(x.id): true}}
 _bodyPartIDs: {if bodyParts != _|_ for x in bodyParts {(x.id): true}}
 _skillIDs: {if skills != _|_ for x in skills {(x.id): true}}

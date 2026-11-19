@@ -221,7 +221,7 @@ func TestSpriteOrphan(t *testing.T) {
 			}
 		}
 	}
-	// Item と Member はフラット、Prop と Tile は SpriteRender ネスト
+	// Item と Member と跡はフラット、Prop と Tile と飾りは SpriteRender ネスト
 	for _, it := range raw.PtrSlice(rawMaster.Items) {
 		add(it.SpriteKey)
 		addAnim(it.AnimKeys)
@@ -236,6 +236,14 @@ func TestSpriteOrphan(t *testing.T) {
 	for _, mb := range raw.PtrSlice(rawMaster.Members) {
 		add(mb.SpriteKey)
 		addAnim(mb.AnimKeys)
+	}
+	for _, d := range raw.PtrSlice(rawMaster.Decors) {
+		add(d.SpriteRender.SpriteKey)
+	}
+	for _, r := range raw.PtrSlice(rawMaster.Remains) {
+		for _, k := range r.SpriteKeys {
+			add(k)
+		}
 	}
 
 	// covered はスプライト名 s が raw から参照されているかを返す

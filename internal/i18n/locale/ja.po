@@ -1364,6 +1364,15 @@ msgstr "敵"
 msgid "Tile"
 msgstr "タイル"
 
+msgid "NPC"
+msgstr "NPC"
+
+msgid "Remains"
+msgstr "跡"
+
+msgid "Decor"
+msgstr "地面の飾り"
+
 msgid "Overworld"
 msgstr "オーバーワールド"
 
@@ -6718,3 +6727,42 @@ msgstr "探す"
 
 msgid "Search a container"
 msgstr "収納を探す"
+
+msgid "Wood Splinters"
+msgstr "木片"
+
+msgid "Metal Fragments"
+msgstr "金属片"
+
+msgid "Stone Rubble"
+msgstr "石くず"
+
+msgid "Blood Stain"
+msgstr "血痕"
+
+msgid "Oil Stain"
+msgstr "油の染み"
+
+msgid "Slime Puddle"
+msgstr "粘液"
+
+msgid "Scorch Mark"
+msgstr "焦げ跡"
+
+msgid "Ectoplasm"
+msgstr "霊の残滓"
+
+msgid "Green Blood Stain"
+msgstr "緑の血痕"
+
+msgid "Blue Blood Stain"
+msgstr "青い血痕"
+
+msgid "Glass Shards"
+msgstr "ガラス片"
+
+msgid "Plant Debris"
+msgstr "植物のくず"
+
+msgid "Cloth Scraps"
+msgstr "布きれ"

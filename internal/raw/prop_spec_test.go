@@ -23,7 +23,7 @@ BlockView = true
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "wall"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -48,7 +48,7 @@ PassCost = 50
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "mud"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -73,7 +73,7 @@ BlockView = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "door"
-Depth = 1
+Depth = "decal"
 
 [Props.Door]
 `
@@ -103,7 +103,7 @@ BlockView = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "warp_next"
-Depth = 1
+Depth = "decal"
 
 [Props.WarpNextTrigger]
 `
@@ -130,7 +130,7 @@ BlockView = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "broken_storage"
-Depth = 1
+Depth = "decal"
 
 [Props.Storage]
 MaxWeight = "abc"

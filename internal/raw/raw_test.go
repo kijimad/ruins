@@ -105,7 +105,7 @@ Defense = 0
 	assert.NotNil(t, entitySpec.SpriteRender, "SpriteRenderコンポーネントが設定されていない")
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName, "SpriteSheetNameが正しくない")
 	assert.Equal(t, "player", entitySpec.SpriteRender.SpriteKey, "SpriteKeyが正しくない")
-	assert.Equal(t, gc.DepthNumPlayer, entitySpec.SpriteRender.Depth, "Depthが正しくない")
+	assert.Equal(t, rawschema.SpriteDepthPlayer, entitySpec.SpriteRender.Depth, "Depthが正しくない")
 }
 
 func TestGenerateMemberWithoutSprite(t *testing.T) {
@@ -157,7 +157,7 @@ SpriteKey = "field_item"
 	assert.NotNil(t, entitySpec.SpriteRender, "SpriteRenderコンポーネントが設定されていない")
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName, "SpriteSheetNameが正しくない")
 	assert.Equal(t, "field_item", entitySpec.SpriteRender.SpriteKey, "SpriteKeyが正しくない")
-	assert.Equal(t, gc.DepthNumItem, entitySpec.SpriteRender.Depth, "Depthが正しくない")
+	assert.Equal(t, rawschema.SpriteDepthItem, entitySpec.SpriteRender.Depth, "Depthが正しくない")
 }
 
 func TestGenerateMaterialWithoutSprite(t *testing.T) {
@@ -518,7 +518,7 @@ AnimKeys = ["fire_0_", "fire_1_"]
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "fire_0_"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -549,7 +549,7 @@ BlockView = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "prop_table"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -579,7 +579,7 @@ PassCost = 100
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "prop_table"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -602,7 +602,7 @@ Hp = 20
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "prop_table"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -632,7 +632,7 @@ hp = 30
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "prop_table"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -659,7 +659,7 @@ hp = 30
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "wooden_chest"
-Depth = 2
+Depth = "rug"
 
 [Props.Storage]
 MaxWeight = "20 kg"
@@ -691,7 +691,7 @@ BlockView = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "warp_next_0"
-Depth = 1
+Depth = "decal"
 
 [Props.WarpPrevTrigger]
 `
@@ -719,7 +719,7 @@ BlockView = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey = "table"
-Depth = 1
+Depth = "decal"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -1368,13 +1368,37 @@ func TestWallMaterialTiles_dwallと同じ描画順と通れなさと視界で並
 	dwall, err := GetTile(raws, "dwall")
 	require.NoError(t, err)
 	type traits struct {
-		depth                int
+		depth                rawschema.SpriteDepth
 		blockPass, blockView bool
 	}
-	want := traits{int(dwall.SpriteRender.Depth), dwall.BlockPass, dwall.BlockView}
+	want := traits{dwall.SpriteRender.Depth, dwall.BlockPass, dwall.BlockView}
 	for _, id := range wallMaterialTiles() {
 		tile, err := GetTile(raws, id)
 		require.NoError(t, err, id)
-		assert.Equal(t, want, traits{int(tile.SpriteRender.Depth), tile.BlockPass, tile.BlockView}, id)
+		assert.Equal(t, want, traits{tile.SpriteRender.Depth, tile.BlockPass, tile.BlockView}, id)
 	}
+}
+
+func TestNewDecorSpec(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	spec, err := NewDecorSpec(raws, "grass")
+	require.NoError(t, err)
+	assert.Nil(t, spec.Prop, "置物を数える処理に入らない")
+	assert.Equal(t, &gc.Decor{}, spec.Decor)
+	assert.Equal(t, &gc.RawID{ID: "grass"}, spec.RawID)
+
+	_, err = NewDecorSpec(raws, "no_such_decor")
+	assert.ErrorIs(t, err, KeyNotFoundError{Key: "no_such_decor", Collection: "Decors"})
+}
+
+func TestGetRemains_無い跡の行はエラー(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	_, err = GetRemains(raws, "no_such_remains")
+	assert.ErrorIs(t, err, KeyNotFoundError{Key: "no_such_remains", Collection: "Remains"})
 }

@@ -1100,6 +1100,12 @@ import (
 		dropTableId_ref: _dropTableIDs[dropTableId] @rawgen(-)
 	}
 
+	// 死んだときに足元へ残す跡。省くと何も残さない
+	remainsId?: #EntityID
+	if remainsId != _|_ {
+		remainsId_ref: _remainsIDs[remainsId] @rawgen(-)
+	}
+
 	// 生成時に装備して持たせるアイテム。startingItems より先に持たせる
 	startingEquips?: [...#ProfessionEquip]
 	if startingEquips != _|_ {
@@ -1210,6 +1216,12 @@ import (
 	if burnoutItem != _|_ {
 		burnoutItem_ref: _itemIDs[burnoutItem] @rawgen(-)
 	}
+
+	// 壊れたときに足元へ残す跡。省くと何も残さない
+	remainsId?: #EntityID
+	if remainsId != _|_ {
+		remainsId_ref: _remainsIDs[remainsId] @rawgen(-)
+	}
 }
 
 // 基準点から相対の位置に置くエンティティ1個
@@ -1224,6 +1236,22 @@ import (
 	valueType!: #HealingValueType
 	amount!:    #HealAmount
 	ratio!:     #HealRatio
+}
+
+// 草や土の模様のような地面の飾り。置物でもアイテムでもなく、通行・操作・拾得・積み込みのどれにも関わらない
+#Decor: {
+	id!:           #EntityID
+	name!:         #EntityName
+	spriteRender!: #SpriteRender
+}
+
+// 敵や物が消えた跡に床へ残す装飾。描画順は跡の段に決まっているので行に持たない
+#Remains: {
+	id!:              #EntityID
+	name!:            #EntityName
+	spriteSheetName!: #SpriteSheetName
+	// 跡の形の候補。置くマスの座標から1つを選ぶ
+	spriteKeys!: [...#SpriteKey] & [_, ...]
 }
 
 // RGBA色
@@ -1258,6 +1286,8 @@ import (
 	districts?: [...#District]
 	pointFeatures?: [...#PointFeature]
 	landmarks?: [...#Landmark]
+	remains?: [...#Remains]
+	decors?: [...#Decor]
 	crashSites?: [...#CrashSite]
 	scatterZones?: [...#ScatterZone]
 	mapGlyphs?: [...#MapGlyph]
@@ -1308,6 +1338,8 @@ import (
 	facilityIds_unique: {if facilities != _|_ for i, x in facilities {(x.id): i}} @rawgen(-)
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
+	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)
+	decorIds_unique: {if decors != _|_ for i, x in decors {(x.id): i}} @rawgen(-)
 	scatterZoneIds_unique: {if scatterZones != _|_ for i, x in scatterZones {(x.id): i}} @rawgen(-)
 	mapGlyphIds_unique: {if mapGlyphs != _|_ for i, x in mapGlyphs {(x.id): i}} @rawgen(-)
 	settlementIds_unique: {if settlements != _|_ for i, x in settlements {(x.id): i}} @rawgen(-)
@@ -1412,7 +1444,8 @@ import (
 	}
 }
 
-// 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
+// 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り。
+// entries は木・低木・岩のような置物
 #ScatterZone: {
 	id!: #EntityID
 	// チャンクの全面を埋める下地のタイル
@@ -1427,9 +1460,9 @@ import (
 	lootGroup_ref: _itemGroupIDs[lootGroup] @rawgen(-)
 	entries!: [...#ScatterEntry]
 	grass!: [...#GroundCoverEntry]
-	grass_ref: [for x in grass {_propIDs[x.ref]}] @rawgen(-)
+	grass_ref: [for x in grass {_decorIDs[x.ref]}] @rawgen(-)
 	soil!: [...#GroundCoverEntry]
-	soil_ref: [for x in soil {_propIDs[x.ref]}] @rawgen(-)
+	soil_ref: [for x in soil {_decorIDs[x.ref]}] @rawgen(-)
 }
 
 // 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
@@ -1534,8 +1567,8 @@ import (
 // 天候のスペルの基準長。ターン
 #SpellTurns: int & >=1 & <=100000
 
-// スプライト描画深度
-#SpriteDepth: 0 | 1 | 2 | 3 @rawgen(enum=float32)
+// スプライトの描画の段。描く順は depthOrder で決まる
+#SpriteDepth: "floor" | "snow" | "remains" | "decal" | "rug" | "taller" | "item" | "player" @rawgen(prefix)
 
 // スプライトキー
 #SpriteKey: string & strings.MinRunes(
@@ -1546,13 +1579,15 @@ import (
 #SpriteRender: {
 	spriteSheetName!: #SpriteSheetName
 	spriteKey!:       #SpriteKey
-	depth!:           #SpriteDepth
-	shape?:           #SpriteShape
+	// snow・remains・item・player はコードだけが組む段なので、raw の行には書けない
+	depth!: #SpriteDepth & ("floor" | "decal" | "rug" | "taller")
+	shape?: #SpriteShape
 }
 
-// 3D で置物を立てる形。省くとカメラを向く立て板になる。
-// inset は扉や窓のように壁の並びにはめる薄い板、facing は棚のように並びと隣の空きに合わせて向きを決め、その向きに回した薄い板
-#SpriteShape: "inset" | "facing"
+// 3D で置物を描く形。省くとカメラを向く立て板になる。
+// inset は扉や窓のように壁の並びにはめる薄い板、facing は棚のように並びと隣の空きに合わせて向きを決め、その向きに回した薄い板、
+// flat は土の模様やワープの穴のように地面に寝かせた板
+#SpriteShape: "inset" | "facing" | "flat"
 
 // スプライトシート
 #SpriteSheet: {

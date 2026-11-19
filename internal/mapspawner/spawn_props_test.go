@@ -50,6 +50,28 @@ func TestSpawnProps_未知のprops名はエラー(t *testing.T) {
 	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないprops", Collection: "Props"}, notFound)
 }
 
+func TestSpawnDecors_地面の飾りをオフセット込みで置く(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	plan := newTestSpawnPlan(world)
+	plan.Decors = []mapplanner.DecorSpec{
+		{Coord: consts.Coord[consts.Tile]{X: 2, Y: 3}, Name: "weeds"},
+	}
+
+	require.NoError(t, spawnDecors(world, plan, 10, 20))
+
+	got := []string{}
+	q := ecs.NewFilter2[gc.GridElement, gc.Decor](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		assert.False(t, world.Components.Prop.Has(e))
+		assert.Equal(t, consts.Coord[consts.Tile]{X: 12, Y: 23}, world.Components.GridElement.Get(e).Coord)
+		got = append(got, world.Components.RawID.Get(e).ID)
+	}
+	assert.Equal(t, []string{"weeds"}, got)
+}
+
 func TestSpawnProps_有効なpropsをオフセット込みで生成する(t *testing.T) {
 	t.Parallel()
 
@@ -156,7 +178,7 @@ func TestPlanPoses_同じマスの置物はどれか1つが塞げば塞がりに
 	world := testutil.InitTestWorld(t)
 	tiles := make([]rawschema.Tile, 9)
 	// 重なりの順を入れ替えても、樽が塞ぐので本棚は南を向く
-	for _, order := range [][]string{{"barrel", "soil_crack"}, {"soil_crack", "barrel"}} {
+	for _, order := range [][]string{{"barrel", "carpet"}, {"carpet", "barrel"}} {
 		plan := &mapplanner.MetaPlan{
 			Level:     gc.Level{TileWidth: 3, TileHeight: 3},
 			RawMaster: &world.Resources.RawMaster,

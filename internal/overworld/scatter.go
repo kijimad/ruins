@@ -17,8 +17,8 @@ import (
 )
 
 // 屋外の散布は wasteland チャンクの開けた地表を自然の野原に仕立てる feature。草・低木・岩を撒く。
-// 草は透明背景の prop として地面に重ねる。タイルのオートタイルで草地を作ると、
-// 同種で埋めた面は中央が暗いフィルに、異種の境界は縁取りになり自然に繋がらないためである。prop なら
+// 草と土の模様は透明背景の地面の飾りとして地面に重ねる。タイルのオートタイルで草地を作ると、
+// 同種で埋めた面は中央が暗いフィルに、異種の境界は縁取りになり自然に繋がらないためである。飾りなら
 // オートタイルを経由せず、地面へそのまま重なる。疎な Placement と違い、密度場と density 確率で個数を
 // 決める。他フィーチャの後に評価し、道が floor 化した後の実状態を読んで土系の地面かつ非占有のタイルだけに
 // 置く。人工物を原野一面に撒くと不自然なので置かない。
@@ -33,9 +33,9 @@ type scatterEntry struct {
 	Satellites []relSpot
 }
 
-// scatterCatalog は zone ごとの散布定義。GrassDensity は草・雑草 prop をタイルへ置く平均の確率で、茂みの
+// scatterCatalog は zone ごとの散布定義。GrassDensity は草・雑草の飾りをタイルへ置く平均の確率で、茂みの
 // 濃淡を掛けて場所ごとに増減する。SoilDensity は草の生えていない土のタイルへ土の飾りを置く確率。
-// PropDensity は樹木・岩を撒く係数で、count = round(area * Density) で個数を導く。どれも座標と seed の純関数のまま。
+// PropDensity は木・低木・岩を撒く係数で、count = round(area * Density) で個数を導く。どれも座標と seed の純関数のまま。
 type scatterCatalog struct {
 	Zone         outdoorZone
 	GrassDensity float64
@@ -44,7 +44,7 @@ type scatterCatalog struct {
 	LootDensity  float64
 	LootGroup    string // 屋外 loot の item group id
 	Entries      []scatterEntry
-	Grass        []scatterEntry // 草と灌木の種類と重み
+	Grass        []scatterEntry // 草の種類と重み
 	Soil         []scatterEntry // 土の飾りの種類と重み
 }
 
@@ -152,79 +152,104 @@ func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[
 // scatterCatalogForChunk が決める。荒れ地と、墜落現場の絵の外の土の地面が対象で、砂漠など他の開けた地形はそこへ足す。
 type openTerrainFeature struct{}
 
-// place は散布対象の開けたチャンクへ、まず草と土の飾りを撒き、続けて樹木と岩を疎に撒く。
+// place は散布対象の開けたチャンクへ、まず草と土の飾りを撒き、続けて木・低木・岩の置物を疎に撒く。
 // どのチャンクを散布するかとカタログの選択は scatterCatalogForChunk に集約する。草と土の飾りは絶対タイル
-// 座標の、樹木と岩はチャンク相対座標と絶対チャンク seed の純関数で選び、帯の整列がずれても再訪一致する。
+// 座標の、置物はチャンク相対座標と絶対チャンク seed の純関数で選び、帯の整列がずれても再訪一致する。
 // 地面判定と占有は帯ローカルの実エンティティで引き、経路判定は絶対タイル座標で道の直線と比べる。
 func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
 	cat, ok, err := scatterCatalogForChunk(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world))
 	if err != nil || !ok {
 		return err
 	}
-
-	tiles := g.tiles.get()
-	occupied := blockedTilesInChunk(world, g)
-	earth := earthTilesOf(world.Resources.RawMaster)
-
-	loX, loY := c.X.Tiles(g.chunkW), c.Y.Tiles(g.chunkH)
-	bandLocal := func(rel consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
-		return consts.Coord[consts.Tile]{X: g.offsetX + rel.X, Y: g.offsetY + rel.Y}
+	sc := scatterChunk{
+		world:    world,
+		g:        g,
+		cat:      cat,
+		tiles:    g.tiles.get(),
+		occupied: blockedTilesInChunk(world, g),
+		earth:    earthTilesOf(world.Resources.RawMaster),
+		lo:       consts.Coord[consts.Tile]{X: c.X.Tiles(g.chunkW), Y: c.Y.Tiles(g.chunkH)},
 	}
-	absTile := func(rel consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
-		return consts.Coord[consts.Tile]{X: loX + rel.X, Y: loY + rel.Y}
+	if err := sc.scatterDecors(runSeed); err != nil {
+		return err
 	}
-	// 候補は土系の地面かつ非占有。占有は BlockPass の壁と、先に撒いた草・prop を含む
-	accept := func(rel consts.Coord[consts.Tile]) bool {
-		bl := bandLocal(rel)
-		return earth.at(world, tiles, bl) && !occupied[gc.GridElement{Coord: bl}]
+	if err := sc.scatterProps(runSeed, c, cols); err != nil {
+		return err
 	}
+	// 草・置物の後に拾える loot を疎に撒く。accept と occupied を共有し、地面かつ非占有のタイルにだけ置く
+	return scatterOutdoorLoot(world, runSeed, c, g, cat, sc.accept, sc.occupied)
+}
 
-	// まず草と土の飾りを撒く。透明 prop なのでオートタイルの縁が出ず、地面へ自然に重なる。歩行可能なので
-	// 通行を塞がず、位相や経路の制約は要らない。続く樹木が草と重ならないよう占有を記録しながら先に撒く。
+// scatterChunk は1チャンクの散布の間で共有する状態。occupied は先に置いた草・置物を含み、後の散布が重ならない
+type scatterChunk struct {
+	world    w.World
+	g        chunkGeom
+	cat      scatterCatalog
+	tiles    map[gc.GridElement]ecs.Entity
+	occupied map[gc.GridElement]bool
+	earth    earthTiles
+	lo       consts.Coord[consts.Tile]
+}
+
+func (sc scatterChunk) bandLocal(rel consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
+	return consts.Coord[consts.Tile]{X: sc.g.offsetX + rel.X, Y: sc.g.offsetY + rel.Y}
+}
+
+func (sc scatterChunk) absTile(rel consts.Coord[consts.Tile]) consts.Coord[consts.Tile] {
+	return consts.Coord[consts.Tile]{X: sc.lo.X + rel.X, Y: sc.lo.Y + rel.Y}
+}
+
+// accept はチャンク相対の rel が土系の地面かつ非占有かを返す。占有は BlockPass の壁と、先に撒いた草・置物を含む
+func (sc scatterChunk) accept(rel consts.Coord[consts.Tile]) bool {
+	bl := sc.bandLocal(rel)
+	return sc.earth.at(sc.world, sc.tiles, bl) && !sc.occupied[gc.GridElement{Coord: bl}]
+}
+
+// scatterDecors は草と土の飾りを撒く。透明な絵なのでオートタイルの縁が出ず、地面へ自然に重なる。歩行可能なので
+// 通行を塞がず、位相や経路の制約は要らない。続く置物が草と重ならないよう占有を記録しながら先に撒く
+func (sc scatterChunk) scatterDecors(runSeed uint64) error {
 	grassSeed := runSeed ^ scatterSalt ^ scatterGrassChannel
-	for y := range g.chunkH {
-		for x := range g.chunkW {
+	for y := range sc.g.chunkH {
+		for x := range sc.g.chunkW {
 			rel := consts.Coord[consts.Tile]{X: x, Y: y}
-			abs := absTile(rel)
-			if !accept(rel) {
+			abs := sc.absTile(rel)
+			if !sc.accept(rel) {
 				continue
 			}
 			var name string
 			switch {
-			case placesGrass(grassSeed, cat.GrassDensity, abs):
-				name = pickScatterEntry(cat.Grass, true, hashTileCoord(grassSeed^scatterVariantChannel, abs)).Ref
-			case consts.HashRoll(hashTileCoord(grassSeed^scatterSoilChannel, abs)).Float64() < cat.SoilDensity:
-				name = pickScatterEntry(cat.Soil, true, hashTileCoord(grassSeed^scatterSoilChannel^scatterVariantChannel, abs)).Ref
+			case placesGrass(grassSeed, sc.cat.GrassDensity, abs):
+				name = pickScatterEntry(sc.cat.Grass, true, consts.Mix2D(grassSeed^scatterVariantChannel, abs.X, abs.Y)).Ref
+			case consts.HashRoll(consts.Mix2D(grassSeed^scatterSoilChannel, abs.X, abs.Y)).Float64() < sc.cat.SoilDensity:
+				name = pickScatterEntry(sc.cat.Soil, true, consts.Mix2D(grassSeed^scatterSoilChannel^scatterVariantChannel, abs.X, abs.Y)).Ref
 			default:
 				continue
 			}
-			bl := bandLocal(rel)
-			if _, err := lifecycle.SpawnProp(world, name, bl.X, bl.Y); err != nil {
+			bl := sc.bandLocal(rel)
+			if _, err := lifecycle.SpawnDecor(sc.world, name, bl.X, bl.Y); err != nil {
 				return fmt.Errorf("failed to place ground cover (%s): %w", name, err)
 			}
-			occupied[gc.GridElement{Coord: bl}] = true
+			sc.occupied[gc.GridElement{Coord: bl}] = true
 		}
 	}
+	return nil
+}
 
-	// 続けて樹木・岩を疎に撒く。Big の大物は位相 0 かつ経路外のタイルにだけ乗せ、二段で通行性を担保する。
-	selSeed := ChunkSeed2D(runSeed^scatterSalt, c.X, c.Y)
-	propCount := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.PropDensity))
-	route := scatterRoute(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world), g)
-	for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, propCount) {
-		bigAllowed := onBigPhase(rel) && !onScatterRoute(route, absTile(rel))
-		roll := hashTileCoord(selSeed, rel)
-		entry := pickScatterEntry(cat.Entries, bigAllowed, roll)
+// scatterProps は木・低木・岩の置物を疎に撒く。Big の大物は位相 0 かつ経路外のタイルにだけ乗せ、二段で通行性を担保する
+func (sc scatterChunk) scatterProps(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) error {
+	selSeed := consts.Mix2D(runSeed^scatterSalt, c.X, c.Y)
+	propCount := int(math.Round(float64(sc.g.chunkW) * float64(sc.g.chunkH) * sc.cat.PropDensity))
+	route := scatterRoute(sc.world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(sc.world), sc.g)
+	for _, rel := range scatterTiles(sc.g.chunkW, sc.g.chunkH, sc.accept, selSeed, propCount) {
+		bigAllowed := onBigPhase(rel) && !onScatterRoute(route, sc.absTile(rel))
+		roll := consts.Mix2D(selSeed, rel.X, rel.Y)
+		entry := pickScatterEntry(sc.cat.Entries, bigAllowed, roll)
 		if entry.Ref == "" {
 			continue // null 重み。ここは置かない
 		}
-		if err := placeScatterEntry(world, tiles, earth, occupied, entry, bandLocal(rel)); err != nil {
+		if err := placeScatterEntry(sc.world, sc.tiles, sc.earth, sc.occupied, entry, sc.bandLocal(rel)); err != nil {
 			return err
 		}
-	}
-
-	// 草・樹木の後に拾える loot を疎に撒く。accept と occupied を共有し、地面かつ非占有のタイルにだけ置く
-	if err := scatterOutdoorLoot(world, runSeed, c, g, cat, accept, occupied); err != nil {
-		return err
 	}
 	return nil
 }
@@ -357,13 +382,6 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
 // at は帯ローカル座標 pos のタイルが土の地面かを返す。道や壁、他の地物が置いたタイルは土でない
 func (e earthTiles) at(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
 	return e[tileIDAt(world, tiles, pos)]
-}
-
-// hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ
-// なのでタイル座標にも使えるが、引数型が consts.Chunk なのでキャストをここへ隔離し、呼び出し側の意味を
-// 「タイル単位の抽選」に保つ。散布物やアクセントの per-tile 抽選に使う。
-func hashTileCoord(seed uint64, p consts.Coord[consts.Tile]) uint64 {
-	return ChunkSeed2D(seed, consts.Chunk(p.X), consts.Chunk(p.Y))
 }
 
 // tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。

@@ -77,28 +77,10 @@ type SpriteRender struct {
 	SpriteKey string
 	// アニメーション用スプライトキー配列。空ならアニメーションなし
 	AnimKeys []string
-	// 描画順。小さい順に先に(下に)描画する
-	Depth DepthNum
+	// 描画の段。描く順は段の Rank で決まる
+	Depth rawschema.SpriteDepth
 	// 3D で立てる形。空ならカメラを向く立て板
 	Shape rawschema.SpriteShape
 	// Draw options（実行時の描画オプション。serde対象外）
 	Options ebiten.DrawImageOptions `json:"-"`
 }
-
-// DepthNum はオブジェクトの描画順。小さい値を先に描画する
-type DepthNum int
-
-const (
-	// DepthNumFloor は床。最背面に表示する
-	DepthNumFloor DepthNum = iota
-	// DepthNumDecal は床の模様。例: 土のしみ、ワープホール。3D では立て板にせず地面に寝かせて描く
-	DepthNumDecal
-	// DepthNumRug は床に置く低いもの。例: 焚き火、開いた扉
-	DepthNumRug
-	// DepthNumTaller は高さのあるもの。例: テーブル、棚、閉じた扉、壁と虚空のタイル。高さのあるタイルは 3D で箱として描く
-	DepthNumTaller
-	// DepthNumItem は拾えるアイテム。テーブルのような高さのある置物と同じマスにあっても、その上に出す
-	DepthNumItem
-	// DepthNumPlayer は操作キャラを最も手前に表示する
-	DepthNumPlayer
-)

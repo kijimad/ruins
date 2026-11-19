@@ -62,9 +62,13 @@ id = "toilet"
 tile = "floor_tile"
 id = "sink"
 
-[palette.props."g"]
+[palette.props."b"]
 tile = "ground"
-candidates = [{ id = "weeds", weight = 2 }, { id = "bush", weight = 1 }]
+id = "bush"
+
+[palette.decors."g"]
+tile = "ground"
+id = "weeds"
 
 [palette.items."m"]
 itemGroup = "industrial_materials"

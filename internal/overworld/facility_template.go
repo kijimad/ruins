@@ -38,6 +38,22 @@ func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, r
 	return maptemplate.TransformCells(cells, turns, rng.IntN(2) == 0), nil
 }
 
+// cachedPropRows は施設の絵のマスの id から置物の行を引く関数を返す。同じ id は一度だけ引く
+func cachedPropRows(raws rawschema.Raws) func(id string) (rawschema.Prop, error) {
+	rows := map[string]rawschema.Prop{}
+	return func(id string) (rawschema.Prop, error) {
+		if p, ok := rows[id]; ok {
+			return p, nil
+		}
+		p, err := raw.GetProp(raws, id)
+		if err != nil {
+			return rawschema.Prop{}, err
+		}
+		rows[id] = p
+		return p, nil
+	}
+}
+
 // spawnFacility は施設の絵のマスを、チャンク内の区画の左上 (ox, oy) から実体として置く。
 // 扉は左右か上下の壁から向きを決める。
 // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする
@@ -67,18 +83,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		return err == nil && t.BlockPass
 	}
 
-	propRows := map[string]rawschema.Prop{}
-	propOf := func(id string) (rawschema.Prop, error) {
-		if p, ok := propRows[id]; ok {
-			return p, nil
-		}
-		p, err := raw.GetProp(world.Resources.RawMaster, id)
-		if err != nil {
-			return rawschema.Prop{}, err
-		}
-		propRows[id] = p
-		return p, nil
-	}
+	propOf := cachedPropRows(world.Resources.RawMaster)
 	propBlocksPass := func(id string) (bool, error) {
 		if id == "" {
 			return false, nil
@@ -186,7 +191,7 @@ func spawnFacilityTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos c
 	return nil
 }
 
-// spawnFacilityCell はマスの扉、家具と収納の中身、床の戦利品、敵を pos へ置く。扉の向きは呼び出し側が壁から決める
+// spawnFacilityCell はマスの扉、家具と収納の中身、地面の飾り、床の戦利品、敵を pos へ置く。扉の向きは呼び出し側が壁から決める
 func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation, pose *gc.Pose, fac string, danger consts.Danger, lootRNG, beingRNG *rand.Rand) error {
 	switch {
 	case cell.Prop == "door":
@@ -203,6 +208,11 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 		}
 		if err := populateStorageLoot(world, ent, cell.Prop, cell.LootTable, fac, lootRNG); err != nil {
 			return fmt.Errorf("failed to populate storage loot (%s): %w", cell.Prop, err)
+		}
+	}
+	if cell.Decor != "" {
+		if _, err := lifecycle.SpawnDecor(world, cell.Decor, pos.X, pos.Y); err != nil {
+			return fmt.Errorf("failed to place facility decor (%s at %d,%d): %w", cell.Decor, pos.X, pos.Y, err)
 		}
 	}
 	for range cell.ItemCount {

@@ -26,6 +26,16 @@ func TestValidate_違反を位置で返す(t *testing.T) {
 	assert.Equal(t, []string{"items.0.spriteKey"}, ce.Paths())
 }
 
+func TestValidate_コードだけが組む描画の段を書くと位置で返す(t *testing.T) {
+	t.Parallel()
+	for _, depth := range []rawschema.SpriteDepth{rawschema.SpriteDepthSnow, rawschema.SpriteDepthRemains, rawschema.SpriteDepthItem, rawschema.SpriteDepthPlayer} {
+		raws := makeRefRaws(func(r *rawschema.Raws) { (*r.Props)[0].SpriteRender.Depth = depth })
+		var ce *rawcheck.Error
+		require.ErrorAs(t, rawcheck.Validate(raws), &ce, depth)
+		assert.Equal(t, []string{"props.0.spriteRender.depth"}, ce.Paths(), depth)
+	}
+}
+
 func TestValidate_ダイス表記の違反を位置で返す(t *testing.T) {
 	t.Parallel()
 	// 個数0の 0d6 は Dice の正規表現が弾く

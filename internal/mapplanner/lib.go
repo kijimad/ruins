@@ -23,6 +23,12 @@ type PropsSpec struct {
 	Name string // Prop名
 }
 
+// DecorSpec は地面の飾りの配置仕様を表す
+type DecorSpec struct {
+	consts.Coord[consts.Tile]
+	Name string // 地面の飾りの id
+}
+
 // DoorSpec はドア配置仕様を表す
 type DoorSpec struct {
 	consts.Coord[consts.Tile]
@@ -63,6 +69,8 @@ type MetaPlan struct {
 	Items []ItemSpec
 	// Props は配置予定のPropsリスト
 	Props []PropsSpec
+	// Decors は配置予定の地面の飾りのリスト
+	Decors []DecorSpec
 	// Doors は配置予定のドアリスト
 	Doors []DoorSpec
 	// SpawnPoints はプレイヤーのスポーン地点リスト
@@ -222,6 +230,7 @@ func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *Planne
 			NPCs:        []NPCSpec{},
 			Items:       []ItemSpec{},
 			Props:       []PropsSpec{},
+			Decors:      []DecorSpec{},
 			Doors:       []DoorSpec{},
 		},
 	}

@@ -32,7 +32,7 @@ func TestToolDamageMultiplier(t *testing.T) {
 		{"ストームハンマーで岩を殴るとグレード1で2倍", "storm_hammer", "rock", 2},
 		{"道具が必須の岩を松明で殴ると0倍", "torch", "rock", 0},
 		{"道具が必須でない木箱を松明で殴ると1倍", "torch", "wooden_crate", 1},
-		{"分解定義の無いpropは1倍", "axe", "grass", 1},
+		{"分解定義の無いpropは1倍", "axe", "carpet", 1},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -74,7 +74,7 @@ func TestDropSalvage_分解定義が無ければ何もせず終わる(t *testing
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	target, err := lifecycle.SpawnProp(world, "grass", 10, 9)
+	target, err := lifecycle.SpawnProp(world, "carpet", 10, 9)
 	require.NoError(t, err)
 
 	err = dropSalvage(world, player, target)
