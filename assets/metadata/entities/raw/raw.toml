@@ -23075,8 +23075,18 @@
   id = "roadside"
   lootDensity = 0.002
   lootGroup = "scrap_of_paper"
-  propDensity = 0.015
+  propDensity = 0.02
   soilDensity = 0.03
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "bush"
+    weight = 19
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "bush_dry"
+    weight = 14
 
   [[scatterZones.entries]]
     big = false
@@ -23126,14 +23136,6 @@
     ref = "grass_dry_sprig"
     weight = 10
 
-  [[scatterZones.grass]]
-    ref = "bush"
-    weight = 4
-
-  [[scatterZones.grass]]
-    ref = "bush_dry"
-    weight = 3
-
   [[scatterZones.soil]]
     ref = "soil_pebbles"
     weight = 3
@@ -23172,8 +23174,18 @@
   id = "wild"
   lootDensity = 0.002
   lootGroup = "junk"
-  propDensity = 0.035
+  propDensity = 0.046
   soilDensity = 0.03
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "bush"
+    weight = 19
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "bush_dry"
+    weight = 14
 
   [[scatterZones.entries]]
     big = false
@@ -23237,14 +23249,6 @@
   [[scatterZones.grass]]
     ref = "grass_dry_sprig"
     weight = 10
-
-  [[scatterZones.grass]]
-    ref = "bush"
-    weight = 4
-
-  [[scatterZones.grass]]
-    ref = "bush_dry"
-    weight = 3
 
   [[scatterZones.soil]]
     ref = "soil_pebbles"

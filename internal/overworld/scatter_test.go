@@ -362,7 +362,7 @@ func TestScatterCatalogFrom_地面を覆う草と土の実データ(t *testing.T
 	grass := []scatterEntry{
 		{Ref: "grass", Weight: 30}, {Ref: "grass_lush", Weight: 15}, {Ref: "grass_sprig", Weight: 15},
 		{Ref: "weeds", Weight: 10}, {Ref: "grass_dry", Weight: 10}, {Ref: "grass_dark", Weight: 10},
-		{Ref: "grass_dry_sprig", Weight: 10}, {Ref: "bush", Weight: 4}, {Ref: "bush_dry", Weight: 3},
+		{Ref: "grass_dry_sprig", Weight: 10},
 	}
 	soil := []scatterEntry{
 		{Ref: "soil_pebbles", Weight: 3}, {Ref: "soil_dark", Weight: 3}, {Ref: "soil_dry", Weight: 3}, {Ref: "soil_crack", Weight: 2},

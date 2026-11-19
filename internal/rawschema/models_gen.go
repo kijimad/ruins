@@ -2352,7 +2352,8 @@ type ScatterWallStep struct {
 	Id EntityID `json:"id"`
 }
 
-// ScatterZone 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
+// ScatterZone 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り。
+// entries は木・低木・岩のような置物
 type ScatterZone struct {
 	Entries []ScatterEntry `json:"entries"`
 

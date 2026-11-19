@@ -92,22 +92,6 @@ func TestValidateFlatShapes(t *testing.T) {
 	}
 }
 
-func TestRealData_散布の草と土の層が指す置物は全て壊せる(t *testing.T) {
-	t.Parallel()
-
-	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
-	require.NoError(t, err)
-	unbreakable := []string{}
-	for _, z := range PtrSlice(master.ScatterZones) {
-		for _, e := range append(append([]rawschema.GroundCoverEntry{}, z.Grass...), z.Soil...) {
-			if p, err := GetProp(master, e.Ref); err == nil && p.Hp == nil {
-				unbreakable = append(unbreakable, p.Id)
-			}
-		}
-	}
-	assert.Equal(t, []string{}, unbreakable, "壊せない草や土の模様は、キューブの展開や設備の置き場を妨げないよう地面の飾りの表に置く")
-}
-
 func TestSchema_正常なアイテムは通る(t *testing.T) {
 	t.Parallel()
 

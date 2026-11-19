@@ -1339,7 +1339,7 @@ import (
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)
-	// 散布やパレットは置物と飾りを同じ id の並びで指すので、2つの表で id が重ならない
+	// 施設の絵のパレットは置物と飾りを同じ id の並びで指すので、2つの表で id が重ならない
 	propDecorIds_unique: {
 		if props != _|_ for i, x in props {(x.id): "props.\(i)"}
 		if decors != _|_ for i, x in decors {(x.id): "decors.\(i)"}
@@ -1448,7 +1448,8 @@ import (
 	}
 }
 
-// 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り
+// 開けた地形の散布ゾーン1種。grass は草を置くタイルに、soil は草の生えていない土へ soilDensity の確率で置く地面の飾り。
+// entries は木・低木・岩のような置物
 #ScatterZone: {
 	id!: #EntityID
 	// チャンクの全面を埋める下地のタイル
@@ -1463,9 +1464,9 @@ import (
 	lootGroup_ref: _itemGroupIDs[lootGroup] @rawgen(-)
 	entries!: [...#ScatterEntry]
 	grass!: [...#GroundCoverEntry]
-	grass_ref: [for x in grass {_propOrDecorIDs[x.ref]}] @rawgen(-)
+	grass_ref: [for x in grass {_decorIDs[x.ref]}] @rawgen(-)
 	soil!: [...#GroundCoverEntry]
-	soil_ref: [for x in soil {_propOrDecorIDs[x.ref]}] @rawgen(-)
+	soil_ref: [for x in soil {_decorIDs[x.ref]}] @rawgen(-)
 }
 
 // 季節の表示名と世界温度。春と秋は年の前半と後半の中点、夏は頂、冬は底の温度で、間を正弦波でつなぐ
