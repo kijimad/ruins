@@ -112,7 +112,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
-| | No open documents | | |
+| draft | [灯りに残量、道具に耐久を持たせて有限にする](docs/design/261119224218.md) | 0/8 | item, gamedesign |
 
 
 ## References
