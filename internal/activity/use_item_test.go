@@ -805,3 +805,38 @@ func TestUseItem_キューブの核を使うと隣にキューブが組み上が
 		})
 	}
 }
+
+func TestUseItem_満腹なら食べずにログを出す(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name        string
+		current     int
+		wantEaten   bool
+		wantLogText i18n.Msgid
+	}{
+		{"満腹度が上限なら食べず食べ物も残る", gc.DefaultMaxHunger, false, "Too full to eat"},
+		{"上限より1でも少なければ食べる", gc.DefaultMaxHunger - 1, true, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+			require.NoError(t, err)
+			world.Components.Hunger.Get(player).Current = tt.current
+			item, err := lifecycle.SpawnBackpackItem(world, "almond", 1)
+			require.NoError(t, err)
+
+			_, err = Execute(NewUseItemActivity(item), player, world)
+			require.NoError(t, err)
+
+			assert.Equal(t, !tt.wantEaten, world.ECS.Alive(item))
+			if !tt.wantEaten {
+				assert.Equal(t, tt.current, world.Components.Hunger.Get(player).Current)
+				entries := query.GetGameLog(world).GetRecentEntries(1)
+				require.Len(t, entries, 1)
+				assert.Equal(t, query.T(world, tt.wantLogText), entries[0].Text())
+			}
+		})
+	}
+}
