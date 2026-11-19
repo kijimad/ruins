@@ -364,6 +364,7 @@ func TestScatterCatalogFrom_地面を覆う草と土の実データ(t *testing.T
 	}
 	soil := []scatterEntry{
 		{Ref: "soil_pebbles", Weight: 3}, {Ref: "soil_dark", Weight: 3}, {Ref: "soil_dry", Weight: 3}, {Ref: "soil_crack", Weight: 2},
+		{Ref: "soil_gravel", Weight: 3}, {Ref: "soil_frost", Weight: 3}, {Ref: "soil_stones", Weight: 2}, {Ref: "soil_ice", Weight: 1},
 	}
 	for _, z := range []outdoorZone{zoneRoadside, zoneWild} {
 		cat, err := scatterCatalogFrom(raws, z)

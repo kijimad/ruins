@@ -6467,6 +6467,18 @@ msgstr "乾いた土"
 msgid "Cracked Ground"
 msgstr "地割れ"
 
+msgid "Gravel"
+msgstr "砂利"
+
+msgid "Frost"
+msgstr "霜"
+
+msgid "Flat Stones"
+msgstr "平たい石"
+
+msgid "Frozen Puddle"
+msgstr "凍った水たまり"
+
 msgid "Shrub"
 msgstr "灌木"
 
