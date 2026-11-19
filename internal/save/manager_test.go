@@ -541,6 +541,19 @@ func TestSerializationManager_LoadWorld_武器スロットでない選択は復�
 	require.ErrorIs(t, err, errInvalidWeaponSelection)
 }
 
+func TestSerializationManager_LoadWorld_武器の選択が無いと復元を拒否する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+	world.Components.WeaponSelection.Remove(world.Resources.SingletonEntity)
+	require.NoError(t, manager.SaveWorld(world, "no_weapon_selection"))
+
+	err = manager.LoadWorld(testutil.InitTestWorld(t), "no_weapon_selection")
+	require.ErrorIs(t, err, errInvalidWeaponSelection)
+}
+
 // TestRestoreWorldFromJSON_PreservesWorldOnFailure はロードが復元段階で失敗しても、現行ワールドが
 // 破壊されずに残ることを検証する。RestoreWorldFromJSON は本番ワールドを Reset する前に使い捨ての
 // probe で全工程を検証するため、失敗は本番ワールドに波及しない。

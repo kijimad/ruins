@@ -292,12 +292,9 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 	query.Player(world, func(playerEntity ecs.Entity) {
 		weapons := query.GetWeapons(world, playerEntity)
 
-		selected := query.GetWeaponSelection(world).Slot
+		selectedSlot = int(query.GetWeaponSelection(world).Slot - gc.SlotWeapon1)
 		for i, weapon := range weapons {
 			slotNumber := gc.EquipmentSlotNumber(int(gc.SlotWeapon1) + i)
-			if slotNumber == selected {
-				selectedSlot = i
-			}
 
 			var weaponName string
 			var spriteSheet, spriteName string

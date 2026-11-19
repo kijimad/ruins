@@ -166,7 +166,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		for i := 1; i < 5; i++ {
 			assert.Empty(t, data.Slots[i].WeaponName, "他のスロットは空のまま")
 		}
-		assert.Equal(t, 2, data.SelectedSlot, "選択中の添字をそのまま渡す")
+		assert.Equal(t, 2, data.SelectedSlot, "選択中の武器スロットを並びの添字にして渡す")
 	})
 }
 
