@@ -148,3 +148,9 @@ func TestCardinal_Delta_隣のマスへのずれを返す(t *testing.T) {
 	assert.Equal(t, []consts.Coord[consts.Tile]{{X: 0, Y: -1}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: -1, Y: 0}},
 		[]consts.Coord[consts.Tile]{consts.North.Delta(), consts.East.Delta(), consts.South.Delta(), consts.West.Delta()})
 }
+
+func TestCardinal_Delta_未知の向きはpanicする(t *testing.T) {
+	t.Parallel()
+
+	assert.Panics(t, func() { consts.Cardinal(99).Delta() }, "東西南北以外の値はpanicする")
+}
