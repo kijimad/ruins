@@ -15,7 +15,7 @@ const (
 	CauseIllness DeathCause = "illness"
 	// CauseBloodLoss は外傷の失血で死んだときの死因
 	CauseBloodLoss DeathCause = "blood_loss"
-	// CauseKilled は戦闘のダメージで倒れたときの死因
+	// CauseKilled はダメージで HP が尽きたときの死因。攻撃も自分の手榴弾も含む
 	CauseKilled DeathCause = "killed"
 	// CauseDebug はデバッグで結果画面を確認するための死因
 	CauseDebug DeathCause = "debug"
@@ -27,7 +27,7 @@ var deathCauseDisplayNames = map[DeathCause]i18n.Msgid{
 	CauseFrozen:    "froze to death",
 	CauseIllness:   "died of illness",
 	CauseBloodLoss: "bled out",
-	CauseKilled:    "killed in battle",
+	CauseKilled:    "injury",
 	CauseDebug:     "debug",
 }
 

@@ -5975,8 +5975,8 @@ msgstr "病死"
 msgid "bled out"
 msgstr "失血死"
 
-msgid "killed in battle"
-msgstr "戦闘で斃れた"
+msgid "injury"
+msgstr "外傷"
 
 msgid "debug"
 msgstr "デバッグ"
