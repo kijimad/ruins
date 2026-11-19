@@ -286,13 +286,11 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 	}
 
 	var slots []hud.WeaponSlotInfo
-	var selectedSlot int
 
 	// プレイヤーの武器スロット情報を取得
 	query.Player(world, func(playerEntity ecs.Entity) {
 		weapons := query.GetWeapons(world, playerEntity)
 
-		selectedSlot, _ = query.GetWeaponSelection(world).Slot.WeaponIndex()
 		for i, weapon := range weapons {
 			slotNumber := gc.SlotWeapon1 + gc.EquipmentSlotNumber(i)
 
@@ -325,7 +323,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 
 	return hud.WeaponSlotsData{
 		Slots:            slots,
-		SelectedSlot:     selectedSlot,
+		SelectedSlot:     query.GetWeaponSelection(world).Slot,
 		ScreenDimensions: screenDimensions,
 	}
 }

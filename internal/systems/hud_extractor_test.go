@@ -137,8 +137,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 			assert.Empty(t, slot.SpriteSheet)
 			assert.Empty(t, slot.SpriteName)
 		}
-		// Slot=1は0ベースで0になる
-		assert.Equal(t, 0, data.SelectedSlot)
+		assert.Equal(t, gc.SlotWeapon1, data.SelectedSlot)
 	})
 
 	t.Run("装備した武器のスロットに情報を反映する", func(t *testing.T) {
@@ -166,7 +165,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		for i := 1; i < 5; i++ {
 			assert.Empty(t, data.Slots[i].WeaponName, "他のスロットは空のまま")
 		}
-		assert.Equal(t, 2, data.SelectedSlot, "選択中の武器スロットを並びの添字にして渡す")
+		assert.Equal(t, gc.SlotWeapon3, data.SelectedSlot, "選択中の武器スロットをそのまま渡す")
 	})
 }
 

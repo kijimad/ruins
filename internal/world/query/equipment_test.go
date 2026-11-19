@@ -75,6 +75,9 @@ func TestSelectedWeapon(t *testing.T) {
 	query.GetWeaponSelection(world).Slot = gc.SlotWeapon2
 	_, ok = query.SelectedWeapon(world, player)
 	assert.False(t, ok, "空きスロットを選ぶと武器は無い")
+
+	query.GetWeaponSelection(world).Slot = gc.SlotHead
+	assert.Panics(t, func() { query.SelectedWeapon(world, player) }, "武器スロットでない選択は不変条件の破れ")
 }
 
 func TestGetWeapons_装備した武器をスロット順で返す(t *testing.T) {

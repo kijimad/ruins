@@ -108,9 +108,9 @@ type MessageData struct {
 
 // WeaponSlotsData は武器スロット表示に必要なデータ
 type WeaponSlotsData struct {
-	Slots            []WeaponSlotInfo // 5つの武器スロット情報
-	SelectedSlot     int              // 選択中のスロット番号（0-4）
-	ScreenDimensions ScreenDimensions // 画面サイズ
+	Slots            []WeaponSlotInfo       // 5つの武器スロット情報
+	SelectedSlot     gc.EquipmentSlotNumber // 選択中の武器スロット
+	ScreenDimensions ScreenDimensions       // 画面サイズ
 }
 
 // WeaponSlotInfo は武器スロットの情報

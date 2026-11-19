@@ -62,7 +62,7 @@ func (ws *WeaponSlots) Draw(cv uicore.Canvas, data WeaponSlotsData, world w.Worl
 			face:     ws.face,
 			slot:     slot,
 			number:   i + 1,
-			selected: i == data.SelectedSlot,
+			selected: slot.SlotNumber == data.SelectedSlot,
 			sprites:  sprites,
 		})
 	}
