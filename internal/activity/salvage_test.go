@@ -53,6 +53,82 @@ func TestToolDamageMultiplier(t *testing.T) {
 	}
 }
 
+func TestWieldedTool_武器未選択なら道具なしを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+	query.GetWeaponSelection(world).Slot = 1
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, "tree_a")
+	require.True(t, ok)
+
+	grade, withTool := wieldedTool(world, player, def)
+
+	assert.Equal(t, 0, grade)
+	assert.False(t, withTool)
+}
+
+func TestDropSalvage_分解定義が無ければ何もせず終わる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	target, err := lifecycle.SpawnProp(world, "grass", 10, 9)
+	require.NoError(t, err)
+
+	err = dropSalvage(world, player, target)
+
+	require.NoError(t, err)
+	assert.Empty(t, query.PickablesAt(world, consts.Coord[consts.Tile]{X: 10, Y: 9}), "分解定義が無いので産出を落とさない")
+}
+
+func TestGainSkillExp_Skillsコンポーネントが無ければ何もしない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+
+	gainSkillExp(actor, world, rawschema.SkillIdMechanic)
+
+	assert.Empty(t, query.GetGameLog(world).GetRecentEntries(10), "Skillsが無ければスキルアップのログを出さない")
+}
+
+func TestGainSkillExp_スキルが上がるとStatsChangedを付ける(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current = gc.LevelUpExp - 1
+	world.Components.StatsChanged.Remove(player)
+
+	gainSkillExp(player, world, rawschema.SkillIdMechanic)
+
+	assert.True(t, world.Components.StatsChanged.Has(player))
+	assert.Equal(t, 1, world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Value)
+}
+
+func TestGainSkillExp_既にStatsChangedが付いていれば二重に付けない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current = gc.LevelUpExp - 1
+	require.True(t, world.Components.StatsChanged.Has(player), "spawn時に既にStatsChangedが付いている前提")
+
+	assert.NotPanics(t, func() { gainSkillExp(player, world, rawschema.SkillIdMechanic) })
+
+	require.True(t, world.Components.StatsChanged.Has(player))
+	assert.Equal(t, 1, world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Value, "スキルアップ自体は起こる")
+}
+
+func TestSkillValueOf_Skillsコンポーネントが無ければ0(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+
+	assert.Equal(t, 0, skillValueOf(actor, world, rawschema.SkillIdMechanic))
+}
+
 func TestSalvageRoll(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
