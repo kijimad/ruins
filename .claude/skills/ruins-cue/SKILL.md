@@ -12,7 +12,7 @@ raw のデータの形・値の制約・行の間の参照は `internal/rawschem
 - `schema.cue`: 型と制約。定義 `#X` が Go の型になる。
 - `refs.cue`: 参照を引く id の索引。隠しフィールドに置く。
 - `root.cue`: 検証するデータの最上位を `#Raws` に結ぶ。
-- `gen/`: CUE から `models_gen.go` を書き出す生成器。`go generate` から呼ぶ。
+- `gen/`: CUE から `models_gen.go` を書き出す生成器。ルートの `gen.go` の `go generate` から呼ぶ。raw の型だけを作り直すときはルートで `go generate -run rawschema .` を走らせる。
 - `rawcheck/`: CUE で raw を検証する。テストからだけ使い、ゲームのバイナリには CUE を入れない。
 
 ## 変更の手順

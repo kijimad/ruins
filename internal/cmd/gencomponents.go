@@ -15,7 +15,7 @@ import (
 
 // CmdGenComponents は genspec.Registry から components パッケージの
 // EntitySpec / Components / InitializeComponents / AddEntity を生成するサブコマンド。
-// 通常はトップの //go:generate から呼ばれる。
+// 通常はルートの gen.go の //go:generate から呼ばれる。
 var CmdGenComponents = &cli.Command{
 	Name:  "gencomponents",
 	Usage: "generate component definitions such as EntitySpec and Components from the registry",
