@@ -23354,19 +23354,19 @@
   name = "Outdoor"
 
 [[shelterEffects]]
-  anchorTemp = 10
+  anchorTemp = 12
   covered = true
   daylightPercent = 60
   id = "partial"
-  influencePercent = 75
+  influencePercent = 60
   name = "Semi-outdoor"
 
 [[shelterEffects]]
-  anchorTemp = 10
+  anchorTemp = 15
   covered = true
   daylightPercent = 25
   id = "indoor"
-  influencePercent = 50
+  influencePercent = 25
   name = "Indoor"
 
 [[simpleStarts]]

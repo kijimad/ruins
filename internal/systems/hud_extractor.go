@@ -443,10 +443,10 @@ func ambientTempDisplayColor(temp int) color.RGBA {
 }
 
 // temperatureSteadyThreshold はこれ以下の変化量を一定とみなし、矢印を出さない境界
-const temperatureSteadyThreshold = 0.05
+const temperatureSteadyThreshold = 0.001
 
 // temperatureIntensityMax は矢印の色が最も濃くなる変化量
-const temperatureIntensityMax = 0.5
+const temperatureIntensityMax = 0.12
 
 // temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温の状態があるとき ok=true。
 // 表示名で状態と重症度を、色で寒さを示す。変化の向きは矢印が別に担う

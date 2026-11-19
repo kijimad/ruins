@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"math"
 	"strconv"
 	"testing"
 
@@ -26,7 +27,7 @@ func setStage(world w.World, key gc.StageKey) {
 	query.EnsureStageField(world, key).BaseTemp = dungeon.BaseTemperatureFor(world.Resources.RawMaster, key.Name)
 }
 
-func TestCalcBodyTempRate_閾値ごとの変化量を固定する(t *testing.T) {
+func TestCalcBodyTempRate_適温を下回った分に比例して下がる(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -34,29 +35,19 @@ func TestCalcBodyTempRate_閾値ごとの変化量を固定する(t *testing.T) 
 		effectiveTemp int
 		expected      float64
 	}{
-		{"極寒(-50度以下)", -100, -0.5},
-		{"極寒(-50度)", -50, -0.5},
-		{"非常に寒い(-49度)", -49, -0.2},
-		{"非常に寒い(0度以下)", -10, -0.2},
-		{"非常に寒い(0度)", 0, -0.2},
-		{"寒い(1-10度)", 5, -0.1},
-		{"寒い(10度)", 10, -0.1},
-		{"やや寒い(11-15度)", 12, 0},
-		{"やや寒い(15度)", 15, 0},
-		{"快適(16-25度)", 20, 0},
-		{"快適(25度)", 25, 0},
-		{"適温(26-30度)", 28, 0},
-		{"適温(30度)", 30, 0},
-		{"暑くても害はない(33度)", 33, 0},
-		{"暑くても害はない(35度)", 35, 0},
-		{"非常に暑くても害はない(40度)", 40, 0},
+		{"極寒(-50度)は適温から62度下で0.124下がる", -50, -0.124},
+		{"0度は適温から12度下で0.024下がる", 0, -0.024},
+		{"10度は適温から2度下で0.004下がる", 10, -0.004},
+		{"11度は適温から1度下で0.002下がる", 11, -0.002},
+		{"適温の12度では下がらない", 12, 0},
+		{"適温より暑くても下がらない", 40, 0},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			result := calcBodyTempRate(tt.effectiveTemp)
-			assert.Equal(t, tt.expected, result)
+			assert.InDelta(t, tt.expected, result, 1e-9)
 		})
 	}
 }
@@ -161,11 +152,18 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		assert.Negative(t, hs.BodyTempOffset)
 		assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia")), "正常帯の内はタイマーが進まない")
 
-		// 冷やし続けると正常帯を割って低体温が付く
-		for range 25 {
+		// 冷やし続けると正常帯を割って低体温が付く。正常帯の幅を1ターンの冷え方で割ったターン数で付く
+		ambient, err := query.AmbientTemperatureAt(world, 0, 0)
+		require.NoError(t, err)
+		rate := calcBodyTempRate(ambient + query.CalculateEquippedInsulation(world, player).Cold)
+		require.Negative(t, rate)
+		var cond *gc.HealthCondition
+		for range int(math.Ceil(bodyTempColdBand/-rate)) + 1 {
 			require.NoError(t, sys.Update(world))
+			if cond = hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia")); cond != nil {
+				break
+			}
 		}
-		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("hypothermia"))
 		require.NotNil(t, cond)
 		assert.Greater(t, cond.Timer, 0.0)
 	})
