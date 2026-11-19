@@ -24,7 +24,7 @@ func TestApplyConditionDamage(t *testing.T) {
 		hp.Max = 100
 		hp.Current = 50
 
-		ApplyConditionDamage(world, entity, 20, gc.CauseFrozen)
+		ApplyConditionDamage(world, entity, 20, gc.CauseHypothermia)
 
 		assert.Equal(t, 30, world.Components.HP.Get(entity).Current)
 		assert.False(t, world.Components.Dead.Has(entity))
@@ -39,7 +39,7 @@ func TestApplyConditionDamage(t *testing.T) {
 		hp.Max = 100
 		hp.Current = 10
 
-		ApplyConditionDamage(world, entity, 20, gc.CauseFrozen)
+		ApplyConditionDamage(world, entity, 20, gc.CauseHypothermia)
 
 		assert.Equal(t, 0, world.Components.HP.Get(entity).Current)
 		assert.True(t, world.Components.Dead.Has(entity))
@@ -52,12 +52,12 @@ func TestApplyConditionDamage(t *testing.T) {
 		require.NoError(t, err)
 		world.Components.HP.Get(player).Current = 3
 
-		ApplyConditionDamage(world, player, 10, gc.CauseFrozen)
+		ApplyConditionDamage(world, player, 10, gc.CauseHypothermia)
 
 		assert.True(t, world.Components.Dead.Has(player))
 		rs := query.GetRunStats(world)
 		require.NotNil(t, rs)
-		assert.Equal(t, gc.CauseFrozen, rs.Cause)
+		assert.Equal(t, gc.CauseHypothermia, rs.Cause)
 	})
 
 	t.Run("敵が倒れても死因は記録しない", func(t *testing.T) {
@@ -67,7 +67,7 @@ func TestApplyConditionDamage(t *testing.T) {
 		require.NoError(t, err)
 		world.Components.HP.Get(entity).Current = 1
 
-		ApplyConditionDamage(world, entity, 10, gc.CauseFrozen)
+		ApplyConditionDamage(world, entity, 10, gc.CauseHypothermia)
 
 		require.True(t, world.Components.Dead.Has(entity))
 		rs := query.GetRunStats(world)
@@ -76,10 +76,10 @@ func TestApplyConditionDamage(t *testing.T) {
 	})
 }
 
-func TestApplyDamage_戦闘死はkilledを記録する(t *testing.T) {
+func TestApplyDamage_HPが尽きた死因はinjuryを記録する(t *testing.T) {
 	t.Parallel()
 
-	t.Run("プレイヤーの戦闘死は killed", func(t *testing.T) {
+	t.Run("敵の攻撃で倒れたプレイヤーは injury", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
@@ -96,7 +96,22 @@ func TestApplyDamage_戦闘死はkilledを記録する(t *testing.T) {
 		assert.Equal(t, gc.CauseInjury, rs.Cause)
 	})
 
-	t.Run("敵の戦闘死では死因を記録しない", func(t *testing.T) {
+	t.Run("自傷で倒れたプレイヤーも injury", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		world.Components.HP.Get(player).Current = 3
+
+		ApplyDamage(world, player, 10, player)
+
+		require.True(t, world.Components.Dead.Has(player))
+		rs := query.GetRunStats(world)
+		require.NotNil(t, rs)
+		assert.Equal(t, gc.CauseInjury, rs.Cause)
+	})
+
+	t.Run("敵が倒れても死因は記録しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")

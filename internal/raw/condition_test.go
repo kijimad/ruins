@@ -460,7 +460,7 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 	}{
 		{gc.ConditionType("hypothermia"), gc.ConditionDef{
 			Name: "Hypothermia", Description: "The body is dangerously cold. Warm up to recover.",
-			PainPerSeverity: 6, BodyFuncDropPerSeverity: 10, BloodDropPerSeverity: 22, Cause: gc.CauseFrozen, Onset: rawschema.Cold,
+			PainPerSeverity: 6, BodyFuncDropPerSeverity: 10, BloodDropPerSeverity: 22, Cause: gc.CauseHypothermia, Onset: rawschema.Cold,
 		}},
 		{gc.ConditionType("fracture"), gc.ConditionDef{
 			Name: "Fracture", Description: "A broken bone. It will not heal until treated.",

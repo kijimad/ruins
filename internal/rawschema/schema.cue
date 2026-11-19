@@ -176,7 +176,7 @@ import (
 #ConditionAmountPerSeverity: int & >=0 & <=100
 
 // 不調が血液量を尽きさせて倒したときの死因
-#ConditionDeathCause: "frozen" | "illness" | "blood_loss"
+#ConditionDeathCause: "hypothermia" | "illness" | "blood_loss"
 
 // 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ
 #ConditionOnset: "cold" | "rotten_food" | "fatigue" | "hunger"

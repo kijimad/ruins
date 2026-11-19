@@ -17,10 +17,10 @@ func TestDeathCause_DisplayName(t *testing.T) {
 		cause DeathCause
 		want  i18n.Msgid
 	}{
-		{CauseFrozen, "hypothermia"},
-		{CauseIllness, "illness"},
-		{CauseBloodLoss, "blood loss"},
-		{CauseInjury, "injury"},
+		{CauseHypothermia, "Hypothermia"},
+		{CauseIllness, "Illness"},
+		{CauseBloodLoss, "Blood loss"},
+		{CauseInjury, "Injury"},
 		{CauseDebug, "debug"},
 	}
 	for _, tt := range tests {

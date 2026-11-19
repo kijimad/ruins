@@ -379,7 +379,7 @@ func TestHealthStatus_BloodLoss(t *testing.T) {
 		hs.Parts[BodyPartWholeBody].SetCondition(HealthCondition{Type: ConditionType("hypothermia"), Timer: 90, Severity: SeveritySevere})
 		drain, cause := hs.BloodLossHPDrain(testDefs)
 		assert.Positive(t, drain)
-		assert.Equal(t, CauseFrozen, cause)
+		assert.Equal(t, CauseHypothermia, cause)
 	})
 }
 
