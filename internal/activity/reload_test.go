@@ -64,7 +64,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		we, err := lifecycle.SpawnBackpackItem(world, "handgun", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetWeaponSelection(world).Index = 0
+		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
 
 		// マガジンを空にする（弾薬アイテムは持っていない）
 		fire := world.Components.Fire.Get(we)
@@ -88,7 +88,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		we, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetWeaponSelection(world).Index = 0
+		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
 
 		ra := &ReloadBehavior{}
 		comp := NewActivity(gc.BehaviorReload, 0)
@@ -154,7 +154,7 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		we, err := lifecycle.SpawnBackpackItem(world, "handgun", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetWeaponSelection(world).Index = 0
+		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
 
 		fire := world.Components.Fire.Get(we)
 		fire.Magazine = 0

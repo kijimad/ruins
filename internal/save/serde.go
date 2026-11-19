@@ -151,6 +151,19 @@ func validateStages(world w.World) error {
 	return nil
 }
 
+// validateWeaponSelection は選択中の武器スロットが武器スロットかを検査する。使う側は範囲を検査せず武器の並びを引くので、
+// ここで弾かないとロード後に範囲外の添字で止まる
+func validateWeaponSelection(world w.World) error {
+	var err error
+	q := ecs.NewFilter1[gc.WeaponSelection](world.ECS).Query()
+	for q.Next() {
+		if e := world.Components.WeaponSelection.Get(q.Entity()).Validate(); e != nil {
+			err = fmt.Errorf("%w: %w", errInvalidWeaponSelection, e)
+		}
+	}
+	return err
+}
+
 // extractPlayerName はワールドからプレイヤー名を取得する。存在しなければ空文字を返す。
 // クエリを途中でreturnするとワールドがロックされたままになるため、必ず最後まで反復する
 func extractPlayerName(world w.World) string {

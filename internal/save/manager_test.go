@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/kijimaD/ruins/internal/i18n"
+	"github.com/kijimaD/ruins/internal/world/query"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -525,6 +526,19 @@ func TestSerializationManager_LoadWorld_不正なステージキーは復元を�
 	newWorld := testutil.InitTestWorld(t)
 	err = manager.LoadWorld(newWorld, "invalid_stage")
 	require.ErrorIs(t, err, errInvalidStageKey)
+}
+
+func TestSerializationManager_LoadWorld_武器スロットでない選択は復元を拒否する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+	query.GetWeaponSelection(world).Slot = gc.SlotHead
+	require.NoError(t, manager.SaveWorld(world, "invalid_weapon"))
+
+	err = manager.LoadWorld(testutil.InitTestWorld(t), "invalid_weapon")
+	require.ErrorIs(t, err, errInvalidWeaponSelection)
 }
 
 // TestRestoreWorldFromJSON_PreservesWorldOnFailure はロードが復元段階で失敗しても、現行ワールドが

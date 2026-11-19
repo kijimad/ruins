@@ -35,6 +35,15 @@ func GetWeapons(world w.World, owner ecs.Entity) [gc.WeaponSlotCount]*ecs.Entity
 	return weapons
 }
 
+// SelectedWeapon は owner が選択中の武器スロットに装備している武器を返す。空きスロットなら ok は偽
+func SelectedWeapon(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
+	weapon := GetWeapons(world, owner)[GetWeaponSelection(world).Slot-gc.SlotWeapon1]
+	if weapon == nil {
+		return ecs.Entity{}, false
+	}
+	return *weapon, true
+}
+
 // GetArmorEquipments は防具一覧を取得する（HEAD, TORSO, ARMS, HANDS, LEGS, FEET, JEWELRY）
 // 必ず長さ7のスライスを返す
 func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {

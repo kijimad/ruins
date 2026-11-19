@@ -58,6 +58,25 @@ func TestGetWeapons_Empty(t *testing.T) {
 	}
 }
 
+func TestSelectedWeapon(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	torch := query.GetWeapons(world, player)[0]
+	require.NotNil(t, torch, "初期装備の松明はスロット1にある")
+
+	query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
+	got, ok := query.SelectedWeapon(world, player)
+	assert.True(t, ok)
+	assert.Equal(t, *torch, got)
+
+	query.GetWeaponSelection(world).Slot = gc.SlotWeapon2
+	_, ok = query.SelectedWeapon(world, player)
+	assert.False(t, ok, "空きスロットを選ぶと武器は無い")
+}
+
 func TestGetWeapons_装備した武器をスロット順で返す(t *testing.T) {
 	t.Parallel()
 

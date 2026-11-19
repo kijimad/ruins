@@ -127,7 +127,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
 
-		query.GetWeaponSelection(world).Index = 0
+		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
 
 		data := extractWeaponSlotsData(world)
 
@@ -155,7 +155,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		world.Components.SpriteRender.Add(weapon, &gc.SpriteRender{SpriteSheetName: "weapons", SpriteKey: "rapier"})
 		world.Components.LocationEquipped.Add(weapon, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotWeapon1})
 
-		query.GetWeaponSelection(world).Index = 2
+		query.GetWeaponSelection(world).Slot = gc.SlotWeapon3
 
 		data := extractWeaponSlotsData(world)
 

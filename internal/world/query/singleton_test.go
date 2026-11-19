@@ -83,10 +83,10 @@ func TestGetWeaponSelection(t *testing.T) {
 
 	ws := GetWeaponSelection(world)
 	require.NotNil(t, ws)
-	assert.Equal(t, 0, ws.Index, "初期は先頭の武器スロット")
+	assert.Equal(t, gc.SlotWeapon1, ws.Slot, "初期は先頭の武器スロット")
 
-	ws.Index = 2
-	assert.Equal(t, 2, GetWeaponSelection(world).Index, "更新がシングルトンに反映される")
+	ws.Slot = gc.SlotWeapon3
+	assert.Equal(t, gc.SlotWeapon3, GetWeaponSelection(world).Slot, "更新がシングルトンに反映される")
 }
 
 func TestGetRunStats_InitWorldで初期状態を取得できる(t *testing.T) {
