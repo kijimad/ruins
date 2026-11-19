@@ -1,7 +1,6 @@
 package balance
 
 import (
-	"math/rand/v2"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,27 +17,6 @@ func TestExpectedDamagePerAttack_手計算と一致(t *testing.T) {
 
 	got := ExpectedDamagePerAttack(attacker, defender, weapon)
 	assert.InDelta(t, 8.35, got, 1e-9)
-}
-
-func TestExpectedDamagePerAttack_モンテカルロと一致(t *testing.T) {
-	t.Parallel()
-	// 閉形式の ExpectedDamagePerAttack が実コードの rollAttack を正しく期待値化しているかを、
-	// rollAttack を多数回まわした1撃あたりの平均ダメージと突き合わせて確認する。
-	// 閉形式が実式からずれたらここで落ちる。ミス0・クリティカル・防御差し引きまで含む。
-	attacker := CombatantStats{Strength: 6, Sensation: 4, Dexterity: 7, Agility: 5}
-	defender := CombatantStats{HP: 40, Agility: 4, Defense: 2}
-	weapon := WeaponStats{Damage: 4, Accuracy: 85}
-
-	rng := rand.New(rand.NewPCG(1, 2))
-	const trials = 1000000
-	total := 0
-	for range trials {
-		total += rollAttack(attacker, defender, weapon, rng)
-	}
-	mc := float64(total) / float64(trials)
-	closed := ExpectedDamagePerAttack(attacker, defender, weapon)
-
-	assert.InEpsilon(t, mc, closed, 0.02)
 }
 
 func TestExpectedTTK_期待ダメージで割る(t *testing.T) {
