@@ -221,19 +221,19 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 
 	// 武器スロット切り替え系アクション
 	case inputmapper.ActionSwitchWeaponSlot1:
-		st.switchWeaponSlot(world, 1)
+		st.switchWeaponSlot(world, 0)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionSwitchWeaponSlot2:
-		st.switchWeaponSlot(world, 2)
+		st.switchWeaponSlot(world, 1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionSwitchWeaponSlot3:
-		st.switchWeaponSlot(world, 3)
+		st.switchWeaponSlot(world, 2)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionSwitchWeaponSlot4:
-		st.switchWeaponSlot(world, 4)
+		st.switchWeaponSlot(world, 3)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionSwitchWeaponSlot5:
-		st.switchWeaponSlot(world, 5)
+		st.switchWeaponSlot(world, 4)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
 	default:
@@ -340,15 +340,13 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	}
 }
 
-// switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
-func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
-	query.GetWeaponSelection(world).Slot = slotNumber
+// switchWeaponSlot は武器の並びの添字 index のスロットに武器を切り替える
+func (st *DungeonState) switchWeaponSlot(world w.World, index int) {
+	query.GetWeaponSelection(world).Index = index
 
 	// プレイヤーの武器スロット情報を取得してログメッセージを出力
 	query.Player(world, func(playerEntity ecs.Entity) {
-		weapons := query.GetWeapons(world, playerEntity)
-		weaponIndex := slotNumber - 1 // 1-based to 0-based
-		weapon := weapons[weaponIndex]
+		weapon := query.GetWeapons(world, playerEntity)[index]
 
 		if weapon != nil {
 			// 武器が装備されている場合は武器名を表示

@@ -292,10 +292,8 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 	query.Player(world, func(playerEntity ecs.Entity) {
 		weapons := query.GetWeapons(world, playerEntity)
 
-		// 5つの武器スロット情報を作成
-		for i := range 5 {
+		for i, weapon := range weapons {
 			slotNumber := gc.EquipmentSlotNumber(int(gc.SlotWeapon1) + i)
-			weapon := weapons[i]
 
 			var weaponName string
 			var spriteSheet, spriteName string
@@ -323,8 +321,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 			})
 		}
 
-		// 現在選択中のスロット（1-5）を0ベース配列インデックスに変換
-		selectedSlot = query.GetWeaponSelection(world).Slot - 1
+		selectedSlot = query.GetWeaponSelection(world).Index
 	})
 
 	return hud.WeaponSlotsData{

@@ -13,10 +13,9 @@ func IsWeapon(world w.World, entity ecs.Entity) bool {
 	return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
 }
 
-// GetWeapons は武器一覧を取得する（スロット1〜5）
-// 必ず長さ5のスライスを返す
-func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
-	weapons := make([]*ecs.Entity, 5)
+// GetWeapons は武器スロットごとの武器を、SlotWeapon1 から順に並べて返す。空きスロットは nil
+func GetWeapons(world w.World, owner ecs.Entity) [gc.WeaponSlotCount]*ecs.Entity {
+	var weapons [gc.WeaponSlotCount]*ecs.Entity
 
 	weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
 	for weaponsQuery.Next() {

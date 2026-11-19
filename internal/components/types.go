@@ -73,6 +73,9 @@ const (
 	SlotWeapon5 EquipmentSlotNumber = 11 // 武器スロット5
 )
 
+// WeaponSlotCount は武器スロットの数
+const WeaponSlotCount = int(SlotWeapon5-SlotWeapon1) + 1
+
 // Name は装備スロット番号の表示名を返す
 func (s EquipmentSlotNumber) Name() i18n.Msgid {
 	switch s {

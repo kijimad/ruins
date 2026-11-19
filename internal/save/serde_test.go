@@ -216,14 +216,14 @@ func TestSerde_WeaponSelectionPersists(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	query.GetWeaponSelection(world).Slot = 4
+	query.GetWeaponSelection(world).Index = 3
 
 	require.NoError(t, manager.SaveWorld(world, "weapon"))
 
 	newWorld := testutil.InitTestWorld(t)
 	require.NoError(t, manager.LoadWorld(newWorld, "weapon"))
 
-	assert.Equal(t, 4, query.GetWeaponSelection(newWorld).Slot, "選択中の武器スロットが復元される")
+	assert.Equal(t, 3, query.GetWeaponSelection(newWorld).Index, "選択中の武器スロットが復元される")
 }
 
 // TestSerde_GameTimePersists はゲーム内時間がセーブ・ロードで復元されることを検証する。

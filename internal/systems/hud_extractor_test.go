@@ -127,7 +127,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
 
-		query.GetWeaponSelection(world).Slot = 1
+		query.GetWeaponSelection(world).Index = 0
 
 		data := extractWeaponSlotsData(world)
 
@@ -155,7 +155,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		world.Components.SpriteRender.Add(weapon, &gc.SpriteRender{SpriteSheetName: "weapons", SpriteKey: "rapier"})
 		world.Components.LocationEquipped.Add(weapon, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotWeapon1})
 
-		query.GetWeaponSelection(world).Slot = 3
+		query.GetWeaponSelection(world).Index = 2
 
 		data := extractWeaponSlotsData(world)
 
@@ -166,7 +166,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		for i := 1; i < 5; i++ {
 			assert.Empty(t, data.Slots[i].WeaponName, "他のスロットは空のまま")
 		}
-		assert.Equal(t, 2, data.SelectedSlot, "Slot=3は0ベースで2になる")
+		assert.Equal(t, 2, data.SelectedSlot, "選択中の添字をそのまま渡す")
 	})
 }
 
