@@ -5966,16 +5966,16 @@ msgstr "%s を発症した。"
 msgid "Cause of death"
 msgstr "死因"
 
-msgid "froze to death"
-msgstr "凍死"
+msgid "hypothermia"
+msgstr "低体温"
 
-msgid "died of illness"
-msgstr "病死"
+msgid "illness"
+msgstr "病気"
 
-msgid "bled out"
-msgstr "失血死"
+msgid "blood loss"
+msgstr "失血"
 
-msgid "died of injuries"
+msgid "injury"
 msgstr "外傷"
 
 msgid "debug"

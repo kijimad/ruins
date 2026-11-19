@@ -24,10 +24,10 @@ const (
 // deathCauseDisplayNames は死因ごとの表示名。結果画面が query.T で訳す。
 // データなので表で持ち、死因を足すときはここへ1行足す
 var deathCauseDisplayNames = map[DeathCause]i18n.Msgid{
-	CauseFrozen:    "froze to death",
-	CauseIllness:   "died of illness",
-	CauseBloodLoss: "bled out",
-	CauseInjury:    "died of injuries",
+	CauseFrozen:    "hypothermia",
+	CauseIllness:   "illness",
+	CauseBloodLoss: "blood loss",
+	CauseInjury:    "injury",
 	CauseDebug:     "debug",
 }
 
