@@ -38,11 +38,10 @@ func (u *UseItemBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorUseItem
 }
 
-// NewUseItemActivity は使用アイテムと治療する不調を指定してアイテム使用アクティビティを組む。
-// 治療を持たない物や、治療しないときは tend に nil を渡す
-func NewUseItemActivity(target ecs.Entity, tend *gc.ConditionRef) *gc.Activity {
+// NewUseItemActivity は使用アイテムを指定してアイテム使用アクティビティを組む。
+func NewUseItemActivity(target ecs.Entity) *gc.Activity {
 	comp := NewActivity(gc.BehaviorUseItem, 0)
-	comp.Params = &gc.UseItemParams{Target: target, Tend: tend}
+	comp.Params = &gc.UseItemParams{Target: target}
 	return comp
 }
 
@@ -76,7 +75,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		if !e.present(world, item) {
 			continue
 		}
-		if err := e.check(u, p, actor, item, world); err != nil {
+		if err := e.check(u, actor, item, world); err != nil {
 			return err
 		}
 	}
@@ -150,46 +149,43 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	return nil
 }
 
-// TreatableConditions は remedy で治療できる不調を部位の順に返す。Treats に一致し、治療の質が remedy より低い不調に限る。
-// 質の高い治療を質の低い物で上書きさせない
-func TreatableConditions(hs *gc.HealthStatus, remedy *gc.Remedy) []gc.ConditionRef {
-	var refs []gc.ConditionRef
+// remedyTarget は Treats に一致し、治療の質が remedy より低い不調から治療の対象を1つ選ぶ。無ければ nil。
+// 未治療の不調を先にし、その中で最も重いものを選ぶ。未治療なら止血と痛みが収まり、治療済みを巻き直しても速さしか上がらない。
+// 質の高い治療を質の低い物で上書きさせない。Validate の使用可否判定と applyRemedy の適用が同じ探索を共有する
+func remedyTarget(hs *gc.HealthStatus, remedy *gc.Remedy) *gc.HealthCondition {
+	var best *gc.HealthCondition
 	for i := range hs.Parts {
-		for j, c := range hs.Parts[i].Conditions {
-			if slices.Contains(remedy.Treats, c.Type) && c.TendQuality < remedy.Potency {
-				refs = append(refs, gc.ConditionRef{Part: gc.BodyPart(i), Index: j})
+		for j := range hs.Parts[i].Conditions {
+			c := &hs.Parts[i].Conditions[j]
+			if !slices.Contains(remedy.Treats, c.Type) || c.TendQuality >= remedy.Potency {
+				continue
+			}
+			if best == nil {
+				best = c
+				continue
+			}
+			untreated, bestUntreated := c.TendQuality == 0, best.TendQuality == 0
+			if (untreated && !bestUntreated) || (untreated == bestUntreated && c.Severity > best.Severity) {
+				best = c
 			}
 		}
 	}
-	return refs
+	return best
 }
 
-// tendTarget は ref が remedy で治療できる不調を指していればその不調を返す。指していなければ nil
-func tendTarget(world w.World, actor ecs.Entity, remedy *gc.Remedy, ref gc.ConditionRef) *gc.HealthCondition {
-	if !world.Components.HealthStatus.Has(actor) || ref.Part < 0 || ref.Part >= gc.BodyPartCount {
-		return nil
-	}
-	conds := world.Components.HealthStatus.Get(actor).Parts[ref.Part].Conditions
-	if ref.Index < 0 || ref.Index >= len(conds) {
-		return nil
-	}
-	c := &conds[ref.Index]
-	if !slices.Contains(remedy.Treats, c.Type) || c.TendQuality >= remedy.Potency {
-		return nil
-	}
-	return c
-}
-
-// applyRemedy は ref の不調を治療済みにする。
+// applyRemedy は治療を適用する。最も重い一致不調を治療済みにする。
 // 治療は即座には治さず、TendQuality を立てて回復軌道へ乗せるだけ。実際の回復は ConditionSystem が進める。
-// 治療した不調があれば true を返す。ref が治療できる不調を指していなければ何もせず false を返す
-func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *gc.Remedy, ref gc.ConditionRef, item ecs.Entity) bool {
-	c := tendTarget(world, actor, remedy, ref)
-	if c == nil {
+// 治療した不調があれば true を返す。一致する不調が無ければ何もせず false を返す
+func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *gc.Remedy, item ecs.Entity) bool {
+	if !world.Components.HealthStatus.Has(actor) {
 		return false
 	}
-	c.TendQuality = remedy.Potency
-	u.logRemedy(actor, world, item, c.Type)
+	best := remedyTarget(world.Components.HealthStatus.Get(actor), remedy)
+	if best == nil {
+		return false
+	}
+	best.TendQuality = remedy.Potency
+	u.logRemedy(actor, world, item, best.Type)
 	return true
 }
 
