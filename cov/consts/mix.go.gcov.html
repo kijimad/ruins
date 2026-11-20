@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">9</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">9</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-19 15:34:08</td>
+            <td class="headerValue">2026-11-20 00:20:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,13 +64,13 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : // Mix64 は splitmix64 の仕上げで x を撹拌する</span>
 <span id="L4"><span class="lineNum">       4</span>              : func Mix64(x uint64) uint64 {</span>
-<span id="L5"><span class="lineNum">       5</span> <span class="tlaUNC">           0 :         x ^= x &gt;&gt; 30</span></span>
-<span id="L6"><span class="lineNum">       6</span> <span class="tlaUNC">           0 :         x *= 0xBF58476D1CE4E5B9</span></span>
-<span id="L7"><span class="lineNum">       7</span> <span class="tlaUNC">           0 :         x ^= x &gt;&gt; 27</span></span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaUNC">           0 :         x *= 0x94D049BB133111EB</span></span>
-<span id="L9"><span class="lineNum">       9</span> <span class="tlaUNC">           0 :         x ^= x &gt;&gt; 31</span></span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaUNC">           0 :         return x</span></span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L5"><span class="lineNum">       5</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 30</span></span>
+<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC">           1 :         x *= 0xBF58476D1CE4E5B9</span></span>
+<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 27</span></span>
+<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC">           1 :         x *= 0x94D049BB133111EB</span></span>
+<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 31</span></span>
+<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">           1 :         return x</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
 <span id="L13"><span class="lineNum">      13</span>              : // Mix2D は seed と2次元の座標 (x, y) を撹拌した決定的な値を返す。チャンクごとの抽選の seed や、マスごとの見た目の</span>
 <span id="L14"><span class="lineNum">      14</span>              : // ばらつきの源にする。</span>
@@ -83,8 +83,8 @@
 <span id="L21"><span class="lineNum">      21</span>              : //</span>
 <span id="L22"><span class="lineNum">      22</span>              : // 奇数を掛けるのは 2^64 を法として可逆で座標の情報を落とさないため。定数を変えると同じ seed でも別の世界になる</span>
 <span id="L23"><span class="lineNum">      23</span>              : func Mix2D[T ~int](seed uint64, x, y T) uint64 {</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         return Mix64(seed + uint64(x)*0x9E3779B97F4A7C15 + uint64(y)*0xC2B2AE3D27D4EB4F)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         return Mix64(seed + uint64(x)*0x9E3779B97F4A7C15 + uint64(y)*0xC2B2AE3D27D4EB4F)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

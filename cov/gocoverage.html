@@ -109,7 +109,7 @@
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
+				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -267,21 +267,21 @@
 				
 				<option value="file105">github.com/kijimaD/ruins/internal/consts/consts.go (100.0%)</option>
 				
-				<option value="file106">github.com/kijimaD/ruins/internal/consts/coord.go (93.8%)</option>
+				<option value="file106">github.com/kijimaD/ruins/internal/consts/coord.go (100.0%)</option>
 				
 				<option value="file107">github.com/kijimaD/ruins/internal/consts/currency.go (100.0%)</option>
 				
-				<option value="file108">github.com/kijimaD/ruins/internal/consts/dice.go (97.7%)</option>
+				<option value="file108">github.com/kijimaD/ruins/internal/consts/dice.go (100.0%)</option>
 				
 				<option value="file109">github.com/kijimaD/ruins/internal/consts/heat.go (100.0%)</option>
 				
-				<option value="file110">github.com/kijimaD/ruins/internal/consts/mix.go (0.0%)</option>
+				<option value="file110">github.com/kijimaD/ruins/internal/consts/mix.go (100.0%)</option>
 				
 				<option value="file111">github.com/kijimaD/ruins/internal/consts/percent.go (100.0%)</option>
 				
 				<option value="file112">github.com/kijimaD/ruins/internal/consts/pick.go (100.0%)</option>
 				
-				<option value="file113">github.com/kijimaD/ruins/internal/consts/turn.go (0.0%)</option>
+				<option value="file113">github.com/kijimaD/ruins/internal/consts/turn.go (100.0%)</option>
 				
 				<option value="file114">github.com/kijimaD/ruins/internal/consts/weight.go (100.0%)</option>
 				
@@ -5680,7 +5680,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -15032,7 +15032,7 @@ func (c Cardinal) Delta() Coord[Tile] {
         case West:
                 <span class="cov8" title="1">return Coord[Tile]{X: -1, Y: 0}</span>
         }
-        <span class="cov0" title="0">panic(fmt.Sprintf("unknown cardinal: %d", int(c)))</span>
+        <span class="cov8" title="1">panic(fmt.Sprintf("unknown cardinal: %d", int(c)))</span>
 }
 </pre>
 		
@@ -15169,7 +15169,7 @@ func ParseDice(s string) (Dice, error) {
 func MustParseDice(s string) Dice {
         <span class="cov8" title="1">d, err := ParseDice(s)
         if err != nil </span>{
-                <span class="cov0" title="0">panic(err)</span>
+                <span class="cov8" title="1">panic(err)</span>
         }
         <span class="cov8" title="1">return d</span>
 }
@@ -15240,7 +15240,7 @@ func (h Heat) BurnTurns(efficiencyPct int) Turn {
 
 // Mix64 は splitmix64 の仕上げで x を撹拌する
 func Mix64(x uint64) uint64 {
-        <span class="cov0" title="0">x ^= x &gt;&gt; 30
+        <span class="cov8" title="1">x ^= x &gt;&gt; 30
         x *= 0xBF58476D1CE4E5B9
         x ^= x &gt;&gt; 27
         x *= 0x94D049BB133111EB
@@ -15259,7 +15259,7 @@ func Mix64(x uint64) uint64 {
 //
 // 奇数を掛けるのは 2^64 を法として可逆で座標の情報を落とさないため。定数を変えると同じ seed でも別の世界になる
 func Mix2D[T ~int](seed uint64, x, y T) uint64 {
-        <span class="cov0" title="0">return Mix64(seed + uint64(x)*0x9E3779B97F4A7C15 + uint64(y)*0xC2B2AE3D27D4EB4F)
+        <span class="cov8" title="1">return Mix64(seed + uint64(x)*0x9E3779B97F4A7C15 + uint64(y)*0xC2B2AE3D27D4EB4F)
 </span>}
 </pre>
 		
@@ -15356,7 +15356,7 @@ type Turn int
 // String は時計アイコンを先頭に付けて「N ターン」を表す。燃焼の残ターンや給油で増えるターンなど、
 // 時間量の表示に使う。通貨や熱量と同じく記号を先頭にし半角スペースで区切る
 func (t Turn) String() string {
-        <span class="cov0" title="0">return fmt.Sprintf("%s %d", IconClock, int(t))
+        <span class="cov8" title="1">return fmt.Sprintf("%s %d", IconClock, int(t))
 </span>}
 </pre>
 		
