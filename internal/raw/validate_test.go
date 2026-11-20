@@ -503,6 +503,7 @@ func TestValidateCommandTables(t *testing.T) {
 		{name: "両方を引く行はエラー", raws: table(rawschema.CommandTableEntry{BodyAttack: new("bite"), Item: new("cleaver"), Weight: 1}), wantErr: errCommandEntryTarget},
 		{name: "どちらも引かない行はエラー", raws: table(rawschema.CommandTableEntry{Weight: 1}), wantErr: errCommandEntryTarget},
 		{name: "近接攻撃を持たないアイテムを引く行はエラー", raws: table(rawschema.CommandTableEntry{Item: new("rock"), Weight: 1}), wantErr: errItemNoMelee},
+		{name: "無いアイテムを引く行はエラー", raws: table(rawschema.CommandTableEntry{Item: new("typo"), Weight: 1}), wantErr: KeyNotFoundError{Key: "typo", Collection: "Items"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -512,27 +513,6 @@ func TestValidateCommandTables(t *testing.T) {
 				require.NoError(t, err)
 				return
 			}
-			require.ErrorIs(t, err, tt.wantErr)
-		})
-	}
-}
-
-func TestCommandEntryMelee_引けない行はエラー(t *testing.T) {
-	t.Parallel()
-
-	raws := rawschema.Raws{Items: &[]rawschema.Item{{Id: "rock", Name: "Rock"}}}
-	tests := []struct {
-		name    string
-		entry   rawschema.CommandTableEntry
-		wantErr error
-	}{
-		{name: "近接攻撃を持たないアイテム", entry: rawschema.CommandTableEntry{Item: new("rock"), Weight: 1}, wantErr: errItemNoMelee},
-		{name: "どちらも持たない行", entry: rawschema.CommandTableEntry{Weight: 1}, wantErr: errCommandEntryTarget},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			_, _, err := CommandEntryMelee(raws, tt.entry)
 			require.ErrorIs(t, err, tt.wantErr)
 		})
 	}

@@ -589,7 +589,14 @@ func validateCommandTables(raws rawschema.Raws) error {
 			if (e.BodyAttack == nil) == (e.Item == nil) {
 				return fmt.Errorf("command table %q entry %d: %w", tables[i].Id, j, errCommandEntryTarget)
 			}
-			if e.Item != nil && !melee[*e.Item] {
+			if e.Item == nil {
+				continue
+			}
+			hasMelee, ok := melee[*e.Item]
+			if !ok {
+				return fmt.Errorf("command table %q entry %d: %w", tables[i].Id, j, NewKeyNotFoundError(*e.Item, "Items"))
+			}
+			if !hasMelee {
 				return fmt.Errorf("command table %q entry %d: %w: %s", tables[i].Id, j, errItemNoMelee, *e.Item)
 			}
 		}
