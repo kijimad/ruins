@@ -43,7 +43,7 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
 	}
 	melee, name, err := raw.CommandEntryMelee(world.Resources.RawMaster, entry)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to get command attack: %w", err)
+		return nil, "", fmt.Errorf("failed to get command attack from %s: %w", commandTableName, err)
 	}
 	return melee, name, nil
 }

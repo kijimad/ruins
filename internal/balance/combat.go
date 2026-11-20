@@ -99,7 +99,7 @@ func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, erro
 
 	if member.CommandTableId == nil {
 		// CommandTableがない場合は素手
-		return LoadWeaponFromBodyAttack(master, "bare_hands")
+		return LoadWeaponFromBodyAttack(master, raw.BareHands)
 	}
 
 	ct, err := raw.GetCommandTable(master, *member.CommandTableId)
@@ -108,7 +108,7 @@ func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, erro
 	}
 
 	if len(ct.Entries) == 0 {
-		return LoadWeaponFromBodyAttack(master, "bare_hands")
+		return LoadWeaponFromBodyAttack(master, raw.BareHands)
 	}
 
 	// 最も重みの高い攻撃を代表として使う

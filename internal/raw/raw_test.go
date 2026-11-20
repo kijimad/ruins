@@ -847,64 +847,6 @@ Defense = 2
 	}
 }
 
-func TestNewWeaponSpec(t *testing.T) {
-	t.Parallel()
-
-	str := `
-[[Items]]
-Name = "テスト剣"
-id = "テスト剣"
-Description = "テスト用の武器"
-SpriteSheetName = "field"
-SpriteKey = "sword"
-
-[Items.Melee]
-Damage = 10
-Accuracy = 90
-AttackCount = 1
-Element = "none"
-AttackCategory = "sword"
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	spec, err := NewWeaponSpec(raws, "テスト剣")
-	require.NoError(t, err)
-	assert.NotNil(t, spec.Melee)
-	assert.Equal(t, 10, spec.Melee.Damage)
-}
-
-func TestNewWeaponSpec_NotAWeapon(t *testing.T) {
-	t.Parallel()
-
-	str := `
-[[Items]]
-Name = "回復薬"
-id = "回復薬"
-Description = "回復するアイテム"
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	_, err = NewWeaponSpec(raws, "回復薬")
-	assert.Error(t, err, "Melee/Fireを持たないアイテムは武器ではない")
-}
-
-func TestNewWeaponSpec_NotFound(t *testing.T) {
-	t.Parallel()
-
-	str := `
-[[Items]]
-Name = "何か"
-id = "何か"
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	_, err = NewWeaponSpec(raws, "存在しない")
-	assert.Error(t, err)
-}
-
 func TestNewEnemySpec(t *testing.T) {
 	t.Parallel()
 

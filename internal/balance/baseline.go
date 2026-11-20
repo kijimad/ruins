@@ -17,7 +17,7 @@ import (
 // 同じ値を参照し、テーブルと実機能がずれるのを防ぐ。
 const (
 	BaselinePlayer     = "ash"
-	BaselineBodyAttack = "bare_hands"
+	BaselineBodyAttack = raw.BareHands
 	BaselineDays       = 21
 	BaselineAreaTable  = "ruins_area"
 	BaselineDungeon    = "forgotten_ruins"

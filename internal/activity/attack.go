@@ -189,7 +189,7 @@ func (ab *MeleeBehavior) canPerformAttack(attacker ecs.Entity, world w.World) bo
 
 // getBareHandsAttack は素手武器の攻撃パラメータを取得する
 func getBareHandsAttack(world w.World) (gc.Attacker, i18n.Msgid, error) {
-	melee, name, err := raw.BodyAttackMelee(world.Resources.RawMaster, "bare_hands")
+	melee, name, err := raw.BodyAttackMelee(world.Resources.RawMaster, raw.BareHands)
 	if err != nil {
 		return nil, "", fmt.Errorf("bare hands attack not found: %w", err)
 	}

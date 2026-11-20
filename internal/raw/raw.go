@@ -480,26 +480,6 @@ func NewRecipeSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	return entitySpec, nil
 }
 
-// NewWeaponSpec は指定された名前の武器のEntitySpecを生成する
-func NewWeaponSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
-	// 武器はアイテムの一種なので、Itemsから検索して存在確認
-	if _, err := FindItem(raws, name); err != nil {
-		return gc.EntitySpec{}, err
-	}
-
-	itemSpec, err := NewItemSpec(raws, name)
-	if err != nil {
-		return gc.EntitySpec{}, fmt.Errorf("failed to generate weapon spec: %w", err)
-	}
-
-	// Melee/Fire のいずれも持たない場合は武器ではない
-	if itemSpec.Melee == nil && itemSpec.Fire == nil {
-		return gc.EntitySpec{}, fmt.Errorf("%s is not a weapon (Melee/Fire component missing)", name)
-	}
-
-	return itemSpec, nil
-}
-
 // PlayerMemberID は player を持つ member の id を返す。読み込み時にちょうど1つあることを確かめる
 func PlayerMemberID(raws rawschema.Raws) (string, error) {
 	members := PtrSlice(raws.Members)
@@ -974,6 +954,9 @@ func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (rawschema
 	}
 	return ct.Entries[i], true
 }
+
+// BareHands は素手の体の攻撃の id。武器を持たないときと、攻撃表を引けない敵が使う
+const BareHands = "bare_hands"
 
 // BodyAttackMelee は体の攻撃の近接攻撃と名前を返す
 func BodyAttackMelee(raws rawschema.Raws, id string) (*gc.Melee, i18n.Msgid, error) {
