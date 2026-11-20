@@ -109,7 +109,7 @@
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -5680,7 +5680,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -18973,6 +18973,8 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 		<pre class="file" id="file152" style="display: none">package maingame
 
 import (
+        "image"
+
         "github.com/hajimehoshi/ebiten/v2"
         es "github.com/kijimaD/ruins/internal/engine/states"
         "github.com/kijimaD/ruins/internal/screeneffect"
@@ -19015,7 +19017,8 @@ func (r *renderer) ensureFrame(width, height int) {
         <span class="cov8" title="1">if r.frame != nil &amp;&amp; r.frameW == width &amp;&amp; r.frameH == height </span>{
                 <span class="cov8" title="1">return
 </span>        }
-        <span class="cov8" title="1">r.frame = ebiten.NewImage(width, height)
+        // アトラスに載ると配置で画素がずれるので unmanaged にする
+        <span class="cov8" title="1">r.frame = ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), &amp;ebiten.NewImageOptions{Unmanaged: true})
         r.frameW = width
         r.frameH = height</span>
 }
@@ -35774,7 +35777,11 @@ func checksumOf(env *saveEnvelope) string {
 		
 		<pre class="file" id="file233" style="display: none">package screeneffect
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+        "image"
+
+        "github.com/hajimehoshi/ebiten/v2"
+)
 
 // Filter は画面エフェクトのインターフェース
 type Filter interface {
@@ -35846,8 +35853,11 @@ func (p *Pipeline) ensureScratch(width, height int) {
         <span class="cov8" title="1">if p.scratch[0] != nil &amp;&amp; p.lastW == width &amp;&amp; p.lastH == height </span>{
                 <span class="cov8" title="1">return
 </span>        }
-        <span class="cov8" title="1">p.scratch[0] = ebiten.NewImage(width, height)
-        p.scratch[1] = ebiten.NewImage(width, height)
+        // アトラスに載ると配置で画素がずれるので unmanaged にする
+        <span class="cov8" title="1">rect := image.Rect(0, 0, width, height)
+        opts := &amp;ebiten.NewImageOptions{Unmanaged: true}
+        p.scratch[0] = ebiten.NewImageWithOptions(rect, opts)
+        p.scratch[1] = ebiten.NewImageWithOptions(rect, opts)
         p.lastW = width
         p.lastH = height</span>
 }
