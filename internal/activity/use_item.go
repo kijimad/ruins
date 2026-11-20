@@ -149,14 +149,14 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	return nil
 }
 
-// mostSevereTreatable は Treats に一致する不調を全部位から探し、最も重い1つを返す。無ければ nil。
-// Validate の使用可否判定と applyRemedy の適用が同じ探索を共有する
+// mostSevereTreatable は Treats に一致し、治療の質が remedy より低い不調を全部位から探し、最も重い1つを返す。無ければ nil。
+// 質の高い治療を質の低い物で上書きさせない。Validate の使用可否判定と applyRemedy の適用が同じ探索を共有する
 func mostSevereTreatable(hs *gc.HealthStatus, remedy *gc.Remedy) *gc.HealthCondition {
 	var best *gc.HealthCondition
 	for i := range hs.Parts {
 		for j := range hs.Parts[i].Conditions {
 			c := &hs.Parts[i].Conditions[j]
-			if slices.Contains(remedy.Treats, c.Type) && (best == nil || c.Severity > best.Severity) {
+			if slices.Contains(remedy.Treats, c.Type) && c.TendQuality < remedy.Potency && (best == nil || c.Severity > best.Severity) {
 				best = c
 			}
 		}
