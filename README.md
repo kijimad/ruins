@@ -114,6 +114,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 |---|---|---|---|
 | draft | [灯りと武器と道具に残量を持たせて有限にする](docs/design/261119224218.md) | 1/17 | item, gamedesign |
 | draft | [物に性質を持たせ、行動は性質に働きかける](docs/design/261120004814.md) | 0/5 | gamedesign, item |
+| draft | [体の攻撃をアイテムの表から分ける](docs/design/261121015354.md) | 0/4 | combat, item, refactor |
 
 
 ## References
