@@ -18,7 +18,7 @@ func TestHandSelection_Validate(t *testing.T) {
 	}
 }
 
-func TestEquipmentSlotNumber_WeaponIndex(t *testing.T) {
+func TestEquipmentSlotNumber_HandIndex(t *testing.T) {
 	t.Parallel()
 
 	got := map[EquipmentSlotNumber]int{}
