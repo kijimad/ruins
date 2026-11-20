@@ -83,7 +83,6 @@ func TestStartActivity_未登録のBehaviorNameはエラーを返す(t *testing.
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	comp := NewActivity(gc.BehaviorName("未登録の振る舞い"), 10)
 	err := StartActivity(comp, actor, world)
@@ -193,7 +192,7 @@ func TestResumeActivity_再開不可なアクティビティはエラーを返�
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
 
-	// Disassemble は Interruptible だが Resumable ではないため、中断後の再開は失敗するはず
+	// Disassemble は Resumable ではないため再開できない
 	comp := NewActivity(gc.BehaviorDisassemble, 10)
 	comp.State = gc.ActivityStatePaused
 	require.NoError(t, query.SetActivity(world, actor, comp))
@@ -240,7 +239,7 @@ func TestCancelActivity_未登録のBehaviorNameは結果を記録せず除去�
 	comp := NewActivity(gc.BehaviorName("未登録の振る舞い"), 10)
 	require.NoError(t, query.SetActivity(world, actor, comp))
 
-	CancelActivity(actor, "テスト", world) // パニックしないことを確認
+	CancelActivity(actor, "テスト", world)
 
 	assert.Nil(t, query.GetActivity(world, actor), "GetBehaviorに失敗したアクティビティは除去される")
 	assert.Nil(t, GetLastResult(actor, world), "GetBehaviorエラー時は結果を記録しない")
@@ -299,7 +298,6 @@ func TestProcessContinuousActivities_アクティビティ処理のエラーを�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
-	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
 
 	// StartActivity を経由せず、直接未登録のBehaviorNameを持つActivityを登録する
 	comp := NewActivity(gc.BehaviorName("未登録の振る舞い"), 10)
@@ -308,6 +306,7 @@ func TestProcessContinuousActivities_アクティビティ処理のエラーを�
 	err := ProcessContinuousActivities(world)
 
 	require.ErrorIs(t, err, ErrBehaviorUnregistered)
+	assert.Nil(t, query.GetActivity(world, actor), "エラー伝播と一緒にアクティビティも除去される")
 }
 
 func TestActivitySummary(t *testing.T) {
