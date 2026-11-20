@@ -22,7 +22,7 @@ func TestSolveScalar_範囲外は両立不能(t *testing.T) {
 	assert.False(t, ok)
 }
 
-func TestWithScaledMeleeDamage_不在アイテムはそのまま実行する(t *testing.T) {
+func TestWithScaledMeleeDamages_不在アイテムはそのまま実行する(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 	before := ruinsDay20PowerRatio(master)
