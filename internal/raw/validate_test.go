@@ -251,6 +251,46 @@ func TestValidateDisassemblies(t *testing.T) {
 	}
 }
 
+func TestValidateItemProperties(t *testing.T) {
+	t.Parallel()
+
+	wrap := rawschema.ItemProperty{Id: "wrap", Remedy: &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"laceration"}, Potency: 50}}
+	tests := []struct {
+		name    string
+		item    rawschema.Item
+		wantErr error
+	}{
+		{
+			name: "治療を性質だけから得れば通る",
+			item: rawschema.Item{Id: "rag", Properties: &[]rawschema.EntityID{"wrap"}},
+		},
+		{
+			name:    "治療を行にも持つとエラー",
+			item:    rawschema.Item{Id: "rag", Properties: &[]rawschema.EntityID{"wrap"}, Remedy: &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"fracture"}, Potency: 100}},
+			wantErr: errItemUseDuplicated,
+		},
+		{
+			name:    "消費物を行にも持つとエラー",
+			item:    rawschema.Item{Id: "rag", Properties: &[]rawschema.EntityID{"wrap"}, Consumable: &rawschema.Consumable{UsableScene: rawschema.ANY, TargetGroup: rawschema.TargetGroupALLY, TargetNum: rawschema.SINGLE}},
+			wantErr: errItemUseDuplicated,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := validateItemProperties(rawschema.Raws{
+				Items:          &[]rawschema.Item{tt.item},
+				ItemProperties: &[]rawschema.ItemProperty{wrap},
+			})
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
 func TestValidateGrounds(t *testing.T) {
 	t.Parallel()
 

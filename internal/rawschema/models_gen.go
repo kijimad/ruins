@@ -1425,6 +1425,9 @@ type Item struct {
 
 	Name EntityName `json:"name"`
 
+	// Properties 物の性質。性質の行が持つ使い道がこの物に加わる
+	Properties *[]EntityID `json:"properties,omitempty"`
+
 	ProvidesHealing *ProvidesHealing `json:"providesHealing,omitempty"`
 
 	ProvidesNutrition *NutritionAmount `json:"providesNutrition,omitempty"`
@@ -1490,6 +1493,14 @@ type ItemGroupEntry struct {
 	Pack Dice `json:"pack"`
 
 	Weight EntryWeight `json:"weight"`
+}
+
+// ItemProperty 物の性質。布で包める、のように複数の物に共通する使い道を1行に書き、物は properties で引く
+type ItemProperty struct {
+	Id EntityID `json:"id"`
+
+	// Remedy この性質の物を使うと不調を治療する。物は使うと無くなる
+	Remedy *Remedy `json:"remedy,omitempty"`
 }
 
 // ItemTable アイテムテーブル
@@ -2154,6 +2165,8 @@ type Raws struct {
 	ItemCollections *[]ItemCollection `json:"itemCollections,omitempty"`
 
 	ItemGroups *[]ItemGroup `json:"itemGroups,omitempty"`
+
+	ItemProperties *[]ItemProperty `json:"itemProperties,omitempty"`
 
 	ItemTables *[]ItemTable `json:"itemTables,omitempty"`
 

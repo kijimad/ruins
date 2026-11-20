@@ -923,6 +923,20 @@ import (
 
 	// キューブの核。使うと隣に新しいキューブが組み上がる
 	cubeCore?: #CubeCore
+
+	// 物の性質。性質の行が持つ使い道がこの物に加わる
+	properties?: [...#EntityID]
+	if properties != _|_ {
+		properties_ref: [for x in properties {_itemPropertyIDs[x]}] @rawgen(-)
+	}
+}
+
+// 物の性質。布で包める、のように複数の物に共通する使い道を1行に書き、物は properties で引く
+#ItemProperty: {
+	id!: #EntityID
+
+	// この性質の物を使うと不調を治療する。物は使うと無くなる
+	remedy?: #Remedy
 }
 
 // アイテムコレクション。各エントリを chance の確率で独立に判定する。複数当選することもありうる
@@ -1309,6 +1323,7 @@ import (
 	freshnessStages?: [...#FreshnessStage]
 	materials?: [...#MaterialDef]
 	toolCategories?: [...#ToolCategoryDef]
+	itemProperties?: [...#ItemProperty]
 	timesOfDay?: [...#TimeOfDay]
 	seasons?: [...#Season]
 	dungeons?: [...#Dungeon]
@@ -1340,6 +1355,7 @@ import (
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)
 	decorIds_unique: {if decors != _|_ for i, x in decors {(x.id): i}} @rawgen(-)
+	itemPropertyIds_unique: {if itemProperties != _|_ for i, x in itemProperties {(x.id): i}} @rawgen(-)
 	scatterZoneIds_unique: {if scatterZones != _|_ for i, x in scatterZones {(x.id): i}} @rawgen(-)
 	mapGlyphIds_unique: {if mapGlyphs != _|_ for i, x in mapGlyphs {(x.id): i}} @rawgen(-)
 	settlementIds_unique: {if settlements != _|_ for i, x in settlements {(x.id): i}} @rawgen(-)

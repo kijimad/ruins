@@ -22,9 +22,11 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Recipes:   &[]rawschema.Recipe{{Id: "iron", Name: "Iron", Inputs: []rawschema.RecipeInput{{Id: "iron", Amount: 1}}}},
 		Items: &[]rawschema.Item{{
 			Id: "iron", Name: "Iron", Description: "Iron", SpriteSheetName: "field", SpriteKey: "iron",
-			Remedy: &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"fracture"}, Potency: 1},
-			Book:   &rawschema.Book{TotalEffort: 1, Skill: &rawschema.SkillBook{TargetSkill: rawschema.SkillIdSword, MaxLevel: 1}},
+			Remedy:     &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"fracture"}, Potency: 1},
+			Book:       &rawschema.Book{TotalEffort: 1, Skill: &rawschema.SkillBook{TargetSkill: rawschema.SkillIdSword, MaxLevel: 1}},
+			Properties: &[]rawschema.EntityID{"wrap"},
 		}},
+		ItemProperties: &[]rawschema.ItemProperty{{Id: "wrap"}},
 		Members: &[]rawschema.Member{{
 			Id: "slime", Name: "Slime", SpriteSheetName: "field", SpriteKey: "slime",
 			CommandTableId: new("fists"),
@@ -136,6 +138,7 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 	}{
 		{"アイテムテーブルのグループ", func(r *rawschema.Raws) { (*r.ItemTables)[0].Entries[0].Id = "none" }, "itemTables.0.entries.0.id_ref"},
 		{"アイテムテーブルのコレクション", func(r *rawschema.Raws) { (*r.ItemTables)[0].Entries[1].Id = "none" }, "itemTables.0.entries.1.id_ref"},
+		{"物の性質", func(r *rawschema.Raws) { (*(*r.Items)[0].Properties)[0] = "none" }, "items.0.properties_ref.0"},
 		{"アイテムグループのアイテム", func(r *rawschema.Raws) { (*r.ItemGroups)[0].Entries[0].Id = "none" }, "itemGroups.0.entries.0.id_ref"},
 		{"アイテムコレクションのアイテム", func(r *rawschema.Raws) { (*r.ItemCollections)[0].Entries[0].Id = "none" }, "itemCollections.0.entries.0.id_ref"},
 		{"敵テーブルの敵", func(r *rawschema.Raws) { (*r.EnemyTables)[0].Entries[0].Id = "none" }, "enemyTables.0.entries.0.id_ref"},
@@ -207,6 +210,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"ランドマーク", func(r *rawschema.Raws) { *r.Landmarks = append(*r.Landmarks, (*r.Landmarks)[0]) }, "landmarkIds_unique.house"},
 		{"跡", func(r *rawschema.Raws) { *r.Remains = append(*r.Remains, (*r.Remains)[0]) }, "remainsIds_unique.splinters"},
 		{"地面の飾り", func(r *rawschema.Raws) { *r.Decors = append(*r.Decors, (*r.Decors)[0]) }, "decorIds_unique.moss"},
+		{"物の性質", func(r *rawschema.Raws) { *r.ItemProperties = append(*r.ItemProperties, (*r.ItemProperties)[0]) }, "itemPropertyIds_unique.wrap"},
 		{"散布ゾーン", func(r *rawschema.Raws) { *r.ScatterZones = append(*r.ScatterZones, (*r.ScatterZones)[0]) }, "scatterZoneIds_unique.meadow"},
 		{"地図記号", func(r *rawschema.Raws) { *r.MapGlyphs = append(*r.MapGlyphs, (*r.MapGlyphs)[0]) }, "mapGlyphIds_unique.house"},
 		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.village"},

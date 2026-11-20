@@ -38,12 +38,14 @@ var (
 	errEnumRowMissing                = errors.New("enum value has no raw row")
 	errTableMissing                  = errors.New("table required by code is missing")
 	errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
+	errItemUseDuplicated             = errors.New("item has a use both in its row and in its property")
 )
 
 // validateRules は行の間の決まりのうち、CUE のスキーマで書かないものを検証する。
 func validateRules(raws rawschema.Raws) error {
 	validators := []func(rawschema.Raws) error{
 		validateDisassemblies,
+		validateItemProperties,
 		validateDistricts,
 		validateZoneBaseFacilities,
 		validateLandmarkMinDanger,
@@ -191,6 +193,25 @@ func validateDisassemblies(raws rawschema.Raws) error {
 		}
 		if props[i].Hp == nil {
 			return fmt.Errorf("prop %q: %w", props[i].Name, errDisassemblyWithoutHP)
+		}
+	}
+	return nil
+}
+
+// validateItemProperties は、性質から加わる使い道を物の行が自分でも持たないことを検証する。
+// 両方にあると、どちらが効くかが行を読んでも分からない
+func validateItemProperties(raws rawschema.Raws) error {
+	remedies := map[rawschema.EntityID]bool{}
+	for _, p := range PtrSlice(raws.ItemProperties) {
+		remedies[p.Id] = p.Remedy != nil
+	}
+	items := PtrSlice(raws.Items)
+	for i := range items {
+		it := &items[i]
+		for _, id := range PtrSlice(it.Properties) {
+			if remedies[id] && (it.Remedy != nil || it.Consumable != nil) {
+				return fmt.Errorf("item %q property %q: %w", it.Id, id, errItemUseDuplicated)
+			}
 		}
 	}
 	return nil

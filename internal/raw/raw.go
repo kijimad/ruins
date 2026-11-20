@@ -245,6 +245,24 @@ func newBookFromAPI(b *rawschema.Book) (*gc.Book, error) {
 	}, nil
 }
 
+// newRemedy は raw の治療の性質をコンポーネントにする
+func newRemedy(r *rawschema.Remedy) *gc.Remedy {
+	treats := make([]gc.ConditionType, 0, len(r.Treats))
+	for _, t := range r.Treats {
+		treats = append(treats, gc.ConditionType(t))
+	}
+	return &gc.Remedy{Treats: treats, Potency: consts.Percent(r.Potency)}
+}
+
+// findItemProperty は id の物の性質の行を返す
+func findItemProperty(raws rawschema.Raws, id rawschema.EntityID) (rawschema.ItemProperty, error) {
+	prop, ok := FindByKey(raws.ItemProperties, func(p rawschema.ItemProperty) string { return p.Id }, id)
+	if !ok {
+		return rawschema.ItemProperty{}, NewKeyNotFoundError(id, "ItemProperties")
+	}
+	return prop, nil
+}
+
 // NewItemSpec は指定された名前のアイテムのEntitySpecを生成する
 func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	item, err := FindItem(raws, name)
@@ -299,13 +317,19 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: *item.InflictsDamage}
 	}
 	if item.Remedy != nil {
-		treats := make([]gc.ConditionType, 0, len(item.Remedy.Treats))
-		for _, t := range item.Remedy.Treats {
-			treats = append(treats, gc.ConditionType(t))
+		entitySpec.Remedy = newRemedy(item.Remedy)
+	}
+	for _, id := range PtrSlice(item.Properties) {
+		prop, err := findItemProperty(raws, id)
+		if err != nil {
+			return gc.EntitySpec{}, err
 		}
-		entitySpec.Remedy = &gc.Remedy{
-			Treats:  treats,
-			Potency: consts.Percent(item.Remedy.Potency),
+		if prop.Remedy != nil {
+			entitySpec.Remedy = newRemedy(prop.Remedy)
+			entitySpec.Consumable = &gc.Consumable{
+				UsableScene: rawschema.ANY,
+				TargetType:  gc.TargetType{TargetGroup: rawschema.TargetGroupALLY, TargetNum: rawschema.SINGLE},
+			}
 		}
 	}
 

@@ -918,3 +918,57 @@ func TestLoadFromFile_存在しないパスはエラー(t *testing.T) {
 	_, err := LoadFromFile("metadata/entities/raw/存在しない.toml")
 	require.Error(t, err)
 }
+
+func TestNewItemSpec_性質の治療で使える消費物になる(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "Rag"
+id = "rag"
+Description = "rag"
+SpriteSheetName = "field"
+SpriteKey = "rag"
+Value = 2
+properties = ["wrap"]
+
+[[itemProperties]]
+id = "wrap"
+[itemProperties.remedy]
+potency = 50
+treats = ["laceration"]
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "rag")
+	require.NoError(t, err)
+
+	assert.Equal(t, &gc.Remedy{Treats: []gc.ConditionType{"laceration"}, Potency: 50}, spec.Remedy)
+	assert.Equal(t, &gc.Consumable{
+		UsableScene: rawschema.ANY,
+		TargetType:  gc.TargetType{TargetGroup: rawschema.TargetGroupALLY, TargetNum: rawschema.SINGLE},
+	}, spec.Consumable)
+}
+
+func TestNewItemSpec_無い性質を引くとエラー(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "Rag"
+id = "rag"
+Description = "rag"
+SpriteSheetName = "field"
+SpriteKey = "rag"
+Value = 2
+properties = ["wrap"]
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	_, err = NewItemSpec(raws, "rag")
+	var notFound KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, KeyNotFoundError{Key: "wrap", Collection: "ItemProperties"}, notFound)
+}

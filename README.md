@@ -112,7 +112,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
-| draft | [物に性質を持たせ、行動は性質に働きかける](docs/design/261120004814.md) | 0/5 | gamedesign, item |
+| accepted | [物に性質を持たせ、行動は性質に働きかける](docs/design/261120004814.md) | 5/6 | gamedesign, item |
 
 
 ## References

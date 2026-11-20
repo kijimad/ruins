@@ -22,11 +22,13 @@ type itemUseCheck struct {
 	has bool
 }
 
-// itemUseChecks は物 it の使い道の判定を表に並べる順で返す。燃料と解体は素材の表から、作成の材料はレシピから決まる。
-// 使い道を足すときはここへ1行足すだけで、判定と並び順が揃う
-func itemUseChecks(it *rawschema.Item, material rawschema.MaterialDef, recipeInputs map[rawschema.EntityID]bool) []itemUseCheck {
+// itemUseChecks は物 it の使い道の判定を表に並べる順で返す。燃料と解体は素材の表から、作成の材料はレシピから、
+// 性質の使い道は性質の行から決まる。使い道を足すときはここへ1行足すだけで、判定と並び順が揃う
+func itemUseChecks(it *rawschema.Item, material rawschema.MaterialDef, recipeInputs, propertyRemedies map[rawschema.EntityID]bool) []itemUseCheck {
 	eat := it.ProvidesNutrition != nil
-	heal := it.ProvidesHealing != nil || it.Remedy != nil
+	heal := it.ProvidesHealing != nil || it.Remedy != nil || slices.ContainsFunc(PtrSlice(it.Properties), func(id rawschema.EntityID) bool {
+		return propertyRemedies[id]
+	})
 	throw := it.InflictsDamage != nil
 	escape := it.EscapeDevice != nil
 	core := it.CubeCore != nil
@@ -66,12 +68,17 @@ func itemUsesReport(raws rawschema.Raws) (string, error) {
 		}
 	}
 
+	propertyRemedies := map[rawschema.EntityID]bool{}
+	for _, p := range PtrSlice(raws.ItemProperties) {
+		propertyRemedies[p.Id] = p.Remedy != nil
+	}
+
 	items := PtrSlice(raws.Items)
 	byCount := map[int]int{}
 	byUse := map[itemUse]int{}
 	byCombo := map[string]int{}
 	noUse := []string{}
-	columns := itemUseChecks(&rawschema.Item{}, rawschema.MaterialDef{}, nil)
+	columns := itemUseChecks(&rawschema.Item{}, rawschema.MaterialDef{}, nil, nil)
 	order := make([]itemUse, 0, len(columns))
 	for _, c := range columns {
 		order = append(order, c.use)
@@ -85,7 +92,7 @@ func itemUsesReport(raws rawschema.Raws) (string, error) {
 			}
 			material = m
 		}
-		checks := itemUseChecks(&items[i], material, recipeInputs)
+		checks := itemUseChecks(&items[i], material, recipeInputs, propertyRemedies)
 		names := []string{}
 		for _, c := range checks {
 			if c.has {

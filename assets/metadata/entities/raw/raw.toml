@@ -7791,6 +7791,12 @@
     pack = "1d3"
     weight = 2
 
+[[itemProperties]]
+  id = "wrap"
+  [itemProperties.remedy]
+    potency = 50
+    treats = ["laceration"]
+
 [[itemTables]]
   id = "ruins_area"
   name = "廃墟"
@@ -15596,6 +15602,7 @@
   id = "towel"
   material = "CLOTH"
   name = "Towel"
+  properties = ["wrap"]
   spriteKey = "towel_hunger"
   spriteSheetName = "field"
   value = 8
@@ -17955,6 +17962,7 @@
   id = "rag"
   material = "CLOTH"
   name = "Rag"
+  properties = ["wrap"]
   spriteKey = "towel_hunger"
   spriteSheetName = "field"
   value = 2
