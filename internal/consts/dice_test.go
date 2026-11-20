@@ -60,6 +60,12 @@ func TestParseDice_不正な表記はエラーになる(t *testing.T) {
 	}
 }
 
+func TestMustParseDice_不正な表記はpanicする(t *testing.T) {
+	t.Parallel()
+
+	assert.Panics(t, func() { MustParseDice("1d0") }, "ParseDiceが失敗したらpanicする")
+}
+
 func TestDice_String_ParseDiceと往復する(t *testing.T) {
 	t.Parallel()
 
