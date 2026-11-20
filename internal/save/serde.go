@@ -152,7 +152,7 @@ func validateStages(world w.World) error {
 }
 
 // validateHandSelection はシングルトンが手持ち欄の選択を持ち、その選択が手持ち欄かを検査する。使う側は選択の有無も
-// 範囲も検査せず武器の並びを引くので、ここで弾かないとロード後に止まる
+// 範囲も検査せず手持ち欄の並びを引くので、ここで弾かないとロード後に止まる
 func validateHandSelection(world w.World) error {
 	singleton := world.Resources.SingletonEntity
 	if !world.Components.HandSelection.Has(singleton) {

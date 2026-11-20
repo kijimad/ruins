@@ -535,9 +535,9 @@ func TestSerializationManager_LoadWorld_手持ち欄でない選択は復元を�
 	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
 	query.GetHandSelection(world).Slot = gc.SlotHead
-	require.NoError(t, manager.SaveWorld(world, "invalid_weapon"))
+	require.NoError(t, manager.SaveWorld(world, "invalid_hand"))
 
-	err = manager.LoadWorld(testutil.InitTestWorld(t), "invalid_weapon")
+	err = manager.LoadWorld(testutil.InitTestWorld(t), "invalid_hand")
 	require.ErrorIs(t, err, errInvalidHandSelection)
 }
 
@@ -548,9 +548,9 @@ func TestSerializationManager_LoadWorld_手持ち欄の選択が無いと復元�
 	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
 	world.Components.HandSelection.Remove(world.Resources.SingletonEntity)
-	require.NoError(t, manager.SaveWorld(world, "no_weapon_selection"))
+	require.NoError(t, manager.SaveWorld(world, "no_hand_selection"))
 
-	err = manager.LoadWorld(testutil.InitTestWorld(t), "no_weapon_selection")
+	err = manager.LoadWorld(testutil.InitTestWorld(t), "no_hand_selection")
 	require.ErrorIs(t, err, errInvalidHandSelection)
 }
 

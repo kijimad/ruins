@@ -218,10 +218,10 @@ func TestSerde_HandSelectionPersists(t *testing.T) {
 	require.NoError(t, err)
 	query.GetHandSelection(world).Slot = gc.SlotHand4
 
-	require.NoError(t, manager.SaveWorld(world, "weapon"))
+	require.NoError(t, manager.SaveWorld(world, "hand"))
 
 	newWorld := testutil.InitTestWorld(t)
-	require.NoError(t, manager.LoadWorld(newWorld, "weapon"))
+	require.NoError(t, manager.LoadWorld(newWorld, "hand"))
 
 	assert.Equal(t, gc.SlotHand4, query.GetHandSelection(newWorld).Slot, "選択中の手持ち欄が復元される")
 }
