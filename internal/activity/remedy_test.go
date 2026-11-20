@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -222,6 +223,27 @@ func TestRemedyTarget_選べる不調が無ければnil(t *testing.T) {
 
 	_, c := remedyTarget(hs, remedy)
 	assert.Nil(t, c)
+}
+
+func TestApplyRemedy_ログに部位と不調を出す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].SetCondition(
+		gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 60, Severity: gc.TimerToSeverity(60)})
+
+	item := world.ECS.NewEntity()
+	world.Components.Name.Add(item, &gc.Name{Name: "Rag"})
+	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 50}
+
+	u := &UseItemBehavior{}
+	require.True(t, u.applyRemedy(player, world, remedy, item))
+
+	recent := query.GetGameLog(world).GetRecent(1)
+	require.Len(t, recent, 1)
+	assert.Equal(t, "Ash used Rag on the Leg and treated Laceration.", recent[0])
 }
 
 func TestIsRemedyOnly(t *testing.T) {
