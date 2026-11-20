@@ -289,24 +289,24 @@ func extractHandSlotsData(world w.World) hud.HandSlotsData {
 
 	// プレイヤーの手持ち欄の情報を取得
 	query.Player(world, func(playerEntity ecs.Entity) {
-		weapons := query.GetHeld(world, playerEntity)
+		held := query.GetHeld(world, playerEntity)
 
-		for i, weapon := range weapons {
+		for i, item := range held {
 			slotNumber := gc.SlotHand1 + gc.EquipmentSlotNumber(i)
 
 			var weaponName string
 			var spriteSheet, spriteName string
 
-			if weapon != nil {
+			if item != nil {
 				// 武器名を取得
-				if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
+				if nameComp := world.Components.Name.Get(*item); nameComp != nil {
 					weaponName = query.T(world, nameComp.Name)
 				} else {
 					weaponName = "???"
 				}
 
 				// スプライト情報を取得
-				if spriteRender := world.Components.SpriteRender.Get(*weapon); spriteRender != nil {
+				if spriteRender := world.Components.SpriteRender.Get(*item); spriteRender != nil {
 					spriteSheet = spriteRender.SpriteSheetName
 					spriteName = spriteRender.SpriteKey
 				}
