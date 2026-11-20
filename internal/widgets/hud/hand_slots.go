@@ -38,7 +38,7 @@ const slotNumberPad = 4
 
 // Draw は手持ち欄を画面上部中央へ横並びに描画する。中央寄せは Row の両端0幅列に委ね、
 // 画面幅からの中央計算をしない。
-func (ws *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
+func (hs *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
 	if len(data.Slots) == 0 {
 		return
 	}
@@ -58,8 +58,8 @@ func (ws *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
 		}
 		widths = append(widths, config.SlotSize)
 		cells = append(cells, &slotWidget{
-			chrome:   ws.chrome,
-			face:     ws.face,
+			chrome:   hs.chrome,
+			face:     hs.face,
 			slot:     slot,
 			number:   i + 1,
 			selected: slot.SlotNumber == data.SelectedSlot,
