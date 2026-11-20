@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/kijimaD/ruins/internal/i18n"
 
@@ -414,19 +415,21 @@ func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.Det
 
 // remedyItemNameFor は指定した不調を治療できるアイテムの英語名を raw の Remedy から逆引きする。
 // 健康タブに治し方を示すのに使う。見つからなければ ok=false。
-// 複数のアイテムが同じ不調を治せる場合は先頭の1件だけ返す。1症状に1種の治療アイテムを保つ前提
+// 複数のアイテムが同じ不調を治せる場合は、治療の質が最も高い1件を返す。同じ質なら raw で先の行を返す
 func remedyItemNameFor(world w.World, ct gc.ConditionType) (i18n.Msgid, bool) {
 	items := raw.PtrSlice(world.Resources.RawMaster.Items)
+	var best *rawschema.Item
 	for i := range items {
 		it := &items[i]
-		if it.Remedy == nil {
+		if it.Remedy == nil || !slices.Contains(it.Remedy.Treats, rawschema.ConditionTypeName(ct)) {
 			continue
 		}
-		for _, t := range it.Remedy.Treats {
-			if gc.ConditionType(t) == ct {
-				return i18n.Msgid(it.Name), true
-			}
+		if best == nil || it.Remedy.Potency > best.Remedy.Potency {
+			best = it
 		}
 	}
-	return "", false
+	if best == nil {
+		return "", false
+	}
+	return i18n.Msgid(best.Name), true
 }

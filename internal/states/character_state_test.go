@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
@@ -238,4 +239,53 @@ func TestDetailPageCount_componentが多いレイガンは複数ページにな�
 	entity, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 	require.NoError(t, err)
 	assert.Greater(t, overlay.DetailPageCount(world, entity), 1, "性能区画が多いアイテムの詳細は複数ページに分割される")
+}
+
+func TestRemedyItemNameFor(t *testing.T) {
+	t.Parallel()
+
+	remedy := func(name string, potency rawschema.Potency, treats ...rawschema.ConditionTypeName) rawschema.Item {
+		return rawschema.Item{Id: name, Name: name, Remedy: &rawschema.Remedy{Treats: treats, Potency: potency}}
+	}
+	tests := []struct {
+		name     string
+		items    []rawschema.Item
+		wantName string
+		wantOK   bool
+	}{
+		{
+			name:     "質の最も高い物を返す",
+			items:    []rawschema.Item{remedy("Rag", 50, "laceration"), remedy("Bandage", 100, "laceration"), remedy("Towel", 50, "laceration")},
+			wantName: "Bandage",
+			wantOK:   true,
+		},
+		{
+			name:     "同じ質なら先の行を返す",
+			items:    []rawschema.Item{remedy("Towel", 50, "laceration"), remedy("Rag", 50, "laceration")},
+			wantName: "Towel",
+			wantOK:   true,
+		},
+		{
+			name:     "ほかの不調を治す物は選ばない",
+			items:    []rawschema.Item{remedy("Splint", 100, "fracture"), remedy("Rag", 50, "laceration")},
+			wantName: "Rag",
+			wantOK:   true,
+		},
+		{
+			name:   "治せる物が無ければ見つからない",
+			items:  []rawschema.Item{remedy("Splint", 100, "fracture")},
+			wantOK: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			world.Resources.RawMaster.Items = &tt.items
+
+			name, ok := remedyItemNameFor(world, "laceration")
+			assert.Equal(t, tt.wantOK, ok)
+			assert.Equal(t, i18n.Msgid(tt.wantName), name)
+		})
+	}
 }
