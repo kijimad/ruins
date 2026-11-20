@@ -149,10 +149,8 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	return nil
 }
 
-// remedyTarget は Treats に一致し、治療の質が remedy より低い不調から治療の対象を1つ選び、その部位と一緒に返す。無ければ nil。
-// 発症前の不調は痛みも出血も無く自然に治るので対象にしない。未治療の不調を先にし、その中で重症度の段階が最も高いものを選ぶ。
-// 未治療を治療すれば止血と痛みが収まり、治療済みを巻き直しても速さしか上がらない。
-// 質の高い治療を質の低い物で上書きさせない。Validate の使用可否判定と applyRemedy の適用が同じ探索を共有する
+// remedyTarget は remedy で治療する不調を1つ選び、部位と一緒に返す。無ければ nil。
+// 発症前の不調と、治療の質が remedy 以上の不調は除く。未治療を先にし、その中で重症度の段階が最も高いものを選ぶ
 func remedyTarget(hs *gc.HealthStatus, remedy *gc.Remedy) (gc.BodyPart, *gc.HealthCondition) {
 	var bestPart gc.BodyPart
 	var best *gc.HealthCondition

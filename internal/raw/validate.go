@@ -39,6 +39,7 @@ var (
 	errTableMissing                  = errors.New("table required by code is missing")
 	errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
 	errRemedyTooWeak                 = errors.New("remedy potency is too low to speed recovery")
+	errRemedyNotTendable             = errors.New("remedy treats a condition that does not recover after tending")
 )
 
 // validateRules は行の間の決まりのうち、CUE のスキーマで書かないものを検証する。
@@ -198,8 +199,7 @@ func validateDisassemblies(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateRemedies は、治療で回復する不調に対し、治療の質を掛けた1ターンの回復量が1以上あることを検証する。
-// 回復量は整数に切り捨てるので、質が低いと治療済みの不調が治らなくなる
+// validateRemedies は、治療する物が治す不調が治療で回復に向かう種類で、治療の質を掛けた1ターンの回復量が1以上あることを検証する
 func validateRemedies(raws rawschema.Raws) error {
 	recoverPer := map[rawschema.ConditionTypeName]int{}
 	for _, c := range PtrSlice(raws.Conditions) {
@@ -214,7 +214,11 @@ func validateRemedies(raws rawschema.Raws) error {
 			continue
 		}
 		for _, t := range it.Remedy.Treats {
-			if per, ok := recoverPer[t]; ok && consts.Percent(it.Remedy.Potency).ApplyInt(per) < 1 {
+			per, ok := recoverPer[t]
+			if !ok {
+				return fmt.Errorf("item %q treats %q: %w", it.Id, t, errRemedyNotTendable)
+			}
+			if consts.Percent(it.Remedy.Potency).ApplyInt(per) < 1 {
 				return fmt.Errorf("item %q treats %q: %w", it.Id, t, errRemedyTooWeak)
 			}
 		}

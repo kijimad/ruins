@@ -254,22 +254,28 @@ func TestValidateDisassemblies(t *testing.T) {
 func TestValidateRemedies(t *testing.T) {
 	t.Parallel()
 
-	recovery := rawschema.RecoverAfterTend
-	conditions := &[]rawschema.Condition{{Id: "laceration", Recovery: &recovery, RecoverPer: new(2)}}
+	conditions := &[]rawschema.Condition{
+		{Id: "laceration", Recovery: new(rawschema.RecoverAfterTend), RecoverPer: new(2)},
+		{Id: "food_poisoning", Recovery: new(rawschema.RecoverOverTime), RecoverPer: new(2)},
+		{Id: "liver_illness", Recovery: new(rawschema.ProgressUntilTend), RecoverPer: new(1)},
+	}
 	tests := []struct {
 		name    string
+		treats  rawschema.ConditionTypeName
 		potency rawschema.Potency
 		wantErr error
 	}{
-		{name: "回復量が1になる質は通る", potency: 50},
-		{name: "回復量が0に切り捨てられる質はエラー", potency: 49, wantErr: errRemedyTooWeak},
+		{name: "回復量が1になる質は通る", treats: "laceration", potency: 50},
+		{name: "回復量が0に切り捨てられる質はエラー", treats: "laceration", potency: 49, wantErr: errRemedyTooWeak},
+		{name: "時間で治る不調を治すとエラー", treats: "food_poisoning", potency: 100, wantErr: errRemedyNotTendable},
+		{name: "治療まで悪化する不調を治すとエラー", treats: "liver_illness", potency: 100, wantErr: errRemedyNotTendable},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			err := validateRemedies(rawschema.Raws{
 				Conditions: conditions,
-				Items:      &[]rawschema.Item{{Id: "rag", Remedy: &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"laceration"}, Potency: tt.potency}}},
+				Items:      &[]rawschema.Item{{Id: "rag", Remedy: &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{tt.treats}, Potency: tt.potency}}},
 			})
 			if tt.wantErr == nil {
 				require.NoError(t, err)

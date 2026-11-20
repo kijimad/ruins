@@ -108,8 +108,8 @@ func TestApplyRemedy_質の低い物は治療済みの傷を飛ばして未治�
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 	arm := &world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms]
-	arm.AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 100}) // 重度、包帯で治療済み
-	arm.AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 30, Severity: gc.TimerToSeverity(30)})                   // 軽度、未治療
+	arm.AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 100})
+	arm.AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 30, Severity: gc.TimerToSeverity(30)})
 
 	item := world.ECS.NewEntity()
 	world.Components.Name.Add(item, &gc.Name{Name: "Rag"})
@@ -150,8 +150,8 @@ func TestApplyRemedy_質の高い物も未治療の傷を先に治療する(t *t
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 	arm := &world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms]
-	arm.AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 50}) // 重度、ぼろ布で治療済み
-	arm.AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 30, Severity: gc.TimerToSeverity(30)})                  // 軽度、未治療
+	arm.AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 50})
+	arm.AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 30, Severity: gc.TimerToSeverity(30)})
 
 	item := world.ECS.NewEntity()
 	world.Components.Name.Add(item, &gc.Name{Name: "Bandage"})
@@ -246,7 +246,7 @@ func TestApplyRemedy_ログに部位と不調を出す(t *testing.T) {
 	assert.Equal(t, "Ash used Rag on the Leg and treated Laceration.", recent[0])
 }
 
-func TestRemedyTarget_発症前の未治療より治療済みの重い傷を選ぶ(t *testing.T) {
+func TestRemedyTarget_発症前の傷を除き治療済みの重い傷を選ぶ(t *testing.T) {
 	t.Parallel()
 
 	hs := &gc.HealthStatus{}
