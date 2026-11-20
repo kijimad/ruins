@@ -47,7 +47,7 @@ func TestLoadWeaponFromItem(t *testing.T) {
 
 	t.Run("近接武器を読み込める", func(t *testing.T) {
 		t.Parallel()
-		ws, err := LoadWeaponFromItem(master, "bare_hands")
+		ws, err := LoadWeaponFromBodyAttack(master, "bare_hands")
 		require.NoError(t, err)
 		assert.False(t, ws.IsRanged)
 	})

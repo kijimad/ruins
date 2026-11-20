@@ -90,6 +90,227 @@
     base = 2
     spread = 3
 
+[[bodyAttacks]]
+  id = "tackle"
+  name = "Tackle"
+  [bodyAttacks.melee]
+    accuracy = 100
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 0
+    damage = 5
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "light_shot"
+  name = "Light Shot"
+  [bodyAttacks.melee]
+    accuracy = 90
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 2
+    damage = 10
+    element = "PHOTON"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "cold_attack"
+  name = "Frost Attack"
+  [bodyAttacks.melee]
+    accuracy = 85
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 2
+    damage = 16
+    element = "CHILL"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "smash"
+  name = "Smash"
+  [bodyAttacks.melee]
+    accuracy = 75
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 3
+    damage = 18
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "roar"
+  name = "Roar"
+  [bodyAttacks.melee]
+    accuracy = 80
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 3
+    damage = 12
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "ALL"
+
+[[bodyAttacks]]
+  id = "bite"
+  name = "Bite"
+  [bodyAttacks.melee]
+    accuracy = 90
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 1
+    damage = 11
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "rend"
+  name = "Rend"
+  [bodyAttacks.melee]
+    accuracy = 85
+    attackCategory = "fist"
+    attackCount = 2
+    cost = 2
+    damage = 6
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "strafe"
+  name = "Strafing Fire"
+  [bodyAttacks.melee]
+    accuracy = 75
+    attackCategory = "fist"
+    attackCount = 3
+    cost = 3
+    damage = 8
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "venom_fang"
+  name = "Venom Fang"
+  [bodyAttacks.melee]
+    accuracy = 85
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 1
+    damage = 9
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "breathe_fire"
+  name = "Fire Breath"
+  [bodyAttacks.melee]
+    accuracy = 80
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 4
+    damage = 22
+    element = "FIRE"
+    targetGroup = "ENEMY"
+    targetNum = "ALL"
+
+[[bodyAttacks]]
+  id = "flame_attack"
+  name = "Flame Attack"
+  [bodyAttacks.melee]
+    accuracy = 85
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 2
+    damage = 16
+    element = "FIRE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "bombard"
+  name = "Bombard"
+  [bodyAttacks.melee]
+    accuracy = 85
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 3
+    damage = 16
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "bare_hands"
+  name = "Bare Hands"
+  [bodyAttacks.melee]
+    accuracy = 100
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 1
+    damage = 3
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "shock"
+  name = "Shock"
+  [bodyAttacks.melee]
+    accuracy = 80
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 2
+    damage = 7
+    element = "THUNDER"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "shock_bite"
+  name = "Shock Bite"
+  [bodyAttacks.melee]
+    accuracy = 85
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 2
+    damage = 12
+    element = "THUNDER"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "frost_maw"
+  name = "Frost Maw"
+  [bodyAttacks.melee]
+    accuracy = 85
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 2
+    damage = 13
+    element = "CHILL"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
+[[bodyAttacks]]
+  id = "photon_flash"
+  name = "Photon Flash"
+  [bodyAttacks.melee]
+    accuracy = 88
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 2
+    damage = 15
+    element = "PHOTON"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+
 [[bodyParts]]
   hitWeight = 2.0
   id = "head"
@@ -151,11 +372,11 @@
   name = "コウモリ"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -163,11 +384,11 @@
   name = "ゴリラ"
 
   [[commandTables.entries]]
-    id = "smash"
+    bodyAttack = "smash"
     weight = 2
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
 [[commandTables]]
@@ -175,11 +396,11 @@
   name = "ジープ"
 
   [[commandTables.entries]]
-    id = "bombard"
+    bodyAttack = "bombard"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -187,11 +408,11 @@
   name = "スライム"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 3
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 1
 
 [[commandTables]]
@@ -199,11 +420,11 @@
   name = "ネズミ"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -211,11 +432,11 @@
   name = "ピンクスライム"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
 [[commandTables]]
@@ -223,11 +444,11 @@
   name = "ペンギン"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -235,15 +456,15 @@
   name = "三頭竜"
 
   [[commandTables.entries]]
-    id = "breathe_fire"
+    bodyAttack = "breathe_fire"
     weight = 2
 
   [[commandTables.entries]]
-    id = "smash"
+    bodyAttack = "smash"
     weight = 2
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 1
 
 [[commandTables]]
@@ -251,11 +472,11 @@
   name = "光虫"
 
   [[commandTables.entries]]
-    id = "shock"
+    bodyAttack = "shock"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -263,15 +484,15 @@
   name = "凍晶化した猟師"
 
   [[commandTables.entries]]
-    id = "cold_attack"
+    bodyAttack = "cold_attack"
     weight = 2
 
   [[commandTables.entries]]
-    id = "smash"
+    bodyAttack = "smash"
     weight = 2
 
   [[commandTables.entries]]
-    id = "roar"
+    bodyAttack = "roar"
     weight = 1
 
 [[commandTables]]
@@ -279,11 +500,11 @@
   name = "化学戦車"
 
   [[commandTables.entries]]
-    id = "bombard"
+    bodyAttack = "bombard"
     weight = 2
 
   [[commandTables.entries]]
-    id = "venom_fang"
+    bodyAttack = "venom_fang"
     weight = 1
 
 [[commandTables]]
@@ -291,11 +512,11 @@
   name = "夢蛾"
 
   [[commandTables.entries]]
-    id = "venom_fang"
+    bodyAttack = "venom_fang"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -303,11 +524,11 @@
   name = "夢鯨"
 
   [[commandTables.entries]]
-    id = "smash"
+    bodyAttack = "smash"
     weight = 1
 
   [[commandTables.entries]]
-    id = "roar"
+    bodyAttack = "roar"
     weight = 2
 
 [[commandTables]]
@@ -315,11 +536,11 @@
   name = "大蜂"
 
   [[commandTables.entries]]
-    id = "venom_fang"
+    bodyAttack = "venom_fang"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -327,15 +548,15 @@
   name = "影司祭"
 
   [[commandTables.entries]]
-    id = "light_shot"
+    bodyAttack = "light_shot"
     weight = 2
 
   [[commandTables.entries]]
-    id = "shock"
+    bodyAttack = "shock"
     weight = 2
 
   [[commandTables.entries]]
-    id = "venom_fang"
+    bodyAttack = "venom_fang"
     weight = 1
 
 [[commandTables]]
@@ -343,11 +564,11 @@
   name = "影鼠"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -355,11 +576,11 @@
   name = "旧式戦車"
 
   [[commandTables.entries]]
-    id = "bombard"
+    bodyAttack = "bombard"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -367,15 +588,15 @@
   name = "暗黒医師"
 
   [[commandTables.entries]]
-    id = "light_shot"
+    bodyAttack = "light_shot"
     weight = 2
 
   [[commandTables.entries]]
-    id = "venom_fang"
+    bodyAttack = "venom_fang"
     weight = 1
 
   [[commandTables.entries]]
-    id = "shock"
+    bodyAttack = "shock"
     weight = 1
 
 [[commandTables]]
@@ -383,11 +604,11 @@
   name = "朽ちた兵士"
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 1
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -395,11 +616,11 @@
   name = "樹霊"
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 2
 
   [[commandTables.entries]]
-    id = "venom_fang"
+    bodyAttack = "venom_fang"
     weight = 1
 
 [[commandTables]]
@@ -407,11 +628,11 @@
   name = "毒キノコ"
 
   [[commandTables.entries]]
-    id = "venom_fang"
+    bodyAttack = "venom_fang"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -419,11 +640,11 @@
   name = "毒蛙"
 
   [[commandTables.entries]]
-    id = "venom_fang"
+    bodyAttack = "venom_fang"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -431,11 +652,11 @@
   name = "毒蜘蛛"
 
   [[commandTables.entries]]
-    id = "venom_fang"
+    bodyAttack = "venom_fang"
     weight = 3
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -443,11 +664,11 @@
   name = "水晶の亡霊"
 
   [[commandTables.entries]]
-    id = "light_shot"
+    bodyAttack = "light_shot"
     weight = 2
 
   [[commandTables.entries]]
-    id = "cold_attack"
+    bodyAttack = "cold_attack"
     weight = 1
 
 [[commandTables]]
@@ -455,11 +676,11 @@
   name = "氷犬"
 
   [[commandTables.entries]]
-    id = "cold_attack"
+    bodyAttack = "cold_attack"
     weight = 2
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
 [[commandTables]]
@@ -467,11 +688,11 @@
   name = "氷結戦車"
 
   [[commandTables.entries]]
-    id = "bombard"
+    bodyAttack = "bombard"
     weight = 2
 
   [[commandTables.entries]]
-    id = "cold_attack"
+    bodyAttack = "cold_attack"
     weight = 1
 
 [[commandTables]]
@@ -479,11 +700,11 @@
   name = "浮遊眼"
 
   [[commandTables.entries]]
-    id = "light_shot"
+    bodyAttack = "light_shot"
     weight = 1
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -491,11 +712,11 @@
   name = "火の玉"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "flame_attack"
+    bodyAttack = "flame_attack"
     weight = 2
 
 [[commandTables]]
@@ -503,11 +724,11 @@
   name = "火猫"
 
   [[commandTables.entries]]
-    id = "flame_attack"
+    bodyAttack = "flame_attack"
     weight = 2
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
 [[commandTables]]
@@ -515,11 +736,11 @@
   name = "灰の偶像"
 
   [[commandTables.entries]]
-    id = "smash"
+    bodyAttack = "smash"
     weight = 2
 
   [[commandTables.entries]]
-    id = "roar"
+    bodyAttack = "roar"
     weight = 1
 
 [[commandTables]]
@@ -527,11 +748,11 @@
   name = "灰色戦車"
 
   [[commandTables.entries]]
-    id = "bombard"
+    bodyAttack = "bombard"
     weight = 2
 
   [[commandTables.entries]]
-    id = "strafe"
+    bodyAttack = "strafe"
     weight = 2
 
 [[commandTables]]
@@ -539,7 +760,7 @@
   name = "灰蟲"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 3
 
 [[commandTables]]
@@ -547,11 +768,11 @@
   name = "砂漠戦車"
 
   [[commandTables.entries]]
-    id = "bombard"
+    bodyAttack = "bombard"
     weight = 2
 
   [[commandTables.entries]]
-    id = "strafe"
+    bodyAttack = "strafe"
     weight = 1
 
 [[commandTables]]
@@ -559,15 +780,15 @@
   name = "竜頭"
 
   [[commandTables.entries]]
-    id = "breathe_fire"
+    bodyAttack = "breathe_fire"
     weight = 2
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 1
 
 [[commandTables]]
@@ -575,11 +796,11 @@
   name = "紫の浮遊体"
 
   [[commandTables.entries]]
-    id = "light_shot"
+    bodyAttack = "light_shot"
     weight = 2
 
   [[commandTables.entries]]
-    id = "shock"
+    bodyAttack = "shock"
     weight = 2
 
 [[commandTables]]
@@ -587,11 +808,11 @@
   name = "緑喰い"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
   [[commandTables.entries]]
-    id = "venom_fang"
+    bodyAttack = "venom_fang"
     weight = 1
 
 [[commandTables]]
@@ -599,15 +820,15 @@
   name = "緑竜"
 
   [[commandTables.entries]]
-    id = "breathe_fire"
+    bodyAttack = "breathe_fire"
     weight = 1
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 2
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 1
 
 [[commandTables]]
@@ -615,11 +836,11 @@
   name = "苔亀"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 3
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 1
 
 [[commandTables]]
@@ -627,15 +848,15 @@
   name = "虹竜"
 
   [[commandTables.entries]]
-    id = "breathe_fire"
+    bodyAttack = "breathe_fire"
     weight = 1
 
   [[commandTables.entries]]
-    id = "light_shot"
+    bodyAttack = "light_shot"
     weight = 2
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 1
 
 [[commandTables]]
@@ -643,7 +864,7 @@
   name = "蝶"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 3
 
 [[commandTables]]
@@ -651,11 +872,11 @@
   name = "赤戦車"
 
   [[commandTables.entries]]
-    id = "bombard"
+    bodyAttack = "bombard"
     weight = 2
 
   [[commandTables.entries]]
-    id = "flame_attack"
+    bodyAttack = "flame_attack"
     weight = 1
 
 [[commandTables]]
@@ -663,11 +884,11 @@
   name = "赤線の男"
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 2
 
   [[commandTables.entries]]
-    id = "shock"
+    bodyAttack = "shock"
     weight = 1
 
 [[commandTables]]
@@ -675,11 +896,11 @@
   name = "軽戦車"
 
   [[commandTables.entries]]
-    id = "bombard"
+    bodyAttack = "bombard"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -687,15 +908,15 @@
   name = "重砲戦車"
 
   [[commandTables.entries]]
-    id = "bombard"
+    bodyAttack = "bombard"
     weight = 2
 
   [[commandTables.entries]]
-    id = "strafe"
+    bodyAttack = "strafe"
     weight = 1
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -703,11 +924,11 @@
   name = "野犬"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 3
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -715,7 +936,7 @@
   name = "金スライム"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -723,11 +944,11 @@
   name = "鉄の番兵"
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -735,11 +956,11 @@
   name = "錆びた人形"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 1
 
 [[commandTables]]
@@ -747,15 +968,15 @@
   name = "鎧ゴースト"
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 2
 
   [[commandTables.entries]]
-    id = "light_shot"
+    bodyAttack = "light_shot"
     weight = 1
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -763,11 +984,11 @@
   name = "闇蟹"
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 2
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 1
 
 [[commandTables]]
@@ -775,11 +996,11 @@
   name = "防衛兵"
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 2
 
 [[commandTables]]
@@ -787,11 +1008,11 @@
   name = "電撃球"
 
   [[commandTables.entries]]
-    id = "shock"
+    bodyAttack = "shock"
     weight = 3
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -799,11 +1020,11 @@
   name = "青い人影"
 
   [[commandTables.entries]]
-    id = "cold_attack"
+    bodyAttack = "cold_attack"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -811,11 +1032,11 @@
   name = "青獣"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 2
 
 [[commandTables]]
@@ -823,11 +1044,11 @@
   name = "骸骨兵"
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 2
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
 [[commandTables]]
@@ -835,11 +1056,11 @@
   name = "黒屍"
 
   [[commandTables.entries]]
-    id = "rend"
+    bodyAttack = "rend"
     weight = 2
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 2
 
 [[commandTables]]
@@ -847,7 +1068,7 @@
   name = "素手"
 
   [[commandTables.entries]]
-    id = "bare_hands"
+    bodyAttack = "bare_hands"
     weight = 1
 
 [[commandTables]]
@@ -855,7 +1076,7 @@
   name = "廃兵長"
 
   [[commandTables.entries]]
-    id = "cleaver"
+    item = "cleaver"
     weight = 1
 
 [[commandTables]]
@@ -863,7 +1084,7 @@
   name = "灰狼"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 1
 
 [[commandTables]]
@@ -871,11 +1092,11 @@
   name = "火花"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "shock_bite"
+    bodyAttack = "shock_bite"
     weight = 2
 
 [[commandTables]]
@@ -883,11 +1104,11 @@
   name = "氷潜み"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "frost_maw"
+    bodyAttack = "frost_maw"
     weight = 2
 
 [[commandTables]]
@@ -895,11 +1116,11 @@
   name = "光の目"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "photon_flash"
+    bodyAttack = "photon_flash"
     weight = 2
 
 [[commandTables]]
@@ -907,11 +1128,11 @@
   name = "毒這い"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 1
 
   [[commandTables.entries]]
-    id = "toxin_barb"
+    item = "toxin_barb"
     weight = 2
 
 [[commandTables]]
@@ -919,11 +1140,11 @@
   name = "出血犬"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 1
 
   [[commandTables.entries]]
-    id = "bleed_claw"
+    item = "bleed_claw"
     weight = 2
 
 [[commandTables]]
@@ -931,11 +1152,11 @@
   name = "帯電"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "shock_bite"
+    bodyAttack = "shock_bite"
     weight = 2
 
 [[commandTables]]
@@ -943,11 +1164,11 @@
   name = "冷たい粘体"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "frost_maw"
+    bodyAttack = "frost_maw"
     weight = 2
 
 [[commandTables]]
@@ -955,11 +1176,11 @@
   name = "閃光の虫"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "photon_flash"
+    bodyAttack = "photon_flash"
     weight = 2
 
 [[commandTables]]
@@ -967,11 +1188,11 @@
   name = "麻痺"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "paralyze_rod"
+    item = "paralyze_rod"
     weight = 2
 
 [[commandTables]]
@@ -979,11 +1200,11 @@
   name = "呪縛"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "curse_dagger"
+    item = "curse_dagger"
     weight = 2
 
 [[commandTables]]
@@ -991,11 +1212,11 @@
   name = "嵐竜"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "shock_bite"
+    bodyAttack = "shock_bite"
     weight = 2
 
 [[commandTables]]
@@ -1003,11 +1224,11 @@
   name = "氷像"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "frost_maw"
+    bodyAttack = "frost_maw"
     weight = 2
 
 [[commandTables]]
@@ -1015,11 +1236,11 @@
   name = "燠の小鬼"
 
   [[commandTables.entries]]
-    id = "tackle"
+    bodyAttack = "tackle"
     weight = 1
 
   [[commandTables.entries]]
-    id = "flame_attack"
+    bodyAttack = "flame_attack"
     weight = 2
 
 [[commandTables]]
@@ -1027,11 +1248,11 @@
   name = "眠りの獣"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 1
 
   [[commandTables.entries]]
-    id = "drowsy_pipe"
+    item = "drowsy_pipe"
     weight = 2
 
 [[commandTables]]
@@ -1039,11 +1260,11 @@
   name = "盲目化"
 
   [[commandTables.entries]]
-    id = "bite"
+    bodyAttack = "bite"
     weight = 1
 
   [[commandTables.entries]]
-    id = "blind_powder"
+    item = "blind_powder"
     weight = 2
 
 [[conditions]]
@@ -8829,114 +9050,6 @@
     targetNum = "SINGLE"
 
 [[items]]
-  description = "Build up momentum and slam your body into the foe to deal damage."
-  id = "tackle"
-  name = "Tackle"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 100
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 0
-    damage = 5
-    element = "NONE"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "Attacks with the power of light."
-  id = "light_shot"
-  name = "Light Shot"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 90
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 2
-    damage = 10
-    element = "PHOTON"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "An attack imbued with frost."
-  id = "cold_attack"
-  name = "Frost Attack"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 85
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 2
-    damage = 16
-    element = "CHILL"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "A powerful blow that crushes with sheer bulk."
-  id = "smash"
-  name = "Smash"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 75
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 3
-    damage = 18
-    element = "NONE"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "Strikes all foes with a mighty roar."
-  id = "roar"
-  name = "Roar"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 80
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 3
-    damage = 12
-    element = "NONE"
-    targetGroup = "ENEMY"
-    targetNum = "ALL"
-
-[[items]]
-  description = "Bites down with sharp fangs and claws."
-  id = "bite"
-  name = "Bite"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 90
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 1
-    damage = 11
-    element = "NONE"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
   description = "A farming tool with a large blade on a long shaft, able to sweep a wide area."
   id = "scythe"
   material = "METAL"
@@ -8971,24 +9084,6 @@
     cost = 3
     damage = 22
     element = "PHOTON"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "Tears the enemy apart with sharp claws."
-  id = "rend"
-  name = "Rend"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 85
-    attackCategory = "fist"
-    attackCount = 2
-    cost = 2
-    damage = 6
-    element = "NONE"
     targetGroup = "ENEMY"
     targetNum = "SINGLE"
 
@@ -9072,24 +9167,6 @@
     targetNum = "SINGLE"
 
 [[items]]
-  description = "Lays down a barrage with rapid fire."
-  id = "strafe"
-  name = "Strafing Fire"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 75
-    attackCategory = "fist"
-    attackCount = 3
-    cost = 3
-    damage = 8
-    element = "NONE"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
   description = "A foreign sword with a wavy blade, slipping past defenses with an unusual arc."
   id = "warped_blade"
   material = "METAL"
@@ -9104,24 +9181,6 @@
     attackCount = 1
     cost = 2
     damage = 15
-    element = "NONE"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "todo: applies poison. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
-  id = "venom_fang"
-  name = "Venom Fang"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 85
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 1
-    damage = 9
     element = "NONE"
     targetGroup = "ENEMY"
     targetNum = "SINGLE"
@@ -9179,78 +9238,6 @@
     attackCount = 1
     cost = 2
     damage = 9
-    element = "NONE"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "Exhales an intense breath of flame."
-  id = "breathe_fire"
-  name = "Fire Breath"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 80
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 4
-    damage = 22
-    element = "FIRE"
-    targetGroup = "ENEMY"
-    targetNum = "ALL"
-
-[[items]]
-  description = "An attack wreathed in fire."
-  id = "flame_attack"
-  name = "Flame Attack"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 85
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 2
-    damage = 16
-    element = "FIRE"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "Attacks with a vehicle-mounted cannon."
-  id = "bombard"
-  name = "Bombard"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 85
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 3
-    damage = 16
-    element = "NONE"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "A strike delivered with bare hands."
-  id = "bare_hands"
-  name = "Bare Hands"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 100
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 1
-    damage = 3
     element = "NONE"
     targetGroup = "ENEMY"
     targetNum = "SINGLE"
@@ -9564,24 +9551,6 @@
   [items.tool]
     categories = ["precision"]
     grade = 2
-
-[[items]]
-  description = "Unleashes a burst of electricity."
-  id = "shock"
-  name = "Shock"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 80
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 2
-    damage = 7
-    element = "THUNDER"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
 
 [[items]]
   description = "A battle axe made of glowing blue metal. It carries a chill of frost."
@@ -17332,60 +17301,6 @@
   spriteSheetName = "field"
   value = 30
   weight = "400 g"
-
-[[items]]
-  description = "An enemy attack that jolts with electricity."
-  id = "shock_bite"
-  name = "Shock Bite"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 85
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 2
-    damage = 12
-    element = "THUNDER"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "An enemy attack of biting cold."
-  id = "frost_maw"
-  name = "Frost Maw"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 85
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 2
-    damage = 13
-    element = "CHILL"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
-
-[[items]]
-  description = "An enemy attack of searing light."
-  id = "photon_flash"
-  name = "Photon Flash"
-  spriteKey = "field_item"
-  spriteSheetName = "field"
-  value = 0
-  weight = "0 g"
-  [items.melee]
-    accuracy = 88
-    attackCategory = "fist"
-    attackCount = 1
-    cost = 2
-    damage = 15
-    element = "PHOTON"
-    targetGroup = "ENEMY"
-    targetNum = "SINGLE"
 
 [[items]]
   description = "A spear humming with charge."

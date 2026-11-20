@@ -74,6 +74,24 @@ func LoadWeaponFromItem(master rawschema.Raws, name string) (WeaponStats, error)
 	return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", name)
 }
 
+// LoadWeapon は id の武器の WeaponStats を返す。素手のような体の攻撃と、剣のようなアイテムを同じつまみで比べるため、
+// 体の攻撃の表を先に引き、無ければアイテムの表から引く
+func LoadWeapon(master rawschema.Raws, id string) (WeaponStats, error) {
+	if _, ok := raw.FindByKey(master.BodyAttacks, func(a rawschema.BodyAttack) string { return a.Id }, id); ok {
+		return LoadWeaponFromBodyAttack(master, id)
+	}
+	return LoadWeaponFromItem(master, id)
+}
+
+// LoadWeaponFromBodyAttack はraw.Masterの体の攻撃からWeaponStatsを生成する
+func LoadWeaponFromBodyAttack(master rawschema.Raws, id string) (WeaponStats, error) {
+	melee, _, err := raw.BodyAttackMelee(master, id)
+	if err != nil {
+		return WeaponStats{}, fmt.Errorf("failed to load body attack %q: %w", id, err)
+	}
+	return WeaponStats{Damage: melee.Damage, Accuracy: melee.Accuracy}, nil
+}
+
 // LoadEnemyWeapon は敵の CommandTable から最も重みの高い武器を代表に取り WeaponStats を返す。コマンドの重み分布は
 // 反映しない簡略化で、DifficultyCurve の敵プール重みとは別の近似なので二重の簡略化になる点に注意する。
 func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, error) {
@@ -84,7 +102,7 @@ func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, erro
 
 	if member.CommandTableId == nil {
 		// CommandTableがない場合は素手
-		return LoadWeaponFromItem(master, "bare_hands")
+		return LoadWeaponFromBodyAttack(master, "bare_hands")
 	}
 
 	ct, err := raw.GetCommandTable(master, *member.CommandTableId)
@@ -93,7 +111,7 @@ func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, erro
 	}
 
 	if len(ct.Entries) == 0 {
-		return LoadWeaponFromItem(master, "bare_hands")
+		return LoadWeaponFromBodyAttack(master, "bare_hands")
 	}
 
 	// 最も重みの高い攻撃を代表として使う
@@ -104,5 +122,11 @@ func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, erro
 		}
 	}
 
-	return LoadWeaponFromItem(master, bestEntry.Id)
+	if bestEntry.BodyAttack != nil {
+		return LoadWeaponFromBodyAttack(master, *bestEntry.BodyAttack)
+	}
+	if bestEntry.Item == nil {
+		return WeaponStats{}, fmt.Errorf("command table %q has an entry without bodyAttack or item", ct.Id)
+	}
+	return LoadWeaponFromItem(master, *bestEntry.Item)
 }

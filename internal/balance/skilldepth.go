@@ -37,7 +37,7 @@ func SkillDepthProfileFor(master rawschema.Raws, weaponName, enemyTableName stri
 	if err != nil {
 		return SkillDepthProfile{}, err
 	}
-	weapon, err := LoadWeaponFromItem(master, weaponName)
+	weapon, err := LoadWeapon(master, weaponName)
 	if err != nil {
 		return SkillDepthProfile{}, err
 	}

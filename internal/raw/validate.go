@@ -54,6 +54,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateGrounds,
 		validateNeedStages,
 		validateFlatShapes,
+		validateCommandTables,
 	}
 	for _, v := range validators {
 		if err := v(raws); err != nil {
@@ -569,6 +570,19 @@ func validateFlatShapes(raws rawschema.Raws) error {
 	for i := range decors {
 		if err := check(decors[i].Id, decors[i].SpriteRender); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+// validateCommandTables はコマンドテーブルの行が体の攻撃とアイテムのどちらか1つだけを引くことを検証する
+func validateCommandTables(raws rawschema.Raws) error {
+	tables := PtrSlice(raws.CommandTables)
+	for i := range tables {
+		for j, e := range tables[i].Entries {
+			if (e.BodyAttack == nil) == (e.Item == nil) {
+				return fmt.Errorf("command table %q entry %d: %w", tables[i].Id, j, errCommandEntryTarget)
+			}
 		}
 	}
 	return nil

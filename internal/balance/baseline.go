@@ -67,7 +67,7 @@ func Baseline(master rawschema.Raws, playerName, weaponName, enemyTableName stri
 	if err != nil {
 		return nil, err
 	}
-	weapon, err := LoadWeaponFromItem(master, weaponName)
+	weapon, err := LoadWeapon(master, weaponName)
 	if err != nil {
 		return nil, err
 	}
@@ -334,7 +334,7 @@ func renderCombatRisk(b *strings.Builder, master rawschema.Raws, playerName, wea
 	if err != nil {
 		return err
 	}
-	weapon, err := LoadWeaponFromItem(master, weaponName)
+	weapon, err := LoadWeapon(master, weaponName)
 	if err != nil {
 		return err
 	}

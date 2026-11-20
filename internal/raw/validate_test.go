@@ -485,3 +485,53 @@ func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くと
 	require.ErrorIs(t, validateLandmarkMinDanger(raws(rawschema.MilitaryArmory, new(3))), errLandmarkMinDanger)
 	require.NoError(t, validateLandmarkMinDanger(raws(rawschema.Downtown, new(3))), "区域が割り振らない地区の行は抽選を通るので深さの下限を書ける")
 }
+
+func TestValidateCommandTables(t *testing.T) {
+	t.Parallel()
+
+	table := func(e rawschema.CommandTableEntry) rawschema.Raws {
+		return rawschema.Raws{CommandTables: &[]rawschema.CommandTable{{Id: "bat", Name: "Bat", Entries: []rawschema.CommandTableEntry{e}}}}
+	}
+	tests := []struct {
+		name    string
+		raws    rawschema.Raws
+		wantErr error
+	}{
+		{name: "体の攻撃だけを引く行は通る", raws: table(rawschema.CommandTableEntry{BodyAttack: new("bite"), Weight: 1})},
+		{name: "アイテムだけを引く行は通る", raws: table(rawschema.CommandTableEntry{Item: new("cleaver"), Weight: 1})},
+		{name: "両方を引く行はエラー", raws: table(rawschema.CommandTableEntry{BodyAttack: new("bite"), Item: new("cleaver"), Weight: 1}), wantErr: errCommandEntryTarget},
+		{name: "どちらも引かない行はエラー", raws: table(rawschema.CommandTableEntry{Weight: 1}), wantErr: errCommandEntryTarget},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := validateCommandTables(tt.raws)
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestCommandEntryMelee_引けない行はエラー(t *testing.T) {
+	t.Parallel()
+
+	raws := rawschema.Raws{Items: &[]rawschema.Item{{Id: "rock", Name: "Rock"}}}
+	tests := []struct {
+		name    string
+		entry   rawschema.CommandTableEntry
+		wantErr error
+	}{
+		{name: "近接攻撃を持たないアイテム", entry: rawschema.CommandTableEntry{Item: new("rock"), Weight: 1}, wantErr: errItemNoMelee},
+		{name: "どちらも持たない行", entry: rawschema.CommandTableEntry{Weight: 1}, wantErr: errCommandEntryTarget},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			_, _, err := CommandEntryMelee(raws, tt.entry)
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}

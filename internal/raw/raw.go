@@ -66,6 +66,10 @@ func LoadFromFile(path string) (rawschema.Raws, error) {
 var (
 	// errTOMLDecode はTOMLの構文が壊れていてデコードできないときに返す
 	errTOMLDecode = errors.New("TOML decode error")
+	// errCommandEntryTarget はコマンドテーブルの行が体の攻撃とアイテムのどちらか1つだけを持たないときに返す
+	errCommandEntryTarget = errors.New("command table entry must have exactly one of bodyAttack and item")
+	// errItemNoMelee はコマンドテーブルの行が引くアイテムが近接攻撃を持たないときに返す
+	errItemNoMelee = errors.New("item has no melee")
 	// errUnknownTOMLKeys はTOMLにスキーマにないキーが含まれるときに返す
 	errUnknownTOMLKeys = errors.New("unknown keys found in TOML")
 	// errBookSkillMissing は本にスキルが指定されていないときに返す
@@ -962,13 +966,40 @@ func GetProfession(raws rawschema.Raws, id string) (rawschema.Profession, error)
 	return prof, nil
 }
 
-// SelectCommandByWeight はコマンドテーブルから重み付きランダム選択する
-func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (string, error) {
+// SelectCommandByWeight はコマンドテーブルから行を重み付きランダムに選ぶ。行が無ければ ok は偽
+func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (rawschema.CommandTableEntry, bool) {
 	i, ok := consts.Pick(rng, ct.Entries, func(e rawschema.CommandTableEntry) float64 { return e.Weight })
 	if !ok {
-		return "", nil
+		return rawschema.CommandTableEntry{}, false
 	}
-	return ct.Entries[i].Id, nil
+	return ct.Entries[i], true
+}
+
+// BodyAttackMelee は体の攻撃の近接攻撃と名前を返す
+func BodyAttackMelee(raws rawschema.Raws, id string) (*gc.Melee, i18n.Msgid, error) {
+	attack, ok := FindByKey(raws.BodyAttacks, func(a rawschema.BodyAttack) string { return a.Id }, id)
+	if !ok {
+		return nil, "", NewKeyNotFoundError(id, "BodyAttacks")
+	}
+	return parseMelee(&attack.Melee), i18n.Msgid(attack.Name), nil
+}
+
+// CommandEntryMelee は敵の攻撃表の行が引く近接攻撃と名前を返す。体の攻撃かアイテムかは行の欄で決まる
+func CommandEntryMelee(raws rawschema.Raws, entry rawschema.CommandTableEntry) (*gc.Melee, i18n.Msgid, error) {
+	if entry.BodyAttack != nil {
+		return BodyAttackMelee(raws, *entry.BodyAttack)
+	}
+	if entry.Item == nil {
+		return nil, "", errCommandEntryTarget
+	}
+	item, err := FindItem(raws, *entry.Item)
+	if err != nil {
+		return nil, "", err
+	}
+	if item.Melee == nil {
+		return nil, "", fmt.Errorf("%w: %s", errItemNoMelee, item.Id)
+	}
+	return parseMelee(item.Melee), i18n.Msgid(item.Name), nil
 }
 
 // SelectDropByWeight はドロップテーブルから重み付きランダム選択する。何も落とさないときは空文字を返す。

@@ -14,6 +14,8 @@ import (
 var (
 	// errNoCommandTable は敵がCommandTableを持たないときに返す
 	errNoCommandTable = errors.New("enemy has no CommandTable component")
+	// errEmptyCommandTable は CommandTable に行が無いときに返す
+	errEmptyCommandTable = errors.New("command table has no entry")
 	// errWeaponNoName は武器がNameを持たないときに返す
 	errWeaponNoName = errors.New("weapon has no Name component")
 	// errWeaponNoMelee は武器がMeleeを持たないときに返す
@@ -35,26 +37,15 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
 		return nil, "", fmt.Errorf("failed to get command table: %w", err)
 	}
 
-	weaponName, err := raw.SelectCommandByWeight(commandTable, world.Resources.Config.RNG)
+	entry, ok := raw.SelectCommandByWeight(commandTable, world.Resources.Config.RNG)
+	if !ok {
+		return nil, "", fmt.Errorf("%w: %s", errEmptyCommandTable, commandTableName)
+	}
+	melee, name, err := raw.CommandEntryMelee(world.Resources.RawMaster, entry)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to select weapon: %w", err)
+		return nil, "", fmt.Errorf("failed to get command attack: %w", err)
 	}
-	if weaponName == "" {
-		return nil, "", fmt.Errorf("no weapon selected from command table")
-	}
-
-	weaponSpec, err := raw.NewWeaponSpec(world.Resources.RawMaster, weaponName)
-	if err != nil {
-		return nil, "", fmt.Errorf("failed to get weapon spec: %w", err)
-	}
-
-	if weaponSpec.Melee == nil {
-		return nil, "", fmt.Errorf("%w: %s", errWeaponNoMelee, weaponName)
-	}
-	if weaponSpec.Name == nil {
-		return nil, "", fmt.Errorf("%w: %s", errWeaponNoName, weaponName)
-	}
-	return weaponSpec.Melee, weaponSpec.Name.Name, nil
+	return melee, name, nil
 }
 
 // GetMeleeFromWeapon は武器エンティティからMeleeコンポーネントを取得する

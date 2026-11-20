@@ -49,7 +49,7 @@ func metricValue(master rawschema.Raws, p Params, idx int) float64 {
 		if err != nil {
 			return 0
 		}
-		weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+		weapon, err := LoadWeapon(master, BaselineWeapon)
 		if err != nil {
 			return 0
 		}
