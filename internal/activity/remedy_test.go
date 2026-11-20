@@ -145,21 +145,33 @@ func TestApplyRemedy_質の高い物は質の低い治療を上書きする(t *t
 func TestUseItemBehavior_Validate_治療で質が上がる傷が無ければ使えない(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms].SetCondition(
-		gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 60, Severity: gc.TimerToSeverity(60), TendQuality: 100})
+	tests := []struct {
+		name   string
+		tended consts.Percent
+	}{
+		{name: "質の高い治療済み", tended: 100},
+		{name: "同じ質の治療済み", tended: 50},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+			require.NoError(t, err)
+			world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms].SetCondition(
+				gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 60, Severity: gc.TimerToSeverity(60), TendQuality: tt.tended})
 
-	item := world.ECS.NewEntity()
-	world.Components.Name.Add(item, &gc.Name{Name: "Rag"})
-	world.Components.Consumable.Add(item, &gc.Consumable{})
-	world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 50})
+			item := world.ECS.NewEntity()
+			world.Components.Name.Add(item, &gc.Name{Name: "Rag"})
+			world.Components.Consumable.Add(item, &gc.Consumable{})
+			world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 50})
 
-	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
-	u := &UseItemBehavior{}
-	var ve *UserError
-	require.ErrorAs(t, u.Validate(comp, player, world), &ve)
+			comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
+			u := &UseItemBehavior{}
+			var ve *UserError
+			require.ErrorAs(t, u.Validate(comp, player, world), &ve)
+		})
+	}
 }
 
 func TestIsRemedyOnly(t *testing.T) {
