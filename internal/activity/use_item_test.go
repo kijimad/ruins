@@ -292,7 +292,7 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
 			State:        gc.ActivityStateRunning,
-			Params:       &gc.UseItemParams{Target: item},
+			Params:       &gc.UseItemParams{Target: item, Tend: &gc.ConditionRef{Part: gc.BodyPartLegs, Index: 0}},
 		}
 
 		ua := &UseItemBehavior{}
@@ -624,7 +624,7 @@ func TestNewUseItemActivity(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	item := world.ECS.NewEntity()
 
-	comp := NewUseItemActivity(item)
+	comp := NewUseItemActivity(item, nil)
 
 	assert.Equal(t, gc.BehaviorUseItem, comp.BehaviorName)
 	params, ok := comp.Params.(*gc.UseItemParams)
@@ -794,7 +794,7 @@ func TestUseItem_キューブの核を使うと隣にキューブが組み上が
 			require.NoError(t, err)
 			require.NoError(t, lifecycle.MoveToBackpack(world, core, player))
 
-			_, err = Execute(NewUseItemActivity(core), player, world)
+			_, err = Execute(NewUseItemActivity(core, nil), player, world)
 			require.NoError(t, err)
 
 			assert.ElementsMatch(t, tt.wantCubes, query.CubeTiles(world))
@@ -826,7 +826,7 @@ func TestUseItem_満腹なら食べずにログを出す(t *testing.T) {
 			item, err := lifecycle.SpawnBackpackItem(world, "almond", 1)
 			require.NoError(t, err)
 
-			result, err := Execute(NewUseItemActivity(item), player, world)
+			result, err := Execute(NewUseItemActivity(item, nil), player, world)
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.wantEaten, result.Success)

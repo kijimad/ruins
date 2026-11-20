@@ -143,6 +143,14 @@ func (*ShootParams) isActivityParams() {}
 // UseItemParams はアイテム使用のパラメータ。
 type UseItemParams struct {
 	Target ecs.Entity // 使用するアイテムのエンティティ
+	// Tend は治療する不調。治療を持つ物を使うとき、使う人が選ぶ。nil なら治療しない
+	Tend *ConditionRef
+}
+
+// ConditionRef は部位の不調1件を指す。Index は部位の Conditions の添字
+type ConditionRef struct {
+	Part  BodyPart
+	Index int
 }
 
 func (*UseItemParams) isActivityParams() {}

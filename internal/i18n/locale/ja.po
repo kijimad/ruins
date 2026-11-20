@@ -962,6 +962,9 @@ msgstr "傷んだ食べ物による吐き気。時間が経てば自然に治る
 msgid "Nothing to treat."
 msgstr "治療する不調がない。"
 
+msgid "Treat which?"
+msgstr "どれを手当てする？"
+
 msgid "Blood"
 msgstr "血液量"
 

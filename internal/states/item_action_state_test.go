@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -136,4 +137,52 @@ func TestAcceptConsumeFood_食べる対象と使う対象は排他になる(t *t
 			assert.False(t, acceptConsumeFood(world, entity) && acceptUseTool(world, entity), "食べると使うは同時に真にならない")
 		})
 	}
+}
+
+func TestExecUseItem_治療品(t *testing.T) {
+	t.Parallel()
+
+	laceration := func(timer float64) gc.HealthCondition {
+		return gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: timer, Severity: gc.TimerToSeverity(timer)}
+	}
+	t.Run("治療できる傷が複数なら選ぶメニューへ切り替える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+		hs := world.Components.HealthStatus.Get(player)
+		hs.Parts[gc.BodyPartArms].SetCondition(laceration(80))
+		hs.Parts[gc.BodyPartLegs].SetCondition(laceration(30))
+		rag, err := lifecycle.SpawnBackpackItem(world, "rag", 1)
+		require.NoError(t, err)
+
+		trans, err := execUseItem(world, rag)
+		require.NoError(t, err)
+		assert.Equal(t, es.TransSwitch, trans.Type)
+
+		choices := tendChoices(world, player, rag, []gc.ConditionRef{{Part: gc.BodyPartArms, Index: 0}, {Part: gc.BodyPartLegs, Index: 0}})
+		require.Len(t, choices, 2)
+		trans, err = choices[1].Run(world)
+		require.NoError(t, err)
+		assert.Equal(t, es.TransPop, trans.Type)
+		hs = world.Components.HealthStatus.Get(player)
+		assert.Equal(t, consts.Percent(0), hs.Parts[gc.BodyPartArms].Conditions[0].TendQuality)
+		assert.Equal(t, consts.Percent(50), hs.Parts[gc.BodyPartLegs].Conditions[0].TendQuality)
+	})
+	t.Run("治療できる傷が1つならそのまま治療する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+		hs := world.Components.HealthStatus.Get(player)
+		hs.Parts[gc.BodyPartArms].SetCondition(laceration(80))
+		rag, err := lifecycle.SpawnBackpackItem(world, "rag", 1)
+		require.NoError(t, err)
+
+		trans, err := execUseItem(world, rag)
+		require.NoError(t, err)
+		assert.Equal(t, es.TransPop, trans.Type)
+		hs = world.Components.HealthStatus.Get(player)
+		assert.Equal(t, consts.Percent(50), hs.Parts[gc.BodyPartArms].Conditions[0].TendQuality)
+	})
 }

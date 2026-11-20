@@ -168,15 +168,54 @@ func execPlace(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
 
 // execUseItem は選択アイテムへ UseItemBehavior を適用しダンジョンへ戻る。
 // 効果の有無で食べた・使ったのログ文言は UseItemBehavior 側が出し分ける。
+// 治療を持つ物は、治療できる傷が複数あれば傷を選ぶメニューへ切り替え、1つならその傷を治療する
 func execUseItem(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return es.Transition[w.World]{}, err
 	}
-	if _, err := activity.Execute(activity.NewUseItemActivity(entity), player, world); err != nil {
+	var tend *gc.ConditionRef
+	if world.Components.Remedy.Has(entity) && world.Components.HealthStatus.Has(player) {
+		refs := activity.TreatableConditions(world.Components.HealthStatus.Get(player), world.Components.Remedy.Get(entity))
+		switch {
+		case len(refs) > 1:
+			return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{
+				func() (es.State[w.World], error) {
+					return NewChoiceMenu(func(world w.World) (string, []Choice) {
+						return query.T(world, "Treat which?"), tendChoices(world, player, entity, refs)
+					}), nil
+				},
+			}}, nil
+		case len(refs) == 1:
+			tend = &refs[0]
+		}
+	}
+	return useItem(world, player, entity, tend)
+}
+
+// useItem はアイテム使用を実行しダンジョンへ戻る
+func useItem(world w.World, player, entity ecs.Entity, tend *gc.ConditionRef) (es.Transition[w.World], error) {
+	if _, err := activity.Execute(activity.NewUseItemActivity(entity, tend), player, world); err != nil {
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
+}
+
+// tendChoices は治療する傷の選択肢を組む。行は部位と不調、値は重症度と治療の状態
+func tendChoices(world w.World, player, entity ecs.Entity, refs []gc.ConditionRef) []Choice {
+	hs := world.Components.HealthStatus.Get(player)
+	choices := make([]Choice, 0, len(refs))
+	for _, ref := range refs {
+		cond := hs.Parts[ref.Part].Conditions[ref.Index]
+		choices = append(choices, Choice{
+			Label: fmt.Sprintf("%s: %s", query.BodyPartName(world, ref.Part), translatedConditionName(world, cond.Type)),
+			Value: fmt.Sprintf("%s / %s", query.T(world, cond.Severity.Name()), treatmentStatus(world, cond)),
+			Run: func(world w.World) (es.Transition[w.World], error) {
+				return useItem(world, player, entity, &ref)
+			},
+		})
+	}
+	return choices
 }
 
 // execRead は選択した本の読書を開始しダンジョンへ戻る。読了は複数ターンにわたりダンジョンの進行が駆動する。
