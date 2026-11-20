@@ -149,14 +149,23 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	return nil
 }
 
-// mostSevereTreatable は Treats に一致し、治療の質が remedy より低い不調を全部位から探し、最も重い1つを返す。無ければ nil。
+// remedyTarget は Treats に一致し、治療の質が remedy より低い不調から治療の対象を1つ選ぶ。無ければ nil。
+// 未治療の不調を先にし、その中で最も重いものを選ぶ。未治療なら止血と痛みが収まり、治療済みを巻き直しても速さしか上がらない。
 // 質の高い治療を質の低い物で上書きさせない。Validate の使用可否判定と applyRemedy の適用が同じ探索を共有する
-func mostSevereTreatable(hs *gc.HealthStatus, remedy *gc.Remedy) *gc.HealthCondition {
+func remedyTarget(hs *gc.HealthStatus, remedy *gc.Remedy) *gc.HealthCondition {
 	var best *gc.HealthCondition
 	for i := range hs.Parts {
 		for j := range hs.Parts[i].Conditions {
 			c := &hs.Parts[i].Conditions[j]
-			if slices.Contains(remedy.Treats, c.Type) && c.TendQuality < remedy.Potency && (best == nil || c.Severity > best.Severity) {
+			if !slices.Contains(remedy.Treats, c.Type) || c.TendQuality >= remedy.Potency {
+				continue
+			}
+			if best == nil {
+				best = c
+				continue
+			}
+			untreated, bestUntreated := c.TendQuality == 0, best.TendQuality == 0
+			if (untreated && !bestUntreated) || (untreated == bestUntreated && c.Severity > best.Severity) {
 				best = c
 			}
 		}
@@ -171,7 +180,7 @@ func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *g
 	if !world.Components.HealthStatus.Has(actor) {
 		return false
 	}
-	best := mostSevereTreatable(world.Components.HealthStatus.Get(actor), remedy)
+	best := remedyTarget(world.Components.HealthStatus.Get(actor), remedy)
 	if best == nil {
 		return false
 	}

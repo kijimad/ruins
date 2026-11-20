@@ -90,7 +90,7 @@ func (remedyEffect) check(u *UseItemBehavior, actor, item ecs.Entity, world w.Wo
 		return nil
 	}
 	remedy := world.Components.Remedy.Get(item)
-	if !world.Components.HealthStatus.Has(actor) || mostSevereTreatable(world.Components.HealthStatus.Get(actor), remedy) == nil {
+	if !world.Components.HealthStatus.Has(actor) || remedyTarget(world.Components.HealthStatus.Get(actor), remedy) == nil {
 		return &UserError{Msg: query.T(world, "Nothing to treat.")}
 	}
 	return nil

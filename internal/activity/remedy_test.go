@@ -142,6 +142,30 @@ func TestApplyRemedy_質の高い物は質の低い治療を上書きする(t *t
 	assert.Equal(t, consts.Percent(100), hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionType("laceration")).TendQuality)
 }
 
+func TestApplyRemedy_質の高い物も未治療の傷を先に治療する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	arm := &world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms]
+	arm.AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 50}) // 重度、ぼろ布で治療済み
+	arm.AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 30, Severity: gc.TimerToSeverity(30)})                  // 軽度、未治療
+
+	item := world.ECS.NewEntity()
+	world.Components.Name.Add(item, &gc.Name{Name: "Bandage"})
+	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 100}
+
+	u := &UseItemBehavior{}
+	require.True(t, u.applyRemedy(player, world, remedy, item))
+
+	got := map[float64]consts.Percent{}
+	for _, c := range arm.Conditions {
+		got[c.Timer] = c.TendQuality
+	}
+	assert.Equal(t, map[float64]consts.Percent{80: 50, 30: 100}, got)
+}
+
 func TestUseItemBehavior_Validate_治療で質が上がる傷が無ければ使えない(t *testing.T) {
 	t.Parallel()
 

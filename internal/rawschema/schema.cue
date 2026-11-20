@@ -1146,7 +1146,7 @@ import (
 #PassCost: int & >=0 & <=9999
 
 // 治療の質。基準100の倍率。100が標準、150で回復1.5倍
-#Potency: int & >=0 & <=9999
+#Potency: int & >=1 & <=9999
 
 // 職業
 #Profession: {
