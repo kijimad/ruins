@@ -58,7 +58,7 @@ func TestCombatRiskCurve_危険度上昇で死亡確率が非減少傾向(t *tes
 	master := loadTestMaster(t)
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	require.NoError(t, err)
-	weapon, err := LoadWeapon(master, BaselineWeapon)
+	weapon, err := LoadWeaponFromBodyAttack(master, BaselineWeapon)
 	require.NoError(t, err)
 
 	curve, err := CombatRiskCurve(master, player, weapon, BaselineAreaTable, BaselineDays)

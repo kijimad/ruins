@@ -62,12 +62,8 @@ type BaselineRow struct {
 
 // Baseline は指定した敵テーブルの序盤戦闘ベースラインを返す。プレイヤーは強化なしの素手を
 // 最悪ケースとして固定し、難易度カーブを目標帯と突き合わせる。
-func Baseline(master rawschema.Raws, playerName, weaponName, enemyTableName string, days int) ([]BaselineRow, error) {
+func Baseline(master rawschema.Raws, playerName string, weapon WeaponStats, enemyTableName string, days int) ([]BaselineRow, error) {
 	player, err := LoadCombatantFromMember(master, playerName)
-	if err != nil {
-		return nil, err
-	}
-	weapon, err := LoadWeapon(master, weaponName)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +87,11 @@ func Baseline(master rawschema.Raws, playerName, weaponName, enemyTableName stri
 
 // RenderBaselineMarkdown は全敵テーブルのベースラインを markdown 表にする。日次の powerRatio と目標・帯内かを
 // 並べ、パラメータ変更の影響を diff で読めるようにする。テーブル名は raw 由来の実行時データ。
-func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string, days int) (string, error) {
+func RenderBaselineMarkdown(master rawschema.Raws, playerName, attackID string, days int) (string, error) {
+	weapon, err := LoadWeaponFromBodyAttack(master, attackID)
+	if err != nil {
+		return "", err
+	}
 	var b strings.Builder
 	fmt.Fprintf(&b, "# バランスベースライン\n\n")
 	fmt.Fprintf(&b, "実コードの戦闘式と raw.toml から乱数なしで導出したバランスの現状値。`make balance-report` で再生成する。\n")
@@ -116,30 +116,15 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string
 	fmt.Fprintf(&b, "## 序盤戦闘の難易度カーブ\n\n")
 	fmt.Fprintf(&b, "**概要**: 各日に素手・無装備の床プレイヤーがどれだけ有利かを戦力比で表す。戦力比は敵を倒す速さ÷敵に倒される速さで、1.0が互角、大きいほど楽。\n")
 	fmt.Fprintf(&b, "床は難易度の下限リファレンスで主基準ではない。主基準は「進行カーブ」の想定プレイヤーの死亡確率。敵を進行で強化する設計では床は後半に目標帯を下回り 外 になるのが正常で、装備しないと生き残れないことを表す。\n")
-	fmt.Fprintf(&b, "プレイヤーは強化なしの `%s` + `%s` に固定する。\n", playerName, weaponName)
+	fmt.Fprintf(&b, "プレイヤーは強化なしの `%s` + `%s` に固定する。\n", playerName, attackID)
 	fmt.Fprintf(&b, "目標帯は day1=2.5 から day20=1.3 へ下げ、許容幅±%.1f。目標は設計仮説でプレイで見直す。判定「内」が目標帯の中、「外」が外。\n\n", targetBand)
 
-	tables := raw.PtrSlice(master.EnemyTables)
-	sort.Slice(tables, func(i, j int) bool { return tables[i].Id < tables[j].Id })
-	for _, table := range tables {
-		rows, err := Baseline(master, playerName, weaponName, table.Id, days)
-		if err != nil {
-			return "", err
-		}
-		fmt.Fprintf(&b, "### %s (%s)\n\n", table.Name, table.Id)
-		var curveRows [][]string
-		for _, r := range rows {
-			mark := "外"
-			if r.InRange {
-				mark = "内"
-			}
-			curveRows = append(curveRows, []string{fmt.Sprintf("%d", r.Day), fmt.Sprintf("%d", r.Danger), fmt.Sprintf("%.2f", r.PowerRatio), fmt.Sprintf("%.2f", r.Target), mark})
-		}
-		writeMDTable(&b, []string{"日", colDanger, "戦力比", "目標", "判定"}, []tw.Align{alignR, alignR, alignR, alignR, alignC}, curveRows)
+	if err := renderBaselineTables(&b, master, playerName, weapon, days); err != nil {
+		return "", err
 	}
 
 	// 戦闘リスク。期待値の比でなく、分布から突然死の確率を測る
-	if err := renderCombatRisk(&b, master, playerName, weaponName, days); err != nil {
+	if err := renderCombatRisk(&b, master, playerName, attackID, weapon, days); err != nil {
 		return "", err
 	}
 
@@ -327,14 +312,33 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string
 	return b.String(), nil
 }
 
+// renderBaselineTables は敵テーブルごとのベースラインの表を、テーブルの id 順に書き出す
+func renderBaselineTables(b *strings.Builder, master rawschema.Raws, playerName string, weapon WeaponStats, days int) error {
+	tables := raw.PtrSlice(master.EnemyTables)
+	sort.Slice(tables, func(i, j int) bool { return tables[i].Id < tables[j].Id })
+	for _, table := range tables {
+		rows, err := Baseline(master, playerName, weapon, table.Id, days)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(b, "### %s (%s)\n\n", table.Name, table.Id)
+		var curveRows [][]string
+		for _, r := range rows {
+			mark := "外"
+			if r.InRange {
+				mark = "内"
+			}
+			curveRows = append(curveRows, []string{fmt.Sprintf("%d", r.Day), fmt.Sprintf("%d", r.Danger), fmt.Sprintf("%.2f", r.PowerRatio), fmt.Sprintf("%.2f", r.Target), mark})
+		}
+		writeMDTable(b, []string{"日", colDanger, "戦力比", "目標", "判定"}, []tw.Align{alignR, alignR, alignR, alignR, alignC}, curveRows)
+	}
+	return nil
+}
+
 // renderCombatRisk は戦闘リスクのカーブを markdown で書き出す。難易度カーブが期待値の比を見るのに対し、
 // こちらは吸収マルコフ連鎖で解いた死亡確率と決着ターンを日ごとに出す。突然死の裾を可視化する。
-func renderCombatRisk(b *strings.Builder, master rawschema.Raws, playerName, weaponName string, days int) error {
+func renderCombatRisk(b *strings.Builder, master rawschema.Raws, playerName, attackID string, weapon WeaponStats, days int) error {
 	player, err := LoadCombatantFromMember(master, playerName)
-	if err != nil {
-		return err
-	}
-	weapon, err := LoadWeapon(master, weaponName)
 	if err != nil {
 		return err
 	}
@@ -344,7 +348,7 @@ func renderCombatRisk(b *strings.Builder, master rawschema.Raws, playerName, wea
 	}
 	fmt.Fprintf(b, "## 戦闘リスク（死亡確率・廃墟）\n\n")
 	fmt.Fprintf(b, "**概要**: その日の敵プールに1体遭遇したときに倒される確率と、決着までの期待ターン。戦力比が期待値の比なのに対し、\n")
-	fmt.Fprintf(b, "こちらは戦闘を吸収マルコフ連鎖として厳密に解き、平均では見えない突然死の裾を測る。プレイヤーは強化なしの `%s` + `%s` 固定。\n\n", playerName, weaponName)
+	fmt.Fprintf(b, "こちらは戦闘を吸収マルコフ連鎖として厳密に解き、平均では見えない突然死の裾を測る。プレイヤーは強化なしの `%s` + `%s` 固定。\n\n", playerName, attackID)
 	var riskRows [][]string
 	for _, d := range curve {
 		riskRows = append(riskRows, []string{fmt.Sprintf("%d", d.Day), fmt.Sprintf("%d", d.Danger), fmt.Sprintf("%.1f%%", d.DeathProb*100), fmt.Sprintf("%.1f", d.ExpTurns)})
@@ -553,9 +557,20 @@ func renderSkillDepth(b *strings.Builder, master rawschema.Raws) error {
 	fmt.Fprintf(b, "能力+ダイス+武器の base 全体へ切り捨てで掛かる。撃破ターンが動かないレベルは体験に響かない死んだティア。NTBEA のティア識別性を翻案した指標。\n\n")
 
 	var rows [][]string
-	weapons := []string{BaselineWeapon, "iron_sword"}
-	for _, wn := range weapons {
-		prof, err := SkillDepthProfileFor(master, wn, BaselineAreaTable, day)
+	bare, err := LoadWeaponFromBodyAttack(master, BaselineWeapon)
+	if err != nil {
+		return err
+	}
+	iron, err := LoadWeaponFromItem(master, "iron_sword")
+	if err != nil {
+		return err
+	}
+	weapons := []struct {
+		name   string
+		weapon WeaponStats
+	}{{BaselineWeapon, bare}, {"iron_sword", iron}}
+	for _, w := range weapons {
+		prof, err := SkillDepthProfileFor(master, w.weapon, BaselineAreaTable, day)
 		if err != nil {
 			return err
 		}
@@ -567,7 +582,7 @@ func renderSkillDepth(b *strings.Builder, master rawschema.Raws) error {
 		if prof.EffectiveSteps > 0 {
 			gap = fmt.Sprintf("%.3f", prof.MinEffectiveGap)
 		}
-		rows = append(rows, []string{wn, fmt.Sprintf("%d", total), fmt.Sprintf("%d", prof.EffectiveSteps), fmt.Sprintf("%d", prof.DeadTiers), gap})
+		rows = append(rows, []string{w.name, fmt.Sprintf("%d", total), fmt.Sprintf("%d", prof.EffectiveSteps), fmt.Sprintf("%d", prof.DeadTiers), gap})
 	}
 	writeMDTable(b, []string{"武器", "総レベル", "実効ティア", "死んだティア", "実効の最小改善(ターン)"}, []tw.Align{alignL, alignR, alignR, alignR, alignR}, rows)
 	fmt.Fprintf(b, "熟練度が base 全体へ効くので進行の大半は手応えがある。死んだティアは撃破ターンが既に短い高レベル帯に偏る。弱い武器ほど base が小さく、切り捨てでわずかに死にやすい。\n\n")

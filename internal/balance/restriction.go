@@ -26,7 +26,7 @@ func WeaponRestrictionValues(master rawschema.Raws, enemyTableName string, day i
 	if err != nil {
 		return nil, 0, err
 	}
-	bare, err := LoadWeapon(master, BaselineWeapon)
+	bare, err := LoadWeaponFromBodyAttack(master, BaselineWeapon)
 	if err != nil {
 		return nil, 0, err
 	}

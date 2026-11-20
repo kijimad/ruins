@@ -22,7 +22,6 @@ type SkillTier struct {
 // SkillDepthProfile はスキル進行の手応えを測る。撃破ターンが動かない死んだティアが多いほど、レベルアップの多くが
 // 体験に響かない平坦な進行になる。NTBEA のティア識別性の翻案。
 type SkillDepthProfile struct {
-	Weapon          string
 	Tiers           []SkillTier
 	EffectiveSteps  int     // 撃破ターンが縮んで体験が動いたレベル数
 	DeadTiers       int     // 撃破ターンが前と変わらず、体験が動かないティア数
@@ -30,14 +29,10 @@ type SkillDepthProfile struct {
 	MinGapAt        int     // 最小の実効ギャップが起きるレベル
 }
 
-// SkillDepthProfileFor は weaponName をスキルで強化したときの進行の手応えを、危険度 danger の敵プールに対し測る。
+// SkillDepthProfileFor は weapon をスキルで強化したときの進行の手応えを、危険度 danger の敵プールに対し測る。
 // 熟練度倍率は実ゲームと同じく base 全体へ切り捨てで掛け、0..skill.MaxLevel の全段を見る。
-func SkillDepthProfileFor(master rawschema.Raws, weaponName, enemyTableName string, day int) (SkillDepthProfile, error) {
+func SkillDepthProfileFor(master rawschema.Raws, weapon WeaponStats, enemyTableName string, day int) (SkillDepthProfile, error) {
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
-	if err != nil {
-		return SkillDepthProfile{}, err
-	}
-	weapon, err := LoadWeapon(master, weaponName)
 	if err != nil {
 		return SkillDepthProfile{}, err
 	}
@@ -47,7 +42,7 @@ func SkillDepthProfileFor(master rawschema.Raws, weaponName, enemyTableName stri
 	}
 	danger := int(query.DangerLevelForDay(day))
 
-	prof := SkillDepthProfile{Weapon: weaponName, MinEffectiveGap: math.Inf(1)}
+	prof := SkillDepthProfile{MinEffectiveGap: math.Inf(1)}
 	prevTTK := math.NaN()
 	for level := 0; level <= skill.MaxLevel(); level++ {
 		mult := SkillDamagePercent(defs, level)

@@ -74,15 +74,6 @@ func LoadWeaponFromItem(master rawschema.Raws, name string) (WeaponStats, error)
 	return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", name)
 }
 
-// LoadWeapon は id の武器の WeaponStats を返す。素手のような体の攻撃と、剣のようなアイテムを同じつまみで比べるため、
-// 体の攻撃の表を先に引き、無ければアイテムの表から引く
-func LoadWeapon(master rawschema.Raws, id string) (WeaponStats, error) {
-	if _, ok := raw.FindByKey(master.BodyAttacks, func(a rawschema.BodyAttack) string { return a.Id }, id); ok {
-		return LoadWeaponFromBodyAttack(master, id)
-	}
-	return LoadWeaponFromItem(master, id)
-}
-
 // LoadWeaponFromBodyAttack はraw.Masterの体の攻撃からWeaponStatsを生成する
 func LoadWeaponFromBodyAttack(master rawschema.Raws, id string) (WeaponStats, error) {
 	melee, _, err := raw.BodyAttackMelee(master, id)

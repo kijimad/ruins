@@ -14,7 +14,7 @@ func ruinsDay20PowerRatio(master rawschema.Raws) float64 {
 	if err != nil {
 		return 0
 	}
-	weapon, err := LoadWeapon(master, BaselineWeapon)
+	weapon, err := LoadWeaponFromBodyAttack(master, BaselineWeapon)
 	if err != nil {
 		return 0
 	}
@@ -95,7 +95,7 @@ func combatDeviations(master rawschema.Raws, repDays []int) ([]float64, bool) {
 	if err != nil {
 		return nil, false
 	}
-	weapon, err := LoadWeapon(master, BaselineWeapon)
+	weapon, err := LoadWeaponFromBodyAttack(master, BaselineWeapon)
 	if err != nil {
 		return nil, false
 	}
