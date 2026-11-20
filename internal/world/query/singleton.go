@@ -28,7 +28,7 @@ func GetDungeon(world w.World) *gc.Dungeon {
 	return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)
 }
 
-// GetWeaponSelection はシングルトンから選択中の武器スロットを取得する
+// GetWeaponSelection はシングルトンから選択中の手持ちの欄を取得する
 func GetWeaponSelection(world w.World) *gc.WeaponSelection {
 	return GetSingleton[gc.WeaponSelection](world, world.Components.WeaponSelection)
 }

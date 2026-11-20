@@ -21,7 +21,7 @@ func TestIsWeapon(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
 		world.Components.Melee.Add(e, &gc.Melee{Accuracy: 80, Damage: 5})
-		assert.True(t, query.IsWeapon(world, e))
+		assert.True(t, query.IsHoldable(world, e))
 	})
 
 	t.Run("射撃コンポーネントを持てば武器", func(t *testing.T) {
@@ -29,14 +29,14 @@ func TestIsWeapon(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
 		world.Components.Fire.Add(e, &gc.Fire{Accuracy: 80, Damage: 5})
-		assert.True(t, query.IsWeapon(world, e))
+		assert.True(t, query.IsHoldable(world, e))
 	})
 
 	t.Run("どちらも持たなければ武器でない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
-		assert.False(t, query.IsWeapon(world, e))
+		assert.False(t, query.IsHoldable(world, e))
 	})
 }
 
@@ -47,11 +47,11 @@ func TestGetWeapons_Empty(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	// SpawnPlayer は初期装備の松明を武器スロットに持つ。空の状態を検証するため一旦外す
+	// SpawnPlayer は初期装備の松明を手持ちの欄に持つ。空の状態を検証するため一旦外す
 	require.NoError(t, lifecycle.UnequipAll(world, player))
 
 	// 装備を外せば全てnil
-	weapons := query.GetWeapons(world, player)
+	weapons := query.GetHeld(world, player)
 	assert.Len(t, weapons, 5)
 	for _, w := range weapons {
 		assert.Nil(t, w)
@@ -64,20 +64,20 @@ func TestSelectedWeapon(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	torch := query.GetWeapons(world, player)[0]
+	torch := query.GetHeld(world, player)[0]
 	require.NotNil(t, torch, "初期装備の松明はスロット1にある")
 
-	query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
+	query.GetWeaponSelection(world).Slot = gc.SlotHand1
 	got, ok := query.SelectedWeapon(world, player)
 	assert.True(t, ok)
 	assert.Equal(t, *torch, got)
 
-	query.GetWeaponSelection(world).Slot = gc.SlotWeapon2
+	query.GetWeaponSelection(world).Slot = gc.SlotHand2
 	_, ok = query.SelectedWeapon(world, player)
 	assert.False(t, ok, "空きスロットを選ぶと武器は無い")
 
 	query.GetWeaponSelection(world).Slot = gc.SlotHead
-	assert.Panics(t, func() { query.SelectedWeapon(world, player) }, "武器スロットでない選択は不変条件の破れ")
+	assert.Panics(t, func() { query.SelectedWeapon(world, player) }, "手持ちの欄でない選択は不変条件の破れ")
 }
 
 func TestGetWeapons_装備した武器をスロット順で返す(t *testing.T) {
@@ -88,10 +88,10 @@ func TestGetWeapons_装備した武器をスロット順で返す(t *testing.T) 
 	require.NoError(t, err)
 
 	// SpawnPlayer は初期装備の松明をスロット1に武器として装備する
-	weapons := query.GetWeapons(world, player)
+	weapons := query.GetHeld(world, player)
 	require.Len(t, weapons, 5)
 	require.NotNil(t, weapons[0], "スロット1に初期装備の松明が入っている")
-	assert.True(t, query.IsWeapon(world, *weapons[0]), "松明は近接コンポーネントを持つので武器と判定される")
+	assert.True(t, query.IsHoldable(world, *weapons[0]), "松明は近接コンポーネントを持つので武器と判定される")
 	for i := 1; i < 5; i++ {
 		assert.Nil(t, weapons[i], "スロット%dは空", i+1)
 	}
@@ -106,9 +106,9 @@ func TestGetWeapons_武器でない装備はスロットに入らない(t *testi
 	require.NoError(t, lifecycle.UnequipAll(world, player))
 
 	notWeapon := world.ECS.NewEntity()
-	world.Components.LocationEquipped.Add(notWeapon, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotWeapon1})
+	world.Components.LocationEquipped.Add(notWeapon, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotHand1})
 
-	weapons := query.GetWeapons(world, player)
+	weapons := query.GetHeld(world, player)
 	require.Len(t, weapons, 5)
 	for i, w := range weapons {
 		assert.Nil(t, w, "スロット%dは武器でない実体を読み飛ばして空のまま", i+1)
@@ -182,7 +182,7 @@ func TestGetArmorEquipments_全スロットをインデックスへ振り分け�
 	}
 }
 
-// TestGetArmorEquipments_不正なスロットはpanic は防具スロットの範囲外(武器スロット)を
+// TestGetArmorEquipments_不正なスロットはpanic は防具スロットの範囲外(手持ちの欄)を
 // Wearable に割り当てた不整合データを switch の default 分岐に落とし、panic することを固定する。
 func TestGetArmorEquipments_不正なスロットはpanic(t *testing.T) {
 	t.Parallel()
@@ -193,7 +193,7 @@ func TestGetArmorEquipments_不正なスロットはpanic(t *testing.T) {
 
 	item := world.ECS.NewEntity()
 	world.Components.Wearable.Add(item, &gc.Wearable{EquipmentCategory: rawschema.EquipmentCategoryTORSO})
-	lifecycle.MoveToEquip(world, item, player, gc.SlotWeapon1)
+	lifecycle.MoveToEquip(world, item, player, gc.SlotHand1)
 
 	assert.Panics(t, func() { query.GetArmorEquipments(world, player) })
 }

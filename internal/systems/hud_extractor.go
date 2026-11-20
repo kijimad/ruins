@@ -278,7 +278,7 @@ func extractMessageData(world w.World, store *gamelog.SafeSlice) hud.MessageData
 	}
 }
 
-// extractWeaponSlotsData は武器スロットデータを抽出する
+// extractWeaponSlotsData は手持ちの欄データを抽出する
 func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 	screenDimensions := hud.ScreenDimensions{
 		Width:  world.Resources.ScreenDimensions.Width,
@@ -287,12 +287,12 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 
 	var slots []hud.WeaponSlotInfo
 
-	// プレイヤーの武器スロット情報を取得
+	// プレイヤーの手持ちの欄情報を取得
 	query.Player(world, func(playerEntity ecs.Entity) {
-		weapons := query.GetWeapons(world, playerEntity)
+		weapons := query.GetHeld(world, playerEntity)
 
 		for i, weapon := range weapons {
-			slotNumber := gc.SlotWeapon1 + gc.EquipmentSlotNumber(i)
+			slotNumber := gc.SlotHand1 + gc.EquipmentSlotNumber(i)
 
 			var weaponName string
 			var spriteSheet, spriteName string

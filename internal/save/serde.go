@@ -151,7 +151,7 @@ func validateStages(world w.World) error {
 	return nil
 }
 
-// validateWeaponSelection はシングルトンが武器の選択を持ち、その選択が武器スロットかを検査する。使う側は選択の有無も
+// validateWeaponSelection はシングルトンが武器の選択を持ち、その選択が手持ちの欄かを検査する。使う側は選択の有無も
 // 範囲も検査せず武器の並びを引くので、ここで弾かないとロード後に止まる
 func validateWeaponSelection(world w.World) error {
 	singleton := world.Resources.SingletonEntity

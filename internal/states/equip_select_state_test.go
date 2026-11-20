@@ -25,10 +25,10 @@ func TestApplyEquipChoice_空きスロットに候補を装着する(t *testing.
 	require.NoError(t, err)
 
 	// 武器2スロットは空き。初期装備の松明が居る武器1を避ける
-	err = applyEquipChoice(world, equipChoice{entity: sword}, gc.SlotWeapon2, player, nil)
+	err = applyEquipChoice(world, equipChoice{entity: sword}, gc.SlotHand2, player, nil)
 	require.NoError(t, err)
 
-	weapons := query.GetWeapons(world, player)
+	weapons := query.GetHeld(world, player)
 	require.NotNil(t, weapons[1], "武器2スロットが埋まる")
 	assert.Equal(t, sword, *weapons[1], "装着したのは鉄の剣")
 	assert.False(t, world.Components.LocationInBackpack.Has(sword), "装着後は持ち物から外れる")
@@ -39,15 +39,15 @@ func TestApplyEquipChoice_装備済みを外す(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	weapons := query.GetWeapons(world, player)
+	weapons := query.GetHeld(world, player)
 	require.NotNil(t, weapons[0], "初期装備の武器がある")
 	equipped := *weapons[0]
 
-	err = applyEquipChoice(world, equipChoice{unequip: true}, gc.SlotWeapon1, player, &equipped)
+	err = applyEquipChoice(world, equipChoice{unequip: true}, gc.SlotHand1, player, &equipped)
 	require.NoError(t, err)
 
 	assert.True(t, world.Components.LocationInBackpack.Has(equipped), "外すと装備が持ち物へ戻る")
-	weapons = query.GetWeapons(world, player)
+	weapons = query.GetHeld(world, player)
 	assert.Nil(t, weapons[0], "外したので武器1スロットは空く")
 }
 
@@ -56,18 +56,18 @@ func TestApplyEquipChoice_装備済みを候補で差し替える(t *testing.T) 
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	weapons := query.GetWeapons(world, player)
+	weapons := query.GetHeld(world, player)
 	require.NotNil(t, weapons[0], "初期装備の武器がある")
 	old := *weapons[0]
 	fresh, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
 	require.NoError(t, err)
 
-	err = applyEquipChoice(world, equipChoice{entity: fresh}, gc.SlotWeapon1, player, &old)
+	err = applyEquipChoice(world, equipChoice{entity: fresh}, gc.SlotHand1, player, &old)
 	require.NoError(t, err)
 
 	assert.True(t, world.Components.LocationInBackpack.Has(old), "旧装備が持ち物へ戻る")
 	assert.False(t, world.Components.LocationInBackpack.Has(fresh), "新装備が持ち物から外れる")
-	weapons = query.GetWeapons(world, player)
+	weapons = query.GetHeld(world, player)
 	require.NotNil(t, weapons[0], "武器1スロットが埋まる")
 	assert.Equal(t, fresh, *weapons[0], "武器1スロットは差し替え後の武器")
 }
@@ -79,8 +79,8 @@ func TestApplyEquipChoice_外す対象が無ければ何もしない(t *testing.
 	require.NoError(t, err)
 
 	// 外すを選んでも現装備が無ければ無害
-	require.NoError(t, applyEquipChoice(world, equipChoice{unequip: true}, gc.SlotWeapon2, player, nil))
-	weapons := query.GetWeapons(world, player)
+	require.NoError(t, applyEquipChoice(world, equipChoice{unequip: true}, gc.SlotHand2, player, nil))
+	weapons := query.GetHeld(world, player)
 	assert.Nil(t, weapons[1], "武器2スロットは空きのまま")
 }
 
@@ -122,7 +122,7 @@ func TestGolden_EquipSelect(t *testing.T) {
 	gun, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 	require.NoError(t, err)
 
-	props := EquipSelectProps{Items: []ecs.Entity{sword, gun}, SlotNumber: gc.SlotWeapon1}
+	props := EquipSelectProps{Items: []ecs.Entity{sword, gun}, SlotNumber: gc.SlotHand1}
 	tree := buildEquipSelectUI(world, props, 0, world.Resources.UIResources)
 	vrt.DrawFrame(consts.GameWidth, consts.GameHeight, func(screen *ebiten.Image) {
 		tree.Draw(uicore.NewEbitenCanvas(screen))

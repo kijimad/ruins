@@ -485,8 +485,8 @@ msgstr "解雇"
 msgid "Nothing equipped"
 msgstr "何も装備していない"
 
-msgid "Weapon %d"
-msgstr "武器%d"
+msgid "Hand %d"
+msgstr "手持ち%d"
 
 msgid "Armor (head)"
 msgstr "防具(頭)"
@@ -1049,20 +1049,20 @@ msgstr "中"
 msgid "Severe"
 msgstr "重"
 
-msgid "Weapon 1"
-msgstr "武器1"
+msgid "Hand 1"
+msgstr "手持ち1"
 
-msgid "Weapon 2"
-msgstr "武器2"
+msgid "Hand 2"
+msgstr "手持ち2"
 
-msgid "Weapon 3"
-msgstr "武器3"
+msgid "Hand 3"
+msgstr "手持ち3"
 
-msgid "Weapon 4"
-msgstr "武器4"
+msgid "Hand 4"
+msgstr "手持ち4"
 
-msgid "Weapon 5"
-msgstr "武器5"
+msgid "Hand 5"
+msgstr "手持ち5"
 
 msgid "Raised by breaking objects with a suitable tool or reading mechanic books"
 msgstr "合う道具で物を壊すか機械関連の本を読むと上がる"

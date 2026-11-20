@@ -24,7 +24,7 @@ func TestEquipableForSlot_所持する装備品が候補に出る(t *testing.T) 
 	_, err = lifecycle.SpawnBackpackItem(world, "cloth_hat", 1)
 	require.NoError(t, err)
 
-	assert.NotEmpty(t, equipableForSlot(world, gc.SlotWeapon1), "武器を所持していれば武器スロットの候補に出る")
+	assert.NotEmpty(t, equipableForSlot(world, gc.SlotHand1), "武器を所持していれば手持ちの欄の候補に出る")
 	assert.NotEmpty(t, equipableForSlot(world, gc.SlotHead), "頭防具を所持していれば頭スロットの候補に出る")
 }
 

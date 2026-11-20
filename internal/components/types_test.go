@@ -195,11 +195,11 @@ func TestEquipmentSlotNumber(t *testing.T) {
 			{SlotLegs, "Legs"},
 			{SlotFeet, "Feet"},
 			{SlotJewelry, "Accessory"},
-			{SlotWeapon1, "Weapon 1"},
-			{SlotWeapon2, "Weapon 2"},
-			{SlotWeapon3, "Weapon 3"},
-			{SlotWeapon4, "Weapon 4"},
-			{SlotWeapon5, "Weapon 5"},
+			{SlotHand1, "Hand 1"},
+			{SlotHand2, "Hand 2"},
+			{SlotHand3, "Hand 3"},
+			{SlotHand4, "Hand 4"},
+			{SlotHand5, "Hand 5"},
 		}
 
 		for _, tt := range tests {
@@ -221,7 +221,7 @@ func TestParseEquipmentSlot(t *testing.T) {
 
 	slots := []rawschema.EquipSlot{
 		rawschema.EquipSlotHEAD, rawschema.EquipSlotTORSO, rawschema.EquipSlotARMS, rawschema.EquipSlotHANDS, rawschema.EquipSlotLEGS, rawschema.EquipSlotFEET,
-		rawschema.EquipSlotWEAPON1, rawschema.EquipSlotWEAPON2, rawschema.EquipSlotWEAPON3, rawschema.EquipSlotWEAPON4, rawschema.EquipSlotWEAPON5,
+		rawschema.EquipSlotHAND1, rawschema.EquipSlotHAND2, rawschema.EquipSlotHAND3, rawschema.EquipSlotHAND4, rawschema.EquipSlotHAND5,
 	}
 	got := map[rawschema.EquipSlot]EquipmentSlotNumber{}
 	for _, slot := range slots {
@@ -232,8 +232,8 @@ func TestParseEquipmentSlot(t *testing.T) {
 	assert.Equal(t, map[rawschema.EquipSlot]EquipmentSlotNumber{
 		rawschema.EquipSlotHEAD: SlotHead, rawschema.EquipSlotTORSO: SlotTorso, rawschema.EquipSlotARMS: SlotArms,
 		rawschema.EquipSlotHANDS: SlotHands, rawschema.EquipSlotLEGS: SlotLegs, rawschema.EquipSlotFEET: SlotFeet,
-		rawschema.EquipSlotWEAPON1: SlotWeapon1, rawschema.EquipSlotWEAPON2: SlotWeapon2, rawschema.EquipSlotWEAPON3: SlotWeapon3,
-		rawschema.EquipSlotWEAPON4: SlotWeapon4, rawschema.EquipSlotWEAPON5: SlotWeapon5,
+		rawschema.EquipSlotHAND1: SlotHand1, rawschema.EquipSlotHAND2: SlotHand2, rawschema.EquipSlotHAND3: SlotHand3,
+		rawschema.EquipSlotHAND4: SlotHand4, rawschema.EquipSlotHAND5: SlotHand5,
 	}, got)
 
 	_, ok := ParseEquipmentSlot("INVALID")

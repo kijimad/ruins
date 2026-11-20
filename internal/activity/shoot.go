@@ -63,7 +63,7 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 		return fmt.Errorf("target is already dead")
 	}
 
-	// 遠距離武器が装備されているか。CanShootTarget が事前に絞るので、武器スロット不正も
+	// 遠距離武器が装備されているか。CanShootTarget が事前に絞るので、手持ちの欄不正も
 	// 遠距離武器なしもここでは起こらない。発火したら不変条件違反なのでそのまま伝播させる
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {

@@ -66,22 +66,22 @@ const (
 	SlotLegs    EquipmentSlotNumber = 4  // 脚部防具スロット
 	SlotFeet    EquipmentSlotNumber = 5  // 足部防具スロット
 	SlotJewelry EquipmentSlotNumber = 6  // 装飾品スロット
-	SlotWeapon1 EquipmentSlotNumber = 7  // 武器スロット1
-	SlotWeapon2 EquipmentSlotNumber = 8  // 武器スロット2
-	SlotWeapon3 EquipmentSlotNumber = 9  // 武器スロット3
-	SlotWeapon4 EquipmentSlotNumber = 10 // 武器スロット4
-	SlotWeapon5 EquipmentSlotNumber = 11 // 武器スロット5
+	SlotHand1   EquipmentSlotNumber = 7  // 手持ちの欄1
+	SlotHand2   EquipmentSlotNumber = 8  // 手持ちの欄2
+	SlotHand3   EquipmentSlotNumber = 9  // 手持ちの欄3
+	SlotHand4   EquipmentSlotNumber = 10 // 手持ちの欄4
+	SlotHand5   EquipmentSlotNumber = 11 // 手持ちの欄5
 )
 
-// WeaponSlotCount は武器スロットの数
-const WeaponSlotCount = int(SlotWeapon5-SlotWeapon1) + 1
+// HandSlotCount は手持ちの欄の数
+const HandSlotCount = int(SlotHand5-SlotHand1) + 1
 
-// WeaponIndex は武器スロットの、SlotWeapon1 から並べた武器の並びでの添字を返す。武器スロットでなければ ok は偽
-func (s EquipmentSlotNumber) WeaponIndex() (int, bool) {
-	if s < SlotWeapon1 || s > SlotWeapon5 {
+// HandIndex は手持ちの欄の、SlotHand1 から並べた並びでの添字を返す。手持ちの欄でなければ ok は偽
+func (s EquipmentSlotNumber) HandIndex() (int, bool) {
+	if s < SlotHand1 || s > SlotHand5 {
 		return 0, false
 	}
-	return int(s - SlotWeapon1), true
+	return int(s - SlotHand1), true
 }
 
 // Name は装備スロット番号の表示名を返す
@@ -101,16 +101,16 @@ func (s EquipmentSlotNumber) Name() i18n.Msgid {
 		return EquipmentCategoryName(rawschema.EquipmentCategoryFEET)
 	case SlotJewelry:
 		return EquipmentCategoryName(rawschema.EquipmentCategoryJEWELRY)
-	case SlotWeapon1:
-		return "Weapon 1"
-	case SlotWeapon2:
-		return "Weapon 2"
-	case SlotWeapon3:
-		return "Weapon 3"
-	case SlotWeapon4:
-		return "Weapon 4"
-	case SlotWeapon5:
-		return "Weapon 5"
+	case SlotHand1:
+		return "Hand 1"
+	case SlotHand2:
+		return "Hand 2"
+	case SlotHand3:
+		return "Hand 3"
+	case SlotHand4:
+		return "Hand 4"
+	case SlotHand5:
+		return "Hand 5"
 	default:
 		panic(fmt.Sprintf("unknown EquipmentSlotNumber: %d", s))
 	}
@@ -119,16 +119,16 @@ func (s EquipmentSlotNumber) Name() i18n.Msgid {
 // ParseEquipmentSlot は raw の装備スロットから装備スロット番号を返す。未知の値は ok=false
 func ParseEquipmentSlot(slot rawschema.EquipSlot) (EquipmentSlotNumber, bool) {
 	switch slot {
-	case rawschema.EquipSlotWEAPON1:
-		return SlotWeapon1, true
-	case rawschema.EquipSlotWEAPON2:
-		return SlotWeapon2, true
-	case rawschema.EquipSlotWEAPON3:
-		return SlotWeapon3, true
-	case rawschema.EquipSlotWEAPON4:
-		return SlotWeapon4, true
-	case rawschema.EquipSlotWEAPON5:
-		return SlotWeapon5, true
+	case rawschema.EquipSlotHAND1:
+		return SlotHand1, true
+	case rawschema.EquipSlotHAND2:
+		return SlotHand2, true
+	case rawschema.EquipSlotHAND3:
+		return SlotHand3, true
+	case rawschema.EquipSlotHAND4:
+		return SlotHand4, true
+	case rawschema.EquipSlotHAND5:
+		return SlotHand5, true
 	case rawschema.EquipSlotHEAD:
 		return SlotHead, true
 	case rawschema.EquipSlotTORSO:

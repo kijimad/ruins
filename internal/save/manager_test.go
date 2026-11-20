@@ -528,7 +528,7 @@ func TestSerializationManager_LoadWorld_不正なステージキーは復元を�
 	require.ErrorIs(t, err, errInvalidStageKey)
 }
 
-func TestSerializationManager_LoadWorld_武器スロットでない選択は復元を拒否する(t *testing.T) {
+func TestSerializationManager_LoadWorld_手持ちの欄でない選択は復元を拒否する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)

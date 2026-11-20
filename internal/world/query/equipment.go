@@ -8,24 +8,24 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// IsWeapon はエンティティが武器かを返す。近接または射撃のいずれかを持てば武器とみなす。
-func IsWeapon(world w.World, entity ecs.Entity) bool {
+// IsHoldable はエンティティを手持ちの欄に持てるかを返す。近接または射撃のいずれかを持てば持てる。
+func IsHoldable(world w.World, entity ecs.Entity) bool {
 	return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
 }
 
-// GetWeapons は武器スロットごとの武器を、SlotWeapon1 から順に並べて返す。空きスロットは nil
-func GetWeapons(world w.World, owner ecs.Entity) [gc.WeaponSlotCount]*ecs.Entity {
-	var weapons [gc.WeaponSlotCount]*ecs.Entity
+// GetHeld は手持ちの欄ごとの物を、SlotHand1 から順に並べて返す。空きスロットは nil
+func GetHeld(world w.World, owner ecs.Entity) [gc.HandSlotCount]*ecs.Entity {
+	var weapons [gc.HandSlotCount]*ecs.Entity
 
 	weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
 	for weaponsQuery.Next() {
 		entity := weaponsQuery.Entity()
-		if !IsWeapon(world, entity) {
+		if !IsHoldable(world, entity) {
 			continue
 		}
 		equipped := world.Components.LocationEquipped.Get(entity)
 		if owner == equipped.Owner {
-			if i, ok := equipped.EquipmentSlot.WeaponIndex(); ok {
+			if i, ok := equipped.EquipmentSlot.HandIndex(); ok {
 				weapons[i] = &entity
 			}
 		}
@@ -34,15 +34,15 @@ func GetWeapons(world w.World, owner ecs.Entity) [gc.WeaponSlotCount]*ecs.Entity
 	return weapons
 }
 
-// SelectedWeapon は owner が選択中の武器スロットに装備している武器を返す。空きスロットなら ok は偽。
-// 選択が武器スロットであることはロードの検査と数字キーの処理が保証するので、破れていれば panic する
+// SelectedWeapon は owner が選択中の手持ちの欄に装備している武器を返す。空きスロットなら ok は偽。
+// 選択が手持ちの欄であることはロードの検査と数字キーの処理が保証するので、破れていれば panic する
 func SelectedWeapon(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
 	slot := GetWeaponSelection(world).Slot
-	i, ok := slot.WeaponIndex()
+	i, ok := slot.HandIndex()
 	if !ok {
 		panic(fmt.Sprintf("weapon selection is not a weapon slot: %d", slot))
 	}
-	weapon := GetWeapons(world, owner)[i]
+	weapon := GetHeld(world, owner)[i]
 	if weapon == nil {
 		return ecs.Entity{}, false
 	}
