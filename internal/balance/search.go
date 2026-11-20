@@ -25,11 +25,6 @@ func ruinsDay20PowerRatio(master rawschema.Raws) float64 {
 	return curve[len(curve)-1].PowerRatio
 }
 
-// withScaledMeleeDamage は id の近接ダメージを factor 倍した状態で fn を呼び、後で元へ戻す
-func withScaledMeleeDamage(master rawschema.Raws, id string, factor float64, fn func()) {
-	withScaledMeleeDamages(master, map[string]float64{id: factor}, fn)
-}
-
 // SolveScalar は eval が単調な区間 [lo,hi] で eval(x)=target となる x を二分探索で返す。端点が挟まなければ ok=false。
 // iters が0以下なら精緻化せず区間中点を返す。
 func SolveScalar(eval func(float64) float64, target, lo, hi float64, iters int) (float64, bool) {

@@ -28,7 +28,7 @@ func TestWithScaledMeleeDamage_不在アイテムはそのまま実行する(t *
 	before := ruinsDay20PowerRatio(master)
 	called := false
 	// 存在しないアイテムIDでは何も変更せず fn だけ呼ぶ。指標は変わらない
-	withScaledMeleeDamage(master, "no_such_item", 2.0, func() {
+	withScaledMeleeDamages(master, map[string]float64{"no_such_item": 2.0}, func() {
 		called = true
 		assert.InDelta(t, before, ruinsDay20PowerRatio(master), 1e-9, "変更されない")
 	})
@@ -44,7 +44,7 @@ func TestSolveScalar_敵武器スケールで目標戦力比を探す(t *testing
 	base := ruinsDay20PowerRatio(master)
 	eval := func(k float64) float64 {
 		var got float64
-		withScaledMeleeDamage(master, "bite", k, func() { got = ruinsDay20PowerRatio(master) })
+		withScaledMeleeDamages(master, map[string]float64{"bite": k}, func() { got = ruinsDay20PowerRatio(master) })
 		return got
 	}
 	target := (eval(1.0) + eval(4.0)) / 2
