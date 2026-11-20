@@ -74,14 +74,14 @@ const (
 
 // 戦闘系アクション
 const (
-	ActionAttack            ActionID = "attack"
-	ActionShoot             ActionID = "shoot"
-	ActionReload            ActionID = "reload"
-	ActionSwitchWeaponSlot1 ActionID = "switch_weapon_slot_1"
-	ActionSwitchWeaponSlot2 ActionID = "switch_weapon_slot_2"
-	ActionSwitchWeaponSlot3 ActionID = "switch_weapon_slot_3"
-	ActionSwitchWeaponSlot4 ActionID = "switch_weapon_slot_4"
-	ActionSwitchWeaponSlot5 ActionID = "switch_weapon_slot_5"
+	ActionAttack          ActionID = "attack"
+	ActionShoot           ActionID = "shoot"
+	ActionReload          ActionID = "reload"
+	ActionSwitchHandSlot1 ActionID = "switch_hand_slot_1"
+	ActionSwitchHandSlot2 ActionID = "switch_hand_slot_2"
+	ActionSwitchHandSlot3 ActionID = "switch_hand_slot_3"
+	ActionSwitchHandSlot4 ActionID = "switch_hand_slot_4"
+	ActionSwitchHandSlot5 ActionID = "switch_hand_slot_5"
 )
 
 // メニュー操作アクション

@@ -20,7 +20,7 @@ func TestSlotWidget_Draw(t *testing.T) {
 	t.Run("空スロットは背景と番号を描き枠線は出さない", func(t *testing.T) {
 		t.Parallel()
 		cv := &fakeCanvas{}
-		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: WeaponSlotInfo{}, number: 1}
+		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: HandSlotInfo{}, number: 1}
 		s.Draw(cv)
 
 		assert.Positive(t, cv.roundedFills, "背景パネルを敷く")
@@ -33,25 +33,25 @@ func TestSlotWidget_Draw(t *testing.T) {
 	t.Run("選択中は矩形いっぱいに枠線を重ねる", func(t *testing.T) {
 		t.Parallel()
 		cv := &fakeCanvas{}
-		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: WeaponSlotInfo{}, number: 2, selected: true}
+		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: HandSlotInfo{}, number: 2, selected: true}
 		s.Draw(cv)
 
 		assert.Equal(t, 2, cv.roundedStrokes, "背景の枠に選択枠を重ねて2本")
 	})
 }
 
-func TestWeaponSlots_Draw(t *testing.T) {
+func TestHandSlots_Draw(t *testing.T) {
 	t.Parallel()
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
-	ws := NewWeaponSlots(res.Text.SmallFace, Chrome{})
+	ws := NewHandSlots(res.Text.SmallFace, Chrome{})
 	screen := ScreenDimensions{Width: 960, Height: 720}
 
 	t.Run("スロット0件なら何も描かない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		cv := &fakeCanvas{}
-		ws.Draw(cv, WeaponSlotsData{Slots: nil, ScreenDimensions: screen}, world)
+		ws.Draw(cv, HandSlotsData{Slots: nil, ScreenDimensions: screen}, world)
 		assert.Empty(t, cv.texts)
 		assert.Zero(t, cv.roundedFills)
 	})
@@ -60,8 +60,8 @@ func TestWeaponSlots_Draw(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		cv := &fakeCanvas{}
-		slots := []WeaponSlotInfo{{}, {}, {}}
-		ws.Draw(cv, WeaponSlotsData{Slots: slots, ScreenDimensions: screen}, world)
+		slots := []HandSlotInfo{{}, {}, {}}
+		ws.Draw(cv, HandSlotsData{Slots: slots, ScreenDimensions: screen}, world)
 
 		n1 := findText(t, cv.texts, "1")
 		n2 := findText(t, cv.texts, "2")

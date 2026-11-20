@@ -528,30 +528,30 @@ func TestSerializationManager_LoadWorld_不正なステージキーは復元を�
 	require.ErrorIs(t, err, errInvalidStageKey)
 }
 
-func TestSerializationManager_LoadWorld_武器スロットでない選択は復元を拒否する(t *testing.T) {
+func TestSerializationManager_LoadWorld_手持ち欄でない選択は復元を拒否する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
-	query.GetWeaponSelection(world).Slot = gc.SlotHead
-	require.NoError(t, manager.SaveWorld(world, "invalid_weapon"))
+	query.GetHandSelection(world).Slot = gc.SlotHead
+	require.NoError(t, manager.SaveWorld(world, "invalid_hand"))
 
-	err = manager.LoadWorld(testutil.InitTestWorld(t), "invalid_weapon")
-	require.ErrorIs(t, err, errInvalidWeaponSelection)
+	err = manager.LoadWorld(testutil.InitTestWorld(t), "invalid_hand")
+	require.ErrorIs(t, err, errInvalidHandSelection)
 }
 
-func TestSerializationManager_LoadWorld_武器の選択が無いと復元を拒否する(t *testing.T) {
+func TestSerializationManager_LoadWorld_手持ち欄の選択が無いと復元を拒否する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
-	world.Components.WeaponSelection.Remove(world.Resources.SingletonEntity)
-	require.NoError(t, manager.SaveWorld(world, "no_weapon_selection"))
+	world.Components.HandSelection.Remove(world.Resources.SingletonEntity)
+	require.NoError(t, manager.SaveWorld(world, "no_hand_selection"))
 
-	err = manager.LoadWorld(testutil.InitTestWorld(t), "no_weapon_selection")
-	require.ErrorIs(t, err, errInvalidWeaponSelection)
+	err = manager.LoadWorld(testutil.InitTestWorld(t), "no_hand_selection")
+	require.ErrorIs(t, err, errInvalidHandSelection)
 }
 
 // TestRestoreWorldFromJSON_PreservesWorldOnFailure はロードが復元段階で失敗しても、現行ワールドが

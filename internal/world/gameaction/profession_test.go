@@ -34,7 +34,7 @@ func newTestProfession() rawschema.Profession {
 			{Name: "wooden_stick", Count: 3},
 		},
 		Equips: []rawschema.ProfessionEquip{
-			{Name: "wooden_sword", Slot: rawschema.EquipSlotWEAPON1},
+			{Name: "wooden_sword", Slot: rawschema.EquipSlotHAND1},
 		},
 	}
 }
@@ -70,11 +70,11 @@ func TestApplyProfession(t *testing.T) {
 		require.True(t, ok, "初期アイテムがバックパックに生成されるべき")
 		assert.Equal(t, 3, query.GetEntityCount(world, item), "指定した個数の初期アイテムが生成されるべき")
 
-		// GetWeaponsは常に長さ5のスライスを返す
-		weapons := query.GetWeapons(world, player)
-		require.NotNil(t, weapons[0], "WEAPON1スロットに初期装備が装備されるべき")
+		// GetHeldは常に長さ5のスライスを返す
+		weapons := query.GetHeld(world, player)
+		require.NotNil(t, weapons[0], "HAND1 の欄に初期装備が装備されるべき")
 		name := world.Components.Name.Get(*weapons[0])
-		assert.Equal(t, i18n.Msgid("Wooden Sword"), name.Name, "指定した装備アイテムがWEAPON1に装備されるべき")
+		assert.Equal(t, i18n.Msgid("Wooden Sword"), name.Name, "指定した装備アイテムが HAND1 に装備されるべき")
 	})
 
 	t.Run("再適用すると能力値と職業IDが上書きされる", func(t *testing.T) {
@@ -117,7 +117,7 @@ func TestApplyProfession(t *testing.T) {
 			name: "存在しない初期装備アイテム名でエラー",
 			mutate: func(p *rawschema.Profession) {
 				p.Items = nil
-				p.Equips = []rawschema.ProfessionEquip{{Name: "存在しないアイテム", Slot: rawschema.EquipSlotWEAPON1}}
+				p.Equips = []rawschema.ProfessionEquip{{Name: "存在しないアイテム", Slot: rawschema.EquipSlotHAND1}}
 			},
 			wantErr: errProfessionEquipment,
 		},

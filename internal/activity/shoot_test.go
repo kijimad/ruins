@@ -31,8 +31,8 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	// ハンドガンを生成して装備
 	we, err := lifecycle.SpawnBackpackItem(world, "handgun", 1)
 	require.NoError(t, err)
-	lifecycle.MoveToEquip(world, we, p, gc.SlotWeapon1)
-	query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
+	lifecycle.MoveToEquip(world, we, p, gc.SlotHand1)
+	query.GetHandSelection(world).Slot = gc.SlotHand1
 
 	// 弾薬を持たせる
 	_, err = lifecycle.SpawnBackpackItem(world, "9mm_fmj", 30)
@@ -112,8 +112,8 @@ func TestShootBehavior_Validate(t *testing.T) {
 
 		we, err := lifecycle.SpawnBackpackItem(world, "handgun", 1)
 		require.NoError(t, err)
-		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
+		lifecycle.MoveToEquip(world, we, player, gc.SlotHand1)
+		query.GetHandSelection(world).Slot = gc.SlotHand1
 
 		// ハンドガンの最大射程(8)より遠くに配置
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "fireball")
@@ -139,8 +139,8 @@ func TestShootBehavior_Validate(t *testing.T) {
 		// 近接武器（木刀）を装備
 		we, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
-		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
+		lifecycle.MoveToEquip(world, we, player, gc.SlotHand1)
+		query.GetHandSelection(world).Slot = gc.SlotHand1
 
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 		require.NoError(t, err)
@@ -265,8 +265,8 @@ func TestExecute_Shoot(t *testing.T) {
 
 		we, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
-		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
+		lifecycle.MoveToEquip(world, we, player, gc.SlotHand1)
+		query.GetHandSelection(world).Slot = gc.SlotHand1
 
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 		require.NoError(t, err)
@@ -298,8 +298,8 @@ func TestCanShootTarget(t *testing.T) {
 		require.NoError(t, err)
 		we, err := lifecycle.SpawnBackpackItem(world, "handgun", 1)
 		require.NoError(t, err)
-		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
+		lifecycle.MoveToEquip(world, we, player, gc.SlotHand1)
+		query.GetHandSelection(world).Slot = gc.SlotHand1
 
 		// ハンドガン最大射程(8)より遠く
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "fireball")
@@ -509,7 +509,7 @@ func TestGetEquippedFire(t *testing.T) {
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
-		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
+		query.GetHandSelection(world).Slot = gc.SlotHand1
 
 		_, _, err = getEquippedFire(player, world)
 		assert.ErrorIs(t, err, ErrShootNoFireWeapon)

@@ -265,13 +265,13 @@ type equipItemData struct {
 func characterEquipSlots(world w.World, character ecs.Entity) []equipItemData {
 	items := make([]equipItemData, 0, 12)
 
-	weapons := query.GetWeapons(world, character)
-	for i, weapon := range weapons {
+	held := query.GetHeld(world, character)
+	for i, item := range held {
 		name := ""
-		if weapon != nil {
-			name = query.GetEntityName(*weapon, world)
+		if item != nil {
+			name = query.GetEntityName(*item, world)
 		}
-		items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: gc.SlotWeapon1 + gc.EquipmentSlotNumber(i), Entity: weapon, Character: character})
+		items = append(items, equipItemData{SlotLabel: query.T(world, "Hand %d", i+1), ItemName: name, SlotNumber: gc.SlotHand1 + gc.EquipmentSlotNumber(i), Entity: item, Character: character})
 	}
 
 	// armor・armorLabels・armorSlots は防具7スロットに対応する並行配列。
@@ -293,11 +293,11 @@ func characterEquipSlots(world w.World, character ecs.Entity) []equipItemData {
 // equipableForSlot は指定スロットに装備できるバックパック内アイテムを返す
 func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.Entity {
 	items := []ecs.Entity{}
-	if gc.SlotWeapon1 <= slotNumber && slotNumber <= gc.SlotWeapon5 {
+	if _, ok := slotNumber.HandIndex(); ok {
 		q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 		for q.Next() {
 			entity := q.Entity()
-			if !query.IsWeapon(world, entity) {
+			if !query.IsHoldable(world, entity) {
 				continue
 			}
 			items = append(items, entity)

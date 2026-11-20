@@ -64,14 +64,14 @@ func TestKeyLabel_キーキャップ表記(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	weaponSlots := []Binding{
-		{Key: ebiten.Key1, Action: inputmapper.ActionSwitchWeaponSlot1, Label: "Weapon slot"},
-		{Key: ebiten.Key2, Action: inputmapper.ActionSwitchWeaponSlot2, Label: "Weapon slot"},
-		{Key: ebiten.Key3, Action: inputmapper.ActionSwitchWeaponSlot3, Label: "Weapon slot"},
-		{Key: ebiten.Key4, Action: inputmapper.ActionSwitchWeaponSlot4, Label: "Weapon slot"},
-		{Key: ebiten.Key5, Action: inputmapper.ActionSwitchWeaponSlot5, Label: "Weapon slot"},
+	handSlots := []Binding{
+		{Key: ebiten.Key1, Action: inputmapper.ActionSwitchHandSlot1, Label: "Hand slot"},
+		{Key: ebiten.Key2, Action: inputmapper.ActionSwitchHandSlot2, Label: "Hand slot"},
+		{Key: ebiten.Key3, Action: inputmapper.ActionSwitchHandSlot3, Label: "Hand slot"},
+		{Key: ebiten.Key4, Action: inputmapper.ActionSwitchHandSlot4, Label: "Hand slot"},
+		{Key: ebiten.Key5, Action: inputmapper.ActionSwitchHandSlot5, Label: "Hand slot"},
 	}
-	entries := HintEntries(world, weaponSlots)
+	entries := HintEntries(world, handSlots)
 	require.Len(t, entries, 1, "同じラベルの連続行は1項目にまとまる")
 	var wantDigits strings.Builder
 	for n := rune(1); n <= 5; n++ {

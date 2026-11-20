@@ -116,7 +116,7 @@ func TestExtractGameInfo(t *testing.T) {
 	})
 }
 
-func TestExtractWeaponSlotsData(t *testing.T) {
+func TestExtractHandSlotsData(t *testing.T) {
 	t.Parallel()
 
 	t.Run("武器未装備なら空スロットを返す", func(t *testing.T) {
@@ -127,9 +127,9 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
 
-		query.GetWeaponSelection(world).Slot = gc.SlotWeapon1
+		query.GetHandSelection(world).Slot = gc.SlotHand1
 
-		data := extractWeaponSlotsData(world)
+		data := extractHandSlotsData(world)
 
 		require.Len(t, data.Slots, 5)
 		for _, slot := range data.Slots {
@@ -137,7 +137,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 			assert.Empty(t, slot.SpriteSheet)
 			assert.Empty(t, slot.SpriteName)
 		}
-		assert.Equal(t, gc.SlotWeapon1, data.SelectedSlot)
+		assert.Equal(t, gc.SlotHand1, data.SelectedSlot)
 	})
 
 	t.Run("装備した武器のスロットに情報を反映する", func(t *testing.T) {
@@ -152,11 +152,11 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		world.Components.Melee.Add(weapon, &gc.Melee{})
 		world.Components.Name.Add(weapon, &gc.Name{Name: "レイピア"})
 		world.Components.SpriteRender.Add(weapon, &gc.SpriteRender{SpriteSheetName: "weapons", SpriteKey: "rapier"})
-		world.Components.LocationEquipped.Add(weapon, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotWeapon1})
+		world.Components.LocationEquipped.Add(weapon, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotHand1})
 
-		query.GetWeaponSelection(world).Slot = gc.SlotWeapon3
+		query.GetHandSelection(world).Slot = gc.SlotHand3
 
-		data := extractWeaponSlotsData(world)
+		data := extractHandSlotsData(world)
 
 		require.Len(t, data.Slots, 5)
 		assert.Equal(t, "レイピア", data.Slots[0].WeaponName)
@@ -165,7 +165,7 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		for i := 1; i < 5; i++ {
 			assert.Empty(t, data.Slots[i].WeaponName, "他のスロットは空のまま")
 		}
-		assert.Equal(t, gc.SlotWeapon3, data.SelectedSlot, "選択中の武器スロットをそのまま渡す")
+		assert.Equal(t, gc.SlotHand3, data.SelectedSlot, "選択中の手持ち欄をそのまま渡す")
 	})
 }
 
@@ -363,7 +363,7 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 
 	assert.Equal(t, 10, data.GameInfo.PlayerHP)
 	assert.Equal(t, consts.Currency(500), data.GameInfo.Currency)
-	require.Len(t, data.WeaponSlotsData.Slots, 5)
+	require.Len(t, data.HandSlotsData.Slots, 5)
 	assert.Equal(t, 800, data.MacroMap.Screen.Width)
 }
 

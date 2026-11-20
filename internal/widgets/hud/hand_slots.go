@@ -12,22 +12,22 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// weaponSlotsConfig は武器スロット表示の設定
-type weaponSlotsConfig struct {
+// handSlotsConfig は手持ち欄表示の設定
+type handSlotsConfig struct {
 	SlotSize    int // 各スロットのサイズ（ピクセル）
 	SlotSpacing int // スロット間の間隔（ピクセル）
 	YOffset     int // 画面上端からのオフセット（ピクセル）
 }
 
-// WeaponSlots は武器スロット表示ウィジェット
-type WeaponSlots struct {
+// HandSlots は手持ち欄表示ウィジェット
+type HandSlots struct {
 	face   text.Face
 	chrome Chrome
 }
 
-// NewWeaponSlots は新しいWeaponSlotsを作成する
-func NewWeaponSlots(face text.Face, chrome Chrome) *WeaponSlots {
-	return &WeaponSlots{
+// NewHandSlots は新しいHandSlotsを作成する
+func NewHandSlots(face text.Face, chrome Chrome) *HandSlots {
+	return &HandSlots{
 		face:   face,
 		chrome: chrome,
 	}
@@ -36,14 +36,14 @@ func NewWeaponSlots(face text.Face, chrome Chrome) *WeaponSlots {
 // slotNumberPad はスロット番号を左上へ置くときの余白
 const slotNumberPad = 4
 
-// Draw は武器スロットを画面上部中央へ横並びに描画する。中央寄せは Row の両端0幅列に委ね、
+// Draw は手持ち欄を画面上部中央へ横並びに描画する。中央寄せは Row の両端0幅列に委ね、
 // 画面幅からの中央計算をしない。
-func (ws *WeaponSlots) Draw(cv uicore.Canvas, data WeaponSlotsData, world w.World) {
+func (hs *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
 	if len(data.Slots) == 0 {
 		return
 	}
 
-	config := weaponSlotsConfig{SlotSize: 48, SlotSpacing: 8, YOffset: theme.Space4}
+	config := handSlotsConfig{SlotSize: 48, SlotSpacing: 8, YOffset: theme.Space4}
 	sprites := world.Resources.Sprites
 
 	// 両端0幅列で中央寄せし、スロットとスロット間隔を交互に並べる
@@ -58,8 +58,8 @@ func (ws *WeaponSlots) Draw(cv uicore.Canvas, data WeaponSlotsData, world w.Worl
 		}
 		widths = append(widths, config.SlotSize)
 		cells = append(cells, &slotWidget{
-			chrome:   ws.chrome,
-			face:     ws.face,
+			chrome:   hs.chrome,
+			face:     hs.face,
 			slot:     slot,
 			number:   i + 1,
 			selected: slot.SlotNumber == data.SelectedSlot,
@@ -76,13 +76,13 @@ func (ws *WeaponSlots) Draw(cv uicore.Canvas, data WeaponSlotsData, world w.Worl
 	drawFlexItems(cv, items)
 }
 
-// slotWidget は武器スロット1枚。与えられた矩形へ背景枠を敷き、選択中なら枠線を重ね、武器スプライトを
+// slotWidget は手持ち欄1枚。与えられた矩形へ背景枠を敷き、選択中なら枠線を重ね、武器スプライトを
 // 中央に、番号を左上に描く。位置は Row/FlexColumn が確定し、内部は矩形基準で自己完結する。
 type slotWidget struct {
 	rect     image.Rectangle
 	chrome   Chrome
 	face     text.Face
-	slot     WeaponSlotInfo
+	slot     HandSlotInfo
 	number   int
 	selected bool
 	sprites  *resources.SpriteStore

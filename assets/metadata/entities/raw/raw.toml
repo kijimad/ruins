@@ -18544,7 +18544,7 @@
 
   [[members.startingEquips]]
     name = "torch"
-    slot = "WEAPON1"
+    slot = "HAND1"
 
   [[members.startingItems]]
     count = 2
@@ -20242,7 +20242,7 @@
 
   [[professions.equips]]
     name = "handgun"
-    slot = "WEAPON1"
+    slot = "HAND1"
 
   [[professions.equips]]
     name = "hunter_hat"
@@ -20310,7 +20310,7 @@
 
   [[professions.equips]]
     name = "iron_knife"
-    slot = "WEAPON1"
+    slot = "HAND1"
 
   [[professions.equips]]
     name = "work_helmet"
@@ -20438,7 +20438,7 @@
 
   [[professions.equips]]
     name = "handgun"
-    slot = "WEAPON1"
+    slot = "HAND1"
 
   [[professions.equips]]
     name = "shadow_hood"
@@ -20498,7 +20498,7 @@
 
   [[professions.equips]]
     name = "wooden_sword"
-    slot = "WEAPON1"
+    slot = "HAND1"
 
   [[professions.equips]]
     name = "work_helmet"

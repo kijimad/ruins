@@ -124,7 +124,7 @@ func TestStackMembers_装備品や未配置は単独スタックになる(t *tes
 	// 装備スロットのアイテムは束ねず単独を返す。個数は常に1になる
 	equipped := world.ECS.NewEntity()
 	world.Components.RawID.Add(equipped, &gc.RawID{ID: "sword"})
-	world.Components.LocationEquipped.Add(equipped, &gc.LocationEquipped{Owner: world.ECS.NewEntity(), EquipmentSlot: gc.SlotWeapon1})
+	world.Components.LocationEquipped.Add(equipped, &gc.LocationEquipped{Owner: world.ECS.NewEntity(), EquipmentSlot: gc.SlotHand1})
 	assert.Equal(t, []ecs.Entity{equipped}, StackMembers(world, equipped))
 	assert.Equal(t, 1, GetEntityCount(world, equipped))
 
