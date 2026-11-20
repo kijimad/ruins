@@ -31,7 +31,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			DropTableId:    new("remains"),
 			RemainsId:      new("splinters"),
 			Dialog:         &rawschema.Dialog{MessageKey: "greeting"},
-			StartingEquips: &[]rawschema.ProfessionEquip{{Name: "iron", Slot: rawschema.EquipSlotWEAPON1}},
+			StartingEquips: &[]rawschema.ProfessionEquip{{Name: "iron", Slot: rawschema.EquipSlotHAND1}},
 			StartingItems:  &[]rawschema.ProfessionItem{{Name: "iron", Count: 1}},
 			Stock:          &[]rawschema.ProfessionItem{{Name: "iron", Count: 1}},
 		}},

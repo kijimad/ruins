@@ -28,7 +28,7 @@ func ExtractHUDData(world w.World) hud.Data {
 		MacroMap:         extractMacroMapData(world),
 		DebugOverlay:     extractDebugOverlay(world),
 		MessageData:      extractMessageData(world, query.GetGameLog(world)),
-		WeaponSlotsData:  extractWeaponSlotsData(world),
+		HandSlotsData:    extractHandSlotsData(world),
 		StatusBadgesData: extractStatusBadgesData(world, messageAreaHeight),
 	}
 }
@@ -278,41 +278,41 @@ func extractMessageData(world w.World, store *gamelog.SafeSlice) hud.MessageData
 	}
 }
 
-// extractWeaponSlotsData は武器スロットデータを抽出する
-func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
+// extractHandSlotsData は手持ち欄データを抽出する
+func extractHandSlotsData(world w.World) hud.HandSlotsData {
 	screenDimensions := hud.ScreenDimensions{
 		Width:  world.Resources.ScreenDimensions.Width,
 		Height: world.Resources.ScreenDimensions.Height,
 	}
 
-	var slots []hud.WeaponSlotInfo
+	var slots []hud.HandSlotInfo
 
-	// プレイヤーの武器スロット情報を取得
+	// プレイヤーの手持ち欄の情報を取得
 	query.Player(world, func(playerEntity ecs.Entity) {
-		weapons := query.GetWeapons(world, playerEntity)
+		held := query.GetHeld(world, playerEntity)
 
-		for i, weapon := range weapons {
-			slotNumber := gc.SlotWeapon1 + gc.EquipmentSlotNumber(i)
+		for i, item := range held {
+			slotNumber := gc.SlotHand1 + gc.EquipmentSlotNumber(i)
 
 			var weaponName string
 			var spriteSheet, spriteName string
 
-			if weapon != nil {
+			if item != nil {
 				// 武器名を取得
-				if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
+				if nameComp := world.Components.Name.Get(*item); nameComp != nil {
 					weaponName = query.T(world, nameComp.Name)
 				} else {
 					weaponName = "???"
 				}
 
 				// スプライト情報を取得
-				if spriteRender := world.Components.SpriteRender.Get(*weapon); spriteRender != nil {
+				if spriteRender := world.Components.SpriteRender.Get(*item); spriteRender != nil {
 					spriteSheet = spriteRender.SpriteSheetName
 					spriteName = spriteRender.SpriteKey
 				}
 			}
 
-			slots = append(slots, hud.WeaponSlotInfo{
+			slots = append(slots, hud.HandSlotInfo{
 				SlotNumber:  slotNumber,
 				WeaponName:  weaponName,
 				SpriteSheet: spriteSheet,
@@ -321,9 +321,9 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 		}
 	})
 
-	return hud.WeaponSlotsData{
+	return hud.HandSlotsData{
 		Slots:            slots,
-		SelectedSlot:     query.GetWeaponSelection(world).Slot,
+		SelectedSlot:     query.GetHandSelection(world).Slot,
 		ScreenDimensions: screenDimensions,
 	}
 }

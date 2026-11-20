@@ -862,22 +862,22 @@ type EquipBonus struct {
 	Vitality Vitality `json:"vitality"`
 }
 
-// EquipSlot 装備スロット。防具部位 + 武器スロット
+// EquipSlot 装備スロット。防具部位 + 手持ち欄
 type EquipSlot string
 
 // Defines values for EquipSlot.
 const (
-	EquipSlotARMS    EquipSlot = "ARMS"
-	EquipSlotFEET    EquipSlot = "FEET"
-	EquipSlotHANDS   EquipSlot = "HANDS"
-	EquipSlotHEAD    EquipSlot = "HEAD"
-	EquipSlotLEGS    EquipSlot = "LEGS"
-	EquipSlotTORSO   EquipSlot = "TORSO"
-	EquipSlotWEAPON1 EquipSlot = "WEAPON1"
-	EquipSlotWEAPON2 EquipSlot = "WEAPON2"
-	EquipSlotWEAPON3 EquipSlot = "WEAPON3"
-	EquipSlotWEAPON4 EquipSlot = "WEAPON4"
-	EquipSlotWEAPON5 EquipSlot = "WEAPON5"
+	EquipSlotARMS  EquipSlot = "ARMS"
+	EquipSlotFEET  EquipSlot = "FEET"
+	EquipSlotHAND1 EquipSlot = "HAND1"
+	EquipSlotHAND2 EquipSlot = "HAND2"
+	EquipSlotHAND3 EquipSlot = "HAND3"
+	EquipSlotHAND4 EquipSlot = "HAND4"
+	EquipSlotHAND5 EquipSlot = "HAND5"
+	EquipSlotHANDS EquipSlot = "HANDS"
+	EquipSlotHEAD  EquipSlot = "HEAD"
+	EquipSlotLEGS  EquipSlot = "LEGS"
+	EquipSlotTORSO EquipSlot = "TORSO"
 )
 
 // Valid indicates whether the value is a known member of the EquipSlot enum.
@@ -887,6 +887,16 @@ func (e EquipSlot) Valid() bool {
 		return true
 	case EquipSlotFEET:
 		return true
+	case EquipSlotHAND1:
+		return true
+	case EquipSlotHAND2:
+		return true
+	case EquipSlotHAND3:
+		return true
+	case EquipSlotHAND4:
+		return true
+	case EquipSlotHAND5:
+		return true
 	case EquipSlotHANDS:
 		return true
 	case EquipSlotHEAD:
@@ -895,16 +905,6 @@ func (e EquipSlot) Valid() bool {
 		return true
 	case EquipSlotTORSO:
 		return true
-	case EquipSlotWEAPON1:
-		return true
-	case EquipSlotWEAPON2:
-		return true
-	case EquipSlotWEAPON3:
-		return true
-	case EquipSlotWEAPON4:
-		return true
-	case EquipSlotWEAPON5:
-		return true
 	default:
 		return false
 	}
@@ -912,7 +912,7 @@ func (e EquipSlot) Valid() bool {
 
 // EquipSlotValues は EquipSlot の値を、スキーマに書いた順に返す。
 func EquipSlotValues() []EquipSlot {
-	return []EquipSlot{EquipSlotHEAD, EquipSlotTORSO, EquipSlotARMS, EquipSlotHANDS, EquipSlotLEGS, EquipSlotFEET, EquipSlotWEAPON1, EquipSlotWEAPON2, EquipSlotWEAPON3, EquipSlotWEAPON4, EquipSlotWEAPON5}
+	return []EquipSlot{EquipSlotHEAD, EquipSlotTORSO, EquipSlotARMS, EquipSlotHANDS, EquipSlotLEGS, EquipSlotFEET, EquipSlotHAND1, EquipSlotHAND2, EquipSlotHAND3, EquipSlotHAND4, EquipSlotHAND5}
 }
 
 // EquipmentCategory 装備部位

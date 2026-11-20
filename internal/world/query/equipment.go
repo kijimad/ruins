@@ -8,41 +8,41 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// IsWeapon はエンティティが武器かを返す。近接または射撃のいずれかを持てば武器とみなす。
-func IsWeapon(world w.World, entity ecs.Entity) bool {
+// IsHoldable はエンティティを手持ち欄に持てるかを返す。近接または射撃のいずれかを持てば持てる。
+func IsHoldable(world w.World, entity ecs.Entity) bool {
 	return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
 }
 
-// GetWeapons は武器スロットごとの武器を、SlotWeapon1 から順に並べて返す。空きスロットは nil
-func GetWeapons(world w.World, owner ecs.Entity) [gc.WeaponSlotCount]*ecs.Entity {
-	var weapons [gc.WeaponSlotCount]*ecs.Entity
+// GetHeld は手持ち欄ごとの物を、SlotHand1 から順に並べて返す。空いた欄は nil
+func GetHeld(world w.World, owner ecs.Entity) [gc.HandSlotCount]*ecs.Entity {
+	var held [gc.HandSlotCount]*ecs.Entity
 
-	weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
-	for weaponsQuery.Next() {
-		entity := weaponsQuery.Entity()
-		if !IsWeapon(world, entity) {
+	heldQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
+	for heldQuery.Next() {
+		entity := heldQuery.Entity()
+		if !IsHoldable(world, entity) {
 			continue
 		}
 		equipped := world.Components.LocationEquipped.Get(entity)
 		if owner == equipped.Owner {
-			if i, ok := equipped.EquipmentSlot.WeaponIndex(); ok {
-				weapons[i] = &entity
+			if i, ok := equipped.EquipmentSlot.HandIndex(); ok {
+				held[i] = &entity
 			}
 		}
 	}
 
-	return weapons
+	return held
 }
 
-// SelectedWeapon は owner が選択中の武器スロットに装備している武器を返す。空きスロットなら ok は偽。
-// 選択が武器スロットであることはロードの検査と数字キーの処理が保証するので、破れていれば panic する
+// SelectedWeapon は owner が選択中の手持ち欄に装備している武器を返す。空いた欄なら ok は偽。
+// 選択が手持ち欄であることはロードの検査と数字キーの処理が保証するので、破れていれば panic する
 func SelectedWeapon(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
-	slot := GetWeaponSelection(world).Slot
-	i, ok := slot.WeaponIndex()
+	slot := GetHandSelection(world).Slot
+	i, ok := slot.HandIndex()
 	if !ok {
-		panic(fmt.Sprintf("weapon selection is not a weapon slot: %d", slot))
+		panic(fmt.Sprintf("hand selection slot is not a hand slot: %d", slot))
 	}
-	weapon := GetWeapons(world, owner)[i]
+	weapon := GetHeld(world, owner)[i]
 	if weapon == nil {
 		return ecs.Entity{}, false
 	}

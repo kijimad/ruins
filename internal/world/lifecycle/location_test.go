@@ -165,12 +165,12 @@ func TestMoveToEquip(t *testing.T) {
 		item, err := SpawnFieldItem(world, "wooden_sword", 3, 4, 1)
 		require.NoError(t, err)
 
-		MoveToEquip(world, item, owner, gc.SlotWeapon1)
+		MoveToEquip(world, item, owner, gc.SlotHand1)
 
 		require.True(t, world.Components.LocationEquipped.Has(item), "装備状態になる")
 		loc := world.Components.LocationEquipped.Get(item)
 		assert.Equal(t, owner, loc.Owner)
-		assert.Equal(t, gc.SlotWeapon1, loc.EquipmentSlot)
+		assert.Equal(t, gc.SlotHand1, loc.EquipmentSlot)
 
 		assert.False(t, world.Components.LocationOnField.Has(item), "フィールドの位置情報は排他的に外れる")
 		assert.False(t, world.Components.GridElement.Has(item), "装備するとGridElementは外れる")
@@ -191,7 +191,7 @@ func TestMoveToEquip(t *testing.T) {
 		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: prevOwner})
 
-		MoveToEquip(world, item, newOwner, gc.SlotWeapon1)
+		MoveToEquip(world, item, newOwner, gc.SlotHand1)
 
 		require.True(t, world.Components.LocationEquipped.Has(item), "装備状態になる")
 		loc := world.Components.LocationEquipped.Get(item)
@@ -216,7 +216,7 @@ func TestUnequipAll(t *testing.T) {
 		// 実アイテムをスポーンし、実経路で装備する
 		item1, err := SpawnBackpackItem(world, "claymore", 1)
 		require.NoError(t, err)
-		MoveToEquip(world, item1, player, gc.SlotWeapon1)
+		MoveToEquip(world, item1, player, gc.SlotHand1)
 
 		item2, err := SpawnBackpackItem(world, "western_armor", 1)
 		require.NoError(t, err)
@@ -260,7 +260,7 @@ func TestUnequipAll(t *testing.T) {
 
 		item, err := SpawnBackpackItem(world, "claymore", 1)
 		require.NoError(t, err)
-		MoveToEquip(world, item, other, gc.SlotWeapon1)
+		MoveToEquip(world, item, other, gc.SlotHand1)
 
 		// プレイヤーの装備解除
 		err = UnequipAll(world, player)
@@ -305,7 +305,7 @@ func TestClearLocation_装備とモジュールを外すと移動先に依らず
 		storage := world.ECS.NewEntity()
 		item, err := spawnItemBase(world, "wooden_sword")
 		require.NoError(t, err)
-		MoveToEquip(world, item, owner, gc.SlotWeapon1)
+		MoveToEquip(world, item, owner, gc.SlotHand1)
 		world.Components.StatsChanged.Remove(owner)
 
 		require.NoError(t, MoveToStorage(world, item, storage))

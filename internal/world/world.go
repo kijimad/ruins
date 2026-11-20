@@ -70,7 +70,7 @@ func (world World) InitSingleton() {
 	world.Components.Dungeon.Add(singleton, gc.NewDungeon())
 	world.Components.TurnState.Add(singleton, gc.NewTurnState())
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
-	world.Components.WeaponSelection.Add(singleton, &gc.WeaponSelection{Slot: gc.SlotWeapon1})
+	world.Components.HandSelection.Add(singleton, &gc.HandSelection{Slot: gc.SlotHand1})
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})
 	// 中立の曇りで穏やかに始め、InitialWeatherSpellTurns だけ続けてから WeatherSystem が遷移を始める。
 	// turn0 で即ロールすると開始直後に荒天になりうるので固定長の立ち上がりにする

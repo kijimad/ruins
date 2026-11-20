@@ -58,12 +58,12 @@ var dungeonBindings = []keybind.Binding{
 	// 待機・足元の相互作用
 	{Key: ebiten.KeyPeriod, Press: keybind.PressRepeat, Action: inputmapper.ActionWait, Label: "Wait"},
 	{Key: ebiten.KeyEnter, Action: inputmapper.ActionInteract, Label: "Use here"},
-	// 武器スロット切り替え。同じラベルの連続行なのでヒントでは 12345 と連結される
-	{Key: ebiten.Key1, Action: inputmapper.ActionSwitchWeaponSlot1, Label: "Weapon slot"},
-	{Key: ebiten.Key2, Action: inputmapper.ActionSwitchWeaponSlot2, Label: "Weapon slot"},
-	{Key: ebiten.Key3, Action: inputmapper.ActionSwitchWeaponSlot3, Label: "Weapon slot"},
-	{Key: ebiten.Key4, Action: inputmapper.ActionSwitchWeaponSlot4, Label: "Weapon slot"},
-	{Key: ebiten.Key5, Action: inputmapper.ActionSwitchWeaponSlot5, Label: "Weapon slot"},
+	// 手持ち欄の切り替え。同じラベルの連続行なのでヒントでは 12345 と連結される
+	{Key: ebiten.Key1, Action: inputmapper.ActionSwitchHandSlot1, Label: "Hand slot"},
+	{Key: ebiten.Key2, Action: inputmapper.ActionSwitchHandSlot2, Label: "Hand slot"},
+	{Key: ebiten.Key3, Action: inputmapper.ActionSwitchHandSlot3, Label: "Hand slot"},
+	{Key: ebiten.Key4, Action: inputmapper.ActionSwitchHandSlot4, Label: "Hand slot"},
+	{Key: ebiten.Key5, Action: inputmapper.ActionSwitchHandSlot5, Label: "Hand slot"},
 	// キー一覧ヘルプ
 	{Key: ebiten.KeySlash, Shift: keybind.ShiftRequired, Action: inputmapper.ActionOpenKeyHelp, Label: "Help"},
 }
@@ -219,21 +219,21 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
-	// 武器スロット切り替え系アクション
-	case inputmapper.ActionSwitchWeaponSlot1:
-		st.switchWeaponSlot(world, gc.SlotWeapon1)
+	// 手持ち欄の切り替え系アクション
+	case inputmapper.ActionSwitchHandSlot1:
+		st.switchHandSlot(world, gc.SlotHand1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionSwitchWeaponSlot2:
-		st.switchWeaponSlot(world, gc.SlotWeapon2)
+	case inputmapper.ActionSwitchHandSlot2:
+		st.switchHandSlot(world, gc.SlotHand2)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionSwitchWeaponSlot3:
-		st.switchWeaponSlot(world, gc.SlotWeapon3)
+	case inputmapper.ActionSwitchHandSlot3:
+		st.switchHandSlot(world, gc.SlotHand3)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionSwitchWeaponSlot4:
-		st.switchWeaponSlot(world, gc.SlotWeapon4)
+	case inputmapper.ActionSwitchHandSlot4:
+		st.switchHandSlot(world, gc.SlotHand4)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionSwitchWeaponSlot5:
-		st.switchWeaponSlot(world, gc.SlotWeapon5)
+	case inputmapper.ActionSwitchHandSlot5:
+		st.switchHandSlot(world, gc.SlotHand5)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
 	default:
@@ -340,11 +340,11 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	}
 }
 
-// switchWeaponSlot は武器スロット slot に武器を切り替える
-func (st *DungeonState) switchWeaponSlot(world w.World, slot gc.EquipmentSlotNumber) {
-	query.GetWeaponSelection(world).Slot = slot
+// switchHandSlot は手持ち欄 slot に武器を切り替える
+func (st *DungeonState) switchHandSlot(world w.World, slot gc.EquipmentSlotNumber) {
+	query.GetHandSelection(world).Slot = slot
 
-	// プレイヤーの武器スロット情報を取得してログメッセージを出力
+	// プレイヤーの手持ち欄の情報を取得してログメッセージを出力
 	query.Player(world, func(playerEntity ecs.Entity) {
 		if weapon, ok := query.SelectedWeapon(world, playerEntity); ok {
 			// 武器が装備されている場合は武器名を表示
