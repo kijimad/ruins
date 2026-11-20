@@ -203,7 +203,11 @@ func validateDisassemblies(raws rawschema.Raws) error {
 func validateRemedies(raws rawschema.Raws) error {
 	recoverPer := map[rawschema.ConditionTypeName]int{}
 	for _, c := range PtrSlice(raws.Conditions) {
-		if c.Recovery != nil && *c.Recovery == rawschema.RecoverAfterTend && c.RecoverPer != nil {
+		if c.Recovery == nil || *c.Recovery != rawschema.RecoverAfterTend {
+			continue
+		}
+		recoverPer[c.Id] = 0
+		if c.RecoverPer != nil {
 			recoverPer[c.Id] = *c.RecoverPer
 		}
 	}

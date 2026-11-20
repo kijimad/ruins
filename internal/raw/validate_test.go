@@ -258,6 +258,7 @@ func TestValidateRemedies(t *testing.T) {
 		{Id: "laceration", Recovery: new(rawschema.RecoverAfterTend), RecoverPer: new(2)},
 		{Id: "food_poisoning", Recovery: new(rawschema.RecoverOverTime), RecoverPer: new(2)},
 		{Id: "liver_illness", Recovery: new(rawschema.ProgressUntilTend), RecoverPer: new(1)},
+		{Id: "bruise", Recovery: new(rawschema.RecoverAfterTend)},
 	}
 	tests := []struct {
 		name    string
@@ -267,6 +268,7 @@ func TestValidateRemedies(t *testing.T) {
 	}{
 		{name: "回復量が1になる質は通る", treats: "laceration", potency: 50},
 		{name: "回復量が0に切り捨てられる質はエラー", treats: "laceration", potency: 49, wantErr: errRemedyTooWeak},
+		{name: "回復量を持たない不調を治すと回復量0でエラー", treats: "bruise", potency: 100, wantErr: errRemedyTooWeak},
 		{name: "時間で治る不調を治すとエラー", treats: "food_poisoning", potency: 100, wantErr: errRemedyNotTendable},
 		{name: "治療まで悪化する不調を治すとエラー", treats: "liver_illness", potency: 100, wantErr: errRemedyNotTendable},
 	}
