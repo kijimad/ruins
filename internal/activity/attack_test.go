@@ -443,7 +443,7 @@ func TestGetAttackParams_プレイヤーが武器未装備なら素手にフォ�
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	// プレイヤーは生成時に松明を手持ちの欄1へ装備している。外して未装備の状態を作る
+	// プレイヤーは生成時に松明を手持ち欄1へ装備している。外して未装備の状態を作る
 	require.NoError(t, lifecycle.UnequipAll(world, player))
 	query.GetHandSelection(world).Slot = gc.SlotHand1
 

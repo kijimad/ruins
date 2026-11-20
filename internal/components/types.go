@@ -66,17 +66,17 @@ const (
 	SlotLegs    EquipmentSlotNumber = 4  // 脚部防具スロット
 	SlotFeet    EquipmentSlotNumber = 5  // 足部防具スロット
 	SlotJewelry EquipmentSlotNumber = 6  // 装飾品スロット
-	SlotHand1   EquipmentSlotNumber = 7  // 手持ちの欄1
-	SlotHand2   EquipmentSlotNumber = 8  // 手持ちの欄2
-	SlotHand3   EquipmentSlotNumber = 9  // 手持ちの欄3
-	SlotHand4   EquipmentSlotNumber = 10 // 手持ちの欄4
-	SlotHand5   EquipmentSlotNumber = 11 // 手持ちの欄5
+	SlotHand1   EquipmentSlotNumber = 7  // 手持ち欄1
+	SlotHand2   EquipmentSlotNumber = 8  // 手持ち欄2
+	SlotHand3   EquipmentSlotNumber = 9  // 手持ち欄3
+	SlotHand4   EquipmentSlotNumber = 10 // 手持ち欄4
+	SlotHand5   EquipmentSlotNumber = 11 // 手持ち欄5
 )
 
-// HandSlotCount は手持ちの欄の数
+// HandSlotCount は手持ち欄の数
 const HandSlotCount = int(SlotHand5-SlotHand1) + 1
 
-// HandIndex は手持ちの欄の、SlotHand1 から並べた並びでの添字を返す。手持ちの欄でなければ ok は偽
+// HandIndex は手持ち欄の、SlotHand1 から並べた並びでの添字を返す。手持ち欄でなければ ok は偽
 func (s EquipmentSlotNumber) HandIndex() (int, bool) {
 	if s < SlotHand1 || s > SlotHand5 {
 		return 0, false

@@ -205,7 +205,7 @@ func TestSerde_SoloAITargetEntityRemaps(t *testing.T) {
 	assert.Equal(t, restoredPlayer, *ai.TargetEntity, "TargetEntityが復元後プレイヤーへ整合する")
 }
 
-// TestSerde_HandSelectionPersists は選択中の手持ちの欄がセーブ・ロードで復元されることを
+// TestSerde_HandSelectionPersists は選択中の手持ち欄がセーブ・ロードで復元されることを
 // 検証する。Dungeon から分離した後もシングルトンとして serde され永続する。
 func TestSerde_HandSelectionPersists(t *testing.T) {
 	t.Parallel()
@@ -223,7 +223,7 @@ func TestSerde_HandSelectionPersists(t *testing.T) {
 	newWorld := testutil.InitTestWorld(t)
 	require.NoError(t, manager.LoadWorld(newWorld, "weapon"))
 
-	assert.Equal(t, gc.SlotHand4, query.GetHandSelection(newWorld).Slot, "選択中の手持ちの欄が復元される")
+	assert.Equal(t, gc.SlotHand4, query.GetHandSelection(newWorld).Slot, "選択中の手持ち欄が復元される")
 }
 
 // TestSerde_GameTimePersists はゲーム内時間がセーブ・ロードで復元されることを検証する。

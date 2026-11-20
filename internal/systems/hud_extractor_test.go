@@ -165,7 +165,7 @@ func TestExtractHandSlotsData(t *testing.T) {
 		for i := 1; i < 5; i++ {
 			assert.Empty(t, data.Slots[i].WeaponName, "他のスロットは空のまま")
 		}
-		assert.Equal(t, gc.SlotHand3, data.SelectedSlot, "選択中の手持ちの欄をそのまま渡す")
+		assert.Equal(t, gc.SlotHand3, data.SelectedSlot, "選択中の手持ち欄をそのまま渡す")
 	})
 }
 

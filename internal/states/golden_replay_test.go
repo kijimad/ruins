@@ -641,7 +641,7 @@ var goldenCases = []struct {
 		},
 	},
 	// 装備選択ポップアップが実プレイ経路で開く state 遷移を固定する。装備タブで空の武器
-	// スロットを選ぶと開く。手持ちの欄1は初期装備の松明で埋まるので1つ下げて空のスロット2で開く。
+	// スロットを選ぶと開く。手持ち欄1は初期装備の松明で埋まるので1つ下げて空のスロット2で開く。
 	// ポップアップの視覚の詳細は widget golden TestGolden_EquipSelect が厳密に固定する
 	{
 		name: "EquipSelectFlow",
@@ -655,13 +655,13 @@ var goldenCases = []struct {
 			return []es.State[w.World]{&gs.CharacterState{}}, nil
 		},
 		steps: []replayStep{
-			{action: inputmapper.ActionMenuDown},   // 手持ちの欄1から空のスロット2へ
+			{action: inputmapper.ActionMenuDown},   // 手持ち欄1から空のスロット2へ
 			{action: inputmapper.ActionMenuSelect}, // 空スロットで装備選択を push する
 			{shot: true},                           // push は次フレーム反映なので待ち手で撮る
 		},
 	},
 	// EquipCompare は装備済みスロットの装備選択から詳細を開き、現装備と候補を2枚並べて
-	// 比較する画を撮る。手持ちの欄1は初期装備で埋まるので、そこで装備選択を開き、
+	// 比較する画を撮る。手持ち欄1は初期装備で埋まるので、そこで装備選択を開き、
 	// 先頭の「外す」を1つ飛ばした候補へカーソルを移してから詳細を開く
 	{
 		name: "EquipCompare",
@@ -672,7 +672,7 @@ var goldenCases = []struct {
 			return []es.State[w.World]{&gs.CharacterState{}}, nil
 		},
 		steps: []replayStep{
-			{action: inputmapper.ActionMenuSelect}, // 手持ちの欄1の初期装備で装備選択を push する
+			{action: inputmapper.ActionMenuSelect}, // 手持ち欄1の初期装備で装備選択を push する
 			{},                                     // push した装備選択メニューをシードさせる待ち手
 			{shot: true, suffix: "List"},           // 「外す」を先頭に置く候補一覧を撮る
 			{action: inputmapper.ActionMenuDown},   // 先頭「外す」から候補クレイモアへ

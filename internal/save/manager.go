@@ -37,7 +37,7 @@ var (
 	errNoSingleton = errors.New("restored data has no singleton entity that holds Dungeon")
 	// errInvalidStageKey は復元したステージキーが不正なときに返す
 	errInvalidStageKey = errors.New("restored stage key is invalid")
-	// errInvalidHandSelection は復元した手持ちの欄の選択が不正なときに返す
+	// errInvalidHandSelection は復元した手持ち欄の選択が不正なときに返す
 	errInvalidHandSelection = errors.New("restored hand selection is invalid")
 )
 
@@ -177,7 +177,7 @@ func restoreInto(world w.World, worldJSON []byte, playTime time.Duration) error 
 		return fmt.Errorf("failed to reestablish singleton: %w", err)
 	}
 
-	// 信頼境界。復元したステージキーと手持ちの欄の選択の整合を検査する
+	// 信頼境界。復元したステージキーと手持ち欄の選択の整合を検査する
 	if err := validateStages(world); err != nil {
 		return fmt.Errorf("failed to validate stages: %w", err)
 	}

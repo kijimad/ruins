@@ -24,7 +24,7 @@ func TestEquipableForSlot_所持する装備品が候補に出る(t *testing.T) 
 	_, err = lifecycle.SpawnBackpackItem(world, "cloth_hat", 1)
 	require.NoError(t, err)
 
-	assert.NotEmpty(t, equipableForSlot(world, gc.SlotHand1), "武器を所持していれば手持ちの欄の候補に出る")
+	assert.NotEmpty(t, equipableForSlot(world, gc.SlotHand1), "武器を所持していれば手持ち欄の候補に出る")
 	assert.NotEmpty(t, equipableForSlot(world, gc.SlotHead), "頭防具を所持していれば頭スロットの候補に出る")
 }
 
@@ -48,7 +48,7 @@ func TestCharacterState_装備の欄は手持ち5と防具7の合計12(t *testin
 
 	props, err := state.Fetch(world)
 	require.NoError(t, err)
-	assert.Len(t, props.EquipSlots, 12, "手持ちの欄5と防具の欄7")
+	assert.Len(t, props.EquipSlots, 12, "手持ち欄5と防具の欄7")
 }
 
 func TestCharacterState_情報タブは能力スキル効果健康基本の5つ(t *testing.T) {

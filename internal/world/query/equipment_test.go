@@ -47,7 +47,7 @@ func TestGetHeld_Empty(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	// SpawnPlayer は初期装備の松明を手持ちの欄に持つ。空の状態を検証するため一旦外す
+	// SpawnPlayer は初期装備の松明を手持ち欄に持つ。空の状態を検証するため一旦外す
 	require.NoError(t, lifecycle.UnequipAll(world, player))
 
 	// 装備を外せば全てnil
@@ -77,7 +77,7 @@ func TestSelectedWeapon(t *testing.T) {
 	assert.False(t, ok, "空きスロットを選ぶと武器は無い")
 
 	query.GetHandSelection(world).Slot = gc.SlotHead
-	assert.Panics(t, func() { query.SelectedWeapon(world, player) }, "手持ちの欄でない選択は不変条件の破れ")
+	assert.Panics(t, func() { query.SelectedWeapon(world, player) }, "手持ち欄でない選択は不変条件の破れ")
 }
 
 func TestGetHeld_装備した武器を欄の順で返す(t *testing.T) {
@@ -182,7 +182,7 @@ func TestGetArmorEquipments_全スロットをインデックスへ振り分け�
 	}
 }
 
-// TestGetArmorEquipments_不正なスロットはpanic は防具スロットの範囲外(手持ちの欄)を
+// TestGetArmorEquipments_不正なスロットはpanic は防具スロットの範囲外(手持ち欄)を
 // Wearable に割り当てた不整合データを switch の default 分岐に落とし、panic することを固定する。
 func TestGetArmorEquipments_不正なスロットはpanic(t *testing.T) {
 	t.Parallel()

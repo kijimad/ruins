@@ -283,7 +283,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	})
 	world.Components.HP.Add(enemyEntity, &gc.HP{Max: 10, Current: 10})
 
-	// 手持ちの欄1を選択
+	// 手持ち欄1を選択
 	query.GetHandSelection(world).Slot = gc.SlotHand1
 
 	result, err := ExecuteInteraction(player, enemyEntity, gc.InteractionMelee, world)

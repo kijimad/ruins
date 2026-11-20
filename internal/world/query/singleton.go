@@ -28,7 +28,7 @@ func GetDungeon(world w.World) *gc.Dungeon {
 	return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)
 }
 
-// GetHandSelection はシングルトンから選択中の手持ちの欄を取得する
+// GetHandSelection はシングルトンから選択中の手持ち欄を取得する
 func GetHandSelection(world w.World) *gc.HandSelection {
 	return GetSingleton[gc.HandSelection](world, world.Components.HandSelection)
 }

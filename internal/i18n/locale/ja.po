@@ -5847,7 +5847,7 @@ msgid "Use here"
 msgstr "足元を使う"
 
 msgid "Hand slot"
-msgstr "手持ちの欄"
+msgstr "手持ち欄"
 
 msgid "Help"
 msgstr "ヘルプ"

@@ -83,7 +83,7 @@ func TestGetHandSelection(t *testing.T) {
 
 	ws := GetHandSelection(world)
 	require.NotNil(t, ws)
-	assert.Equal(t, gc.SlotHand1, ws.Slot, "初期は先頭の手持ちの欄")
+	assert.Equal(t, gc.SlotHand1, ws.Slot, "初期は先頭の手持ち欄")
 
 	ws.Slot = gc.SlotHand3
 	assert.Equal(t, gc.SlotHand3, GetHandSelection(world).Slot, "更新がシングルトンに反映される")

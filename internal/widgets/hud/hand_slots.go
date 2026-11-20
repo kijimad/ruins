@@ -12,14 +12,14 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// handSlotsConfig は手持ちの欄表示の設定
+// handSlotsConfig は手持ち欄表示の設定
 type handSlotsConfig struct {
 	SlotSize    int // 各スロットのサイズ（ピクセル）
 	SlotSpacing int // スロット間の間隔（ピクセル）
 	YOffset     int // 画面上端からのオフセット（ピクセル）
 }
 
-// HandSlots は手持ちの欄表示ウィジェット
+// HandSlots は手持ち欄表示ウィジェット
 type HandSlots struct {
 	face   text.Face
 	chrome Chrome
@@ -36,7 +36,7 @@ func NewHandSlots(face text.Face, chrome Chrome) *HandSlots {
 // slotNumberPad はスロット番号を左上へ置くときの余白
 const slotNumberPad = 4
 
-// Draw は手持ちの欄を画面上部中央へ横並びに描画する。中央寄せは Row の両端0幅列に委ね、
+// Draw は手持ち欄を画面上部中央へ横並びに描画する。中央寄せは Row の両端0幅列に委ね、
 // 画面幅からの中央計算をしない。
 func (ws *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
 	if len(data.Slots) == 0 {
@@ -76,7 +76,7 @@ func (ws *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
 	drawFlexItems(cv, items)
 }
 
-// slotWidget は手持ちの欄1枚。与えられた矩形へ背景枠を敷き、選択中なら枠線を重ね、武器スプライトを
+// slotWidget は手持ち欄1枚。与えられた矩形へ背景枠を敷き、選択中なら枠線を重ね、武器スプライトを
 // 中央に、番号を左上に描く。位置は Row/FlexColumn が確定し、内部は矩形基準で自己完結する。
 type slotWidget struct {
 	rect     image.Rectangle

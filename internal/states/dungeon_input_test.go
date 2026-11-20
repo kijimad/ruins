@@ -39,7 +39,7 @@ func TestDungeonState_DoAction_拾得は継続アクティビティ中に中断�
 	assert.True(t, query.HasActivity(world, player), "拾得は継続アクティビティを中断しない")
 }
 
-func TestDungeonState_DoAction_数字キーで手持ちの欄を選び装備中の武器名を出す(t *testing.T) {
+func TestDungeonState_DoAction_数字キーで手持ち欄を選び装備中の武器名を出す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")

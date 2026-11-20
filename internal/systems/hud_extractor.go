@@ -278,7 +278,7 @@ func extractMessageData(world w.World, store *gamelog.SafeSlice) hud.MessageData
 	}
 }
 
-// extractHandSlotsData は手持ちの欄データを抽出する
+// extractHandSlotsData は手持ち欄データを抽出する
 func extractHandSlotsData(world w.World) hud.HandSlotsData {
 	screenDimensions := hud.ScreenDimensions{
 		Width:  world.Resources.ScreenDimensions.Width,
@@ -287,7 +287,7 @@ func extractHandSlotsData(world w.World) hud.HandSlotsData {
 
 	var slots []hud.HandSlotInfo
 
-	// プレイヤーの手持ちの欄の情報を取得
+	// プレイヤーの手持ち欄の情報を取得
 	query.Player(world, func(playerEntity ecs.Entity) {
 		weapons := query.GetHeld(world, playerEntity)
 
