@@ -1423,7 +1423,7 @@ import (
 // リロードに必要な行動力
 #ReloadEffort: int & >=1 & <=100
 
-// 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
+// 治療する性質。Treats に一致する不調から1つを治療済みにする。選び方は activity の remedyTarget に従う
 #Remedy: {
 	treats!: [...#ConditionTypeName]
 	treats_ref: [for x in treats {_conditionIDs[x]}] @rawgen(-)

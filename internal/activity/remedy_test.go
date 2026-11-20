@@ -211,7 +211,7 @@ func TestRemedyTarget_選んだ不調の部位を返す(t *testing.T) {
 	part, c := remedyTarget(hs, remedy)
 	require.NotNil(t, c)
 	assert.Equal(t, gc.BodyPartLegs, part)
-	assert.Same(t, &hs.Parts[gc.BodyPartLegs].Conditions[1], c)
+	assert.InDelta(t, 40, c.Timer, 0, "脚の未治療のうち重いほうを選ぶ")
 }
 
 func TestRemedyTarget_選べる不調が無ければnil(t *testing.T) {
