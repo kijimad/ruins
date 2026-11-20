@@ -25,25 +25,28 @@ type itemUseCheck struct {
 // itemUseChecks は物 it の使い道の判定を表に並べる順で返す。燃料と解体は素材の表から、作成の材料はレシピから決まる。
 // 使い道を足すときはここへ1行足すだけで、判定と並び順が揃う
 func itemUseChecks(it *rawschema.Item, material rawschema.MaterialDef, recipeInputs map[rawschema.EntityID]bool) []itemUseCheck {
-	specific := it.ProvidesNutrition != nil || it.ProvidesHealing != nil || it.Remedy != nil || it.InflictsDamage != nil ||
-		it.EscapeDevice != nil || it.CubeCore != nil
+	eat := it.ProvidesNutrition != nil
+	heal := it.ProvidesHealing != nil || it.Remedy != nil
+	throw := it.InflictsDamage != nil
+	escape := it.EscapeDevice != nil
+	core := it.CubeCore != nil
 	return []itemUseCheck{
 		{"着る", it.Wearable != nil},
 		{"近接", it.Melee != nil},
 		{"射撃", it.Fire != nil},
 		{"弾", it.Ammo != nil},
-		{"食べる", it.ProvidesNutrition != nil},
-		{"治す", it.ProvidesHealing != nil || it.Remedy != nil},
-		{"投げる", it.InflictsDamage != nil},
-		{"使う", it.Consumable != nil && !specific},
+		{"食べる", eat},
+		{"治す", heal},
+		{"投げる", throw},
+		{"使う", it.Consumable != nil && !eat && !heal && !throw && !escape && !core},
 		{"読む", it.Book != nil},
 		{"道具", it.Tool != nil},
 		{"設置", it.Deployable != nil},
 		{"着火", it.FireStarter != nil},
 		{"照らす", it.LightSource != nil},
-		{"脱出", it.EscapeDevice != nil},
+		{"脱出", escape},
 		{"キューブの部品", it.CubeModule != nil},
-		{"キューブの核", it.CubeCore != nil},
+		{"キューブの核", core},
 		{"燃料", material.HeatPerKg > 0},
 		{"解体", material.Disassembly != nil},
 		{"作成の材料", recipeInputs[it.Id]},
@@ -68,7 +71,11 @@ func itemUsesReport(raws rawschema.Raws) (string, error) {
 	byUse := map[itemUse]int{}
 	byCombo := map[string]int{}
 	noUse := []string{}
-	var order []itemUse
+	columns := itemUseChecks(&rawschema.Item{}, rawschema.MaterialDef{}, nil)
+	order := make([]itemUse, 0, len(columns))
+	for _, c := range columns {
+		order = append(order, c.use)
+	}
 	for i := range items {
 		var material rawschema.MaterialDef
 		if items[i].Material != nil {
@@ -79,11 +86,6 @@ func itemUsesReport(raws rawschema.Raws) (string, error) {
 			material = m
 		}
 		checks := itemUseChecks(&items[i], material, recipeInputs)
-		if order == nil {
-			for _, c := range checks {
-				order = append(order, c.use)
-			}
-		}
 		names := []string{}
 		for _, c := range checks {
 			if c.has {
