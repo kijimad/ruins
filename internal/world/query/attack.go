@@ -14,8 +14,8 @@ import (
 var (
 	// errNoCommandTable は敵がCommandTableを持たないときに返す
 	errNoCommandTable = errors.New("enemy has no CommandTable component")
-	// errEmptyCommandTable は CommandTable に行が無いときに返す
-	errEmptyCommandTable = errors.New("command table has no entry")
+	// errEmptyCommandTable は CommandTable に重みを持つ行が無いときに返す
+	errEmptyCommandTable = errors.New("command table has no weighted entry")
 	// errWeaponNoName は武器がNameを持たないときに返す
 	errWeaponNoName = errors.New("weapon has no Name component")
 	// errWeaponNoMelee は武器がMeleeを持たないときに返す

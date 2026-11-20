@@ -489,8 +489,9 @@ func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くと
 func TestValidateCommandTables(t *testing.T) {
 	t.Parallel()
 
+	items := &[]rawschema.Item{{Id: "cleaver", Name: "Cleaver", Melee: &rawschema.Melee{}}, {Id: "rock", Name: "Rock"}}
 	table := func(e rawschema.CommandTableEntry) rawschema.Raws {
-		return rawschema.Raws{CommandTables: &[]rawschema.CommandTable{{Id: "bat", Name: "Bat", Entries: []rawschema.CommandTableEntry{e}}}}
+		return rawschema.Raws{Items: items, CommandTables: &[]rawschema.CommandTable{{Id: "bat", Name: "Bat", Entries: []rawschema.CommandTableEntry{e}}}}
 	}
 	tests := []struct {
 		name    string
@@ -501,6 +502,7 @@ func TestValidateCommandTables(t *testing.T) {
 		{name: "アイテムだけを引く行は通る", raws: table(rawschema.CommandTableEntry{Item: new("cleaver"), Weight: 1})},
 		{name: "両方を引く行はエラー", raws: table(rawschema.CommandTableEntry{BodyAttack: new("bite"), Item: new("cleaver"), Weight: 1}), wantErr: errCommandEntryTarget},
 		{name: "どちらも引かない行はエラー", raws: table(rawschema.CommandTableEntry{Weight: 1}), wantErr: errCommandEntryTarget},
+		{name: "近接攻撃を持たないアイテムを引く行はエラー", raws: table(rawschema.CommandTableEntry{Item: new("rock"), Weight: 1}), wantErr: errItemNoMelee},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

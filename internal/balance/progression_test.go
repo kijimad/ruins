@@ -25,7 +25,7 @@ func TestProgressionCurve_想定は床より安全(t *testing.T) {
 	master := loadTestMaster(t)
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	require.NoError(t, err)
-	weapon, err := LoadWeaponFromBodyAttack(master, BaselineWeapon)
+	weapon, err := LoadWeaponFromBodyAttack(master, BaselineBodyAttack)
 	require.NoError(t, err)
 	curve, err := ProgressionCurve(master, player, weapon, BaselineAreaTable, BaselineDays, DefaultAttacksPerDay)
 	require.NoError(t, err)

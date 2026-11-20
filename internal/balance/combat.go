@@ -3,6 +3,7 @@ package balance
 import (
 	"fmt"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
@@ -80,7 +81,12 @@ func LoadWeaponFromBodyAttack(master rawschema.Raws, id string) (WeaponStats, er
 	if err != nil {
 		return WeaponStats{}, fmt.Errorf("failed to load body attack %q: %w", id, err)
 	}
-	return WeaponStats{Damage: melee.Damage, Accuracy: melee.Accuracy}, nil
+	return meleeWeapon(melee), nil
+}
+
+// meleeWeapon は近接攻撃の WeaponStats を返す
+func meleeWeapon(melee *gc.Melee) WeaponStats {
+	return WeaponStats{Damage: melee.Damage, Accuracy: melee.Accuracy}
 }
 
 // LoadEnemyWeapon は敵の CommandTable から最も重みの高い武器を代表に取り WeaponStats を返す。コマンドの重み分布は
@@ -113,11 +119,9 @@ func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, erro
 		}
 	}
 
-	if bestEntry.BodyAttack != nil {
-		return LoadWeaponFromBodyAttack(master, *bestEntry.BodyAttack)
+	melee, _, err := raw.CommandEntryMelee(master, bestEntry)
+	if err != nil {
+		return WeaponStats{}, fmt.Errorf("command table %q: %w", ct.Id, err)
 	}
-	if bestEntry.Item == nil {
-		return WeaponStats{}, fmt.Errorf("command table %q has an entry without bodyAttack or item", ct.Id)
-	}
-	return LoadWeaponFromItem(master, *bestEntry.Item)
+	return meleeWeapon(melee), nil
 }

@@ -16,11 +16,11 @@ import (
 // ベースライン導出の基準。プレイヤーは強化なしの素手を最悪ケースとして固定する。cmd と探索で
 // 同じ値を参照し、テーブルと実機能がずれるのを防ぐ。
 const (
-	BaselinePlayer    = "ash"
-	BaselineWeapon    = "bare_hands"
-	BaselineDays      = 21
-	BaselineAreaTable = "ruins_area"
-	BaselineDungeon   = "forgotten_ruins"
+	BaselinePlayer     = "ash"
+	BaselineBodyAttack = "bare_hands"
+	BaselineDays       = 21
+	BaselineAreaTable  = "ruins_area"
+	BaselineDungeon    = "forgotten_ruins"
 )
 
 // colDanger は複数の表で使う危険度列の見出し。文字列の重複を1つにまとめる。
@@ -281,7 +281,7 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, attackID string, 
 	fmt.Fprintf(&b, "## 多目的探索（Pareto 前線）\n\n")
 	fmt.Fprintf(&b, "**概要**: プレイヤー武器 bare_hands と敵武器 bite のダメージ倍率を格子で動かし、day1・day10・day20 の目標戦力比からの逸脱を同時に見る。\n")
 	fmt.Fprintf(&b, "単変数探索は day20 しか合わせられないが、複数日はトレードオフになる。どれかを詰めると別が緩む非劣な組だけを載せる。逸脱は小さいほど目標に近い。\n\n")
-	paretoKnobs := []string{BaselineWeapon, "bite"}
+	paretoKnobs := []string{BaselineBodyAttack, "bite"}
 	front := ParetoFront(master, paretoKnobs, []float64{0.8, 1.0, 1.5}, []int{1, 10, 20})
 	sort.Slice(front, func(i, j int) bool {
 		if front[i].Factors[paretoKnobs[0]] != front[j].Factors[paretoKnobs[0]] {
@@ -557,7 +557,7 @@ func renderSkillDepth(b *strings.Builder, master rawschema.Raws) error {
 	fmt.Fprintf(b, "能力+ダイス+武器の base 全体へ切り捨てで掛かる。撃破ターンが動かないレベルは体験に響かない死んだティア。NTBEA のティア識別性を翻案した指標。\n\n")
 
 	var rows [][]string
-	bare, err := LoadWeaponFromBodyAttack(master, BaselineWeapon)
+	bare, err := LoadWeaponFromBodyAttack(master, BaselineBodyAttack)
 	if err != nil {
 		return err
 	}
@@ -568,7 +568,7 @@ func renderSkillDepth(b *strings.Builder, master rawschema.Raws) error {
 	weapons := []struct {
 		name   string
 		weapon WeaponStats
-	}{{BaselineWeapon, bare}, {"iron_sword", iron}}
+	}{{BaselineBodyAttack, bare}, {"iron_sword", iron}}
 	for _, w := range weapons {
 		prof, err := SkillDepthProfileFor(master, w.weapon, BaselineAreaTable, day)
 		if err != nil {

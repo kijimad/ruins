@@ -575,13 +575,22 @@ func validateFlatShapes(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateCommandTables はコマンドテーブルの行が体の攻撃とアイテムのどちらか1つだけを引くことを検証する
+// validateCommandTables はコマンドテーブルの行が体の攻撃とアイテムのどちらか1つだけを引き、
+// アイテムを引くならそのアイテムが近接攻撃を持つことを検証する
 func validateCommandTables(raws rawschema.Raws) error {
+	melee := map[rawschema.EntityID]bool{}
+	items := PtrSlice(raws.Items)
+	for i := range items {
+		melee[items[i].Id] = items[i].Melee != nil
+	}
 	tables := PtrSlice(raws.CommandTables)
 	for i := range tables {
 		for j, e := range tables[i].Entries {
 			if (e.BodyAttack == nil) == (e.Item == nil) {
 				return fmt.Errorf("command table %q entry %d: %w", tables[i].Id, j, errCommandEntryTarget)
+			}
+			if e.Item != nil && !melee[*e.Item] {
+				return fmt.Errorf("command table %q entry %d: %w: %s", tables[i].Id, j, errItemNoMelee, *e.Item)
 			}
 		}
 	}

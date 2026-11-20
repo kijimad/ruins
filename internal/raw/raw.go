@@ -966,7 +966,7 @@ func GetProfession(raws rawschema.Raws, id string) (rawschema.Profession, error)
 	return prof, nil
 }
 
-// SelectCommandByWeight はコマンドテーブルから行を重み付きランダムに選ぶ。行が無ければ ok は偽
+// SelectCommandByWeight はコマンドテーブルから行を重み付きランダムに選ぶ。重みを持つ行が無ければ ok は偽
 func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (rawschema.CommandTableEntry, bool) {
 	i, ok := consts.Pick(rng, ct.Entries, func(e rawschema.CommandTableEntry) float64 { return e.Weight })
 	if !ok {

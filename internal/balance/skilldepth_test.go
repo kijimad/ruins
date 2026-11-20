@@ -10,7 +10,7 @@ import (
 func TestSkillDepthProfileFor_実効と死んだティアで全段を分ける(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
-	bare, err := LoadWeaponFromBodyAttack(master, BaselineWeapon)
+	bare, err := LoadWeaponFromBodyAttack(master, BaselineBodyAttack)
 	require.NoError(t, err)
 	prof, err := SkillDepthProfileFor(master, bare, "ruins_area", 20)
 	require.NoError(t, err)
@@ -32,7 +32,7 @@ func TestSkillDepthProfileFor_弱い武器ほど死んだティアが多い(t *t
 	master := loadTestMaster(t)
 	// 素手はダメージが小さく、+5%%/レベルの倍率が整数丸めで多く吸われるので死んだティアが多い。
 	// ダメージの大きい鉄剣は同じ倍率でも刻みが立ちやすく、実効ティアが増える。
-	bareWeapon, err := LoadWeaponFromBodyAttack(master, BaselineWeapon)
+	bareWeapon, err := LoadWeaponFromBodyAttack(master, BaselineBodyAttack)
 	require.NoError(t, err)
 	ironWeapon, err := LoadWeaponFromItem(master, "iron_sword")
 	require.NoError(t, err)
