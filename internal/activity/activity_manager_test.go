@@ -69,6 +69,29 @@ func TestStartActivity(t *testing.T) {
 	assert.False(t, query.HasActivity(world, nonExistentActor), "Expected HasActivity to return false for non-existent entity")
 }
 
+func TestStartActivity_コンポーネントがnilならエラーを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+
+	err := StartActivity(nil, actor, world)
+
+	require.ErrorIs(t, err, ErrActivityNil)
+}
+
+func TestStartActivity_未登録のBehaviorNameはエラーを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
+
+	comp := NewActivity(gc.BehaviorName("未登録の振る舞い"), 10)
+	err := StartActivity(comp, actor, world)
+
+	require.ErrorIs(t, err, ErrBehaviorUnregistered)
+	assert.Nil(t, query.GetActivity(world, actor), "開始に失敗したアクティビティは登録されない")
+}
+
 func TestMultipleActivities(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -165,6 +188,23 @@ func TestInterruptAndResume(t *testing.T) {
 	assert.Error(t, err, "Expected error when resuming non-existent activity")
 }
 
+func TestResumeActivity_再開不可なアクティビティはエラーを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+
+	// Disassemble は Interruptible だが Resumable ではないため、中断後の再開は失敗するはず
+	comp := NewActivity(gc.BehaviorDisassemble, 10)
+	comp.State = gc.ActivityStatePaused
+	require.NoError(t, query.SetActivity(world, actor, comp))
+
+	err := ResumeActivity(actor, world)
+
+	require.Error(t, err)
+	assert.Equal(t, "activity 'Disassemble' cannot be resumed", err.Error())
+	assert.Equal(t, gc.ActivityStatePaused, query.GetActivity(world, actor).State, "再開不可なら状態は変わらない")
+}
+
 func TestCancelActivity(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -189,6 +229,21 @@ func TestCancelActivity(t *testing.T) {
 	// 存在しないアクティビティのキャンセル（エラーにならない）
 	nonExistentActor := gc.InvalidEntity
 	CancelActivity(nonExistentActor, "テスト", world) // パニックしないことを確認
+}
+
+func TestCancelActivity_未登録のBehaviorNameは結果を記録せず除去する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+
+	// StartActivity を経由せず、直接未登録のBehaviorNameを持つActivityを登録する
+	comp := NewActivity(gc.BehaviorName("未登録の振る舞い"), 10)
+	require.NoError(t, query.SetActivity(world, actor, comp))
+
+	CancelActivity(actor, "テスト", world) // パニックしないことを確認
+
+	assert.Nil(t, query.GetActivity(world, actor), "GetBehaviorに失敗したアクティビティは除去される")
+	assert.Nil(t, GetLastResult(actor, world), "GetBehaviorエラー時は結果を記録しない")
 }
 
 func TestProcessContinuousActivities(t *testing.T) {
@@ -238,6 +293,21 @@ func TestProcessContinuousActivities(t *testing.T) {
 	// サマリーの確認
 	summary = getActivitySummary(t, world)
 	assert.Equal(t, 1, summary["total"], "Expected 1 total activity after completion")
+}
+
+func TestProcessContinuousActivities_アクティビティ処理のエラーを伝播する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	world.Components.TurnBased.Add(actor, &gc.TurnBased{})
+
+	// StartActivity を経由せず、直接未登録のBehaviorNameを持つActivityを登録する
+	comp := NewActivity(gc.BehaviorName("未登録の振る舞い"), 10)
+	require.NoError(t, query.SetActivity(world, actor, comp))
+
+	err := ProcessContinuousActivities(world)
+
+	require.ErrorIs(t, err, ErrBehaviorUnregistered)
 }
 
 func TestActivitySummary(t *testing.T) {
@@ -348,6 +418,19 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		modCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
 		// PassCost 50加算: normalCost + 50
 		assert.Equal(t, normalCost+50, modCost)
+	})
+
+	t.Run("未登録のBehaviorNameではAPを消費せず戻る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.TurnBased.Add(actor, &gc.TurnBased{AP: gc.IntPool{Current: 10, Max: 10}})
+
+		comp := NewActivity(gc.BehaviorName("未登録の振る舞い"), 10)
+		consumePassCost(world, actor, comp)
+
+		assert.Equal(t, 10, world.Components.TurnBased.Get(actor).AP.Current, "GetBehaviorに失敗したら消費しない")
 	})
 }
 
@@ -484,6 +567,17 @@ func TestStepActivity(t *testing.T) {
 		assert.Nil(t, query.GetActivity(world, actor), "DoTurnが失敗したアクティビティは除去される")
 		assert.Nil(t, GetLastResult(actor, world), "失敗は結果として記録しない")
 	})
+}
+
+func TestExecute_コンポーネントがnilならエラーを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+
+	result, err := Execute(nil, actor, world)
+
+	require.ErrorIs(t, err, ErrActivityNil)
+	assert.Nil(t, result)
 }
 
 func TestExecute_DoTurnが失敗するとエラーを返す(t *testing.T) {
