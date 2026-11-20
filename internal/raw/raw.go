@@ -977,11 +977,11 @@ func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (rawschema
 
 // BodyAttackMelee は体の攻撃の近接攻撃と名前を返す
 func BodyAttackMelee(raws rawschema.Raws, id string) (*gc.Melee, i18n.Msgid, error) {
-	attack, ok := FindByKey(raws.BodyAttacks, func(a rawschema.BodyAttack) string { return a.Id }, id)
+	bodyAttack, ok := FindByKey(raws.BodyAttacks, func(a rawschema.BodyAttack) string { return a.Id }, id)
 	if !ok {
 		return nil, "", NewKeyNotFoundError(id, "BodyAttacks")
 	}
-	return parseMelee(&attack.Melee), i18n.Msgid(attack.Name), nil
+	return parseMelee(&bodyAttack.Melee), i18n.Msgid(bodyAttack.Name), nil
 }
 
 // CommandEntryMelee は敵の攻撃表の行が引く近接攻撃と名前を返す。体の攻撃かアイテムかは行の欄で決まる

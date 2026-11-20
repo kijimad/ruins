@@ -61,9 +61,9 @@ func withScaledMeleeDamages(master rawschema.Raws, factors map[string]float64, f
 		// 丸めで反映する。切り捨てだと factor=1.1 で奇数値が変化せず摂動が無反応になる
 		m.Damage = int(math.Round(float64(m.Damage) * factor))
 	}
-	attacks := raw.PtrSlice(master.BodyAttacks)
-	for i := range attacks {
-		scale(attacks[i].Id, &attacks[i].Melee)
+	bodyAttacks := raw.PtrSlice(master.BodyAttacks)
+	for i := range bodyAttacks {
+		scale(bodyAttacks[i].Id, &bodyAttacks[i].Melee)
 	}
 	items := raw.PtrSlice(master.Items)
 	for i := range items {
