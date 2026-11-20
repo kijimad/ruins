@@ -40,7 +40,7 @@ func SelectedWeapon(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
 	slot := GetHandSelection(world).Slot
 	i, ok := slot.HandIndex()
 	if !ok {
-		panic(fmt.Sprintf("hand selection is not a hand slot: %d", slot))
+		panic(fmt.Sprintf("hand selection slot is not a hand slot: %d", slot))
 	}
 	weapon := GetHeld(world, owner)[i]
 	if weapon == nil {

@@ -76,7 +76,7 @@ const (
 // HandSlotCount は手持ち欄の数
 const HandSlotCount = int(SlotHand5-SlotHand1) + 1
 
-// HandIndex は手持ち欄の、SlotHand1 から並べた並びでの添字を返す。手持ち欄でなければ ok は偽
+// HandIndex は手持ち欄の、SlotHand1 を 0 とする添字を返す。手持ち欄でなければ ok は偽
 func (s EquipmentSlotNumber) HandIndex() (int, bool) {
 	if s < SlotHand1 || s > SlotHand5 {
 		return 0, false
