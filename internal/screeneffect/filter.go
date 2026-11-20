@@ -77,9 +77,10 @@ func (p *Pipeline) ensureScratch(width, height int) {
 		return
 	}
 	// 描画の結果を受ける中間バッファは、アトラスの配置で画素が変わらないよう unmanaged にする
+	rect := image.Rect(0, 0, width, height)
 	opts := &ebiten.NewImageOptions{Unmanaged: true}
-	p.scratch[0] = ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), opts)
-	p.scratch[1] = ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), opts)
+	p.scratch[0] = ebiten.NewImageWithOptions(rect, opts)
+	p.scratch[1] = ebiten.NewImageWithOptions(rect, opts)
 	p.lastW = width
 	p.lastH = height
 }
