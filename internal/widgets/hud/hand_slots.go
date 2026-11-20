@@ -12,8 +12,8 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// weaponSlotsConfig は手持ちの欄表示の設定
-type weaponSlotsConfig struct {
+// handSlotsConfig は手持ちの欄表示の設定
+type handSlotsConfig struct {
 	SlotSize    int // 各スロットのサイズ（ピクセル）
 	SlotSpacing int // スロット間の間隔（ピクセル）
 	YOffset     int // 画面上端からのオフセット（ピクセル）
@@ -43,7 +43,7 @@ func (ws *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
 		return
 	}
 
-	config := weaponSlotsConfig{SlotSize: 48, SlotSpacing: 8, YOffset: theme.Space4}
+	config := handSlotsConfig{SlotSize: 48, SlotSpacing: 8, YOffset: theme.Space4}
 	sprites := world.Resources.Sprites
 
 	// 両端0幅列で中央寄せし、スロットとスロット間隔を交互に並べる

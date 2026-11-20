@@ -541,7 +541,7 @@ func TestSerializationManager_LoadWorld_手持ちの欄でない選択は復元�
 	require.ErrorIs(t, err, errInvalidHandSelection)
 }
 
-func TestSerializationManager_LoadWorld_武器の選択が無いと復元を拒否する(t *testing.T) {
+func TestSerializationManager_LoadWorld_手持ちの欄の選択が無いと復元を拒否する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)

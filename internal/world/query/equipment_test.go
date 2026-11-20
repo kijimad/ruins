@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestIsWeapon(t *testing.T) {
+func TestIsHoldable(t *testing.T) {
 	t.Parallel()
 
 	t.Run("近接コンポーネントを持てば武器", func(t *testing.T) {
@@ -40,7 +40,7 @@ func TestIsWeapon(t *testing.T) {
 	})
 }
 
-func TestGetWeapons_Empty(t *testing.T) {
+func TestGetHeld_Empty(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -80,7 +80,7 @@ func TestSelectedWeapon(t *testing.T) {
 	assert.Panics(t, func() { query.SelectedWeapon(world, player) }, "手持ちの欄でない選択は不変条件の破れ")
 }
 
-func TestGetWeapons_装備した武器をスロット順で返す(t *testing.T) {
+func TestGetHeld_装備した武器を欄の順で返す(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -97,7 +97,7 @@ func TestGetWeapons_装備した武器をスロット順で返す(t *testing.T) 
 	}
 }
 
-func TestGetWeapons_武器でない装備はスロットに入らない(t *testing.T) {
+func TestGetHeld_武器でない装備は欄に入らない(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)

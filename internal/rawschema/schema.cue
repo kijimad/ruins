@@ -670,7 +670,7 @@ import (
 	agility!:   #Agility
 }
 
-// 装備スロット。防具部位 + 武器スロット
+// 装備スロット。防具部位 + 手持ちの欄
 #EquipSlot: "HEAD" | "TORSO" | "ARMS" | "HANDS" | "LEGS" | "FEET" | "HAND1" | "HAND2" | "HAND3" | "HAND4" | "HAND5" @rawgen(prefix)
 
 // 装備部位

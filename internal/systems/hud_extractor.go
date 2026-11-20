@@ -287,7 +287,7 @@ func extractHandSlotsData(world w.World) hud.HandSlotsData {
 
 	var slots []hud.HandSlotInfo
 
-	// プレイヤーの手持ちの欄情報を取得
+	// プレイヤーの手持ちの欄の情報を取得
 	query.Player(world, func(playerEntity ecs.Entity) {
 		weapons := query.GetHeld(world, playerEntity)
 

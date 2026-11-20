@@ -13,7 +13,7 @@ type HUDRenderingSystem struct {
 	macroMap     *hud.MacroMap
 	debugOverlay *hud.DebugOverlay
 	messageArea  *hud.MessageArea
-	weaponSlots  *hud.HandSlots
+	handSlots    *hud.HandSlots
 	statusBadges *hud.StatusBadges
 	enabled      bool
 }
@@ -30,7 +30,7 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 		macroMap:     hud.NewMacroMap(bodyFace, smallFace, world.Resources.UIResources.GaugeFill, chrome),
 		debugOverlay: hud.NewDebugOverlay(smallFace),
 		messageArea:  hud.NewMessageArea(world),
-		weaponSlots:  hud.NewHandSlots(smallFace, chrome),
+		handSlots:    hud.NewHandSlots(smallFace, chrome),
 		statusBadges: hud.NewStatusBadges(smallFace),
 		enabled:      true,
 	}
@@ -93,8 +93,8 @@ func (sys *HUDRenderingSystem) Run(world w.World, screen *ebiten.Image) {
 	if sys.messageArea != nil {
 		sys.messageArea.Draw(cv, hudData.MessageData)
 	}
-	if sys.weaponSlots != nil {
-		sys.weaponSlots.Draw(cv, hudData.HandSlotsData, world)
+	if sys.handSlots != nil {
+		sys.handSlots.Draw(cv, hudData.HandSlotsData, world)
 	}
 	if sys.statusBadges != nil {
 		sys.statusBadges.Draw(cv, hudData.StatusBadgesData)

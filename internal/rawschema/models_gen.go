@@ -862,7 +862,7 @@ type EquipBonus struct {
 	Vitality Vitality `json:"vitality"`
 }
 
-// EquipSlot 装備スロット。防具部位 + 武器スロット
+// EquipSlot 装備スロット。防具部位 + 手持ちの欄
 type EquipSlot string
 
 // Defines values for EquipSlot.

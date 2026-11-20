@@ -108,7 +108,7 @@ type MessageData struct {
 
 // HandSlotsData は手持ちの欄表示に必要なデータ
 type HandSlotsData struct {
-	Slots            []HandSlotInfo         // 5つの手持ちの欄情報
+	Slots            []HandSlotInfo         // 5つの手持ちの欄の情報
 	SelectedSlot     gc.EquipmentSlotNumber // 選択中の手持ちの欄
 	ScreenDimensions ScreenDimensions       // 画面サイズ
 }

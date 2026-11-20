@@ -37,8 +37,8 @@ var (
 	errNoSingleton = errors.New("restored data has no singleton entity that holds Dungeon")
 	// errInvalidStageKey は復元したステージキーが不正なときに返す
 	errInvalidStageKey = errors.New("restored stage key is invalid")
-	// errInvalidHandSelection は復元した武器の選択が不正なときに返す
-	errInvalidHandSelection = errors.New("restored weapon selection is invalid")
+	// errInvalidHandSelection は復元した手持ちの欄の選択が不正なときに返す
+	errInvalidHandSelection = errors.New("restored hand selection is invalid")
 )
 
 // Option はSerializationManagerの設定を変更する関数
@@ -177,12 +177,12 @@ func restoreInto(world w.World, worldJSON []byte, playTime time.Duration) error 
 		return fmt.Errorf("failed to reestablish singleton: %w", err)
 	}
 
-	// 信頼境界。復元したステージキーと武器の選択の整合を検査する
+	// 信頼境界。復元したステージキーと手持ちの欄の選択の整合を検査する
 	if err := validateStages(world); err != nil {
 		return fmt.Errorf("failed to validate stages: %w", err)
 	}
 	if err := validateHandSelection(world); err != nil {
-		return fmt.Errorf("failed to validate weapon selection: %w", err)
+		return fmt.Errorf("failed to validate hand selection: %w", err)
 	}
 	return nil
 }

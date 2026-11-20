@@ -12,7 +12,7 @@ type HandSelection struct {
 // Validate は選択中の手持ちの欄が SlotHand1 から SlotHand5 の間にあるかを検査する。ロード直後など信頼できない入力に使う
 func (s HandSelection) Validate() error {
 	if _, ok := s.Slot.HandIndex(); !ok {
-		return fmt.Errorf("weapon selection slot is not a weapon slot: %d", s.Slot)
+		return fmt.Errorf("hand selection slot is not a hand slot: %d", s.Slot)
 	}
 	return nil
 }
