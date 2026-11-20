@@ -46,13 +46,13 @@ func TestDungeonState_DoAction_数字キーで手持ちの欄を選び装備中�
 	require.NoError(t, err)
 	st := &DungeonState{}
 
-	_, err = st.DoAction(world, inputmapper.ActionSwitchWeaponSlot2)
+	_, err = st.DoAction(world, inputmapper.ActionSwitchHandSlot2)
 	require.NoError(t, err)
-	assert.Equal(t, gc.SlotHand2, query.GetWeaponSelection(world).Slot)
+	assert.Equal(t, gc.SlotHand2, query.GetHandSelection(world).Slot)
 	assert.Equal(t, []string{}, query.GetGameLog(world).GetHistory(), "空きスロットでは何も出さない")
 
-	_, err = st.DoAction(world, inputmapper.ActionSwitchWeaponSlot1)
+	_, err = st.DoAction(world, inputmapper.ActionSwitchHandSlot1)
 	require.NoError(t, err)
-	assert.Equal(t, gc.SlotHand1, query.GetWeaponSelection(world).Slot)
+	assert.Equal(t, gc.SlotHand1, query.GetHandSelection(world).Slot)
 	assert.Equal(t, []string{"Readied Torch."}, query.GetGameLog(world).GetHistory(), "初期装備の松明を構える")
 }

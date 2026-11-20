@@ -37,7 +37,7 @@ func TestCharacterState_OnStartが成功する(t *testing.T) {
 	require.NoError(t, state.OnStart(world))
 }
 
-func TestCharacterState_装備スロットは武器5と防具7の合計12(t *testing.T) {
+func TestCharacterState_装備の欄は手持ち5と防具7の合計12(t *testing.T) {
 	t.Parallel()
 
 	state := &CharacterState{}
@@ -48,7 +48,7 @@ func TestCharacterState_装備スロットは武器5と防具7の合計12(t *tes
 
 	props, err := state.Fetch(world)
 	require.NoError(t, err)
-	assert.Len(t, props.EquipSlots, 12, "武器5スロットと防具7スロット")
+	assert.Len(t, props.EquipSlots, 12, "手持ちの欄5と防具の欄7")
 }
 
 func TestCharacterState_情報タブは能力スキル効果健康基本の5つ(t *testing.T) {

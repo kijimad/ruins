@@ -28,9 +28,9 @@ func GetDungeon(world w.World) *gc.Dungeon {
 	return GetSingleton[gc.Dungeon](world, world.Components.Dungeon)
 }
 
-// GetWeaponSelection はシングルトンから選択中の手持ちの欄を取得する
-func GetWeaponSelection(world w.World) *gc.WeaponSelection {
-	return GetSingleton[gc.WeaponSelection](world, world.Components.WeaponSelection)
+// GetHandSelection はシングルトンから選択中の手持ちの欄を取得する
+func GetHandSelection(world w.World) *gc.HandSelection {
+	return GetSingleton[gc.HandSelection](world, world.Components.HandSelection)
 }
 
 // GetGameTime はシングルトンからゲーム内時間を取得する

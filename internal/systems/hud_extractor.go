@@ -28,7 +28,7 @@ func ExtractHUDData(world w.World) hud.Data {
 		MacroMap:         extractMacroMapData(world),
 		DebugOverlay:     extractDebugOverlay(world),
 		MessageData:      extractMessageData(world, query.GetGameLog(world)),
-		WeaponSlotsData:  extractWeaponSlotsData(world),
+		HandSlotsData:    extractHandSlotsData(world),
 		StatusBadgesData: extractStatusBadgesData(world, messageAreaHeight),
 	}
 }
@@ -278,14 +278,14 @@ func extractMessageData(world w.World, store *gamelog.SafeSlice) hud.MessageData
 	}
 }
 
-// extractWeaponSlotsData は手持ちの欄データを抽出する
-func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
+// extractHandSlotsData は手持ちの欄データを抽出する
+func extractHandSlotsData(world w.World) hud.HandSlotsData {
 	screenDimensions := hud.ScreenDimensions{
 		Width:  world.Resources.ScreenDimensions.Width,
 		Height: world.Resources.ScreenDimensions.Height,
 	}
 
-	var slots []hud.WeaponSlotInfo
+	var slots []hud.HandSlotInfo
 
 	// プレイヤーの手持ちの欄情報を取得
 	query.Player(world, func(playerEntity ecs.Entity) {
@@ -312,7 +312,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 				}
 			}
 
-			slots = append(slots, hud.WeaponSlotInfo{
+			slots = append(slots, hud.HandSlotInfo{
 				SlotNumber:  slotNumber,
 				WeaponName:  weaponName,
 				SpriteSheet: spriteSheet,
@@ -321,9 +321,9 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 		}
 	})
 
-	return hud.WeaponSlotsData{
+	return hud.HandSlotsData{
 		Slots:            slots,
-		SelectedSlot:     query.GetWeaponSelection(world).Slot,
+		SelectedSlot:     query.GetHandSelection(world).Slot,
 		ScreenDimensions: screenDimensions,
 	}
 }

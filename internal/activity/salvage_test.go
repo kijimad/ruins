@@ -44,7 +44,7 @@ func TestToolDamageMultiplier(t *testing.T) {
 			weapon, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
 			require.NoError(t, err)
 			lifecycle.MoveToEquip(world, weapon, player, gc.SlotHand1)
-			query.GetWeaponSelection(world).Slot = gc.SlotHand1
+			query.GetHandSelection(world).Slot = gc.SlotHand1
 			target, err := lifecycle.SpawnProp(world, tt.prop, 10, 9)
 			require.NoError(t, err)
 
@@ -59,7 +59,7 @@ func TestWieldedTool_武器未選択なら道具なしを返す(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.UnequipAll(world, player))
-	query.GetWeaponSelection(world).Slot = gc.SlotHand1
+	query.GetHandSelection(world).Slot = gc.SlotHand1
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, "tree_a")
 	require.True(t, ok)
 
@@ -156,7 +156,7 @@ func TestSalvageRoll(t *testing.T) {
 			weapon, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
 			require.NoError(t, err)
 			lifecycle.MoveToEquip(world, weapon, player, gc.SlotHand1)
-			query.GetWeaponSelection(world).Slot = gc.SlotHand1
+			query.GetHandSelection(world).Slot = gc.SlotHand1
 			def, ok := raw.FindDisassembly(world.Resources.RawMaster, tt.prop)
 			require.True(t, ok)
 
@@ -193,7 +193,7 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 			weapon, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
 			require.NoError(t, err)
 			lifecycle.MoveToEquip(world, weapon, player, gc.SlotHand1)
-			query.GetWeaponSelection(world).Slot = gc.SlotHand1
+			query.GetHandSelection(world).Slot = gc.SlotHand1
 			target, err := lifecycle.SpawnProp(world, tt.prop, 10, 9)
 			require.NoError(t, err)
 			attack, name, err := getAttackParams(player, world)
@@ -231,7 +231,7 @@ func TestApplyAttackDamage_つるはしで岩を壊すと石を落とす(t *test
 	pickaxe, err := lifecycle.SpawnBackpackItem(world, "pickaxe", 1)
 	require.NoError(t, err)
 	lifecycle.MoveToEquip(world, pickaxe, player, gc.SlotHand1)
-	query.GetWeaponSelection(world).Slot = gc.SlotHand1
+	query.GetHandSelection(world).Slot = gc.SlotHand1
 	rock, err := lifecycle.SpawnProp(world, "rock", 10, 9)
 	require.NoError(t, err)
 	attack, name, err := getAttackParams(player, world)

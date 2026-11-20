@@ -76,17 +76,17 @@ func TestIsOnOverworld(t *testing.T) {
 	assert.False(t, IsOnOverworld(world), "現ステージが帯データを持たなければ偽")
 }
 
-// TestGetWeaponSelection は武器選択シングルトンの初期値と更新を検証する。
-func TestGetWeaponSelection(t *testing.T) {
+// TestGetHandSelection は武器選択シングルトンの初期値と更新を検証する。
+func TestGetHandSelection(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	ws := GetWeaponSelection(world)
+	ws := GetHandSelection(world)
 	require.NotNil(t, ws)
 	assert.Equal(t, gc.SlotHand1, ws.Slot, "初期は先頭の手持ちの欄")
 
 	ws.Slot = gc.SlotHand3
-	assert.Equal(t, gc.SlotHand3, GetWeaponSelection(world).Slot, "更新がシングルトンに反映される")
+	assert.Equal(t, gc.SlotHand3, GetHandSelection(world).Slot, "更新がシングルトンに反映される")
 }
 
 func TestGetRunStats_InitWorldで初期状態を取得できる(t *testing.T) {

@@ -534,11 +534,11 @@ func TestSerializationManager_LoadWorld_手持ちの欄でない選択は復元�
 	world := testutil.InitTestWorld(t)
 	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
-	query.GetWeaponSelection(world).Slot = gc.SlotHead
+	query.GetHandSelection(world).Slot = gc.SlotHead
 	require.NoError(t, manager.SaveWorld(world, "invalid_weapon"))
 
 	err = manager.LoadWorld(testutil.InitTestWorld(t), "invalid_weapon")
-	require.ErrorIs(t, err, errInvalidWeaponSelection)
+	require.ErrorIs(t, err, errInvalidHandSelection)
 }
 
 func TestSerializationManager_LoadWorld_武器の選択が無いと復元を拒否する(t *testing.T) {
@@ -547,11 +547,11 @@ func TestSerializationManager_LoadWorld_武器の選択が無いと復元を拒�
 	world := testutil.InitTestWorld(t)
 	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
-	world.Components.WeaponSelection.Remove(world.Resources.SingletonEntity)
+	world.Components.HandSelection.Remove(world.Resources.SingletonEntity)
 	require.NoError(t, manager.SaveWorld(world, "no_weapon_selection"))
 
 	err = manager.LoadWorld(testutil.InitTestWorld(t), "no_weapon_selection")
-	require.ErrorIs(t, err, errInvalidWeaponSelection)
+	require.ErrorIs(t, err, errInvalidHandSelection)
 }
 
 // TestRestoreWorldFromJSON_PreservesWorldOnFailure はロードが復元段階で失敗しても、現行ワールドが

@@ -19,15 +19,15 @@ type weaponSlotsConfig struct {
 	YOffset     int // 画面上端からのオフセット（ピクセル）
 }
 
-// WeaponSlots は手持ちの欄表示ウィジェット
-type WeaponSlots struct {
+// HandSlots は手持ちの欄表示ウィジェット
+type HandSlots struct {
 	face   text.Face
 	chrome Chrome
 }
 
-// NewWeaponSlots は新しいWeaponSlotsを作成する
-func NewWeaponSlots(face text.Face, chrome Chrome) *WeaponSlots {
-	return &WeaponSlots{
+// NewHandSlots は新しいHandSlotsを作成する
+func NewHandSlots(face text.Face, chrome Chrome) *HandSlots {
+	return &HandSlots{
 		face:   face,
 		chrome: chrome,
 	}
@@ -38,7 +38,7 @@ const slotNumberPad = 4
 
 // Draw は手持ちの欄を画面上部中央へ横並びに描画する。中央寄せは Row の両端0幅列に委ね、
 // 画面幅からの中央計算をしない。
-func (ws *WeaponSlots) Draw(cv uicore.Canvas, data WeaponSlotsData, world w.World) {
+func (ws *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
 	if len(data.Slots) == 0 {
 		return
 	}
@@ -82,7 +82,7 @@ type slotWidget struct {
 	rect     image.Rectangle
 	chrome   Chrome
 	face     text.Face
-	slot     WeaponSlotInfo
+	slot     HandSlotInfo
 	number   int
 	selected bool
 	sprites  *resources.SpriteStore

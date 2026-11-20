@@ -14,7 +14,7 @@ type Data struct {
 	MacroMap         MacroMapData
 	DebugOverlay     DebugOverlayData
 	MessageData      MessageData
-	WeaponSlotsData  WeaponSlotsData
+	HandSlotsData    HandSlotsData
 	StatusBadgesData StatusBadgesData
 }
 
@@ -106,15 +106,15 @@ type MessageData struct {
 	Config           MessageAreaConfig // メッセージエリア設定
 }
 
-// WeaponSlotsData は手持ちの欄表示に必要なデータ
-type WeaponSlotsData struct {
-	Slots            []WeaponSlotInfo       // 5つの手持ちの欄情報
+// HandSlotsData は手持ちの欄表示に必要なデータ
+type HandSlotsData struct {
+	Slots            []HandSlotInfo         // 5つの手持ちの欄情報
 	SelectedSlot     gc.EquipmentSlotNumber // 選択中の手持ちの欄
 	ScreenDimensions ScreenDimensions       // 画面サイズ
 }
 
-// WeaponSlotInfo は手持ちの欄の情報
-type WeaponSlotInfo struct {
+// HandSlotInfo は手持ちの欄の情報
+type HandSlotInfo struct {
 	SlotNumber  gc.EquipmentSlotNumber // スロット番号
 	WeaponName  string                 // 武器名（空文字列なら武器なし）
 	SpriteSheet string                 // スプライトシート名

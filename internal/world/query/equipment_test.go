@@ -67,16 +67,16 @@ func TestSelectedWeapon(t *testing.T) {
 	torch := query.GetHeld(world, player)[0]
 	require.NotNil(t, torch, "初期装備の松明はスロット1にある")
 
-	query.GetWeaponSelection(world).Slot = gc.SlotHand1
+	query.GetHandSelection(world).Slot = gc.SlotHand1
 	got, ok := query.SelectedWeapon(world, player)
 	assert.True(t, ok)
 	assert.Equal(t, *torch, got)
 
-	query.GetWeaponSelection(world).Slot = gc.SlotHand2
+	query.GetHandSelection(world).Slot = gc.SlotHand2
 	_, ok = query.SelectedWeapon(world, player)
 	assert.False(t, ok, "空きスロットを選ぶと武器は無い")
 
-	query.GetWeaponSelection(world).Slot = gc.SlotHead
+	query.GetHandSelection(world).Slot = gc.SlotHead
 	assert.Panics(t, func() { query.SelectedWeapon(world, player) }, "手持ちの欄でない選択は不変条件の破れ")
 }
 

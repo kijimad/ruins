@@ -116,7 +116,7 @@ func TestExtractGameInfo(t *testing.T) {
 	})
 }
 
-func TestExtractWeaponSlotsData(t *testing.T) {
+func TestExtractHandSlotsData(t *testing.T) {
 	t.Parallel()
 
 	t.Run("武器未装備なら空スロットを返す", func(t *testing.T) {
@@ -127,9 +127,9 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
 
-		query.GetWeaponSelection(world).Slot = gc.SlotHand1
+		query.GetHandSelection(world).Slot = gc.SlotHand1
 
-		data := extractWeaponSlotsData(world)
+		data := extractHandSlotsData(world)
 
 		require.Len(t, data.Slots, 5)
 		for _, slot := range data.Slots {
@@ -154,9 +154,9 @@ func TestExtractWeaponSlotsData(t *testing.T) {
 		world.Components.SpriteRender.Add(weapon, &gc.SpriteRender{SpriteSheetName: "weapons", SpriteKey: "rapier"})
 		world.Components.LocationEquipped.Add(weapon, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotHand1})
 
-		query.GetWeaponSelection(world).Slot = gc.SlotHand3
+		query.GetHandSelection(world).Slot = gc.SlotHand3
 
-		data := extractWeaponSlotsData(world)
+		data := extractHandSlotsData(world)
 
 		require.Len(t, data.Slots, 5)
 		assert.Equal(t, "レイピア", data.Slots[0].WeaponName)
@@ -363,7 +363,7 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 
 	assert.Equal(t, 10, data.GameInfo.PlayerHP)
 	assert.Equal(t, consts.Currency(500), data.GameInfo.Currency)
-	require.Len(t, data.WeaponSlotsData.Slots, 5)
+	require.Len(t, data.HandSlotsData.Slots, 5)
 	assert.Equal(t, 800, data.MacroMap.Screen.Width)
 }
 

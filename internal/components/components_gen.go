@@ -96,7 +96,7 @@ type EntitySpec struct {
 	Dungeon            *Dungeon
 	TurnState          *TurnState
 	SpatialIndex       *SpatialIndex
-	WeaponSelection    *WeaponSelection
+	HandSelection      *HandSelection
 	GameTime           *GameTime
 	Weather            *Weather
 	PlayTime           *PlayTime
@@ -197,7 +197,7 @@ type Components struct {
 	Dungeon            *ecs.Map[Dungeon]
 	TurnState          *ecs.Map[TurnState]
 	SpatialIndex       *ecs.Map[SpatialIndex]
-	WeaponSelection    *ecs.Map[WeaponSelection]
+	HandSelection      *ecs.Map[HandSelection]
 	GameTime           *ecs.Map[GameTime]
 	Weather            *ecs.Map[Weather]
 	PlayTime           *ecs.Map[PlayTime]
@@ -298,7 +298,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Dungeon = ecs.NewMap[Dungeon](world)
 	c.TurnState = ecs.NewMap[TurnState](world)
 	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
-	c.WeaponSelection = ecs.NewMap[WeaponSelection](world)
+	c.HandSelection = ecs.NewMap[HandSelection](world)
 	c.GameTime = ecs.NewMap[GameTime](world)
 	c.Weather = ecs.NewMap[Weather](world)
 	c.PlayTime = ecs.NewMap[PlayTime](world)
@@ -401,7 +401,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Dungeon, entity, spec.Dungeon)
 	addComp(c.TurnState, entity, spec.TurnState)
 	addComp(c.SpatialIndex, entity, spec.SpatialIndex)
-	addComp(c.WeaponSelection, entity, spec.WeaponSelection)
+	addComp(c.HandSelection, entity, spec.HandSelection)
 	addComp(c.GameTime, entity, spec.GameTime)
 	addComp(c.Weather, entity, spec.Weather)
 	addComp(c.PlayTime, entity, spec.PlayTime)

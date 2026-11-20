@@ -7,14 +7,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestWeaponSelection_Validate(t *testing.T) {
+func TestHandSelection_Validate(t *testing.T) {
 	t.Parallel()
 
 	for _, s := range []EquipmentSlotNumber{SlotHand1, SlotHand5} {
-		require.NoError(t, WeaponSelection{Slot: s}.Validate(), s)
+		require.NoError(t, HandSelection{Slot: s}.Validate(), s)
 	}
 	for _, s := range []EquipmentSlotNumber{-1, SlotJewelry, SlotHand5 + 1} {
-		assert.Error(t, WeaponSelection{Slot: s}.Validate(), s)
+		assert.Error(t, HandSelection{Slot: s}.Validate(), s)
 	}
 }
 

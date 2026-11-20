@@ -13,34 +13,34 @@ func IsHoldable(world w.World, entity ecs.Entity) bool {
 	return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
 }
 
-// GetHeld は手持ちの欄ごとの物を、SlotHand1 から順に並べて返す。空きスロットは nil
+// GetHeld は手持ちの欄ごとの物を、SlotHand1 から順に並べて返す。空いた欄は nil
 func GetHeld(world w.World, owner ecs.Entity) [gc.HandSlotCount]*ecs.Entity {
-	var weapons [gc.HandSlotCount]*ecs.Entity
+	var held [gc.HandSlotCount]*ecs.Entity
 
-	weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
-	for weaponsQuery.Next() {
-		entity := weaponsQuery.Entity()
+	heldQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
+	for heldQuery.Next() {
+		entity := heldQuery.Entity()
 		if !IsHoldable(world, entity) {
 			continue
 		}
 		equipped := world.Components.LocationEquipped.Get(entity)
 		if owner == equipped.Owner {
 			if i, ok := equipped.EquipmentSlot.HandIndex(); ok {
-				weapons[i] = &entity
+				held[i] = &entity
 			}
 		}
 	}
 
-	return weapons
+	return held
 }
 
-// SelectedWeapon は owner が選択中の手持ちの欄に装備している武器を返す。空きスロットなら ok は偽。
+// SelectedWeapon は owner が選択中の手持ちの欄に装備している武器を返す。空いた欄なら ok は偽。
 // 選択が手持ちの欄であることはロードの検査と数字キーの処理が保証するので、破れていれば panic する
 func SelectedWeapon(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
-	slot := GetWeaponSelection(world).Slot
+	slot := GetHandSelection(world).Slot
 	i, ok := slot.HandIndex()
 	if !ok {
-		panic(fmt.Sprintf("weapon selection is not a weapon slot: %d", slot))
+		panic(fmt.Sprintf("hand selection is not a hand slot: %d", slot))
 	}
 	weapon := GetHeld(world, owner)[i]
 	if weapon == nil {

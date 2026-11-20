@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestApplyEquipChoice_空きスロットに候補を装着する(t *testing.T) {
+func TestApplyEquipChoice_空いた欄に候補を装着する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -24,12 +24,12 @@ func TestApplyEquipChoice_空きスロットに候補を装着する(t *testing.
 	sword, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
 	require.NoError(t, err)
 
-	// 武器2スロットは空き。初期装備の松明が居る武器1を避ける
+	// 手持ちの欄2は空き。初期装備の松明が居る武器1を避ける
 	err = applyEquipChoice(world, equipChoice{entity: sword}, gc.SlotHand2, player, nil)
 	require.NoError(t, err)
 
 	weapons := query.GetHeld(world, player)
-	require.NotNil(t, weapons[1], "武器2スロットが埋まる")
+	require.NotNil(t, weapons[1], "手持ちの欄2が埋まる")
 	assert.Equal(t, sword, *weapons[1], "装着したのは鉄の剣")
 	assert.False(t, world.Components.LocationInBackpack.Has(sword), "装着後は持ち物から外れる")
 }
@@ -48,7 +48,7 @@ func TestApplyEquipChoice_装備済みを外す(t *testing.T) {
 
 	assert.True(t, world.Components.LocationInBackpack.Has(equipped), "外すと装備が持ち物へ戻る")
 	weapons = query.GetHeld(world, player)
-	assert.Nil(t, weapons[0], "外したので武器1スロットは空く")
+	assert.Nil(t, weapons[0], "外したので手持ちの欄1は空く")
 }
 
 func TestApplyEquipChoice_装備済みを候補で差し替える(t *testing.T) {
@@ -68,8 +68,8 @@ func TestApplyEquipChoice_装備済みを候補で差し替える(t *testing.T) 
 	assert.True(t, world.Components.LocationInBackpack.Has(old), "旧装備が持ち物へ戻る")
 	assert.False(t, world.Components.LocationInBackpack.Has(fresh), "新装備が持ち物から外れる")
 	weapons = query.GetHeld(world, player)
-	require.NotNil(t, weapons[0], "武器1スロットが埋まる")
-	assert.Equal(t, fresh, *weapons[0], "武器1スロットは差し替え後の武器")
+	require.NotNil(t, weapons[0], "手持ちの欄1が埋まる")
+	assert.Equal(t, fresh, *weapons[0], "手持ちの欄1は差し替え後の武器")
 }
 
 func TestApplyEquipChoice_外す対象が無ければ何もしない(t *testing.T) {
@@ -81,7 +81,7 @@ func TestApplyEquipChoice_外す対象が無ければ何もしない(t *testing.
 	// 外すを選んでも現装備が無ければ無害
 	require.NoError(t, applyEquipChoice(world, equipChoice{unequip: true}, gc.SlotHand2, player, nil))
 	weapons := query.GetHeld(world, player)
-	assert.Nil(t, weapons[1], "武器2スロットは空きのまま")
+	assert.Nil(t, weapons[1], "手持ちの欄2は空きのまま")
 }
 
 func TestEquipChoiceAt_装備済みは先頭が外すで候補がずれる(t *testing.T) {
@@ -89,11 +89,11 @@ func TestEquipChoiceAt_装備済みは先頭が外すで候補がずれる(t *te
 	sword := ecs.Entity{}
 	prev := ecs.Entity{}
 
-	// 空スロットは先頭から候補が並ぶ
+	// 空いた欄は先頭から候補が並ぶ
 	empty := EquipSelectProps{Items: []ecs.Entity{sword}}
 	c, ok := equipChoiceAt(empty, 0)
 	require.True(t, ok)
-	assert.False(t, c.unequip, "空スロットの index0 は候補")
+	assert.False(t, c.unequip, "空いた欄の index0 は候補")
 
 	// 装備済みは index0 が外す、index1 から候補
 	occupied := EquipSelectProps{Items: []ecs.Entity{sword}, PreviousEquipment: &prev}
