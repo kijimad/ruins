@@ -174,9 +174,9 @@ func remedyTarget(hs *gc.HealthStatus, remedy *gc.Remedy) (gc.BodyPart, *gc.Heal
 	return bestPart, best
 }
 
-// applyRemedy は治療を適用する。最も重い一致不調を治療済みにする。
+// applyRemedy は remedyTarget が選んだ不調を治療済みにする。
 // 治療は即座には治さず、TendQuality を立てて回復軌道へ乗せるだけ。実際の回復は ConditionSystem が進める。
-// 治療した不調があれば true を返す。一致する不調が無ければ何もせず false を返す
+// 治療した不調があれば true を返す。選べる不調が無ければ何もせず false を返す
 func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *gc.Remedy, item ecs.Entity) bool {
 	if !world.Components.HealthStatus.Has(actor) {
 		return false

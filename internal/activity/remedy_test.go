@@ -198,6 +198,32 @@ func TestUseItemBehavior_Validate_治療で質が上がる傷が無ければ使�
 	}
 }
 
+func TestRemedyTarget_選んだ不調の部位を返す(t *testing.T) {
+	t.Parallel()
+
+	hs := &gc.HealthStatus{}
+	hs.Parts[gc.BodyPartArms].AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 50})
+	hs.Parts[gc.BodyPartLegs].AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 20, Severity: gc.TimerToSeverity(20)})
+	hs.Parts[gc.BodyPartLegs].AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 40, Severity: gc.TimerToSeverity(40)})
+	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 100}
+
+	part, c := remedyTarget(hs, remedy)
+	require.NotNil(t, c)
+	assert.Equal(t, gc.BodyPartLegs, part)
+	assert.Same(t, &hs.Parts[gc.BodyPartLegs].Conditions[1], c)
+}
+
+func TestRemedyTarget_選べる不調が無ければnil(t *testing.T) {
+	t.Parallel()
+
+	hs := &gc.HealthStatus{}
+	hs.Parts[gc.BodyPartArms].AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 100})
+	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 100}
+
+	_, c := remedyTarget(hs, remedy)
+	assert.Nil(t, c)
+}
+
 func TestIsRemedyOnly(t *testing.T) {
 	t.Parallel()
 
