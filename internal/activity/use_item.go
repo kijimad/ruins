@@ -149,10 +149,11 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	return nil
 }
 
-// remedyTarget は Treats に一致し、治療の質が remedy より低い不調から治療の対象を1つ選ぶ。無ければ nil。
+// remedyTarget は Treats に一致し、治療の質が remedy より低い不調から治療の対象を1つ選び、その部位と一緒に返す。無ければ nil。
 // 未治療の不調を先にし、その中で最も重いものを選ぶ。未治療なら止血と痛みが収まり、治療済みを巻き直しても速さしか上がらない。
 // 質の高い治療を質の低い物で上書きさせない。Validate の使用可否判定と applyRemedy の適用が同じ探索を共有する
-func remedyTarget(hs *gc.HealthStatus, remedy *gc.Remedy) *gc.HealthCondition {
+func remedyTarget(hs *gc.HealthStatus, remedy *gc.Remedy) (gc.BodyPart, *gc.HealthCondition) {
+	var bestPart gc.BodyPart
 	var best *gc.HealthCondition
 	for i := range hs.Parts {
 		for j := range hs.Parts[i].Conditions {
@@ -161,16 +162,16 @@ func remedyTarget(hs *gc.HealthStatus, remedy *gc.Remedy) *gc.HealthCondition {
 				continue
 			}
 			if best == nil {
-				best = c
+				bestPart, best = gc.BodyPart(i), c
 				continue
 			}
 			untreated, bestUntreated := c.TendQuality == 0, best.TendQuality == 0
 			if (untreated && !bestUntreated) || (untreated == bestUntreated && c.Severity > best.Severity) {
-				best = c
+				bestPart, best = gc.BodyPart(i), c
 			}
 		}
 	}
-	return best
+	return bestPart, best
 }
 
 // applyRemedy は治療を適用する。最も重い一致不調を治療済みにする。
@@ -180,12 +181,12 @@ func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *g
 	if !world.Components.HealthStatus.Has(actor) {
 		return false
 	}
-	best := remedyTarget(world.Components.HealthStatus.Get(actor), remedy)
+	part, best := remedyTarget(world.Components.HealthStatus.Get(actor), remedy)
 	if best == nil {
 		return false
 	}
 	best.TendQuality = remedy.Potency
-	u.logRemedy(actor, world, item, best.Type)
+	u.logRemedy(actor, world, item, part, best.Type)
 	return true
 }
 
@@ -206,8 +207,8 @@ func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
 	return true
 }
 
-// logRemedy は治療したことをログに出す。プレイヤーが使ったときだけ出す
-func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.Entity, treated gc.ConditionType) {
+// logRemedy は治療した部位と不調をログに出す。プレイヤーが使ったときだけ出す
+func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.Entity, part gc.BodyPart, treated gc.ConditionType) {
 	if !world.Components.Player.Has(actor) {
 		return
 	}
@@ -215,7 +216,7 @@ func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.En
 	itemMarkup := gamelog.Tag("item", u.getItemName(item, world))
 	condName := query.ConditionName(world, treated)
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "%s used %s and treated %s.", actorMarkup, itemMarkup, condName)).
+		Markup(query.T(world, "%s used %s on the %s and treated %s.", actorMarkup, itemMarkup, query.BodyPartName(world, part), condName)).
 		Log()
 }
 
