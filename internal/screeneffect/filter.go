@@ -1,6 +1,10 @@
 package screeneffect
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"image"
+
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
 // Filter は画面エフェクトのインターフェース
 type Filter interface {
@@ -72,8 +76,10 @@ func (p *Pipeline) ensureScratch(width, height int) {
 	if p.scratch[0] != nil && p.lastW == width && p.lastH == height {
 		return
 	}
-	p.scratch[0] = ebiten.NewImage(width, height)
-	p.scratch[1] = ebiten.NewImage(width, height)
+	// 描画の結果を受ける中間バッファは、アトラスの配置で画素が変わらないよう unmanaged にする
+	opts := &ebiten.NewImageOptions{Unmanaged: true}
+	p.scratch[0] = ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), opts)
+	p.scratch[1] = ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), opts)
 	p.lastW = width
 	p.lastH = height
 }
