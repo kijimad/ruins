@@ -1,6 +1,8 @@
 package maingame
 
 import (
+	"image"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/screeneffect"
@@ -43,7 +45,8 @@ func (r *renderer) ensureFrame(width, height int) {
 	if r.frame != nil && r.frameW == width && r.frameH == height {
 		return
 	}
-	r.frame = ebiten.NewImage(width, height)
+	// アトラスに載ると配置で画素がずれるので unmanaged にする
+	r.frame = ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), &ebiten.NewImageOptions{Unmanaged: true})
 	r.frameW = width
 	r.frameH = height
 }

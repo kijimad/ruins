@@ -15,7 +15,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		PainPerSeverity:         6,
 		BodyFuncDropPerSeverity: 10,
 		BloodDropPerSeverity:    22,
-		Cause:                   CauseFrozen,
+		Cause:                   CauseHypothermia,
 		Onset:                   rawschema.Cold,
 	},
 	ConditionType("fracture"): {
