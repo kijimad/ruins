@@ -246,6 +246,19 @@ func TestApplyRemedy_ログに部位と不調を出す(t *testing.T) {
 	assert.Equal(t, "Ash used Rag on the Leg and treated Laceration.", recent[0])
 }
 
+func TestRemedyTarget_発症前の未治療より治療済みの重い傷を選ぶ(t *testing.T) {
+	t.Parallel()
+
+	hs := &gc.HealthStatus{}
+	hs.Parts[gc.BodyPartArms].AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 80, Severity: gc.TimerToSeverity(80), TendQuality: 50})
+	hs.Parts[gc.BodyPartLegs].AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 20, Severity: gc.TimerToSeverity(20)})
+	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 100}
+
+	part, c := remedyTarget(hs, remedy)
+	require.NotNil(t, c)
+	assert.Equal(t, gc.BodyPartArms, part)
+}
+
 func TestIsRemedyOnly(t *testing.T) {
 	t.Parallel()
 
