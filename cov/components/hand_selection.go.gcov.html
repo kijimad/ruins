@@ -4,7 +4,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>LCOV - coverage.lcov - components/weapon_selection.go</title>
+  <title>LCOV - coverage.lcov - components/hand_selection.go</title>
   <link rel="stylesheet" type="text/css" href="../gcov.css">
 </head>
 
@@ -19,7 +19,7 @@
                 <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory components">components</a> - weapon_selection.go</td>
+            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory components">components</a> - hand_selection.go</td>
             <td width="5%"></td>
             <td width="5%"></td>
             <td width="5%" class="headerCovTableHead">Coverage</td>
@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-20 15:07:01</td>
+            <td class="headerValue">2026-11-20 17:07:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,17 +64,17 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import &quot;fmt&quot;</span>
 <span id="L4"><span class="lineNum">       4</span>              : </span>
-<span id="L5"><span class="lineNum">       5</span>              : // WeaponSelection はプレイヤーが選択中の武器スロットを保持するシングルトン。</span>
+<span id="L5"><span class="lineNum">       5</span>              : // HandSelection はプレイヤーが選択中の手持ち欄を保持するシングルトン。</span>
 <span id="L6"><span class="lineNum">       6</span>              : // 現在地と無関係な戦闘 UI 状態を独立して持つ。</span>
-<span id="L7"><span class="lineNum">       7</span>              : type WeaponSelection struct {</span>
-<span id="L8"><span class="lineNum">       8</span>              :         // Slot は選択中の武器スロット。SlotWeapon1 から SlotWeapon5</span>
+<span id="L7"><span class="lineNum">       7</span>              : type HandSelection struct {</span>
+<span id="L8"><span class="lineNum">       8</span>              :         // Slot は選択中の手持ち欄。SlotHand1 から SlotHand5</span>
 <span id="L9"><span class="lineNum">       9</span>              :         Slot EquipmentSlotNumber</span>
 <span id="L10"><span class="lineNum">      10</span>              : }</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // Validate は選択中の武器スロットが SlotWeapon1 から SlotWeapon5 の間にあるかを検査する。ロード直後など信頼できない入力に使う</span>
-<span id="L13"><span class="lineNum">      13</span>              : func (s WeaponSelection) Validate() error {</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         if _, ok := s.Slot.WeaponIndex(); !ok {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;weapon selection slot is not a weapon slot: %d&quot;, s.Slot)</span></span>
+<span id="L12"><span class="lineNum">      12</span>              : // Validate は選択中の手持ち欄が SlotHand1 から SlotHand5 の間にあるかを検査する。ロード直後など信頼できない入力に使う</span>
+<span id="L13"><span class="lineNum">      13</span>              : func (s HandSelection) Validate() error {</span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         if _, ok := s.Slot.HandIndex(); !ok {</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;hand selection slot is not a hand slot: %d&quot;, s.Slot)</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L18"><span class="lineNum">      18</span>              : }</span>

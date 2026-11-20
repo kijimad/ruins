@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-20 15:07:01</td>
+            <td class="headerValue">2026-11-20 17:07:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -924,22 +924,22 @@
 <span id="L862"><span class="lineNum">     862</span>              :         Vitality Vitality `json:&quot;vitality&quot;`</span>
 <span id="L863"><span class="lineNum">     863</span>              : }</span>
 <span id="L864"><span class="lineNum">     864</span>              : </span>
-<span id="L865"><span class="lineNum">     865</span>              : // EquipSlot 装備スロット。防具部位 + 武器スロット</span>
+<span id="L865"><span class="lineNum">     865</span>              : // EquipSlot 装備スロット。防具部位 + 手持ち欄</span>
 <span id="L866"><span class="lineNum">     866</span>              : type EquipSlot string</span>
 <span id="L867"><span class="lineNum">     867</span>              : </span>
 <span id="L868"><span class="lineNum">     868</span>              : // Defines values for EquipSlot.</span>
 <span id="L869"><span class="lineNum">     869</span>              : const (</span>
-<span id="L870"><span class="lineNum">     870</span>              :         EquipSlotARMS    EquipSlot = &quot;ARMS&quot;</span>
-<span id="L871"><span class="lineNum">     871</span>              :         EquipSlotFEET    EquipSlot = &quot;FEET&quot;</span>
-<span id="L872"><span class="lineNum">     872</span>              :         EquipSlotHANDS   EquipSlot = &quot;HANDS&quot;</span>
-<span id="L873"><span class="lineNum">     873</span>              :         EquipSlotHEAD    EquipSlot = &quot;HEAD&quot;</span>
-<span id="L874"><span class="lineNum">     874</span>              :         EquipSlotLEGS    EquipSlot = &quot;LEGS&quot;</span>
-<span id="L875"><span class="lineNum">     875</span>              :         EquipSlotTORSO   EquipSlot = &quot;TORSO&quot;</span>
-<span id="L876"><span class="lineNum">     876</span>              :         EquipSlotWEAPON1 EquipSlot = &quot;WEAPON1&quot;</span>
-<span id="L877"><span class="lineNum">     877</span>              :         EquipSlotWEAPON2 EquipSlot = &quot;WEAPON2&quot;</span>
-<span id="L878"><span class="lineNum">     878</span>              :         EquipSlotWEAPON3 EquipSlot = &quot;WEAPON3&quot;</span>
-<span id="L879"><span class="lineNum">     879</span>              :         EquipSlotWEAPON4 EquipSlot = &quot;WEAPON4&quot;</span>
-<span id="L880"><span class="lineNum">     880</span>              :         EquipSlotWEAPON5 EquipSlot = &quot;WEAPON5&quot;</span>
+<span id="L870"><span class="lineNum">     870</span>              :         EquipSlotARMS  EquipSlot = &quot;ARMS&quot;</span>
+<span id="L871"><span class="lineNum">     871</span>              :         EquipSlotFEET  EquipSlot = &quot;FEET&quot;</span>
+<span id="L872"><span class="lineNum">     872</span>              :         EquipSlotHAND1 EquipSlot = &quot;HAND1&quot;</span>
+<span id="L873"><span class="lineNum">     873</span>              :         EquipSlotHAND2 EquipSlot = &quot;HAND2&quot;</span>
+<span id="L874"><span class="lineNum">     874</span>              :         EquipSlotHAND3 EquipSlot = &quot;HAND3&quot;</span>
+<span id="L875"><span class="lineNum">     875</span>              :         EquipSlotHAND4 EquipSlot = &quot;HAND4&quot;</span>
+<span id="L876"><span class="lineNum">     876</span>              :         EquipSlotHAND5 EquipSlot = &quot;HAND5&quot;</span>
+<span id="L877"><span class="lineNum">     877</span>              :         EquipSlotHANDS EquipSlot = &quot;HANDS&quot;</span>
+<span id="L878"><span class="lineNum">     878</span>              :         EquipSlotHEAD  EquipSlot = &quot;HEAD&quot;</span>
+<span id="L879"><span class="lineNum">     879</span>              :         EquipSlotLEGS  EquipSlot = &quot;LEGS&quot;</span>
+<span id="L880"><span class="lineNum">     880</span>              :         EquipSlotTORSO EquipSlot = &quot;TORSO&quot;</span>
 <span id="L881"><span class="lineNum">     881</span>              : )</span>
 <span id="L882"><span class="lineNum">     882</span>              : </span>
 <span id="L883"><span class="lineNum">     883</span>              : // Valid indicates whether the value is a known member of the EquipSlot enum.</span>
@@ -949,23 +949,23 @@
 <span id="L887"><span class="lineNum">     887</span> <span class="tlaUNC">           0 :                 return true</span></span>
 <span id="L888"><span class="lineNum">     888</span>              :         case EquipSlotFEET:</span>
 <span id="L889"><span class="lineNum">     889</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L890"><span class="lineNum">     890</span>              :         case EquipSlotHANDS:</span>
+<span id="L890"><span class="lineNum">     890</span>              :         case EquipSlotHAND1:</span>
 <span id="L891"><span class="lineNum">     891</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L892"><span class="lineNum">     892</span>              :         case EquipSlotHEAD:</span>
+<span id="L892"><span class="lineNum">     892</span>              :         case EquipSlotHAND2:</span>
 <span id="L893"><span class="lineNum">     893</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L894"><span class="lineNum">     894</span>              :         case EquipSlotLEGS:</span>
+<span id="L894"><span class="lineNum">     894</span>              :         case EquipSlotHAND3:</span>
 <span id="L895"><span class="lineNum">     895</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L896"><span class="lineNum">     896</span>              :         case EquipSlotTORSO:</span>
+<span id="L896"><span class="lineNum">     896</span>              :         case EquipSlotHAND4:</span>
 <span id="L897"><span class="lineNum">     897</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L898"><span class="lineNum">     898</span>              :         case EquipSlotWEAPON1:</span>
+<span id="L898"><span class="lineNum">     898</span>              :         case EquipSlotHAND5:</span>
 <span id="L899"><span class="lineNum">     899</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L900"><span class="lineNum">     900</span>              :         case EquipSlotWEAPON2:</span>
+<span id="L900"><span class="lineNum">     900</span>              :         case EquipSlotHANDS:</span>
 <span id="L901"><span class="lineNum">     901</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L902"><span class="lineNum">     902</span>              :         case EquipSlotWEAPON3:</span>
+<span id="L902"><span class="lineNum">     902</span>              :         case EquipSlotHEAD:</span>
 <span id="L903"><span class="lineNum">     903</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L904"><span class="lineNum">     904</span>              :         case EquipSlotWEAPON4:</span>
+<span id="L904"><span class="lineNum">     904</span>              :         case EquipSlotLEGS:</span>
 <span id="L905"><span class="lineNum">     905</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L906"><span class="lineNum">     906</span>              :         case EquipSlotWEAPON5:</span>
+<span id="L906"><span class="lineNum">     906</span>              :         case EquipSlotTORSO:</span>
 <span id="L907"><span class="lineNum">     907</span> <span class="tlaUNC">           0 :                 return true</span></span>
 <span id="L908"><span class="lineNum">     908</span>              :         default:</span>
 <span id="L909"><span class="lineNum">     909</span> <span class="tlaUNC">           0 :                 return false</span></span>
@@ -974,7 +974,7 @@
 <span id="L912"><span class="lineNum">     912</span>              : </span>
 <span id="L913"><span class="lineNum">     913</span>              : // EquipSlotValues は EquipSlot の値を、スキーマに書いた順に返す。</span>
 <span id="L914"><span class="lineNum">     914</span>              : func EquipSlotValues() []EquipSlot {</span>
-<span id="L915"><span class="lineNum">     915</span> <span class="tlaUNC">           0 :         return []EquipSlot{EquipSlotHEAD, EquipSlotTORSO, EquipSlotARMS, EquipSlotHANDS, EquipSlotLEGS, EquipSlotFEET, EquipSlotWEAPON1, EquipSlotWEAPON2, EquipSlotWEAPON3, EquipSlotWEAPON4, EquipSlotWEAPON5}</span></span>
+<span id="L915"><span class="lineNum">     915</span> <span class="tlaUNC">           0 :         return []EquipSlot{EquipSlotHEAD, EquipSlotTORSO, EquipSlotARMS, EquipSlotHANDS, EquipSlotLEGS, EquipSlotFEET, EquipSlotHAND1, EquipSlotHAND2, EquipSlotHAND3, EquipSlotHAND4, EquipSlotHAND5}</span></span>
 <span id="L916"><span class="lineNum">     916</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L917"><span class="lineNum">     917</span>              : </span>
 <span id="L918"><span class="lineNum">     918</span>              : // EquipmentCategory 装備部位</span>

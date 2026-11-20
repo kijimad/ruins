@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-20 15:07:01</td>
+            <td class="headerValue">2026-11-20 17:07:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -99,8 +99,8 @@
 <span id="L37"><span class="lineNum">      37</span>              :         errNoSingleton = errors.New(&quot;restored data has no singleton entity that holds Dungeon&quot;)</span>
 <span id="L38"><span class="lineNum">      38</span>              :         // errInvalidStageKey は復元したステージキーが不正なときに返す</span>
 <span id="L39"><span class="lineNum">      39</span>              :         errInvalidStageKey = errors.New(&quot;restored stage key is invalid&quot;)</span>
-<span id="L40"><span class="lineNum">      40</span>              :         // errInvalidWeaponSelection は復元した武器の選択が不正なときに返す</span>
-<span id="L41"><span class="lineNum">      41</span>              :         errInvalidWeaponSelection = errors.New(&quot;restored weapon selection is invalid&quot;)</span>
+<span id="L40"><span class="lineNum">      40</span>              :         // errInvalidHandSelection は復元した手持ち欄の選択が不正なときに返す</span>
+<span id="L41"><span class="lineNum">      41</span>              :         errInvalidHandSelection = errors.New(&quot;restored hand selection is invalid&quot;)</span>
 <span id="L42"><span class="lineNum">      42</span>              : )</span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span>              : // Option はSerializationManagerの設定を変更する関数</span>
@@ -239,12 +239,12 @@
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;failed to reestablish singleton: %w&quot;, err)</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L179"><span class="lineNum">     179</span>              : </span>
-<span id="L180"><span class="lineNum">     180</span>              :         // 信頼境界。復元したステージキーと武器の選択の整合を検査する</span>
+<span id="L180"><span class="lineNum">     180</span>              :         // 信頼境界。復元したステージキーと手持ち欄の選択の整合を検査する</span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         if err := validateStages(world); err != nil {</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;failed to validate stages: %w&quot;, err)</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         if err := validateWeaponSelection(world); err != nil {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;failed to validate weapon selection: %w&quot;, err)</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         if err := validateHandSelection(world); err != nil {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;failed to validate hand selection: %w&quot;, err)</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L188"><span class="lineNum">     188</span>              : }</span>

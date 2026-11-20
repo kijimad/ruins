@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-20 15:07:01</td>
+            <td class="headerValue">2026-11-20 17:07:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -120,12 +120,12 @@
 <span id="L58"><span class="lineNum">      58</span>              :         // 待機・足元の相互作用</span>
 <span id="L59"><span class="lineNum">      59</span>              :         {Key: ebiten.KeyPeriod, Press: keybind.PressRepeat, Action: inputmapper.ActionWait, Label: &quot;Wait&quot;},</span>
 <span id="L60"><span class="lineNum">      60</span>              :         {Key: ebiten.KeyEnter, Action: inputmapper.ActionInteract, Label: &quot;Use here&quot;},</span>
-<span id="L61"><span class="lineNum">      61</span>              :         // 武器スロット切り替え。同じラベルの連続行なのでヒントでは 12345 と連結される</span>
-<span id="L62"><span class="lineNum">      62</span>              :         {Key: ebiten.Key1, Action: inputmapper.ActionSwitchWeaponSlot1, Label: &quot;Weapon slot&quot;},</span>
-<span id="L63"><span class="lineNum">      63</span>              :         {Key: ebiten.Key2, Action: inputmapper.ActionSwitchWeaponSlot2, Label: &quot;Weapon slot&quot;},</span>
-<span id="L64"><span class="lineNum">      64</span>              :         {Key: ebiten.Key3, Action: inputmapper.ActionSwitchWeaponSlot3, Label: &quot;Weapon slot&quot;},</span>
-<span id="L65"><span class="lineNum">      65</span>              :         {Key: ebiten.Key4, Action: inputmapper.ActionSwitchWeaponSlot4, Label: &quot;Weapon slot&quot;},</span>
-<span id="L66"><span class="lineNum">      66</span>              :         {Key: ebiten.Key5, Action: inputmapper.ActionSwitchWeaponSlot5, Label: &quot;Weapon slot&quot;},</span>
+<span id="L61"><span class="lineNum">      61</span>              :         // 手持ち欄の切り替え。同じラベルの連続行なのでヒントでは 12345 と連結される</span>
+<span id="L62"><span class="lineNum">      62</span>              :         {Key: ebiten.Key1, Action: inputmapper.ActionSwitchHandSlot1, Label: &quot;Hand slot&quot;},</span>
+<span id="L63"><span class="lineNum">      63</span>              :         {Key: ebiten.Key2, Action: inputmapper.ActionSwitchHandSlot2, Label: &quot;Hand slot&quot;},</span>
+<span id="L64"><span class="lineNum">      64</span>              :         {Key: ebiten.Key3, Action: inputmapper.ActionSwitchHandSlot3, Label: &quot;Hand slot&quot;},</span>
+<span id="L65"><span class="lineNum">      65</span>              :         {Key: ebiten.Key4, Action: inputmapper.ActionSwitchHandSlot4, Label: &quot;Hand slot&quot;},</span>
+<span id="L66"><span class="lineNum">      66</span>              :         {Key: ebiten.Key5, Action: inputmapper.ActionSwitchHandSlot5, Label: &quot;Hand slot&quot;},</span>
 <span id="L67"><span class="lineNum">      67</span>              :         // キー一覧ヘルプ</span>
 <span id="L68"><span class="lineNum">      68</span>              :         {Key: ebiten.KeySlash, Shift: keybind.ShiftRequired, Action: inputmapper.ActionOpenKeyHelp, Label: &quot;Help&quot;},</span>
 <span id="L69"><span class="lineNum">      69</span>              : }</span>
@@ -281,21 +281,21 @@
 <span id="L219"><span class="lineNum">     219</span>              :                 }</span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L221"><span class="lineNum">     221</span>              : </span>
-<span id="L222"><span class="lineNum">     222</span>              :         // 武器スロット切り替え系アクション</span>
-<span id="L223"><span class="lineNum">     223</span>              :         case inputmapper.ActionSwitchWeaponSlot1:</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 st.switchWeaponSlot(world, gc.SlotWeapon1)</span></span>
+<span id="L222"><span class="lineNum">     222</span>              :         // 手持ち欄の切り替え系アクション</span>
+<span id="L223"><span class="lineNum">     223</span>              :         case inputmapper.ActionSwitchHandSlot1:</span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 st.switchHandSlot(world, gc.SlotHand1)</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
-<span id="L226"><span class="lineNum">     226</span>              :         case inputmapper.ActionSwitchWeaponSlot2:</span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 st.switchWeaponSlot(world, gc.SlotWeapon2)</span></span>
+<span id="L226"><span class="lineNum">     226</span>              :         case inputmapper.ActionSwitchHandSlot2:</span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 st.switchHandSlot(world, gc.SlotHand2)</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
-<span id="L229"><span class="lineNum">     229</span>              :         case inputmapper.ActionSwitchWeaponSlot3:</span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                 st.switchWeaponSlot(world, gc.SlotWeapon3)</span></span>
+<span id="L229"><span class="lineNum">     229</span>              :         case inputmapper.ActionSwitchHandSlot3:</span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                 st.switchHandSlot(world, gc.SlotHand3)</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
-<span id="L232"><span class="lineNum">     232</span>              :         case inputmapper.ActionSwitchWeaponSlot4:</span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 st.switchWeaponSlot(world, gc.SlotWeapon4)</span></span>
+<span id="L232"><span class="lineNum">     232</span>              :         case inputmapper.ActionSwitchHandSlot4:</span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 st.switchHandSlot(world, gc.SlotHand4)</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
-<span id="L235"><span class="lineNum">     235</span>              :         case inputmapper.ActionSwitchWeaponSlot5:</span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 st.switchWeaponSlot(world, gc.SlotWeapon5)</span></span>
+<span id="L235"><span class="lineNum">     235</span>              :         case inputmapper.ActionSwitchHandSlot5:</span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 st.switchHandSlot(world, gc.SlotHand5)</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L238"><span class="lineNum">     238</span>              : </span>
 <span id="L239"><span class="lineNum">     239</span>              :         default:</span>
@@ -402,11 +402,11 @@
 <span id="L340"><span class="lineNum">     340</span>              :         }</span>
 <span id="L341"><span class="lineNum">     341</span>              : }</span>
 <span id="L342"><span class="lineNum">     342</span>              : </span>
-<span id="L343"><span class="lineNum">     343</span>              : // switchWeaponSlot は武器スロット slot に武器を切り替える</span>
-<span id="L344"><span class="lineNum">     344</span>              : func (st *DungeonState) switchWeaponSlot(world w.World, slot gc.EquipmentSlotNumber) {</span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         query.GetWeaponSelection(world).Slot = slot</span></span>
+<span id="L343"><span class="lineNum">     343</span>              : // switchHandSlot は手持ち欄 slot に武器を切り替える</span>
+<span id="L344"><span class="lineNum">     344</span>              : func (st *DungeonState) switchHandSlot(world w.World, slot gc.EquipmentSlotNumber) {</span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         query.GetHandSelection(world).Slot = slot</span></span>
 <span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L347"><span class="lineNum">     347</span>              :         // プレイヤーの武器スロット情報を取得してログメッセージを出力</span>
+<span id="L347"><span class="lineNum">     347</span>              :         // プレイヤーの手持ち欄の情報を取得してログメッセージを出力</span>
 <span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         query.Player(world, func(playerEntity ecs.Entity) {</span></span>
 <span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :                 if weapon, ok := query.SelectedWeapon(world, playerEntity); ok {</span></span>
 <span id="L350"><span class="lineNum">     350</span>              :                         // 武器が装備されている場合は武器名を表示</span>

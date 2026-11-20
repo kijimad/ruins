@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-20 15:07:01</td>
+            <td class="headerValue">2026-11-20 17:07:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,7 +90,7 @@
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 MacroMap:         extractMacroMapData(world),</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 DebugOverlay:     extractDebugOverlay(world),</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 MessageData:      extractMessageData(world, query.GetGameLog(world)),</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 WeaponSlotsData:  extractWeaponSlotsData(world),</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 HandSlotsData:    extractHandSlotsData(world),</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 StatusBadgesData: extractStatusBadgesData(world, messageAreaHeight),</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              : }</span>
@@ -340,41 +340,41 @@
 <span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L279"><span class="lineNum">     279</span>              : }</span>
 <span id="L280"><span class="lineNum">     280</span>              : </span>
-<span id="L281"><span class="lineNum">     281</span>              : // extractWeaponSlotsData は武器スロットデータを抽出する</span>
-<span id="L282"><span class="lineNum">     282</span>              : func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {</span>
+<span id="L281"><span class="lineNum">     281</span>              : // extractHandSlotsData は手持ち欄データを抽出する</span>
+<span id="L282"><span class="lineNum">     282</span>              : func extractHandSlotsData(world w.World) hud.HandSlotsData {</span>
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         screenDimensions := hud.ScreenDimensions{</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 Width:  world.Resources.ScreenDimensions.Width,</span></span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                 Height: world.Resources.ScreenDimensions.Height,</span></span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L287"><span class="lineNum">     287</span>              : </span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         var slots []hud.WeaponSlotInfo</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         var slots []hud.HandSlotInfo</span></span>
 <span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L290"><span class="lineNum">     290</span>              :         // プレイヤーの武器スロット情報を取得</span>
+<span id="L290"><span class="lineNum">     290</span>              :         // プレイヤーの手持ち欄の情報を取得</span>
 <span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         query.Player(world, func(playerEntity ecs.Entity) {</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 weapons := query.GetWeapons(world, playerEntity)</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 held := query.GetHeld(world, playerEntity)</span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                 for i, weapon := range weapons {</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                         slotNumber := gc.SlotWeapon1 + gc.EquipmentSlotNumber(i)</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                 for i, item := range held {</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                         slotNumber := gc.SlotHand1 + gc.EquipmentSlotNumber(i)</span></span>
 <span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                         var weaponName string</span></span>
 <span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                         var spriteSheet, spriteName string</span></span>
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                         if weapon != nil {</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                         if item != nil {</span></span>
 <span id="L301"><span class="lineNum">     301</span>              :                                 // 武器名を取得</span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                                 if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                                 if nameComp := world.Components.Name.Get(*item); nameComp != nil {</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                                         weaponName = query.T(world, nameComp.Name)</span></span>
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                                 } else {</span></span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                                         weaponName = &quot;???&quot;</span></span>
 <span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                                 }</span></span>
 <span id="L307"><span class="lineNum">     307</span>              : </span>
 <span id="L308"><span class="lineNum">     308</span>              :                                 // スプライト情報を取得</span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                                 if spriteRender := world.Components.SpriteRender.Get(*weapon); spriteRender != nil {</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                                 if spriteRender := world.Components.SpriteRender.Get(*item); spriteRender != nil {</span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                                         spriteSheet = spriteRender.SpriteSheetName</span></span>
 <span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                                         spriteName = spriteRender.SpriteKey</span></span>
 <span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                                 }</span></span>
 <span id="L313"><span class="lineNum">     313</span>              :                         }</span>
 <span id="L314"><span class="lineNum">     314</span>              : </span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                         slots = append(slots, hud.WeaponSlotInfo{</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                         slots = append(slots, hud.HandSlotInfo{</span></span>
 <span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                                 SlotNumber:  slotNumber,</span></span>
 <span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                                 WeaponName:  weaponName,</span></span>
 <span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                                 SpriteSheet: spriteSheet,</span></span>
@@ -383,9 +383,9 @@
 <span id="L321"><span class="lineNum">     321</span>              :                 }</span>
 <span id="L322"><span class="lineNum">     322</span>              :         })</span>
 <span id="L323"><span class="lineNum">     323</span>              : </span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :         return hud.WeaponSlotsData{</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :         return hud.HandSlotsData{</span></span>
 <span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :                 Slots:            slots,</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :                 SelectedSlot:     query.GetWeaponSelection(world).Slot,</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :                 SelectedSlot:     query.GetHandSelection(world).Slot,</span></span>
 <span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 ScreenDimensions: screenDimensions,</span></span>
 <span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L329"><span class="lineNum">     329</span>              : }</span>

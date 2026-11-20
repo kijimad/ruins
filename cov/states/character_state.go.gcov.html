@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-20 15:07:01</td>
+            <td class="headerValue">2026-11-20 17:07:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -327,13 +327,13 @@
 <span id="L265"><span class="lineNum">     265</span>              : func characterEquipSlots(world w.World, character ecs.Entity) []equipItemData {</span>
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         items := make([]equipItemData, 0, 12)</span></span>
 <span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         weapons := query.GetWeapons(world, character)</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         for i, weapon := range weapons {</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         held := query.GetHeld(world, character)</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         for i, item := range held {</span></span>
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 name := &quot;&quot;</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 if weapon != nil {</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                         name = query.GetEntityName(*weapon, world)</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 if item != nil {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                         name = query.GetEntityName(*item, world)</span></span>
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 items = append(items, equipItemData{SlotLabel: query.T(world, &quot;Weapon %d&quot;, i+1), ItemName: name, SlotNumber: gc.SlotWeapon1 + gc.EquipmentSlotNumber(i), Entity: weapon, Character: character})</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 items = append(items, equipItemData{SlotLabel: query.T(world, &quot;Hand %d&quot;, i+1), ItemName: name, SlotNumber: gc.SlotHand1 + gc.EquipmentSlotNumber(i), Entity: item, Character: character})</span></span>
 <span id="L275"><span class="lineNum">     275</span>              :         }</span>
 <span id="L276"><span class="lineNum">     276</span>              : </span>
 <span id="L277"><span class="lineNum">     277</span>              :         // armor・armorLabels・armorSlots は防具7スロットに対応する並行配列。</span>
@@ -355,11 +355,11 @@
 <span id="L293"><span class="lineNum">     293</span>              : // equipableForSlot は指定スロットに装備できるバックパック内アイテムを返す</span>
 <span id="L294"><span class="lineNum">     294</span>              : func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.Entity {</span>
 <span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         items := []ecs.Entity{}</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :         if gc.SlotWeapon1 &lt;= slotNumber &amp;&amp; slotNumber &lt;= gc.SlotWeapon5 {</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :         if _, ok := slotNumber.HandIndex(); ok {</span></span>
 <span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                 q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
 <span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                 for q.Next() {</span></span>
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                         entity := q.Entity()</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                         if !query.IsWeapon(world, entity) {</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                         if !query.IsHoldable(world, entity) {</span></span>
 <span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L302"><span class="lineNum">     302</span>              :                         }</span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                         items = append(items, entity)</span></span>

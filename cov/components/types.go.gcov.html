@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-20 15:07:01</td>
+            <td class="headerValue">2026-11-20 17:07:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -128,22 +128,22 @@
 <span id="L66"><span class="lineNum">      66</span>              :         SlotLegs    EquipmentSlotNumber = 4  // 脚部防具スロット</span>
 <span id="L67"><span class="lineNum">      67</span>              :         SlotFeet    EquipmentSlotNumber = 5  // 足部防具スロット</span>
 <span id="L68"><span class="lineNum">      68</span>              :         SlotJewelry EquipmentSlotNumber = 6  // 装飾品スロット</span>
-<span id="L69"><span class="lineNum">      69</span>              :         SlotWeapon1 EquipmentSlotNumber = 7  // 武器スロット1</span>
-<span id="L70"><span class="lineNum">      70</span>              :         SlotWeapon2 EquipmentSlotNumber = 8  // 武器スロット2</span>
-<span id="L71"><span class="lineNum">      71</span>              :         SlotWeapon3 EquipmentSlotNumber = 9  // 武器スロット3</span>
-<span id="L72"><span class="lineNum">      72</span>              :         SlotWeapon4 EquipmentSlotNumber = 10 // 武器スロット4</span>
-<span id="L73"><span class="lineNum">      73</span>              :         SlotWeapon5 EquipmentSlotNumber = 11 // 武器スロット5</span>
+<span id="L69"><span class="lineNum">      69</span>              :         SlotHand1   EquipmentSlotNumber = 7  // 手持ち欄1</span>
+<span id="L70"><span class="lineNum">      70</span>              :         SlotHand2   EquipmentSlotNumber = 8  // 手持ち欄2</span>
+<span id="L71"><span class="lineNum">      71</span>              :         SlotHand3   EquipmentSlotNumber = 9  // 手持ち欄3</span>
+<span id="L72"><span class="lineNum">      72</span>              :         SlotHand4   EquipmentSlotNumber = 10 // 手持ち欄4</span>
+<span id="L73"><span class="lineNum">      73</span>              :         SlotHand5   EquipmentSlotNumber = 11 // 手持ち欄5</span>
 <span id="L74"><span class="lineNum">      74</span>              : )</span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>
-<span id="L76"><span class="lineNum">      76</span>              : // WeaponSlotCount は武器スロットの数</span>
-<span id="L77"><span class="lineNum">      77</span>              : const WeaponSlotCount = int(SlotWeapon5-SlotWeapon1) + 1</span>
+<span id="L76"><span class="lineNum">      76</span>              : // HandSlotCount は手持ち欄の数</span>
+<span id="L77"><span class="lineNum">      77</span>              : const HandSlotCount = int(SlotHand5-SlotHand1) + 1</span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
-<span id="L79"><span class="lineNum">      79</span>              : // WeaponIndex は武器スロットの、SlotWeapon1 から並べた武器の並びでの添字を返す。武器スロットでなければ ok は偽</span>
-<span id="L80"><span class="lineNum">      80</span>              : func (s EquipmentSlotNumber) WeaponIndex() (int, bool) {</span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         if s &lt; SlotWeapon1 || s &gt; SlotWeapon5 {</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : // HandIndex は手持ち欄の、SlotHand1 を 0 とする添字を返す。手持ち欄でなければ ok は偽</span>
+<span id="L80"><span class="lineNum">      80</span>              : func (s EquipmentSlotNumber) HandIndex() (int, bool) {</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         if s &lt; SlotHand1 || s &gt; SlotHand5 {</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 return 0, false</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         return int(s - SlotWeapon1), true</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         return int(s - SlotHand1), true</span></span>
 <span id="L85"><span class="lineNum">      85</span>              : }</span>
 <span id="L86"><span class="lineNum">      86</span>              : </span>
 <span id="L87"><span class="lineNum">      87</span>              : // Name は装備スロット番号の表示名を返す</span>
@@ -163,16 +163,16 @@
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 return EquipmentCategoryName(rawschema.EquipmentCategoryFEET)</span></span>
 <span id="L102"><span class="lineNum">     102</span>              :         case SlotJewelry:</span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 return EquipmentCategoryName(rawschema.EquipmentCategoryJEWELRY)</span></span>
-<span id="L104"><span class="lineNum">     104</span>              :         case SlotWeapon1:</span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 return &quot;Weapon 1&quot;</span></span>
-<span id="L106"><span class="lineNum">     106</span>              :         case SlotWeapon2:</span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 return &quot;Weapon 2&quot;</span></span>
-<span id="L108"><span class="lineNum">     108</span>              :         case SlotWeapon3:</span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 return &quot;Weapon 3&quot;</span></span>
-<span id="L110"><span class="lineNum">     110</span>              :         case SlotWeapon4:</span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 return &quot;Weapon 4&quot;</span></span>
-<span id="L112"><span class="lineNum">     112</span>              :         case SlotWeapon5:</span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 return &quot;Weapon 5&quot;</span></span>
+<span id="L104"><span class="lineNum">     104</span>              :         case SlotHand1:</span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 return &quot;Hand 1&quot;</span></span>
+<span id="L106"><span class="lineNum">     106</span>              :         case SlotHand2:</span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 return &quot;Hand 2&quot;</span></span>
+<span id="L108"><span class="lineNum">     108</span>              :         case SlotHand3:</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 return &quot;Hand 3&quot;</span></span>
+<span id="L110"><span class="lineNum">     110</span>              :         case SlotHand4:</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 return &quot;Hand 4&quot;</span></span>
+<span id="L112"><span class="lineNum">     112</span>              :         case SlotHand5:</span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 return &quot;Hand 5&quot;</span></span>
 <span id="L114"><span class="lineNum">     114</span>              :         default:</span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;unknown EquipmentSlotNumber: %d&quot;, s))</span></span>
 <span id="L116"><span class="lineNum">     116</span>              :         }</span>
@@ -181,16 +181,16 @@
 <span id="L119"><span class="lineNum">     119</span>              : // ParseEquipmentSlot は raw の装備スロットから装備スロット番号を返す。未知の値は ok=false</span>
 <span id="L120"><span class="lineNum">     120</span>              : func ParseEquipmentSlot(slot rawschema.EquipSlot) (EquipmentSlotNumber, bool) {</span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         switch slot {</span></span>
-<span id="L122"><span class="lineNum">     122</span>              :         case rawschema.EquipSlotWEAPON1:</span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 return SlotWeapon1, true</span></span>
-<span id="L124"><span class="lineNum">     124</span>              :         case rawschema.EquipSlotWEAPON2:</span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 return SlotWeapon2, true</span></span>
-<span id="L126"><span class="lineNum">     126</span>              :         case rawschema.EquipSlotWEAPON3:</span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 return SlotWeapon3, true</span></span>
-<span id="L128"><span class="lineNum">     128</span>              :         case rawschema.EquipSlotWEAPON4:</span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 return SlotWeapon4, true</span></span>
-<span id="L130"><span class="lineNum">     130</span>              :         case rawschema.EquipSlotWEAPON5:</span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 return SlotWeapon5, true</span></span>
+<span id="L122"><span class="lineNum">     122</span>              :         case rawschema.EquipSlotHAND1:</span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 return SlotHand1, true</span></span>
+<span id="L124"><span class="lineNum">     124</span>              :         case rawschema.EquipSlotHAND2:</span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 return SlotHand2, true</span></span>
+<span id="L126"><span class="lineNum">     126</span>              :         case rawschema.EquipSlotHAND3:</span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 return SlotHand3, true</span></span>
+<span id="L128"><span class="lineNum">     128</span>              :         case rawschema.EquipSlotHAND4:</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 return SlotHand4, true</span></span>
+<span id="L130"><span class="lineNum">     130</span>              :         case rawschema.EquipSlotHAND5:</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 return SlotHand5, true</span></span>
 <span id="L132"><span class="lineNum">     132</span>              :         case rawschema.EquipSlotHEAD:</span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 return SlotHead, true</span></span>
 <span id="L134"><span class="lineNum">     134</span>              :         case rawschema.EquipSlotTORSO:</span>

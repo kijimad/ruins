@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-20 15:07:01</td>
+            <td class="headerValue">2026-11-20 17:07:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -125,7 +125,7 @@
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;target is already dead&quot;)</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L65"><span class="lineNum">      65</span>              : </span>
-<span id="L66"><span class="lineNum">      66</span>              :         // 遠距離武器が装備されているか。CanShootTarget が事前に絞るので、武器スロット不正も</span>
+<span id="L66"><span class="lineNum">      66</span>              :         // 遠距離武器が装備されているか。CanShootTarget が事前に絞るので、手持ち欄不正も</span>
 <span id="L67"><span class="lineNum">      67</span>              :         // 遠距離武器なしもここでは起こらない。発火したら不変条件違反なのでそのまま伝播させる</span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         fire, _, err := getEquippedFire(actor, world)</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>

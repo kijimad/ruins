@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-20 15:07:01</td>
+            <td class="headerValue">2026-11-20 17:07:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -213,15 +213,15 @@
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L152"><span class="lineNum">     152</span>              : }</span>
 <span id="L153"><span class="lineNum">     153</span>              : </span>
-<span id="L154"><span class="lineNum">     154</span>              : // validateWeaponSelection はシングルトンが武器の選択を持ち、その選択が武器スロットかを検査する。使う側は選択の有無も</span>
-<span id="L155"><span class="lineNum">     155</span>              : // 範囲も検査せず武器の並びを引くので、ここで弾かないとロード後に止まる</span>
-<span id="L156"><span class="lineNum">     156</span>              : func validateWeaponSelection(world w.World) error {</span>
+<span id="L154"><span class="lineNum">     154</span>              : // validateHandSelection はシングルトンが手持ち欄の選択を持ち、その選択が手持ち欄かを検査する。使う側は選択の有無も</span>
+<span id="L155"><span class="lineNum">     155</span>              : // 範囲も検査せず手持ち欄の並びを引くので、ここで弾かないとロード後に止まる</span>
+<span id="L156"><span class="lineNum">     156</span>              : func validateHandSelection(world w.World) error {</span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         singleton := world.Resources.SingletonEntity</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         if !world.Components.WeaponSelection.Has(singleton) {</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: singleton has no weapon selection&quot;, errInvalidWeaponSelection)</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         if !world.Components.HandSelection.Has(singleton) {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: singleton has no hand selection&quot;, errInvalidHandSelection)</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         if err := world.Components.WeaponSelection.Get(singleton).Validate(); err != nil {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %w&quot;, errInvalidWeaponSelection, err)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         if err := world.Components.HandSelection.Get(singleton).Validate(); err != nil {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %w&quot;, errInvalidHandSelection, err)</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L165"><span class="lineNum">     165</span>              : }</span>
