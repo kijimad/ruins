@@ -45,8 +45,7 @@ func (r *renderer) ensureFrame(width, height int) {
 	if r.frame != nil && r.frameW == width && r.frameH == height {
 		return
 	}
-	// state は 3D の透視でテクスチャを引き伸ばしてここへ描く。共有アトラスに載ると配置で
-	// サンプル位置の丸めが変わるので unmanaged にする。機構は components.Texture を参照
+	// アトラスに載ると配置で画素がずれるので unmanaged にする
 	r.frame = ebiten.NewImageWithOptions(image.Rect(0, 0, width, height), &ebiten.NewImageOptions{Unmanaged: true})
 	r.frameW = width
 	r.frameH = height
