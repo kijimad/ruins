@@ -251,6 +251,35 @@ func TestValidateDisassemblies(t *testing.T) {
 	}
 }
 
+func TestValidateRemedies(t *testing.T) {
+	t.Parallel()
+
+	recovery := rawschema.RecoverAfterTend
+	conditions := &[]rawschema.Condition{{Id: "laceration", Recovery: &recovery, RecoverPer: new(2)}}
+	tests := []struct {
+		name    string
+		potency rawschema.Potency
+		wantErr error
+	}{
+		{name: "回復量が1になる質は通る", potency: 50},
+		{name: "回復量が0に切り捨てられる質はエラー", potency: 49, wantErr: errRemedyTooWeak},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := validateRemedies(rawschema.Raws{
+				Conditions: conditions,
+				Items:      &[]rawschema.Item{{Id: "rag", Remedy: &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"laceration"}, Potency: tt.potency}}},
+			})
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
 func TestValidateGrounds(t *testing.T) {
 	t.Parallel()
 

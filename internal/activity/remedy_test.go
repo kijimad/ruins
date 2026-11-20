@@ -259,6 +259,17 @@ func TestRemedyTarget_発症前の未治療より治療済みの重い傷を選�
 	assert.Equal(t, gc.BodyPartArms, part)
 }
 
+func TestRemedyTarget_発症前の不調は対象にしない(t *testing.T) {
+	t.Parallel()
+
+	hs := &gc.HealthStatus{}
+	hs.Parts[gc.BodyPartLegs].AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 20, Severity: gc.TimerToSeverity(20)})
+	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 100}
+
+	_, c := remedyTarget(hs, remedy)
+	assert.Nil(t, c)
+}
+
 func TestIsRemedyOnly(t *testing.T) {
 	t.Parallel()
 
