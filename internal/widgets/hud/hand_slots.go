@@ -104,8 +104,28 @@ func (s *slotWidget) Draw(cv uicore.Canvas) {
 			cv.DrawImage(image.Pt(s.rect.Min.X+(s.rect.Dx()-b.Dx())/2, s.rect.Min.Y+(s.rect.Dy()-b.Dy())/2), img)
 		}
 	}
+	if s.slot.ChargeStages > 0 {
+		s.drawGauge(cv)
+	}
 	numberText := fmt.Sprint(s.number)
 	cv.DrawText(image.Pt(s.rect.Min.X+slotNumberPad, s.rect.Min.Y+slotNumberPad), numberText, s.face, theme.TextPrimary)
+}
+
+// drawGauge は欄の下端に残量の段階のゲージを描く
+func (s *slotWidget) drawGauge(cv uicore.Canvas) {
+	const height, gap = 4, 2
+	inner := s.rect.Inset(slotNumberPad)
+	n := s.slot.ChargeStages
+	segW := (inner.Dx() - gap*(n-1)) / n
+	fill := theme.ChargeColor(s.slot.ChargeStage, n)
+	for i := range n {
+		c := theme.ChargeEmpty
+		if i < s.slot.ChargeStage {
+			c = fill
+		}
+		x := inner.Min.X + i*(segW+gap)
+		cv.FillRect(image.Rect(x, inner.Max.Y-height, x+segW, inner.Max.Y), c, uicore.RectOptions{})
+	}
 }
 
 // Children は uicore.Widget を満たす。子は持たない。

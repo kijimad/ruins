@@ -119,4 +119,7 @@ type HandSlotInfo struct {
 	WeaponName  string                 // 武器名（空文字列なら武器なし）
 	SpriteSheet string                 // スプライトシート名
 	SpriteName  string                 // スプライト名
+	// ChargeStage は残量の満ちた段、ChargeStages は段の数。段の数が0ならゲージを描かない
+	ChargeStage  int
+	ChargeStages int
 }

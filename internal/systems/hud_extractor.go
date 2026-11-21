@@ -296,6 +296,7 @@ func extractHandSlotsData(world w.World) hud.HandSlotsData {
 
 			var weaponName string
 			var spriteSheet, spriteName string
+			var chargeStage, chargeStages int
 
 			if item != nil {
 				// 武器名を取得
@@ -310,13 +311,18 @@ func extractHandSlotsData(world w.World) hud.HandSlotsData {
 					spriteSheet = spriteRender.SpriteSheetName
 					spriteName = spriteRender.SpriteKey
 				}
+				if stage, ok := query.ChargeStage(world, *item); ok {
+					chargeStage, chargeStages = stage, query.ChargeStageCount
+				}
 			}
 
 			slots = append(slots, hud.HandSlotInfo{
-				SlotNumber:  slotNumber,
-				WeaponName:  weaponName,
-				SpriteSheet: spriteSheet,
-				SpriteName:  spriteName,
+				SlotNumber:   slotNumber,
+				WeaponName:   weaponName,
+				SpriteSheet:  spriteSheet,
+				SpriteName:   spriteName,
+				ChargeStage:  chargeStage,
+				ChargeStages: chargeStages,
 			})
 		}
 	})

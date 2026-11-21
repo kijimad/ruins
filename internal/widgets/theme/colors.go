@@ -177,3 +177,15 @@ var (
 	// ElementPhoton は光子属性色
 	ElementPhoton = rgb(0xffff00)
 )
+
+// ChargeColor は残量のゲージの満ちた段の色を返す。満ちた段が全体の8割以上なら緑、4割以上なら黄、その下は赤にする
+func ChargeColor(filled, total int) color.RGBA {
+	switch {
+	case filled*5 >= total*4:
+		return ChargeHigh
+	case filled*5 >= total*2:
+		return ChargeMid
+	default:
+		return ChargeLow
+	}
+}
