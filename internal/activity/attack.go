@@ -199,28 +199,17 @@ func getBareHandsAttack(world w.World) (gc.Attacker, i18n.Msgid, error) {
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
 // 戻り値: (攻撃パラメータ, 攻撃方法名, エラー)
 func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, i18n.Msgid, error) {
-	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
+	// プレイヤーは選んだ欄の物で殴る。近接攻撃を持つ物を選んでいなければ素手で殴る
 	if world.Components.Player.Has(attacker) {
-		if weapon, ok := query.SelectedWeapon(world, attacker); ok {
-			attack, weaponName, err := query.GetMeleeFromWeapon(world, weapon)
-			if err == nil && attack != nil {
-				return attack, weaponName, nil
-			}
+		weapon, ok := query.SelectedWeapon(world, attacker)
+		if !ok || !world.Components.Melee.Has(weapon) {
+			return getBareHandsAttack(world)
 		}
-
-		// 武器が装備されていない場合は素手武器を使用
-		return getBareHandsAttack(world)
+		return query.GetMeleeFromWeapon(world, weapon)
 	}
 
-	// 敵の場合: CommandTableから攻撃パラメータを取得
 	if world.Components.CommandTable.Has(attacker) {
-		attack, weaponName, err := query.GetAttackFromCommandTable(world, attacker)
-		if err == nil && attack != nil {
-			return attack, weaponName, nil
-		}
-
-		// CommandTableから取得できない場合は素手武器を使用
-		return getBareHandsAttack(world)
+		return query.GetAttackFromCommandTable(world, attacker)
 	}
 
 	return nil, "", ErrNoAttackSource

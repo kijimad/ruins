@@ -8,6 +8,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -471,21 +472,17 @@ func TestGetAttackParams_敵はCommandTableから攻撃を取得する(t *testin
 	require.True(t, ok)
 }
 
-func TestGetAttackParams_CommandTable取得失敗で素手にフォールバックする(t *testing.T) {
+func TestGetAttackParams_CommandTableを引けなければエラーを返す(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	enemy := world.ECS.NewEntity()
-	// 未登録のコマンドテーブル名 → GetAttackFromCommandTableが失敗する
 	world.Components.CommandTable.Add(enemy, &gc.CommandTable{Name: "no_such_table"})
 
-	attack, name, err := getAttackParams(enemy, world)
-	require.NoError(t, err)
-	assert.Equal(t, i18n.Msgid("Bare Hands"), name)
-	melee, ok := attack.(*gc.Melee)
-	require.True(t, ok)
-	// 素手の Damage 値は getBareHandsAttack のテストで固定する。ここは素手へ落ちる契約だけを見る
-	assert.Positive(t, melee.Damage)
+	_, _, err := getAttackParams(enemy, world)
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "no_such_table", Collection: "CommandTables"}, notFound)
 }
 
 func TestGetAttackParams_プレイヤーでも敵でもない場合はエラーになる(t *testing.T) {
