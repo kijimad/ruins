@@ -445,21 +445,14 @@ func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んで�
 
 	tests := []struct {
 		name string
-		// nil なら何も持たせない
-		spawn func(t *testing.T, world w.World) ecs.Entity
+		hold func(t *testing.T, world w.World, player ecs.Entity)
 	}{
-		{name: "何も持っていない"},
-		{name: "射撃だけを持つ物を選んでいる", spawn: func(t *testing.T, world w.World) ecs.Entity {
+		{name: "何も持っていない", hold: func(*testing.T, w.World, ecs.Entity) {}},
+		{name: "射撃だけを持つ物を選んでいる", hold: func(t *testing.T, world w.World, player ecs.Entity) {
 			t.Helper()
 			bow, err := lifecycle.SpawnBackpackItem(world, "hunter_bow", 1)
 			require.NoError(t, err)
-			return bow
-		}},
-		{name: "灯りだけを持つ物を選んでいる", spawn: func(_ *testing.T, world w.World) ecs.Entity {
-			lamp := world.ECS.NewEntity()
-			world.Components.Name.Add(lamp, &gc.Name{Name: "Lamp"})
-			world.Components.LightSource.Add(lamp, &gc.LightSource{Radius: 4})
-			return lamp
+			lifecycle.MoveToEquip(world, bow, player, gc.SlotHand1)
 		}},
 	}
 	for _, tt := range tests {
@@ -470,9 +463,7 @@ func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んで�
 			require.NoError(t, err)
 			// プレイヤーは生成時に松明を手持ち欄1へ装備している。外してから持たせる
 			require.NoError(t, lifecycle.UnequipAll(world, player))
-			if tt.spawn != nil {
-				lifecycle.MoveToEquip(world, tt.spawn(t, world), player, gc.SlotHand1)
-			}
+			tt.hold(t, world, player)
 			query.GetHandSelection(world).Slot = gc.SlotHand1
 
 			attack, name, err := getAttackParams(player, world)

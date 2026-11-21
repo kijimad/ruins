@@ -32,14 +32,6 @@ func TestIsHoldable(t *testing.T) {
 		assert.True(t, query.IsHoldable(world, e))
 	})
 
-	t.Run("灯りを持てば持てる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		e := world.ECS.NewEntity()
-		world.Components.LightSource.Add(e, &gc.LightSource{Radius: 4})
-		assert.True(t, query.IsHoldable(world, e))
-	})
-
 	t.Run("どれも持たなければ持てない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

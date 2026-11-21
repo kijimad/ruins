@@ -8,9 +8,10 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// IsHoldable はエンティティを手持ち欄に持てるかを返す。近接攻撃・射撃・灯りのいずれかを持てば持てる。
+// IsHoldable はエンティティを手持ち欄に持てるかを返す。近接攻撃か射撃を持てば持てる。
+// 灯りのアイテムは近接攻撃も持つので、手持ち欄に入る
 func IsHoldable(world w.World, entity ecs.Entity) bool {
-	return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity) || world.Components.LightSource.Has(entity)
+	return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
 }
 
 // GetHeld は手持ち欄ごとの物を、SlotHand1 から順に並べて返す。空いた欄は nil

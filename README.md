@@ -112,7 +112,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
-| in-progress | [灯りと武器と道具に残量を持たせて有限にする](docs/design/261119224218.md) | 10/21 | item, gamedesign |
+| in-progress | [灯りと武器と道具に残量を持たせて有限にする](docs/design/261119224218.md) | 10/22 | item, gamedesign |
 
 
 ## References
