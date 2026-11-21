@@ -173,9 +173,14 @@ func TestLoadWeaponFromMember(t *testing.T) {
 
 	t.Run("最も重い行が存在しないアイテムを指すとエラー", func(t *testing.T) {
 		t.Parallel()
+		hands := rawschema.Melee{Accuracy: 100, Damage: 3}
 		raws := rawschema.Raws{
+			BodyAttacks: &[]rawschema.BodyAttack{{Id: raw.BareHands, Name: "Bare hands", Melee: hands}},
 			CommandTables: &[]rawschema.CommandTable{
-				{Id: "thief", Name: "Thief", Entries: []rawschema.CommandTableEntry{{Item: new("missing_item"), Weight: 1}}},
+				{Id: "thief", Name: "Thief", Entries: []rawschema.CommandTableEntry{
+					{BodyAttack: new(raw.BareHands), Weight: 1},
+					{Item: new("missing_item"), Weight: 10},
+				}},
 			},
 			Members: &[]rawschema.Member{{Id: "ghost", Name: "Ghost", CommandTableId: new("thief")}},
 		}
