@@ -55,13 +55,13 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (94.9%)</option>
+				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (96.6%)</option>
 				
-				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (81.9%)</option>
+				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (89.1%)</option>
 				
 				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (89.8%)</option>
 				
-				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (79.7%)</option>
+				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (81.4%)</option>
 				
 				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (87.8%)</option>
 				
@@ -775,7 +775,7 @@
 				
 				<option value="file359">github.com/kijimaD/ruins/internal/world/lifecycle/remains.go (85.7%)</option>
 				
-				<option value="file360">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.2%)</option>
+				<option value="file360">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.8%)</option>
 				
 				<option value="file361">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (90.7%)</option>
 				
@@ -922,7 +922,7 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
         case gc.BehaviorSwap:
                 <span class="cov8" title="1">return &amp;SwapBehavior{}, nil</span>
         case gc.BehaviorDisassemble:
-                <span class="cov0" title="0">return &amp;DisassembleBehavior{}, nil</span>
+                <span class="cov8" title="1">return &amp;DisassembleBehavior{}, nil</span>
         case gc.BehaviorSearch:
                 <span class="cov8" title="1">return &amp;SearchBehavior{}, nil</span>
         case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel:<span class="cov0" title="0"></span>
@@ -1107,7 +1107,7 @@ type ActionResult struct {
 // comp は NewXxxActivity 構築関数で作る。
 func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult, error) {
         <span class="cov8" title="1">if comp == nil </span>{
-                <span class="cov0" title="0">return nil, ErrActivityNil
+                <span class="cov8" title="1">return nil, ErrActivityNil
 </span>        }
         <span class="cov8" title="1">behaviorName := comp.BehaviorName
         log.Debug("action execution started",
@@ -1262,12 +1262,12 @@ func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
 // StartActivity は新しいアクティビティを開始する。検証か開始に失敗すれば error を返す
 func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
         <span class="cov8" title="1">if comp == nil </span>{
-                <span class="cov0" title="0">return ErrActivityNil
+                <span class="cov8" title="1">return ErrActivityNil
 </span>        }
 
         <span class="cov8" title="1">behavior, err := GetBehavior(comp.BehaviorName)
         if err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
 
         // 既存のアクティビティがある場合は中断
@@ -1321,7 +1321,7 @@ func ResumeActivity(entity ecs.Entity, world w.World) error {
 </span>        }
 
         <span class="cov8" title="1">if !CanResume(comp) </span>{
-                <span class="cov0" title="0">return fmt.Errorf("activity '%s' cannot be resumed", GetDisplayName(comp))
+                <span class="cov8" title="1">return fmt.Errorf("activity '%s' cannot be resumed", GetDisplayName(comp))
 </span>        }
 
         <span class="cov8" title="1">return Resume(comp)</span>
@@ -1338,7 +1338,7 @@ func CancelActivity(entity ecs.Entity, reason i18n.Msgid, world w.World) {
         <span class="cov8" title="1">behaviorName := comp.BehaviorName
         behavior, err := GetBehavior(behaviorName)
         if err != nil </span>{
-                <span class="cov0" title="0">log.Warn("failed to get behavior", "entity", entity, "error", err.Error())
+                <span class="cov8" title="1">log.Warn("failed to get behavior", "entity", entity, "error", err.Error())
                 query.RemoveActivity(world, entity)
                 return
 </span>        }
@@ -1396,7 +1396,7 @@ func ProcessContinuousActivities(world w.World) error {
                 }
 
                 <span class="cov8" title="1">if err := stepActivity(entity, world); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         }
         <span class="cov8" title="1">return nil</span>
@@ -1407,7 +1407,7 @@ func ProcessContinuousActivities(world w.World) error {
 func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
         <span class="cov8" title="1">behavior, err := GetBehavior(comp.BehaviorName)
         if err != nil </span>{
-                <span class="cov0" title="0">log.Error("failed to get behavior", "actor", actor, "error", err.Error())
+                <span class="cov8" title="1">log.Error("failed to get behavior", "actor", actor, "error", err.Error())
                 return
 </span>        }
         <span class="cov8" title="1">cost := behavior.Info().ActionPointCost
@@ -1913,7 +1913,7 @@ type DisassembleBehavior struct{}
 
 // Info はBehaviorの実装
 func (b *DisassembleBehavior) Info() Info {
-        <span class="cov0" title="0">return Info{
+        <span class="cov8" title="1">return Info{
                 Name:            "Disassemble",
                 Description:     "Break an item down into materials",
                 Interruptible:   true,
@@ -56253,7 +56253,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov0" title="0">return -1</span>
+        <span class="cov8" title="1">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
