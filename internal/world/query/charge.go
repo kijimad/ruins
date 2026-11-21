@@ -23,5 +23,5 @@ func chargeStage(current, maxCharge int) int {
 	if current <= 0 || maxCharge <= 0 {
 		return 0
 	}
-	return (current*ChargeStageCount + maxCharge - 1) / maxCharge
+	return min((current*ChargeStageCount+maxCharge-1)/maxCharge, ChargeStageCount)
 }

@@ -287,3 +287,10 @@ func TestSizedGauge(t *testing.T) {
 		assert.Same(t, s.Sized(sr, 20), s.SizedGauge(sr, 20, gauge))
 	})
 }
+
+func TestDrawGauge_段が描けない大きさでも落ちない(t *testing.T) {
+	t.Parallel()
+	fill := color.RGBA{R: 1, A: 255}
+	assert.NotPanics(t, func() { drawGauge(image.NewRGBA(image.Rect(0, 0, 4, 4)), Gauge{Filled: 1, Total: 0, Fill: fill}) })
+	assert.NotPanics(t, func() { drawGauge(image.NewRGBA(image.Rect(0, 0, 3, 2)), Gauge{Filled: 5, Total: 5, Fill: fill}) })
+}
