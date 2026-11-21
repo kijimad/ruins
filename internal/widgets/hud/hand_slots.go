@@ -28,7 +28,7 @@ type HandSlots struct {
 }
 
 // NewHandSlots は新しいHandSlotsを作成する
-func NewHandSlots(face text.Face, chrome Chrome, gaugeFill *ebiten.Image) *HandSlots {
+func NewHandSlots(face text.Face, gaugeFill *ebiten.Image, chrome Chrome) *HandSlots {
 	return &HandSlots{
 		face:      face,
 		chrome:    chrome,

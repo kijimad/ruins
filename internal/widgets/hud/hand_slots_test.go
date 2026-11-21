@@ -67,7 +67,7 @@ func TestHandSlots_Draw(t *testing.T) {
 	t.Parallel()
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
-	ws := NewHandSlots(res.Text.SmallFace, Chrome{}, nil)
+	ws := NewHandSlots(res.Text.SmallFace, nil, Chrome{})
 	screen := ScreenDimensions{Width: 960, Height: 720}
 
 	t.Run("スロット0件なら何も描かない", func(t *testing.T) {

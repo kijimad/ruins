@@ -23,14 +23,15 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 	smallFace := world.Resources.UIResources.Text.SmallFace
 	titleFace := world.Resources.UIResources.Text.TitleFontFace
 	bodyFace := world.Resources.UIResources.Text.BodyFace
+	gaugeFill := world.Resources.UIResources.GaugeFill
 	chrome := hud.Chrome{}
 
 	return &HUDRenderingSystem{
-		gameInfo:     hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
-		macroMap:     hud.NewMacroMap(bodyFace, smallFace, world.Resources.UIResources.GaugeFill, chrome),
+		gameInfo:     hud.NewGameInfo(smallFace, titleFace, gaugeFill),
+		macroMap:     hud.NewMacroMap(bodyFace, smallFace, gaugeFill, chrome),
 		debugOverlay: hud.NewDebugOverlay(smallFace),
 		messageArea:  hud.NewMessageArea(world),
-		handSlots:    hud.NewHandSlots(smallFace, chrome, world.Resources.UIResources.GaugeFill),
+		handSlots:    hud.NewHandSlots(smallFace, gaugeFill, chrome),
 		statusBadges: hud.NewStatusBadges(smallFace),
 		enabled:      true,
 	}
