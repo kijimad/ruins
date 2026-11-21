@@ -15441,10 +15441,18 @@
   id = "honey"
   material = "FOOD"
   name = "Honey"
+  providesNutrition = 75
   spriteKey = "honey"
   spriteSheetName = "field"
   value = 60
   weight = "200 g"
+  [items.consumable]
+    targetGroup = "ALLY"
+    targetNum = "SINGLE"
+    usableScene = "ANY"
+  [items.remedy]
+    potency = 100
+    treats = ["laceration"]
 
 [[items]]
   description = "A metal vessel for boiling water."
@@ -17285,6 +17293,10 @@
   spriteSheetName = "field"
   value = 30
   weight = "400 g"
+  [items.consumable]
+    targetGroup = "ALLY"
+    targetNum = "SINGLE"
+    usableScene = "ANY"
 
 [[items]]
   description = "A spear humming with charge."
@@ -17567,6 +17579,10 @@
   spriteSheetName = "field"
   value = 40
   weight = "200 g"
+  [items.consumable]
+    targetGroup = "ALLY"
+    targetNum = "SINGLE"
+    usableScene = "ANY"
 
 [[items]]
   description = "A rusted gear worth a little when sold."
