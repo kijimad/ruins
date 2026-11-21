@@ -345,3 +345,30 @@ func TestStackMembers_床のGridElementが無ければ単独スタック(t *test
 
 	assert.Equal(t, []ecs.Entity{e}, StackMembers(world, e), "GridElementが無ければ単独で返す")
 }
+
+func TestSameStack_残量(t *testing.T) {
+	t.Parallel()
+
+	newTorch := func(world w.World, current int) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.RawID.Add(e, &gc.RawID{ID: "torch"})
+		world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: current})
+		return e
+	}
+
+	tests := []struct {
+		name string
+		a, b func(world w.World) ecs.Entity
+		want bool
+	}{
+		{name: "残量が同じなら束ねる", a: func(world w.World) ecs.Entity { return newTorch(world, 600) }, b: func(world w.World) ecs.Entity { return newTorch(world, 600) }, want: true},
+		{name: "残量が違えば束ねない", a: func(world w.World) ecs.Entity { return newTorch(world, 600) }, b: func(world w.World) ecs.Entity { return newTorch(world, 420) }, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			assert.Equal(t, tt.want, SameStack(world, tt.a(world), tt.b(world)))
+		})
+	}
+}

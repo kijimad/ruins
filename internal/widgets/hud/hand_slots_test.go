@@ -4,6 +4,8 @@ import (
 	"image"
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -30,6 +32,27 @@ func TestSlotWidget_Draw(t *testing.T) {
 		assert.Equal(t, 1, cv.roundedStrokes, "非選択は背景の枠だけで選択枠は描かない")
 	})
 
+	t.Run("残量を持つ物は下端に割合のぶんだけ塗ったゲージを描く", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: HandSlotInfo{ChargeRatio: 0.5, HasCharge: true}, number: 1, gaugeFill: ebiten.NewImage(1, 1)}
+		s.Draw(cv)
+
+		// 欄の内側の下端6pxに枠を引き、枠の内側1pxへ内側の幅の半分を塗る
+		assert.Equal(t, []image.Rectangle{image.Rect(15, 59, 34, 63)}, cv.tintedRects)
+		assert.Equal(t, 2, cv.roundedStrokes, "背景の枠とゲージの枠")
+	})
+
+	t.Run("残量を持たない物はゲージを描かない", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: HandSlotInfo{}, number: 1}
+		s.Draw(cv)
+
+		assert.Empty(t, cv.tintedRects)
+		assert.Equal(t, 1, cv.roundedStrokes, "背景の枠だけでゲージの枠は描かない")
+	})
+
 	t.Run("選択中は矩形いっぱいに枠線を重ねる", func(t *testing.T) {
 		t.Parallel()
 		cv := &fakeCanvas{}
@@ -44,7 +67,7 @@ func TestHandSlots_Draw(t *testing.T) {
 	t.Parallel()
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
-	ws := NewHandSlots(res.Text.SmallFace, Chrome{})
+	ws := NewHandSlots(res.Text.SmallFace, nil, Chrome{})
 	screen := ScreenDimensions{Width: 960, Height: 720}
 
 	t.Run("スロット0件なら何も描かない", func(t *testing.T) {

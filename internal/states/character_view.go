@@ -1,7 +1,6 @@
 package states
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -30,13 +29,13 @@ func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res r
 	cols := styled.Cols(styled.Fit(), styled.Icon(), styled.Name(), styled.Num())
 	rows := make([]menuframe.Row, len(slots))
 	for i, slot := range slots {
-		var icon *ebiten.Image
+		icon := styled.IconCell(nil)
 		weight := ""
 		if slot.Entity != nil {
-			icon = menuIcon(world, *slot.Entity)
+			icon = itemIconCell(world, *slot.Entity)
 			weight = query.GetEntityWeight(world, *slot.Entity).KgString()
 		}
-		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName), styled.TextCell(weight)}}
+		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), icon, styled.TextCell(slot.ItemName), styled.TextCell(weight)}}
 	}
 	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }

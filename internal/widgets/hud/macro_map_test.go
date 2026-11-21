@@ -246,7 +246,7 @@ func TestMacroMap_Draw_キューブがいれば地図の下に名前と燃料ゲ
 	}
 	assert.Contains(t, names, "Cube", "名前を描く")
 	require.Len(t, cv.tintedRects, 1, "燃料ゲージの塗りを描く")
-	assert.Equal(t, 75, cv.tintedRects[0].Dx(), "地図と同じ幅のゲージを充填率ぶん塗る")
+	assert.Equal(t, 74, cv.tintedRects[0].Dx(), "地図と同じ幅のゲージの枠の内側を充填率ぶん塗る")
 	assert.Greater(t, cv.tintedRects[0].Min.Y, 150, "地図の下に置く")
 }
 

@@ -160,6 +160,42 @@ func TestSortEntities_同名同鮮度は装備指紋で決定的に並ぶ(t *tes
 		"性能違いの同名武器は作成順に依らず決定的に並ぶ")
 }
 
+func TestSortEntities_同名は残量の多い順に並び削除後も入れ替わらない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	mk := func(current int) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.Name.Add(e, &gc.Name{Name: "Torch"})
+		world.Components.RawID.Add(e, &gc.RawID{ID: "torch"})
+		world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: current})
+		return e
+	}
+	mk(120)
+	full := mk(600)
+	mk(300)
+
+	charges := func() []int {
+		var all []ecs.Entity
+		q := ecs.NewFilter1[gc.Charge](world.ECS).Query()
+		for q.Next() {
+			all = append(all, q.Entity())
+		}
+		sorted := SortEntities(world, all)
+		out := make([]int, 0, len(sorted))
+		for _, e := range sorted {
+			out = append(out, world.Components.Charge.Get(e).Current)
+		}
+		return out
+	}
+
+	assert.Equal(t, []int{600, 300, 120}, charges(), "作成順に依らず残量の多い順")
+
+	// 先頭を削除。Ark の swap-remove で格納順が変わる状況を作る
+	world.ECS.RemoveEntity(full)
+	assert.Equal(t, []int{300, 120}, charges(), "先頭を捨てても残りは入れ替わらない")
+}
+
 func TestSortEntitiesWithMixedComponents(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

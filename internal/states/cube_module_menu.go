@@ -202,7 +202,7 @@ func (st *CubeModuleSelectState) ViewUI(world w.World, props CubeModuleSelectPro
 		rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(nil), styled.TextCell(query.T(world, "Remove"))}})
 	}
 	for _, entity := range props.Candidates {
-		rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(menuIcon(world, entity)), styled.TextCell(query.GetEntityName(entity, world))}})
+		rows = append(rows, menuframe.Row{Cells: []styled.Cell{itemIconCell(world, entity), styled.TextCell(query.GetEntityName(entity, world))}})
 	}
 	list, pager := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Icon(), styled.Name()),
 		menuframe.ListOpts{EmptyText: query.T(world, "No modules to install")}, res)
