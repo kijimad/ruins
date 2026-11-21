@@ -14094,6 +14094,10 @@
     targetGroup = "ALLY"
     targetNum = "ALL"
     usableScene = "BATTLE"
+  [items.throw]
+    accuracy = 75
+    breaks = true
+    damage = 0
 
 [[items]]
   description = "Quality beef, grilling it makes a supreme feast."
@@ -14238,6 +14242,10 @@
     targetGroup = "ENEMY"
     targetNum = "ALL"
     usableScene = "BATTLE"
+  [items.throw]
+    accuracy = 75
+    breaks = true
+    damage = 0
 
 [[items]]
   description = "A soft, fluffy loaf of white bread."

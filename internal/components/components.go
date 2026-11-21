@@ -291,7 +291,7 @@ func (t ThrowAttack) GetAttackCategory() rawschema.AttackCategory {
 	return rawschema.AttackCategoryThrow
 }
 
-// GetCost はAttackerの実装。物を手放す代わりに射撃より安い
+// GetCost はAttackerの実装。持ち物の詳細に出す値で、投げるのに使う行動の点数は ThrowBehavior の Info が決める
 func (t ThrowAttack) GetCost() int { return 1 }
 
 // GetTargetType はAttackerの実装。狙った敵1体に当てる

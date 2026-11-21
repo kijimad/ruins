@@ -136,7 +136,7 @@ func throwItemError(world w.World, actor, item ecs.Entity) error {
 		world.Components.LocationInBackpack.Get(item).Owner != actor {
 		return errThrowItemNotInBackpack
 	}
-	if _, ok := query.ThrowAttackOf(world, item); !ok {
+	if !query.CanThrow(world, item) {
 		return errThrowTooHeavy
 	}
 	return nil

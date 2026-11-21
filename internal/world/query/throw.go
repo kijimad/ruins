@@ -17,16 +17,18 @@ const (
 	throwMaxWeightDamage = 5
 )
 
+// CanThrow は物が重すぎず投げられるかを返す。5 kg を超える物は投げられない
+func CanThrow(world w.World, item ecs.Entity) bool {
+	return itemWeight(world, item) <= throwMaxWeight
+}
+
 // ThrowAttackOf は物を投げたときの攻撃の値を返す。raw の行に投げの欄があればその値、無ければ重さから導く。
-// 重い物ほど当たれば痛いが当てにくい。5 kg を超える物は投げられないので ok=false を返す
+// 重い物ほど当たれば痛いが当てにくい。投げられない物には ok=false を返す
 func ThrowAttackOf(world w.World, item ecs.Entity) (gc.ThrowAttack, bool) {
-	var mg consts.Milligram
-	if world.Components.Weight.Has(item) {
-		mg = world.Components.Weight.Get(item).Milligram
-	}
-	if mg > throwMaxWeight {
+	if !CanThrow(world, item) {
 		return gc.ThrowAttack{}, false
 	}
+	mg := itemWeight(world, item)
 	if attack, ok := raw.FindThrow(world.Resources.RawMaster, GetEntityID(item, world)); ok {
 		return attack, true
 	}
@@ -40,4 +42,12 @@ func throwAttackFromWeight(mg consts.Milligram) gc.ThrowAttack {
 	damage = max(1, min(throwMaxWeightDamage, damage))
 	accuracy := throwBaseAccuracy - (int(mg)*5+kg/2)/kg
 	return gc.ThrowAttack{Damage: damage, Accuracy: accuracy}
+}
+
+// itemWeight は物の重さを返す。重さを持たない物は 0 とする
+func itemWeight(world w.World, item ecs.Entity) consts.Milligram {
+	if !world.Components.Weight.Has(item) {
+		return 0
+	}
+	return world.Components.Weight.Get(item).Milligram
 }

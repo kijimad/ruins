@@ -115,7 +115,7 @@ var verbList = []itemVerb{
 		Key:     ebiten.KeyT,
 		Shift:   keybind.ShiftRequired,
 		Action:  inputmapper.ActionVerbThrow,
-		Accept:  canThrow,
+		Accept:  query.CanThrow,
 		Exec:    execThrow,
 	},
 	{
@@ -159,12 +159,6 @@ func execPlace(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
-}
-
-// canThrow は投げられる物を投げるの対象とする。5 kg を超える物は投げられない
-func canThrow(world w.World, entity ecs.Entity) bool {
-	_, ok := query.ThrowAttackOf(world, entity)
-	return ok
 }
 
 // execThrow は持ち物画面を、選択アイテムを投げる敵を狙う画面に切り替える。投げても取り消してもダンジョンへ戻る
