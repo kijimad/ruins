@@ -41,15 +41,36 @@ func TestLoadCombatantFromMember(t *testing.T) {
 	})
 }
 
+func TestLoadWeaponFromBodyAttack(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+
+	t.Run("体の攻撃を近接として読み込める", func(t *testing.T) {
+		t.Parallel()
+		ws, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
+		require.NoError(t, err)
+		assert.False(t, ws.IsRanged)
+		assert.Positive(t, ws.Damage)
+	})
+
+	t.Run("存在しない体の攻撃はエラー", func(t *testing.T) {
+		t.Parallel()
+		_, err := LoadWeaponFromBodyAttack(master, "存在しない攻撃")
+		var notFound raw.KeyNotFoundError
+		require.ErrorAs(t, err, &notFound)
+		assert.Equal(t, raw.KeyNotFoundError{Key: "存在しない攻撃", Collection: "BodyAttacks"}, notFound)
+	})
+}
+
 func TestLoadWeaponFromItem(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 
 	t.Run("近接武器を読み込める", func(t *testing.T) {
 		t.Parallel()
-		ws, err := LoadWeaponFromBodyAttack(master, "bare_hands")
+		ws, err := LoadWeaponFromItem(master, "iron_sword")
 		require.NoError(t, err)
-		assert.False(t, ws.IsRanged)
+		assert.Equal(t, WeaponStats{Damage: 15, Accuracy: 90}, ws)
 	})
 
 	t.Run("存在しないアイテムはエラー", func(t *testing.T) {

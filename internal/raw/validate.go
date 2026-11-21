@@ -610,7 +610,7 @@ func validateFlatShapes(raws rawschema.Raws) error {
 }
 
 // validateCommandTables はコマンドテーブルの行が体の攻撃とアイテムのどちらか1つだけを引き、
-// アイテムを引くならそのアイテムが近接攻撃を持つことを検証する
+// アイテムを引くならそのアイテムが近接攻撃を持つことを検証する。ゲームの読み込みは CUE を通らないので、無い id もここで落とす
 func validateCommandTables(raws rawschema.Raws) error {
 	melee := map[rawschema.EntityID]bool{}
 	items := PtrSlice(raws.Items)
