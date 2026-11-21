@@ -142,7 +142,7 @@ func (info *GameInfo) bodyTempGauge(data GameInfoData) uicore.Widget {
 	if !data.BodyTempVisible {
 		return uicore.NewGroup()
 	}
-	return newGauge(info.gaugeFill, data.BodyTempRatio, bodyTempFillColor(data.BodyTempRatio))
+	return &uicore.Gauge{Fill: info.gaugeFill, Ratio: data.BodyTempRatio, FillColor: bodyTempFillColor(data.BodyTempRatio), Border: theme.HUDGaugeBorder, Radius: gaugeCornerRadius}
 }
 
 // healthGauge は HP ゲージを返す。半分を境に緑から黄、黄から赤へ寄る。
@@ -151,13 +151,13 @@ func (info *GameInfo) healthGauge(data GameInfoData) uicore.Widget {
 	if data.PlayerMaxHP > 0 {
 		ratio = max(0, min(1, float64(data.PlayerHP)/float64(data.PlayerMaxHP)))
 	}
-	return newGauge(info.gaugeFill, ratio, theme.HealthGaugeColor(ratio))
+	return &uicore.Gauge{Fill: info.gaugeFill, Ratio: ratio, FillColor: theme.HealthGaugeColor(ratio), Border: theme.HUDGaugeBorder, Radius: gaugeCornerRadius}
 }
 
 // fuelGauge はキューブの燃料ゲージを返す。満で琥珀、空へ近づくと赤へ寄る。
 func fuelGauge(gaugeFill *ebiten.Image, ratio float64) uicore.Widget {
 	fill := theme.LerpColor(theme.HUDFuelEmpty, theme.HUDFuelFull, ratio)
-	return newGauge(gaugeFill, ratio, fill)
+	return &uicore.Gauge{Fill: gaugeFill, Ratio: ratio, FillColor: fill, Border: theme.HUDGaugeBorder, Radius: gaugeCornerRadius}
 }
 
 // bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青へ寄る片方向
@@ -168,11 +168,6 @@ func bodyTempFillColor(ratio float64) color.RGBA {
 
 // gaugeCornerRadius はゲージの角丸半径。細いゲージなのでパネルより控えめにする。
 const gaugeCornerRadius = 4
-
-// newGauge は HUD のゲージを返す。白枠と角丸は HUD のゲージでそろえる
-func newGauge(fill *ebiten.Image, ratio float64, fillColor color.RGBA) *uicore.Gauge {
-	return &uicore.Gauge{Fill: fill, Ratio: ratio, FillColor: fillColor, Border: theme.HUDGaugeBorder, Radius: gaugeCornerRadius}
-}
 
 // drawBottomRightStack は現在地・周囲気温・所持重量・所持通貨を右下、メッセージエリアの上へ下から積んで描く。
 // 画面端からの逆算や段の手積みをせず、下寄せの FlexColumn へ流して各行を右端に揃える。先頭の Grow

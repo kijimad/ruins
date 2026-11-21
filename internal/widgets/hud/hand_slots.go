@@ -119,8 +119,7 @@ func (s *slotWidget) Draw(cv uicore.Canvas) {
 func (s *slotWidget) drawGauge(cv uicore.Canvas) {
 	const height = 6
 	inner := s.rect.Inset(slotNumberPad)
-	g := newGauge(s.gaugeFill, s.slot.ChargeRatio, theme.HealthGaugeColor(s.slot.ChargeRatio))
-	g.Radius = 2
+	g := &uicore.Gauge{Fill: s.gaugeFill, Ratio: s.slot.ChargeRatio, FillColor: theme.HealthGaugeColor(s.slot.ChargeRatio), Border: theme.HUDGaugeBorder, Radius: 2}
 	g.Layout(image.Rect(inner.Min.X, inner.Max.Y-height, inner.Max.X, inner.Max.Y))
 	g.Draw(cv)
 }
