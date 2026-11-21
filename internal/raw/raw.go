@@ -381,10 +381,6 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.LightSource = toGCLightSource(item.LightSource)
 	if item.Charge != nil {
 		entitySpec.Charge = &gc.Charge{Max: item.Charge.Max, Current: item.Charge.Max}
-		// 残量を持つ灯りは燃えて減るので、消えた状態で生まれ、装備すると点く
-		if entitySpec.LightSource != nil {
-			entitySpec.LightSource.Enabled = false
-		}
 	}
 
 	// 材質。可燃性と燃焼熱量の算出根拠。観察メニューで見せるためエンティティに保持する

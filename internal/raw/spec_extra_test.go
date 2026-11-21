@@ -611,7 +611,7 @@ Defense = 2
 	assert.Equal(t, KeyNotFoundError{Key: "存在しないテーブル", Collection: "DropTables"}, keyErr)
 }
 
-func TestNewItemSpec_残量を持つ灯りは消えて生まれる(t *testing.T) {
+func TestNewItemSpec_灯りは点いて生まれ残量を満たす(t *testing.T) {
 	t.Parallel()
 
 	raws, err := DecodeRaws(`
@@ -632,7 +632,7 @@ max = 600
 
 	spec, err := NewItemSpec(raws, "松明")
 	require.NoError(t, err)
-	assert.Equal(t, &gc.LightSource{Radius: 6, Color: color.RGBA{A: 255}}, spec.LightSource)
+	assert.Equal(t, &gc.LightSource{Radius: 6, Color: color.RGBA{A: 255}, Enabled: true}, spec.LightSource)
 	assert.Equal(t, &gc.Charge{Max: 600, Current: 600}, spec.Charge)
 }
 

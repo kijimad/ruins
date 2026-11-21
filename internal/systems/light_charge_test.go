@@ -18,7 +18,6 @@ func TestLightChargeSystem_床で点いた松明は燃え尽きて消える(t *t
 	world := testutil.InitTestWorld(t)
 	torch, err := lifecycle.SpawnFieldItem(world, "torch", 3, 4, 1)
 	require.NoError(t, err)
-	world.Components.LightSource.Get(torch).Enabled = true
 	world.Components.Charge.Get(torch).Current = 2
 	sys := &LightChargeSystem{}
 
@@ -39,15 +38,15 @@ func TestLightChargeSystem_照らしていない灯りは減らない(t *testing
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	unlit, err := lifecycle.SpawnFieldItem(world, "torch", 3, 4, 1)
+	switchedOff, err := lifecycle.SpawnFieldItem(world, "torch", 3, 4, 1)
 	require.NoError(t, err)
+	world.Components.LightSource.Get(switchedOff).Enabled = false
 	carried, err := lifecycle.SpawnFieldItem(world, "torch", 3, 4, 1)
 	require.NoError(t, err)
-	world.Components.LightSource.Get(carried).Enabled = true
 	require.NoError(t, lifecycle.MoveToBackpack(world, carried, player))
 
 	require.NoError(t, (&LightChargeSystem{}).Update(world))
-	assert.Equal(t, 600, world.Components.Charge.Get(unlit).Current, "消えた床の松明は減らない")
+	assert.Equal(t, 600, world.Components.Charge.Get(switchedOff).Current, "スイッチを切った床の灯りは減らない")
 	assert.Equal(t, 600, world.Components.Charge.Get(carried).Current, "背負った松明は減らない")
 }
 

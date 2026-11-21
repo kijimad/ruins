@@ -179,24 +179,24 @@ func TestMoveToEquip(t *testing.T) {
 		assert.True(t, world.Components.WeightDirty.Has(owner), "所有者にWeightDirtyが付与される")
 	})
 
-	t.Run("消えた灯りは装備すると点き、外しても消えない", func(t *testing.T) {
+	t.Run("灯りは置き場所で照らすかが決まる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		owner := world.ECS.NewEntity()
 
 		torch, err := SpawnFieldItem(world, "torch", 3, 4, 1)
 		require.NoError(t, err)
-		require.False(t, world.Components.LightSource.Get(torch).Enabled, "生成した灯りは消えている")
+		assert.True(t, query.LightLit(world, owner, torch), "床では照らす")
 
 		MoveToEquip(world, torch, owner, gc.SlotHand1)
-		assert.True(t, world.Components.LightSource.Get(torch).Enabled, "装備すると点く")
+		assert.True(t, query.LightLit(world, owner, torch), "手持ち欄では照らす")
 
 		require.NoError(t, MoveToBackpack(world, torch, owner))
-		assert.True(t, world.Components.LightSource.Get(torch).Enabled, "外しても消えない")
+		assert.False(t, query.LightLit(world, owner, torch), "背負うと照らさない")
 
 		MoveToField(world, torch, &owner)
 		world.Components.GridElement.Add(torch, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
-		assert.True(t, query.LightLit(world, owner, torch), "背負ってから床に捨てても点いたまま照らす")
+		assert.True(t, query.LightLit(world, owner, torch), "床に戻すとまた照らす")
 	})
 
 	t.Run("バックパックから装備すると元オーナーと新オーナーの両方にWeightDirtyが付く", func(t *testing.T) {
