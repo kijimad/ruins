@@ -33,11 +33,16 @@ func StackKeyOf(world w.World, entity ecs.Entity) (StackKey, bool) {
 		key.FreshnessStage = stage
 	}
 	key.Equip = equipFingerprint(world, entity)
-	key.Charge = -1
-	if world.Components.Charge.Has(entity) {
-		key.Charge = world.Components.Charge.Get(entity).Current
-	}
+	key.Charge = chargeKey(world, entity)
 	return key, true
+}
+
+// chargeKey は残量の現在値を返す。残量を持たなければ -1
+func chargeKey(world w.World, entity ecs.Entity) int {
+	if !world.Components.Charge.Has(entity) {
+		return -1
+	}
+	return world.Components.Charge.Get(entity).Current
 }
 
 // equipFingerprint は装備の性能を1つの文字列に畳む。クラフトの乱数化で同名でも性能が
