@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">66.7&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">12</td>
-            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">12</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-21 13:35:42</td>
+            <td class="headerValue">2026-11-21 14:22:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,7 +71,7 @@
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // ConsumeCharge は Charge を持つ item の残量を amount 減らす。0になったら物を消し、視界を計算し直させる。</span>
-<span id="L12"><span class="lineNum">      12</span>              : // 持ち主がプレイヤーなら尽きたことをログに出す</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 持ち主がプレイヤーなら尽きたことをログに出す。減っていく途中はゲージで見せるのでログを出さない</span>
 <span id="L13"><span class="lineNum">      13</span>              : func ConsumeCharge(world w.World, item ecs.Entity, amount int) {</span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         charge := world.Components.Charge.Get(item)</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         charge.Current = max(charge.Current-amount, 0)</span></span>
@@ -79,10 +79,10 @@
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         if world.Components.LocationEquipped.Has(item) &amp;&amp; world.Components.Player.Has(world.Components.LocationEquipped.Get(item).Owner) {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :                         Markup(query.T(world, &quot;%s burned out.&quot;, gamelog.Tag(&quot;item&quot;, query.GetEntityName(item, world)))).</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :                         Log()</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                         Markup(query.T(world, &quot;%s burned out.&quot;, gamelog.Tag(&quot;item&quot;, query.GetEntityName(item, world)))).</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                         Log()</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         lifecycle.RemoveItem(world, item)</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         query.GetVisionState(world).RequestUpdate()</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : }</span>

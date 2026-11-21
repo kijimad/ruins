@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">84.6&nbsp;%</td>
-            <td class="headerCovTableEntry">13</td>
-            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryMed">88.2&nbsp;%</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">15</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-21 13:35:42</td>
+            <td class="headerValue">2026-11-21 14:22:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -96,23 +96,31 @@
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return world.Resources.Sprites.Sized(world.Components.SpriteRender.Get(e), theme.MenuIconW)</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
-<span id="L37"><span class="lineNum">      37</span>              : // itemMenuRow はアイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、</span>
-<span id="L38"><span class="lineNum">      38</span>              : // メニュー固有の trailing 文字列セルを後続に付けた menuframe.Row を返す。</span>
-<span id="L39"><span class="lineNum">      39</span>              : // 個数は呼び出し側が GroupStacks で確定済みの値を渡す。ここで数え直すと一覧の行ごとに</span>
-<span id="L40"><span class="lineNum">      40</span>              : // 全走査が走るため、束ねた結果を持ち回って表示する</span>
-<span id="L41"><span class="lineNum">      41</span>              : func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuframe.Row {</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         name := query.GetEntityName(e, world)</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         icon := menuIcon(world, e)</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         label := query.FormatNameCount(name, count)</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         // 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         if marker := query.FreshnessMarker(world, e); marker != &quot;&quot; {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 label += &quot; (&quot; + marker + &quot;)&quot;</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         cells := append([]styled.Cell{styled.IconCell(icon), styled.TextCell(label)}, styled.TextCells(trailing...)...)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         return menuframe.Row{Cells: cells}</span></span>
-<span id="L51"><span class="lineNum">      51</span>              : }</span>
-<span id="L52"><span class="lineNum">      52</span>              : </span>
-<span id="L53"><span class="lineNum">      53</span>              : // ================</span>
+<span id="L37"><span class="lineNum">      37</span>              : // itemIconCell は entity のアイコンのセルを返す。残量を持つ物は、アイコンの下端に HUD と同じ残量のゲージを重ねる</span>
+<span id="L38"><span class="lineNum">      38</span>              : func itemIconCell(world w.World, e ecs.Entity) styled.Cell {</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         cell := styled.IconCell(menuIcon(world, e))</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if ratio, ok := query.ChargeRatio(world, e); ok {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 cell.Gauge = &amp;styled.CellGauge{Ratio: ratio, Color: theme.HealthGaugeColor(ratio)}</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return cell</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : }</span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              : // itemMenuRow はアイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、</span>
+<span id="L47"><span class="lineNum">      47</span>              : // メニュー固有の trailing 文字列セルを後続に付けた menuframe.Row を返す。</span>
+<span id="L48"><span class="lineNum">      48</span>              : // 個数は呼び出し側が GroupStacks で確定済みの値を渡す。ここで数え直すと一覧の行ごとに</span>
+<span id="L49"><span class="lineNum">      49</span>              : // 全走査が走るため、束ねた結果を持ち回って表示する</span>
+<span id="L50"><span class="lineNum">      50</span>              : func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuframe.Row {</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         name := query.GetEntityName(e, world)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         label := query.FormatNameCount(name, count)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         // 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         if marker := query.FreshnessMarker(world, e); marker != &quot;&quot; {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                 label += &quot; (&quot; + marker + &quot;)&quot;</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         cells := append([]styled.Cell{itemIconCell(world, e), styled.TextCell(label)}, styled.TextCells(trailing...)...)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         return menuframe.Row{Cells: cells}</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : }</span>
+<span id="L60"><span class="lineNum">      60</span>              : </span>
+<span id="L61"><span class="lineNum">      61</span>              : // ================</span>
         </pre>
               </td>
             </tr>

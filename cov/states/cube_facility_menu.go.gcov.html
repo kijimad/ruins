@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-21 13:35:42</td>
+            <td class="headerValue">2026-11-21 14:22:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -342,7 +342,7 @@
 <span id="L280"><span class="lineNum">     280</span>              : func (st *CubeFacilitySelectState) ViewUI(world w.World, props CubeFacilitySelectProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {</span>
 <span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         rows := make([]menuframe.Row, 0, len(props.Candidates))</span></span>
 <span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :         for _, entity := range props.Candidates {</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(menuIcon(world, entity)), styled.TextCell(query.GetEntityName(entity, world))}})</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 rows = append(rows, menuframe.Row{Cells: []styled.Cell{itemIconCell(world, entity), styled.TextCell(query.GetEntityName(entity, world))}})</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :         list, pager := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Icon(), styled.Name()),</span></span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                 menuframe.ListOpts{EmptyText: query.T(world, &quot;No items to deploy&quot;)}, res)</span></span>
