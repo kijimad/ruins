@@ -531,13 +531,13 @@
 				
 				<option value="file237">github.com/kijimaD/ruins/internal/states/autosave.go (58.3%)</option>
 				
-				<option value="file238">github.com/kijimaD/ruins/internal/states/character_info.go (93.0%)</option>
+				<option value="file238">github.com/kijimaD/ruins/internal/states/character_info.go (93.6%)</option>
 				
 				<option value="file239">github.com/kijimaD/ruins/internal/states/character_job.go (62.2%)</option>
 				
 				<option value="file240">github.com/kijimaD/ruins/internal/states/character_naming.go (70.7%)</option>
 				
-				<option value="file241">github.com/kijimaD/ruins/internal/states/character_state.go (69.4%)</option>
+				<option value="file241">github.com/kijimaD/ruins/internal/states/character_state.go (70.0%)</option>
 				
 				<option value="file242">github.com/kijimaD/ruins/internal/states/character_view.go (100.0%)</option>
 				
@@ -36668,7 +36668,7 @@ func translatedConditionName(world w.World, ct gc.ConditionType) string {
 // treatmentStatus は不調の治療状態を表す。未治療か、治療済みならその質を出す
 func treatmentStatus(world w.World, cond gc.HealthCondition) string {
         <span class="cov8" title="1">if cond.TendQuality &lt;= 0 </span>{
-                <span class="cov0" title="0">return query.T(world, "Untreated")
+                <span class="cov8" title="1">return query.T(world, "Untreated")
 </span>        }
         <span class="cov8" title="1">return fmt.Sprintf("%s %d%%", query.T(world, "Tended"), int(cond.TendQuality))</span>
 }
@@ -37673,10 +37673,11 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 </span>        }
         // 血液量を下げる不調はその量を示す。失血で体力が減ることを読み取れるようにする
         <span class="cov8" title="1">if bd := world.Resources.ConditionDefs.BloodDrop(cond); bd &gt; 0 </span>{
-                <span class="cov0" title="0">rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Blood loss"), Value: fmt.Sprintf("-%d", bd)})
+                <span class="cov8" title="1">rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Blood loss"), Value: fmt.Sprintf("-%d", bd)})
 </span>        }
-        // 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする
-        <span class="cov8" title="1">if name, ok := remedyItemNameFor(world, cond.Type); ok </span>{
+        // 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする。
+        // 治療は発症した不調だけを対象にするので、発症前には出さない
+        <span class="cov8" title="1">if name, ok := remedyItemNameFor(world, cond.Type); ok &amp;&amp; cond.IsActive() </span>{
                 <span class="cov8" title="1">rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Treated by"), Value: query.T(world, name)})
 </span>        }
         <span class="cov8" title="1">return overlay.DetailContent{
