@@ -38,6 +38,8 @@ var (
 	errEnumRowMissing                = errors.New("enum value has no raw row")
 	errTableMissing                  = errors.New("table required by code is missing")
 	errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
+	errRemedyTooWeak                 = errors.New("remedy potency is too low to speed recovery")
+	errRemedyNotTendable             = errors.New("remedy treats a condition that does not recover after tending")
 )
 
 // validateRules は行の間の決まりのうち、CUE のスキーマで書かないものを検証する。
@@ -49,6 +51,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateLandmarkMinDanger,
 		validateMapGlyphReferences,
 		validateConditions,
+		validateRemedies,
 		validateWeathers,
 		validateTileEffects,
 		validateGrounds,
@@ -192,6 +195,37 @@ func validateDisassemblies(raws rawschema.Raws) error {
 		}
 		if props[i].Hp == nil {
 			return fmt.Errorf("prop %q: %w", props[i].Name, errDisassemblyWithoutHP)
+		}
+	}
+	return nil
+}
+
+// validateRemedies は、治療する物が治す不調が治療で回復に向かう種類で、治療の質を掛けた1ターンの回復量が1以上あることを検証する
+func validateRemedies(raws rawschema.Raws) error {
+	recoverPer := map[rawschema.ConditionTypeName]int{}
+	for _, c := range PtrSlice(raws.Conditions) {
+		if c.Recovery == nil || *c.Recovery != rawschema.RecoverAfterTend {
+			continue
+		}
+		recoverPer[c.Id] = 0
+		if c.RecoverPer != nil {
+			recoverPer[c.Id] = *c.RecoverPer
+		}
+	}
+	items := PtrSlice(raws.Items)
+	for i := range items {
+		it := &items[i]
+		if it.Remedy == nil {
+			continue
+		}
+		for _, t := range it.Remedy.Treats {
+			per, ok := recoverPer[t]
+			if !ok {
+				return fmt.Errorf("item %q treats %q: %w", it.Id, t, errRemedyNotTendable)
+			}
+			if consts.Percent(it.Remedy.Potency).ApplyInt(per) < 1 {
+				return fmt.Errorf("item %q treats %q: %w", it.Id, t, errRemedyTooWeak)
+			}
 		}
 	}
 	return nil

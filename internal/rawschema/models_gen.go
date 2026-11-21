@@ -2313,7 +2313,7 @@ type Remains struct {
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 }
 
-// Remedy 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
+// Remedy 治療する性質。Treats に一致する不調から1つを治療済みにする。選び方は activity の remedyTarget に従う
 type Remedy struct {
 	Potency Potency `json:"potency"`
 

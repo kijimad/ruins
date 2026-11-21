@@ -15569,6 +15569,13 @@
   spriteSheetName = "field"
   value = 8
   weight = "150 g"
+  [items.consumable]
+    targetGroup = "ALLY"
+    targetNum = "SINGLE"
+    usableScene = "ANY"
+  [items.remedy]
+    potency = 50
+    treats = ["laceration"]
 
 [[items]]
   description = "A small device that charges batteries."
@@ -17874,6 +17881,13 @@
   spriteSheetName = "field"
   value = 2
   weight = "100 g"
+  [items.consumable]
+    targetGroup = "ALLY"
+    targetNum = "SINGLE"
+    usableScene = "ANY"
+  [items.remedy]
+    potency = 50
+    treats = ["laceration"]
 
 [[items]]
   description = "A scrap of leather cut from old leather goods. Useful as material."

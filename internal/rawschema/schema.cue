@@ -1161,7 +1161,7 @@ import (
 #PassCost: int & >=0 & <=9999
 
 // 治療の質。基準100の倍率。100が標準、150で回復1.5倍
-#Potency: int & >=0 & <=9999
+#Potency: int & >=1 & <=9999
 
 // 職業
 #Profession: {
@@ -1440,7 +1440,7 @@ import (
 // リロードに必要な行動力
 #ReloadEffort: int & >=1 & <=100
 
-// 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
+// 治療する性質。Treats に一致する不調から1つを治療済みにする。選び方は activity の remedyTarget に従う
 #Remedy: {
 	treats!: [...#ConditionTypeName]
 	treats_ref: [for x in treats {_conditionIDs[x]}] @rawgen(-)
