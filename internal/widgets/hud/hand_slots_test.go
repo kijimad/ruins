@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/loader"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -28,6 +29,24 @@ func TestSlotWidget_Draw(t *testing.T) {
 		assert.Equal(t, rect.Min.X+slotNumberPad, txt.pos.X, "番号は左上パディング位置のX")
 		assert.Equal(t, rect.Min.Y+slotNumberPad, txt.pos.Y, "番号は左上パディング位置のY")
 		assert.Equal(t, 1, cv.roundedStrokes, "非選択は背景の枠だけで選択枠は描かない")
+	})
+
+	t.Run("残量を持つ物は下端にゲージの段を並べる", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: HandSlotInfo{ChargeStage: 3, ChargeStages: 5}, number: 1}
+		s.Draw(cv)
+
+		assert.Equal(t, resources.GaugeSegments(image.Rect(14, 60, 54, 64), 5, 2), cv.fillRects)
+	})
+
+	t.Run("残量を持たない物はゲージを描かない", func(t *testing.T) {
+		t.Parallel()
+		cv := &fakeCanvas{}
+		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: HandSlotInfo{}, number: 1}
+		s.Draw(cv)
+
+		assert.Empty(t, cv.fillRects)
 	})
 
 	t.Run("選択中は矩形いっぱいに枠線を重ねる", func(t *testing.T) {

@@ -320,3 +320,29 @@ func TestSizedGauge_解決できなければnil(t *testing.T) {
 	assert.Nil(t, s.SizedGauge(sr, 0, gauge), "大きさが0")
 	assert.Nil(t, s.SizedGauge(sr, 20, gauge), "シートが見つからない")
 }
+
+func TestGaugeSegments(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		area  image.Rectangle
+		total int
+		gap   int
+		want  []image.Rectangle
+	}{
+		{name: "余りを左右に分けて中央に寄せる", area: image.Rect(10, 0, 50, 4), total: 5, gap: 2, want: []image.Rectangle{
+			image.Rect(11, 0, 17, 4), image.Rect(19, 0, 25, 4), image.Rect(27, 0, 33, 4), image.Rect(35, 0, 41, 4), image.Rect(43, 0, 49, 4),
+		}},
+		{name: "幅が足りなければ段のあいだを詰める", area: image.Rect(0, 0, 6, 1), total: 5, gap: 1, want: []image.Rectangle{
+			image.Rect(0, 0, 1, 1), image.Rect(1, 0, 2, 1), image.Rect(2, 0, 3, 1), image.Rect(3, 0, 4, 1), image.Rect(4, 0, 5, 1),
+		}},
+		{name: "段が無ければ並べない", area: image.Rect(0, 0, 6, 1), total: 0, gap: 1},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, GaugeSegments(tt.area, tt.total, tt.gap))
+		})
+	}
+}

@@ -115,16 +115,14 @@ func (s *slotWidget) Draw(cv uicore.Canvas) {
 func (s *slotWidget) drawGauge(cv uicore.Canvas) {
 	const height, gap = 4, 2
 	inner := s.rect.Inset(slotNumberPad)
-	n := s.slot.ChargeStages
-	segW := (inner.Dx() - gap*(n-1)) / n
-	fill := theme.ChargeColor(s.slot.ChargeStage, n)
-	for i := range n {
+	fill := theme.ChargeColor(s.slot.ChargeStage, s.slot.ChargeStages)
+	area := image.Rect(inner.Min.X, inner.Max.Y-height, inner.Max.X, inner.Max.Y)
+	for i, r := range resources.GaugeSegments(area, s.slot.ChargeStages, gap) {
 		c := theme.ChargeEmpty
 		if i < s.slot.ChargeStage {
 			c = fill
 		}
-		x := inner.Min.X + i*(segW+gap)
-		cv.FillRect(image.Rect(x, inner.Max.Y-height, x+segW, inner.Max.Y), c, uicore.RectOptions{})
+		cv.FillRect(r, c, uicore.RectOptions{})
 	}
 }
 

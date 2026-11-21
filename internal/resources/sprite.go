@@ -126,28 +126,36 @@ func (s *SpriteStore) SizedGauge(sr *components.SpriteRender, size int, gauge Ga
 	return img
 }
 
-// drawGauge は dst の下端に段階のゲージを描く。段のあいだは1ピクセル空け、幅が足りなければ詰める
+// drawGauge は dst の下端3行に段階のゲージを描く
 func drawGauge(dst *image.RGBA, g Gauge) {
-	if g.Total <= 0 {
-		return
-	}
 	const height = 3
 	b := dst.Bounds()
-	gap := 1
-	if b.Dx() < 2*g.Total-1 {
-		gap = 0
-	}
-	segW := max(1, (b.Dx()-gap*(g.Total-1))/g.Total)
-	left := (b.Dx() - (segW*g.Total + gap*(g.Total-1))) / 2
-	top := b.Dy() - height
-	for i := range g.Total {
+	for i, r := range GaugeSegments(image.Rect(b.Min.X, b.Max.Y-height, b.Max.X, b.Max.Y), g.Total, 1) {
 		c := g.Empty
 		if i < g.Filled {
 			c = g.Fill
 		}
-		x := left + i*(segW+gap)
-		draw.Draw(dst, image.Rect(x, top, x+segW, b.Dy()), image.NewUniform(c), image.Point{}, draw.Src)
+		draw.Draw(dst, r, image.NewUniform(c), image.Point{}, draw.Src)
 	}
+}
+
+// GaugeSegments は area の中にゲージの total 段の矩形を左から並べて返す。段のあいだを gap 空けて中央に寄せる。
+// 幅が足りなければ段のあいだを詰め、段の幅は1ピクセルより細くしない。一覧のアイコンと HUD の手持ち欄が同じ並べ方を使う
+func GaugeSegments(area image.Rectangle, total, gap int) []image.Rectangle {
+	if total <= 0 {
+		return nil
+	}
+	if area.Dx() < total+gap*(total-1) {
+		gap = 0
+	}
+	segW := max(1, (area.Dx()-gap*(total-1))/total)
+	left := area.Min.X + (area.Dx()-(segW*total+gap*(total-1)))/2
+	segments := make([]image.Rectangle, 0, total)
+	for i := range total {
+		x := left + i*(segW+gap)
+		segments = append(segments, image.Rect(x, area.Min.Y, x+segW, area.Max.Y))
+	}
+	return segments
 }
 
 // Rect は sr が指すスプライトのテクスチャと、その中の切り出し矩形を返す。解決できなければ ok=false。
