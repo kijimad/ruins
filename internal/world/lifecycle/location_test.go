@@ -194,8 +194,7 @@ func TestMoveToEquip(t *testing.T) {
 		require.NoError(t, MoveToBackpack(world, torch, owner))
 		assert.False(t, query.LightLit(world, owner, torch), "背負うと照らさない")
 
-		MoveToField(world, torch, &owner)
-		world.Components.GridElement.Add(torch, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
+		MoveStackToField(world, torch, consts.Coord[consts.Tile]{X: 3, Y: 4}, owner)
 		assert.True(t, query.LightLit(world, owner, torch), "床に戻すとまた照らす")
 	})
 
