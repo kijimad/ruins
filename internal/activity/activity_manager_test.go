@@ -235,7 +235,7 @@ func TestCancelActivity_未登録のBehaviorNameは結果を記録せず除去�
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
 
-	// StartActivity を経由せず、直接未登録のBehaviorNameを持つActivityを登録する
+	// StartActivity は未登録の Behavior を弾くので直接登録する
 	comp := NewActivity(gc.BehaviorName("未登録の振る舞い"), 10)
 	require.NoError(t, query.SetActivity(world, actor, comp))
 
@@ -299,7 +299,7 @@ func TestProcessContinuousActivities_アクティビティ処理のエラーを�
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
 
-	// StartActivity を経由せず、直接未登録のBehaviorNameを持つActivityを登録する
+	// StartActivity は未登録の Behavior を弾くので直接登録する
 	comp := NewActivity(gc.BehaviorName("未登録の振る舞い"), 10)
 	require.NoError(t, query.SetActivity(world, actor, comp))
 
