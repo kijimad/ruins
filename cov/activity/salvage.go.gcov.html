@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-21 09:01:32</td>
+            <td class="headerValue">2026-11-21 09:14:45</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,16 +77,16 @@
 <span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              : )</span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
-<span id="L18"><span class="lineNum">      18</span>              : // wieldedTool は actor が構えている武器が分解定義 def に合う道具ならそのグレードを返す</span>
+<span id="L18"><span class="lineNum">      18</span>              : // wieldedTool は actor が選んだ手持ち欄の物が分解定義 def に合う道具ならそのグレードを返す</span>
 <span id="L19"><span class="lineNum">      19</span>              : func wieldedTool(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (int, bool) {</span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         if def.ToolCategory == nil || !world.Components.Player.Has(actor) {</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return 0, false</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         weapon, ok := query.SelectedWeapon(world, actor)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         held, ok := query.SelectedHeld(world, actor)</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return 0, false</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(held, world))</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 return 0, false</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>

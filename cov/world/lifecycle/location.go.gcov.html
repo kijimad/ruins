@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.7&nbsp;%</td>
-            <td class="headerCovTableEntry">190</td>
-            <td class="headerCovTableEntry">180</td>
+            <td class="headerCovTableEntryHi">95.0&nbsp;%</td>
+            <td class="headerCovTableEntry">201</td>
+            <td class="headerCovTableEntry">191</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-21 09:01:32</td>
+            <td class="headerValue">2026-11-21 09:14:45</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -345,47 +345,66 @@
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L284"><span class="lineNum">     284</span>              : }</span>
 <span id="L285"><span class="lineNum">     285</span>              : </span>
-<span id="L286"><span class="lineNum">     286</span>              : // RemoveOwnedEntities は owners のいずれかが所有する、座標を持たないロケーションの実体を削除する。</span>
-<span id="L287"><span class="lineNum">     287</span>              : // 収納在庫 LocationInStorage・畳んだ貨物 LocationStowed・装着モジュール LocationInstalled はどれも</span>
-<span id="L288"><span class="lineNum">     288</span>              : // GridElement を持たず、座標カリングやステージ束縛の走査に載らない。所有者を消すときに一緒に消さないと、</span>
-<span id="L289"><span class="lineNum">     289</span>              : // 死んだ所有者を指す孤児として world に残り serde で蓄積する。反復中の削除を避け、収集してから削除する。</span>
-<span id="L290"><span class="lineNum">     290</span>              : func RemoveOwnedEntities(world w.World, owners []ecs.Entity) {</span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         if len(owners) == 0 {</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         ownerSet := make(map[ecs.Entity]bool, len(owners))</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         for _, o := range owners {</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 ownerSet[o] = true</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L298"><span class="lineNum">     298</span>              : </span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :         var toRemove []ecs.Entity</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :         qs := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         for qs.Next() {</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                 e := qs.Entity()</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                 if ownerSet[world.Components.LocationInStorage.Get(e).Owner] {</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                         toRemove = append(toRemove, e)</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L306"><span class="lineNum">     306</span>              :         }</span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :         qw := ecs.NewFilter1[gc.LocationStowed](world.ECS).Query()</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :         for qw.Next() {</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 e := qw.Entity()</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 if ownerSet[world.Components.LocationStowed.Get(e).Owner] {</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                         toRemove = append(toRemove, e)</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L313"><span class="lineNum">     313</span>              :         }</span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :         qi := ecs.NewFilter1[gc.LocationInstalled](world.ECS).Query()</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :         for qi.Next() {</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 e := qi.Entity()</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                 if ownerSet[world.Components.LocationInstalled.Get(e).Owner] {</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                         toRemove = append(toRemove, e)</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L320"><span class="lineNum">     320</span>              :         }</span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :         for _, e := range toRemove {</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 if world.ECS.Alive(e) {</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                         world.ECS.RemoveEntity(e)</span></span>
+<span id="L286"><span class="lineNum">     286</span>              : // RemoveItem はアイテムを消す。持ち主がいれば能力と総重量を計算し直させる</span>
+<span id="L287"><span class="lineNum">     287</span>              : func RemoveItem(world w.World, item ecs.Entity) {</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         var owner ecs.Entity</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         hasOwner := true</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L291"><span class="lineNum">     291</span>              :         case world.Components.LocationEquipped.Has(item):</span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 owner = world.Components.LocationEquipped.Get(item).Owner</span></span>
+<span id="L293"><span class="lineNum">     293</span>              :         case world.Components.LocationInBackpack.Has(item):</span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                 owner = world.Components.LocationInBackpack.Get(item).Owner</span></span>
+<span id="L295"><span class="lineNum">     295</span>              :         default:</span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 hasOwner = false</span></span>
+<span id="L297"><span class="lineNum">     297</span>              :         }</span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :         world.ECS.RemoveEntity(item)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :         if hasOwner {</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                 ensureMarker(world, world.Components.StatsChanged, owner, &amp;gc.StatsChanged{})</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                 ensureMarker(world, world.Components.WeightDirty, owner, &amp;gc.WeightDirty{})</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L303"><span class="lineNum">     303</span>              : }</span>
+<span id="L304"><span class="lineNum">     304</span>              : </span>
+<span id="L305"><span class="lineNum">     305</span>              : // RemoveOwnedEntities は owners のいずれかが所有する、座標を持たないロケーションの実体を削除する。</span>
+<span id="L306"><span class="lineNum">     306</span>              : // 収納在庫 LocationInStorage・畳んだ貨物 LocationStowed・装着モジュール LocationInstalled はどれも</span>
+<span id="L307"><span class="lineNum">     307</span>              : // GridElement を持たず、座標カリングやステージ束縛の走査に載らない。所有者を消すときに一緒に消さないと、</span>
+<span id="L308"><span class="lineNum">     308</span>              : // 死んだ所有者を指す孤児として world に残り serde で蓄積する。反復中の削除を避け、収集してから削除する。</span>
+<span id="L309"><span class="lineNum">     309</span>              : func RemoveOwnedEntities(world w.World, owners []ecs.Entity) {</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         if len(owners) == 0 {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :         ownerSet := make(map[ecs.Entity]bool, len(owners))</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :         for _, o := range owners {</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 ownerSet[o] = true</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L317"><span class="lineNum">     317</span>              : </span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         var toRemove []ecs.Entity</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         qs := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :         for qs.Next() {</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :                 e := qs.Entity()</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 if ownerSet[world.Components.LocationInStorage.Get(e).Owner] {</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                         toRemove = append(toRemove, e)</span></span>
 <span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L325"><span class="lineNum">     325</span>              :         }</span>
-<span id="L326"><span class="lineNum">     326</span>              : }</span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         qw := ecs.NewFilter1[gc.LocationStowed](world.ECS).Query()</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         for qw.Next() {</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :                 e := qw.Entity()</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 if ownerSet[world.Components.LocationStowed.Get(e).Owner] {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                         toRemove = append(toRemove, e)</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L332"><span class="lineNum">     332</span>              :         }</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         qi := ecs.NewFilter1[gc.LocationInstalled](world.ECS).Query()</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :         for qi.Next() {</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                 e := qi.Entity()</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                 if ownerSet[world.Components.LocationInstalled.Get(e).Owner] {</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :                         toRemove = append(toRemove, e)</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L339"><span class="lineNum">     339</span>              :         }</span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :         for _, e := range toRemove {</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :                 if world.ECS.Alive(e) {</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                         world.ECS.RemoveEntity(e)</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L344"><span class="lineNum">     344</span>              :         }</span>
+<span id="L345"><span class="lineNum">     345</span>              : }</span>
         </pre>
               </td>
             </tr>

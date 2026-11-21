@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-21 09:01:32</td>
+            <td class="headerValue">2026-11-21 09:14:45</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -208,7 +208,7 @@
 <span id="L146"><span class="lineNum">     146</span>              : </span>
 <span id="L147"><span class="lineNum">     147</span>              : // getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する</span>
 <span id="L148"><span class="lineNum">     148</span>              : func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, i18n.Msgid, error) {</span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         weapon, ok := query.SelectedWeapon(world, actor)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         weapon, ok := query.SelectedHeld(world, actor)</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 return nil, &quot;&quot;, ErrShootNoFireWeapon</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         }</span></span>
