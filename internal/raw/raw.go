@@ -138,14 +138,14 @@ func toGCSpriteRender(s rawschema.SpriteRender) gc.SpriteRender {
 	}
 }
 
-// toGCLightSource はrawschema.LightSourceからgc.LightSourceに変換する。点いているかは置き場所で決まるので呼ぶ側が渡す
-func toGCLightSource(ls *rawschema.LightSource, enabled bool) *gc.LightSource {
+// toGCLightSource はrawschema.LightSourceから点いたgc.LightSourceに変換する
+func toGCLightSource(ls *rawschema.LightSource) *gc.LightSource {
 	if ls == nil {
 		return nil
 	}
 	return &gc.LightSource{
 		Radius:  consts.Tile(ls.Radius),
-		Enabled: enabled,
+		Enabled: true,
 		Color: color.RGBA{
 			R: ls.Color.R,
 			G: ls.Color.G,
@@ -378,10 +378,13 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Book = book
 	}
 
-	// 携行光源。消えた状態で生まれ、装備すると点く
-	entitySpec.LightSource = toGCLightSource(item.LightSource, false)
+	entitySpec.LightSource = toGCLightSource(item.LightSource)
 	if item.Charge != nil {
 		entitySpec.Charge = &gc.Charge{Max: item.Charge.Max, Current: item.Charge.Max}
+		// 残量を持つ灯りは燃えて減るので、消えた状態で生まれ、装備すると点く
+		if entitySpec.LightSource != nil {
+			entitySpec.LightSource.Enabled = false
+		}
 	}
 
 	// 材質。可燃性と燃焼熱量の算出根拠。観察メニューで見せるためエンティティに保持する
@@ -540,7 +543,7 @@ func NewMemberSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.DropTable = &gc.DropTable{Name: dt.Id}
 	}
 
-	entitySpec.LightSource = toGCLightSource(member.LightSource, true)
+	entitySpec.LightSource = toGCLightSource(member.LightSource)
 
 	// 味方と敵の派閥は NewPlayerSpec と NewEnemySpec が付ける。raw が指せるのは中立だけ
 	if member.FactionType != nil && *member.FactionType == rawschema.FactionNeutral {
@@ -887,7 +890,7 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		interactions = append(interactions, gc.InteractionMelee)
 	}
 
-	entitySpec.LightSource = toGCLightSource(propRaw.LightSource, true)
+	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 	entitySpec.HeatSource = toGCHeatSource(propRaw.HeatSource)
 	entitySpec.Bedding = toGCBedding(propRaw.Bedding)
 
