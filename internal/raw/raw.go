@@ -299,9 +299,6 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	if item.StageLength != nil {
 		entitySpec.Perishable = &gc.Perishable{StageLength: consts.Turn(*item.StageLength)}
 	}
-	if item.InflictsDamage != nil {
-		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: *item.InflictsDamage}
-	}
 	if item.Remedy != nil {
 		treats := make([]gc.ConditionType, 0, len(item.Remedy.Treats))
 		for _, t := range item.Remedy.Treats {
@@ -926,6 +923,19 @@ func FindDisassembly(raws rawschema.Raws, name string) (*rawschema.Disassembly, 
 		return nil, false
 	}
 	return prop.Disassembly, true
+}
+
+// FindThrow は指定された名前のアイテムが行に投げの欄を持てば、その投げの値を返す
+func FindThrow(raws rawschema.Raws, name string) (gc.ThrowAttack, bool) {
+	item, ok := FindByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
+	if !ok || item.Throw == nil {
+		return gc.ThrowAttack{}, false
+	}
+	return gc.ThrowAttack{
+		Damage:   item.Throw.Damage,
+		Accuracy: item.Throw.Accuracy,
+		Breaks:   item.Throw.Breaks != nil && *item.Throw.Breaks,
+	}, true
 }
 
 // FindTool は指定された名前のアイテムの道具の性質を返す

@@ -284,7 +284,7 @@ func TestIsRemedyOnly(t *testing.T) {
 
 	combo := world.ECS.NewEntity()
 	world.Components.Remedy.Add(combo, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 100})
-	world.Components.InflictsDamage.Add(combo, &gc.InflictsDamage{Amount: 1})
+	world.Components.ProvidesHealing.Add(combo, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 1})
 	assert.False(t, u.isRemedyOnly(world, combo), "使うの組のほかの効果も持つなら治療専用でない")
 }
 
@@ -325,7 +325,7 @@ func TestConsumeBehavior_Validate_併用効果があれば空振りでも使え�
 	item := world.ECS.NewEntity()
 	world.Components.Consumable.Add(item, &gc.Consumable{})
 	world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 150})
-	world.Components.InflictsDamage.Add(item, &gc.InflictsDamage{Amount: 1})
+	world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 1})
 
 	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.ConsumeParams{Target: item}}
 	u := &useItemBehavior

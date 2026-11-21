@@ -387,7 +387,7 @@ var goldenCases = []struct {
 				Depth:          1,
 				DefinitionName: dungeon.DebugID,
 				BuilderType:    mapplanner.LayoutPlannerType("small_room"),
-			}, &gs.ShootingState{}}, nil
+			}, gs.NewTargetingState(gs.ShootMode{})}, nil
 		},
 		steps: []replayStep{{shot: true}},
 	},

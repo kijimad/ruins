@@ -178,12 +178,6 @@ type ProvidesNutrition struct {
 	Amount int // 回復量（この値だけ空腹度を減らす）
 }
 
-// InflictsDamage はダメージを与える性質
-// 直接的な数値が作用し、ステータスなどは考慮されない
-type InflictsDamage struct {
-	Amount int
-}
-
 // Remedy は不調を治療する性質。使うと Treats に一致する不調から1つを治療済みにする。選び方は activity の remedyTarget に従う。
 // Treats をスライスにするのは、1つのアイテムに関連する複数種の不調を治させるため。
 // 救急道具が骨折も切り傷も扱えれば、症状ごとに別のアイテムを何度も使う手間が減る。
@@ -268,6 +262,38 @@ func (m *Melee) GetCost() int { return m.Cost }
 
 // GetTargetType はAttackerの実装
 func (m *Melee) GetTargetType() TargetType { return m.TargetType }
+
+// ThrowAttack は物を投げたときの攻撃の値。コンポーネントでなく、投げるときに raw の欄か重さから導く
+type ThrowAttack struct {
+	Damage   int
+	Accuracy int
+	Breaks   bool // 投げると壊れて無くなる
+}
+
+// GetAccuracy はAttackerの実装
+func (t ThrowAttack) GetAccuracy() int { return t.Accuracy }
+
+// GetDamage はAttackerの実装
+func (t ThrowAttack) GetDamage() int { return t.Damage }
+
+// GetAttackCount はAttackerの実装。投げるのは1回
+func (t ThrowAttack) GetAttackCount() int { return 1 }
+
+// GetElement はAttackerの実装。投げる攻撃は属性を持たない
+func (t ThrowAttack) GetElement() rawschema.Element { return rawschema.ElementNONE }
+
+// GetAttackCategory はAttackerの実装
+func (t ThrowAttack) GetAttackCategory() rawschema.AttackCategory {
+	return rawschema.AttackCategoryThrow
+}
+
+// GetCost はAttackerの実装。物を手放す代わりに射撃より安い
+func (t ThrowAttack) GetCost() int { return 1 }
+
+// GetTargetType はAttackerの実装。狙った敵1体に当てる
+func (t ThrowAttack) GetTargetType() TargetType {
+	return TargetType{TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE}
+}
 
 // Fire は遠距離攻撃の性質。射撃パラメータと弾薬管理を含む
 type Fire struct {

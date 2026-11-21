@@ -27,7 +27,7 @@ type itemUseCheck struct {
 func itemUseChecks(it *rawschema.Item, material rawschema.MaterialDef, recipeInputs map[rawschema.EntityID]bool) []itemUseCheck {
 	eat := it.ProvidesNutrition != nil
 	heal := it.ProvidesHealing != nil || it.Remedy != nil
-	throw := it.InflictsDamage != nil
+	throw := it.Throw != nil
 	escape := it.EscapeDevice != nil
 	core := it.CubeCore != nil
 	return []itemUseCheck{

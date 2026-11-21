@@ -97,7 +97,6 @@ var Registry = []Def{
 	{Field: "WeightDirty"},        // 重量再計算が必要なことを示すダーティフラグ
 	{Field: "ProvidesHealing"},    // HP回復の性質を保持する
 	{Field: "ProvidesNutrition"},  // 空腹度回復の性質を保持する
-	{Field: "InflictsDamage"},     // ダメージを与える性質を保持する
 	{Field: "Remedy"},             // 不調を治療する性質を保持する
 
 	// book ================

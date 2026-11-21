@@ -131,6 +131,7 @@ const (
 	AttackCategoryRifle   AttackCategory = "rifle"
 	AttackCategorySpear   AttackCategory = "spear"
 	AttackCategorySword   AttackCategory = "sword"
+	AttackCategoryThrow   AttackCategory = "throw"
 )
 
 // Valid indicates whether the value is a known member of the AttackCategory enum.
@@ -150,6 +151,8 @@ func (e AttackCategory) Valid() bool {
 		return true
 	case AttackCategorySword:
 		return true
+	case AttackCategoryThrow:
+		return true
 	default:
 		return false
 	}
@@ -157,7 +160,7 @@ func (e AttackCategory) Valid() bool {
 
 // AttackCategoryValues は AttackCategory の値を、スキーマに書いた順に返す。
 func AttackCategoryValues() []AttackCategory {
-	return []AttackCategory{AttackCategoryFist, AttackCategorySword, AttackCategorySpear, AttackCategoryHandgun, AttackCategoryRifle, AttackCategoryCannon, AttackCategoryBow}
+	return []AttackCategory{AttackCategoryFist, AttackCategorySword, AttackCategorySpear, AttackCategoryHandgun, AttackCategoryRifle, AttackCategoryCannon, AttackCategoryBow, AttackCategoryThrow}
 }
 
 // AttackCount 1ターンあたりの攻撃回数
@@ -1143,7 +1146,6 @@ type Fire struct {
 	TargetNum TargetNum `json:"targetNum"`
 }
 
-// FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 type FireStarter = map[string]interface{}
 
 // Foliage タイルの植生
@@ -1425,8 +1427,6 @@ type Item struct {
 
 	Id EntityID `json:"id"`
 
-	InflictsDamage *BaseDamage `json:"inflictsDamage,omitempty"`
-
 	// LightSource 携行光源。装備すると owner を照らす
 	LightSource *LightSource `json:"lightSource,omitempty"`
 
@@ -1448,6 +1448,9 @@ type Item struct {
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 
 	StageLength *StageLengthTurns `json:"stageLength,omitempty"`
+
+	// Throw 投げたときの値。書かない物は重さから導く
+	Throw *Throw `json:"throw,omitempty"`
 
 	// Tool 道具の性質。合う物を殴って壊すと速く多く得る
 	Tool *Tool `json:"tool,omitempty"`
@@ -1945,6 +1948,8 @@ const (
 	ProficiencyIdSpearDamage     ProficiencyId = "spear_damage"
 	ProficiencyIdSwordAccuracy   ProficiencyId = "sword_accuracy"
 	ProficiencyIdSwordDamage     ProficiencyId = "sword_damage"
+	ProficiencyIdThrowAccuracy   ProficiencyId = "throw_accuracy"
+	ProficiencyIdThrowDamage     ProficiencyId = "throw_damage"
 	ProficiencyIdThunderResist   ProficiencyId = "thunder_resist"
 )
 
@@ -2011,6 +2016,10 @@ func (e ProficiencyId) Valid() bool {
 		return true
 	case ProficiencyIdSwordDamage:
 		return true
+	case ProficiencyIdThrowAccuracy:
+		return true
+	case ProficiencyIdThrowDamage:
+		return true
 	case ProficiencyIdThunderResist:
 		return true
 	default:
@@ -2020,7 +2029,7 @@ func (e ProficiencyId) Valid() bool {
 
 // ProficiencyIdValues は ProficiencyId の値を、スキーマに書いた順に返す。
 func ProficiencyIdValues() []ProficiencyId {
-	return []ProficiencyId{ProficiencyIdFireResist, ProficiencyIdThunderResist, ProficiencyIdChillResist, ProficiencyIdPhotonResist, ProficiencyIdColdProgress, ProficiencyIdHungerProgress, ProficiencyIdHealingEffect, ProficiencyIdMaxWeight, ProficiencyIdExploration, ProficiencyIdEnemyVision, ProficiencyIdNightVision, ProficiencyIdMoveCost, ProficiencyIdCraftCost, ProficiencyIdSmithQuality, ProficiencyIdBuyPrice, ProficiencyIdSellPrice, ProficiencyIdHeavyArmor, ProficiencyIdSwordDamage, ProficiencyIdSpearDamage, ProficiencyIdFistDamage, ProficiencyIdBowDamage, ProficiencyIdHandgunDamage, ProficiencyIdRifleDamage, ProficiencyIdCannonDamage, ProficiencyIdSwordAccuracy, ProficiencyIdSpearAccuracy, ProficiencyIdFistAccuracy, ProficiencyIdBowAccuracy, ProficiencyIdHandgunAccuracy, ProficiencyIdRifleAccuracy, ProficiencyIdCannonAccuracy}
+	return []ProficiencyId{ProficiencyIdFireResist, ProficiencyIdThunderResist, ProficiencyIdChillResist, ProficiencyIdPhotonResist, ProficiencyIdColdProgress, ProficiencyIdHungerProgress, ProficiencyIdHealingEffect, ProficiencyIdMaxWeight, ProficiencyIdExploration, ProficiencyIdEnemyVision, ProficiencyIdNightVision, ProficiencyIdMoveCost, ProficiencyIdCraftCost, ProficiencyIdSmithQuality, ProficiencyIdBuyPrice, ProficiencyIdSellPrice, ProficiencyIdHeavyArmor, ProficiencyIdSwordDamage, ProficiencyIdSpearDamage, ProficiencyIdFistDamage, ProficiencyIdBowDamage, ProficiencyIdHandgunDamage, ProficiencyIdRifleDamage, ProficiencyIdCannonDamage, ProficiencyIdSwordAccuracy, ProficiencyIdSpearAccuracy, ProficiencyIdFistAccuracy, ProficiencyIdBowAccuracy, ProficiencyIdHandgunAccuracy, ProficiencyIdRifleAccuracy, ProficiencyIdCannonAccuracy, ProficiencyIdThrowDamage, ProficiencyIdThrowAccuracy}
 }
 
 // ProficiencyPerLevel 熟練の効果倍率のスキルLv1あたりの変化量。百分率
@@ -2646,6 +2655,7 @@ const (
 	SkillIdSprinting     SkillId = "sprinting"
 	SkillIdStealth       SkillId = "stealth"
 	SkillIdSword         SkillId = "sword"
+	SkillIdThrow         SkillId = "throw"
 	SkillIdThunderResist SkillId = "thunder_resist"
 	SkillIdWeightBearing SkillId = "weight_bearing"
 )
@@ -2697,6 +2707,8 @@ func (e SkillId) Valid() bool {
 		return true
 	case SkillIdSword:
 		return true
+	case SkillIdThrow:
+		return true
 	case SkillIdThunderResist:
 		return true
 	case SkillIdWeightBearing:
@@ -2708,7 +2720,7 @@ func (e SkillId) Valid() bool {
 
 // SkillIdValues は SkillId の値を、スキーマに書いた順に返す。
 func SkillIdValues() []SkillId {
-	return []SkillId{SkillIdSword, SkillIdSpear, SkillIdFist, SkillIdWeightBearing, SkillIdBow, SkillIdHandgun, SkillIdRifle, SkillIdCannon, SkillIdExploration, SkillIdCrafting, SkillIdSmithing, SkillIdNegotiation, SkillIdMechanic, SkillIdSprinting, SkillIdStealth, SkillIdNightVision, SkillIdColdResist, SkillIdHungerResist, SkillIdHealing, SkillIdHeavyArmor, SkillIdFireResist, SkillIdThunderResist, SkillIdChillResist, SkillIdPhotonResist}
+	return []SkillId{SkillIdSword, SkillIdSpear, SkillIdFist, SkillIdWeightBearing, SkillIdBow, SkillIdHandgun, SkillIdRifle, SkillIdCannon, SkillIdExploration, SkillIdCrafting, SkillIdSmithing, SkillIdNegotiation, SkillIdMechanic, SkillIdSprinting, SkillIdStealth, SkillIdNightVision, SkillIdColdResist, SkillIdHungerResist, SkillIdHealing, SkillIdHeavyArmor, SkillIdFireResist, SkillIdThunderResist, SkillIdChillResist, SkillIdPhotonResist, SkillIdThrow}
 }
 
 // SkillLevel スキルレベル
@@ -2915,6 +2927,17 @@ type TemplateStart struct {
 
 	// Template levels の絵の名前
 	Template EntityID `json:"template"`
+}
+
+// Throw 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
+// 投げたときの値。投げ向きの物だけが書き、ほかの物は重さから導く
+type Throw struct {
+	Accuracy Accuracy `json:"accuracy"`
+
+	// Breaks 投げると壊れて無くなる。省くと壊れず、狙った敵の足元に落ちる
+	Breaks *bool `json:"breaks,omitempty"`
+
+	Damage BaseDamage `json:"damage"`
 }
 
 // Tile タイル

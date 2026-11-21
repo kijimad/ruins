@@ -52,6 +52,8 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 		return &ReadBehavior{}, nil
 	case gc.BehaviorShoot:
 		return &ShootBehavior{}, nil
+	case gc.BehaviorThrow:
+		return &ThrowBehavior{}, nil
 	case gc.BehaviorReload:
 		return &ReloadBehavior{}, nil
 	case gc.BehaviorSleep:

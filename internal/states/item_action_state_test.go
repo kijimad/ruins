@@ -49,7 +49,7 @@ func TestVerbByAction_直達アクションを動詞へ対応づける(t *testin
 		{"食べる", inputmapper.ActionVerbConsume, verbConsume, true},
 		{"読む", inputmapper.ActionVerbRead, verbRead, true},
 		{"使う", inputmapper.ActionVerbUse, verbUse, true},
-		{"投げるは未実装なので対応なし", inputmapper.ActionVerbThrow, verbID(""), false},
+		{"投げる", inputmapper.ActionVerbThrow, verbThrow, true},
 		{"動詞でないアクションは対応なし", inputmapper.ActionMenuSelect, verbID(""), false},
 	}
 	for _, tt := range cases {
@@ -123,7 +123,6 @@ func TestAcceptEatUse_食べると使うの対象は効果の組で決まる(t *
 	}{
 		{"パンは栄養を持つので食べる対象", "bread", true, false},
 		{"回復薬は回復を持つので使う対象", "healing_potion", false, true},
-		{"手榴弾は使うの効果だけを持つので使う対象", "grenade", false, true},
 		{"包帯は治療だけを持つので使う対象", "bandage", false, true},
 		{"蜂蜜は栄養と治療を持つので両方の対象", "honey", true, true},
 	}

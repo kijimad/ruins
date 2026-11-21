@@ -50,7 +50,7 @@ import (
 // 防具の防御力
 #ArmorDefense: int & >=0 & <=999
 
-#AttackCategory: "fist" | "sword" | "spear" | "handgun" | "rifle" | "cannon" | "bow" @rawgen(prefix)
+#AttackCategory: "fist" | "sword" | "spear" | "handgun" | "rifle" | "cannon" | "bow" | "throw" @rawgen(prefix)
 
 // 1ターンあたりの攻撃回数
 #AttackCount: int & >=1 & <=10
@@ -778,6 +778,15 @@ import (
 }
 
 // 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
+// 投げたときの値。投げ向きの物だけが書き、ほかの物は重さから導く
+#Throw: {
+	damage!:   #BaseDamage
+	accuracy!: #Accuracy
+
+	// 投げると壊れて無くなる。省くと壊れず、狙った敵の足元に落ちる
+	breaks?: bool
+}
+
 #FireStarter: {}
 
 // 脱出の装置。使うと惑星を脱出してクリアになる
@@ -910,7 +919,6 @@ import (
 
 	// アイテム重量
 	weight?:            #Weight
-	inflictsDamage?:    #BaseDamage
 	providesNutrition?: #NutritionAmount
 	stageLength?:       #StageLengthTurns
 	consumable?:        #Consumable
@@ -943,8 +951,11 @@ import (
 	// キューブの核。使うと隣に新しいキューブが組み上がる
 	cubeCore?: #CubeCore
 
+	// 投げたときの値。書かない物は重さから導く
+	throw?: #Throw
+
 	// 食べる・使うの効果を持つ物は、食べたり使ったりすると無くなる消費物にする
-	for f in [providesNutrition, providesHealing, remedy, inflictsDamage, escapeDevice, cubeCore] if f != _|_ {
+	for f in [providesNutrition, providesHealing, remedy, escapeDevice, cubeCore] if f != _|_ {
 		consumable!: _ @rawgen(-)
 	}
 }
@@ -1208,7 +1219,7 @@ import (
 }
 
 // 熟練の効果倍率の id。技能と能力値から導く行動ごとの倍率を指す。怪我・病気・疲労・空腹による身体機能の低下は別に扱う
-#ProficiencyId: "fire_resist" | "thunder_resist" | "chill_resist" | "photon_resist" | "cold_progress" | "hunger_progress" | "healing_effect" | "max_weight" | "exploration" | "enemy_vision" | "night_vision" | "move_cost" | "craft_cost" | "smith_quality" | "buy_price" | "sell_price" | "heavy_armor" | "sword_damage" | "spear_damage" | "fist_damage" | "bow_damage" | "handgun_damage" | "rifle_damage" | "cannon_damage" | "sword_accuracy" | "spear_accuracy" | "fist_accuracy" | "bow_accuracy" | "handgun_accuracy" | "rifle_accuracy" | "cannon_accuracy" @rawgen(prefix)
+#ProficiencyId: "fire_resist" | "thunder_resist" | "chill_resist" | "photon_resist" | "cold_progress" | "hunger_progress" | "healing_effect" | "max_weight" | "exploration" | "enemy_vision" | "night_vision" | "move_cost" | "craft_cost" | "smith_quality" | "buy_price" | "sell_price" | "heavy_armor" | "sword_damage" | "spear_damage" | "fist_damage" | "bow_damage" | "handgun_damage" | "rifle_damage" | "cannon_damage" | "sword_accuracy" | "spear_accuracy" | "fist_accuracy" | "bow_accuracy" | "handgun_accuracy" | "rifle_accuracy" | "cannon_accuracy" | "throw_damage" | "throw_accuracy" @rawgen(prefix)
 
 // 熟練の効果倍率のスキルLv1あたりの変化量。百分率
 #ProficiencyPerLevel: int & >=-100 & <=100
@@ -1576,7 +1587,7 @@ import (
 			50) & =~"^[a-z][a-z0-9_]*$"
 
 // スキルID
-#SkillId: "sword" | "spear" | "fist" | "weight_bearing" | "bow" | "handgun" | "rifle" | "cannon" | "exploration" | "crafting" | "smithing" | "negotiation" | "mechanic" | "sprinting" | "stealth" | "night_vision" | "cold_resist" | "hunger_resist" | "healing" | "heavy_armor" | "fire_resist" | "thunder_resist" | "chill_resist" | "photon_resist" @rawgen(prefix)
+#SkillId: "sword" | "spear" | "fist" | "weight_bearing" | "bow" | "handgun" | "rifle" | "cannon" | "exploration" | "crafting" | "smithing" | "negotiation" | "mechanic" | "sprinting" | "stealth" | "night_vision" | "cold_resist" | "hunger_resist" | "healing" | "heavy_armor" | "fire_resist" | "thunder_resist" | "chill_resist" | "photon_resist" | "throw" @rawgen(prefix)
 
 // スキルレベル
 #SkillLevel: int & >=0 & <=100
