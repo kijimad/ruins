@@ -28,7 +28,7 @@ type ConsumeBehavior struct {
 }
 
 var (
-	eatItemBehavior = ConsumeBehavior{name: gc.BehaviorEatItem, label: "Eat", desc: "Eat an item", effects: eatEffects}
+	eatItemBehavior = ConsumeBehavior{name: gc.BehaviorEatItem, label: "Eat Item", desc: "Eat an item", effects: eatEffects}
 	useItemBehavior = ConsumeBehavior{name: gc.BehaviorUseItem, label: "Use Item", desc: "Use an item", effects: useEffects}
 )
 

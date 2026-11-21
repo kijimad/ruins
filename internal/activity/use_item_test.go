@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"testing"
 
@@ -850,14 +851,18 @@ func TestGetBehavior_食べるは食べるの組で動く(t *testing.T) {
 	ub, ok := b.(*ConsumeBehavior)
 	require.Truef(t, ok, "GetBehavior(BehaviorEatItem) は *ConsumeBehavior を返すべきだが %T だった", b)
 	assert.Equal(t, gc.BehaviorEatItem, ub.Name())
-	assert.Equal(t, "Eat", ub.Info().Name)
+	assert.Equal(t, "Eat Item", ub.Info().Name)
 }
 
 func TestEffectSets_食べると使うの組は重ならない(t *testing.T) {
 	t.Parallel()
 
+	useTypes := map[string]bool{}
+	for _, e := range useEffects {
+		useTypes[fmt.Sprintf("%T", e)] = true
+	}
 	for _, e := range eatEffects {
-		assert.NotContains(t, useEffects, e, "%T が両方の組にある", e)
+		assert.False(t, useTypes[fmt.Sprintf("%T", e)], "%T が両方の組にある", e)
 	}
 }
 

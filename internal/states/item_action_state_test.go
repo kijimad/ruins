@@ -9,7 +9,9 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -137,4 +139,27 @@ func TestAcceptEatUse_食べると使うの対象は効果の組で決まる(t *
 			assert.Equal(t, tt.use, activity.CanUse(world, entity), "使う対象の判定")
 		})
 	}
+}
+
+func TestExecEat_食べるの動詞は食べるの行動を動かす(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	world.Components.Hunger.Get(player).Current = 100
+	bread, err := lifecycle.SpawnBackpackItem(world, "bread", 1)
+	require.NoError(t, err)
+
+	var exec func(w.World, ecs.Entity) (es.Transition[w.World], error)
+	for _, v := range verbList {
+		if v.ID == verbConsume {
+			exec = v.Exec
+		}
+	}
+	require.NotNil(t, exec)
+	trans, err := exec(world, bread)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPop, trans.Type)
+	assert.Greater(t, world.Components.Hunger.Get(player).Current, 100)
 }
