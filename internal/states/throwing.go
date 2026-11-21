@@ -11,7 +11,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// throwMode は背負い袋の物を投げる狙い方
+// throwMode はバックパックの物を投げる狙い方
 type throwMode struct {
 	item ecs.Entity
 }

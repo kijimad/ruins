@@ -144,7 +144,7 @@ func (*ShootParams) isActivityParams() {}
 
 // ThrowParams は投げるのパラメータ
 type ThrowParams struct {
-	Item   ecs.Entity // 投げる物。背負い袋のスタックの代表
+	Item   ecs.Entity // 投げる物。バックパックのスタックの代表
 	Target ecs.Entity // 狙う敵
 }
 

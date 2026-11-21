@@ -13,7 +13,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ThrowBehavior は背負い袋の物を投げて敵に当てるアクティビティの実装
+// ThrowBehavior はバックパックの物を投げて敵に当てるアクティビティの実装
 type ThrowBehavior struct{}
 
 // Info はBehaviorの実装
@@ -39,7 +39,7 @@ func NewThrowActivity(item, target ecs.Entity) *gc.Activity {
 	return comp
 }
 
-// Validate は投げられるかを検証する。物が actor の背負い袋にあり、狙う敵が射程と射線の内にあること
+// Validate は投げられるかを検証する。物が actor のバックパックにあり、狙う敵が射程と射線の内にあること
 func (tb *ThrowBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ThrowParams)
 	if !ok {
@@ -135,7 +135,7 @@ func (tb *ThrowBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
 	return nil
 }
 
-// throwItemError は actor が item を投げられなければ理由を返す。物が actor の背負い袋にあり、重すぎないこと
+// throwItemError は actor が item を投げられなければ理由を返す。物が actor のバックパックにあり、重すぎないこと
 func throwItemError(world w.World, actor, item ecs.Entity) error {
 	if !world.ECS.Alive(item) || !world.Components.LocationInBackpack.Has(item) ||
 		world.Components.LocationInBackpack.Get(item).Owner != actor {

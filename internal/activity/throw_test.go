@@ -26,7 +26,7 @@ func TestThrowBehavior_Validate(t *testing.T) {
 		{name: "射程内の敵に投げられる", item: "stone"},
 		{name: "5 kg を超える物は投げられない", item: "deployable_bed", wantErr: errThrowTooHeavy},
 		{
-			name: "背負い袋から消えた物は投げられない",
+			name: "バックパックから消えた物は投げられない",
 			item: "stone",
 			setup: func(world iw.World, _, item ecs.Entity) {
 				lifecycle.MoveMembersToField(world, []ecs.Entity{item}, consts.Coord[consts.Tile]{X: 1, Y: 1}, ecs.Entity{})
@@ -117,7 +117,7 @@ func TestLandThrown(t *testing.T) {
 	})
 }
 
-func TestThrowBehavior_DoTurn_投げた物は背負い袋から出る(t *testing.T) {
+func TestThrowBehavior_DoTurn_投げた物はバックパックから出る(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
