@@ -9,7 +9,7 @@ import (
 )
 
 // IsHoldable はエンティティを手持ち欄に持てるかを返す。近接攻撃か射撃を持てば持てる。
-// 灯りのアイテムは近接攻撃も持つので、手持ち欄に入る
+// 灯りのアイテムは CUE の #Item が近接攻撃を求めるので、手持ち欄に入る
 func IsHoldable(world w.World, entity ecs.Entity) bool {
 	return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
 }
