@@ -30,7 +30,7 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 		macroMap:     hud.NewMacroMap(bodyFace, smallFace, world.Resources.UIResources.GaugeFill, chrome),
 		debugOverlay: hud.NewDebugOverlay(smallFace),
 		messageArea:  hud.NewMessageArea(world),
-		handSlots:    hud.NewHandSlots(smallFace, chrome),
+		handSlots:    hud.NewHandSlots(smallFace, chrome, world.Resources.UIResources.GaugeFill),
 		statusBadges: hud.NewStatusBadges(smallFace),
 		enabled:      true,
 	}

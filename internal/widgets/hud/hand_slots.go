@@ -22,15 +22,17 @@ type handSlotsConfig struct {
 
 // HandSlots は手持ち欄表示ウィジェット
 type HandSlots struct {
-	face   text.Face
-	chrome Chrome
+	face      text.Face
+	chrome    Chrome
+	gaugeFill *ebiten.Image // 残量のゲージの塗りのテクスチャ
 }
 
 // NewHandSlots は新しいHandSlotsを作成する
-func NewHandSlots(face text.Face, chrome Chrome) *HandSlots {
+func NewHandSlots(face text.Face, chrome Chrome, gaugeFill *ebiten.Image) *HandSlots {
 	return &HandSlots{
-		face:   face,
-		chrome: chrome,
+		face:      face,
+		chrome:    chrome,
+		gaugeFill: gaugeFill,
 	}
 }
 
@@ -65,7 +67,7 @@ func (hs *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
 			number:    i + 1,
 			selected:  slot.SlotNumber == data.SelectedSlot,
 			sprites:   sprites,
-			gaugeFill: world.Resources.UIResources.GaugeFill,
+			gaugeFill: hs.gaugeFill,
 		})
 	}
 	widths = append(widths, 0)
