@@ -101,6 +101,37 @@ func TestValidate_携行光源を持つアイテムは残量と近接攻撃を�
 	require.NoError(t, rawcheck.Validate(raws), "残量と近接攻撃を持てば通る")
 }
 
+func TestValidate_武器と道具のアイテムは残量を持つ(t *testing.T) {
+	t.Parallel()
+	melee := rawschema.Melee{Accuracy: 100, Damage: 1, AttackCount: 1, AttackCategory: rawschema.AttackCategoryFist, Element: rawschema.ElementNONE, TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE}
+	fire := rawschema.Fire{Accuracy: 100, Damage: 1, AttackCount: 1, AttackCategory: rawschema.AttackCategoryHandgun, Element: rawschema.ElementNONE, TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE, Cost: 100, MagazineSize: 1, ReloadEffort: 1}
+	tool := rawschema.Tool{Categories: []rawschema.ToolCategory{rawschema.Mining}, Grade: 1}
+	tests := []struct {
+		name string
+		item func(it *rawschema.Item)
+	}{
+		{name: "近接攻撃", item: func(it *rawschema.Item) { it.Melee = &melee }},
+		{name: "射撃", item: func(it *rawschema.Item) { it.Fire = &fire }},
+		{name: "道具", item: func(it *rawschema.Item) { it.Tool = &tool }},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := makeRefRaws(func(r *rawschema.Raws) {
+				it := rawschema.Item{Id: "stick", Name: "Stick", Description: "Stick", SpriteSheetName: "field", SpriteKey: "stick"}
+				tt.item(&it)
+				*r.Items = append(*r.Items, it)
+			})
+			var ce *rawcheck.Error
+			require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+			assert.Equal(t, []string{"items.1.charge"}, ce.Paths())
+
+			(*raws.Items)[1].Charge = &rawschema.Charge{Max: 150}
+			require.NoError(t, rawcheck.Validate(raws), "残量を持てば通る")
+		})
+	}
+}
+
 func TestError_Paths_位置を並べて重複を除く(t *testing.T) {
 	t.Parallel()
 

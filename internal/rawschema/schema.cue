@@ -458,9 +458,9 @@ import (
 	spread!: int & >=1
 }
 
-// アイテムの残量。灯りは点いている間に減り、0で尽きる
+// アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる
 #Charge: {
-	// 残量の上限。灯りはターン数
+	// 残量の上限。灯りはターン数、武器と道具は回数
 	max!: #ChargeAmount
 }
 
@@ -944,10 +944,12 @@ import (
 	// 携行光源。装備すると owner を照らす
 	lightSource?: #LightSource
 
-	// 残量。携行光源を持つ行は必ず持つ。持たないと燃え尽きずに照らし続ける
+	// 残量。灯り・武器・道具の行は必ず持つ。持たないと尽きずに使い続けられる
 	charge?: #Charge
-	if lightSource != _|_ {
+	if lightSource != _|_ || melee != _|_ || fire != _|_ || tool != _|_ {
 		charge!: _ @rawgen(-)
+	}
+	if lightSource != _|_ {
 		// 灯りも殴れる物にし、手持ち欄に入る物を近接攻撃か射撃を持つ物にそろえる
 		melee!: _ @rawgen(-)
 	}

@@ -8744,6 +8744,8 @@
   spriteSheetName = "field"
   value = 10
   weight = "500 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 85
     attackCategory = "spear"
@@ -8763,6 +8765,8 @@
   spriteSheetName = "field"
   value = 320
   weight = "3.5 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 80
     attackCategory = "fist"
@@ -8782,6 +8786,8 @@
   spriteSheetName = "field"
   value = 30
   weight = "100 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 95
     attackCategory = "sword"
@@ -8801,6 +8807,8 @@
   spriteSheetName = "field"
   value = 350
   weight = "5 kg"
+  [items.charge]
+    max = 250
   [items.melee]
     accuracy = 75
     attackCategory = "sword"
@@ -8820,6 +8828,8 @@
   spriteSheetName = "field"
   value = 50
   weight = "2 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 80
     attackCategory = "fist"
@@ -8839,6 +8849,8 @@
   spriteSheetName = "field"
   value = 60
   weight = "2 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 85
     attackCategory = "fist"
@@ -8861,6 +8873,8 @@
   spriteSheetName = "field"
   value = 15
   weight = "100 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 95
     attackCategory = "fist"
@@ -8880,6 +8894,8 @@
   spriteSheetName = "field"
   value = 100
   weight = "800 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 90
     attackCategory = "fist"
@@ -8899,6 +8915,8 @@
   spriteSheetName = "field"
   value = 400
   weight = "4.5 kg"
+  [items.charge]
+    max = 250
   [items.melee]
     accuracy = 70
     attackCategory = "spear"
@@ -8921,6 +8939,8 @@
   spriteSheetName = "field"
   value = 160
   weight = "4 kg"
+  [items.charge]
+    max = 250
   [items.melee]
     accuracy = 70
     attackCategory = "fist"
@@ -8943,6 +8963,8 @@
   spriteSheetName = "field"
   value = 450
   weight = "6 kg"
+  [items.charge]
+    max = 250
   [items.melee]
     accuracy = 65
     attackCategory = "sword"
@@ -8965,6 +8987,8 @@
   spriteSheetName = "field"
   value = 5
   weight = "50 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 90
     attackCategory = "fist"
@@ -8984,6 +9008,8 @@
   spriteSheetName = "field"
   value = 220
   weight = "5 kg"
+  [items.charge]
+    max = 250
   [items.melee]
     accuracy = 65
     attackCategory = "fist"
@@ -9006,6 +9032,8 @@
   spriteSheetName = "field"
   value = 30
   weight = "300 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 90
     attackCategory = "fist"
@@ -9025,6 +9053,8 @@
   spriteSheetName = "field"
   value = 70
   weight = "1.5 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 85
     attackCategory = "fist"
@@ -9047,6 +9077,8 @@
   spriteSheetName = "field"
   value = 300
   weight = "3 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 80
     attackCategory = "spear"
@@ -9066,6 +9098,8 @@
   spriteSheetName = "field"
   value = 130
   weight = "3 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 75
     attackCategory = "spear"
@@ -9085,6 +9119,8 @@
   spriteSheetName = "field"
   value = 500
   weight = "2 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "sword"
@@ -9104,6 +9140,8 @@
   spriteSheetName = "field"
   value = 120
   weight = "3 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 80
     attackCategory = "sword"
@@ -9126,6 +9164,8 @@
   spriteSheetName = "field"
   value = 300
   weight = "3 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 80
     attackCategory = "fist"
@@ -9145,6 +9185,8 @@
   spriteSheetName = "field"
   value = 10
   weight = "300 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 100
     attackCategory = "fist"
@@ -9164,6 +9206,8 @@
   spriteSheetName = "field"
   value = 80
   weight = "2 kg"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 100
     attackCategory = "sword"
@@ -9183,6 +9227,8 @@
   spriteSheetName = "field"
   value = 260
   weight = "1.8 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 80
     attackCategory = "sword"
@@ -9202,6 +9248,8 @@
   spriteSheetName = "field"
   value = 240
   weight = "2 kg"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 85
     attackCategory = "sword"
@@ -9221,6 +9269,8 @@
   spriteSheetName = "field"
   value = 250
   weight = "1.8 kg"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 80
     attackCategory = "spear"
@@ -9240,6 +9290,8 @@
   spriteSheetName = "field"
   value = 40
   weight = "5 kg"
+  [items.charge]
+    max = 250
   [items.melee]
     accuracy = 75
     attackCategory = "fist"
@@ -9259,6 +9311,8 @@
   spriteSheetName = "field"
   value = 320
   weight = "1.8 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 85
     attackCategory = "sword"
@@ -9278,6 +9332,8 @@
   spriteSheetName = "field"
   value = 280
   weight = "3 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 80
     attackCategory = "fist"
@@ -9297,6 +9353,8 @@
   spriteSheetName = "field"
   value = 180
   weight = "1 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 95
     attackCategory = "sword"
@@ -9316,6 +9374,8 @@
   spriteSheetName = "field"
   value = 25
   weight = "300 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 90
     attackCategory = "fist"
@@ -9335,6 +9395,8 @@
   spriteSheetName = "field"
   value = 280
   weight = "1.5 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "sword"
@@ -9354,6 +9416,8 @@
   spriteSheetName = "field"
   value = 15
   weight = "100 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 95
     attackCategory = "fist"
@@ -9373,6 +9437,8 @@
   spriteSheetName = "field"
   value = 380
   weight = "5 kg"
+  [items.charge]
+    max = 250
   [items.melee]
     accuracy = 70
     attackCategory = "sword"
@@ -9392,6 +9458,8 @@
   spriteSheetName = "field"
   value = 40
   weight = "1.5 kg"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 90
     attackCategory = "fist"
@@ -9411,6 +9479,8 @@
   spriteSheetName = "field"
   value = 20
   weight = "50 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 95
     attackCategory = "fist"
@@ -9430,6 +9500,8 @@
   spriteSheetName = "field"
   value = 90
   weight = "1 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 100
     attackCategory = "sword"
@@ -9449,6 +9521,8 @@
   spriteSheetName = "field"
   value = 200
   weight = "2.5 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "sword"
@@ -9468,6 +9542,8 @@
   spriteSheetName = "field"
   value = 200
   weight = "2 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 85
     attackCategory = "sword"
@@ -9487,6 +9563,8 @@
   spriteSheetName = "field"
   value = 180
   weight = "2.5 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "sword"
@@ -9506,6 +9584,8 @@
   spriteSheetName = "field"
   value = 50
   weight = "800 g"
+  [items.charge]
+    max = 250
   [items.melee]
     accuracy = 85
     attackCategory = "sword"
@@ -9528,6 +9608,8 @@
   spriteSheetName = "field"
   value = 160
   weight = "3 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 85
     attackCategory = "sword"
@@ -9547,6 +9629,8 @@
   spriteSheetName = "field"
   value = 60
   weight = "500 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 85
     attackCategory = "fist"
@@ -9569,6 +9653,8 @@
   spriteSheetName = "field"
   value = 420
   weight = "5.5 kg"
+  [items.charge]
+    max = 250
   [items.melee]
     accuracy = 65
     attackCategory = "sword"
@@ -9591,6 +9677,8 @@
   spriteSheetName = "field"
   value = 480
   weight = "6 kg"
+  [items.charge]
+    max = 250
   [items.melee]
     accuracy = 65
     attackCategory = "sword"
@@ -9613,6 +9701,8 @@
   spriteSheetName = "field"
   value = 350
   weight = "1.5 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 85
     attackCategory = "sword"
@@ -9632,6 +9722,8 @@
   spriteSheetName = "field"
   value = 480
   weight = "120 kg"
+  [items.charge]
+    max = 500
   [items.fire]
     accuracy = 90
     ammoTag = "shell"
@@ -9663,6 +9755,8 @@
   spriteSheetName = "field"
   value = 420
   weight = "140 kg"
+  [items.charge]
+    max = 500
   [items.fire]
     accuracy = 90
     ammoTag = "shell"
@@ -9694,6 +9788,8 @@
   spriteSheetName = "field"
   value = 480
   weight = "20 kg"
+  [items.charge]
+    max = 500
   [items.fire]
     accuracy = 85
     ammoTag = "shell"
@@ -9725,6 +9821,8 @@
   spriteSheetName = "field"
   value = 150
   weight = "2 kg"
+  [items.charge]
+    max = 500
   [items.fire]
     accuracy = 95
     ammoTag = "9mm"
@@ -9756,6 +9854,8 @@
   spriteSheetName = "field"
   value = 280
   weight = "2 kg"
+  [items.charge]
+    max = 500
   [items.fire]
     accuracy = 90
     ammoTag = "energy_cell"
@@ -9787,6 +9887,8 @@
   spriteSheetName = "field"
   value = 340
   weight = "10 kg"
+  [items.charge]
+    max = 500
   [items.fire]
     accuracy = 80
     ammoTag = "rifle"
@@ -9818,6 +9920,8 @@
   spriteSheetName = "field"
   value = 150
   weight = "1 kg"
+  [items.charge]
+    max = 500
   [items.fire]
     accuracy = 80
     ammoTag = "shell"
@@ -9849,6 +9953,8 @@
   spriteSheetName = "field"
   value = 380
   weight = "4 kg"
+  [items.charge]
+    max = 500
   [items.fire]
     accuracy = 75
     ammoTag = "shell"
@@ -9880,6 +9986,8 @@
   spriteSheetName = "field"
   value = 350
   weight = "10 kg"
+  [items.charge]
+    max = 500
   [items.fire]
     accuracy = 80
     ammoTag = "rifle"
@@ -9911,6 +10019,8 @@
   spriteSheetName = "field"
   value = 90
   weight = "500 g"
+  [items.charge]
+    max = 300
   [items.fire]
     accuracy = 80
     attackCategory = "throw"
@@ -9932,6 +10042,8 @@
   spriteSheetName = "field"
   value = 60
   weight = "100 g"
+  [items.charge]
+    max = 300
   [items.fire]
     accuracy = 90
     attackCategory = "throw"
@@ -9953,6 +10065,8 @@
   spriteSheetName = "field"
   value = 360
   weight = "1.5 kg"
+  [items.charge]
+    max = 300
   [items.fire]
     accuracy = 90
     attackCategory = "bow"
@@ -9974,6 +10088,8 @@
   spriteSheetName = "field"
   value = 180
   weight = "1.5 kg"
+  [items.charge]
+    max = 300
   [items.fire]
     accuracy = 85
     attackCategory = "bow"
@@ -9995,6 +10111,8 @@
   spriteSheetName = "field"
   value = 280
   weight = "3 kg"
+  [items.charge]
+    max = 300
   [items.fire]
     accuracy = 80
     attackCategory = "bow"
@@ -10016,6 +10134,8 @@
   spriteSheetName = "field"
   value = 140
   weight = "500 g"
+  [items.charge]
+    max = 300
   [items.fire]
     accuracy = 85
     attackCategory = "bow"
@@ -16941,6 +17061,8 @@
   spriteSheetName = "field"
   value = 60
   weight = "1.8 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 85
     attackCategory = "sword"
@@ -17220,6 +17342,8 @@
   spriteSheetName = "field"
   value = 120
   weight = "1200 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "sword"
@@ -17238,6 +17362,8 @@
   spriteSheetName = "field"
   value = 130
   weight = "1300 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 88
     attackCategory = "sword"
@@ -17256,6 +17382,8 @@
   spriteSheetName = "field"
   value = 140
   weight = "900 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 92
     attackCategory = "fist"
@@ -17274,6 +17402,8 @@
   spriteSheetName = "field"
   value = 90
   weight = "600 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "spear"
@@ -17292,6 +17422,8 @@
   spriteSheetName = "field"
   value = 100
   weight = "800 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 88
     attackCategory = "sword"
@@ -17324,6 +17456,8 @@
   spriteSheetName = "field"
   value = 135
   weight = "1500 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 88
     attackCategory = "spear"
@@ -17342,6 +17476,8 @@
   spriteSheetName = "field"
   value = 160
   weight = "1400 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "sword"
@@ -17360,6 +17496,8 @@
   spriteSheetName = "field"
   value = 180
   weight = "2000 g"
+  [items.charge]
+    max = 500
   [items.fire]
     accuracy = 85
     attackCategory = "handgun"
@@ -17380,6 +17518,8 @@
   spriteSheetName = "field"
   value = 150
   weight = "1600 g"
+  [items.charge]
+    max = 300
   [items.fire]
     accuracy = 85
     attackCategory = "bow"
@@ -17400,6 +17540,8 @@
   spriteSheetName = "field"
   value = 110
   weight = "900 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "fist"
@@ -17418,6 +17560,8 @@
   spriteSheetName = "field"
   value = 120
   weight = "500 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "sword"
@@ -17462,6 +17606,8 @@
   spriteSheetName = "field"
   value = 170
   weight = "3000 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 80
     attackCategory = "spear"
@@ -17483,6 +17629,8 @@
   spriteSheetName = "field"
   value = 150
   weight = "2200 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 85
     attackCategory = "sword"
@@ -17504,6 +17652,8 @@
   spriteSheetName = "field"
   value = 140
   weight = "1100 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "sword"
@@ -17522,6 +17672,8 @@
   spriteSheetName = "field"
   value = 175
   weight = "1500 g"
+  [items.charge]
+    max = 300
   [items.fire]
     accuracy = 88
     attackCategory = "bow"
@@ -17542,6 +17694,8 @@
   spriteSheetName = "field"
   value = 95
   weight = "700 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 90
     attackCategory = "fist"
@@ -17560,6 +17714,8 @@
   spriteSheetName = "field"
   value = 105
   weight = "300 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 92
     attackCategory = "fist"
@@ -17578,6 +17734,8 @@
   spriteSheetName = "field"
   value = 100
   weight = "1000 g"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 88
     attackCategory = "spear"
@@ -17620,6 +17778,8 @@
   spriteSheetName = "field"
   value = 150
   weight = "1.2 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 88
     attackCategory = "sword"
@@ -17639,6 +17799,8 @@
   spriteSheetName = "field"
   value = 110
   weight = "2.4 kg"
+  [items.charge]
+    max = 150
   [items.melee]
     accuracy = 80
     attackCategory = "sword"
@@ -17661,6 +17823,8 @@
   spriteSheetName = "field"
   value = 140
   weight = "900 g"
+  [items.charge]
+    max = 80
   [items.melee]
     accuracy = 90
     attackCategory = "spear"
