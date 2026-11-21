@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -49,7 +50,7 @@ func metricValue(master rawschema.Raws, p Params, idx int) float64 {
 		if err != nil {
 			return 0
 		}
-		weapon, err := LoadWeaponFromBodyAttack(master, BaselineBodyAttack)
+		weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
 		if err != nil {
 			return 0
 		}
