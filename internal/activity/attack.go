@@ -241,7 +241,7 @@ func elementMult(target ecs.Entity, element rawschema.Element, world w.World) co
 }
 
 // applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
-// ShootBehaviorからも使用される
+// 射撃と投げるからも使う
 func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) error {
 	if attack == nil {
 		return fmt.Errorf("attack must not be nil")

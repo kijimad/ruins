@@ -84,6 +84,17 @@ var specParts = []specPart{
 			return append(attackerRows(world, s.Fire), fireAmmoRows(world, s.Fire)...)
 		},
 	},
+	{ // 投げ。どの物も投げられるので、投げの欄を書いた投げ向きの物だけ出す
+		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
+			return throwRows(world, query.GetEntityID(e, world))
+		},
+		fromSpec: func(world w.World, s gc.EntitySpec) []SpecRow {
+			if s.RawID == nil {
+				return nil
+			}
+			return throwRows(world, s.RawID.ID)
+		},
+	},
 	{ // 防具
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
 			if !world.Components.Wearable.Has(e) {
@@ -320,6 +331,15 @@ func attackerRows(world w.World, attack gc.Attacker) []SpecRow {
 		rows = append(rows, SpecRow{Label: query.T(world, "Element"), Value: query.T(world, gc.ElementName(attack.GetElement()))})
 	}
 	return markChildren(rows)
+}
+
+// throwRows は raw の行に投げの欄がある物の、投げの攻撃の行を返す
+func throwRows(world w.World, id string) []SpecRow {
+	attack, ok := raw.FindThrow(world.Resources.RawMaster, id)
+	if !ok {
+		return nil
+	}
+	return attackerRows(world, attack)
 }
 
 // fireAmmoRows は射程・弾薬の行を返す

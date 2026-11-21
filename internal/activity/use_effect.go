@@ -7,7 +7,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -29,7 +28,7 @@ type useEffect interface {
 var eatEffects = []useEffect{nutritionEffect{}}
 
 // useEffects は手当てや道具として外から働く効果の一覧。HP の回復は、飲む回復薬も手当てとしてここに置く
-var useEffects = []useEffect{healEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}, cubeCoreEffect{}}
+var useEffects = []useEffect{healEffect{}, remedyEffect{}, escapeEffect{}, cubeCoreEffect{}}
 
 // healEffect は HP を回復する
 type healEffect struct{}
@@ -64,20 +63,6 @@ func (nutritionEffect) check(_ *ConsumeBehavior, actor, _ ecs.Entity, world w.Wo
 
 func (nutritionEffect) apply(u *ConsumeBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	return u.applyNutrition(comp, actor, world, world.Components.ProvidesNutrition.Get(item).Amount, item)
-}
-
-// damageEffect は使用者に自傷ダメージを与える
-type damageEffect struct{}
-
-func (damageEffect) present(world w.World, item ecs.Entity) bool {
-	return world.Components.InflictsDamage.Has(item)
-}
-
-func (damageEffect) check(_ *ConsumeBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
-
-func (damageEffect) apply(_ *ConsumeBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
-	gameaction.ApplyDamage(world, actor, world.Components.InflictsDamage.Get(item).Amount, actor)
-	return nil
 }
 
 // remedyEffect は不調を治療する

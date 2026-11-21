@@ -55,6 +55,7 @@ const (
 	BehaviorStorage   BehaviorName = "Storage"
 	BehaviorRead      BehaviorName = "Read"
 	BehaviorShoot     BehaviorName = "Shoot"
+	BehaviorThrow     BehaviorName = "Throw"
 	BehaviorReload    BehaviorName = "Reload"
 	// BehaviorIgnite は火種で隣接の燃焼物に火をつけて焚き火を熾す。ExecuteInteraction が直接処理する
 	BehaviorIgnite BehaviorName = "Ignite"
@@ -140,6 +141,14 @@ type ShootParams struct {
 }
 
 func (*ShootParams) isActivityParams() {}
+
+// ThrowParams は投げるのパラメータ
+type ThrowParams struct {
+	Item   ecs.Entity // 投げる物。バックパックのスタックの代表
+	Target ecs.Entity // 狙う敵
+}
+
+func (*ThrowParams) isActivityParams() {}
 
 // ConsumeParams は物を食べる・使う行動のパラメータ。
 type ConsumeParams struct {

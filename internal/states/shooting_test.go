@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestShootingState_checkFireWeaponStatus(t *testing.T) {
+func TestShootMode_unavailable(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -48,7 +48,7 @@ func TestShootingState_checkFireWeaponStatus(t *testing.T) {
 			if tt.want != "" {
 				want = query.T(world, tt.want)
 			}
-			assert.Equal(t, want, (&ShootingState{}).checkFireWeaponStatus(world))
+			assert.Equal(t, want, ShootMode{}.unavailable(world, player))
 		})
 	}
 }

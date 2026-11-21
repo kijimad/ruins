@@ -400,7 +400,7 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 
 	assert.Equal(t, []gc.SkillCategory{
 		{Name: "Melee", IDs: []rawschema.SkillId{rawschema.SkillIdSword, rawschema.SkillIdSpear, rawschema.SkillIdFist}},
-		{Name: "Ranged", IDs: []rawschema.SkillId{rawschema.SkillIdBow, rawschema.SkillIdHandgun, rawschema.SkillIdRifle, rawschema.SkillIdCannon}},
+		{Name: "Ranged", IDs: []rawschema.SkillId{rawschema.SkillIdBow, rawschema.SkillIdHandgun, rawschema.SkillIdRifle, rawschema.SkillIdCannon, rawschema.SkillIdThrow}},
 		{Name: "Craft", IDs: []rawschema.SkillId{rawschema.SkillIdCrafting, rawschema.SkillIdSmithing, rawschema.SkillIdNegotiation, rawschema.SkillIdMechanic}},
 		{Name: "Mobility", IDs: []rawschema.SkillId{rawschema.SkillIdSprinting, rawschema.SkillIdStealth, rawschema.SkillIdNightVision, rawschema.SkillIdWeightBearing}},
 		{Name: "Survival", IDs: []rawschema.SkillId{rawschema.SkillIdColdResist, rawschema.SkillIdHungerResist, rawschema.SkillIdHealing, rawschema.SkillIdExploration}},
@@ -421,10 +421,11 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 		"handgun": {"handgun", "handgun_damage", "handgun_accuracy"},
 		"rifle":   {"rifle", "rifle_damage", "rifle_accuracy"},
 		"cannon":  {"cannon", "cannon_damage", "cannon_accuracy"},
+		"throw":   {"throw", "throw_damage", "throw_accuracy"},
 	}, weapons)
 	assert.Equal(t, map[string]gc.BodyFuncKind{
 		"sword": gc.BodyFuncManipulation, "spear": gc.BodyFuncManipulation, "fist": gc.BodyFuncManipulation,
-		"bow": gc.BodyFuncSight, "handgun": gc.BodyFuncSight, "rifle": gc.BodyFuncSight, "cannon": gc.BodyFuncSight,
+		"bow": gc.BodyFuncSight, "handgun": gc.BodyFuncSight, "rifle": gc.BodyFuncSight, "cannon": gc.BodyFuncSight, "throw": gc.BodyFuncSight,
 	}, accuracyLimbs, "命中は近接なら操作、遠隔なら視覚で目減りする")
 	assert.Equal(t, gc.BodyFuncKind(""), defs.Proficiencies[rawschema.ProficiencyIdSwordDamage].BodyFunc, "ダメージは身体機能で目減りしない")
 	assert.Equal(t, []gc.ResistDef{
@@ -448,9 +449,9 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 		rawschema.ProficiencyIdExploration: 140, rawschema.ProficiencyIdEnemyVision: 70, rawschema.ProficiencyIdNightVision: 150, rawschema.ProficiencyIdMoveCost: 80,
 		rawschema.ProficiencyIdCraftCost: 70, rawschema.ProficiencyIdSmithQuality: 130, rawschema.ProficiencyIdBuyPrice: 80, rawschema.ProficiencyIdSellPrice: 120, rawschema.ProficiencyIdHeavyArmor: 50,
 		rawschema.ProficiencyIdSwordDamage: 150, rawschema.ProficiencyIdSpearDamage: 150, rawschema.ProficiencyIdFistDamage: 150, rawschema.ProficiencyIdBowDamage: 150,
-		rawschema.ProficiencyIdHandgunDamage: 150, rawschema.ProficiencyIdRifleDamage: 150, rawschema.ProficiencyIdCannonDamage: 150,
+		rawschema.ProficiencyIdHandgunDamage: 150, rawschema.ProficiencyIdRifleDamage: 150, rawschema.ProficiencyIdCannonDamage: 150, rawschema.ProficiencyIdThrowDamage: 150,
 		rawschema.ProficiencyIdSwordAccuracy: 130, rawschema.ProficiencyIdSpearAccuracy: 130, rawschema.ProficiencyIdFistAccuracy: 130, rawschema.ProficiencyIdBowAccuracy: 130,
-		rawschema.ProficiencyIdHandgunAccuracy: 130, rawschema.ProficiencyIdRifleAccuracy: 130, rawschema.ProficiencyIdCannonAccuracy: 130,
+		rawschema.ProficiencyIdHandgunAccuracy: 130, rawschema.ProficiencyIdRifleAccuracy: 130, rawschema.ProficiencyIdCannonAccuracy: 130, rawschema.ProficiencyIdThrowAccuracy: 130,
 	}, got)
 }
 

@@ -4,13 +4,17 @@ import (
 	"fmt"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+
 	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -49,7 +53,7 @@ func TestVerbByAction_直達アクションを動詞へ対応づける(t *testin
 		{"食べる", inputmapper.ActionVerbConsume, verbConsume, true},
 		{"読む", inputmapper.ActionVerbRead, verbRead, true},
 		{"使う", inputmapper.ActionVerbUse, verbUse, true},
-		{"投げるは未実装なので対応なし", inputmapper.ActionVerbThrow, verbID(""), false},
+		{"投げる", inputmapper.ActionVerbThrow, verbThrow, true},
 		{"動詞でないアクションは対応なし", inputmapper.ActionMenuSelect, verbID(""), false},
 	}
 	for _, tt := range cases {
@@ -123,7 +127,6 @@ func TestAcceptEatUse_食べると使うの対象は効果の組で決まる(t *
 	}{
 		{"パンは栄養を持つので食べる対象", "bread", true, false},
 		{"回復薬は回復を持つので使う対象", "healing_potion", false, true},
-		{"手榴弾は使うの効果だけを持つので使う対象", "grenade", false, true},
 		{"包帯は治療だけを持つので使う対象", "bandage", false, true},
 		{"蜂蜜は栄養と治療を持つので両方の対象", "honey", true, true},
 	}
@@ -162,4 +165,77 @@ func TestExecEat_食べるの動詞は食べるの行動を動かす(t *testing.
 	require.NoError(t, err)
 	assert.Equal(t, es.TransPop, trans.Type)
 	assert.Greater(t, world.Components.Hunger.Get(player).Current, 100)
+}
+
+func TestItemActionBindings_条件が重ならない(t *testing.T) {
+	t.Parallel()
+
+	assert.NotPanics(t, func() { keybind.MustMerge(itemActionBindings) })
+}
+
+func TestExecThrow_狙う画面へ切り替える(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
+
+	trans, err := execThrow(world, stone)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransSwitch, trans.Type)
+	require.Len(t, trans.NewStateFuncs, 1)
+	state, err := trans.NewStateFuncs[0]()
+	require.NoError(t, err)
+	targeting, ok := state.(*TargetingState)
+	require.True(t, ok)
+	assert.Equal(t, throwMode{item: stone, attack: gc.ThrowAttack{Damage: 6, Accuracy: 70}}, targeting.mode)
+}
+
+func TestThrowMode_unavailable(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
+	mode := throwMode{item: stone}
+
+	assert.Empty(t, mode.unavailable(world, player))
+	lifecycle.MoveMembersToField(world, []ecs.Entity{stone}, consts.Coord[consts.Tile]{X: 2, Y: 2}, player)
+	assert.Equal(t, query.T(world, "Nothing to throw"), mode.unavailable(world, player))
+}
+
+func TestThrowMode_射程内の敵を狙える(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
+	attack, ok := query.ThrowAttackOf(world, stone)
+	require.True(t, ok)
+	mode := throwMode{item: stone, attack: attack}
+
+	assert.True(t, mode.canTarget(world, player, enemy))
+	assert.Positive(t, mode.hitRate(world, player, enemy))
+}
+
+func TestThrowMode_drawSource_画面を開いたときの威力を出す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
+
+	var lines []string
+	throwMode{item: stone, attack: gc.ThrowAttack{Damage: 9}}.drawSource(world, player, func(line string) { lines = append(lines, line) })
+	assert.Equal(t, []string{"Item: Stone", "Attack power: 9"}, lines)
 }

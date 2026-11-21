@@ -77,6 +77,9 @@ msgstr "読む"
 msgid "Use"
 msgstr "使う"
 
+msgid "Throw"
+msgstr "投げる"
+
 msgid "No matching items"
 msgstr "該当するアイテムがありません"
 
@@ -166,6 +169,18 @@ msgstr "射撃対象がいません"
 
 msgid "Tab: Switch  Enter: Fire  R: Reload  Esc: Back"
 msgstr "Tab:切替 Enter:射撃 R:装填 Esc:戻る"
+
+msgid "== Throwing Mode =="
+msgstr "== 投擲モード =="
+
+msgid "No throwing target"
+msgstr "投げる対象がいません"
+
+msgid "Nothing to throw"
+msgstr "投げる物がありません"
+
+msgid "Tab: Switch  Enter: Throw  Esc: Back"
+msgstr "Tab:切替 Enter:投げる Esc:戻る"
 
 msgid "Weapon: none"
 msgstr "武器: なし"
@@ -1268,6 +1283,18 @@ msgstr "荷重"
 msgid "Archery"
 msgstr "弓術"
 
+msgid "Throwing"
+msgstr "投擲"
+
+msgid "Technique for throwing items"
+msgstr "物を投げる技術"
+
+msgid "Raised by throwing items at enemies"
+msgstr "敵に物を投げると上がる"
+
+msgid "Increases throwing damage and accuracy"
+msgstr "投擲のダメージと命中が上昇する"
+
 msgid "Pistol skill"
 msgstr "拳銃"
 
@@ -1607,6 +1634,9 @@ msgstr "%s は %s を %s に渡した。"
 
 msgid "%s ate %s."
 msgstr "%s は %s を食べた。"
+
+msgid "%s threw %s."
+msgstr "%s は %s を投げた。"
 
 msgid "%s ate fresh %s."
 msgstr "%s は新鮮な %s を食べた。"

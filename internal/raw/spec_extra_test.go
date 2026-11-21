@@ -27,7 +27,6 @@ SpriteKey = "potion"
 Value = 100
 Weight = "200 g"
 ProvidesNutrition = 10
-InflictsDamage = 5
 
 [Items.Consumable]
 TargetGroup = "ALLY"
@@ -55,9 +54,6 @@ ValueType = "PERCENTAGE"
 
 	require.NotNil(t, spec.ProvidesNutrition)
 	assert.Equal(t, 10, spec.ProvidesNutrition.Amount)
-
-	require.NotNil(t, spec.InflictsDamage)
-	assert.Equal(t, 5, spec.InflictsDamage.Amount)
 
 	require.NotNil(t, spec.Weight)
 	assert.Equal(t, int64(200000), int64(spec.Weight.Milligram))
