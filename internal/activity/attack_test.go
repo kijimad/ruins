@@ -2,6 +2,7 @@ package activity
 
 import (
 	"math/rand/v2"
+	"strings"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/i18n"
@@ -685,6 +686,41 @@ func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
 				assert.Equal(t, hp.Max, hp.Current)
 				assert.Equal(t, expBefore, expAfter)
 			}
+		})
+	}
+}
+
+func TestApplyAttackDamage_属性の耐性で減ったらログに出す(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name    string
+		element rawschema.Element
+		want    []string
+	}{
+		{name: "耐性のある属性は耐えたと出す", element: rawschema.ElementFIRE, want: []string{"Ash resisted the Fire."}},
+		{name: "無属性は出さない", element: rawschema.ElementNONE, want: []string{}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			world.Components.Skills.Get(player).Get(rawschema.SkillIdFireResist).Value = 5
+			attacker := world.ECS.NewEntity()
+			world.Components.Abilities.Add(attacker, &gc.Abilities{Strength: gc.Ability{Total: 10}})
+			melee := &gc.Melee{Damage: 10, Element: tt.element, AttackCategory: rawschema.AttackCategoryFist}
+			before := query.GetGameLog(world).Count()
+
+			require.NoError(t, applyAttackDamage(attacker, player, world, melee, "", 1000, 0))
+
+			affinity := []string{}
+			for _, e := range query.GetGameLog(world).GetRecentEntries(query.GetGameLog(world).Count() - before) {
+				if text := e.Text(); strings.Contains(text, "resisted") {
+					affinity = append(affinity, text)
+				}
+			}
+			assert.Equal(t, tt.want, affinity)
 		})
 	}
 }

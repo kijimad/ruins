@@ -6745,3 +6745,9 @@ msgstr "植物のくず"
 
 msgid "Cloth Scraps"
 msgstr "布きれ"
+
+msgid "%s resisted the %s."
+msgstr "%sは%sに耐えた"
+
+msgid "%s is weak to %s."
+msgstr "%sは%sに弱い"

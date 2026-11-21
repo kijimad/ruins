@@ -298,6 +298,33 @@ func TestExplode(t *testing.T) {
 		require.NoError(t, explode(world, player, player, attack, "test"))
 		assert.Equal(t, exp, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current)
 	})
+	t.Run("キューブだけを傷つけてもスキルは伸びない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 13, Y: 10})
+		require.NoError(t, err)
+		exp := world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current
+
+		attack := gc.ThrowAttack{Damage: 5, Blast: &gc.Blast{Radius: 1}}
+		require.NoError(t, explode(world, player, cube, attack, "test"))
+		assert.Equal(t, exp, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current)
+	})
+	t.Run("爆風で倒れた者には不調を付けない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+		require.NoError(t, err)
+		world.Components.HP.Get(enemy).Current = 1
+
+		attack := gc.ThrowAttack{Damage: 10, Blast: &gc.Blast{Radius: 1, Condition: venom}}
+		require.NoError(t, explode(world, player, enemy, attack, "test"))
+		require.True(t, world.Components.Dead.Has(enemy))
+		assert.Nil(t, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom))
+	})
 	t.Run("ほかの者を傷つけるとスキルが伸びる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

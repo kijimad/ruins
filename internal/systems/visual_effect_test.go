@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -139,7 +140,7 @@ func TestVisualEffectSystem_DamageEffect(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// ダメージエフェクトをGridElement付きで作成
-	damageEffect := gc.NewDamageEffect(99)
+	damageEffect := gc.NewDamageEffect(99, rawschema.ElementNONE, consts.PercentBase)
 	entity := world.ECS.NewEntity()
 	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
@@ -228,7 +229,7 @@ func TestVisualEffectSystem_MultipleEffectsOnEntity(t *testing.T) {
 	world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}})
 	world.Components.VisualEffects.Add(entity, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{
-			gc.NewDamageEffect(50),
+			gc.NewDamageEffect(50, rawschema.ElementNONE, consts.PercentBase),
 			gc.NewMissEffect(),
 		},
 	})

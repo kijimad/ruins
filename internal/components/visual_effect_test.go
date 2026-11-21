@@ -4,6 +4,8 @@ import (
 	"image/color"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -66,7 +68,7 @@ func TestFadeAnimation_Update(t *testing.T) {
 
 func TestNewDamageEffect(t *testing.T) {
 	t.Parallel()
-	effect := NewDamageEffect(42)
+	effect := NewDamageEffect(42, rawschema.ElementNONE, consts.PercentBase)
 
 	assert.Equal(t, "42", effect.Text)
 	assert.Equal(t, color.RGBA{255, 80, 80, 255}, effect.Color)
@@ -75,6 +77,33 @@ func TestNewDamageEffect(t *testing.T) {
 	assert.Equal(t, 800.0, effect.TotalMs)
 	assert.Equal(t, effect.TotalMs, effect.RemainingMs)
 	assert.Equal(t, -8.0, effect.Offset.Y, "初期Y方向オフセット")
+}
+
+func TestNewDamageEffect_属性の色と倍率の印(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		element   rawschema.Element
+		mult      consts.Percent
+		wantText  string
+		wantColor color.RGBA
+	}{
+		{name: "無属性は赤い数字", element: rawschema.ElementNONE, mult: 100, wantText: "12", wantColor: color.RGBA{255, 80, 80, 255}},
+		{name: "火は橙", element: rawschema.ElementFIRE, mult: 100, wantText: "12", wantColor: color.RGBA{255, 150, 40, 255}},
+		{name: "雷は黄", element: rawschema.ElementTHUNDER, mult: 100, wantText: "12", wantColor: color.RGBA{255, 230, 60, 255}},
+		{name: "冷気は水色", element: rawschema.ElementCHILL, mult: 100, wantText: "12", wantColor: color.RGBA{120, 210, 255, 255}},
+		{name: "光は白", element: rawschema.ElementPHOTON, mult: 100, wantText: "12", wantColor: color.RGBA{255, 255, 230, 255}},
+		{name: "耐性で減ったら RESIST を添える", element: rawschema.ElementFIRE, mult: 85, wantText: "12 RESIST", wantColor: color.RGBA{255, 150, 40, 255}},
+		{name: "弱点で増えたら WEAK を添える", element: rawschema.ElementFIRE, mult: 120, wantText: "12 WEAK", wantColor: color.RGBA{255, 150, 40, 255}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			effect := NewDamageEffect(12, tt.element, tt.mult)
+			assert.Equal(t, tt.wantText, effect.Text)
+			assert.Equal(t, tt.wantColor, effect.Color)
+		})
+	}
 }
 
 func TestNewMissEffect(t *testing.T) {
@@ -100,7 +129,7 @@ func TestNewHealEffect(t *testing.T) {
 
 func TestDamageTextEffect_Update_MovesY(t *testing.T) {
 	t.Parallel()
-	effect := NewDamageEffect(10)
+	effect := NewDamageEffect(10, rawschema.ElementNONE, consts.PercentBase)
 	initialY := effect.Offset.Y
 
 	effect.Update(16.67) // 1フレーム分
@@ -111,7 +140,7 @@ func TestDamageTextEffect_Update_MovesY(t *testing.T) {
 
 func TestDamageTextEffect_Update_CompletionCycle(t *testing.T) {
 	t.Parallel()
-	effect := NewDamageEffect(100)
+	effect := NewDamageEffect(100, rawschema.ElementNONE, consts.PercentBase)
 
 	// 全体の時間分だけ更新してエフェクトが完了することを確認
 	active := true
@@ -152,7 +181,7 @@ func TestVisualEffects_MultipleEffects(t *testing.T) {
 	t.Parallel()
 	ve := &VisualEffects{
 		Effects: []VisualEffect{
-			NewDamageEffect(10),
+			NewDamageEffect(10, rawschema.ElementNONE, consts.PercentBase),
 			NewMissEffect(),
 			NewHealEffect(5),
 		},
