@@ -155,11 +155,7 @@ func CanThrowTarget(actor, item, target ecs.Entity, world w.World) bool {
 	return (&ThrowBehavior{}).Validate(NewThrowActivity(item, target), actor, world) == nil
 }
 
-// CalculateThrowHitRate は投げの命中率を計算して返す。情報パネル表示用
-func CalculateThrowHitRate(actor, item, target ecs.Entity, world w.World) int {
-	attack, ok := query.ThrowAttackOf(world, item)
-	if !ok {
-		return 0
-	}
+// CalculateThrowHitRate は投げの値 attack で target を狙ったときの命中率を返す。情報パネル表示用
+func CalculateThrowHitRate(actor, target ecs.Entity, attack gc.ThrowAttack, world w.World) int {
 	return calculateHitRate(actor, target, world, attack, calculateRangedHitModifier(actor, target, attack, world))
 }

@@ -207,3 +207,21 @@ func TestThrowMode_unavailable(t *testing.T) {
 	lifecycle.MoveMembersToField(world, []ecs.Entity{stone}, consts.Coord[consts.Tile]{X: 2, Y: 2}, player)
 	assert.Equal(t, query.T(world, "Nothing to throw"), mode.unavailable(world, player))
 }
+
+func TestThrowMode_射程内の敵を狙える(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
+	attack, ok := query.ThrowAttackOf(world, stone)
+	require.True(t, ok)
+	mode := throwMode{item: stone, attack: attack}
+
+	assert.True(t, mode.canTarget(world, player, enemy))
+	assert.Positive(t, mode.hitRate(world, player, enemy))
+}

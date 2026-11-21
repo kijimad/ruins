@@ -161,7 +161,7 @@ func execPlace(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
 	return es.Transition[w.World]{Type: es.TransPop}, nil
 }
 
-// execThrow は持ち物画面を、選択アイテムを投げる敵を狙う画面に切り替える。投げても取り消してもダンジョンへ戻る
+// execThrow は持ち物画面を、選択アイテムを投げる敵を狙う画面に切り替える。投げても取り消しても、持ち物画面を開いた元の画面へ戻る
 func execThrow(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
 	attack, _ := query.ThrowAttackOf(world, entity)
 	return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{

@@ -27,7 +27,7 @@ func (m throwMode) canTarget(world w.World, player, target ecs.Entity) bool {
 }
 
 func (m throwMode) hitRate(world w.World, player, target ecs.Entity) int {
-	return activity.CalculateThrowHitRate(player, m.item, target, world)
+	return activity.CalculateThrowHitRate(player, target, m.attack, world)
 }
 
 func (m throwMode) execute(world w.World, player, target ecs.Entity) error {
