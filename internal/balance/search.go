@@ -45,8 +45,7 @@ func SolveScalar(eval func(float64) float64, target, lo, hi float64, iters int) 
 }
 
 // withScaledMeleeDamages は体の攻撃とアイテムの近接ダメージを id ごとに factor 倍して fn を呼び、後で全て戻す。
-// id は両方の表で重ならない前提で、重なれば両方の行が倍率で変わる。master の行は
-// backing array を共有するので値を退避・復元する。並行変更は競合するので、使うなら master を呼び出しごとに独立させる。
+// id は両方の表で重ならない前提にする。master を書き換えるので並行に呼ばない
 func withScaledMeleeDamages(master rawschema.Raws, factors map[string]float64, fn func()) {
 	type saved struct {
 		melee *rawschema.Melee

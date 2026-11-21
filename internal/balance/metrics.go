@@ -74,8 +74,6 @@ func DifficultyCurveWithSkill(master rawschema.Raws, player CombatantStats, play
 			if err != nil {
 				return nil, err
 			}
-			// LoadWeaponFromMember は武器を持たない敵を内部で素手へフォールバックする。それでもエラーなら
-			// 本物のデータ異常なので握り潰さず伝播する。LoadCombatantFromMember と扱いを揃える。
 			enemyWeapon, err := LoadWeaponFromMember(master, entry.Id)
 			if err != nil {
 				return nil, err

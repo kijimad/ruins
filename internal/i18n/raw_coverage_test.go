@@ -35,7 +35,6 @@ func TestRawTranslationCoverage(t *testing.T) {
 	for _, it := range items {
 		texts = append(texts, it.Name, it.Description)
 	}
-	// 体の攻撃の名前は攻撃のログに出る
 	for _, a := range bodyAttacks {
 		texts = append(texts, a.Name)
 	}

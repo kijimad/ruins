@@ -199,7 +199,6 @@ func getBareHandsAttack(world w.World) (gc.Attacker, i18n.Msgid, error) {
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
 // 戻り値: (攻撃パラメータ, 攻撃方法名, エラー)
 func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, i18n.Msgid, error) {
-	// プレイヤーは選んだ欄の物で殴る。近接攻撃を持つ物を選んでいなければ素手で殴る
 	if world.Components.Player.Has(attacker) {
 		weapon, ok := query.SelectedWeapon(world, attacker)
 		if !ok || !world.Components.Melee.Has(weapon) {
