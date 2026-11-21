@@ -39,7 +39,7 @@ func TestBehavior_NoOpStep_ゲームログに出力しない(t *testing.T) {
 		{"ShootBehavior.Canceled", (&ShootBehavior{}).Canceled},
 		{"SwapBehavior.Canceled", (&SwapBehavior{}).Canceled},
 		{"TalkBehavior.Canceled", (&TalkBehavior{}).Canceled},
-		{"UseItemBehavior.Canceled", (&useItemBehavior).Canceled},
+		{"ConsumeBehavior.Canceled", (&useItemBehavior).Canceled},
 		{"ReloadBehavior.Finish", (&ReloadBehavior{}).Finish},
 		{"RestBehavior.Start", (&RestBehavior{}).Start},
 	}

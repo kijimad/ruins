@@ -18,9 +18,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// UseItemBehavior は物を食べる・使う行動。どの効果を適用するかを effects で持つ。
+// ConsumeBehavior は物を食べる・使う行動。どの効果を適用するかを effects で持つ。
 // 値は eatBehavior と useItemBehavior の2つだけで、GetBehavior が複写して返す
-type UseItemBehavior struct {
+type ConsumeBehavior struct {
 	name    gc.BehaviorName
 	label   string
 	desc    string
@@ -28,12 +28,12 @@ type UseItemBehavior struct {
 }
 
 var (
-	eatBehavior     = UseItemBehavior{name: gc.BehaviorEat, label: "Eat", desc: "Eat an item", effects: eatEffects}
-	useItemBehavior = UseItemBehavior{name: gc.BehaviorUseItem, label: "Use Item", desc: "Use an item", effects: useEffects}
+	eatBehavior     = ConsumeBehavior{name: gc.BehaviorEat, label: "Eat", desc: "Eat an item", effects: eatEffects}
+	useItemBehavior = ConsumeBehavior{name: gc.BehaviorUseItem, label: "Use Item", desc: "Use an item", effects: useEffects}
 )
 
 // Info はBehaviorの実装
-func (u *UseItemBehavior) Info() Info {
+func (u *ConsumeBehavior) Info() Info {
 	return Info{
 		Name:            u.label,
 		Description:     u.desc,
@@ -45,21 +45,21 @@ func (u *UseItemBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (u *UseItemBehavior) Name() gc.BehaviorName {
+func (u *ConsumeBehavior) Name() gc.BehaviorName {
 	return u.name
 }
 
 // NewUseItemActivity は使用アイテムを指定してアイテム使用アクティビティを組む。
 func NewUseItemActivity(target ecs.Entity) *gc.Activity {
 	comp := NewActivity(gc.BehaviorUseItem, 0)
-	comp.Params = &gc.UseItemParams{Target: target}
+	comp.Params = &gc.ConsumeParams{Target: target}
 	return comp
 }
 
 // NewEatActivity は食べるアイテムを指定して食べるアクティビティを組む。
 func NewEatActivity(target ecs.Entity) *gc.Activity {
 	comp := NewActivity(gc.BehaviorEat, 0)
-	comp.Params = &gc.UseItemParams{Target: target}
+	comp.Params = &gc.ConsumeParams{Target: target}
 	return comp
 }
 
@@ -78,8 +78,8 @@ func hasEffect(effects []useEffect, world w.World, item ecs.Entity) bool {
 }
 
 // Validate はBehaviorの実装
-func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.UseItemParams)
+func (u *ConsumeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	p, ok := comp.Params.(*gc.ConsumeParams)
 	if !ok {
 		return ErrParamsTypeMismatch
 	}
@@ -109,16 +109,16 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 }
 
 // Start はBehaviorの実装
-func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if p, ok := comp.Params.(*gc.UseItemParams); ok {
+func (u *ConsumeBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	if p, ok := comp.Params.(*gc.ConsumeParams); ok {
 		log.Debug("item use started", "actor", actor, "item", p.Target)
 	}
 	return nil
 }
 
 // DoTurn はBehaviorの実装
-func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.UseItemParams)
+func (u *ConsumeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	p, ok := comp.Params.(*gc.ConsumeParams)
 	if !ok {
 		return ErrParamsTypeMismatch
 	}
@@ -147,19 +147,19 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Finish はBehaviorの実装
-func (u *UseItemBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (u *ConsumeBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("item use finished", "actor", actor)
 	return nil
 }
 
 // Canceled はBehaviorの実装
-func (u *UseItemBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (u *ConsumeBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("item use canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // applyHealing は回復処理を適用する
-func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, healing *gc.ProvidesHealing, item ecs.Entity) error {
+func (u *ConsumeBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, healing *gc.ProvidesHealing, item ecs.Entity) error {
 	// 最大HPを基準に実際の回復量を計算する（絶対量指定の場合は基準値は無視される）
 	hp := world.Components.HP.Get(actor)
 	amount := healing.Calc(hp.Max)
@@ -201,7 +201,7 @@ func remedyTarget(hs *gc.HealthStatus, remedy *gc.Remedy) (gc.BodyPart, *gc.Heal
 // applyRemedy は remedyTarget が選んだ不調を治療済みにする。
 // 治療は即座には治さず、TendQuality を立てて回復軌道へ乗せるだけ。実際の回復は ConditionSystem が進める。
 // 治療した不調があれば true を返す。選べる不調が無ければ何もせず false を返す
-func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *gc.Remedy, item ecs.Entity) bool {
+func (u *ConsumeBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *gc.Remedy, item ecs.Entity) bool {
 	if !world.Components.HealthStatus.Has(actor) {
 		return false
 	}
@@ -216,7 +216,7 @@ func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *g
 
 // isRemedyOnly はこの行動の組の中で、アイテムが治療だけを効果に持つかを返す。治療専用が空振りするなら Validate で使用を弾く。
 // ほかの組の効果は見ないので、栄養を持つ蜂蜜も使うの組では治療専用になる
-func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
+func (u *ConsumeBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
 	if !world.Components.Remedy.Has(item) {
 		return false
 	}
@@ -232,7 +232,7 @@ func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
 }
 
 // logRemedy は治療した部位と不調をログに出す。プレイヤーが使ったときだけ出す
-func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.Entity, part gc.BodyPart, treated gc.ConditionType) {
+func (u *ConsumeBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.Entity, part gc.BodyPart, treated gc.ConditionType) {
 	if !world.Components.Player.Has(actor) {
 		return
 	}
@@ -245,7 +245,7 @@ func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.En
 }
 
 // applyNutrition は空腹度回復処理を適用する。鮮度に応じて栄養を調整する。
-func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
+func (u *ConsumeBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
 	if !world.Components.Hunger.Has(actor) {
 		return nil
 	}
@@ -277,7 +277,7 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 }
 
 // logItemUse はアイテム使用のログを出力する
-func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {
+func (u *ConsumeBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {
 	// プレイヤーが関わる場合のみログ出力
 	if !world.Components.Player.Has(actor) {
 		return
@@ -299,7 +299,7 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 
 // logNutritionUse は空腹度回復のログを出力する。腐敗する食料は鮮度を添える。
 // reachedLog は食べて達した空腹の段階のログで、空なら出さない
-func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, reachedLog i18n.Msgid) {
+func (u *ConsumeBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, reachedLog i18n.Msgid) {
 	// プレイヤーが関わる場合のみログ出力
 	if !world.Components.Player.Has(actor) {
 		return
@@ -326,7 +326,7 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 }
 
 // getItemName はアイテムの名前を取得する
-func (u *UseItemBehavior) getItemName(item ecs.Entity, world w.World) string {
+func (u *ConsumeBehavior) getItemName(item ecs.Entity, world w.World) string {
 	if world.Components.Name.Has(item) {
 		return query.T(world, world.Components.Name.Get(item).Name)
 	}

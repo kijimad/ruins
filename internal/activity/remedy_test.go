@@ -169,7 +169,7 @@ func TestApplyRemedy_質の高い物も未治療の傷を先に治療する(t *t
 	assert.Equal(t, map[float64]consts.Percent{80: 50, 30: 100}, got)
 }
 
-func TestUseItemBehavior_Validate_治療で質が上がる傷が無ければ使えない(t *testing.T) {
+func TestConsumeBehavior_Validate_治療で質が上がる傷が無ければ使えない(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -193,7 +193,7 @@ func TestUseItemBehavior_Validate_治療で質が上がる傷が無ければ使�
 			world.Components.Consumable.Add(item, &gc.Consumable{})
 			world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 50})
 
-			comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
+			comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.ConsumeParams{Target: item}}
 			u := &useItemBehavior
 			var ve *UserError
 			require.ErrorAs(t, u.Validate(comp, player, world), &ve)
@@ -288,7 +288,7 @@ func TestIsRemedyOnly(t *testing.T) {
 	assert.False(t, u.isRemedyOnly(world, combo), "使うの組のほかの効果も持つなら治療専用でない")
 }
 
-func TestUseItemBehavior_Validate_治療専用は治せる不調がないと使えない(t *testing.T) {
+func TestConsumeBehavior_Validate_治療専用は治せる不調がないと使えない(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -301,7 +301,7 @@ func TestUseItemBehavior_Validate_治療専用は治せる不調がないと使�
 	world.Components.Consumable.Add(item, &gc.Consumable{})
 	world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 150})
 
-	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
+	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.ConsumeParams{Target: item}}
 	u := &useItemBehavior
 
 	// 骨折が無ければ使う前に弾く
@@ -314,7 +314,7 @@ func TestUseItemBehavior_Validate_治療専用は治せる不調がないと使�
 	assert.NoError(t, u.Validate(comp, player, world), "治せる不調があれば使える")
 }
 
-func TestUseItemBehavior_Validate_併用効果があれば空振りでも使える(t *testing.T) {
+func TestConsumeBehavior_Validate_併用効果があれば空振りでも使える(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -327,7 +327,7 @@ func TestUseItemBehavior_Validate_併用効果があれば空振りでも使え�
 	world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 150})
 	world.Components.InflictsDamage.Add(item, &gc.InflictsDamage{Amount: 1})
 
-	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
+	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.ConsumeParams{Target: item}}
 	u := &useItemBehavior
 	assert.NoError(t, u.Validate(comp, player, world), "治療専用でなければ弾かない")
 }

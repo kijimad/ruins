@@ -19,9 +19,9 @@ type useEffect interface {
 	// present はアイテムがこの効果を持つかを返す
 	present(world w.World, item ecs.Entity) bool
 	// check は使う前の検証。使えない理由があれば *UserError を返す。既定は問題なし
-	check(u *UseItemBehavior, actor, item ecs.Entity, world w.World) error
+	check(u *ConsumeBehavior, actor, item ecs.Entity, world w.World) error
 	// apply は効果を適用する
-	apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error
+	apply(u *ConsumeBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error
 }
 
 // eatEffects は口に入れて体の内側に働く効果の一覧。順に present を見て、持つ効果だけ適用する
@@ -37,9 +37,9 @@ func (healEffect) present(world w.World, item ecs.Entity) bool {
 	return world.Components.ProvidesHealing.Has(item)
 }
 
-func (healEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
+func (healEffect) check(_ *ConsumeBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
 
-func (healEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
+func (healEffect) apply(u *ConsumeBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	return u.applyHealing(comp, actor, world, world.Components.ProvidesHealing.Get(item), item)
 }
 
@@ -51,7 +51,7 @@ func (nutritionEffect) present(world w.World, item ecs.Entity) bool {
 }
 
 // check は満腹度が上限なら食べさせない。栄養を持つ物は、ほかの効果を併せ持っても食べ物として止める
-func (nutritionEffect) check(_ *UseItemBehavior, actor, _ ecs.Entity, world w.World) error {
+func (nutritionEffect) check(_ *ConsumeBehavior, actor, _ ecs.Entity, world w.World) error {
 	if !world.Components.Hunger.Has(actor) {
 		return nil
 	}
@@ -61,7 +61,7 @@ func (nutritionEffect) check(_ *UseItemBehavior, actor, _ ecs.Entity, world w.Wo
 	return nil
 }
 
-func (nutritionEffect) apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
+func (nutritionEffect) apply(u *ConsumeBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	return u.applyNutrition(comp, actor, world, world.Components.ProvidesNutrition.Get(item).Amount, item)
 }
 
@@ -72,9 +72,9 @@ func (damageEffect) present(world w.World, item ecs.Entity) bool {
 	return world.Components.InflictsDamage.Has(item)
 }
 
-func (damageEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
+func (damageEffect) check(_ *ConsumeBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
 
-func (damageEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
+func (damageEffect) apply(_ *ConsumeBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	gameaction.ApplyDamage(world, actor, world.Components.InflictsDamage.Get(item).Amount, actor)
 	return nil
 }
@@ -88,7 +88,7 @@ func (remedyEffect) present(world w.World, item ecs.Entity) bool {
 
 // check は治療専用アイテムが治せる不調を今持たないなら使用を弾く。空振りを使う前に止める。
 // 併用効果を持つアイテムは他の効果で使えるので弾かない
-func (remedyEffect) check(u *UseItemBehavior, actor, item ecs.Entity, world w.World) error {
+func (remedyEffect) check(u *ConsumeBehavior, actor, item ecs.Entity, world w.World) error {
 	if !u.isRemedyOnly(world, item) {
 		return nil
 	}
@@ -102,7 +102,7 @@ func (remedyEffect) check(u *UseItemBehavior, actor, item ecs.Entity, world w.Wo
 	return nil
 }
 
-func (remedyEffect) apply(u *UseItemBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
+func (remedyEffect) apply(u *ConsumeBehavior, _ *gc.Activity, actor, item ecs.Entity, world w.World) error {
 	u.applyRemedy(actor, world, world.Components.Remedy.Get(item), item)
 	return nil
 }
@@ -114,9 +114,9 @@ func (escapeEffect) present(world w.World, item ecs.Entity) bool {
 	return world.Components.EscapeDevice.Has(item)
 }
 
-func (escapeEffect) check(_ *UseItemBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
+func (escapeEffect) check(_ *ConsumeBehavior, _, _ ecs.Entity, _ w.World) error { return nil }
 
-func (escapeEffect) apply(_ *UseItemBehavior, _ *gc.Activity, _, _ ecs.Entity, world w.World) error {
+func (escapeEffect) apply(_ *ConsumeBehavior, _ *gc.Activity, _, _ ecs.Entity, world w.World) error {
 	return lifecycle.RequestStateChange(world, gc.EscapeEvent())
 }
 
@@ -127,7 +127,7 @@ func (cubeCoreEffect) present(world w.World, item ecs.Entity) bool {
 	return world.Components.CubeCore.Has(item)
 }
 
-func (cubeCoreEffect) check(_ *UseItemBehavior, actor, _ ecs.Entity, world w.World) error {
+func (cubeCoreEffect) check(_ *ConsumeBehavior, actor, _ ecs.Entity, world w.World) error {
 	if !query.IsOnOverworld(world) {
 		return &UserError{Msg: query.T(world, "The cube can only be assembled outdoors.")}
 	}
@@ -137,7 +137,7 @@ func (cubeCoreEffect) check(_ *UseItemBehavior, actor, _ ecs.Entity, world w.Wor
 	return nil
 }
 
-func (cubeCoreEffect) apply(_ *UseItemBehavior, _ *gc.Activity, actor, _ ecs.Entity, world w.World) error {
+func (cubeCoreEffect) apply(_ *ConsumeBehavior, _ *gc.Activity, actor, _ ecs.Entity, world w.World) error {
 	pos, ok := cubeAssemblyTile(world, actor)
 	if !ok {
 		return errors.New("no tile to assemble the cube")

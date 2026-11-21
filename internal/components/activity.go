@@ -141,12 +141,12 @@ type ShootParams struct {
 
 func (*ShootParams) isActivityParams() {}
 
-// UseItemParams はアイテム使用のパラメータ。
-type UseItemParams struct {
+// ConsumeParams は物を食べる・使う行動のパラメータ。
+type ConsumeParams struct {
 	Target ecs.Entity // 使用するアイテムのエンティティ
 }
 
-func (*UseItemParams) isActivityParams() {}
+func (*ConsumeParams) isActivityParams() {}
 
 // ReadParams は読書のパラメータ。
 type ReadParams struct {

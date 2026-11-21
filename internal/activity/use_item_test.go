@@ -30,7 +30,7 @@ func countBackpackByRawID(world w.World, player ecs.Entity, id string) int {
 	return n
 }
 
-func TestUseItemBehavior_applyNutrition(t *testing.T) {
+func TestConsumeBehavior_applyNutrition(t *testing.T) {
 	t.Parallel()
 
 	t.Run("満腹度が正常に増加する", func(t *testing.T) {
@@ -156,7 +156,7 @@ func TestUseItemBehavior_applyNutrition(t *testing.T) {
 	})
 }
 
-func TestUseItemBehavior_DoTurn(t *testing.T) {
+func TestConsumeBehavior_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("空腹度回復アイテムを使用して完了する", func(t *testing.T) {
@@ -185,7 +185,7 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorEat,
 			State:        gc.ActivityStateRunning,
-			Params:       &gc.UseItemParams{Target: bread},
+			Params:       &gc.ConsumeParams{Target: bread},
 		}
 
 		ua := &eatBehavior
@@ -220,7 +220,7 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
 			State:        gc.ActivityStateRunning,
-			Params:       &gc.UseItemParams{Target: item},
+			Params:       &gc.ConsumeParams{Target: item},
 		}
 
 		ua := &useItemBehavior
@@ -267,7 +267,7 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
 			State:        gc.ActivityStateRunning,
-			Params:       &gc.UseItemParams{Target: item},
+			Params:       &gc.ConsumeParams{Target: item},
 		}
 
 		ua := &useItemBehavior
@@ -292,7 +292,7 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
 			State:        gc.ActivityStateRunning,
-			Params:       &gc.UseItemParams{Target: item},
+			Params:       &gc.ConsumeParams{Target: item},
 		}
 
 		ua := &useItemBehavior
@@ -306,7 +306,7 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 	})
 }
 
-func TestUseItemBehavior_Validate(t *testing.T) {
+func TestConsumeBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
 	t.Run("有効なアイテムの場合は成功", func(t *testing.T) {
@@ -323,7 +323,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Params:       &gc.UseItemParams{Target: item},
+			Params:       &gc.ConsumeParams{Target: item},
 		}
 
 		ua := &useItemBehavior
@@ -342,7 +342,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorEat,
-			Params:       &gc.UseItemParams{Target: item},
+			Params:       &gc.ConsumeParams{Target: item},
 		}
 
 		ua := &eatBehavior
@@ -363,7 +363,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Params:       &gc.UseItemParams{Target: item},
+			Params:       &gc.ConsumeParams{Target: item},
 		}
 
 		ua := &useItemBehavior
@@ -396,7 +396,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Params:       &gc.UseItemParams{Target: world.ECS.NewEntity()},
+			Params:       &gc.ConsumeParams{Target: world.ECS.NewEntity()},
 		}
 
 		ua := &useItemBehavior
@@ -417,7 +417,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Params:       &gc.UseItemParams{Target: item},
+			Params:       &gc.ConsumeParams{Target: item},
 		}
 
 		ua := &useItemBehavior
@@ -440,7 +440,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
-			Params:       &gc.UseItemParams{Target: item},
+			Params:       &gc.ConsumeParams{Target: item},
 		}
 
 		ua := &useItemBehavior
@@ -449,7 +449,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 	})
 }
 
-func TestUseItemBehavior_Info(t *testing.T) {
+func TestConsumeBehavior_Info(t *testing.T) {
 	t.Parallel()
 
 	ua := &useItemBehavior
@@ -460,7 +460,7 @@ func TestUseItemBehavior_Info(t *testing.T) {
 	assert.False(t, info.Resumable)
 }
 
-func TestUseItemBehavior_applyNutrition_鮮度で栄養が変わる(t *testing.T) {
+func TestConsumeBehavior_applyNutrition_鮮度で栄養が変わる(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -495,7 +495,7 @@ func TestUseItemBehavior_applyNutrition_鮮度で栄養が変わる(t *testing.T
 	}
 }
 
-func TestUseItemBehavior_applyNutrition_鮮度で減っても最低1は与える(t *testing.T) {
+func TestConsumeBehavior_applyNutrition_鮮度で減っても最低1は与える(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	bread, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 1)
@@ -514,7 +514,7 @@ func TestUseItemBehavior_applyNutrition_鮮度で減っても最低1は与える
 	assert.Equal(t, 101, world.Components.Hunger.Get(actor).Current, "腐敗でも最低1は回復する")
 }
 
-func TestUseItemBehavior_applyNutrition_腐敗食は食中毒を起こしうる(t *testing.T) {
+func TestConsumeBehavior_applyNutrition_腐敗食は食中毒を起こしうる(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -552,7 +552,7 @@ func TestUseItemBehavior_applyNutrition_腐敗食は食中毒を起こしうる(
 	}
 }
 
-func TestUseItemBehavior_食べたログに鮮度が出る(t *testing.T) {
+func TestConsumeBehavior_食べたログに鮮度が出る(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -588,7 +588,7 @@ func TestUseItemBehavior_食べたログに鮮度が出る(t *testing.T) {
 	}
 }
 
-func TestUseItemBehavior_getItemName(t *testing.T) {
+func TestConsumeBehavior_getItemName(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Nameコンポーネントがあれば訳された名前を返す", func(t *testing.T) {
@@ -611,7 +611,7 @@ func TestUseItemBehavior_getItemName(t *testing.T) {
 	})
 }
 
-func TestUseItemBehavior_Name(t *testing.T) {
+func TestConsumeBehavior_Name(t *testing.T) {
 	t.Parallel()
 
 	ua := &useItemBehavior
@@ -627,12 +627,12 @@ func TestNewUseItemActivity(t *testing.T) {
 	comp := NewUseItemActivity(item)
 
 	assert.Equal(t, gc.BehaviorUseItem, comp.BehaviorName)
-	params, ok := comp.Params.(*gc.UseItemParams)
-	require.True(t, ok, "UseItemParamsが設定されるべき")
+	params, ok := comp.Params.(*gc.ConsumeParams)
+	require.True(t, ok, "ConsumeParamsが設定されるべき")
 	assert.Equal(t, item, params.Target)
 }
 
-func TestUseItemBehavior_applyHealing(t *testing.T) {
+func TestConsumeBehavior_applyHealing(t *testing.T) {
 	t.Parallel()
 
 	t.Run("絶対量指定の回復がHPに反映される", func(t *testing.T) {
@@ -697,7 +697,7 @@ func TestUseItemBehavior_applyHealing(t *testing.T) {
 	})
 }
 
-func TestUseItemBehavior_logItemUse(t *testing.T) {
+func TestConsumeBehavior_logItemUse(t *testing.T) {
 	t.Parallel()
 
 	t.Run("プレイヤー以外はログを出さない", func(t *testing.T) {
@@ -846,8 +846,8 @@ func TestGetBehavior_食べるは食べるの組で動く(t *testing.T) {
 
 	b, err := GetBehavior(gc.BehaviorEat)
 	require.NoError(t, err)
-	ub, ok := b.(*UseItemBehavior)
-	require.Truef(t, ok, "GetBehavior(BehaviorEat) は *UseItemBehavior を返すべきだが %T だった", b)
+	ub, ok := b.(*ConsumeBehavior)
+	require.Truef(t, ok, "GetBehavior(BehaviorEat) は *ConsumeBehavior を返すべきだが %T だった", b)
 	assert.Equal(t, gc.BehaviorEat, ub.Name())
 	assert.Equal(t, "Eat", ub.Info().Name)
 }
@@ -860,7 +860,7 @@ func TestEffectSets_食べると使うの組は重ならない(t *testing.T) {
 	}
 }
 
-func TestUseItemBehavior_Validate_食べるの組の効果を持たない物は食べられない(t *testing.T) {
+func TestConsumeBehavior_Validate_食べるの組の効果を持たない物は食べられない(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
