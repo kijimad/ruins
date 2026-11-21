@@ -179,8 +179,8 @@ func TestHealthDetailContent_治し方は発症した不調にだけ出す(t *te
 		}
 		return out
 	}
-	assert.Equal(t, []string{"Progress", "Treatment"}, labels(20), "発症前は治し方を出さない")
-	assert.Equal(t, []string{"Progress", "Treatment", "Pain", "Manipulation", "Blood loss", "Treated by"}, labels(30), "発症すると治し方を出す")
+	assert.Equal(t, []string{"Progress", "Treatment"}, labels(24), "発症前は治し方を出さない")
+	assert.Equal(t, []string{"Progress", "Treatment", "Pain", "Manipulation", "Blood loss", "Treated by"}, labels(25), "発症すると治し方を出す")
 }
 
 func TestCharacterState_過労の詳細は重症度と意識代謝の低下を出す(t *testing.T) {
