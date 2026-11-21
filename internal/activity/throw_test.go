@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	iw "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -150,4 +151,5 @@ func TestThrowBehavior_DoTurn_威力0の物は傷を負わせずスキルも伸�
 	assert.Equal(t, hp, world.Components.HP.Get(enemy).Current)
 	assert.Equal(t, exp, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current)
 	assert.False(t, world.ECS.Alive(smoke), "投げた物は無くなる")
+	assert.Equal(t, []string{"Ash threw Smoke Bomb."}, query.GetGameLog(world).GetRecent(1))
 }

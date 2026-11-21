@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -96,6 +97,8 @@ func (tb *ThrowBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 		if err := applyAttackDamage(actor, p.Target, world, attack, name, hitModifier, 0); err != nil {
 			return err
 		}
+	} else {
+		logThrow(world, actor, p.Item)
 	}
 	// 投げた物は、当たっても外れても無くなる
 	if err := lifecycle.ChangeItemCount(world, p.Item, -1); err != nil {
@@ -116,6 +119,18 @@ func (tb *ThrowBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) err
 func (tb *ThrowBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("throw canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
+}
+
+// logThrow は攻撃にならない物を投げたことをログに出す。プレイヤーが投げたときだけ出す
+func logThrow(world w.World, actor, item ecs.Entity) {
+	if !world.Components.Player.Has(actor) {
+		return
+	}
+	actorMarkup := query.NameMarkup(actor, query.GetEntityName(actor, world), world)
+	itemMarkup := gamelog.Tag("item", query.GetEntityName(item, world))
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "%s threw %s.", actorMarkup, itemMarkup)).
+		Log()
 }
 
 // throwItemError は actor が item を投げられなければ理由を返す。物が actor のバックパックにあり、重すぎないこと

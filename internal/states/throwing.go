@@ -3,6 +3,8 @@ package states
 import (
 	"fmt"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+
 	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
@@ -14,6 +16,8 @@ import (
 // throwMode はバックパックの物を投げる狙い方
 type throwMode struct {
 	item ecs.Entity
+	// attack は画面を開いたときに導いた投げの値。画面の間は物が変わらないので毎フレーム導き直さない
+	attack gc.ThrowAttack
 }
 
 func (throwMode) bindings() []keybind.Binding { return targetingBindings }
@@ -40,9 +44,7 @@ func (throwMode) title(world w.World) string { return query.T(world, "== Throwin
 // drawSource は投げる物の名前と威力を描く
 func (m throwMode) drawSource(world w.World, _ ecs.Entity, drawText func(string)) {
 	drawText(fmt.Sprintf("%s: %s", query.T(world, "Item"), query.GetEntityName(m.item, world)))
-	if attack, ok := query.ThrowAttackOf(world, m.item); ok {
-		drawText(fmt.Sprintf("%s: %d", query.T(world, "Attack power"), attack.Damage))
-	}
+	drawText(fmt.Sprintf("%s: %d", query.T(world, "Attack power"), m.attack.Damage))
 }
 
 // unavailable は投げる物を投げられなければ理由を返す

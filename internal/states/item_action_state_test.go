@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+
 	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -188,7 +190,7 @@ func TestExecThrow_狙う画面へ切り替える(t *testing.T) {
 	require.NoError(t, err)
 	targeting, ok := state.(*TargetingState)
 	require.True(t, ok)
-	assert.Equal(t, throwMode{item: stone}, targeting.mode)
+	assert.Equal(t, throwMode{item: stone, attack: gc.ThrowAttack{Damage: 6, Accuracy: 70}}, targeting.mode)
 }
 
 func TestThrowMode_unavailable(t *testing.T) {
