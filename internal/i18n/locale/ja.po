@@ -2274,38 +2274,20 @@ msgstr "三又に分かれた槍。突きと薙ぎの両方に使える"
 msgid "Tackle"
 msgstr "体当たり"
 
-msgid "Build up momentum and slam your body into the foe to deal damage."
-msgstr "勢いをつけて体を衝突させてダメージを与える"
-
 msgid "Light Shot"
 msgstr "光弾"
-
-msgid "Attacks with the power of light."
-msgstr "光の力で攻撃する"
 
 msgid "Frost Attack"
 msgstr "冷気攻撃"
 
-msgid "An attack imbued with frost."
-msgstr "冷気を帯びた攻撃"
-
 msgid "Smash"
 msgstr "叩き潰し"
-
-msgid "A powerful blow that crushes with sheer bulk."
-msgstr "巨体で押し潰す強力な一撃"
 
 msgid "Roar"
 msgstr "咆哮"
 
-msgid "Strikes all foes with a mighty roar."
-msgstr "強力な咆哮で全体を攻撃する"
-
 msgid "Bite"
 msgstr "噛みつき"
-
-msgid "Bites down with sharp fangs and claws."
-msgstr "鋭い牙や爪で噛みつく"
 
 msgid "Scythe"
 msgstr "大鎌"
@@ -2321,9 +2303,6 @@ msgstr "天界の金属で鍛えられた聖なる剣"
 
 msgid "Rend"
 msgstr "引き裂き"
-
-msgid "Tears the enemy apart with sharp claws."
-msgstr "鋭利な爪で引き裂く"
 
 msgid "Axe"
 msgstr "斧"
@@ -2351,9 +2330,6 @@ msgstr "旅行の土産でおなじみの、木でできた刃のない刀"
 
 msgid "Strafing Fire"
 msgstr "機銃掃射"
-
-msgid "Lays down a barrage with rapid fire."
-msgstr "高速連射で弾幕を張る"
 
 msgid "Warped Blade"
 msgstr "歪曲刀"
@@ -2388,26 +2364,14 @@ msgstr "消火用の加圧式容器。殴れば鈍器として使える"
 msgid "Fire Breath"
 msgstr "火炎ブレス"
 
-msgid "Exhales an intense breath of flame."
-msgstr "強烈な炎のブレスを吐く"
-
 msgid "Flame Attack"
 msgstr "火炎攻撃"
-
-msgid "An attack wreathed in fire."
-msgstr "炎を纏った攻撃"
 
 msgid "Bombard"
 msgstr "砲撃"
 
-msgid "Attacks with a vehicle-mounted cannon."
-msgstr "車載砲で攻撃する"
-
 msgid "Bare Hands"
 msgstr "素手"
-
-msgid "A strike delivered with bare hands."
-msgstr "素手による打撃"
 
 msgid "Purple Katana"
 msgstr "紫の刀"
@@ -2507,9 +2471,6 @@ msgstr "電動ドライバー。動力で高速回転する先端は脅威"
 
 msgid "Shock"
 msgstr "電撃"
-
-msgid "Unleashes a burst of electricity."
-msgstr "電撃を放つ"
 
 msgid "Blue Battle Axe"
 msgstr "青いバトルアックス"
@@ -6124,15 +6085,6 @@ msgstr "光を束ねて放つ杖。"
 
 msgid "A bland placeholder ration."
 msgstr "味気ない仮の携行食。"
-
-msgid "An enemy attack of biting cold."
-msgstr "凍てつく敵の攻撃。"
-
-msgid "An enemy attack of searing light."
-msgstr "灼く光の敵の攻撃。"
-
-msgid "An enemy attack that jolts with electricity."
-msgstr "電撃を帯びた敵の攻撃。"
 
 msgid "todo: applies poison. Status-ailment schema is not implemented yet, so it currently deals non-elemental damage only."
 msgstr "todo: 毒を付与する攻撃。状態異常のスキーマが未実装のため、現状は無属性ダメージのみ。"

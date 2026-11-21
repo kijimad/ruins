@@ -105,7 +105,7 @@ func LoadWeaponFromMember(master rawschema.Raws, memberID string) (WeaponStats, 
 	}
 
 	if len(ct.Entries) == 0 {
-		return LoadWeaponFromBodyAttack(master, raw.BareHands)
+		return WeaponStats{}, fmt.Errorf("command table %q has no entry", ct.Id)
 	}
 
 	// 最も重みの高い攻撃を代表として使う

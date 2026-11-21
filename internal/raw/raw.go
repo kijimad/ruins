@@ -955,7 +955,7 @@ func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (rawschema
 	return ct.Entries[i], true
 }
 
-// BareHands は素手の体の攻撃の id。近接攻撃を持つ物を選んでいないプレイヤーと、攻撃表を持たない member が使う
+// BareHands は素手の体の攻撃の id。近接攻撃を持つ物を選んでいないプレイヤーが使う。バランスの計算では、攻撃表を持たない member も素手として見積もる
 const BareHands = "bare_hands"
 
 // FindBodyAttack は id の体の攻撃を返す
