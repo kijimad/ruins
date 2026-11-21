@@ -19,7 +19,7 @@ import (
 )
 
 // ConsumeBehavior は物を食べる・使う行動。どの効果を適用するかを effects で持つ。
-// 値は eatBehavior と useItemBehavior の2つだけで、GetBehavior が複写して返す
+// 値は eatBehavior と useItemBehavior の2つだけで、書き換える状態を持たないので GetBehavior はそのまま返す
 type ConsumeBehavior struct {
 	name    gc.BehaviorName
 	label   string
@@ -111,7 +111,7 @@ func (u *ConsumeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 // Start はBehaviorの実装
 func (u *ConsumeBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	if p, ok := comp.Params.(*gc.ConsumeParams); ok {
-		log.Debug("item use started", "actor", actor, "item", p.Target)
+		log.Debug("item use started", "behavior", u.name, "actor", actor, "item", p.Target)
 	}
 	return nil
 }
@@ -148,13 +148,13 @@ func (u *ConsumeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Finish はBehaviorの実装
 func (u *ConsumeBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("item use finished", "actor", actor)
+	log.Debug("item use finished", "behavior", u.name, "actor", actor)
 	return nil
 }
 
 // Canceled はBehaviorの実装
 func (u *ConsumeBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("item use canceled", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("item use canceled", "behavior", u.name, "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 

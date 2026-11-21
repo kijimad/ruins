@@ -50,7 +50,7 @@ func (nutritionEffect) present(world w.World, item ecs.Entity) bool {
 	return world.Components.ProvidesNutrition.Has(item)
 }
 
-// check は満腹度が上限なら食べさせない。栄養を持つ物は、ほかの効果を併せ持っても食べ物として止める
+// check は満腹度が上限なら食べさせない
 func (nutritionEffect) check(_ *ConsumeBehavior, actor, _ ecs.Entity, world w.World) error {
 	if !world.Components.Hunger.Has(actor) {
 		return nil

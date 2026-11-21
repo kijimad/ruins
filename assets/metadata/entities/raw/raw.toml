@@ -15479,7 +15479,6 @@
   providesNutrition = 75
   spriteKey = "honey"
   spriteSheetName = "field"
-  stageLength = 30000
   value = 60
   weight = "200 g"
   [items.consumable]

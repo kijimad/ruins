@@ -160,8 +160,7 @@ func execEat(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
 	return execItemActivity(world, activity.NewEatActivity(entity))
 }
 
-// execItemActivity はプレイヤーにアイテムのアクティビティを実行させダンジョンへ戻る。
-// 効果の有無で食べた・使ったのログ文言は ConsumeBehavior 側が出し分ける
+// execItemActivity はプレイヤーにアイテムのアクティビティを実行させダンジョンへ戻る
 func execItemActivity(world w.World, act *gc.Activity) (es.Transition[w.World], error) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
