@@ -366,8 +366,8 @@ func validateCodeRows(raws rawschema.Raws) error {
 	if err := validateSkillCodeRows(raws); err != nil {
 		return err
 	}
-	if _, ok := FindByKey(raws.BodyAttacks, func(a rawschema.BodyAttack) string { return a.Id }, BareHands); !ok {
-		return errBareHandsMissing
+	if _, err := FindBodyAttack(raws, BareHands); err != nil {
+		return fmt.Errorf("%w: %w", errBareHandsMissing, err)
 	}
 	enumRows := []struct {
 		schema string

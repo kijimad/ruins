@@ -958,11 +958,20 @@ func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (rawschema
 // BareHands は素手の体の攻撃の id。武器を持たないときと、攻撃表を引けない敵が使う
 const BareHands = "bare_hands"
 
-// BodyAttackMelee は体の攻撃の近接攻撃と名前を返す
-func BodyAttackMelee(raws rawschema.Raws, id string) (*gc.Melee, i18n.Msgid, error) {
+// FindBodyAttack は id の体の攻撃を返す
+func FindBodyAttack(raws rawschema.Raws, id string) (rawschema.BodyAttack, error) {
 	bodyAttack, ok := FindByKey(raws.BodyAttacks, func(a rawschema.BodyAttack) string { return a.Id }, id)
 	if !ok {
-		return nil, "", NewKeyNotFoundError(id, "BodyAttacks")
+		return rawschema.BodyAttack{}, NewKeyNotFoundError(id, "BodyAttacks")
+	}
+	return bodyAttack, nil
+}
+
+// BodyAttackMelee は体の攻撃の近接攻撃と名前を返す
+func BodyAttackMelee(raws rawschema.Raws, id string) (*gc.Melee, i18n.Msgid, error) {
+	bodyAttack, err := FindBodyAttack(raws, id)
+	if err != nil {
+		return nil, "", err
 	}
 	return parseMelee(&bodyAttack.Melee), i18n.Msgid(bodyAttack.Name), nil
 }

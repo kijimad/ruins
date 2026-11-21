@@ -93,6 +93,39 @@ func TestLoadWeaponFromMember(t *testing.T) {
 		assert.GreaterOrEqual(t, ws.Damage, 0)
 	})
 
+	t.Run("攻撃表の最も重い行と素手を表ごとに引く", func(t *testing.T) {
+		t.Parallel()
+		hands := rawschema.Melee{Accuracy: 100, Damage: 3}
+		bite := rawschema.Melee{Accuracy: 90, Damage: 11}
+		cleaver := rawschema.Melee{Accuracy: 80, Damage: 14}
+		raws := rawschema.Raws{
+			BodyAttacks: &[]rawschema.BodyAttack{{Id: raw.BareHands, Name: "Bare hands", Melee: hands}, {Id: "bite", Name: "Bite", Melee: bite}},
+			Items:       &[]rawschema.Item{{Id: "cleaver", Name: "Cleaver", Melee: &cleaver}},
+			CommandTables: &[]rawschema.CommandTable{
+				{Id: "biter", Name: "Biter", Entries: []rawschema.CommandTableEntry{{Item: new("cleaver"), Weight: 1}, {BodyAttack: new("bite"), Weight: 2}}},
+				{Id: "butcher", Name: "Butcher", Entries: []rawschema.CommandTableEntry{{BodyAttack: new("bite"), Weight: 1}, {Item: new("cleaver"), Weight: 2}}},
+			},
+			Members: &[]rawschema.Member{
+				{Id: "dog", Name: "Dog", CommandTableId: new("biter")},
+				{Id: "cook", Name: "Cook", CommandTableId: new("butcher")},
+				{Id: "ash", Name: "Ash"},
+			},
+		}
+		tests := []struct {
+			member string
+			want   WeaponStats
+		}{
+			{member: "dog", want: WeaponStats{Damage: 11, Accuracy: 90}},
+			{member: "cook", want: WeaponStats{Damage: 14, Accuracy: 80}},
+			{member: "ash", want: WeaponStats{Damage: 3, Accuracy: 100}},
+		}
+		for _, tt := range tests {
+			ws, err := LoadWeaponFromMember(raws, tt.member)
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, ws, tt.member)
+		}
+	})
+
 	t.Run("存在しない敵はエラー", func(t *testing.T) {
 		t.Parallel()
 		_, err := LoadWeaponFromMember(master, "存在しない敵")
