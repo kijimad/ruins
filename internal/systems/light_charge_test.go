@@ -26,8 +26,10 @@ func TestLightChargeSystem_床で点いた松明は燃え尽きて消える(t *t
 	assert.Equal(t, 1, world.Components.Charge.Get(torch).Current, "照らしている間は1ターンに1減る")
 
 	query.GetVisionState(world).ConsumePendingUpdate()
+	logs := query.GetGameLog(world).Count()
 	require.NoError(t, sys.Update(world))
 	assert.False(t, world.ECS.Alive(torch), "尽きると消える")
+	assert.Equal(t, logs, query.GetGameLog(world).Count(), "床の灯りが尽きてもログを出さない")
 	assert.True(t, query.GetVisionState(world).ConsumePendingUpdate(), "消えると視界を計算し直させる")
 }
 

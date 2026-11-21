@@ -59,7 +59,7 @@ var Registry = []Def{
 	{Field: "FuelTank"},        // キューブに貯めた燃料ポイントを保持する。保存する
 	{Field: "Deployed"},        // キューブが展開中であることを示す。展開中は随伴しない。保存する
 	{Field: "LightSource"},     // 光源であることを表す
-	{Field: "Charge"},          // 使って減る残量を表す
+	{Field: "Charge"},          // 使って減る残量を保持する。保存する
 	{Field: "Interactable"},    // 相互作用可能であることを示す
 	{Field: "Unsearched"},      // まだ探していない収納であることを表す
 	{Field: "VisualEffects"},   // 紐づくビジュアルエフェクトを管理する

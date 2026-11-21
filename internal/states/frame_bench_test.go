@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -93,6 +94,7 @@ func BenchmarkTurn(b *testing.B) {
 				require.False(b, world.Components.Dead.Has(player), "1ターンで最大 HP を超えるダメージを受けて倒れた")
 				hp := world.Components.HP.Get(player)
 				hp.Current = hp.Max
+				refillHeldLights(world, player)
 
 				start := query.GetTurnState(world).TurnNumber
 				for query.GetTurnState(world).TurnNumber == start {
@@ -128,6 +130,7 @@ func BenchmarkRemains(b *testing.B) {
 			for range b.N {
 				hp := world.Components.HP.Get(player)
 				hp.Current = hp.Max
+				refillHeldLights(world, player)
 				start := query.GetTurnState(world).TurnNumber
 				for query.GetTurnState(world).TurnNumber == start {
 					require.NoError(b, sm.Update(world))
@@ -139,5 +142,16 @@ func BenchmarkRemains(b *testing.B) {
 				require.NoError(b, sm.Draw(world, screen))
 			}
 		})
+	}
+}
+
+// refillHeldLights は player が装備した灯りの残量を満たす。長く回すと初期装備の松明が燃え尽きて暗い階を測ることになるので、同じ状況を保つ
+func refillHeldLights(world w.World, player ecs.Entity) {
+	q := ecs.NewFilter2[gc.LocationEquipped, gc.Charge](world.ECS).Query()
+	for q.Next() {
+		equipped, charge := q.Get()
+		if equipped.Owner == player {
+			charge.Current = charge.Max
+		}
 	}
 }
