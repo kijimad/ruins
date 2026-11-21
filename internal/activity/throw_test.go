@@ -14,19 +14,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// setupThrowWorld はプレイヤーと射程内の敵を置き、背負い袋に item を1つ持たせる
-func setupThrowWorld(t *testing.T, item string) (world iw.World, player, enemy, thrown ecs.Entity) {
-	t.Helper()
-	world = testutil.InitTestWorld(t)
-	p, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-	e, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
-	require.NoError(t, err)
-	it, err := lifecycle.SpawnBackpackItem(world, item, 1)
-	require.NoError(t, err)
-	return world, p, e, it
-}
-
 func TestThrowBehavior_Validate(t *testing.T) {
 	t.Parallel()
 
@@ -76,11 +63,17 @@ func TestThrowBehavior_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			world, player, enemy, item := setupThrowWorld(t, tt.item)
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+			require.NoError(t, err)
+			item, err := lifecycle.SpawnBackpackItem(world, tt.item, 1)
+			require.NoError(t, err)
 			if tt.setup != nil {
 				tt.setup(world, enemy, item)
 			}
-			err := (&ThrowBehavior{}).Validate(NewThrowActivity(item, enemy), player, world)
+			err = (&ThrowBehavior{}).Validate(NewThrowActivity(item, enemy), player, world)
 			if tt.wantErr == nil {
 				require.NoError(t, err)
 				return
@@ -95,8 +88,12 @@ func TestLandThrown(t *testing.T) {
 
 	t.Run("消える物は1つ減る", func(t *testing.T) {
 		t.Parallel()
-		world, player, _, stone := setupThrowWorld(t, "stone")
-		_, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnBackpackItem(world, "stone", 1)
 		require.NoError(t, err)
 
 		require.NoError(t, landThrown(world, player, stone, consts.Coord[consts.Tile]{X: 13, Y: 10}, true))
@@ -105,7 +102,11 @@ func TestLandThrown(t *testing.T) {
 	})
 	t.Run("消えない物は落ちて拾い直せる", func(t *testing.T) {
 		t.Parallel()
-		world, player, _, stone := setupThrowWorld(t, "stone")
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+		require.NoError(t, err)
 		coord := consts.Coord[consts.Tile]{X: 13, Y: 10}
 
 		require.NoError(t, landThrown(world, player, stone, coord, false))
@@ -119,7 +120,13 @@ func TestLandThrown(t *testing.T) {
 func TestThrowBehavior_DoTurn_投げた物は背負い袋から出る(t *testing.T) {
 	t.Parallel()
 
-	world, player, enemy, stone := setupThrowWorld(t, "stone")
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
 	comp := NewThrowActivity(stone, enemy)
 
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(comp, player, world))
@@ -130,7 +137,13 @@ func TestThrowBehavior_DoTurn_投げた物は背負い袋から出る(t *testing
 func TestThrowBehavior_DoTurn_壊れる物は外れても無くなる(t *testing.T) {
 	t.Parallel()
 
-	world, player, enemy, grenade := setupThrowWorld(t, "grenade")
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	grenade, err := lifecycle.SpawnBackpackItem(world, "grenade", 1)
+	require.NoError(t, err)
 	comp := NewThrowActivity(grenade, enemy)
 
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(comp, player, world))
@@ -157,8 +170,14 @@ func TestGrowWeaponSkill_投げると投擲のスキルが伸びる(t *testing.T
 func TestThrowBehavior_DoTurn_壊れる物は1つだけ減る(t *testing.T) {
 	t.Parallel()
 
-	world, player, enemy, grenade := setupThrowWorld(t, "grenade")
-	_, err := lifecycle.SpawnBackpackItem(world, "grenade", 1)
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	grenade, err := lifecycle.SpawnBackpackItem(world, "grenade", 1)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnBackpackItem(world, "grenade", 1)
 	require.NoError(t, err)
 
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(grenade, enemy), player, world))
