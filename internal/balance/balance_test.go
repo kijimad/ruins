@@ -41,6 +41,13 @@ func TestLoadCombatantFromMember(t *testing.T) {
 	})
 }
 
+func TestBaselineEnemyAttack_倍率を動かす体の攻撃の行がある(t *testing.T) {
+	t.Parallel()
+	// 行が無いと倍率のつまみが何も動かさず、感度と Pareto 前線が黙って平らになる
+	_, err := raw.FindBodyAttack(loadTestMaster(t), BaselineEnemyAttack)
+	require.NoError(t, err)
+}
+
 func TestLoadWeaponFromBodyAttack(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)

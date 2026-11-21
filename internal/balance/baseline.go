@@ -20,6 +20,8 @@ const (
 	BaselineDays      = 21
 	BaselineAreaTable = "ruins_area"
 	BaselineDungeon   = "forgotten_ruins"
+	// BaselineEnemyAttack は感度と Pareto 前線でダメージ倍率を動かす敵の体の攻撃
+	BaselineEnemyAttack = "bite"
 )
 
 // colDanger は複数の表で使う危険度列の見出し。文字列の重複を1つにまとめる。
@@ -278,7 +280,7 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, attackID string, 
 
 	// 多目的探索。序盤・中盤・終盤の目標逸脱を同時に小さくする武器倍率の非劣集合
 	fmt.Fprintf(&b, "## 多目的探索（Pareto 前線）\n\n")
-	paretoKnobs := []string{raw.BareHands, "bite"}
+	paretoKnobs := []string{raw.BareHands, BaselineEnemyAttack}
 	fmt.Fprintf(&b, "**概要**: プレイヤー武器 %s と敵武器 %s のダメージ倍率を格子で動かし、day1・day10・day20 の目標戦力比からの逸脱を同時に見る。\n", paretoKnobs[0], paretoKnobs[1])
 	fmt.Fprintf(&b, "単変数探索は day20 しか合わせられないが、複数日はトレードオフになる。どれかを詰めると別が緩む非劣な組だけを載せる。逸脱は小さいほど目標に近い。\n\n")
 	front := ParetoFront(master, paretoKnobs, []float64{0.8, 1.0, 1.5}, []int{1, 10, 20})

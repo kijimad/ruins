@@ -56,7 +56,7 @@ func metricValue(master rawschema.Raws, p Params, idx int) float64 {
 		}
 		player.Strength = int(math.Round(float64(player.Strength) * p.PlayerStrengthScale))
 		ratio := 0.0
-		withScaledMeleeDamages(master, map[string]float64{"bite": p.EnemyWeaponScale}, func() {
+		withScaledMeleeDamages(master, map[string]float64{BaselineEnemyAttack: p.EnemyWeaponScale}, func() {
 			if curve, e := DifficultyCurve(master, player, weapon, BaselineAreaTable, 20); e == nil && len(curve) >= 20 {
 				ratio = curve[19].PowerRatio
 			}
