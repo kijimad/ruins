@@ -47,9 +47,9 @@ func TestConsumeBehavior_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp := NewActivity(gc.BehaviorUseItem, 1)
+		comp := NewActivity(gc.BehaviorEatItem, 1)
 
-		useItemActivity := &useItemBehavior
+		useItemActivity := &eatItemBehavior
 
 		// 100の満腹度回復
 		err := useItemActivity.applyNutrition(comp, actor, world, 100, item)
@@ -72,9 +72,9 @@ func TestConsumeBehavior_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp := NewActivity(gc.BehaviorUseItem, 1)
+		comp := NewActivity(gc.BehaviorEatItem, 1)
 
-		useItemActivity := &useItemBehavior
+		useItemActivity := &eatItemBehavior
 
 		// 100の満腹度回復（上限を超える）
 		err := useItemActivity.applyNutrition(comp, actor, world, 100, item)
@@ -99,9 +99,9 @@ func TestConsumeBehavior_applyNutrition(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
 
-		comp := NewActivity(gc.BehaviorUseItem, 1)
+		comp := NewActivity(gc.BehaviorEatItem, 1)
 
-		useItemActivity := &useItemBehavior
+		useItemActivity := &eatItemBehavior
 
 		// 50の満腹度回復で95%以上になる
 		err := useItemActivity.applyNutrition(comp, actor, world, 50, item)
@@ -121,9 +121,9 @@ func TestConsumeBehavior_applyNutrition(t *testing.T) {
 		// Hungerコンポーネントを追加しない
 
 		item := world.ECS.NewEntity()
-		comp := NewActivity(gc.BehaviorUseItem, 1)
+		comp := NewActivity(gc.BehaviorEatItem, 1)
 
-		useItemActivity := &useItemBehavior
+		useItemActivity := &eatItemBehavior
 
 		// エラーにならずに完了する
 		err := useItemActivity.applyNutrition(comp, actor, world, 200, item)
@@ -141,9 +141,9 @@ func TestConsumeBehavior_applyNutrition(t *testing.T) {
 		world.Components.Hunger.Add(actor, hunger)
 
 		item := world.ECS.NewEntity()
-		comp := NewActivity(gc.BehaviorUseItem, 1)
+		comp := NewActivity(gc.BehaviorEatItem, 1)
 
-		useItemActivity := &useItemBehavior
+		useItemActivity := &eatItemBehavior
 
 		assert.Equal(t, rawschema.HungerStageIdStarving, hunger.GetLevel(world.Resources.NeedDefs), "初期状態は飢餓状態")
 
@@ -488,8 +488,8 @@ func TestConsumeBehavior_applyNutrition_鮮度で栄養が変わる(t *testing.T
 			hunger.Current = tt.startHunger
 			world.Components.Hunger.Add(actor, hunger)
 
-			u := &useItemBehavior
-			comp := NewActivity(gc.BehaviorUseItem, 1)
+			u := &eatItemBehavior
+			comp := NewActivity(gc.BehaviorEatItem, 1)
 			require.NoError(t, u.applyNutrition(comp, actor, world, 30, bread))
 
 			assert.Equal(t, tt.wantHunger, world.Components.Hunger.Get(actor).Current)
@@ -509,9 +509,9 @@ func TestConsumeBehavior_applyNutrition_鮮度で減っても最低1は与える
 	hunger.Current = 100
 	world.Components.Hunger.Add(actor, hunger)
 
-	u := &useItemBehavior
+	u := &eatItemBehavior
 	// amount=1 は腐敗3割で整数除算すると0。最低1にクランプされ、栄養効果がゼロにならない
-	require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorUseItem, 1), actor, world, 1, bread))
+	require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorEatItem, 1), actor, world, 1, bread))
 
 	assert.Equal(t, 101, world.Components.Hunger.Get(actor).Current, "腐敗でも最低1は回復する")
 }
@@ -541,8 +541,8 @@ func TestConsumeBehavior_applyNutrition_腐敗食は食中毒を起こしうる(
 			world.Components.Hunger.Add(actor, gc.NewHunger())
 			world.Components.HealthStatus.Add(actor, &gc.HealthStatus{})
 
-			u := &useItemBehavior
-			require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorUseItem, 1), actor, world, 30, bread))
+			u := &eatItemBehavior
+			require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorEatItem, 1), actor, world, 30, bread))
 
 			cond := world.Components.HealthStatus.Get(actor).Parts[gc.BodyPartTorso].GetCondition(gc.ConditionType("food_poisoning"))
 			if tt.wantContract {
@@ -580,8 +580,8 @@ func TestConsumeBehavior_食べたログに鮮度が出る(t *testing.T) {
 			hunger.Current = 100
 			world.Components.Hunger.Add(actor, hunger)
 
-			u := &useItemBehavior
-			require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorUseItem, 1), actor, world, 30, bread))
+			u := &eatItemBehavior
+			require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorEatItem, 1), actor, world, 30, bread))
 
 			recent := query.GetGameLog(world).GetRecent(1)
 			require.Len(t, recent, 1)
