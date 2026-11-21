@@ -17,7 +17,7 @@ type StackKey struct {
 	RawID          string                     // 生成元の同定キー。まず品種が一致すること
 	FreshnessStage rawschema.FreshnessStageId // 腐敗品の鮮度段階。非腐敗品は空文字
 	Equip          string                     // 装備の個体差の指紋。性能の違う同名装備を束ねない。非装備は空文字
-	Charge         int                        // 残量の現在値。使いかけの物を束ねない。残量を持たない物は -1
+	Charge         int                        // 残量の現在値。使いかけの物を束ねない。照らしている灯りは毎ターン変わる。残量を持たない物は -1
 	LightOff       bool                       // 灯りのスイッチが切れているか。点けた灯りと切った灯りを束ねない
 }
 

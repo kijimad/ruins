@@ -16,18 +16,22 @@ func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
 	charge := world.Components.Charge.Get(item)
 	charge.Current = max(charge.Current-amount, 0)
 	after, _ := query.ChargeStage(world, item)
-	held := world.Components.LocationEquipped.Has(item) && world.Components.Player.Has(world.Components.LocationEquipped.Get(item).Owner)
 	if charge.Current > 0 {
-		if held && after < before {
+		if after < before && heldByPlayer(world, item) {
 			logItem(world, item, "%s is burning down.")
 		}
 		return
 	}
-	if held {
+	if heldByPlayer(world, item) {
 		logItem(world, item, "%s burned out.")
 	}
 	lifecycle.RemoveItem(world, item)
 	query.GetVisionState(world).RequestUpdate()
+}
+
+// heldByPlayer は item をプレイヤーが装備しているかを返す
+func heldByPlayer(world w.World, item ecs.Entity) bool {
+	return world.Components.LocationEquipped.Has(item) && world.Components.Player.Has(world.Components.LocationEquipped.Get(item).Owner)
 }
 
 // logItem は item の名前を差し込んだ文をゲームログに出す

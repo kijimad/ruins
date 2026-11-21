@@ -39,15 +39,15 @@ func menuIcon(world w.World, e ecs.Entity) *ebiten.Image {
 	if !ok {
 		return world.Resources.Sprites.Sized(sr, theme.MenuIconW)
 	}
-	return world.Resources.Sprites.SizedGauge(sr, theme.MenuIconW, resources.Gauge{Filled: stage, Total: query.ChargeStageCount, Fill: chargeColor(stage)})
+	return world.Resources.Sprites.SizedGauge(sr, theme.MenuIconW, resources.Gauge{Filled: stage, Total: query.ChargeStageCount, Fill: chargeColor(stage), Empty: theme.ChargeEmpty})
 }
 
-// chargeColor は残量の段階のゲージの色を返す
+// chargeColor は残量の段階のゲージの色を返す。上限に対する割合で、8割から緑、4割から黄、その下は赤にする
 func chargeColor(stage int) color.RGBA {
 	switch {
-	case stage >= 4:
+	case stage*5 >= query.ChargeStageCount*4:
 		return theme.ChargeHigh
-	case stage >= 2:
+	case stage*5 >= query.ChargeStageCount*2:
 		return theme.ChargeMid
 	default:
 		return theme.ChargeLow

@@ -71,3 +71,20 @@ func TestConsumeCharge_手持ちの灯りの段階が下がるとログを出す
 	entries := query.GetGameLog(world).GetRecentEntries(1)
 	assert.Equal(t, query.T(world, "%s is burning down.", "Torch"), entries[0].Text())
 }
+
+func TestConsumeCharge_最後の段から尽きると燃え尽きたとだけ出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	torch, err := lifecycle.SpawnFieldItem(world, "torch", 3, 4, 1)
+	require.NoError(t, err)
+	lifecycle.MoveToEquip(world, torch, player, gc.SlotHand2)
+	world.Components.Charge.Get(torch).Current = 1
+	logs := query.GetGameLog(world).Count()
+
+	ConsumeCharge(world, torch, 1)
+
+	require.Equal(t, logs+1, query.GetGameLog(world).Count())
+	assert.Equal(t, query.T(world, "%s burned out.", "Torch"), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+}

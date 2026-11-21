@@ -31,11 +31,12 @@ type gaugeKey struct {
 	gauge  Gauge
 }
 
-// Gauge はアイコンの下端に焼く段階のゲージ。Filled 段を Fill の色で、残りを暗い色で描く
+// Gauge はアイコンの下端に焼く段階のゲージ。Filled 段を Fill の色で、残りを Empty の色で描く
 type Gauge struct {
 	Filled int
 	Total  int
 	Fill   color.RGBA
+	Empty  color.RGBA
 }
 
 // spriteKey は解決結果を一意に決める組。size=0 は等倍、正の size は同じスプライトの縮小を表す。
@@ -131,13 +132,12 @@ func drawGauge(dst *image.RGBA, g Gauge) {
 		return
 	}
 	const height = 3
-	empty := color.RGBA{R: 0x30, G: 0x30, B: 0x30, A: 0xff}
 	b := dst.Bounds()
 	segW := max(1, (b.Dx()-(g.Total-1))/g.Total)
 	left := (b.Dx() - (segW*g.Total + g.Total - 1)) / 2
 	top := b.Dy() - height
 	for i := range g.Total {
-		c := empty
+		c := g.Empty
 		if i < g.Filled {
 			c = g.Fill
 		}
@@ -206,6 +206,7 @@ func shrinkToRGBA(tex components.Texture, rect image.Rectangle, size int) *image
 		draw.Draw(dst, dst.Bounds(), tex.Source, rect.Min, draw.Src)
 		return dst
 	}
+	// image.RGBA は乗算済みアルファなので、透過の境界でも色がにじまない重み付けになる
 	draw.CatmullRom.Scale(dst, dst.Bounds(), tex.Source, rect, draw.Src, nil)
 	return dst
 }
@@ -215,25 +216,14 @@ func shrinkToRGBA(tex components.Texture, rect image.Rectangle, size int) *image
 //
 // GPU の端数倍率の縮小はテクセル境界の読みが揺れて決定的でないため、縮小は CPU で一度だけ行う。
 func shrinkToFit(tex components.Texture, rect image.Rectangle, size int) *ebiten.Image {
-	sw, sh := rect.Dx(), rect.Dy()
-	if sw <= 0 || sh <= 0 {
+	if rect.Dx() <= 0 || rect.Dy() <= 0 {
 		return nil
 	}
-	if (sw <= size && sh <= size) || tex.Source == nil {
+	if (rect.Dx() <= size && rect.Dy() <= size) || tex.Source == nil {
 		return components.SubImage(tex.Image, rect)
 	}
-	dw, dh := size, size
-	if sw >= sh {
-		dh = max(1, sh*size/sw)
-	} else {
-		dw = max(1, sw*size/sh)
-	}
-
-	// image.RGBA は乗算済みアルファなので、透過の境界でも色がにじまない重み付けになる
-	dst := image.NewRGBA(image.Rect(0, 0, dw, dh))
-	draw.CatmullRom.Scale(dst, dst.Bounds(), tex.Source, rect, draw.Src, nil)
-
-	out := ebiten.NewImage(dw, dh)
+	dst := shrinkToRGBA(tex, rect, size)
+	out := ebiten.NewImage(dst.Bounds().Dx(), dst.Bounds().Dy())
 	out.WritePixels(dst.Pix)
 	return out
 }

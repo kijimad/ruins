@@ -161,6 +161,8 @@ var (
 	ChargeMid = rgb(0xffc107)
 	// ChargeLow は残量が少ないときのゲージの色
 	ChargeLow = rgb(0xdc3545)
+	// ChargeEmpty はゲージの空いた段の色
+	ChargeEmpty = rgb(0x303030)
 )
 
 // ========== 属性色 ==========

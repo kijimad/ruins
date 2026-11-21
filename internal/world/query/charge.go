@@ -14,7 +14,8 @@ func ChargeStage(world w.World, entity ecs.Entity) (int, bool) {
 	if !world.Components.Charge.Has(entity) {
 		return 0, false
 	}
-	return chargeStage(world.Components.Charge.Get(entity).Current, world.Components.Charge.Get(entity).Max), true
+	charge := world.Components.Charge.Get(entity)
+	return chargeStage(charge.Current, charge.Max), true
 }
 
 // chargeStage は current と max から段階を求める。割り切れないときは切り上げ、少しでも残れば1段になる

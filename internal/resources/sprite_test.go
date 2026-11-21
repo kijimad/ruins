@@ -249,12 +249,41 @@ func TestDrawGauge_満ちた段を色で残りを暗く描く(t *testing.T) {
 	dst := image.NewRGBA(image.Rect(0, 0, 19, 10))
 	fill := color.RGBA{R: 1, G: 2, B: 3, A: 255}
 
-	drawGauge(dst, Gauge{Filled: 2, Total: 5, Fill: fill})
+	empty := color.RGBA{R: 0x30, G: 0x30, B: 0x30, A: 0xff}
+	drawGauge(dst, Gauge{Filled: 2, Total: 5, Fill: fill, Empty: empty})
 
 	// 段は幅3で1ピクセル空けて並び、下端の3行に描く
 	assert.Equal(t, fill, dst.RGBAAt(0, 9), "1段目は満ちた色")
 	assert.Equal(t, fill, dst.RGBAAt(4, 7), "2段目は満ちた色")
-	assert.Equal(t, color.RGBA{R: 0x30, G: 0x30, B: 0x30, A: 0xff}, dst.RGBAAt(8, 9), "3段目は暗い色")
+	assert.Equal(t, empty, dst.RGBAAt(8, 9), "3段目は空きの色")
 	assert.Equal(t, color.RGBA{}, dst.RGBAAt(3, 9), "段のあいだは空ける")
 	assert.Equal(t, color.RGBA{}, dst.RGBAAt(0, 6), "ゲージの上は描かない")
+}
+
+func TestSizedGauge(t *testing.T) {
+	t.Parallel()
+
+	source := image.NewRGBA(image.Rect(0, 0, 8, 8))
+	sheet := func(src image.Image) map[string]components.SpriteSheet {
+		return map[string]components.SpriteSheet{"sheet": {
+			Texture: components.Texture{Image: ebiten.NewImage(8, 8), Source: src},
+			Sprites: map[string]components.Sprite{"key": {X: 0, Y: 0, Width: 8, Height: 8}},
+		}}
+	}
+	sr := &components.SpriteRender{SpriteSheetName: "sheet", SpriteKey: "key"}
+	gauge := Gauge{Filled: 3, Total: 5, Fill: color.RGBA{G: 255, A: 255}}
+
+	t.Run("同じスプライトと段階なら同じ画像を使い回す", func(t *testing.T) {
+		t.Parallel()
+		s := newSpriteStore(t, sheet(source))
+		img := s.SizedGauge(sr, 20, gauge)
+		require.NotNil(t, img)
+		assert.Same(t, img, s.SizedGauge(sr, 20, gauge))
+		assert.NotSame(t, img, s.SizedGauge(sr, 20, Gauge{Filled: 2, Total: 5, Fill: gauge.Fill}))
+	})
+	t.Run("CPU 側の元画像が無ければゲージを焼かずに縮小画像を返す", func(t *testing.T) {
+		t.Parallel()
+		s := newSpriteStore(t, sheet(nil))
+		assert.Same(t, s.Sized(sr, 20), s.SizedGauge(sr, 20, gauge))
+	})
 }
