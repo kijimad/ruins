@@ -1350,7 +1350,9 @@
 
 [[conditions]]
   bodyFuncDropPerSeverity = 10
+  cause = "poison"
   description = "Venom is spreading through the body. It clears on its own over time."
+  hpDrainPerSeverity = 2
   id = "venom"
   name = "Venom"
   painPerSeverity = 4

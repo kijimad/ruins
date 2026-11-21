@@ -15,6 +15,8 @@ const (
 	CauseIllness DeathCause = "illness"
 	// CauseBloodLoss は外傷の失血で死んだときの死因
 	CauseBloodLoss DeathCause = "blood_loss"
+	// CausePoison は毒で死んだときの死因
+	CausePoison DeathCause = "poison"
 	// CauseInjury はダメージで HP が尽きたときの死因。攻撃も自傷も含む
 	CauseInjury DeathCause = "injury"
 	// CauseDebug はデバッグで結果画面を確認するための死因
@@ -27,6 +29,7 @@ var deathCauseDisplayNames = map[DeathCause]i18n.Msgid{
 	CauseHypothermia: "Hypothermia",
 	CauseIllness:     "Illness",
 	CauseBloodLoss:   "Blood loss",
+	CausePoison:      "Poisoning",
 	CauseInjury:      "Injury",
 	CauseDebug:       "Debug",
 }

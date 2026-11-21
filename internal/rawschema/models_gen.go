@@ -394,7 +394,7 @@ type CommandTableEntry struct {
 	Weight EntryWeight `json:"weight"`
 }
 
-// Condition 不調。痛みと身体機能の低下、回復の仕方、出血を持つ
+// Condition 不調。痛みと身体機能の低下、回復の仕方、出血、HP の減りを持つ
 type Condition struct {
 	BloodDropPerSeverity *ConditionAmountPerSeverity `json:"bloodDropPerSeverity,omitempty"`
 
@@ -403,6 +403,9 @@ type Condition struct {
 	Cause *ConditionDeathCause `json:"cause,omitempty"`
 
 	Description EntityDescription `json:"description"`
+
+	// HpDrainPerSeverity 発症中に重症度1段あたり1ターンで削る HP。毒のように直に削る不調が持つ
+	HpDrainPerSeverity *ConditionAmountPerSeverity `json:"hpDrainPerSeverity,omitempty"`
 
 	Id ConditionTypeName `json:"id"`
 
@@ -426,10 +429,10 @@ type Condition struct {
 	WorsenPer *ConditionTimerRate `json:"worsenPer,omitempty"`
 }
 
-// ConditionAmountPerSeverity 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+// ConditionAmountPerSeverity 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下、HP の減りに使う
 type ConditionAmountPerSeverity = int
 
-// ConditionDeathCause 不調が血液量を尽きさせて倒したときの死因
+// ConditionDeathCause 不調が血液量や HP を尽きさせて倒したときの死因
 type ConditionDeathCause string
 
 // Defines values for ConditionDeathCause.
@@ -437,6 +440,7 @@ const (
 	BloodLoss   ConditionDeathCause = "blood_loss"
 	Hypothermia ConditionDeathCause = "hypothermia"
 	Illness     ConditionDeathCause = "illness"
+	Poison      ConditionDeathCause = "poison"
 )
 
 // Valid indicates whether the value is a known member of the ConditionDeathCause enum.
@@ -448,6 +452,8 @@ func (e ConditionDeathCause) Valid() bool {
 		return true
 	case Illness:
 		return true
+	case Poison:
+		return true
 	default:
 		return false
 	}
@@ -455,7 +461,7 @@ func (e ConditionDeathCause) Valid() bool {
 
 // ConditionDeathCauseValues は ConditionDeathCause の値を、スキーマに書いた順に返す。
 func ConditionDeathCauseValues() []ConditionDeathCause {
-	return []ConditionDeathCause{Hypothermia, Illness, BloodLoss}
+	return []ConditionDeathCause{Hypothermia, Illness, BloodLoss, Poison}
 }
 
 // ConditionOnset 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ

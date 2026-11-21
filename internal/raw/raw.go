@@ -1099,7 +1099,8 @@ func NewConditionDefs(raws rawschema.Raws) (gc.ConditionDefs, error) {
 
 	conditions := PtrSlice(raws.Conditions)
 	conds := make(map[gc.ConditionType]gc.ConditionDef, len(conditions))
-	for _, row := range conditions {
+	for i := range conditions {
+		row := &conditions[i]
 		def := gc.ConditionDef{
 			Name:                    i18n.Msgid(row.Name),
 			Description:             i18n.Msgid(row.Description),
@@ -1117,6 +1118,9 @@ func NewConditionDefs(raws rawschema.Raws) (gc.ConditionDefs, error) {
 		}
 		if row.BloodDropPerSeverity != nil {
 			def.BloodDropPerSeverity = *row.BloodDropPerSeverity
+		}
+		if row.HpDrainPerSeverity != nil {
+			def.HPDrainPerSeverity = *row.HpDrainPerSeverity
 		}
 		if row.Cause != nil {
 			def.Cause = gc.DeathCause(*row.Cause)

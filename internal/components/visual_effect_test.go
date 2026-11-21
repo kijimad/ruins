@@ -195,3 +195,11 @@ func TestVisualEffects_MultipleEffects(t *testing.T) {
 		assert.True(t, active, "1フレーム目では全エフェクトがアクティブ")
 	}
 }
+
+func TestNewConditionDamageEffect(t *testing.T) {
+	t.Parallel()
+	effect := NewConditionDamageEffect(3)
+
+	assert.Equal(t, "3", effect.Text)
+	assert.Equal(t, color.RGBA{190, 110, 255, 255}, effect.Color)
+}
