@@ -48,12 +48,8 @@ func (tb *ThrowBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
 	}
-	if !world.ECS.Alive(p.Item) || !world.Components.LocationInBackpack.Has(p.Item) ||
-		world.Components.LocationInBackpack.Get(p.Item).Owner != actor {
-		return errThrowItemNotInBackpack
-	}
-	if _, ok := query.ThrowAttackOf(world, p.Item); !ok {
-		return errThrowTooHeavy
+	if err := throwItemError(world, actor, p.Item); err != nil {
+		return err
 	}
 	if !world.ECS.Alive(p.Target) || !world.Components.GridElement.Has(p.Target) || world.Components.Dead.Has(p.Target) {
 		return errThrowTargetInvalid
@@ -120,6 +116,23 @@ func (tb *ThrowBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) err
 func (tb *ThrowBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("throw canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
+}
+
+// throwItemError は actor が item を投げられなければ理由を返す。物が actor の背負い袋にあり、重すぎないこと
+func throwItemError(world w.World, actor, item ecs.Entity) error {
+	if !world.ECS.Alive(item) || !world.Components.LocationInBackpack.Has(item) ||
+		world.Components.LocationInBackpack.Get(item).Owner != actor {
+		return errThrowItemNotInBackpack
+	}
+	if _, ok := query.ThrowAttackOf(world, item); !ok {
+		return errThrowTooHeavy
+	}
+	return nil
+}
+
+// CanThrowItem は actor が item を投げられるかを返す。狙う敵は問わない
+func CanThrowItem(actor, item ecs.Entity, world w.World) bool {
+	return throwItemError(world, actor, item) == nil
 }
 
 // CanThrowTarget は actor が item を target に投げられるかを判定する。狙いを選ぶ画面の絞り込みに使う

@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -161,4 +162,10 @@ func TestExecEat_食べるの動詞は食べるの行動を動かす(t *testing.
 	require.NoError(t, err)
 	assert.Equal(t, es.TransPop, trans.Type)
 	assert.Greater(t, world.Components.Hunger.Get(player).Current, 100)
+}
+
+func TestItemActionBindings_条件が重ならない(t *testing.T) {
+	t.Parallel()
+
+	assert.NotPanics(t, func() { keybind.MustMerge(itemActionBindings) })
 }

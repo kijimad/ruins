@@ -47,6 +47,24 @@ func TestThrowBehavior_Validate(t *testing.T) {
 			wantErr: errThrowItemNotInBackpack,
 		},
 		{
+			name: "射線が遮られると投げられない",
+			item: "stone",
+			setup: func(world iw.World, _, _ ecs.Entity) {
+				wall := world.ECS.NewEntity()
+				world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
+				world.Components.BlockView.Add(wall, &gc.BlockView{})
+			},
+			wantErr: errThrowLineBlocked,
+		},
+		{
+			name: "死んだ敵には投げられない",
+			item: "stone",
+			setup: func(world iw.World, enemy, _ ecs.Entity) {
+				world.Components.Dead.Add(enemy, &gc.Dead{})
+			},
+			wantErr: errThrowTargetInvalid,
+		},
+		{
 			name: "射程の外の敵には投げられない",
 			item: "stone",
 			setup: func(world iw.World, enemy, _ ecs.Entity) {
@@ -113,4 +131,15 @@ func TestGrowWeaponSkill_投げると投擲のスキルが伸びる(t *testing.T
 	before := skills.Get(rawschema.SkillIdThrow).Exp.Current
 	growWeaponSkill(actor, world, gc.ThrowAttack{Damage: 6, Accuracy: 70})
 	assert.Greater(t, skills.Get(rawschema.SkillIdThrow).Exp.Current, before)
+}
+
+func TestThrowBehavior_DoTurn_壊れる物は1つだけ減る(t *testing.T) {
+	t.Parallel()
+
+	world, player, enemy, grenade := setupThrowWorld(t, "grenade")
+	_, err := lifecycle.SpawnBackpackItem(world, "grenade", 1)
+	require.NoError(t, err)
+
+	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(grenade, enemy), player, world))
+	assert.Equal(t, 1, countBackpackByRawID(world, player, "grenade"))
 }

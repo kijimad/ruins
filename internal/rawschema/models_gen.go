@@ -1153,6 +1153,7 @@ type Fire struct {
 	TargetNum TargetNum `json:"targetNum"`
 }
 
+// FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 type FireStarter = map[string]interface{}
 
 // Foliage タイルの植生
@@ -2934,8 +2935,7 @@ type TemplateStart struct {
 	Template EntityID `json:"template"`
 }
 
-// Throw 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
-// 投げたときの値。投げ向きの物だけが書き、ほかの物は重さから導く
+// Throw 投げたときの値。投げ向きの物だけが書き、ほかの物は重さから導く
 type Throw struct {
 	Accuracy Accuracy `json:"accuracy"`
 

@@ -45,9 +45,9 @@ func (m throwMode) drawSource(world w.World, _ ecs.Entity, drawText func(string)
 	}
 }
 
-// unavailable は投げる物が背負い袋から消えていれば理由を返す
-func (m throwMode) unavailable(world w.World, _ ecs.Entity) string {
-	if !world.ECS.Alive(m.item) || !world.Components.LocationInBackpack.Has(m.item) {
+// unavailable は投げる物を投げられなければ理由を返す
+func (m throwMode) unavailable(world w.World, player ecs.Entity) string {
+	if !activity.CanThrowItem(player, m.item, world) {
 		return query.T(world, "Nothing to throw")
 	}
 	return ""
