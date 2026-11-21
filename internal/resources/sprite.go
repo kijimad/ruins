@@ -25,13 +25,13 @@ type SpriteStore struct {
 	gauges map[gaugeKey]*ebiten.Image
 }
 
-// gaugeKey はゲージを焼いた縮小画像を一意に決める組
+// gaugeKey はゲージを描き込んだ縮小画像を一意に決める組
 type gaugeKey struct {
 	sprite spriteKey
 	gauge  Gauge
 }
 
-// Gauge はアイコンの下端に焼く段階のゲージ。Filled 段を Fill の色で、残りを Empty の色で描く
+// Gauge はアイコンの下端に描き込む、残量を Total 段に区切ったゲージ。残っている Filled 段を Fill の色で、残りを Empty の色で塗る
 type Gauge struct {
 	Filled int
 	Total  int
@@ -98,8 +98,8 @@ func (s *SpriteStore) Sized(sr *components.SpriteRender, size int) *ebiten.Image
 	return img
 }
 
-// SizedGauge は Sized と同じ縮小画像の下端に gauge を焼いた画像を返す。スプライトと段階の組ごとに一度だけ作る。
-// CPU 側の元画像が無いスプライトはゲージを焼けないので、Sized の画像を返す
+// SizedGauge は Sized と同じ縮小画像の下端に gauge を描き込んだ画像を返す。スプライトとゲージの組ごとに一度だけ作る。
+// CPU 側の元画像が無いスプライトはゲージを描き込めないので、Sized の画像を返す
 func (s *SpriteStore) SizedGauge(sr *components.SpriteRender, size int, gauge Gauge) *ebiten.Image {
 	if sr == nil || size <= 0 {
 		return nil

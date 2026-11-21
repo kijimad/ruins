@@ -30,7 +30,7 @@ func itemMenuColumns(trailing ...styled.Col) []styled.Col {
 }
 
 // menuIcon は entity のスプライトを一覧のアイコン列の大きさで返す。縮小はリソース側が
-// 一度だけ済ませるので、描画は等倍になる。残量を持つ物は下端に残量の段階のゲージを焼く
+// 一度だけ済ませるので、描画は等倍になる。残量を持つ物はアイコンの下端に残量のゲージを描き込む
 func menuIcon(world w.World, e ecs.Entity) *ebiten.Image {
 	sr := world.Components.SpriteRender.Get(e)
 	stage, ok := query.ChargeStage(world, e)
