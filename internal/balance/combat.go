@@ -65,11 +65,7 @@ func LoadWeaponFromItem(master rawschema.Raws, itemID string) (WeaponStats, erro
 		}, nil
 	}
 	if spec.Melee != nil {
-		return WeaponStats{
-			Damage:   spec.Melee.Damage,
-			Accuracy: spec.Melee.Accuracy,
-			IsRanged: false,
-		}, nil
+		return meleeWeapon(spec.Melee), nil
 	}
 
 	return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", itemID)

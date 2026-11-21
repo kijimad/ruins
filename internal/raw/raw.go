@@ -66,8 +66,8 @@ func LoadFromFile(path string) (rawschema.Raws, error) {
 var (
 	// errTOMLDecode はTOMLの構文が壊れていてデコードできないときに返す
 	errTOMLDecode = errors.New("TOML decode error")
-	// errCommandEntryTarget はコマンドテーブルの行が体の攻撃とアイテムのどちらか1つだけを持たないときに返す
-	errCommandEntryTarget = errors.New("command table entry must have exactly one of bodyAttack and item")
+	// errCommandEntryTarget はコマンドテーブルの行が体の攻撃もアイテムも持たないときに返す
+	errCommandEntryTarget = errors.New("command table entry has neither bodyAttack nor item")
 	// errItemNoMelee はコマンドテーブルの行が引くアイテムが近接攻撃を持たないときに返す
 	errItemNoMelee = errors.New("item has no melee")
 	// errUnknownTOMLKeys はTOMLにスキーマにないキーが含まれるときに返す
