@@ -166,13 +166,13 @@ func TestToGCLightSource(t *testing.T) {
 		assert.Nil(t, toGCLightSource(nil, true))
 	})
 
-	ls := &rawschema.LightSource{Radius: 5, Color: rawschema.RGBAColor{R: 255, G: 128, B: 64, A: 200}}
 	for _, tt := range []struct {
 		name    string
 		enabled bool
 	}{{"点けて作る", true}, {"消して作る", false}} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+			ls := &rawschema.LightSource{Radius: 5, Color: rawschema.RGBAColor{R: 255, G: 128, B: 64, A: 200}}
 			assert.Equal(t, &gc.LightSource{Radius: 5, Color: color.RGBA{R: 255, G: 128, B: 64, A: 200}, Enabled: tt.enabled}, toGCLightSource(ls, tt.enabled))
 		})
 	}
