@@ -22,6 +22,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Recipes:   &[]rawschema.Recipe{{Id: "iron", Name: "Iron", Inputs: []rawschema.RecipeInput{{Id: "iron", Amount: 1}}}},
 		Items: &[]rawschema.Item{{
 			Id: "iron", Name: "Iron", Description: "Iron", SpriteSheetName: "field", SpriteKey: "iron",
+			Melee:  &rawschema.Melee{Accuracy: 100, Damage: 1, AttackCount: 1, AttackCategory: rawschema.AttackCategoryFist, Element: rawschema.ElementNONE, TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE},
 			Remedy: &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"fracture"}, Potency: 1},
 			Book:   &rawschema.Book{TotalEffort: 1, Skill: &rawschema.SkillBook{TargetSkill: rawschema.SkillIdSword, MaxLevel: 1}},
 		}},
@@ -142,6 +143,9 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"敵テーブルの敵", func(r *rawschema.Raws) { (*r.EnemyTables)[0].Entries[0].Id = "none" }, "enemyTables.0.entries.0.id_ref"},
 		{"コマンドテーブルの体の攻撃", func(r *rawschema.Raws) { (*r.CommandTables)[0].Entries[0].BodyAttack = new("none") }, "commandTables.0.entries.0.bodyAttack_ref"},
 		{"コマンドテーブルの武器", func(r *rawschema.Raws) { (*r.CommandTables)[0].Entries[1].Item = new("none") }, "commandTables.0.entries.1.item_ref"},
+		{"コマンドテーブルの近接攻撃を持たない武器", func(r *rawschema.Raws) { (*r.Items)[0].Melee = nil }, "commandTables.0.entries.1.item_ref"},
+		{"コマンドテーブルの体の攻撃と武器の両方", func(r *rawschema.Raws) { (*r.CommandTables)[0].Entries[0].Item = new("iron") }, "commandTables.0.entries.0.itemAbsent"},
+		{"コマンドテーブルの体の攻撃も武器も無い", func(r *rawschema.Raws) { (*r.CommandTables)[0].Entries[0].BodyAttack = nil }, "commandTables.0.entries.0.item"},
 		{"ドロップテーブルの素材", func(r *rawschema.Raws) { (*r.DropTables)[0].Entries[0].Id = "none" }, "dropTables.0.entries.0.id_ref"},
 		{"施設の敵テーブル", func(r *rawschema.Raws) { (*r.Facilities)[0].EnemyTable = "none" }, "facilities.0.enemyTable_ref"},
 		{"ランドマークの施設", func(r *rawschema.Raws) { (*r.Landmarks)[0].Id = "none" }, "landmarks.0.id_ref"},

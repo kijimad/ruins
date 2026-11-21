@@ -58,7 +58,6 @@ func validateRules(raws rawschema.Raws) error {
 		validateGrounds,
 		validateNeedStages,
 		validateFlatShapes,
-		validateCommandTables,
 	}
 	for _, v := range validators {
 		if err := v(raws); err != nil {
@@ -608,43 +607,6 @@ func validateFlatShapes(raws rawschema.Raws) error {
 	for i := range decors {
 		if err := check(decors[i].Id, decors[i].SpriteRender); err != nil {
 			return err
-		}
-	}
-	return nil
-}
-
-// validateCommandTables はコマンドテーブルの行が体の攻撃とアイテムのどちらか1つだけを引き、
-// アイテムを引くならそのアイテムが近接攻撃を持つことを検証する。ゲームの読み込みは CUE を通らないので、無い id もここで落とす
-func validateCommandTables(raws rawschema.Raws) error {
-	bodyAttackIDs := map[rawschema.EntityID]bool{}
-	bodyAttacks := PtrSlice(raws.BodyAttacks)
-	for i := range bodyAttacks {
-		bodyAttackIDs[bodyAttacks[i].Id] = true
-	}
-	melee := map[rawschema.EntityID]bool{}
-	items := PtrSlice(raws.Items)
-	for i := range items {
-		melee[items[i].Id] = items[i].Melee != nil
-	}
-	tables := PtrSlice(raws.CommandTables)
-	for i := range tables {
-		for j, e := range tables[i].Entries {
-			if (e.BodyAttack == nil) == (e.Item == nil) {
-				return fmt.Errorf("command table %q entry %d: %w", tables[i].Id, j, errCommandEntryTarget)
-			}
-			if e.BodyAttack != nil {
-				if !bodyAttackIDs[*e.BodyAttack] {
-					return fmt.Errorf("command table %q entry %d: %w", tables[i].Id, j, NewKeyNotFoundError(*e.BodyAttack, "BodyAttacks"))
-				}
-				continue
-			}
-			hasMelee, ok := melee[*e.Item]
-			if !ok {
-				return fmt.Errorf("command table %q entry %d: %w", tables[i].Id, j, NewKeyNotFoundError(*e.Item, "Items"))
-			}
-			if !hasMelee {
-				return fmt.Errorf("command table %q entry %d: %w: %s", tables[i].Id, j, errItemNoMelee, *e.Item)
-			}
 		}
 	}
 	return nil

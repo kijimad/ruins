@@ -148,12 +148,16 @@ import (
 	bodyAttack?: #EntityID
 	if bodyAttack != _|_ {
 		bodyAttack_ref: _bodyAttackIDs[bodyAttack] @rawgen(-)
+		itemAbsent:     true & item == _|_         @rawgen(-)
 	}
 
-	// 使う武器のアイテムの id
+	// 使う武器のアイテムの id。近接攻撃を持つアイテムに限る
 	item?: #EntityID
+	if bodyAttack == _|_ {
+		item!: _ @rawgen(-)
+	}
 	if item != _|_ {
-		item_ref: _itemIDs[item] @rawgen(-)
+		item_ref: _meleeItemIDs[item] @rawgen(-)
 	}
 	weight!: #EntryWeight
 }

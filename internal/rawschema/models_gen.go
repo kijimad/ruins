@@ -362,7 +362,7 @@ type CommandTableEntry struct {
 	// BodyAttack 使う体の攻撃の id。bodyAttack と item のどちらか1つだけを書く
 	BodyAttack *EntityID `json:"bodyAttack,omitempty"`
 
-	// Item 使う武器のアイテムの id
+	// Item 使う武器のアイテムの id。近接攻撃を持つアイテムに限る
 	Item *EntityID `json:"item,omitempty"`
 
 	Weight EntryWeight `json:"weight"`

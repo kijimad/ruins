@@ -522,37 +522,3 @@ func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くと
 	require.ErrorIs(t, validateLandmarkMinDanger(raws(rawschema.MilitaryArmory, new(3))), errLandmarkMinDanger)
 	require.NoError(t, validateLandmarkMinDanger(raws(rawschema.Downtown, new(3))), "区域が割り振らない地区の行は抽選を通るので深さの下限を書ける")
 }
-
-func TestValidateCommandTables(t *testing.T) {
-	t.Parallel()
-
-	items := &[]rawschema.Item{{Id: "cleaver", Name: "Cleaver", Melee: &rawschema.Melee{}}, {Id: "rock", Name: "Rock"}}
-	bodyAttacks := &[]rawschema.BodyAttack{{Id: "bite", Name: "Bite"}}
-	table := func(e rawschema.CommandTableEntry) rawschema.Raws {
-		return rawschema.Raws{Items: items, BodyAttacks: bodyAttacks, CommandTables: &[]rawschema.CommandTable{{Id: "bat", Name: "Bat", Entries: []rawschema.CommandTableEntry{e}}}}
-	}
-	tests := []struct {
-		name    string
-		raws    rawschema.Raws
-		wantErr error
-	}{
-		{name: "体の攻撃だけを引く行は通る", raws: table(rawschema.CommandTableEntry{BodyAttack: new("bite"), Weight: 1})},
-		{name: "アイテムだけを引く行は通る", raws: table(rawschema.CommandTableEntry{Item: new("cleaver"), Weight: 1})},
-		{name: "両方を引く行はエラー", raws: table(rawschema.CommandTableEntry{BodyAttack: new("bite"), Item: new("cleaver"), Weight: 1}), wantErr: errCommandEntryTarget},
-		{name: "どちらも引かない行はエラー", raws: table(rawschema.CommandTableEntry{Weight: 1}), wantErr: errCommandEntryTarget},
-		{name: "近接攻撃を持たないアイテムを引く行はエラー", raws: table(rawschema.CommandTableEntry{Item: new("rock"), Weight: 1}), wantErr: errItemNoMelee},
-		{name: "無い体の攻撃を引く行はエラー", raws: table(rawschema.CommandTableEntry{BodyAttack: new("typo"), Weight: 1}), wantErr: KeyNotFoundError{Key: "typo", Collection: "BodyAttacks"}},
-		{name: "無いアイテムを引く行はエラー", raws: table(rawschema.CommandTableEntry{Item: new("typo"), Weight: 1}), wantErr: KeyNotFoundError{Key: "typo", Collection: "Items"}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			err := validateCommandTables(tt.raws)
-			if tt.wantErr == nil {
-				require.NoError(t, err)
-				return
-			}
-			require.ErrorIs(t, err, tt.wantErr)
-		})
-	}
-}
