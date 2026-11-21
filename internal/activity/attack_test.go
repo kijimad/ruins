@@ -11,8 +11,10 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -442,13 +444,23 @@ func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んで�
 	t.Parallel()
 
 	tests := []struct {
-		name  string
-		hold  string
-		light bool
+		name string
+		// spawn は手持ち欄1に持たせる物を作る。nil なら何も持たせない
+		spawn func(t *testing.T, world w.World) ecs.Entity
 	}{
 		{name: "何も持っていない"},
-		{name: "射撃だけを持つ物を選んでいる", hold: "hunter_bow"},
-		{name: "灯りだけを持つ物を選んでいる", light: true},
+		{name: "射撃だけを持つ物を選んでいる", spawn: func(t *testing.T, world w.World) ecs.Entity {
+			t.Helper()
+			bow, err := lifecycle.SpawnBackpackItem(world, "hunter_bow", 1)
+			require.NoError(t, err)
+			return bow
+		}},
+		{name: "灯りだけを持つ物を選んでいる", spawn: func(_ *testing.T, world w.World) ecs.Entity {
+			lamp := world.ECS.NewEntity()
+			world.Components.Name.Add(lamp, &gc.Name{Name: "Lamp"})
+			world.Components.LightSource.Add(lamp, &gc.LightSource{Radius: 4})
+			return lamp
+		}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -458,16 +470,8 @@ func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んで�
 			require.NoError(t, err)
 			// プレイヤーは生成時に松明を手持ち欄1へ装備している。外してから持たせる
 			require.NoError(t, lifecycle.UnequipAll(world, player))
-			if tt.hold != "" {
-				item, err := lifecycle.SpawnBackpackItem(world, tt.hold, 1)
-				require.NoError(t, err)
-				lifecycle.MoveToEquip(world, item, player, gc.SlotHand1)
-			}
-			if tt.light {
-				lamp := world.ECS.NewEntity()
-				world.Components.Name.Add(lamp, &gc.Name{Name: "Lamp"})
-				world.Components.LightSource.Add(lamp, &gc.LightSource{Radius: 4})
-				lifecycle.MoveToEquip(world, lamp, player, gc.SlotHand1)
+			if tt.spawn != nil {
+				lifecycle.MoveToEquip(world, tt.spawn(t, world), player, gc.SlotHand1)
 			}
 			query.GetHandSelection(world).Slot = gc.SlotHand1
 
