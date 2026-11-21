@@ -69,14 +69,14 @@ func NewEatActivity(target ecs.Entity) *gc.Activity {
 	return comp
 }
 
-// CanUse は物が使うの効果を持つ消費物で、使えるかを返す
+// CanUse は物が使うの効果を持ち、使えるかを返す。効果を持つ物が消費物であることは raw のスキーマが保証する
 func CanUse(world w.World, item ecs.Entity) bool {
-	return world.Components.Consumable.Has(item) && hasEffect(useEffects, world, item)
+	return hasEffect(useEffects, world, item)
 }
 
-// CanEat は物が食べるの効果を持つ消費物で、食べられるかを返す
+// CanEat は物が食べるの効果を持ち、食べられるかを返す
 func CanEat(world w.World, item ecs.Entity) bool {
-	return world.Components.Consumable.Has(item) && hasEffect(eatEffects, world, item)
+	return hasEffect(eatEffects, world, item)
 }
 
 func hasEffect(effects []useEffect, world w.World, item ecs.Entity) bool {

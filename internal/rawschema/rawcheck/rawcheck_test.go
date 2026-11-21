@@ -36,6 +36,14 @@ func TestValidate_コードだけが組む描画の段を書くと位置で返�
 	}
 }
 
+func TestValidate_効果を持つ物が消費物でないと位置で返す(t *testing.T) {
+	t.Parallel()
+	raws := makeRefRaws(func(r *rawschema.Raws) { (*r.Items)[0].Consumable = nil })
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"items.0.consumable"}, ce.Paths())
+}
+
 func TestValidate_ダイス表記の違反を位置で返す(t *testing.T) {
 	t.Parallel()
 	// 個数0の 0d6 は Dice の正規表現が弾く

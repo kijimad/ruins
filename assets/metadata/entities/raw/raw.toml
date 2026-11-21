@@ -17352,6 +17352,10 @@
   spriteSheetName = "field"
   value = 30
   weight = "400 g"
+  [items.consumable]
+    targetGroup = "ALLY"
+    targetNum = "SINGLE"
+    usableScene = "ANY"
 
 [[items]]
   description = "An enemy attack that jolts with electricity."
@@ -17688,6 +17692,10 @@
   spriteSheetName = "field"
   value = 40
   weight = "200 g"
+  [items.consumable]
+    targetGroup = "ALLY"
+    targetNum = "SINGLE"
+    usableScene = "ANY"
 
 [[items]]
   description = "A rusted gear worth a little when sold."
