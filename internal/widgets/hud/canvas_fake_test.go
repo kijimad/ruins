@@ -15,6 +15,7 @@ import (
 type fakeCanvas struct {
 	texts          []textCall
 	fillRects      []image.Rectangle
+	fillColors     []color.Color
 	strokeRects    []image.Rectangle
 	triangles      [][3][2]float32
 	nineSlices     int
@@ -31,12 +32,13 @@ type textCall struct {
 	color color.Color
 }
 
-func (c *fakeCanvas) FillRect(r image.Rectangle, _ color.Color, opts uicore.RectOptions) {
+func (c *fakeCanvas) FillRect(r image.Rectangle, col color.Color, opts uicore.RectOptions) {
 	if opts.Radius > 0 {
 		c.roundedFills++
 		return
 	}
 	c.fillRects = append(c.fillRects, r)
+	c.fillColors = append(c.fillColors, col)
 }
 
 func (c *fakeCanvas) FillTriangle(p0, p1, p2 [2]float32, _ color.Color) {

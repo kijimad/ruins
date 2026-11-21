@@ -8,8 +8,8 @@ import (
 // ChargeStageCount は残量を見せる段階の数
 const ChargeStageCount = 5
 
-// ChargeStage は残量を ChargeStageCount 段のうち何段残っているかで返す。上限の 80%・60%・40%・20% を割るたびに1段下がり、
-// 0 は尽きている。残量を持たなければ ok は偽
+// ChargeStage は残量を ChargeStageCount 段のうち何段残っているかで返す。上限を ChargeStageCount 等分した境目を割るたびに
+// 1段下がり、0 は尽きている。残量を持たなければ ok は偽
 func ChargeStage(world w.World, entity ecs.Entity) (int, bool) {
 	if !world.Components.Charge.Has(entity) {
 		return 0, false

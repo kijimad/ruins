@@ -2,11 +2,13 @@ package hud
 
 import (
 	"image"
+	"image/color"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -38,6 +40,8 @@ func TestSlotWidget_Draw(t *testing.T) {
 		s.Draw(cv)
 
 		assert.Equal(t, resources.GaugeSegments(image.Rect(14, 60, 54, 64), 5, 2), cv.fillRects)
+		fill := theme.ChargeColor(3, 5)
+		assert.Equal(t, []color.Color{fill, fill, fill, theme.ChargeEmpty, theme.ChargeEmpty}, cv.fillColors)
 	})
 
 	t.Run("残量を持たない物はゲージを描かない", func(t *testing.T) {

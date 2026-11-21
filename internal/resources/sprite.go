@@ -140,7 +140,8 @@ func drawGauge(dst *image.RGBA, g Gauge) {
 }
 
 // GaugeSegments は area の中にゲージの total 段の矩形を左から並べて返す。段のあいだを gap 空けて中央に寄せる。
-// 幅が足りなければ段のあいだを詰め、段の幅は1ピクセルより細くしない。一覧のアイコンと HUD の手持ち欄が同じ並べ方を使う
+// 幅が足りなければ段のあいだを詰め、段の幅は1ピクセルより細くしない。段の数より狭ければ左に寄せ、右の段は area をはみ出す。
+// 一覧のアイコンと HUD の手持ち欄が同じ並べ方を使う
 func GaugeSegments(area image.Rectangle, total, gap int) []image.Rectangle {
 	if total <= 0 {
 		return nil
@@ -149,7 +150,7 @@ func GaugeSegments(area image.Rectangle, total, gap int) []image.Rectangle {
 		gap = 0
 	}
 	segW := max(1, (area.Dx()-gap*(total-1))/total)
-	left := area.Min.X + (area.Dx()-(segW*total+gap*(total-1)))/2
+	left := area.Min.X + max(0, (area.Dx()-(segW*total+gap*(total-1)))/2)
 	segments := make([]image.Rectangle, 0, total)
 	for i := range total {
 		x := left + i*(segW+gap)

@@ -337,6 +337,9 @@ func TestGaugeSegments(t *testing.T) {
 		{name: "幅が足りなければ段のあいだを詰める", area: image.Rect(0, 0, 6, 1), total: 5, gap: 1, want: []image.Rectangle{
 			image.Rect(0, 0, 1, 1), image.Rect(1, 0, 2, 1), image.Rect(2, 0, 3, 1), image.Rect(3, 0, 4, 1), image.Rect(4, 0, 5, 1),
 		}},
+		{name: "段の数より狭ければ左端から並べる", area: image.Rect(10, 0, 13, 1), total: 5, gap: 1, want: []image.Rectangle{
+			image.Rect(10, 0, 11, 1), image.Rect(11, 0, 12, 1), image.Rect(12, 0, 13, 1), image.Rect(13, 0, 14, 1), image.Rect(14, 0, 15, 1),
+		}},
 		{name: "段が無ければ並べない", area: image.Rect(0, 0, 6, 1), total: 0, gap: 1},
 	}
 	for _, tt := range tests {
