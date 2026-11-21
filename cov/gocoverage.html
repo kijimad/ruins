@@ -101,9 +101,9 @@
 				
 				<option value="file22">github.com/kijimaD/ruins/internal/activity/talk.go (89.1%)</option>
 				
-				<option value="file23">github.com/kijimaD/ruins/internal/activity/use_effect.go (94.0%)</option>
+				<option value="file23">github.com/kijimaD/ruins/internal/activity/use_effect.go (92.3%)</option>
 				
-				<option value="file24">github.com/kijimaD/ruins/internal/activity/use_item.go (95.9%)</option>
+				<option value="file24">github.com/kijimaD/ruins/internal/activity/use_item.go (96.2%)</option>
 				
 				<option value="file25">github.com/kijimaD/ruins/internal/activity/wait.go (96.0%)</option>
 				
@@ -483,7 +483,7 @@
 				
 				<option value="file213">github.com/kijimaD/ruins/internal/raw/raw.go (97.1%)</option>
 				
-				<option value="file214">github.com/kijimaD/ruins/internal/raw/validate.go (97.9%)</option>
+				<option value="file214">github.com/kijimaD/ruins/internal/raw/validate.go (98.0%)</option>
 				
 				<option value="file215">github.com/kijimaD/ruins/internal/rawschema/models_gen.go (0.3%)</option>
 				
@@ -537,7 +537,7 @@
 				
 				<option value="file240">github.com/kijimaD/ruins/internal/states/character_naming.go (70.7%)</option>
 				
-				<option value="file241">github.com/kijimaD/ruins/internal/states/character_state.go (68.4%)</option>
+				<option value="file241">github.com/kijimaD/ruins/internal/states/character_state.go (69.4%)</option>
 				
 				<option value="file242">github.com/kijimaD/ruins/internal/states/character_view.go (100.0%)</option>
 				
@@ -775,7 +775,7 @@
 				
 				<option value="file359">github.com/kijimaD/ruins/internal/world/lifecycle/remains.go (85.7%)</option>
 				
-				<option value="file360">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.8%)</option>
+				<option value="file360">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.2%)</option>
 				
 				<option value="file361">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (90.7%)</option>
 				
@@ -5065,7 +5065,10 @@ func (remedyEffect) check(u *UseItemBehavior, actor, item ecs.Entity, world w.Wo
                 <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">remedy := world.Components.Remedy.Get(item)
-        if !world.Components.HealthStatus.Has(actor) || mostSevereTreatable(world.Components.HealthStatus.Get(actor), remedy) == nil </span>{
+        if !world.Components.HealthStatus.Has(actor) </span>{
+                <span class="cov0" title="0">return &amp;UserError{Msg: query.T(world, "Nothing to treat.")}
+</span>        }
+        <span class="cov8" title="1">if _, c := remedyTarget(world.Components.HealthStatus.Get(actor), remedy); c == nil </span>{
                 <span class="cov8" title="1">return &amp;UserError{Msg: query.T(world, "Nothing to treat.")}
 </span>        }
         <span class="cov8" title="1">return nil</span>
@@ -5295,34 +5298,43 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
         <span class="cov8" title="1">return nil
 </span>}
 
-// mostSevereTreatable は Treats に一致する不調を全部位から探し、最も重い1つを返す。無ければ nil。
-// Validate の使用可否判定と applyRemedy の適用が同じ探索を共有する
-func mostSevereTreatable(hs *gc.HealthStatus, remedy *gc.Remedy) *gc.HealthCondition {
-        <span class="cov8" title="1">var best *gc.HealthCondition
+// remedyTarget は remedy で治療する不調を1つ選び、部位と一緒に返す。無ければ nil。
+// 発症前の不調と、治療の質が remedy 以上の不調は除く。未治療を先にし、その中で重症度の段階が最も高いものを選ぶ
+func remedyTarget(hs *gc.HealthStatus, remedy *gc.Remedy) (gc.BodyPart, *gc.HealthCondition) {
+        <span class="cov8" title="1">var bestPart gc.BodyPart
+        var best *gc.HealthCondition
         for i := range hs.Parts </span>{
                 <span class="cov8" title="1">for j := range hs.Parts[i].Conditions </span>{
                         <span class="cov8" title="1">c := &amp;hs.Parts[i].Conditions[j]
-                        if slices.Contains(remedy.Treats, c.Type) &amp;&amp; (best == nil || c.Severity &gt; best.Severity) </span>{
-                                <span class="cov8" title="1">best = c
+                        if !slices.Contains(remedy.Treats, c.Type) || !c.IsActive() || c.TendQuality &gt;= remedy.Potency </span>{
+                                <span class="cov8" title="1">continue</span>
+                        }
+                        <span class="cov8" title="1">if best == nil </span>{
+                                <span class="cov8" title="1">bestPart, best = gc.BodyPart(i), c
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">untreated, bestUntreated := c.TendQuality == 0, best.TendQuality == 0
+                        if (untreated &amp;&amp; !bestUntreated) || (untreated == bestUntreated &amp;&amp; c.Severity &gt; best.Severity) </span>{
+                                <span class="cov8" title="1">bestPart, best = gc.BodyPart(i), c
 </span>                        }
                 }
         }
-        <span class="cov8" title="1">return best</span>
+        <span class="cov8" title="1">return bestPart, best</span>
 }
 
-// applyRemedy は治療を適用する。最も重い一致不調を治療済みにする。
+// applyRemedy は remedyTarget が選んだ不調を治療済みにする。
 // 治療は即座には治さず、TendQuality を立てて回復軌道へ乗せるだけ。実際の回復は ConditionSystem が進める。
-// 治療した不調があれば true を返す。一致する不調が無ければ何もせず false を返す
+// 治療した不調があれば true を返す。選べる不調が無ければ何もせず false を返す
 func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *gc.Remedy, item ecs.Entity) bool {
         <span class="cov8" title="1">if !world.Components.HealthStatus.Has(actor) </span>{
                 <span class="cov0" title="0">return false
 </span>        }
-        <span class="cov8" title="1">best := mostSevereTreatable(world.Components.HealthStatus.Get(actor), remedy)
+        <span class="cov8" title="1">part, best := remedyTarget(world.Components.HealthStatus.Get(actor), remedy)
         if best == nil </span>{
                 <span class="cov8" title="1">return false
 </span>        }
         <span class="cov8" title="1">best.TendQuality = remedy.Potency
-        u.logRemedy(actor, world, item, best.Type)
+        u.logRemedy(actor, world, item, part, best.Type)
         return true</span>
 }
 
@@ -5343,8 +5355,8 @@ func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
         <span class="cov8" title="1">return true</span>
 }
 
-// logRemedy は治療したことをログに出す。プレイヤーが使ったときだけ出す
-func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.Entity, treated gc.ConditionType) {
+// logRemedy は治療した部位と不調をログに出す。プレイヤーが使ったときだけ出す
+func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.Entity, part gc.BodyPart, treated gc.ConditionType) {
         <span class="cov8" title="1">if !world.Components.Player.Has(actor) </span>{
                 <span class="cov0" title="0">return
 </span>        }
@@ -5352,7 +5364,7 @@ func (u *UseItemBehavior) logRemedy(actor ecs.Entity, world w.World, item ecs.En
         itemMarkup := gamelog.Tag("item", u.getItemName(item, world))
         condName := query.ConditionName(world, treated)
         gamelog.New(query.GetGameLog(world)).
-                Markup(query.T(world, "%s used %s and treated %s.", actorMarkup, itemMarkup, condName)).
+                Markup(query.T(world, "%s used %s on the %s and treated %s.", actorMarkup, itemMarkup, query.BodyPartName(world, part), condName)).
                 Log()</span>
 }
 
@@ -10499,7 +10511,7 @@ type InflictsDamage struct {
         Amount int
 }
 
-// Remedy は不調を治療する性質。使うと Treats に一致する不調のうち最も重い1つを治療済みにする。
+// Remedy は不調を治療する性質。使うと Treats に一致する不調から1つを治療済みにする。選び方は activity の remedyTarget に従う。
 // Treats をスライスにするのは、1つのアイテムに関連する複数種の不調を治させるため。
 // 救急道具が骨折も切り傷も扱えれば、症状ごとに別のアイテムを何度も使う手間が減る。
 // Potency は治療の質で HealthCondition.TendQuality に入り、回復速度を左右する。100 が標準
@@ -30215,6 +30227,8 @@ var (
         errEnumRowMissing                = errors.New("enum value has no raw row")
         errTableMissing                  = errors.New("table required by code is missing")
         errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
+        errRemedyTooWeak                 = errors.New("remedy potency is too low to speed recovery")
+        errRemedyNotTendable             = errors.New("remedy treats a condition that does not recover after tending")
 )
 
 // validateRules は行の間の決まりのうち、CUE のスキーマで書かないものを検証する。
@@ -30226,6 +30240,7 @@ func validateRules(raws rawschema.Raws) error {
                 validateLandmarkMinDanger,
                 validateMapGlyphReferences,
                 validateConditions,
+                validateRemedies,
                 validateWeathers,
                 validateTileEffects,
                 validateGrounds,
@@ -30369,6 +30384,37 @@ func validateDisassemblies(raws rawschema.Raws) error {
                 <span class="cov8" title="1">if props[i].Hp == nil </span>{
                         <span class="cov8" title="1">return fmt.Errorf("prop %q: %w", props[i].Name, errDisassemblyWithoutHP)
 </span>                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateRemedies は、治療する物が治す不調が治療で回復に向かう種類で、治療の質を掛けた1ターンの回復量が1以上あることを検証する
+func validateRemedies(raws rawschema.Raws) error {
+        <span class="cov8" title="1">recoverPer := map[rawschema.ConditionTypeName]int{}
+        for _, c := range PtrSlice(raws.Conditions) </span>{
+                <span class="cov8" title="1">if c.Recovery == nil || *c.Recovery != rawschema.RecoverAfterTend </span>{
+                        <span class="cov8" title="1">continue</span>
+                }
+                <span class="cov8" title="1">recoverPer[c.Id] = 0
+                if c.RecoverPer != nil </span>{
+                        <span class="cov8" title="1">recoverPer[c.Id] = *c.RecoverPer
+</span>                }
+        }
+        <span class="cov8" title="1">items := PtrSlice(raws.Items)
+        for i := range items </span>{
+                <span class="cov8" title="1">it := &amp;items[i]
+                if it.Remedy == nil </span>{
+                        <span class="cov8" title="1">continue</span>
+                }
+                <span class="cov8" title="1">for _, t := range it.Remedy.Treats </span>{
+                        <span class="cov8" title="1">per, ok := recoverPer[t]
+                        if !ok </span>{
+                                <span class="cov8" title="1">return fmt.Errorf("item %q treats %q: %w", it.Id, t, errRemedyNotTendable)
+</span>                        }
+                        <span class="cov8" title="1">if consts.Percent(it.Remedy.Potency).ApplyInt(per) &lt; 1 </span>{
+                                <span class="cov8" title="1">return fmt.Errorf("item %q treats %q: %w", it.Id, t, errRemedyTooWeak)
+</span>                        }
+                }
         }
         <span class="cov8" title="1">return nil</span>
 }
@@ -33053,7 +33099,7 @@ type Remains struct {
         SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 }
 
-// Remedy 治療する性質。Treats に一致する不調のうち最も重い1つを治療済みにする
+// Remedy 治療する性質。Treats に一致する不調から1つを治療済みにする。選び方は activity の remedyTarget に従う
 type Remedy struct {
         Potency Potency `json:"potency"`
 
@@ -37249,6 +37295,7 @@ func (st *CharacterNamingState) buildUI(world w.World) uicore.Drawable {
 
 import (
         "fmt"
+        "slices"
 
         "github.com/kijimaD/ruins/internal/i18n"
 
@@ -37661,21 +37708,23 @@ func derivedConditionDetail(world w.World, cond *gc.HealthCondition) overlay.Det
 
 // remedyItemNameFor は指定した不調を治療できるアイテムの英語名を raw の Remedy から逆引きする。
 // 健康タブに治し方を示すのに使う。見つからなければ ok=false。
-// 複数のアイテムが同じ不調を治せる場合は先頭の1件だけ返す。1症状に1種の治療アイテムを保つ前提
+// 複数のアイテムが同じ不調を治せる場合は、治療の質が最も高い1件を返す。同じ質なら raw で先の行を返す
 func remedyItemNameFor(world w.World, ct gc.ConditionType) (i18n.Msgid, bool) {
         <span class="cov8" title="1">items := raw.PtrSlice(world.Resources.RawMaster.Items)
+        var best *rawschema.Item
         for i := range items </span>{
                 <span class="cov8" title="1">it := &amp;items[i]
-                if it.Remedy == nil </span>{
+                if it.Remedy == nil || !slices.Contains(it.Remedy.Treats, rawschema.ConditionTypeName(ct)) </span>{
                         <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov8" title="1">for _, t := range it.Remedy.Treats </span>{
-                        <span class="cov8" title="1">if gc.ConditionType(t) == ct </span>{
-                                <span class="cov8" title="1">return i18n.Msgid(it.Name), true
-</span>                        }
-                }
+                <span class="cov8" title="1">if best == nil || it.Remedy.Potency &gt; best.Remedy.Potency </span>{
+                        <span class="cov8" title="1">best = it
+</span>                }
         }
-        <span class="cov0" title="0">return "", false</span>
+        <span class="cov8" title="1">if best == nil </span>{
+                <span class="cov8" title="1">return "", false
+</span>        }
+        <span class="cov8" title="1">return i18n.Msgid(best.Name), true</span>
 }
 </pre>
 		
@@ -56204,7 +56253,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov8" title="1">return -1</span>
+        <span class="cov0" title="0">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
