@@ -16,23 +16,25 @@ func TestGauge_Draw(t *testing.T) {
 	tests := []struct {
 		name  string
 		ratio float64
+		width int
 		want  []image.Rectangle
 	}{
-		{name: "比率ぶんを塗る", ratio: 0.5, want: []image.Rectangle{image.Rect(1, 1, 10, 5)}},
-		{name: "残りわずかでも1pxは塗る", ratio: 0.01, want: []image.Rectangle{image.Rect(1, 1, 2, 5)}},
-		{name: "1を超える比率は枠に収める", ratio: 1.5, want: []image.Rectangle{image.Rect(1, 1, 19, 5)}},
-		{name: "0は塗らない", ratio: 0, want: nil},
-		{name: "負の比率は塗らない", ratio: -0.5, want: nil},
+		{name: "比率ぶんを塗る", ratio: 0.5, width: 20, want: []image.Rectangle{image.Rect(1, 1, 10, 5)}},
+		{name: "残りわずかでも1pxは塗る", ratio: 0.01, width: 20, want: []image.Rectangle{image.Rect(1, 1, 2, 5)}},
+		{name: "1を超える比率は枠に収める", ratio: 1.5, width: 20, want: []image.Rectangle{image.Rect(1, 1, 19, 5)}},
+		{name: "0は塗らない", ratio: 0, width: 20, want: nil},
+		{name: "負の比率は塗らない", ratio: -0.5, width: 20, want: nil},
+		{name: "枠の内側に幅が無ければ塗らない", ratio: 0.5, width: 2, want: nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			g := &uicore.Gauge{Fill: fill, Ratio: tt.ratio, Radius: 1}
-			g.Layout(image.Rect(0, 0, 20, 6))
+			g.Layout(image.Rect(0, 0, tt.width, 6))
 			cv := &recordCanvas{}
 			g.Draw(cv)
 			assert.Equal(t, tt.want, cv.tinted)
-			assert.Equal(t, []image.Rectangle{image.Rect(0, 0, 20, 6)}, cv.roundedStrokes)
+			assert.Equal(t, []image.Rectangle{image.Rect(0, 0, tt.width, 6)}, cv.roundedStrokes)
 		})
 	}
 }

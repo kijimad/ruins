@@ -28,7 +28,7 @@ func (g *Gauge) Draw(cv Canvas) {
 	inner := g.rect.Inset(1)
 	ratio := max(0, min(1, g.Ratio))
 	fillW := int(float64(inner.Dx()) * ratio)
-	if ratio > 0 {
+	if ratio > 0 && inner.Dx() > 0 {
 		fillW = max(fillW, 1)
 	}
 	if fillW > 0 && g.Fill != nil {
