@@ -94,7 +94,7 @@ func BenchmarkTurn(b *testing.B) {
 				require.False(b, world.Components.Dead.Has(player), "1ターンで最大 HP を超えるダメージを受けて倒れた")
 				hp := world.Components.HP.Get(player)
 				hp.Current = hp.Max
-				refillHeldLights(world, player)
+				refillLights(world)
 
 				start := query.GetTurnState(world).TurnNumber
 				for query.GetTurnState(world).TurnNumber == start {
@@ -130,7 +130,7 @@ func BenchmarkRemains(b *testing.B) {
 			for range b.N {
 				hp := world.Components.HP.Get(player)
 				hp.Current = hp.Max
-				refillHeldLights(world, player)
+				refillLights(world)
 				start := query.GetTurnState(world).TurnNumber
 				for query.GetTurnState(world).TurnNumber == start {
 					require.NoError(b, sm.Update(world))
@@ -145,13 +145,11 @@ func BenchmarkRemains(b *testing.B) {
 	}
 }
 
-// refillHeldLights は player が装備した灯りの残量を満たす。燃え尽きて暗い階を測らないよう反復ごとに戻す
-func refillHeldLights(world w.World, player ecs.Entity) {
-	q := ecs.NewFilter2[gc.LocationEquipped, gc.Charge](world.ECS).Query()
+// refillLights は残量を持つ灯りを満たす。手持ちや床の灯りが燃え尽きて暗い階を測らないよう反復ごとに戻す
+func refillLights(world w.World) {
+	q := ecs.NewFilter1[gc.Charge](world.ECS).Query()
 	for q.Next() {
-		equipped, charge := q.Get()
-		if equipped.Owner == player {
-			charge.Current = charge.Max
-		}
+		charge := q.Get()
+		charge.Current = charge.Max
 	}
 }
