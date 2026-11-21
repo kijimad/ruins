@@ -225,3 +225,17 @@ func TestThrowMode_射程内の敵を狙える(t *testing.T) {
 	assert.True(t, mode.canTarget(world, player, enemy))
 	assert.Positive(t, mode.hitRate(world, player, enemy))
 }
+
+func TestThrowMode_drawSource_画面を開いたときの威力を出す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
+
+	var lines []string
+	throwMode{item: stone, attack: gc.ThrowAttack{Damage: 9}}.drawSource(world, player, func(line string) { lines = append(lines, line) })
+	assert.Equal(t, []string{"Item: Stone", "Attack power: 9"}, lines)
+}

@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -152,4 +153,29 @@ func TestThrowBehavior_DoTurn_威力0の物は傷を負わせずスキルも伸�
 	assert.Equal(t, exp, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current)
 	assert.False(t, world.ECS.Alive(smoke), "投げた物は無くなる")
 	assert.Equal(t, []string{"Ash threw Smoke Bomb."}, query.GetGameLog(world).GetRecent(1))
+}
+
+// alwaysLowSource は出目を常に最小にする乱数源。命中の判定を必ず当たりにする。
+// 0 を返すと IntN が引き直しを続けて終わらないので 1 を返す
+type alwaysLowSource struct{}
+
+func (alwaysLowSource) Uint64() uint64 { return 1 }
+
+func TestThrowBehavior_DoTurn_当たると傷を負わせ物は無くなる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.Config.RNG = rand.New(alwaysLowSource{})
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
+	hp := world.Components.HP.Get(enemy).Current
+
+	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(stone, enemy), player, world))
+
+	assert.Less(t, world.Components.HP.Get(enemy).Current, hp)
+	assert.False(t, world.ECS.Alive(stone))
 }
