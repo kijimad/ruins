@@ -17,10 +17,12 @@ type StackKey struct {
 	RawID          string                     // 生成元の同定キー。まず品種が一致すること
 	FreshnessStage rawschema.FreshnessStageId // 腐敗品の鮮度段階。非腐敗品は空文字
 	Equip          string                     // 装備の個体差の指紋。性能の違う同名装備を束ねない。非装備は空文字
+	Charge         int                        // 残量の現在値。使いかけの物を束ねない。残量を持たない物は -1
+	LightOff       bool                       // 灯りのスイッチが切れているか。点けた灯りと切った灯りを束ねない
 }
 
 // StackKeyOf は entity のスタック同一性キーを返す。スタック同一判定の唯一の権威。
-// RawID に加え、腐敗品なら現在の鮮度段階を、装備なら性能の指紋を含める。
+// RawID に加え、腐敗品なら現在の鮮度段階を、装備なら性能の指紋を、残量を持つ物なら残量と灯りのスイッチを含める。
 // RawID を持たない実体はスタックになりえないので ok=false を返す。raw 定義を経ない
 // 実行時生成の実体、死亡フェードアウトのエフェクト等がこれにあたる
 func StackKeyOf(world w.World, entity ecs.Entity) (StackKey, bool) {
@@ -32,6 +34,13 @@ func StackKeyOf(world w.World, entity ecs.Entity) (StackKey, bool) {
 		key.FreshnessStage = stage
 	}
 	key.Equip = equipFingerprint(world, entity)
+	key.Charge = -1
+	if world.Components.Charge.Has(entity) {
+		key.Charge = world.Components.Charge.Get(entity).Current
+	}
+	if world.Components.LightSource.Has(entity) {
+		key.LightOff = !world.Components.LightSource.Get(entity).Enabled
+	}
 	return key, true
 }
 

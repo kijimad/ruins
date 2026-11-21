@@ -2,6 +2,7 @@ package resources
 
 import (
 	"image"
+	"image/color"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -241,4 +242,19 @@ func TestSpriteStoreSized_縦長の矩形は縦を基準に縮める(t *testing.
 	require.NotNil(t, img)
 	assert.Equal(t, 20, img.Bounds().Dy())
 	assert.Equal(t, 10, img.Bounds().Dx())
+}
+
+func TestDrawGauge_満ちた段を色で残りを暗く描く(t *testing.T) {
+	t.Parallel()
+	dst := image.NewRGBA(image.Rect(0, 0, 19, 10))
+	fill := color.RGBA{R: 1, G: 2, B: 3, A: 255}
+
+	drawGauge(dst, Gauge{Filled: 2, Total: 5, Fill: fill})
+
+	// 段は幅3で1ピクセル空けて並び、下端の3行に描く
+	assert.Equal(t, fill, dst.RGBAAt(0, 9), "1段目は満ちた色")
+	assert.Equal(t, fill, dst.RGBAAt(4, 7), "2段目は満ちた色")
+	assert.Equal(t, color.RGBA{R: 0x30, G: 0x30, B: 0x30, A: 0xff}, dst.RGBAAt(8, 9), "3段目は暗い色")
+	assert.Equal(t, color.RGBA{}, dst.RGBAAt(3, 9), "段のあいだは空ける")
+	assert.Equal(t, color.RGBA{}, dst.RGBAAt(0, 6), "ゲージの上は描かない")
 }

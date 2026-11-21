@@ -345,3 +345,32 @@ func TestStackMembers_床のGridElementが無ければ単独スタック(t *test
 
 	assert.Equal(t, []ecs.Entity{e}, StackMembers(world, e), "GridElementが無ければ単独で返す")
 }
+
+func TestSameStack_残量と灯りのスイッチ(t *testing.T) {
+	t.Parallel()
+
+	newTorch := func(world w.World, current int, enabled bool) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.RawID.Add(e, &gc.RawID{ID: "torch"})
+		world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: current})
+		world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: enabled})
+		return e
+	}
+
+	tests := []struct {
+		name string
+		a, b func(world w.World) ecs.Entity
+		want bool
+	}{
+		{name: "残量もスイッチも同じなら束ねる", a: func(world w.World) ecs.Entity { return newTorch(world, 600, true) }, b: func(world w.World) ecs.Entity { return newTorch(world, 600, true) }, want: true},
+		{name: "残量が違えば束ねない", a: func(world w.World) ecs.Entity { return newTorch(world, 600, true) }, b: func(world w.World) ecs.Entity { return newTorch(world, 420, true) }, want: false},
+		{name: "スイッチが違えば束ねない", a: func(world w.World) ecs.Entity { return newTorch(world, 600, true) }, b: func(world w.World) ecs.Entity { return newTorch(world, 600, false) }, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			assert.Equal(t, tt.want, SameStack(world, tt.a(world), tt.b(world)))
+		})
+	}
+}

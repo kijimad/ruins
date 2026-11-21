@@ -1,7 +1,10 @@
 package states
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -29,9 +32,26 @@ func itemMenuColumns(trailing ...styled.Col) []styled.Col {
 }
 
 // menuIcon は entity のスプライトを一覧のアイコン列の大きさで返す。縮小はリソース側が
-// 一度だけ済ませるので、描画は等倍になる
+// 一度だけ済ませるので、描画は等倍になる。残量を持つ物は下端に残量の段階のゲージを焼く
 func menuIcon(world w.World, e ecs.Entity) *ebiten.Image {
-	return world.Resources.Sprites.Sized(world.Components.SpriteRender.Get(e), theme.MenuIconW)
+	sr := world.Components.SpriteRender.Get(e)
+	stage, ok := query.ChargeStage(world, e)
+	if !ok {
+		return world.Resources.Sprites.Sized(sr, theme.MenuIconW)
+	}
+	return world.Resources.Sprites.SizedGauge(sr, theme.MenuIconW, resources.Gauge{Filled: stage, Total: query.ChargeStageCount, Fill: chargeColor(stage)})
+}
+
+// chargeColor は残量の段階のゲージの色を返す
+func chargeColor(stage int) color.RGBA {
+	switch {
+	case stage >= 4:
+		return theme.ChargeHigh
+	case stage >= 2:
+		return theme.ChargeMid
+	default:
+		return theme.ChargeLow
+	}
 }
 
 // itemMenuRow はアイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、

@@ -155,6 +155,12 @@ var (
 	StatusSuccess = rgb(0x198754)
 	// StatusDanger は危険色
 	StatusDanger = rgb(0xdc3545)
+	// ChargeHigh は残量が多いときのゲージの色
+	ChargeHigh = rgb(0x4caf50)
+	// ChargeMid は残量が半ばのときのゲージの色
+	ChargeMid = rgb(0xffc107)
+	// ChargeLow は残量が少ないときのゲージの色
+	ChargeLow = rgb(0xdc3545)
 )
 
 // ========== 属性色 ==========
