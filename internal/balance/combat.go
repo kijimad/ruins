@@ -50,10 +50,10 @@ func LoadCombatantFromMember(master rawschema.Raws, name string) (CombatantStats
 }
 
 // LoadWeaponFromItem はraw.MasterのアイテムからWeaponStatsを生成する
-func LoadWeaponFromItem(master rawschema.Raws, name string) (WeaponStats, error) {
-	spec, err := raw.NewItemSpec(master, name)
+func LoadWeaponFromItem(master rawschema.Raws, itemID string) (WeaponStats, error) {
+	spec, err := raw.NewItemSpec(master, itemID)
 	if err != nil {
-		return WeaponStats{}, fmt.Errorf("failed to load weapon %q: %w", name, err)
+		return WeaponStats{}, fmt.Errorf("failed to load weapon %q: %w", itemID, err)
 	}
 
 	// Fireを先にチェックする。MeleeとFireの両方を持つ武器は遠距離として扱う
@@ -72,14 +72,14 @@ func LoadWeaponFromItem(master rawschema.Raws, name string) (WeaponStats, error)
 		}, nil
 	}
 
-	return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", name)
+	return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", itemID)
 }
 
 // LoadWeaponFromBodyAttack はraw.Masterの体の攻撃からWeaponStatsを生成する
-func LoadWeaponFromBodyAttack(master rawschema.Raws, id string) (WeaponStats, error) {
-	melee, _, err := raw.BodyAttackMelee(master, id)
+func LoadWeaponFromBodyAttack(master rawschema.Raws, bodyAttackID string) (WeaponStats, error) {
+	melee, _, err := raw.BodyAttackMelee(master, bodyAttackID)
 	if err != nil {
-		return WeaponStats{}, fmt.Errorf("failed to load body attack %q: %w", id, err)
+		return WeaponStats{}, fmt.Errorf("failed to load body attack %q: %w", bodyAttackID, err)
 	}
 	return meleeWeapon(melee), nil
 }
@@ -89,10 +89,11 @@ func meleeWeapon(melee *gc.Melee) WeaponStats {
 	return WeaponStats{Damage: melee.Damage, Accuracy: melee.Accuracy}
 }
 
-// LoadEnemyWeapon は敵の CommandTable から最も重みの高い武器を代表に取り WeaponStats を返す。コマンドの重み分布は
-// 反映しない簡略化で、DifficultyCurve の敵プール重みとは別の近似なので二重の簡略化になる点に注意する。
-func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, error) {
-	member, err := raw.FindMember(master, enemyName)
+// LoadWeaponFromMember は member が攻撃に使う武器の WeaponStats を返す。CommandTable の最も重みの高い行を代表に取り、
+// CommandTable が無ければ素手にする。コマンドの重み分布は反映しない簡略化で、DifficultyCurve の敵プール重みとは
+// 別の近似なので二重の簡略化になる点に注意する。
+func LoadWeaponFromMember(master rawschema.Raws, memberID string) (WeaponStats, error) {
+	member, err := raw.FindMember(master, memberID)
 	if err != nil {
 		return WeaponStats{}, err
 	}

@@ -82,20 +82,20 @@ func TestLoadWeaponFromItem(t *testing.T) {
 	})
 }
 
-func TestLoadEnemyWeapon(t *testing.T) {
+func TestLoadWeaponFromMember(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 
 	t.Run("スライムの武器を読み込める", func(t *testing.T) {
 		t.Parallel()
-		ws, err := LoadEnemyWeapon(master, "slime")
+		ws, err := LoadWeaponFromMember(master, "slime")
 		require.NoError(t, err)
 		assert.GreaterOrEqual(t, ws.Damage, 0)
 	})
 
 	t.Run("存在しない敵はエラー", func(t *testing.T) {
 		t.Parallel()
-		_, err := LoadEnemyWeapon(master, "存在しない敵")
+		_, err := LoadWeaponFromMember(master, "存在しない敵")
 		require.Error(t, err)
 	})
 }

@@ -198,7 +198,7 @@ func PoolCombatRisk(master rawschema.Raws, player CombatantStats, playerWeapon W
 		if err != nil {
 			return 0, 0, false, err
 		}
-		enemyWeapon, err := LoadEnemyWeapon(master, entry.Id)
+		enemyWeapon, err := LoadWeaponFromMember(master, entry.Id)
 		if err != nil {
 			return 0, 0, false, err
 		}
