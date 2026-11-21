@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - states/throwing.go</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory states">states</a> - throwing.go</td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">52.4&nbsp;%</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">11</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-11-21 13:35:42</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package states</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/activity&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/keybind&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              : )</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // throwMode はバックパックの物を投げる狙い方</span>
+<span id="L17"><span class="lineNum">      17</span>              : type throwMode struct {</span>
+<span id="L18"><span class="lineNum">      18</span>              :         item ecs.Entity</span>
+<span id="L19"><span class="lineNum">      19</span>              :         // attack は画面を開いたときに導いた投げの値。画面の間は物が変わらないので毎フレーム導き直さない</span>
+<span id="L20"><span class="lineNum">      20</span>              :         attack gc.ThrowAttack</span>
+<span id="L21"><span class="lineNum">      21</span>              : }</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 : func (throwMode) bindings() []keybind.Binding { return targetingBindings }</span></span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : func (m throwMode) canTarget(world w.World, player, target ecs.Entity) bool {</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         return activity.CanThrowTarget(player, m.item, target, world)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : func (m throwMode) hitRate(world w.World, player, target ecs.Entity) int {</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         return activity.CalculateThrowHitRate(player, target, m.attack, world)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : func (m throwMode) execute(world w.World, player, target ecs.Entity) error {</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         _, err := activity.Execute(activity.NewThrowActivity(m.item, target), player, world)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         return err</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : func (throwMode) handle(_ w.World, _ ecs.Entity, _ inputmapper.ActionID) (bool, error) {</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         return false, nil</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 : func (throwMode) title(world w.World) string { return query.T(world, &quot;== Throwing Mode ==&quot;) }</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              : // drawSource は投げる物の名前と威力を描く</span>
+<span id="L45"><span class="lineNum">      45</span>              : func (m throwMode) drawSource(world w.World, _ ecs.Entity, drawText func(string)) {</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         drawText(fmt.Sprintf(&quot;%s: %s&quot;, query.T(world, &quot;Item&quot;), query.GetEntityName(m.item, world)))</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         drawText(fmt.Sprintf(&quot;%s: %d&quot;, query.T(world, &quot;Attack power&quot;), m.attack.Damage))</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : </span>
+<span id="L50"><span class="lineNum">      50</span>              : // unavailable は投げる物を投げられなければ理由を返す</span>
+<span id="L51"><span class="lineNum">      51</span>              : func (m throwMode) unavailable(world w.World, player ecs.Entity) string {</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         if !activity.CanThrowItem(player, m.item, world) {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 return query.T(world, &quot;Nothing to throw&quot;)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         return &quot;&quot;</span></span>
+<span id="L56"><span class="lineNum">      56</span>              : }</span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 : func (throwMode) noTarget(world w.World) string { return query.T(world, &quot;No throwing target&quot;) }</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              : func (throwMode) help(world w.World) string {</span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         return query.T(world, &quot;Tab: Switch  Enter: Throw  Esc: Back&quot;)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
