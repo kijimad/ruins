@@ -191,13 +191,15 @@ func TestResumeActivity_再開不可なアクティビティはエラーを返�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
+	b, err := GetBehavior(gc.BehaviorDisassemble)
+	require.NoError(t, err)
+	require.False(t, b.Info().Resumable, "前提: Disassemble は再開できない")
 
-	// Disassemble は Resumable ではないため再開できない
 	comp := NewActivity(gc.BehaviorDisassemble, 10)
 	comp.State = gc.ActivityStatePaused
 	require.NoError(t, query.SetActivity(world, actor, comp))
 
-	err := ResumeActivity(actor, world)
+	err = ResumeActivity(actor, world)
 
 	require.Error(t, err)
 	assert.Equal(t, "activity 'Disassemble' cannot be resumed", err.Error())
