@@ -3,6 +3,8 @@ package query
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,4 +33,18 @@ func TestChargeStage_上限が無いか超えたときも段の数に収まる(t
 	t.Parallel()
 	assert.Equal(t, 0, chargeStage(10, 0), "上限が無ければ尽きている扱い")
 	assert.Equal(t, ChargeStageCount, chargeStage(700, 600), "上限を超えても全段まで")
+}
+
+func TestChargeStage_残量を持つ物だけ段階を返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	torch := world.ECS.NewEntity()
+	world.Components.Charge.Add(torch, &gc.Charge{Max: 600, Current: 300})
+	rock := world.ECS.NewEntity()
+
+	stage, ok := ChargeStage(world, torch)
+	assert.True(t, ok)
+	assert.Equal(t, 3, stage)
+	_, ok = ChargeStage(world, rock)
+	assert.False(t, ok)
 }

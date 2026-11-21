@@ -126,22 +126,26 @@ func (s *SpriteStore) SizedGauge(sr *components.SpriteRender, size int, gauge Ga
 	return img
 }
 
-// drawGauge は dst の下端に段階のゲージを描く。段のあいだは1ピクセル空ける
+// drawGauge は dst の下端に段階のゲージを描く。段のあいだは1ピクセル空け、幅が足りなければ詰める
 func drawGauge(dst *image.RGBA, g Gauge) {
 	if g.Total <= 0 {
 		return
 	}
 	const height = 3
 	b := dst.Bounds()
-	segW := max(1, (b.Dx()-(g.Total-1))/g.Total)
-	left := (b.Dx() - (segW*g.Total + g.Total - 1)) / 2
+	gap := 1
+	if b.Dx() < 2*g.Total-1 {
+		gap = 0
+	}
+	segW := max(1, (b.Dx()-gap*(g.Total-1))/g.Total)
+	left := (b.Dx() - (segW*g.Total + gap*(g.Total-1))) / 2
 	top := b.Dy() - height
 	for i := range g.Total {
 		c := g.Empty
 		if i < g.Filled {
 			c = g.Fill
 		}
-		x := left + i*(segW+1)
+		x := left + i*(segW+gap)
 		draw.Draw(dst, image.Rect(x, top, x+segW, b.Dy()), image.NewUniform(c), image.Point{}, draw.Src)
 	}
 }

@@ -294,3 +294,29 @@ func TestDrawGauge_段が描けない大きさでも落ちない(t *testing.T) {
 	assert.NotPanics(t, func() { drawGauge(image.NewRGBA(image.Rect(0, 0, 4, 4)), Gauge{Filled: 1, Total: 0, Fill: fill}) })
 	assert.NotPanics(t, func() { drawGauge(image.NewRGBA(image.Rect(0, 0, 3, 2)), Gauge{Filled: 5, Total: 5, Fill: fill}) })
 }
+
+func TestDrawGauge_幅が足りなければ段のあいだを詰めて全段を収める(t *testing.T) {
+	t.Parallel()
+	dst := image.NewRGBA(image.Rect(0, 0, 6, 4))
+	fill := color.RGBA{R: 1, A: 255}
+	empty := color.RGBA{B: 1, A: 255}
+
+	drawGauge(dst, Gauge{Filled: 2, Total: 5, Fill: fill, Empty: empty})
+
+	got := make([]color.RGBA, 0, 5)
+	for x := range 5 {
+		got = append(got, dst.RGBAAt(x, 3))
+	}
+	assert.Equal(t, []color.RGBA{fill, fill, empty, empty, empty}, got)
+}
+
+func TestSizedGauge_解決できなければnil(t *testing.T) {
+	t.Parallel()
+	s := newSpriteStore(t, map[string]components.SpriteSheet{})
+	gauge := Gauge{Filled: 1, Total: 5}
+	sr := &components.SpriteRender{SpriteSheetName: "missing", SpriteKey: "a"}
+
+	assert.Nil(t, s.SizedGauge(nil, 20, gauge), "SpriteRender が nil")
+	assert.Nil(t, s.SizedGauge(sr, 0, gauge), "大きさが0")
+	assert.Nil(t, s.SizedGauge(sr, 20, gauge), "シートが見つからない")
+}
