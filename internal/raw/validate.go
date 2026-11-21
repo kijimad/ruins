@@ -38,6 +38,7 @@ var (
 	errEnumRowMissing                = errors.New("enum value has no raw row")
 	errTableMissing                  = errors.New("table required by code is missing")
 	errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
+	errBareHandsMissing              = errors.New("bare hands body attack is missing")
 	errRemedyTooWeak                 = errors.New("remedy potency is too low to speed recovery")
 	errRemedyNotTendable             = errors.New("remedy treats a condition that does not recover after tending")
 )
@@ -366,6 +367,9 @@ func validateCodeRows(raws rawschema.Raws) error {
 	if err := validateSkillCodeRows(raws); err != nil {
 		return err
 	}
+	if _, ok := FindByKey(raws.BodyAttacks, func(a rawschema.BodyAttack) string { return a.Id }, BareHands); !ok {
+		return errBareHandsMissing
+	}
 	enumRows := []struct {
 		schema string
 		values []string
@@ -612,6 +616,11 @@ func validateFlatShapes(raws rawschema.Raws) error {
 // validateCommandTables はコマンドテーブルの行が体の攻撃とアイテムのどちらか1つだけを引き、
 // アイテムを引くならそのアイテムが近接攻撃を持つことを検証する。ゲームの読み込みは CUE を通らないので、無い id もここで落とす
 func validateCommandTables(raws rawschema.Raws) error {
+	bodyAttackIDs := map[rawschema.EntityID]bool{}
+	bodyAttacks := PtrSlice(raws.BodyAttacks)
+	for i := range bodyAttacks {
+		bodyAttackIDs[bodyAttacks[i].Id] = true
+	}
 	melee := map[rawschema.EntityID]bool{}
 	items := PtrSlice(raws.Items)
 	for i := range items {
@@ -623,7 +632,10 @@ func validateCommandTables(raws rawschema.Raws) error {
 			if (e.BodyAttack == nil) == (e.Item == nil) {
 				return fmt.Errorf("command table %q entry %d: %w", tables[i].Id, j, errCommandEntryTarget)
 			}
-			if e.Item == nil {
+			if e.BodyAttack != nil {
+				if !bodyAttackIDs[*e.BodyAttack] {
+					return fmt.Errorf("command table %q entry %d: %w", tables[i].Id, j, NewKeyNotFoundError(*e.BodyAttack, "BodyAttacks"))
+				}
 				continue
 			}
 			hasMelee, ok := melee[*e.Item]

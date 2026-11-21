@@ -278,9 +278,9 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, attackID string, 
 
 	// 多目的探索。序盤・中盤・終盤の目標逸脱を同時に小さくする武器倍率の非劣集合
 	fmt.Fprintf(&b, "## 多目的探索（Pareto 前線）\n\n")
-	fmt.Fprintf(&b, "**概要**: プレイヤー武器 bare_hands と敵武器 bite のダメージ倍率を格子で動かし、day1・day10・day20 の目標戦力比からの逸脱を同時に見る。\n")
-	fmt.Fprintf(&b, "単変数探索は day20 しか合わせられないが、複数日はトレードオフになる。どれかを詰めると別が緩む非劣な組だけを載せる。逸脱は小さいほど目標に近い。\n\n")
 	paretoKnobs := []string{raw.BareHands, "bite"}
+	fmt.Fprintf(&b, "**概要**: プレイヤー武器 %s と敵武器 %s のダメージ倍率を格子で動かし、day1・day10・day20 の目標戦力比からの逸脱を同時に見る。\n", paretoKnobs[0], paretoKnobs[1])
+	fmt.Fprintf(&b, "単変数探索は day20 しか合わせられないが、複数日はトレードオフになる。どれかを詰めると別が緩む非劣な組だけを載せる。逸脱は小さいほど目標に近い。\n\n")
 	front := ParetoFront(master, paretoKnobs, []float64{0.8, 1.0, 1.5}, []int{1, 10, 20})
 	sort.Slice(front, func(i, j int) bool {
 		if front[i].Factors[paretoKnobs[0]] != front[j].Factors[paretoKnobs[0]] {
@@ -295,7 +295,7 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, attackID string, 
 			fmt.Sprintf("%.2f", p.Deviations[0]), fmt.Sprintf("%.2f", p.Deviations[1]), fmt.Sprintf("%.2f", p.Deviations[2]),
 		})
 	}
-	writeMDTable(&b, []string{"bare_hands倍率", "bite倍率", "day1逸脱", "day10逸脱", "day20逸脱"}, []tw.Align{alignR, alignR, alignR, alignR, alignR}, paretoRows)
+	writeMDTable(&b, []string{paretoKnobs[0] + "倍率", paretoKnobs[1] + "倍率", "day1逸脱", "day10逸脱", "day20逸脱"}, []tw.Align{alignR, alignR, alignR, alignR, alignR}, paretoRows)
 
 	// 進行・成長。スキルを上げるのに要する攻撃回数
 	fmt.Fprintf(&b, "## 進行・成長（スキル）\n\n")

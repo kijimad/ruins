@@ -527,8 +527,9 @@ func TestValidateCommandTables(t *testing.T) {
 	t.Parallel()
 
 	items := &[]rawschema.Item{{Id: "cleaver", Name: "Cleaver", Melee: &rawschema.Melee{}}, {Id: "rock", Name: "Rock"}}
+	bodyAttacks := &[]rawschema.BodyAttack{{Id: "bite", Name: "Bite"}}
 	table := func(e rawschema.CommandTableEntry) rawschema.Raws {
-		return rawschema.Raws{Items: items, CommandTables: &[]rawschema.CommandTable{{Id: "bat", Name: "Bat", Entries: []rawschema.CommandTableEntry{e}}}}
+		return rawschema.Raws{Items: items, BodyAttacks: bodyAttacks, CommandTables: &[]rawschema.CommandTable{{Id: "bat", Name: "Bat", Entries: []rawschema.CommandTableEntry{e}}}}
 	}
 	tests := []struct {
 		name    string
@@ -540,6 +541,7 @@ func TestValidateCommandTables(t *testing.T) {
 		{name: "両方を引く行はエラー", raws: table(rawschema.CommandTableEntry{BodyAttack: new("bite"), Item: new("cleaver"), Weight: 1}), wantErr: errCommandEntryTarget},
 		{name: "どちらも引かない行はエラー", raws: table(rawschema.CommandTableEntry{Weight: 1}), wantErr: errCommandEntryTarget},
 		{name: "近接攻撃を持たないアイテムを引く行はエラー", raws: table(rawschema.CommandTableEntry{Item: new("rock"), Weight: 1}), wantErr: errItemNoMelee},
+		{name: "無い体の攻撃を引く行はエラー", raws: table(rawschema.CommandTableEntry{BodyAttack: new("typo"), Weight: 1}), wantErr: KeyNotFoundError{Key: "typo", Collection: "BodyAttacks"}},
 		{name: "無いアイテムを引く行はエラー", raws: table(rawschema.CommandTableEntry{Item: new("typo"), Weight: 1}), wantErr: KeyNotFoundError{Key: "typo", Collection: "Items"}},
 	}
 	for _, tt := range tests {
