@@ -80,6 +80,19 @@ func TestValidate_下地を使う間取りを持つダンジョンは下地を�
 	require.NoError(t, rawcheck.Validate(raws), "下地を持てば通る")
 }
 
+func TestValidate_携行光源を持つアイテムは残量を持つ(t *testing.T) {
+	t.Parallel()
+	raws := makeRefRaws(func(r *rawschema.Raws) {
+		(*r.Items)[0].LightSource = &rawschema.LightSource{Radius: 4, Color: rawschema.RGBAColor{A: 255}}
+	})
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"items.0.charge"}, ce.Paths())
+
+	(*raws.Items)[0].Charge = &rawschema.Charge{Max: 600}
+	require.NoError(t, rawcheck.Validate(raws), "残量を持てば通る")
+}
+
 func TestError_Paths_位置を並べて重複を除く(t *testing.T) {
 	t.Parallel()
 

@@ -289,21 +289,21 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 
 // RemoveItem はアイテムを消す。持ち主がいれば能力と総重量を計算し直させる
 func RemoveItem(world w.World, item ecs.Entity) {
-	var owner *ecs.Entity
+	var owner ecs.Entity
+	hasOwner := true
 	switch {
 	case world.Components.LocationEquipped.Has(item):
-		owner = &world.Components.LocationEquipped.Get(item).Owner
+		owner = world.Components.LocationEquipped.Get(item).Owner
 	case world.Components.LocationInBackpack.Has(item):
-		owner = &world.Components.LocationInBackpack.Get(item).Owner
-	}
-	if owner != nil {
-		o := *owner
-		world.ECS.RemoveEntity(item)
-		ensureMarker(world, world.Components.StatsChanged, o, &gc.StatsChanged{})
-		ensureMarker(world, world.Components.WeightDirty, o, &gc.WeightDirty{})
-		return
+		owner = world.Components.LocationInBackpack.Get(item).Owner
+	default:
+		hasOwner = false
 	}
 	world.ECS.RemoveEntity(item)
+	if hasOwner {
+		ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+	}
 }
 
 // RemoveOwnedEntities は owners のいずれかが所有する、座標を持たないロケーションの実体を削除する。

@@ -5819,8 +5819,8 @@ msgstr "キー一覧"
 msgid "Campfire"
 msgstr "焚き火"
 
-msgid "A lit torch. Serves as light, weapon, and a way to set fuel alight."
-msgstr "灯りにも武器にもなり、燃料に火をつけられる松明。"
+msgid "A torch. Lights up when held, serves as a weapon, and sets fuel alight."
+msgstr "手に持つと灯り、武器にもなり、燃料に火をつけられる松明。"
 
 msgid "Light fire (%s)"
 msgstr "火をつける(%s)"

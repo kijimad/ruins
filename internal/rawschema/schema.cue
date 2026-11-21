@@ -939,8 +939,11 @@ import (
 	// 携行光源。装備すると owner を照らす
 	lightSource?: #LightSource
 
-	// 残量。携行光源を持つ行は必ず持つ
+	// 残量。携行光源を持つ行は必ず持つ。持たないと燃え尽きずに照らし続ける
 	charge?: #Charge
+	if lightSource != _|_ {
+		charge!: _ @rawgen(-)
+	}
 
 	// 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
 	material?: #Material

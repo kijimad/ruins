@@ -1409,7 +1409,7 @@ type Item struct {
 
 	Book *Book `json:"book,omitempty"`
 
-	// Charge 残量。携行光源を持つ行は必ず持つ
+	// Charge 残量。携行光源を持つ行は必ず持つ。持たないと燃え尽きずに照らし続ける
 	Charge *Charge `json:"charge,omitempty"`
 
 	Consumable *Consumable `json:"consumable,omitempty"`
