@@ -69,14 +69,14 @@ func NewEatActivity(target ecs.Entity) *gc.Activity {
 	return comp
 }
 
-// HasUseEffect は物が使うの効果を1つ以上持つかを返す
-func HasUseEffect(world w.World, item ecs.Entity) bool {
-	return hasEffect(useEffects, world, item)
+// CanUse は物が使うの効果を持つ消費物で、使えるかを返す
+func CanUse(world w.World, item ecs.Entity) bool {
+	return world.Components.Consumable.Has(item) && hasEffect(useEffects, world, item)
 }
 
-// HasEatEffect は物が食べるの効果を1つ以上持つかを返す
-func HasEatEffect(world w.World, item ecs.Entity) bool {
-	return hasEffect(eatEffects, world, item)
+// CanEat は物が食べるの効果を持つ消費物で、食べられるかを返す
+func CanEat(world w.World, item ecs.Entity) bool {
+	return world.Components.Consumable.Has(item) && hasEffect(eatEffects, world, item)
 }
 
 func hasEffect(effects []useEffect, world w.World, item ecs.Entity) bool {
@@ -296,8 +296,9 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	itemMarkup := gamelog.Tag("item", itemName)
 	logger := gamelog.New(query.GetGameLog(world))
 	switch {
-	case isHealing && u.eat:
-		logger.Markup(query.T(world, "%s ate %s and recovered %d HP.", actorMarkup, itemMarkup, amount))
+	case isHealing && world.Components.ProvidesNutrition.Has(item):
+		// 食べたことは栄養のログが出すので、回復の量だけを出す
+		logger.Markup(query.T(world, "%s recovered %d HP.", actorMarkup, amount))
 	case isHealing:
 		logger.Markup(query.T(world, "%s used %s and recovered %d HP.", actorMarkup, itemMarkup, amount))
 	default:

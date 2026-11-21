@@ -86,7 +86,7 @@ var verbList = []itemVerb{
 		KeyHint: "e",
 		Key:     ebiten.KeyE,
 		Action:  inputmapper.ActionVerbConsume,
-		Accept:  acceptEat,
+		Accept:  activity.CanEat,
 		Exec:    execEat,
 	},
 	{
@@ -104,7 +104,7 @@ var verbList = []itemVerb{
 		KeyHint: "t",
 		Key:     ebiten.KeyT,
 		Action:  inputmapper.ActionVerbUse,
-		Accept:  acceptUse,
+		Accept:  activity.CanUse,
 		Exec:    execUseItem,
 	},
 	{
@@ -117,16 +117,6 @@ var verbList = []itemVerb{
 		Accept:  acceptDisassemble,
 		Exec:    execDisassemble,
 	},
-}
-
-// acceptEat は食べるの効果を持つ消費物を食べるの対象とする。飲み物も含む
-func acceptEat(world w.World, entity ecs.Entity) bool {
-	return world.Components.Consumable.Has(entity) && activity.HasEatEffect(world, entity)
-}
-
-// acceptUse は使うの効果を持つ消費物を使うの対象とする。1つの物が食べると使うの両方に出ることもある
-func acceptUse(world w.World, entity ecs.Entity) bool {
-	return world.Components.Consumable.Has(entity) && activity.HasUseEffect(world, entity)
 }
 
 // acceptDisassemble は材質の素材に戻せるアイテムを分解するの対象とする

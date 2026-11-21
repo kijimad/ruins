@@ -25,7 +25,7 @@ type useEffect interface {
 }
 
 // eatEffects は食べると体の内側に働く効果の一覧。順に present を見て、持つ効果だけ適用する
-var eatEffects = []useEffect{healEffect{}, nutritionEffect{}}
+var eatEffects = []useEffect{nutritionEffect{}, healEffect{}}
 
 // useEffects は使うと働く効果の一覧。塗る・巻くのように部位に働く治療もここに入る
 var useEffects = []useEffect{damageEffect{}, remedyEffect{}, escapeEffect{}, cubeCoreEffect{}}

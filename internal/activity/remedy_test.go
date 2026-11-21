@@ -361,6 +361,28 @@ func TestUseItem_蜂蜜(t *testing.T) {
 		assert.Greater(t, world.Components.HP.Get(player).Current, 10)
 		assert.Equal(t, consts.Percent(0), tendQuality(world, player))
 	})
+	t.Run("食べると栄養と回復のログを1行ずつ出す", func(t *testing.T) {
+		t.Parallel()
+		world, player, honey := setup(t)
+		_, err := Execute(NewEatActivity(honey), player, world)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"Ash ate fresh Honey.", "Ash recovered 15 HP."}, query.GetGameLog(world).GetRecent(2))
+	})
+	t.Run("傷が無ければ使えない", func(t *testing.T) {
+		t.Parallel()
+		world, player, honey := setup(t)
+		world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].Conditions = nil
+		var ue *UserError
+		require.ErrorAs(t, (&UseItemBehavior{}).Validate(NewUseItemActivity(honey), player, world), &ue)
+	})
+	t.Run("満腹なら食べられない", func(t *testing.T) {
+		t.Parallel()
+		world, player, honey := setup(t)
+		h := world.Components.Hunger.Get(player)
+		h.Current = h.Max
+		var ue *UserError
+		require.ErrorAs(t, (&UseItemBehavior{eat: true}).Validate(NewEatActivity(honey), player, world), &ue)
+	})
 	t.Run("使うと傷が手当てされ、空腹とHPは変わらない", func(t *testing.T) {
 		t.Parallel()
 		world, player, honey := setup(t)

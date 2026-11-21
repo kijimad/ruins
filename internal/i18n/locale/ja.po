@@ -1782,8 +1782,8 @@ msgstr "キューブが遠すぎる。これ以上北へ進むと置き去りに
 msgid "%s used %s and recovered %d HP."
 msgstr "%s は %s を使った。 HPが %d 回復した。"
 
-msgid "%s ate %s and recovered %d HP."
-msgstr "%s は %s を食べた。 HPが %d 回復した。"
+msgid "%s recovered %d HP."
+msgstr "%s は HPが %d 回復した。"
 
 msgid "%s used %s and took %d damage."
 msgstr "%s は %s を使った。 %d のダメージを受けた。"

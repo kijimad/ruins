@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -131,8 +132,8 @@ func TestAcceptEatUse_食べると使うの対象は効果の組で決まる(t *
 			require.NoError(t, err)
 			entity, err := lifecycle.SpawnBackpackItem(world, tt.item, 1)
 			require.NoError(t, err)
-			assert.Equal(t, tt.eat, acceptEat(world, entity), "食べる対象の判定")
-			assert.Equal(t, tt.use, acceptUse(world, entity), "使う対象の判定")
+			assert.Equal(t, tt.eat, activity.CanEat(world, entity), "食べる対象の判定")
+			assert.Equal(t, tt.use, activity.CanUse(world, entity), "使う対象の判定")
 		})
 	}
 }
