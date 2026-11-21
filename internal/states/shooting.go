@@ -129,10 +129,7 @@ func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
 		return ""
 	}
 	weapon, ok := query.SelectedHeld(world, playerEntity)
-	if !ok {
-		return query.T(world, "No ranged weapon equipped")
-	}
-	if !world.Components.Fire.Has(weapon) {
+	if !ok || !world.Components.Fire.Has(weapon) {
 		return query.T(world, "No ranged weapon equipped")
 	}
 	if world.Components.Fire.Get(weapon).Magazine <= 0 {
