@@ -39,7 +39,8 @@ func TestSlotWidget_Draw(t *testing.T) {
 		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: HandSlotInfo{ChargeStage: 3, ChargeStages: 5}, number: 1}
 		s.Draw(cv)
 
-		assert.Equal(t, resources.GaugeSegments(image.Rect(14, 60, 54, 64), 5, 2), cv.fillRects)
+		inner := rect.Inset(slotNumberPad)
+		assert.Equal(t, resources.GaugeSegments(image.Rect(inner.Min.X, inner.Max.Y-4, inner.Max.X, inner.Max.Y), 5, 2), cv.fillRects)
 		fill := theme.ChargeColor(3, 5)
 		assert.Equal(t, []color.Color{fill, fill, fill, theme.ChargeEmpty, theme.ChargeEmpty}, cv.fillColors)
 	})
