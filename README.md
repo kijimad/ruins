@@ -113,7 +113,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 | status | Document | Progress | tags |
 |---|---|---|---|
 | in-progress | [灯りと武器と道具に残量を持たせて有限にする](docs/design/261119224218.md) | 10/22 | item, gamedesign |
-| draft | [手榴弾を爆ぜさせ、毒と炎を効かせる](docs/design/261121222847.md) | 0/6 (1 skipped) | gamedesign, item, combat |
+| draft | [手榴弾を爆ぜさせ、毒と炎を効かせる](docs/design/261121222847.md) | 0/7 (1 skipped) | gamedesign, item, combat |
 
 
 ## References
