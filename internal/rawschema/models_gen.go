@@ -263,6 +263,15 @@ type BlocksPassage = bool
 // BlocksView 視線を遮るかどうか
 type BlocksView = bool
 
+// BodyAttack 体の攻撃。体に備わり、拾えない攻撃
+type BodyAttack struct {
+	Id EntityID `json:"id"`
+
+	Melee Melee `json:"melee"`
+
+	Name EntityName `json:"name"`
+}
+
 // BodyPart 部位。部位の集合と身体機能との対応は Go が持ち、raw は表示名と命中の重みを持つ
 type BodyPart struct {
 	// HitWeight 戦闘の命中抽選の重み。0 は命中先にならない
@@ -350,8 +359,11 @@ type CommandTable struct {
 
 // CommandTableEntry コマンドテーブルエントリ
 type CommandTableEntry struct {
-	// Id 使う武器の id
-	Id EntityID `json:"id"`
+	// BodyAttack 使う体の攻撃の id。bodyAttack と item のどちらか1つだけを書く
+	BodyAttack *EntityID `json:"bodyAttack,omitempty"`
+
+	// Item 使う武器のアイテムの id。近接攻撃を持つアイテムに限る
+	Item *EntityID `json:"item,omitempty"`
 
 	Weight EntryWeight `json:"weight"`
 }
@@ -2110,6 +2122,8 @@ type Raws struct {
 	AutomataSteps *[]AutomataStep `json:"automataSteps,omitempty"`
 
 	BigRoomSteps *[]BigRoomStep `json:"bigRoomSteps,omitempty"`
+
+	BodyAttacks *[]BodyAttack `json:"bodyAttacks,omitempty"`
 
 	BodyParts *[]BodyPart `json:"bodyParts,omitempty"`
 

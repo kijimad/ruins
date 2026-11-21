@@ -19,14 +19,14 @@ type ElementValue struct {
 }
 
 // WeaponRestrictionValues は経過日 day の廃墟プールに対し、装備可能な武器(近接・遠距離)それぞれの死亡確率と素手へ
-// 制限したときの劣化量を、劣化量の降順で返す。基準は強化なしの BaselinePlayer、素手 BaselineWeapon がフォールバック。
+// 制限したときの劣化量を、劣化量の降順で返す。基準は強化なしの BaselinePlayer、素手 raw.BareHands がフォールバック。
 func WeaponRestrictionValues(master rawschema.Raws, enemyTableName string, day int) ([]ElementValue, float64, error) {
 	danger := int(query.DangerLevelForDay(day))
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	if err != nil {
 		return nil, 0, err
 	}
-	bare, err := LoadWeaponFromItem(master, BaselineWeapon)
+	bare, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -41,9 +41,9 @@ func WeaponRestrictionValues(master rawschema.Raws, enemyTableName string, day i
 	items := raw.PtrSlice(master.Items)
 	values := make([]ElementValue, 0, len(items))
 	for i := range items {
-		// 近接と遠距離の武器を対象にする。素手は基準そのものなので除く。遠距離は Sensation で撃つが、
+		// 近接と遠距離の武器を対象にする。遠距離は Sensation で撃つが、
 		// 弾薬の消費と費用はこの指標に含めないので、遠距離の劣化量は弾薬コストを無視した上限になる。
-		if (items[i].Melee == nil && items[i].Fire == nil) || items[i].Id == BaselineWeapon {
+		if items[i].Melee == nil && items[i].Fire == nil {
 			continue
 		}
 		weapon, err := LoadWeaponFromItem(master, items[i].Id)

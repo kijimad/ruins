@@ -81,6 +81,7 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		return rawschema.PointFeature{Id: rawschema.PointFeatureKind(id), Spacing: 3, Separation: 1}
 	})
 	raws := rawschema.Raws{
+		BodyAttacks:     &[]rawschema.BodyAttack{{Id: BareHands, Name: "Bare hands"}},
 		Dungeons:        &[]rawschema.Dungeon{{Id: "dead_forest"}},
 		Settlements:     &[]rawschema.Settlement{{Id: "village", Weight: 1}},
 		TimesOfDay:      &timesOfDay,
@@ -350,6 +351,13 @@ func TestValidateCodeRows(t *testing.T) {
 				r.Weathers = &[]rawschema.Weather{}
 			},
 			wantErr: errTableMissing,
+		},
+		{
+			name: "素手の体の攻撃が無い",
+			mutate: func(r *rawschema.Raws) {
+				r.BodyAttacks = nil
+			},
+			wantErr: errBareHandsMissing,
 		},
 		{
 			name: "疲労の段階が無い",

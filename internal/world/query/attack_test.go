@@ -48,6 +48,21 @@ func TestGetAttackFromCommandTable_NoCommandTable(t *testing.T) {
 	require.ErrorIs(t, err, errNoCommandTable)
 }
 
+func TestGetAttackFromCommandTable_重みを持つ行が無い(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.RawMaster = rawschema.Raws{CommandTables: &[]rawschema.CommandTable{{
+		Id: "idle", Name: "Idle", Entries: []rawschema.CommandTableEntry{{BodyAttack: new("bite"), Weight: 0}},
+	}}}
+	enemy := world.ECS.NewEntity()
+	world.Components.CommandTable.Add(enemy, &gc.CommandTable{Name: "idle"})
+
+	_, _, err := GetAttackFromCommandTable(world, enemy)
+
+	require.ErrorIs(t, err, errEmptyCommandTable)
+}
+
 func TestGetFireFromWeapon(t *testing.T) {
 	t.Parallel()
 

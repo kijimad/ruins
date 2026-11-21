@@ -8,6 +8,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -437,23 +438,40 @@ func TestGetAttackParams_プレイヤーが装備した近接武器のパラメ�
 	assert.Positive(t, melee.Damage)
 }
 
-func TestGetAttackParams_プレイヤーが武器未装備なら素手にフォールバックする(t *testing.T) {
+func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んでいなければ素手で殴る(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-	// プレイヤーは生成時に松明を手持ち欄1へ装備している。外して未装備の状態を作る
-	require.NoError(t, lifecycle.UnequipAll(world, player))
-	query.GetHandSelection(world).Slot = gc.SlotHand1
+	tests := []struct {
+		name string
+		hold string
+	}{
+		{name: "何も持っていない"},
+		{name: "射撃だけを持つ物を選んでいる", hold: "hunter_bow"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			// プレイヤーは生成時に松明を手持ち欄1へ装備している。外してから持たせる
+			require.NoError(t, lifecycle.UnequipAll(world, player))
+			if tt.hold != "" {
+				item, err := lifecycle.SpawnBackpackItem(world, tt.hold, 1)
+				require.NoError(t, err)
+				lifecycle.MoveToEquip(world, item, player, gc.SlotHand1)
+			}
+			query.GetHandSelection(world).Slot = gc.SlotHand1
 
-	attack, name, err := getAttackParams(player, world)
-	require.NoError(t, err)
-	assert.Equal(t, i18n.Msgid("Bare Hands"), name)
-	melee, ok := attack.(*gc.Melee)
-	require.True(t, ok)
-	// 素手の Damage 値は getBareHandsAttack のテストで固定する。ここは素手へ落ちる契約だけを見る
-	assert.Positive(t, melee.Damage)
+			attack, name, err := getAttackParams(player, world)
+			require.NoError(t, err)
+			assert.Equal(t, i18n.Msgid("Bare Hands"), name)
+			melee, ok := attack.(*gc.Melee)
+			require.True(t, ok)
+			// 素手の Damage 値は getBareHandsAttack のテストで固定する。ここは素手へ落ちる契約だけを見る
+			assert.Positive(t, melee.Damage)
+		})
+	}
 }
 
 func TestGetAttackParams_敵はCommandTableから攻撃を取得する(t *testing.T) {
@@ -471,21 +489,17 @@ func TestGetAttackParams_敵はCommandTableから攻撃を取得する(t *testin
 	require.True(t, ok)
 }
 
-func TestGetAttackParams_CommandTable取得失敗で素手にフォールバックする(t *testing.T) {
+func TestGetAttackParams_CommandTableを引けなければエラーを返す(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	enemy := world.ECS.NewEntity()
-	// 未登録のコマンドテーブル名 → GetAttackFromCommandTableが失敗する
 	world.Components.CommandTable.Add(enemy, &gc.CommandTable{Name: "no_such_table"})
 
-	attack, name, err := getAttackParams(enemy, world)
-	require.NoError(t, err)
-	assert.Equal(t, i18n.Msgid("Bare Hands"), name)
-	melee, ok := attack.(*gc.Melee)
-	require.True(t, ok)
-	// 素手の Damage 値は getBareHandsAttack のテストで固定する。ここは素手へ落ちる契約だけを見る
-	assert.Positive(t, melee.Damage)
+	_, _, err := getAttackParams(enemy, world)
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "no_such_table", Collection: "CommandTables"}, notFound)
 }
 
 func TestGetAttackParams_プレイヤーでも敵でもない場合はエラーになる(t *testing.T) {
