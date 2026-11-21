@@ -202,7 +202,8 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 
 			// 命中率の補正を大きく取り、壊れるまで必ず命中させる
 			for range 20 {
-				require.NoError(t, applyAttackDamage(player, target, world, attack, name, 1000, 0))
+				_, err := applyAttackDamage(player, target, world, attack, name, 1000, 0)
+				require.NoError(t, err)
 				if world.Components.Dead.Has(target) {
 					break
 				}
@@ -239,7 +240,8 @@ func TestApplyAttackDamage_つるはしで岩を壊すと石を落とす(t *test
 
 	// 命中率の補正を大きく取り、壊れるまで必ず命中させる
 	for range 20 {
-		require.NoError(t, applyAttackDamage(player, rock, world, attack, name, 1000, 0))
+		_, err := applyAttackDamage(player, rock, world, attack, name, 1000, 0)
+		require.NoError(t, err)
 		if world.Components.Dead.Has(rock) {
 			break
 		}

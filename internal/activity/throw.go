@@ -75,7 +75,7 @@ func (tb *ThrowBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 	return nil
 }
 
-// DoTurn は物を投げて当て、壊れる物は消し、壊れない物は狙った敵の足元へ落とす
+// DoTurn は物を投げて当てる。当たった物と壊れる物は消え、外れた物は狙った敵の足元へ落ちる
 func (tb *ThrowBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ThrowParams)
 	if !ok {
@@ -90,19 +90,28 @@ func (tb *ThrowBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	name := i18n.Msgid(query.GetEntityName(p.Item, world))
 
 	hitModifier := calculateRangedHitModifier(actor, p.Target, attack, world)
-	if err := applyAttackDamage(actor, p.Target, world, attack, name, hitModifier, 0); err != nil {
+	hit, err := applyAttackDamage(actor, p.Target, world, attack, name, hitModifier, 0)
+	if err != nil {
+		return err
+	}
+	if err := landThrown(world, actor, p.Item, coord, hit || attack.Breaks); err != nil {
 		return err
 	}
 
-	if attack.Breaks {
-		if err := lifecycle.ChangeItemCount(world, p.Item, -1); err != nil {
+	Complete(comp)
+	return nil
+}
+
+// landThrown は投げた物を手放す。consumed なら1つ消し、そうでなければ coord へ落とす。
+// 当たった物と壊れる物は消える。外れた壊れない物は落ち、拾い直せる
+func landThrown(world w.World, actor, item ecs.Entity, coord consts.Coord[consts.Tile], consumed bool) error {
+	if consumed {
+		if err := lifecycle.ChangeItemCount(world, item, -1); err != nil {
 			return fmt.Errorf("failed to consume thrown item: %w", err)
 		}
-	} else {
-		lifecycle.MoveMembersToField(world, []ecs.Entity{p.Item}, coord, actor)
+		return nil
 	}
-
-	Complete(comp)
+	lifecycle.MoveMembersToField(world, []ecs.Entity{item}, coord, actor)
 	return nil
 }
 

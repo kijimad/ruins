@@ -124,7 +124,7 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	hitModifier += fire.LoadedAccuracyBonus
 
 	// ダメージ適用（共通関数を使用）
-	if err := applyAttackDamage(actor, target, world, fire, weaponName, hitModifier, fire.LoadedDamageBonus); err != nil {
+	if _, err := applyAttackDamage(actor, target, world, fire, weaponName, hitModifier, fire.LoadedDamageBonus); err != nil {
 		return err
 	}
 

@@ -90,23 +90,44 @@ func TestThrowBehavior_Validate(t *testing.T) {
 	}
 }
 
-func TestThrowBehavior_DoTurn_壊れない物は敵の足元に落ちる(t *testing.T) {
+func TestLandThrown(t *testing.T) {
+	t.Parallel()
+
+	t.Run("消える物は1つ減る", func(t *testing.T) {
+		t.Parallel()
+		world, player, _, stone := setupThrowWorld(t, "stone")
+		_, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+		require.NoError(t, err)
+
+		require.NoError(t, landThrown(world, player, stone, consts.Coord[consts.Tile]{X: 13, Y: 10}, true))
+		assert.Equal(t, 1, countBackpackByRawID(world, player, "stone"))
+		assert.True(t, world.Components.WeightDirty.Has(player), "持ち主の重さを計算し直す")
+	})
+	t.Run("消えない物は落ちて拾い直せる", func(t *testing.T) {
+		t.Parallel()
+		world, player, _, stone := setupThrowWorld(t, "stone")
+		coord := consts.Coord[consts.Tile]{X: 13, Y: 10}
+
+		require.NoError(t, landThrown(world, player, stone, coord, false))
+		assert.False(t, world.Components.LocationInBackpack.Has(stone))
+		require.True(t, world.Components.GridElement.Has(stone))
+		assert.Equal(t, coord, world.Components.GridElement.Get(stone).Coord)
+		assert.True(t, world.Components.WeightDirty.Has(player), "持ち主の重さを計算し直す")
+	})
+}
+
+func TestThrowBehavior_DoTurn_投げた物は背負い袋から出る(t *testing.T) {
 	t.Parallel()
 
 	world, player, enemy, stone := setupThrowWorld(t, "stone")
-	enemyCoord := world.Components.GridElement.Get(enemy).Coord
 	comp := NewThrowActivity(stone, enemy)
 
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(comp, player, world))
-
 	assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-	assert.False(t, world.Components.LocationInBackpack.Has(stone))
-	require.True(t, world.Components.GridElement.Has(stone))
-	assert.Equal(t, enemyCoord, world.Components.GridElement.Get(stone).Coord)
-	assert.True(t, world.Components.WeightDirty.Has(player), "持ち主の重さを計算し直す")
+	assert.Equal(t, 0, countBackpackByRawID(world, player, "stone"), "当たれば消え、外れれば敵の足元に落ちる")
 }
 
-func TestThrowBehavior_DoTurn_壊れる物は無くなる(t *testing.T) {
+func TestThrowBehavior_DoTurn_壊れる物は外れても無くなる(t *testing.T) {
 	t.Parallel()
 
 	world, player, enemy, grenade := setupThrowWorld(t, "grenade")
