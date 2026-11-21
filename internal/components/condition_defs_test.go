@@ -10,6 +10,13 @@ import (
 
 // testDefs は components のテストが使う不調の定義の表。値は raw の行と同じにする
 var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
+	ConditionType("venom"): {
+		Name:               "Venom",
+		Recovery:           rawschema.RecoverOverTime,
+		RecoverPer:         1,
+		HPDrainPerSeverity: 2,
+		Cause:              CausePoison,
+	},
 	ConditionType("hypothermia"): {
 		Name:                    "Hypothermia",
 		PainPerSeverity:         6,
@@ -171,6 +178,6 @@ func TestConditionDefs_Types(t *testing.T) {
 	t.Parallel()
 
 	assert.Equal(t, []ConditionType{
-		"exhaustion", "food_poisoning", "fracture", "hypothermia", "laceration", "liver_illness", "malnutrition",
+		"exhaustion", "food_poisoning", "fracture", "hypothermia", "laceration", "liver_illness", "malnutrition", "venom",
 	}, testDefs.Types())
 }

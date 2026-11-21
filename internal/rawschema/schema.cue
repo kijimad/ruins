@@ -162,7 +162,7 @@ import (
 	weight!: #EntryWeight
 }
 
-// 不調。痛みと身体機能の低下、回復の仕方、出血を持つ
+// 不調。痛みと身体機能の低下、回復の仕方、出血、HP の減りを持つ
 #Condition: {
 	id!:                      #ConditionTypeName
 	name!:                    #EntityName
@@ -179,7 +179,10 @@ import (
 	// 治療済みで1ターンに進行度を減らす基準量
 	recoverPer?:           #ConditionTimerRate
 	bloodDropPerSeverity?: #ConditionAmountPerSeverity
-	cause?:                #ConditionDeathCause
+
+	// 発症中に重症度1段あたり1ターンで削る HP。毒のように直に削る不調が持つ
+	hpDrainPerSeverity?: #ConditionAmountPerSeverity
+	cause?:              #ConditionDeathCause
 
 	// 起こりうる部位。省くと全部位
 	parts?: [...#BodyPartId]
@@ -191,11 +194,11 @@ import (
 	onset?: #ConditionOnset
 }
 
-// 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下に使う
+// 不調の重症度1段あたりの量。痛み、身体機能の低下、血液量の低下、HP の減りに使う
 #ConditionAmountPerSeverity: int & >=0 & <=100
 
-// 不調が血液量を尽きさせて倒したときの死因
-#ConditionDeathCause: "hypothermia" | "illness" | "blood_loss"
+// 不調が血液量や HP を尽きさせて倒したときの死因
+#ConditionDeathCause: "hypothermia" | "illness" | "blood_loss" | "poison"
 
 // 不調を起こす仕組み。仕組みごとにちょうど1つの不調が持つ
 #ConditionOnset: "cold" | "rotten_food" | "fatigue" | "hunger"
@@ -789,7 +792,27 @@ import (
 #Throw: {
 	damage!:   #BaseDamage
 	accuracy!: #Accuracy
+
+	// 爆ぜる物の爆風。持つ物は命中の判定をせず、狙ったマスで爆ぜる
+	blast?: #Blast
 }
+
+// 爆風。爆ぜたマスから radius マスまでの者すべてに効く
+#Blast: {
+	radius!: #BlastRadius
+
+	// 爆風の属性。省くと無属性
+	element?: #Element
+
+	// 爆風に入った者に付ける不調
+	condition?: #ConditionTypeName
+	if condition != _|_ {
+		condition_ref: _conditionIDs[condition] @rawgen(-)
+	}
+}
+
+// 爆風の半径。マス数
+#BlastRadius: int & >=1 & <=3
 
 // 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 #FireStarter: {}

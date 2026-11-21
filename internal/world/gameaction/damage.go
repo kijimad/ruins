@@ -46,11 +46,16 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 	}
 }
 
-// ApplyConditionDamage は低体温や病気など発生源のない不調から target の HP を削る。
-// 死因ラベルを受け取り、プレイヤーが倒れたら RunStats へ記録する。
+// ApplyConditionDamage は低体温や病気など発生源のない不調から target の HP を削り、削った量を浮かべる。
+// プレイヤーも敵も同じ経路を通る。死因ラベルを受け取り、プレイヤーが倒れたら RunStats へ記録する。
 // 攻撃者がいないので AI の敵対反応は起こさない。
 func ApplyConditionDamage(world w.World, target ecs.Entity, damage int, cause gc.DeathCause) {
+	// 倒れた者は削らず、数字も浮かべない。同じターンに複数の不調で削られたとき、倒れた後の分を出さない
+	if world.Components.Dead.Has(target) {
+		return
+	}
 	died := dealHP(world, target, damage)
+	lifecycle.SpawnVisualEffect(target, gc.NewConditionDamageEffect(damage), world)
 
 	if died {
 		if isPlayerEntity(target, world) {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // SplashTextEffect はダンジョン開始時などに画面中央にスプラッシュ表示するエフェクト。
@@ -65,8 +66,16 @@ func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *
 	}
 }
 
-// NewDamageEffect はダメージ数値表示エフェクトを作成する
-func NewDamageEffect(damage int) *DamageTextEffect {
+// NewDamageEffect はダメージ数値表示エフェクトを作成する。数字は攻撃の属性の色で出し、
+// 属性の倍率 elementMult で減ったら RESIST、増えたら WEAK を添える
+func NewDamageEffect(damage int, element rawschema.Element, elementMult consts.Percent) *DamageTextEffect {
+	text := fmt.Sprintf("%d", damage)
+	switch {
+	case elementMult < consts.PercentBase:
+		text += " RESIST"
+	case elementMult > consts.PercentBase:
+		text += " WEAK"
+	}
 	totalMs := 800.0
 	return &DamageTextEffect{
 		FadeAnimation: FadeAnimation{
@@ -79,11 +88,38 @@ func NewDamageEffect(damage int) *DamageTextEffect {
 		},
 		TextProperties: TextProperties{
 			Offset: consts.Coord[float64]{X: 0, Y: -8},
-			Text:   fmt.Sprintf("%d", damage),
-			Color:  color.RGBA{255, 80, 80, 255},
+			Text:   text,
+			Color:  elementDamageColor(element),
 		},
 		VelocityY: -0.5,
 	}
+}
+
+// elementDamageColor は属性ごとのダメージの数字の色を返す。無属性は赤
+func elementDamageColor(element rawschema.Element) color.RGBA {
+	switch element {
+	case rawschema.ElementNONE:
+		return noElementDamageColor
+	case rawschema.ElementFIRE:
+		return color.RGBA{255, 150, 40, 255}
+	case rawschema.ElementTHUNDER:
+		return color.RGBA{255, 230, 60, 255}
+	case rawschema.ElementCHILL:
+		return color.RGBA{120, 210, 255, 255}
+	case rawschema.ElementPHOTON:
+		return color.RGBA{255, 255, 230, 255}
+	}
+	return noElementDamageColor
+}
+
+// noElementDamageColor は無属性のダメージの数字の色
+var noElementDamageColor = color.RGBA{255, 80, 80, 255}
+
+// NewConditionDamageEffect は毒や失血など不調で削れた HP の数字を、攻撃のダメージと見分けられる紫で浮かべる
+func NewConditionDamageEffect(damage int) *DamageTextEffect {
+	effect := NewDamageEffect(damage, rawschema.ElementNONE, consts.PercentBase)
+	effect.Color = color.RGBA{190, 110, 255, 255}
+	return effect
 }
 
 // NewMissEffect はミス表示エフェクトを作成する
