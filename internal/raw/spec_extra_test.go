@@ -1,6 +1,7 @@
 package raw
 
 import (
+	"image/color"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/i18n"
@@ -608,6 +609,31 @@ Defense = 2
 	var keyErr KeyNotFoundError
 	require.ErrorAs(t, err, &keyErr)
 	assert.Equal(t, KeyNotFoundError{Key: "存在しないテーブル", Collection: "DropTables"}, keyErr)
+}
+
+func TestNewItemSpec_残量を持つ灯りは消えて生まれる(t *testing.T) {
+	t.Parallel()
+
+	raws, err := DecodeRaws(`
+[[Items]]
+Name = "松明"
+id = "松明"
+Description = "松明"
+
+[Items.LightSource]
+radius = 6
+[Items.LightSource.color]
+a = 255
+
+[Items.Charge]
+max = 600
+`)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "松明")
+	require.NoError(t, err)
+	assert.Equal(t, &gc.LightSource{Radius: 6, Color: color.RGBA{A: 255}}, spec.LightSource)
+	assert.Equal(t, &gc.Charge{Max: 600, Current: 600}, spec.Charge)
 }
 
 func TestNewPlayerSpec_消えた光源を持って生まれる(t *testing.T) {
