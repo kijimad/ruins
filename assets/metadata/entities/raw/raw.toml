@@ -5590,6 +5590,21 @@
     id = "pickaxe"
     pack = "1d1"
 
+  [[itemCollections.entries]]
+    chance = 100
+    id = "grenade"
+    pack = "3d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "poison_grenade"
+    pack = "3d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "flame_grenade"
+    pack = "3d1"
+
 [[itemCollections]]
   id = "crash_site_supplies"
   name = "墜落した貨物の中身"
