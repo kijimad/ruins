@@ -93,11 +93,11 @@ func updateCharacterStats(world w.World, entity ecs.Entity) {
 		lightQuery := query.ActiveFilter2[gc.LocationEquipped, gc.LightSource](world).Query()
 		for lightQuery.Next() {
 			litem := lightQuery.Entity()
-			if world.Components.LocationEquipped.Get(litem).Owner != entity {
+			if !query.LightLit(world, entity, litem) {
 				continue
 			}
 			src := world.Components.LightSource.Get(litem)
-			if src.Enabled && src.Radius > bestRadius {
+			if src.Radius > bestRadius {
 				bestRadius = src.Radius
 				ls.Radius = src.Radius
 				ls.Color = src.Color

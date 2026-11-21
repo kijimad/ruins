@@ -146,7 +146,7 @@ func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
 
 // getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する
 func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, i18n.Msgid, error) {
-	weapon, ok := query.SelectedWeapon(world, actor)
+	weapon, ok := query.SelectedHeld(world, actor)
 	if !ok {
 		return nil, "", ErrShootNoFireWeapon
 	}

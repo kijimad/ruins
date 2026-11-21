@@ -235,9 +235,8 @@ import (
 
 // 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
 #Deployable: {
-	storage?:     #StorageRaw
-	lightSource?: #LightSource
-	bedding?:     #Bedding
+	storage?: #StorageRaw
+	bedding?: #Bedding
 }
 
 // 器用さ。クリティカル率に影響する
@@ -458,6 +457,15 @@ import (
 	base!:   int & >=0
 	spread!: int & >=1
 }
+
+// アイテムの残量。灯りは点いている間に減り、0で尽きる
+#Charge: {
+	// 残量の上限。灯りはターン数
+	max!: #ChargeAmount
+}
+
+// 残量の量
+#ChargeAmount: int & >=1
 
 // 確率
 #Chance: number & >=0 & <=1
@@ -939,6 +947,14 @@ import (
 	// 携行光源。装備すると owner を照らす
 	lightSource?: #LightSource
 
+	// 残量。携行光源を持つ行は必ず持つ。持たないと燃え尽きずに照らし続ける
+	charge?: #Charge
+	if lightSource != _|_ {
+		charge!: _ @rawgen(-)
+		// 灯りも殴れる物にし、手持ち欄に入る物を近接攻撃か射撃を持つ物にそろえる
+		melee!: _ @rawgen(-)
+	}
+
 	// 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
 	material?: #Material
 
@@ -1038,9 +1054,6 @@ import (
 	weight!: int32 & >=1
 }
 
-// 光源が有効かどうか
-#LightEnabled: bool
-
 // 光の強さ。0 が真っ暗、1 が最大
 #LightLevel: number & >=0 & <=1
 
@@ -1049,9 +1062,8 @@ import (
 
 // 光源設定
 #LightSource: {
-	radius!:  #LightRadius
-	color!:   #RGBAColor
-	enabled!: #LightEnabled
+	radius!: #LightRadius
+	color!:  #RGBAColor
 }
 
 // マガジン容量

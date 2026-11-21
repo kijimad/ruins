@@ -309,6 +309,15 @@ type BuildingStart struct {
 // Chance 確率
 type Chance = float64
 
+// Charge アイテムの残量。灯りは点いている間に減り、0で尽きる
+type Charge struct {
+	// Max 残量の上限。灯りはターン数
+	Max ChargeAmount `json:"max"`
+}
+
+// ChargeAmount 残量の量
+type ChargeAmount = int
+
 // ClearingStart 円に近い空き地を部屋として置く最初の段
 type ClearingStart struct {
 	// ClearingSize 空き地の幅と高さ。それぞれ引く
@@ -558,8 +567,6 @@ type Defense = int
 // Deployable 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
 type Deployable struct {
 	Bedding *Bedding `json:"bedding,omitempty"`
-
-	LightSource *LightSource `json:"lightSource,omitempty"`
 
 	Storage *StorageRaw `json:"storage,omitempty"`
 }
@@ -1404,6 +1411,9 @@ type Item struct {
 
 	Book *Book `json:"book,omitempty"`
 
+	// Charge 残量。携行光源を持つ行は必ず持つ。持たないと燃え尽きずに照らし続ける
+	Charge *Charge `json:"charge,omitempty"`
+
 	Consumable *Consumable `json:"consumable,omitempty"`
 
 	// CubeCore キューブの核。使うと隣に新しいキューブが組み上がる
@@ -1564,9 +1574,6 @@ type LayoutTiles struct {
 	Wall EntityID `json:"wall"`
 }
 
-// LightEnabled 光源が有効かどうか
-type LightEnabled = bool
-
 // LightLevel 光の強さ。0 が真っ暗、1 が最大
 type LightLevel = float64
 
@@ -1576,8 +1583,6 @@ type LightRadius = int
 // LightSource 光源設定
 type LightSource struct {
 	Color RGBAColor `json:"color"`
-
-	Enabled LightEnabled `json:"enabled"`
 
 	Radius LightRadius `json:"radius"`
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -93,6 +94,7 @@ func BenchmarkTurn(b *testing.B) {
 				require.False(b, world.Components.Dead.Has(player), "1ターンで最大 HP を超えるダメージを受けて倒れた")
 				hp := world.Components.HP.Get(player)
 				hp.Current = hp.Max
+				refillLights(world)
 
 				start := query.GetTurnState(world).TurnNumber
 				for query.GetTurnState(world).TurnNumber == start {
@@ -128,6 +130,7 @@ func BenchmarkRemains(b *testing.B) {
 			for range b.N {
 				hp := world.Components.HP.Get(player)
 				hp.Current = hp.Max
+				refillLights(world)
 				start := query.GetTurnState(world).TurnNumber
 				for query.GetTurnState(world).TurnNumber == start {
 					require.NoError(b, sm.Update(world))
@@ -139,5 +142,14 @@ func BenchmarkRemains(b *testing.B) {
 				require.NoError(b, sm.Draw(world, screen))
 			}
 		})
+	}
+}
+
+// refillLights は残量を持つ灯りを満たす。手持ちや床の灯りが燃え尽きて暗い階を測らないよう反復ごとに戻す
+func refillLights(world w.World) {
+	q := ecs.NewFilter1[gc.Charge](world.ECS).Query()
+	for q.Next() {
+		charge := q.Get()
+		charge.Current = charge.Max
 	}
 }

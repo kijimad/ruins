@@ -179,6 +179,25 @@ func TestMoveToEquip(t *testing.T) {
 		assert.True(t, world.Components.WeightDirty.Has(owner), "所有者にWeightDirtyが付与される")
 	})
 
+	t.Run("灯りは置き場所で照らすかが決まる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		owner := world.ECS.NewEntity()
+
+		torch, err := SpawnFieldItem(world, "torch", 3, 4, 1)
+		require.NoError(t, err)
+		assert.True(t, query.LightLit(world, owner, torch), "床では照らす")
+
+		MoveToEquip(world, torch, owner, gc.SlotHand1)
+		assert.True(t, query.LightLit(world, owner, torch), "手持ち欄では照らす")
+
+		require.NoError(t, MoveToBackpack(world, torch, owner))
+		assert.False(t, query.LightLit(world, owner, torch), "背負うと照らさない")
+
+		MoveStackToField(world, torch, consts.Coord[consts.Tile]{X: 3, Y: 4}, owner)
+		assert.True(t, query.LightLit(world, owner, torch), "床に戻すとまた照らす")
+	})
+
 	t.Run("バックパックから装備すると元オーナーと新オーナーの両方にWeightDirtyが付く", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -395,4 +414,44 @@ func TestRemoveOwnedEntities(t *testing.T) {
 		assert.False(t, world.ECS.Alive(cargo), "畳んだ貨物も道連れ")
 		assert.False(t, world.ECS.Alive(module), "装着モジュールも道連れ")
 	})
+}
+
+func TestRemoveItem(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		place     func(world w.World, item, owner ecs.Entity)
+		wantMarks bool
+	}{
+		{name: "装備した物は持ち主に計算し直させる", place: func(world w.World, item, owner ecs.Entity) {
+			MoveToEquip(world, item, owner, gc.SlotHand1)
+		}, wantMarks: true},
+		{name: "背負った物は持ち主に計算し直させる", place: func(world w.World, item, owner ecs.Entity) {
+			require.NoError(t, MoveToBackpack(world, item, owner))
+		}, wantMarks: true},
+		{name: "床の物はそのまま消える", place: func(w.World, ecs.Entity, ecs.Entity) {}, wantMarks: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			owner := world.ECS.NewEntity()
+			item, err := SpawnFieldItem(world, "torch", 3, 4, 1)
+			require.NoError(t, err)
+			tt.place(world, item, owner)
+			if world.Components.StatsChanged.Has(owner) {
+				world.Components.StatsChanged.Remove(owner)
+			}
+			if world.Components.WeightDirty.Has(owner) {
+				world.Components.WeightDirty.Remove(owner)
+			}
+
+			RemoveItem(world, item)
+
+			assert.False(t, world.ECS.Alive(item))
+			assert.Equal(t, tt.wantMarks, world.Components.StatsChanged.Has(owner))
+			assert.Equal(t, tt.wantMarks, world.Components.WeightDirty.Has(owner))
+		})
+	}
 }

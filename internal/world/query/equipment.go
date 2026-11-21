@@ -8,7 +8,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// IsHoldable はエンティティを手持ち欄に持てるかを返す。近接または射撃のいずれかを持てば持てる。
+// IsHoldable はエンティティを手持ち欄に持てるかを返す。近接攻撃か射撃を持てば持てる。
+// 灯りのアイテムは CUE の #Item が近接攻撃を求めるので、手持ち欄に入る
 func IsHoldable(world w.World, entity ecs.Entity) bool {
 	return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
 }
@@ -34,9 +35,9 @@ func GetHeld(world w.World, owner ecs.Entity) [gc.HandSlotCount]*ecs.Entity {
 	return held
 }
 
-// SelectedWeapon は owner が選択中の手持ち欄に装備している武器を返す。空いた欄なら ok は偽。
+// SelectedHeld は owner が選択中の手持ち欄に持っている物を返す。空いた欄なら ok は偽。
 // 選択が手持ち欄であることはロードの検査と数字キーの処理が保証するので、破れていれば panic する
-func SelectedWeapon(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
+func SelectedHeld(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
 	slot := GetHandSelection(world).Slot
 	i, ok := slot.HandIndex()
 	if !ok {

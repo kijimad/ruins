@@ -5568,11 +5568,6 @@
 
   [[itemCollections.entries]]
     chance = 100
-    id = "deployable_lamp"
-    pack = "2d1"
-
-  [[itemCollections.entries]]
-    chance = 100
     id = "deployable_bed"
     pack = "2d1"
 
@@ -8720,9 +8715,10 @@
   spriteSheetName = "field"
   value = 15
   weight = "500 g"
+  [items.charge]
+    max = 600
   [items.fireStarter]
   [items.lightSource]
-    enabled = true
     radius = 6
     [items.lightSource.color]
       a = 255
@@ -15844,25 +15840,6 @@
       maxWeight = "50 kg"
 
 [[items]]
-  description = "A camp lantern. Deploy it into your cube's space to light the area."
-  id = "deployable_lamp"
-  material = "METAL"
-  name = "Camp Lantern"
-  spriteKey = "prop_lantern"
-  spriteSheetName = "field"
-  value = 80
-  weight = "3 kg"
-  [items.deployable]
-    [items.deployable.lightSource]
-      enabled = true
-      radius = 4
-      [items.deployable.lightSource.color]
-        a = 255
-        b = 150
-        g = 200
-        r = 255
-
-[[items]]
   description = "A camp bed. Deploy it into your cube's space to sleep well."
   id = "deployable_bed"
   material = "CLOTH"
@@ -18493,14 +18470,6 @@
     sensation = 5
     strength = 5
     vitality = 5
-  [members.lightSource]
-    enabled = false
-    radius = 8
-    [members.lightSource.color]
-      a = 255
-      b = 220
-      g = 255
-      r = 255
 
   [[members.startingEquips]]
     name = "torch"
@@ -18571,7 +18540,6 @@
     strength = 5
     vitality = 5
   [members.lightSource]
-    enabled = true
     radius = 4
     [members.lightSource.color]
       a = 255
@@ -18730,7 +18698,6 @@
     strength = 4
     vitality = 5
   [members.lightSource]
-    enabled = true
     radius = 4
     [members.lightSource.color]
       a = 255
@@ -18758,7 +18725,6 @@
   [members.dialog]
     messageKey = "merchant_greeting"
   [members.lightSource]
-    enabled = true
     radius = 3
     [members.lightSource.color]
       a = 255
@@ -18912,7 +18878,6 @@
     strength = 4
     vitality = 3
   [members.lightSource]
-    enabled = true
     radius = 3
     [members.lightSource.color]
       a = 255
@@ -19091,7 +19056,6 @@
     strength = 4
     vitality = 5
   [members.lightSource]
-    enabled = true
     radius = 4
     [members.lightSource.color]
       a = 255
@@ -19137,7 +19101,6 @@
     strength = 24
     vitality = 1
   [members.lightSource]
-    enabled = true
     radius = 6
     [members.lightSource.color]
       a = 255
@@ -19202,7 +19165,6 @@
     strength = 4
     vitality = 5
   [members.lightSource]
-    enabled = true
     radius = 4
     [members.lightSource.color]
       a = 255
@@ -19248,7 +19210,6 @@
     strength = 4
     vitality = 5
   [members.lightSource]
-    enabled = true
     radius = 4
     [members.lightSource.color]
       a = 255
@@ -19428,7 +19389,6 @@
     strength = 4
     vitality = 4
   [members.lightSource]
-    enabled = true
     radius = 4
     [members.lightSource.color]
       a = 255
@@ -19474,7 +19434,6 @@
     strength = 3
     vitality = 3
   [members.lightSource]
-    enabled = true
     radius = 4
     [members.lightSource.color]
       a = 255
@@ -19501,7 +19460,6 @@
     strength = 5
     vitality = 6
   [members.lightSource]
-    enabled = true
     radius = 5
     [members.lightSource.color]
       a = 255
@@ -20592,14 +20550,6 @@
   id = "bed_lamp"
   name = "Bed Lamp"
   remainsId = "metal_fragments"
-  [props.lightSource]
-    enabled = false
-    radius = 4
-    [props.lightSource.color]
-      a = 255
-      b = 220
-      g = 255
-      r = 255
   [props.spriteRender]
     depth = "floor"
     spriteKey = "bed_lamp"
@@ -20645,7 +20595,6 @@
     radius = 2
     warmth = 0.75
   [props.lightSource]
-    enabled = true
     radius = 5
     [props.lightSource.color]
       a = 255
@@ -21132,7 +21081,6 @@
   name = "Lantern"
   remainsId = "metal_fragments"
   [props.lightSource]
-    enabled = true
     radius = 4
     [props.lightSource.color]
       a = 255
@@ -21528,7 +21476,6 @@
   id = "warp_next"
   name = "Stairs Down"
   [props.lightSource]
-    enabled = true
     radius = 2
     [props.lightSource.color]
       a = 200
@@ -21551,7 +21498,6 @@
   id = "warp_prev"
   name = "Stairs Up"
   [props.lightSource]
-    enabled = true
     radius = 2
     [props.lightSource.color]
       a = 200
@@ -22300,7 +22246,6 @@
   id = "warp_escape"
   name = "Escape Exit"
   [props.lightSource]
-    enabled = true
     radius = 2
     [props.lightSource.color]
       a = 200
@@ -22415,7 +22360,6 @@
     radius = 2
     warmth = 0.6
   [props.lightSource]
-    enabled = true
     radius = 4
     [props.lightSource.color]
       a = 255
@@ -22436,7 +22380,6 @@
   name = "Floor Lamp"
   remainsId = "metal_fragments"
   [props.lightSource]
-    enabled = true
     radius = 5
     [props.lightSource.color]
       a = 255
@@ -22695,7 +22638,6 @@
     radius = 2
     warmth = 0.6
   [props.lightSource]
-    enabled = true
     radius = 4
     [props.lightSource.color]
       a = 255

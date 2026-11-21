@@ -1,6 +1,7 @@
 package raw
 
 import (
+	"image/color"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/i18n"
@@ -213,39 +214,6 @@ Description = "能力を持たない装着"
 	assert.Empty(t, spec.Interactable.Interactions, "収納なし装着はフィールド相互作用ゼロ")
 }
 
-func TestNewItemSpec_装着照明設備が設定される(t *testing.T) {
-	t.Parallel()
-
-	str := `
-[[Items]]
-Name = "野営ランタン"
-id = "野営ランタン"
-Description = "装着する照明"
-
-[Items.Deployable.LightSource]
-enabled = true
-radius = 4
-
-[Items.Deployable.LightSource.color]
-a = 255
-b = 150
-g = 200
-r = 255
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	spec, err := NewItemSpec(raws, "野営ランタン")
-	require.NoError(t, err)
-
-	require.NotNil(t, spec.Deployable, "装着マーカーが付く")
-	require.NotNil(t, spec.LightSource, "照明設備は LightSource を持つ")
-	assert.Equal(t, consts.Tile(4), spec.LightSource.Radius)
-	assert.True(t, spec.LightSource.Enabled)
-	// 照明は受動。フィールドで拾える・開ける相互作用は持たない
-	assert.Empty(t, spec.Interactable.Interactions, "照明設備はフィールド相互作用ゼロ")
-}
-
 func TestNewItemSpec_装着は複数の能力を同時に持てる(t *testing.T) {
 	t.Parallel()
 
@@ -253,13 +221,10 @@ func TestNewItemSpec_装着は複数の能力を同時に持てる(t *testing.T)
 [[Items]]
 Name = "多機能ベッド"
 id = "多機能ベッド"
-Description = "照明と寝具を兼ねる装着"
+Description = "収納と寝具を兼ねる装着"
 
-[Items.Deployable.LightSource]
-enabled = true
-radius = 4
-[Items.Deployable.LightSource.color]
-a = 255
+[Items.Deployable.Storage]
+maxWeight = "10 kg"
 
 [Items.Deployable.Bedding]
 quality = 120
@@ -271,37 +236,9 @@ quality = 120
 	require.NoError(t, err)
 
 	// 能力は独立した枝なので両立する
-	require.NotNil(t, spec.LightSource, "照明を持つ")
+	require.NotNil(t, spec.WeightCapacity, "収納を持つ")
 	require.NotNil(t, spec.Bedding, "寝具を持つ")
 	assert.Equal(t, consts.Percent(120), spec.Bedding.Quality)
-}
-
-func TestNewItemSpec_携行光源と装着照明の両立はエラー(t *testing.T) {
-	t.Parallel()
-
-	str := `
-[[Items]]
-Name = "両刀ランタン"
-id = "両刀ランタン"
-Description = "携行と装着の両方を定義した曖昧なアイテム"
-
-[Items.LightSource]
-enabled = false
-radius = 3
-[Items.LightSource.color]
-a = 255
-
-[Items.Deployable.LightSource]
-enabled = true
-radius = 4
-[Items.Deployable.LightSource.color]
-a = 255
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	_, err = NewItemSpec(raws, "両刀ランタン")
-	require.Error(t, err, "携行光源と装着照明の両立は装着が携行を上書きするので曖昧。握りつぶさず error")
 }
 
 func TestNewItemSpec_装着寝具設備が設定される(t *testing.T) {
@@ -670,6 +607,48 @@ Defense = 2
 	assert.Equal(t, KeyNotFoundError{Key: "存在しないテーブル", Collection: "DropTables"}, keyErr)
 }
 
+func TestNewItemSpec_灯りは点いて生まれ残量を満たす(t *testing.T) {
+	t.Parallel()
+
+	raws, err := DecodeRaws(`
+[[Items]]
+Name = "松明"
+id = "松明"
+Description = "松明"
+
+[Items.LightSource]
+radius = 6
+[Items.LightSource.color]
+a = 255
+
+[Items.Charge]
+max = 600
+`)
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "松明")
+	require.NoError(t, err)
+	assert.Equal(t, &gc.LightSource{Radius: 6, Color: color.RGBA{A: 255}, Enabled: true}, spec.LightSource)
+	assert.Equal(t, &gc.Charge{Max: 600, Current: 600}, spec.Charge)
+}
+
+func TestNewPlayerSpec_消えた光源を持って生まれる(t *testing.T) {
+	t.Parallel()
+
+	raws, err := DecodeRaws(`
+[[Members]]
+Name = "主人公"
+id = "主人公"
+[Members.Abilities]
+Vitality = 10
+`)
+	require.NoError(t, err)
+
+	spec, err := NewPlayerSpec(raws, "主人公")
+	require.NoError(t, err)
+	assert.Equal(t, &gc.LightSource{}, spec.LightSource)
+}
+
 func TestNewPlayerSpec_未存在はエラー(t *testing.T) {
 	t.Parallel()
 
@@ -786,7 +765,6 @@ Agility = 3
 Defense = 2
 
 [Members.LightSource]
-Enabled = true
 Radius = 4
 
 [Members.LightSource.Color]

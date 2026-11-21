@@ -317,15 +317,11 @@ func (ShootMode) help(world w.World) string {
 
 // unavailable は選択中の武器で撃てない理由を返す。撃てるなら空文字
 func (ShootMode) unavailable(world w.World, playerEntity ecs.Entity) string {
-	weapon, ok := query.SelectedWeapon(world, playerEntity)
-	if !ok {
+	weapon, ok := query.SelectedHeld(world, playerEntity)
+	if !ok || !world.Components.Fire.Has(weapon) {
 		return query.T(world, "No ranged weapon equipped")
 	}
-	fire := world.Components.Fire.Get(weapon)
-	if fire == nil {
-		return query.T(world, "No ranged weapon equipped")
-	}
-	if fire.Magazine <= 0 {
+	if world.Components.Fire.Get(weapon).Magazine <= 0 {
 		return query.T(world, "Not loaded")
 	}
 	return ""
@@ -333,23 +329,14 @@ func (ShootMode) unavailable(world w.World, playerEntity ecs.Entity) string {
 
 func (ShootMode) title(world w.World) string { return query.T(world, "== Shooting Mode ==") }
 
-// drawSource は選択中の武器と残弾を描く
+// drawSource は選んだ欄の射撃武器と残弾を描く。射撃を持たない物は射撃に使えないので出さない
 func (ShootMode) drawSource(world w.World, playerEntity ecs.Entity, drawText func(string)) {
-	weapon, ok := query.SelectedWeapon(world, playerEntity)
-	if !ok {
+	weapon, ok := query.SelectedHeld(world, playerEntity)
+	if !ok || !world.Components.Fire.Has(weapon) {
 		drawText(query.T(world, "Weapon: none"))
 		return
 	}
-
-	// 武器名
-	weaponName := query.GetEntityName(weapon, world)
-	drawText(fmt.Sprintf("%s: %s", query.T(world, "Weapon"), weaponName))
-
-	// 残弾表示
-	fireComp := world.Components.Fire.Get(weapon)
-	if fireComp != nil {
-		drawText(fmt.Sprintf("%s: %d/%d", query.T(world, "Ammo"), fireComp.Magazine, fireComp.MagazineSize))
-	} else {
-		drawText(query.T(world, "Melee weapon"))
-	}
+	fire := world.Components.Fire.Get(weapon)
+	drawText(fmt.Sprintf("%s: %s", query.T(world, "Weapon"), query.GetEntityName(weapon, world)))
+	drawText(fmt.Sprintf("%s: %d/%d", query.T(world, "Ammo"), fire.Magazine, fire.MagazineSize))
 }

@@ -191,9 +191,6 @@ msgstr "武器"
 msgid "Ammo"
 msgstr "残弾"
 
-msgid "Melee weapon"
-msgstr "近接武器"
-
 msgid "Target"
 msgstr "対象"
 
@@ -478,6 +475,9 @@ msgstr "外す"
 
 msgid "Readied %s."
 msgstr "%sを構えた"
+
+msgid "%s burned out."
+msgstr "%sが燃え尽きた"
 
 msgid "Command"
 msgstr "命令"
@@ -1541,9 +1541,6 @@ msgstr "不明"
 # raw items（データ英語化: name/description）
 msgid "Torch"
 msgstr "たいまつ"
-
-msgid "A lit torch. Serves as both light and weapon."
-msgstr "火をつけた松明。照明にも武器にもなる"
 
 msgid "Broom"
 msgstr "ほうき"

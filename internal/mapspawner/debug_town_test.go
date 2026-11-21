@@ -41,7 +41,7 @@ func TestSpawn_デバッグの町の木箱にモジュールと装着アイテ�
 	want := slices.Concat(
 		[]string{"pickaxe"},
 		slices.Repeat([]string{"cube_range_module", "cube_fuel_module"}, consts.CubeModuleSlots),
-		slices.Repeat([]string{"deployable_storage", "deployable_lamp", "deployable_bed", "deployable_workbench"}, 2),
+		slices.Repeat([]string{"deployable_storage", "deployable_bed", "deployable_workbench"}, 2),
 	)
 	assert.ElementsMatch(t, want, got)
 }
