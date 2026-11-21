@@ -53,6 +53,7 @@ type EntitySpec struct {
 	FuelTank           *FuelTank
 	Deployed           *Deployed
 	LightSource        *LightSource
+	Charge             *Charge
 	Interactable       *Interactable
 	Unsearched         *Unsearched
 	VisualEffects      *VisualEffects
@@ -154,6 +155,7 @@ type Components struct {
 	FuelTank           *ecs.Map[FuelTank]
 	Deployed           *ecs.Map[Deployed]
 	LightSource        *ecs.Map[LightSource]
+	Charge             *ecs.Map[Charge]
 	Interactable       *ecs.Map[Interactable]
 	Unsearched         *ecs.Map[Unsearched]
 	VisualEffects      *ecs.Map[VisualEffects]
@@ -255,6 +257,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.FuelTank = ecs.NewMap[FuelTank](world)
 	c.Deployed = ecs.NewMap[Deployed](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
+	c.Charge = ecs.NewMap[Charge](world)
 	c.Interactable = ecs.NewMap[Interactable](world)
 	c.Unsearched = ecs.NewMap[Unsearched](world)
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
@@ -358,6 +361,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.FuelTank, entity, spec.FuelTank)
 	addComp(c.Deployed, entity, spec.Deployed)
 	addComp(c.LightSource, entity, spec.LightSource)
+	addComp(c.Charge, entity, spec.Charge)
 	addComp(c.Interactable, entity, spec.Interactable)
 	addComp(c.Unsearched, entity, spec.Unsearched)
 	addComp(c.VisualEffects, entity, spec.VisualEffects)

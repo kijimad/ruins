@@ -11,8 +11,10 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -443,10 +445,15 @@ func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んで�
 
 	tests := []struct {
 		name string
-		hold string
+		hold func(t *testing.T, world w.World, player ecs.Entity)
 	}{
-		{name: "何も持っていない"},
-		{name: "射撃だけを持つ物を選んでいる", hold: "hunter_bow"},
+		{name: "何も持っていない", hold: func(*testing.T, w.World, ecs.Entity) {}},
+		{name: "射撃だけを持つ物を選んでいる", hold: func(t *testing.T, world w.World, player ecs.Entity) {
+			t.Helper()
+			bow, err := lifecycle.SpawnBackpackItem(world, "hunter_bow", 1)
+			require.NoError(t, err)
+			lifecycle.MoveToEquip(world, bow, player, gc.SlotHand1)
+		}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -456,11 +463,7 @@ func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んで�
 			require.NoError(t, err)
 			// プレイヤーは生成時に松明を手持ち欄1へ装備している。外してから持たせる
 			require.NoError(t, lifecycle.UnequipAll(world, player))
-			if tt.hold != "" {
-				item, err := lifecycle.SpawnBackpackItem(world, tt.hold, 1)
-				require.NoError(t, err)
-				lifecycle.MoveToEquip(world, item, player, gc.SlotHand1)
-			}
+			tt.hold(t, world, player)
 			query.GetHandSelection(world).Slot = gc.SlotHand1
 
 			attack, name, err := getAttackParams(player, world)

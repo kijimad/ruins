@@ -105,6 +105,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 		ambientColor = overworldAmbientColor(world.Resources.CalendarDefs, gt)
 		daylightPercents = buildDaylightPercentIndex(world)
 	}
+	lights := collectLitLights(world)
 	visibleTiles := make(map[gc.GridElement]bool)
 	for _, tileData := range visibilityData {
 		if !tileData.Visible {
@@ -119,7 +120,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 		if p, ok := daylightPercents[gridElement]; ok {
 			tileAmbient = shelteredAmbient(ambient, p)
 		}
-		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, tileAmbient, ambientColor)
+		info := calculateLightSourceDarkness(lights, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, tileAmbient, ambientColor)
 		// 明るさが閾値未満なら見えない。視界を光の届く範囲へ寄せる。
 		// 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる
 		if 1.0-info.Darkness < visibilityThreshold {
@@ -416,26 +417,42 @@ func (a lightAccum) resolve() gc.LightInfo {
 	return gc.LightInfo{Darkness: 1 - brightness, Color: col}
 }
 
+// litLight は視界の計算で照らす光源1つの位置と光
+type litLight struct {
+	pos   gc.GridElement
+	light gc.LightSource
+}
+
+// collectLitLights は位置を持ち今照らしている光源を集める。タイルごとに走査しないよう視界の計算の先頭で1度だけ呼ぶ。
+// 手持ち欄の灯りは位置を持たず、プレイヤー自身の光源を通して照らす
+func collectLitLights(world w.World) []litLight {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		player = ecs.Entity{}
+	}
+	var lights []litLight
+	lightQuery := query.ActiveFilter2[gc.LightSource, gc.GridElement](world).Query()
+	for lightQuery.Next() {
+		e := lightQuery.Entity()
+		if !query.LightLit(world, player, e) {
+			continue
+		}
+		ls, pos := lightQuery.Get()
+		lights = append(lights, litLight{pos: *pos, light: *ls})
+	}
+	return lights
+}
+
 // calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。
 // 環境光を基底に、各光源を減衰と suppress で絞って足し込む。壁で視線が遮られた光源は寄与しない。
-func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {
+func calculateLightSourceDarkness(lights []litLight, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {
 	acc := ambientLight(ambient, ambientColor)
 
 	// 環境光で光源の寄与を絞る係数。lightFadeLow 以下で満額、lightFadeHigh 以上で 0。明るさと色の両方にかける
 	suppress := 1 - smoothstep(lightFadeLow, lightFadeHigh, ambient)
 
-	// 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない。
-	// 火は燃え尽きると自分の LightSource を外すので照らさなくなる
-	lightQuery := query.ActiveFilter2[gc.LightSource, gc.GridElement](world).Query()
-	for lightQuery.Next() {
-		lightEntity := lightQuery.Entity()
-		lightSource := world.Components.LightSource.Get(lightEntity)
-
-		if !lightSource.Enabled {
-			continue
-		}
-
-		lightGrid := world.Components.GridElement.Get(lightEntity)
+	for i := range lights {
+		lightSource, lightGrid := &lights[i].light, lights[i].pos
 		distance := geometry.Distance(float64(tile.X), float64(tile.Y), float64(lightGrid.X), float64(lightGrid.Y))
 		if distance > float64(lightSource.Radius) {
 			continue

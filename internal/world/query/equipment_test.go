@@ -32,7 +32,7 @@ func TestIsHoldable(t *testing.T) {
 		assert.True(t, query.IsHoldable(world, e))
 	})
 
-	t.Run("どちらも持たなければ武器でない", func(t *testing.T) {
+	t.Run("どれも持たなければ持てない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
@@ -58,7 +58,7 @@ func TestGetHeld_Empty(t *testing.T) {
 	}
 }
 
-func TestSelectedWeapon(t *testing.T) {
+func TestSelectedHeld(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -68,16 +68,16 @@ func TestSelectedWeapon(t *testing.T) {
 	require.NotNil(t, torch, "初期装備の松明はスロット1にある")
 
 	query.GetHandSelection(world).Slot = gc.SlotHand1
-	got, ok := query.SelectedWeapon(world, player)
+	got, ok := query.SelectedHeld(world, player)
 	assert.True(t, ok)
 	assert.Equal(t, *torch, got)
 
 	query.GetHandSelection(world).Slot = gc.SlotHand2
-	_, ok = query.SelectedWeapon(world, player)
+	_, ok = query.SelectedHeld(world, player)
 	assert.False(t, ok, "空きスロットを選ぶと武器は無い")
 
 	query.GetHandSelection(world).Slot = gc.SlotHead
-	assert.Panics(t, func() { query.SelectedWeapon(world, player) }, "手持ち欄でない選択は不変条件の破れ")
+	assert.Panics(t, func() { query.SelectedHeld(world, player) }, "手持ち欄でない選択は不変条件の破れ")
 }
 
 func TestGetHeld_装備した武器を欄の順で返す(t *testing.T) {

@@ -138,14 +138,14 @@ func toGCSpriteRender(s rawschema.SpriteRender) gc.SpriteRender {
 	}
 }
 
-// toGCLightSource はrawschema.LightSourceからgc.LightSourceに変換する
+// toGCLightSource はrawschema.LightSourceから点いたgc.LightSourceに変換する
 func toGCLightSource(ls *rawschema.LightSource) *gc.LightSource {
 	if ls == nil {
 		return nil
 	}
 	return &gc.LightSource{
 		Radius:  consts.Tile(ls.Radius),
-		Enabled: ls.Enabled,
+		Enabled: true,
 		Color: color.RGBA{
 			R: ls.Color.R,
 			G: ls.Color.G,
@@ -378,8 +378,10 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Book = book
 	}
 
-	// 携行光源。装備すると StatsChangedSystem が owner の LightSource へ転写する
 	entitySpec.LightSource = toGCLightSource(item.LightSource)
+	if item.Charge != nil {
+		entitySpec.Charge = &gc.Charge{Max: item.Charge.Max, Current: item.Charge.Max}
+	}
 
 	// 材質。可燃性と燃焼熱量の算出根拠。観察メニューで見せるためエンティティに保持する
 	if item.Material != nil {
@@ -423,14 +425,6 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name 
 		}
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
 		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}
-	}
-	// 携行光源と装着照明はどちらも実体の LightSource を使うが共存できず後勝ちになる。
-	// 片方が痕跡なく消える矛盾記述なので、後勝ちを許さず error で弾く
-	if dep.LightSource != nil {
-		if entitySpec.LightSource != nil {
-			return fmt.Errorf("item '%s': carried lightSource and deployable lightSource conflict", name)
-		}
-		entitySpec.LightSource = toGCLightSource(dep.LightSource)
 	}
 	if dep.Bedding != nil {
 		entitySpec.Bedding = toGCBedding(dep.Bedding)
@@ -588,6 +582,8 @@ func NewPlayerSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.Player = &gc.Player{}
 	entitySpec.Hunger = gc.NewHunger()
 	entitySpec.Fatigue = gc.NewFatigue()
+	// 装備した灯りを StatsChangedSystem が写す入れ物。装備するまで消えている
+	entitySpec.LightSource = &gc.LightSource{}
 	entitySpec.SoloAI = nil
 	return entitySpec, nil
 }

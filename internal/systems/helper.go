@@ -52,6 +52,9 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	fireSystem := &FireSystem{}
 	updaters[fireSystem.String()] = fireSystem
 
+	lightChargeSystem := &LightChargeSystem{}
+	updaters[lightChargeSystem.String()] = lightChargeSystem
+
 	visionSystem := NewVisionSystem()
 	updaters[visionSystem.String()] = visionSystem
 

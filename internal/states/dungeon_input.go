@@ -340,20 +340,15 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	}
 }
 
-// switchHandSlot は手持ち欄 slot に武器を切り替える
+// switchHandSlot は選ぶ手持ち欄を slot に切り替え、その欄の物をログに出す
 func (st *DungeonState) switchHandSlot(world w.World, slot gc.EquipmentSlotNumber) {
 	query.GetHandSelection(world).Slot = slot
 
-	// プレイヤーの手持ち欄の情報を取得してログメッセージを出力
 	query.Player(world, func(playerEntity ecs.Entity) {
-		if weapon, ok := query.SelectedWeapon(world, playerEntity); ok {
-			// 武器が装備されている場合は武器名を表示
-			if world.Components.Name.Has(weapon) {
-				weaponName := query.GetEntityName(weapon, world)
-				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "Readied %s.", gamelog.Tag("item", weaponName))).
-					Log()
-			}
+		if held, ok := query.SelectedHeld(world, playerEntity); ok && world.Components.Name.Has(held) {
+			gamelog.New(query.GetGameLog(world)).
+				Markup(query.T(world, "Readied %s.", gamelog.Tag("item", query.GetEntityName(held, world)))).
+				Log()
 		}
 	})
 }
