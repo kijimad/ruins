@@ -14,7 +14,8 @@ import (
 )
 
 // useEffect は使用時に発動する効果1種。アイテムがその効果 component を持つときだけ働く。
-// 効果を1つ足すときは useEffect を実装して eatEffects か useEffects へ1行足す。DoTurn/Validate の本体は触らない
+// 効果を1つ足すときは useEffect を実装して eatEffects か useEffects へ1行足し、効果の欄を schema.cue の consumable を必須にする一覧にも足す。
+// DoTurn/Validate の本体は触らない
 type useEffect interface {
 	// present はアイテムがこの効果を持つかを返す
 	present(world w.World, item ecs.Entity) bool
@@ -27,7 +28,7 @@ type useEffect interface {
 // eatEffects は口に入れて体の内側に働く効果の一覧。順に present を見て、持つ効果だけ適用する
 var eatEffects = []useEffect{nutritionEffect{}}
 
-// useEffects は手当てや道具として外から働く効果の一覧
+// useEffects は手当てや道具として外から働く効果の一覧。HP の回復は、飲む回復薬も手当てとしてここに置く
 var useEffects = []useEffect{healEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}, cubeCoreEffect{}}
 
 // healEffect は HP を回復する

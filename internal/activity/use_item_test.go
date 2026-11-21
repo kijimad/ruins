@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/i18n"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -871,4 +872,19 @@ func TestConsumeBehavior_Validate_食べるの組の効果を持たない物は�
 
 	ub := &eatItemBehavior
 	require.ErrorIs(t, ub.Validate(NewEatItemActivity(bandage), player, world), errItemNoEffect)
+}
+
+func TestCanEatUse_食べられる物と使える物はすべて消費物(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	for _, it := range raw.PtrSlice(world.Resources.RawMaster.Items) {
+		item, err := lifecycle.SpawnBackpackItem(world, it.Id, 1)
+		require.NoError(t, err, it.Id)
+		if CanEat(world, item) || CanUse(world, item) {
+			assert.True(t, world.Components.Consumable.Has(item), "%s は効果を持つのに消費物でない", it.Id)
+		}
+	}
 }

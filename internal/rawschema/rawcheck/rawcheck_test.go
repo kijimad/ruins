@@ -38,10 +38,24 @@ func TestValidate_コードだけが組む描画の段を書くと位置で返�
 
 func TestValidate_効果を持つ物が消費物でないと位置で返す(t *testing.T) {
 	t.Parallel()
-	raws := makeRefRaws(func(r *rawschema.Raws) { (*r.Items)[0].Consumable = nil })
-	var ce *rawcheck.Error
-	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
-	assert.Equal(t, []string{"items.0.consumable"}, ce.Paths())
+	tests := []struct {
+		name   string
+		mutate func(*rawschema.Item)
+	}{
+		{name: "治療を持つ物", mutate: func(it *rawschema.Item) { it.Consumable = nil }},
+		{name: "栄養だけを持つ物", mutate: func(it *rawschema.Item) {
+			it.Consumable, it.Remedy, it.ProvidesNutrition = nil, nil, new(10)
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			raws := makeRefRaws(func(r *rawschema.Raws) { tt.mutate(&(*r.Items)[0]) })
+			var ce *rawcheck.Error
+			require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+			assert.Equal(t, []string{"items.0.consumable"}, ce.Paths())
+		})
+	}
 }
 
 func TestValidate_ダイス表記の違反を位置で返す(t *testing.T) {
