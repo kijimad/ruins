@@ -79,7 +79,7 @@ func TestHoldsFireStarter_装備した火種も所持とみなす(t *testing.T) 
 	assert.True(t, query.HoldsFireStarter(world, player), "装備した火種も所持とみなす")
 }
 
-func TestFireStarterOf_照らしていない物から残量の多い順に選ぶ(t *testing.T) {
+func TestFireStarterOf_照らしていない物から残量の少ない順に選ぶ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player := world.ECS.NewEntity()
@@ -97,19 +97,15 @@ func TestFireStarterOf_照らしていない物から残量の多い順に選ぶ
 		return e
 	}
 
-	equipped := starter(600, true)
+	equipped := starter(100, true)
 	got, ok := query.FireStarterOf(world, player)
 	require.True(t, ok)
 	assert.Equal(t, equipped, got, "装備の物しか無ければそれを使う")
 
-	low := starter(100, false)
-	high := starter(400, false)
+	starter(600, false)
+	low := starter(400, false)
 	got, _ = query.FireStarterOf(world, player)
-	assert.Equal(t, high, got, "バックパックの物を装備の物より先に、残量の多い物から使う")
-
-	world.ECS.RemoveEntity(high)
-	got, _ = query.FireStarterOf(world, player)
-	assert.Equal(t, low, got)
+	assert.Equal(t, low, got, "バックパックの物を装備の物より先に、残量の少ない物から使う")
 
 	endless := starter(0, true)
 	got, _ = query.FireStarterOf(world, player)

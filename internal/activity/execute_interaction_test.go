@@ -118,6 +118,35 @@ func TestExecuteInteraction_Ignite_退避中ステージの燃焼物は消費し
 	assert.True(t, world.ECS.Alive(suspended), "退避中ステージの燃料は残る")
 }
 
+func TestExecuteInteraction_Ignite_続けて着火しても使いかけの火種は1本に集まる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+	_, err = lifecycle.SpawnBackpackItem(world, "torch", 2)
+	require.NoError(t, err)
+	ignite := func() {
+		fuel := world.ECS.NewEntity()
+		world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
+		world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.Milligram(50000)})
+		world.Components.GridElement.Add(fuel, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
+		world.Components.LocationOnField.Add(fuel, &gc.LocationOnField{})
+		_, err := ExecuteInteraction(player, fuel, gc.InteractionIgnite, world)
+		require.NoError(t, err)
+	}
+
+	ignite()
+	ignite()
+
+	var charges []int
+	q := ecs.NewFilter2[gc.LocationInBackpack, gc.FireStarter](world.ECS).Query()
+	for q.Next() {
+		charges = append(charges, world.Components.Charge.Get(q.Entity()).Current)
+	}
+	assert.ElementsMatch(t, []int{540, 600, 600}, charges, "減るのは1本だけで、ほかは新品のまま")
+}
+
 func TestExecuteInteraction_Ignite_火種の残量を減らし尽きれば燃え尽きる(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

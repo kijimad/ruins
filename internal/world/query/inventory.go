@@ -53,7 +53,8 @@ func HoldsFireStarter(world w.World, owner ecs.Entity) bool {
 }
 
 // FireStarterOf は owner が着火に使う火種を返す。残量を持たない物、バックパックの物、装備の物の順に選び、
-// 同じ順位なら残量の多い物を選ぶ。照らしている装備の灯りを削らずに済むよう、照らしていない物から使う
+// 同じ順位なら残量の少ない物を選ぶ。照らしている装備の灯りを削らずに済むよう、照らしていない物から使う。
+// 減るのを1本に集め、ほかを新品のまま束ねてクラフトの材料にも使えるようにする
 func FireStarterOf(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
 	best := gc.InvalidEntity
 	bestRank, bestCharge := 0, 0
@@ -62,7 +63,7 @@ func FireStarterOf(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
 		if charge < 0 {
 			rank = 0
 		}
-		if best == gc.InvalidEntity || rank < bestRank || (rank == bestRank && charge > bestCharge) {
+		if best == gc.InvalidEntity || rank < bestRank || (rank == bestRank && charge < bestCharge) {
 			best, bestRank, bestCharge = e, rank, charge
 		}
 	}
