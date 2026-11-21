@@ -280,7 +280,7 @@ func (st *CubeFacilitySelectState) Menu(props CubeFacilitySelectProps) menuloop.
 func (st *CubeFacilitySelectState) ViewUI(world w.World, props CubeFacilitySelectProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	rows := make([]menuframe.Row, 0, len(props.Candidates))
 	for _, entity := range props.Candidates {
-		rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(menuIcon(world, entity)), styled.TextCell(query.GetEntityName(entity, world))}})
+		rows = append(rows, menuframe.Row{Cells: []styled.Cell{itemIconCell(world, entity), styled.TextCell(query.GetEntityName(entity, world))}})
 	}
 	list, pager := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Icon(), styled.Name()),
 		menuframe.ListOpts{EmptyText: query.T(world, "No items to deploy")}, res)

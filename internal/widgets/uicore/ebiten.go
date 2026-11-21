@@ -189,6 +189,11 @@ func (e *EbitenCanvas) DrawImage(pos image.Point, img *ebiten.Image) {
 	e.screen.DrawImage(img, op)
 }
 
+// FitScale は size の画像を dst に縦横比を保って収める倍率を返す。拡大はしないので 1 を超えない
+func FitScale(dst image.Rectangle, size image.Point) float64 {
+	return math.Min(math.Min(float64(dst.Dx())/float64(size.X), float64(dst.Dy())/float64(size.Y)), 1)
+}
+
 // DrawImageRect は EbitenCanvas を実装する。dst に収まるよう縦横比を保って縮小し、左寄せ・縦中央で描く。
 func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {
 	if img == nil {
@@ -199,7 +204,7 @@ func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {
 	if iw <= 0 || ih <= 0 || dst.Dx() <= 0 || dst.Dy() <= 0 {
 		return
 	}
-	scale := math.Min(math.Min(float64(dst.Dx())/float64(iw), float64(dst.Dy())/float64(ih)), 1)
+	scale := FitScale(dst, b.Size())
 	dh := float64(ih) * scale
 	// 左寄せ・縦中央。アイコンとキーキャップを列の左に揃え、行の高さの中央へ置く
 	ox := float64(dst.Min.X)

@@ -166,6 +166,27 @@ func TestExtractHandSlotsData(t *testing.T) {
 			assert.Empty(t, data.Slots[i].WeaponName, "他のスロットは空のまま")
 		}
 		assert.Equal(t, gc.SlotHand3, data.SelectedSlot, "選択中の手持ち欄をそのまま渡す")
+		assert.False(t, data.Slots[0].HasCharge, "残量を持たない武器はゲージを描かない")
+	})
+
+	t.Run("残量を持つ灯りは残量の割合を渡す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
+
+		torch := world.ECS.NewEntity()
+		world.Components.Melee.Add(torch, &gc.Melee{})
+		world.Components.Name.Add(torch, &gc.Name{Name: "松明"})
+		world.Components.Charge.Add(torch, &gc.Charge{Max: 600, Current: 300})
+		world.Components.LocationEquipped.Add(torch, &gc.LocationEquipped{Owner: player, EquipmentSlot: gc.SlotHand2})
+
+		data := extractHandSlotsData(world)
+
+		assert.True(t, data.Slots[1].HasCharge)
+		assert.InDelta(t, 0.5, data.Slots[1].ChargeRatio, 1e-9)
 	})
 }
 

@@ -142,7 +142,7 @@ func (info *GameInfo) bodyTempGauge(data GameInfoData) uicore.Widget {
 	if !data.BodyTempVisible {
 		return uicore.NewGroup()
 	}
-	return &gaugeWidget{fill: info.gaugeFill, ratio: data.BodyTempRatio, fillColor: bodyTempFillColor(data.BodyTempRatio), border: theme.HUDGaugeBorder}
+	return &uicore.Gauge{Fill: info.gaugeFill, Ratio: data.BodyTempRatio, FillColor: bodyTempFillColor(data.BodyTempRatio), Border: theme.HUDGaugeBorder, Radius: gaugeCornerRadius}
 }
 
 // healthGauge は HP ゲージを返す。半分を境に緑から黄、黄から赤へ寄る。
@@ -151,19 +151,13 @@ func (info *GameInfo) healthGauge(data GameInfoData) uicore.Widget {
 	if data.PlayerMaxHP > 0 {
 		ratio = max(0, min(1, float64(data.PlayerHP)/float64(data.PlayerMaxHP)))
 	}
-	var fill color.RGBA
-	if ratio > 0.5 {
-		fill = theme.LerpColor(theme.HUDHealthFull, theme.HUDHealthHalf, (1.0-ratio)*2)
-	} else {
-		fill = theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, ratio*2)
-	}
-	return &gaugeWidget{fill: info.gaugeFill, ratio: ratio, fillColor: fill, border: theme.HUDGaugeBorder}
+	return &uicore.Gauge{Fill: info.gaugeFill, Ratio: ratio, FillColor: theme.HealthGaugeColor(ratio), Border: theme.HUDGaugeBorder, Radius: gaugeCornerRadius}
 }
 
 // fuelGauge はキューブの燃料ゲージを返す。満で琥珀、空へ近づくと赤へ寄る。
 func fuelGauge(gaugeFill *ebiten.Image, ratio float64) uicore.Widget {
 	fill := theme.LerpColor(theme.HUDFuelEmpty, theme.HUDFuelFull, ratio)
-	return &gaugeWidget{fill: gaugeFill, ratio: ratio, fillColor: fill, border: theme.HUDGaugeBorder}
+	return &uicore.Gauge{Fill: gaugeFill, Ratio: ratio, FillColor: fill, Border: theme.HUDGaugeBorder, Radius: gaugeCornerRadius}
 }
 
 // bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青へ寄る片方向
@@ -174,33 +168,6 @@ func bodyTempFillColor(ratio float64) color.RGBA {
 
 // gaugeCornerRadius はゲージの角丸半径。細いゲージなのでパネルより控えめにする。
 const gaugeCornerRadius = 4
-
-// gaugeWidget は1本のゲージ。与えられた矩形へ白枠を引き、比率ぶんの塗りをグラデーションの
-// テクスチャで色掛けする。上が明るく下が暗い光沢になる。
-type gaugeWidget struct {
-	rect      image.Rectangle
-	fill      *ebiten.Image
-	ratio     float64
-	fillColor color.RGBA
-	border    color.RGBA
-}
-
-// Layout は uicore.Widget を満たす。
-func (g *gaugeWidget) Layout(r image.Rectangle) { g.rect = r }
-
-// Draw は uicore.Widget を満たす。比率ぶんの塗りを枠内へ敷き、白枠を重ねる。
-func (g *gaugeWidget) Draw(cv uicore.Canvas) {
-	fillW := int(float64(g.rect.Dx()) * g.ratio)
-	if fillW > 0 && g.fill != nil {
-		// 塗りは上下1pxだけ内へ寄せ、枠の線と角の丸みに塗りが食み出さないようにする
-		dst := image.Rect(g.rect.Min.X, g.rect.Min.Y+1, g.rect.Min.X+fillW, g.rect.Max.Y-1)
-		cv.DrawImageTintedRect(dst, g.fill, color.NRGBA(g.fillColor))
-	}
-	cv.StrokeRect(g.rect, 1, g.border, uicore.RectOptions{Radius: gaugeCornerRadius})
-}
-
-// Children は uicore.Widget を満たす。子は持たない。
-func (g *gaugeWidget) Children() []uicore.Widget { return nil }
 
 // drawBottomRightStack は現在地・周囲気温・所持重量・所持通貨を右下、メッセージエリアの上へ下から積んで描く。
 // 画面端からの逆算や段の手積みをせず、下寄せの FlexColumn へ流して各行を右端に揃える。先頭の Grow

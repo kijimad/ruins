@@ -17,10 +17,11 @@ type StackKey struct {
 	RawID          string                     // 生成元の同定キー。まず品種が一致すること
 	FreshnessStage rawschema.FreshnessStageId // 腐敗品の鮮度段階。非腐敗品は空文字
 	Equip          string                     // 装備の個体差の指紋。性能の違う同名装備を束ねない。非装備は空文字
+	Charge         int                        // 残量の現在値。使いかけの物を束ねない。照らしている灯りは毎ターン変わる。残量を持たない物は -1
 }
 
 // StackKeyOf は entity のスタック同一性キーを返す。スタック同一判定の唯一の権威。
-// RawID に加え、腐敗品なら現在の鮮度段階を、装備なら性能の指紋を含める。
+// RawID に加え、腐敗品なら現在の鮮度段階を、装備なら性能の指紋を、残量を持つ物なら残量を含める。
 // RawID を持たない実体はスタックになりえないので ok=false を返す。raw 定義を経ない
 // 実行時生成の実体、死亡フェードアウトのエフェクト等がこれにあたる
 func StackKeyOf(world w.World, entity ecs.Entity) (StackKey, bool) {
@@ -32,7 +33,16 @@ func StackKeyOf(world w.World, entity ecs.Entity) (StackKey, bool) {
 		key.FreshnessStage = stage
 	}
 	key.Equip = equipFingerprint(world, entity)
+	key.Charge = chargeKey(world, entity)
 	return key, true
+}
+
+// chargeKey は残量の現在値を返す。残量を持たなければ -1
+func chargeKey(world w.World, entity ecs.Entity) int {
+	if !world.Components.Charge.Has(entity) {
+		return -1
+	}
+	return world.Components.Charge.Get(entity).Current
 }
 
 // equipFingerprint は装備の性能を1つの文字列に畳む。クラフトの乱数化で同名でも性能が

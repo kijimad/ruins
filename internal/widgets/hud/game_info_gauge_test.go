@@ -35,7 +35,7 @@ func TestGameInfo_bodyTempGauge(t *testing.T) {
 		wgt.Draw(cv)
 		require.Equal(t, 1, cv.roundedStrokes, "枠は常に描く")
 		require.Len(t, cv.tintedRects, 1)
-		assert.Equal(t, 50, cv.tintedRects[0].Dx(), "比率0.5なら幅は半分")
+		assert.Equal(t, 49, cv.tintedRects[0].Dx(), "比率0.5なら枠の内側の幅98の半分")
 	})
 }
 
@@ -50,8 +50,8 @@ func TestGameInfo_healthGauge(t *testing.T) {
 		wantWidth int
 	}{
 		{"最大HPが0以下なら比率0で塗らない", 10, 0, 0},
-		{"HPが最大の半分なら半分塗る", 50, 100, 50},
-		{"HPが最大を超えても比率は1で頭打ち", 150, 100, 100},
+		{"HPが最大の半分なら枠の内側の半分を塗る", 50, 100, 49},
+		{"HPが最大を超えても比率は1で頭打ち", 150, 100, 98},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -81,8 +81,8 @@ func TestFuelGauge(t *testing.T) {
 		ratio     float64
 		wantWidth int
 	}{
-		{"充填率ぶんの幅で塗る", 0.25, 25},
-		{"満タンなら全幅で塗る", 1.0, 100},
+		{"充填率ぶんの幅で塗る", 0.25, 24},
+		{"満タンなら枠の内側の全幅で塗る", 1.0, 98},
 		{"空なら塗りは描かない", 0, 0},
 	}
 	for _, tt := range tests {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -21,15 +22,17 @@ type handSlotsConfig struct {
 
 // HandSlots は手持ち欄表示ウィジェット
 type HandSlots struct {
-	face   text.Face
-	chrome Chrome
+	face      text.Face
+	chrome    Chrome
+	gaugeFill *ebiten.Image // 残量のゲージの塗りのテクスチャ
 }
 
 // NewHandSlots は新しいHandSlotsを作成する
-func NewHandSlots(face text.Face, chrome Chrome) *HandSlots {
+func NewHandSlots(face text.Face, gaugeFill *ebiten.Image, chrome Chrome) *HandSlots {
 	return &HandSlots{
-		face:   face,
-		chrome: chrome,
+		face:      face,
+		chrome:    chrome,
+		gaugeFill: gaugeFill,
 	}
 }
 
@@ -58,12 +61,13 @@ func (hs *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
 		}
 		widths = append(widths, config.SlotSize)
 		cells = append(cells, &slotWidget{
-			chrome:   hs.chrome,
-			face:     hs.face,
-			slot:     slot,
-			number:   i + 1,
-			selected: slot.SlotNumber == data.SelectedSlot,
-			sprites:  sprites,
+			chrome:    hs.chrome,
+			face:      hs.face,
+			slot:      slot,
+			number:    i + 1,
+			selected:  slot.SlotNumber == data.SelectedSlot,
+			sprites:   sprites,
+			gaugeFill: hs.gaugeFill,
 		})
 	}
 	widths = append(widths, 0)
@@ -86,6 +90,8 @@ type slotWidget struct {
 	number   int
 	selected bool
 	sprites  *resources.SpriteStore
+	// gaugeFill は残量のゲージの塗りのテクスチャ
+	gaugeFill *ebiten.Image
 }
 
 // Layout は uicore.Widget を満たす。
@@ -104,8 +110,25 @@ func (s *slotWidget) Draw(cv uicore.Canvas) {
 			cv.DrawImage(image.Pt(s.rect.Min.X+(s.rect.Dx()-b.Dx())/2, s.rect.Min.Y+(s.rect.Dy()-b.Dy())/2), img)
 		}
 	}
+	if s.slot.HasCharge {
+		s.drawGauge(cv)
+	}
 	numberText := fmt.Sprint(s.number)
 	cv.DrawText(image.Pt(s.rect.Min.X+slotNumberPad, s.rect.Min.Y+slotNumberPad), numberText, s.face, theme.TextPrimary)
+}
+
+// 手持ち欄の残量のゲージの高さと角の丸み
+const (
+	slotGaugeHeight = 6
+	slotGaugeRadius = 2
+)
+
+// drawGauge は欄の下端に残量のゲージを描く。HUD のほかのゲージと同じ部品で描く
+func (s *slotWidget) drawGauge(cv uicore.Canvas) {
+	inner := s.rect.Inset(slotNumberPad)
+	g := &uicore.Gauge{Fill: s.gaugeFill, Ratio: s.slot.ChargeRatio, FillColor: theme.HealthGaugeColor(s.slot.ChargeRatio), Border: theme.HUDGaugeBorder, Radius: slotGaugeRadius}
+	g.Layout(image.Rect(inner.Min.X, inner.Max.Y-slotGaugeHeight, inner.Max.X, inner.Max.Y))
+	g.Draw(cv)
 }
 
 // Children は uicore.Widget を満たす。子は持たない。

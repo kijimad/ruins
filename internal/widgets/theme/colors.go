@@ -169,3 +169,11 @@ var (
 	// ElementPhoton は光子属性色
 	ElementPhoton = rgb(0xffff00)
 )
+
+// HealthGaugeColor は HP のように減ると悪くなるゲージの塗り色を返す。半分を境に緑から黄、黄から赤へ寄る
+func HealthGaugeColor(ratio float64) color.RGBA {
+	if ratio > 0.5 {
+		return LerpColor(HUDHealthFull, HUDHealthHalf, (1.0-ratio)*2)
+	}
+	return LerpColor(HUDHealthEmpty, HUDHealthHalf, ratio*2)
+}

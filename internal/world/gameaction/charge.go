@@ -9,7 +9,7 @@ import (
 )
 
 // ConsumeCharge は Charge を持つ item の残量を amount 減らす。0になったら物を消し、視界を計算し直させる。
-// 持ち主がプレイヤーなら尽きたことをログに出す
+// 持ち主がプレイヤーなら尽きたことをログに出す。減っていく途中はゲージで見せるのでログを出さない
 func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
 	charge := world.Components.Charge.Get(item)
 	charge.Current = max(charge.Current-amount, 0)

@@ -29,3 +29,24 @@ func TestLerpColor(t *testing.T) {
 		assert.Equal(t, color.RGBA{R: 50, G: 100, B: 25, A: 255}, theme.LerpColor(a, b, 0.5))
 	})
 }
+
+func TestHealthGaugeColor(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name  string
+		ratio float64
+		want  color.RGBA
+	}{
+		{name: "満タンは満タンの色", ratio: 1, want: theme.LerpColor(theme.HUDHealthFull, theme.HUDHealthHalf, 0)},
+		{name: "半分ちょうどは半分の色", ratio: 0.5, want: theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, 1)},
+		{name: "半分より上は満タンと半分の間", ratio: 0.75, want: theme.LerpColor(theme.HUDHealthFull, theme.HUDHealthHalf, 0.5)},
+		{name: "半分より下は空と半分の間", ratio: 0.25, want: theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, 0.5)},
+		{name: "空は空の色", ratio: 0, want: theme.LerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, 0)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, theme.HealthGaugeColor(tt.ratio))
+		})
+	}
+}

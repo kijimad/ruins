@@ -49,8 +49,7 @@ func TestContainer_SetBottomLine_下端に線を敷く(t *testing.T) {
 	cv := &recordCanvas{}
 	c.Draw(cv)
 
-	require.Len(t, cv.images, 1)
-	assert.Equal(t, image.Pt(0, 18), cv.images[0], "線画像の高さぶん上げた位置、下端に敷かれる")
+	assert.Equal(t, []image.Rectangle{image.Rect(0, 18, 50, 20)}, cv.tinted, "線画像の高さぶん上げた位置、下端に行幅いっぱいで敷かれる")
 }
 
 func TestContainer_Row_0幅の列は余り幅を均等に吸収する(t *testing.T) {
