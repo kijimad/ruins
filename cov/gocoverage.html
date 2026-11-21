@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (89.1%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (89.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (81.4%)</option>
 				
@@ -109,7 +109,7 @@
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file27">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -117,7 +117,7 @@
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/aiinput/vision_system.go (100.0%)</option>
 				
-				<option value="file31">github.com/kijimaD/ruins/internal/balance/baseline.go (91.7%)</option>
+				<option value="file31">github.com/kijimaD/ruins/internal/balance/baseline.go (91.2%)</option>
 				
 				<option value="file32">github.com/kijimaD/ruins/internal/balance/boundary.go (100.0%)</option>
 				
@@ -125,7 +125,7 @@
 				
 				<option value="file34">github.com/kijimaD/ruins/internal/balance/climate.go (100.0%)</option>
 				
-				<option value="file35">github.com/kijimaD/ruins/internal/balance/combat.go (84.4%)</option>
+				<option value="file35">github.com/kijimaD/ruins/internal/balance/combat.go (87.5%)</option>
 				
 				<option value="file36">github.com/kijimaD/ruins/internal/balance/economy.go (89.3%)</option>
 				
@@ -147,11 +147,11 @@
 				
 				<option value="file45">github.com/kijimaD/ruins/internal/balance/restriction.go (80.6%)</option>
 				
-				<option value="file46">github.com/kijimaD/ruins/internal/balance/search.go (92.0%)</option>
+				<option value="file46">github.com/kijimaD/ruins/internal/balance/search.go (91.6%)</option>
 				
 				<option value="file47">github.com/kijimaD/ruins/internal/balance/sensitivity.go (93.3%)</option>
 				
-				<option value="file48">github.com/kijimaD/ruins/internal/balance/skilldepth.go (81.8%)</option>
+				<option value="file48">github.com/kijimaD/ruins/internal/balance/skilldepth.go (82.9%)</option>
 				
 				<option value="file49">github.com/kijimaD/ruins/internal/balance/survival.go (100.0%)</option>
 				
@@ -483,7 +483,7 @@
 				
 				<option value="file213">github.com/kijimaD/ruins/internal/raw/raw.go (97.1%)</option>
 				
-				<option value="file214">github.com/kijimaD/ruins/internal/raw/validate.go (98.0%)</option>
+				<option value="file214">github.com/kijimaD/ruins/internal/raw/validate.go (98.1%)</option>
 				
 				<option value="file215">github.com/kijimaD/ruins/internal/rawschema/models_gen.go (0.3%)</option>
 				
@@ -775,7 +775,7 @@
 				
 				<option value="file359">github.com/kijimaD/ruins/internal/world/lifecycle/remains.go (85.7%)</option>
 				
-				<option value="file360">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.8%)</option>
+				<option value="file360">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.2%)</option>
 				
 				<option value="file361">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (90.7%)</option>
 				
@@ -785,7 +785,7 @@
 				
 				<option value="file364">github.com/kijimaD/ruins/internal/world/query/activity.go (100.0%)</option>
 				
-				<option value="file365">github.com/kijimaD/ruins/internal/world/query/attack.go (83.3%)</option>
+				<option value="file365">github.com/kijimaD/ruins/internal/world/query/attack.go (93.3%)</option>
 				
 				<option value="file366">github.com/kijimaD/ruins/internal/world/query/body_funcs.go (44.4%)</option>
 				
@@ -1640,45 +1640,27 @@ func (ab *MeleeBehavior) canPerformAttack(attacker ecs.Entity, world w.World) bo
 
 // getBareHandsAttack は素手武器の攻撃パラメータを取得する
 func getBareHandsAttack(world w.World) (gc.Attacker, i18n.Msgid, error) {
-        <span class="cov8" title="1">bareHandsSpec, err := raw.NewWeaponSpec(world.Resources.RawMaster, "bare_hands")
+        <span class="cov8" title="1">melee, name, err := raw.BodyAttackMelee(world.Resources.RawMaster, raw.BareHands)
         if err != nil </span>{
-                <span class="cov0" title="0">return nil, "", fmt.Errorf("bare hands weapon not found: %w", err)
+                <span class="cov0" title="0">return nil, "", fmt.Errorf("bare hands attack not found: %w", err)
 </span>        }
-        <span class="cov8" title="1">if bareHandsSpec.Melee == nil </span>{
-                <span class="cov0" title="0">return nil, "", fmt.Errorf("bare hands weapon has no Melee component")
-</span>        }
-        <span class="cov8" title="1">if bareHandsSpec.Name == nil </span>{
-                <span class="cov0" title="0">return nil, "", fmt.Errorf("bare hands weapon has no Name component")
-</span>        }
-        <span class="cov8" title="1">return bareHandsSpec.Melee, bareHandsSpec.Name.Name, nil</span>
+        <span class="cov8" title="1">return melee, name, nil</span>
 }
 
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
 // 戻り値: (攻撃パラメータ, 攻撃方法名, エラー)
 func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, i18n.Msgid, error) {
-        // プレイヤーの場合: 装備武器から攻撃パラメータを取得
         <span class="cov8" title="1">if world.Components.Player.Has(attacker) </span>{
-                <span class="cov8" title="1">if weapon, ok := query.SelectedWeapon(world, attacker); ok </span>{
-                        <span class="cov8" title="1">attack, weaponName, err := query.GetMeleeFromWeapon(world, weapon)
-                        if err == nil &amp;&amp; attack != nil </span>{
-                                <span class="cov8" title="1">return attack, weaponName, nil
-</span>                        }
-                }
-
-                // 武器が装備されていない場合は素手武器を使用
-                <span class="cov8" title="1">return getBareHandsAttack(world)</span>
-        }
-
-        // 敵の場合: CommandTableから攻撃パラメータを取得
-        <span class="cov8" title="1">if world.Components.CommandTable.Has(attacker) </span>{
-                <span class="cov8" title="1">attack, weaponName, err := query.GetAttackFromCommandTable(world, attacker)
-                if err == nil &amp;&amp; attack != nil </span>{
-                        <span class="cov8" title="1">return attack, weaponName, nil
+                <span class="cov8" title="1">weapon, ok := query.SelectedWeapon(world, attacker)
+                if !ok || !world.Components.Melee.Has(weapon) </span>{
+                        <span class="cov8" title="1">return getBareHandsAttack(world)
 </span>                }
-
-                // CommandTableから取得できない場合は素手武器を使用
-                <span class="cov8" title="1">return getBareHandsAttack(world)</span>
+                <span class="cov8" title="1">return query.GetMeleeFromWeapon(world, weapon)</span>
         }
+
+        <span class="cov8" title="1">if world.Components.CommandTable.Has(attacker) </span>{
+                <span class="cov8" title="1">return query.GetAttackFromCommandTable(world, attacker)
+</span>        }
 
         <span class="cov8" title="1">return nil, "", ErrNoAttackSource</span>
 }
@@ -5692,7 +5674,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -6316,10 +6298,11 @@ import (
 // 同じ値を参照し、テーブルと実機能がずれるのを防ぐ。
 const (
         BaselinePlayer    = "ash"
-        BaselineWeapon    = "bare_hands"
         BaselineDays      = 21
         BaselineAreaTable = "ruins_area"
         BaselineDungeon   = "forgotten_ruins"
+        // BaselineEnemyAttack は感度と Pareto 前線でダメージ倍率を動かす敵の体の攻撃
+        BaselineEnemyAttack = "bite"
 )
 
 // colDanger は複数の表で使う危険度列の見出し。文字列の重複を1つにまとめる。
@@ -6361,12 +6344,8 @@ type BaselineRow struct {
 
 // Baseline は指定した敵テーブルの序盤戦闘ベースラインを返す。プレイヤーは強化なしの素手を
 // 最悪ケースとして固定し、難易度カーブを目標帯と突き合わせる。
-func Baseline(master rawschema.Raws, playerName, weaponName, enemyTableName string, days int) ([]BaselineRow, error) {
+func Baseline(master rawschema.Raws, playerName string, weapon WeaponStats, enemyTableName string, days int) ([]BaselineRow, error) {
         <span class="cov8" title="1">player, err := LoadCombatantFromMember(master, playerName)
-        if err != nil </span>{
-                <span class="cov0" title="0">return nil, err
-</span>        }
-        <span class="cov8" title="1">weapon, err := LoadWeaponFromItem(master, weaponName)
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, err
 </span>        }
@@ -6390,7 +6369,11 @@ func Baseline(master rawschema.Raws, playerName, weaponName, enemyTableName stri
 
 // RenderBaselineMarkdown は全敵テーブルのベースラインを markdown 表にする。日次の powerRatio と目標・帯内かを
 // 並べ、パラメータ変更の影響を diff で読めるようにする。テーブル名は raw 由来の実行時データ。
-func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string, days int) (string, error) {
+func RenderBaselineMarkdown(master rawschema.Raws, playerName, attackID string, days int) (string, error) {
+        <span class="cov8" title="1">weapon, err := LoadWeaponFromBodyAttack(master, attackID)
+        if err != nil </span>{
+                <span class="cov0" title="0">return "", err
+</span>        }
         <span class="cov8" title="1">var b strings.Builder
         fmt.Fprintf(&amp;b, "# バランスベースライン\n\n")
         fmt.Fprintf(&amp;b, "実コードの戦闘式と raw.toml から乱数なしで導出したバランスの現状値。`make balance-report` で再生成する。\n")
@@ -6415,30 +6398,15 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string
         <span class="cov8" title="1">fmt.Fprintf(&amp;b, "## 序盤戦闘の難易度カーブ\n\n")
         fmt.Fprintf(&amp;b, "**概要**: 各日に素手・無装備の床プレイヤーがどれだけ有利かを戦力比で表す。戦力比は敵を倒す速さ÷敵に倒される速さで、1.0が互角、大きいほど楽。\n")
         fmt.Fprintf(&amp;b, "床は難易度の下限リファレンスで主基準ではない。主基準は「進行カーブ」の想定プレイヤーの死亡確率。敵を進行で強化する設計では床は後半に目標帯を下回り 外 になるのが正常で、装備しないと生き残れないことを表す。\n")
-        fmt.Fprintf(&amp;b, "プレイヤーは強化なしの `%s` + `%s` に固定する。\n", playerName, weaponName)
+        fmt.Fprintf(&amp;b, "プレイヤーは強化なしの `%s` + `%s` に固定する。\n", playerName, attackID)
         fmt.Fprintf(&amp;b, "目標帯は day1=2.5 から day20=1.3 へ下げ、許容幅±%.1f。目標は設計仮説でプレイで見直す。判定「内」が目標帯の中、「外」が外。\n\n", targetBand)
 </span>
-        <span class="cov8" title="1">tables := raw.PtrSlice(master.EnemyTables)
-        sort.Slice(tables, func(i, j int) bool </span>{ <span class="cov8" title="1">return tables[i].Id &lt; tables[j].Id }</span>)
-        <span class="cov8" title="1">for _, table := range tables </span>{
-                <span class="cov8" title="1">rows, err := Baseline(master, playerName, weaponName, table.Id, days)
-                if err != nil </span>{
-                        <span class="cov0" title="0">return "", err
-</span>                }
-                <span class="cov8" title="1">fmt.Fprintf(&amp;b, "### %s (%s)\n\n", table.Name, table.Id)
-                var curveRows [][]string
-                for _, r := range rows </span>{
-                        <span class="cov8" title="1">mark := "外"
-                        if r.InRange </span>{
-                                <span class="cov8" title="1">mark = "内"
-</span>                        }
-                        <span class="cov8" title="1">curveRows = append(curveRows, []string{fmt.Sprintf("%d", r.Day), fmt.Sprintf("%d", r.Danger), fmt.Sprintf("%.2f", r.PowerRatio), fmt.Sprintf("%.2f", r.Target), mark})</span>
-                }
-                <span class="cov8" title="1">writeMDTable(&amp;b, []string{"日", colDanger, "戦力比", "目標", "判定"}, []tw.Align{alignR, alignR, alignR, alignR, alignC}, curveRows)</span>
-        }
+        <span class="cov8" title="1">if err := renderBaselineTables(&amp;b, master, playerName, weapon, days); err != nil </span>{
+                <span class="cov0" title="0">return "", err
+</span>        }
 
         // 戦闘リスク。期待値の比でなく、分布から突然死の確率を測る
-        <span class="cov8" title="1">if err := renderCombatRisk(&amp;b, master, playerName, weaponName, days); err != nil </span>{
+        <span class="cov8" title="1">if err := renderCombatRisk(&amp;b, master, playerName, attackID, weapon, days); err != nil </span>{
                 <span class="cov0" title="0">return "", err
 </span>        }
 
@@ -6593,9 +6561,9 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string
 
         // 多目的探索。序盤・中盤・終盤の目標逸脱を同時に小さくする武器倍率の非劣集合
         <span class="cov8" title="1">fmt.Fprintf(&amp;b, "## 多目的探索（Pareto 前線）\n\n")
-        fmt.Fprintf(&amp;b, "**概要**: プレイヤー武器 bare_hands と敵武器 bite のダメージ倍率を格子で動かし、day1・day10・day20 の目標戦力比からの逸脱を同時に見る。\n")
+        paretoKnobs := []string{raw.BareHands, BaselineEnemyAttack}
+        fmt.Fprintf(&amp;b, "**概要**: プレイヤー武器 %s と敵武器 %s のダメージ倍率を格子で動かし、day1・day10・day20 の目標戦力比からの逸脱を同時に見る。\n", paretoKnobs[0], paretoKnobs[1])
         fmt.Fprintf(&amp;b, "単変数探索は day20 しか合わせられないが、複数日はトレードオフになる。どれかを詰めると別が緩む非劣な組だけを載せる。逸脱は小さいほど目標に近い。\n\n")
-        paretoKnobs := []string{BaselineWeapon, "bite"}
         front := ParetoFront(master, paretoKnobs, []float64{0.8, 1.0, 1.5}, []int{1, 10, 20})
         sort.Slice(front, func(i, j int) bool </span>{
                 <span class="cov8" title="1">if front[i].Factors[paretoKnobs[0]] != front[j].Factors[paretoKnobs[0]] </span>{
@@ -6610,7 +6578,7 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string
                         fmt.Sprintf("%.2f", p.Deviations[0]), fmt.Sprintf("%.2f", p.Deviations[1]), fmt.Sprintf("%.2f", p.Deviations[2]),
                 })
 </span>        }
-        <span class="cov8" title="1">writeMDTable(&amp;b, []string{"bare_hands倍率", "bite倍率", "day1逸脱", "day10逸脱", "day20逸脱"}, []tw.Align{alignR, alignR, alignR, alignR, alignR}, paretoRows)
+        <span class="cov8" title="1">writeMDTable(&amp;b, []string{paretoKnobs[0] + "倍率", paretoKnobs[1] + "倍率", "day1逸脱", "day10逸脱", "day20逸脱"}, []tw.Align{alignR, alignR, alignR, alignR, alignR}, paretoRows)
 </span>
         // 進行・成長。スキルを上げるのに要する攻撃回数
         <span class="cov8" title="1">fmt.Fprintf(&amp;b, "## 進行・成長（スキル）\n\n")
@@ -6626,14 +6594,33 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, weaponName string
         return b.String(), nil</span>
 }
 
+// renderBaselineTables は敵テーブルごとのベースラインの表を、テーブルの id 順に書き出す
+func renderBaselineTables(b *strings.Builder, master rawschema.Raws, playerName string, weapon WeaponStats, days int) error {
+        <span class="cov8" title="1">tables := raw.PtrSlice(master.EnemyTables)
+        sort.Slice(tables, func(i, j int) bool </span>{ <span class="cov8" title="1">return tables[i].Id &lt; tables[j].Id }</span>)
+        <span class="cov8" title="1">for _, table := range tables </span>{
+                <span class="cov8" title="1">rows, err := Baseline(master, playerName, weapon, table.Id, days)
+                if err != nil </span>{
+                        <span class="cov0" title="0">return err
+</span>                }
+                <span class="cov8" title="1">fmt.Fprintf(b, "### %s (%s)\n\n", table.Name, table.Id)
+                var curveRows [][]string
+                for _, r := range rows </span>{
+                        <span class="cov8" title="1">mark := "外"
+                        if r.InRange </span>{
+                                <span class="cov8" title="1">mark = "内"
+</span>                        }
+                        <span class="cov8" title="1">curveRows = append(curveRows, []string{fmt.Sprintf("%d", r.Day), fmt.Sprintf("%d", r.Danger), fmt.Sprintf("%.2f", r.PowerRatio), fmt.Sprintf("%.2f", r.Target), mark})</span>
+                }
+                <span class="cov8" title="1">writeMDTable(b, []string{"日", colDanger, "戦力比", "目標", "判定"}, []tw.Align{alignR, alignR, alignR, alignR, alignC}, curveRows)</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
 // renderCombatRisk は戦闘リスクのカーブを markdown で書き出す。難易度カーブが期待値の比を見るのに対し、
 // こちらは吸収マルコフ連鎖で解いた死亡確率と決着ターンを日ごとに出す。突然死の裾を可視化する。
-func renderCombatRisk(b *strings.Builder, master rawschema.Raws, playerName, weaponName string, days int) error {
+func renderCombatRisk(b *strings.Builder, master rawschema.Raws, playerName, attackID string, weapon WeaponStats, days int) error {
         <span class="cov8" title="1">player, err := LoadCombatantFromMember(master, playerName)
-        if err != nil </span>{
-                <span class="cov0" title="0">return err
-</span>        }
-        <span class="cov8" title="1">weapon, err := LoadWeaponFromItem(master, weaponName)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
@@ -6643,7 +6630,7 @@ func renderCombatRisk(b *strings.Builder, master rawschema.Raws, playerName, wea
 </span>        }
         <span class="cov8" title="1">fmt.Fprintf(b, "## 戦闘リスク（死亡確率・廃墟）\n\n")
         fmt.Fprintf(b, "**概要**: その日の敵プールに1体遭遇したときに倒される確率と、決着までの期待ターン。戦力比が期待値の比なのに対し、\n")
-        fmt.Fprintf(b, "こちらは戦闘を吸収マルコフ連鎖として厳密に解き、平均では見えない突然死の裾を測る。プレイヤーは強化なしの `%s` + `%s` 固定。\n\n", playerName, weaponName)
+        fmt.Fprintf(b, "こちらは戦闘を吸収マルコフ連鎖として厳密に解き、平均では見えない突然死の裾を測る。プレイヤーは強化なしの `%s` + `%s` 固定。\n\n", playerName, attackID)
         var riskRows [][]string
         for _, d := range curve </span>{
                 <span class="cov8" title="1">riskRows = append(riskRows, []string{fmt.Sprintf("%d", d.Day), fmt.Sprintf("%d", d.Danger), fmt.Sprintf("%.1f%%", d.DeathProb*100), fmt.Sprintf("%.1f", d.ExpTurns)})
@@ -6852,9 +6839,20 @@ func renderSkillDepth(b *strings.Builder, master rawschema.Raws) error {
         fmt.Fprintf(b, "能力+ダイス+武器の base 全体へ切り捨てで掛かる。撃破ターンが動かないレベルは体験に響かない死んだティア。NTBEA のティア識別性を翻案した指標。\n\n")
 </span>
         <span class="cov8" title="1">var rows [][]string
-        weapons := []string{BaselineWeapon, "iron_sword"}
-        for _, wn := range weapons </span>{
-                <span class="cov8" title="1">prof, err := SkillDepthProfileFor(master, wn, BaselineAreaTable, day)
+        bare, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
+        if err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
+        <span class="cov8" title="1">iron, err := LoadWeaponFromItem(master, "iron_sword")
+        if err != nil </span>{
+                <span class="cov0" title="0">return err
+</span>        }
+        <span class="cov8" title="1">weapons := []struct {
+                name   string
+                weapon WeaponStats
+        }{{raw.BareHands, bare}, {"iron_sword", iron}}
+        for _, w := range weapons </span>{
+                <span class="cov8" title="1">prof, err := SkillDepthProfileFor(master, w.weapon, BaselineAreaTable, day)
                 if err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
@@ -6866,7 +6864,7 @@ func renderSkillDepth(b *strings.Builder, master rawschema.Raws) error {
                 if prof.EffectiveSteps &gt; 0 </span>{
                         <span class="cov8" title="1">gap = fmt.Sprintf("%.3f", prof.MinEffectiveGap)
 </span>                }
-                <span class="cov8" title="1">rows = append(rows, []string{wn, fmt.Sprintf("%d", total), fmt.Sprintf("%d", prof.EffectiveSteps), fmt.Sprintf("%d", prof.DeadTiers), gap})</span>
+                <span class="cov8" title="1">rows = append(rows, []string{w.name, fmt.Sprintf("%d", total), fmt.Sprintf("%d", prof.EffectiveSteps), fmt.Sprintf("%d", prof.DeadTiers), gap})</span>
         }
         <span class="cov8" title="1">writeMDTable(b, []string{"武器", "総レベル", "実効ティア", "死んだティア", "実効の最小改善(ターン)"}, []tw.Align{alignL, alignR, alignR, alignR, alignR}, rows)
         fmt.Fprintf(b, "熟練度が base 全体へ効くので進行の大半は手応えがある。死んだティアは撃破ターンが既に短い高レベル帯に偏る。弱い武器ほど base が小さく、切り捨てでわずかに死にやすい。\n\n")
@@ -7023,7 +7021,7 @@ func RepresentativeBuilds(master rawschema.Raws) ([]BuildProfile, error) {
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, err
 </span>        }
-        <span class="cov8" title="1">weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+        <span class="cov8" title="1">weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, err
 </span>        }
@@ -7140,6 +7138,7 @@ func WorldTemperatureAtDay(calendar gc.CalendarDefs, day int) int {
 import (
         "fmt"
 
+        gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/formula"
         "github.com/kijimaD/ruins/internal/raw"
         "github.com/kijimaD/ruins/internal/rawschema"
@@ -7186,10 +7185,10 @@ func LoadCombatantFromMember(master rawschema.Raws, name string) (CombatantStats
 }
 
 // LoadWeaponFromItem はraw.MasterのアイテムからWeaponStatsを生成する
-func LoadWeaponFromItem(master rawschema.Raws, name string) (WeaponStats, error) {
-        <span class="cov8" title="1">spec, err := raw.NewItemSpec(master, name)
+func LoadWeaponFromItem(master rawschema.Raws, itemID string) (WeaponStats, error) {
+        <span class="cov8" title="1">spec, err := raw.NewItemSpec(master, itemID)
         if err != nil </span>{
-                <span class="cov8" title="1">return WeaponStats{}, fmt.Errorf("failed to load weapon %q: %w", name, err)
+                <span class="cov8" title="1">return WeaponStats{}, fmt.Errorf("failed to load weapon %q: %w", itemID, err)
 </span>        }
 
         // Fireを先にチェックする。MeleeとFireの両方を持つ武器は遠距離として扱う
@@ -7201,27 +7200,38 @@ func LoadWeaponFromItem(master rawschema.Raws, name string) (WeaponStats, error)
                 }, nil
 </span>        }
         <span class="cov8" title="1">if spec.Melee != nil </span>{
-                <span class="cov8" title="1">return WeaponStats{
-                        Damage:   spec.Melee.Damage,
-                        Accuracy: spec.Melee.Accuracy,
-                        IsRanged: false,
-                }, nil
+                <span class="cov8" title="1">return meleeWeapon(spec.Melee), nil
 </span>        }
 
-        <span class="cov0" title="0">return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", name)</span>
+        <span class="cov0" title="0">return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", itemID)</span>
 }
 
-// LoadEnemyWeapon は敵の CommandTable から最も重みの高い武器を代表に取り WeaponStats を返す。コマンドの重み分布は
-// 反映しない簡略化で、DifficultyCurve の敵プール重みとは別の近似なので二重の簡略化になる点に注意する。
-func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, error) {
-        <span class="cov8" title="1">member, err := raw.FindMember(master, enemyName)
+// LoadWeaponFromBodyAttack はraw.Masterの体の攻撃からWeaponStatsを生成する
+func LoadWeaponFromBodyAttack(master rawschema.Raws, bodyAttackID string) (WeaponStats, error) {
+        <span class="cov8" title="1">melee, _, err := raw.BodyAttackMelee(master, bodyAttackID)
+        if err != nil </span>{
+                <span class="cov8" title="1">return WeaponStats{}, fmt.Errorf("failed to load body attack %q: %w", bodyAttackID, err)
+</span>        }
+        <span class="cov8" title="1">return meleeWeapon(melee), nil</span>
+}
+
+// meleeWeapon は近接攻撃の WeaponStats を返す
+func meleeWeapon(melee *gc.Melee) WeaponStats {
+        <span class="cov8" title="1">return WeaponStats{Damage: melee.Damage, Accuracy: melee.Accuracy}
+</span>}
+
+// LoadWeaponFromMember は member が攻撃に使う武器の WeaponStats を返す。CommandTable の最も重みの高い行を代表に取り、
+// CommandTable が無ければ素手にする。コマンドの重み分布は反映しない簡略化で、DifficultyCurve の敵プール重みとは
+// 別の近似なので二重の簡略化になる点に注意する。
+func LoadWeaponFromMember(master rawschema.Raws, memberID string) (WeaponStats, error) {
+        <span class="cov8" title="1">member, err := raw.FindMember(master, memberID)
         if err != nil </span>{
                 <span class="cov8" title="1">return WeaponStats{}, err
 </span>        }
 
         <span class="cov8" title="1">if member.CommandTableId == nil </span>{
                 // CommandTableがない場合は素手
-                <span class="cov0" title="0">return LoadWeaponFromItem(master, "bare_hands")
+                <span class="cov8" title="1">return LoadWeaponFromBodyAttack(master, raw.BareHands)
 </span>        }
 
         <span class="cov8" title="1">ct, err := raw.GetCommandTable(master, *member.CommandTableId)
@@ -7230,7 +7240,7 @@ func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, erro
 </span>        }
 
         <span class="cov8" title="1">if len(ct.Entries) == 0 </span>{
-                <span class="cov0" title="0">return LoadWeaponFromItem(master, "bare_hands")
+                <span class="cov0" title="0">return WeaponStats{}, fmt.Errorf("command table %q has no entry", ct.Id)
 </span>        }
 
         // 最も重みの高い攻撃を代表として使う
@@ -7241,7 +7251,11 @@ func LoadEnemyWeapon(master rawschema.Raws, enemyName string) (WeaponStats, erro
 </span>                }
         }
 
-        <span class="cov8" title="1">return LoadWeaponFromItem(master, bestEntry.Id)</span>
+        <span class="cov8" title="1">melee, _, err := raw.CommandEntryMelee(master, bestEntry)
+        if err != nil </span>{
+                <span class="cov0" title="0">return WeaponStats{}, fmt.Errorf("command table %q: %w", ct.Id, err)
+</span>        }
+        <span class="cov8" title="1">return meleeWeapon(melee), nil</span>
 }
 </pre>
 		
@@ -7779,7 +7793,7 @@ func PoolCombatRisk(master rawschema.Raws, player CombatantStats, playerWeapon W
                 if err != nil </span>{
                         <span class="cov0" title="0">return 0, 0, false, err
 </span>                }
-                <span class="cov8" title="1">enemyWeapon, err := LoadEnemyWeapon(master, entry.Id)
+                <span class="cov8" title="1">enemyWeapon, err := LoadWeaponFromMember(master, entry.Id)
                 if err != nil </span>{
                         <span class="cov0" title="0">return 0, 0, false, err
 </span>                }
@@ -7926,9 +7940,7 @@ func DifficultyCurveWithSkill(master rawschema.Raws, player CombatantStats, play
                         if err != nil </span>{
                                 <span class="cov0" title="0">return nil, err
 </span>                        }
-                        // LoadEnemyWeapon は武器を持たない敵を内部で素手へフォールバックする。それでもエラーなら
-                        // 本物のデータ異常なので握り潰さず伝播する。LoadCombatantFromMember と扱いを揃える。
-                        <span class="cov8" title="1">enemyWeapon, err := LoadEnemyWeapon(master, entry.Id)
+                        <span class="cov8" title="1">enemyWeapon, err := LoadWeaponFromMember(master, entry.Id)
                         if err != nil </span>{
                                 <span class="cov0" title="0">return nil, err
 </span>                        }
@@ -8125,14 +8137,14 @@ type ElementValue struct {
 }
 
 // WeaponRestrictionValues は経過日 day の廃墟プールに対し、装備可能な武器(近接・遠距離)それぞれの死亡確率と素手へ
-// 制限したときの劣化量を、劣化量の降順で返す。基準は強化なしの BaselinePlayer、素手 BaselineWeapon がフォールバック。
+// 制限したときの劣化量を、劣化量の降順で返す。基準は強化なしの BaselinePlayer、素手 raw.BareHands がフォールバック。
 func WeaponRestrictionValues(master rawschema.Raws, enemyTableName string, day int) ([]ElementValue, float64, error) {
         <span class="cov8" title="1">danger := int(query.DangerLevelForDay(day))
         player, err := LoadCombatantFromMember(master, BaselinePlayer)
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, 0, err
 </span>        }
-        <span class="cov8" title="1">bare, err := LoadWeaponFromItem(master, BaselineWeapon)
+        <span class="cov8" title="1">bare, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, 0, err
 </span>        }
@@ -8147,9 +8159,9 @@ func WeaponRestrictionValues(master rawschema.Raws, enemyTableName string, day i
         <span class="cov8" title="1">items := raw.PtrSlice(master.Items)
         values := make([]ElementValue, 0, len(items))
         for i := range items </span>{
-                // 近接と遠距離の武器を対象にする。素手は基準そのものなので除く。遠距離は Sensation で撃つが、
+                // 近接と遠距離の武器を対象にする。遠距離は Sensation で撃つが、
                 // 弾薬の消費と費用はこの指標に含めないので、遠距離の劣化量は弾薬コストを無視した上限になる。
-                <span class="cov8" title="1">if (items[i].Melee == nil &amp;&amp; items[i].Fire == nil) || items[i].Id == BaselineWeapon </span>{
+                <span class="cov8" title="1">if items[i].Melee == nil &amp;&amp; items[i].Fire == nil </span>{
                         <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">weapon, err := LoadWeaponFromItem(master, items[i].Id)
@@ -8197,7 +8209,7 @@ func ruinsDay20PowerRatio(master rawschema.Raws) float64 {
         if err != nil </span>{
                 <span class="cov0" title="0">return 0
 </span>        }
-        <span class="cov8" title="1">weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+        <span class="cov8" title="1">weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
         if err != nil </span>{
                 <span class="cov0" title="0">return 0
 </span>        }
@@ -8206,23 +8218,6 @@ func ruinsDay20PowerRatio(master rawschema.Raws) float64 {
                 <span class="cov0" title="0">return 0
 </span>        }
         <span class="cov8" title="1">return curve[len(curve)-1].PowerRatio</span>
-}
-
-// withScaledMeleeDamage は itemID の近接ダメージを factor 倍した状態で fn を呼び、後で元へ戻す。master の item は
-// backing array を共有するので値を退避・復元する。並行変更は競合するので、使うなら master を呼び出しごとに独立させる。
-func withScaledMeleeDamage(master rawschema.Raws, itemID string, factor float64, fn func()) {
-        <span class="cov8" title="1">items := raw.PtrSlice(master.Items)
-        for i := range items </span>{
-                <span class="cov8" title="1">if items[i].Id == itemID &amp;&amp; items[i].Melee != nil </span>{
-                        <span class="cov8" title="1">orig := items[i].Melee.Damage
-</span>                        // 丸めで反映する。切り捨てだと factor=1.1 で奇数値が変化せず摂動が無反応になる
-                        <span class="cov8" title="1">items[i].Melee.Damage = int(math.Round(float64(orig) * factor))
-                        fn()
-                        items[i].Melee.Damage = orig
-                        return
-</span>                }
-        }
-        <span class="cov8" title="1">fn()</span>
 }
 
 // SolveScalar は eval が単調な区間 [lo,hi] で eval(x)=target となる x を二分探索で返す。端点が挟まなければ ok=false。
@@ -8244,29 +8239,36 @@ func SolveScalar(eval func(float64) float64, target, lo, hi float64, iters int) 
         <span class="cov8" title="1">return (lo + hi) / 2, true</span>
 }
 
-// withScaledMeleeDamages は複数アイテムの近接ダメージを同時に factor 倍して fn を呼び、後で全て戻す。単変数版の
-// 多変数化で、並行変更が競合する点も同じ。
+// withScaledMeleeDamages は体の攻撃とアイテムの近接ダメージを id ごとに factor 倍して fn を呼び、後で全て戻す。
+// id は両方の表で重ならない前提にする。master を書き換えるので並行に呼ばない
 func withScaledMeleeDamages(master rawschema.Raws, factors map[string]float64, fn func()) {
-        <span class="cov8" title="1">items := raw.PtrSlice(master.Items)
-        type saved struct {
-                idx  int
-                orig int
+        <span class="cov8" title="1">type saved struct {
+                melee *rawschema.Melee
+                orig  int
 </span>        }
         <span class="cov8" title="1">restore := make([]saved, 0, len(factors))
-        for i := range items </span>{
-                <span class="cov8" title="1">if items[i].Melee == nil </span>{
-                        <span class="cov8" title="1">continue</span>
-                }
-                <span class="cov8" title="1">factor, ok := factors[items[i].Id]
+        scale := func(id string, m *rawschema.Melee) </span>{
+                <span class="cov8" title="1">factor, ok := factors[id]
                 if !ok </span>{
-                        <span class="cov8" title="1">continue</span>
-                }
-                <span class="cov8" title="1">restore = append(restore, saved{idx: i, orig: items[i].Melee.Damage})
-                items[i].Melee.Damage = int(math.Round(float64(items[i].Melee.Damage) * factor))</span>
+                        <span class="cov8" title="1">return
+</span>                }
+                <span class="cov8" title="1">restore = append(restore, saved{melee: m, orig: m.Damage})
+</span>                // 丸めで反映する。切り捨てだと factor=1.1 で奇数値が変化せず摂動が無反応になる
+                <span class="cov8" title="1">m.Damage = int(math.Round(float64(m.Damage) * factor))</span>
+        }
+        <span class="cov8" title="1">bodyAttacks := raw.PtrSlice(master.BodyAttacks)
+        for i := range bodyAttacks </span>{
+                <span class="cov8" title="1">scale(bodyAttacks[i].Id, &amp;bodyAttacks[i].Melee)
+</span>        }
+        <span class="cov8" title="1">items := raw.PtrSlice(master.Items)
+        for i := range items </span>{
+                <span class="cov8" title="1">if items[i].Melee != nil </span>{
+                        <span class="cov8" title="1">scale(items[i].Id, items[i].Melee)
+</span>                }
         }
         <span class="cov8" title="1">fn()
         for _, s := range restore </span>{
-                <span class="cov8" title="1">items[s.idx].Melee.Damage = s.orig
+                <span class="cov8" title="1">s.melee.Damage = s.orig
 </span>        }
 }
 
@@ -8283,7 +8285,7 @@ func combatDeviations(master rawschema.Raws, repDays []int) ([]float64, bool) {
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, false
 </span>        }
-        <span class="cov8" title="1">weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+        <span class="cov8" title="1">weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, false
 </span>        }
@@ -8380,6 +8382,7 @@ import (
         "math"
 
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/raw"
         "github.com/kijimaD/ruins/internal/rawschema"
         "github.com/kijimaD/ruins/internal/world/query"
 )
@@ -8424,13 +8427,13 @@ func metricValue(master rawschema.Raws, p Params, idx int) float64 {
                 if err != nil </span>{
                         <span class="cov0" title="0">return 0
 </span>                }
-                <span class="cov8" title="1">weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+                <span class="cov8" title="1">weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
                 if err != nil </span>{
                         <span class="cov0" title="0">return 0
 </span>                }
                 <span class="cov8" title="1">player.Strength = int(math.Round(float64(player.Strength) * p.PlayerStrengthScale))
                 ratio := 0.0
-                withScaledMeleeDamage(master, "bite", p.EnemyWeaponScale, func() </span>{
+                withScaledMeleeDamages(master, map[string]float64{BaselineEnemyAttack: p.EnemyWeaponScale}, func() </span>{
                         <span class="cov8" title="1">if curve, e := DifficultyCurve(master, player, weapon, BaselineAreaTable, 20); e == nil &amp;&amp; len(curve) &gt;= 20 </span>{
                                 <span class="cov8" title="1">ratio = curve[19].PowerRatio
 </span>                        }
@@ -8542,7 +8545,6 @@ type SkillTier struct {
 // SkillDepthProfile はスキル進行の手応えを測る。撃破ターンが動かない死んだティアが多いほど、レベルアップの多くが
 // 体験に響かない平坦な進行になる。NTBEA のティア識別性の翻案。
 type SkillDepthProfile struct {
-        Weapon          string
         Tiers           []SkillTier
         EffectiveSteps  int     // 撃破ターンが縮んで体験が動いたレベル数
         DeadTiers       int     // 撃破ターンが前と変わらず、体験が動かないティア数
@@ -8550,14 +8552,10 @@ type SkillDepthProfile struct {
         MinGapAt        int     // 最小の実効ギャップが起きるレベル
 }
 
-// SkillDepthProfileFor は weaponName をスキルで強化したときの進行の手応えを、危険度 danger の敵プールに対し測る。
+// SkillDepthProfileFor は weapon をスキルで強化したときの進行の手応えを、危険度 danger の敵プールに対し測る。
 // 熟練度倍率は実ゲームと同じく base 全体へ切り捨てで掛け、0..skill.MaxLevel の全段を見る。
-func SkillDepthProfileFor(master rawschema.Raws, weaponName, enemyTableName string, day int) (SkillDepthProfile, error) {
+func SkillDepthProfileFor(master rawschema.Raws, weapon WeaponStats, enemyTableName string, day int) (SkillDepthProfile, error) {
         <span class="cov8" title="1">player, err := LoadCombatantFromMember(master, BaselinePlayer)
-        if err != nil </span>{
-                <span class="cov0" title="0">return SkillDepthProfile{}, err
-</span>        }
-        <span class="cov8" title="1">weapon, err := LoadWeaponFromItem(master, weaponName)
         if err != nil </span>{
                 <span class="cov0" title="0">return SkillDepthProfile{}, err
 </span>        }
@@ -8567,7 +8565,7 @@ func SkillDepthProfileFor(master rawschema.Raws, weaponName, enemyTableName stri
 </span>        }
         <span class="cov8" title="1">danger := int(query.DangerLevelForDay(day))
 </span>
-        <span class="cov8" title="1">prof := SkillDepthProfile{Weapon: weaponName, MinEffectiveGap: math.Inf(1)}
+        <span class="cov8" title="1">prof := SkillDepthProfile{MinEffectiveGap: math.Inf(1)}
         prevTTK := math.NaN()
         for level := 0; level &lt;= skill.MaxLevel(); level++ </span>{
                 <span class="cov8" title="1">mult := SkillDamagePercent(defs, level)
@@ -8825,7 +8823,7 @@ func runBalanceReport(_ context.Context, _ *cli.Command) error {
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to load raw.toml: %w", err)
 </span>        }
-        <span class="cov0" title="0">md, err := balance.RenderBaselineMarkdown(master, balance.BaselinePlayer, balance.BaselineWeapon, balance.BaselineDays)
+        <span class="cov0" title="0">md, err := balance.RenderBaselineMarkdown(master, balance.BaselinePlayer, raw.BareHands, balance.BaselineDays)
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to render baseline: %w", err)
 </span>        }
@@ -28939,6 +28937,10 @@ func LoadFromFile(path string) (rawschema.Raws, error) {
 var (
         // errTOMLDecode はTOMLの構文が壊れていてデコードできないときに返す
         errTOMLDecode = errors.New("TOML decode error")
+        // errCommandEntryTarget はコマンドテーブルの行が体の攻撃もアイテムも持たないときに返す
+        errCommandEntryTarget = errors.New("command table entry has neither bodyAttack nor item")
+        // errItemNoMelee はコマンドテーブルの行が引くアイテムが近接攻撃を持たないときに返す
+        errItemNoMelee = errors.New("item has no melee")
         // errUnknownTOMLKeys はTOMLにスキーマにないキーが含まれるときに返す
         errUnknownTOMLKeys = errors.New("unknown keys found in TOML")
         // errBookSkillMissing は本にスキルが指定されていないときに返す
@@ -29347,26 +29349,6 @@ func NewRecipeSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 </span>        }
 
         <span class="cov8" title="1">return entitySpec, nil</span>
-}
-
-// NewWeaponSpec は指定された名前の武器のEntitySpecを生成する
-func NewWeaponSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
-        // 武器はアイテムの一種なので、Itemsから検索して存在確認
-        <span class="cov8" title="1">if _, err := FindItem(raws, name); err != nil </span>{
-                <span class="cov8" title="1">return gc.EntitySpec{}, err
-</span>        }
-
-        <span class="cov8" title="1">itemSpec, err := NewItemSpec(raws, name)
-        if err != nil </span>{
-                <span class="cov8" title="1">return gc.EntitySpec{}, fmt.Errorf("failed to generate weapon spec: %w", err)
-</span>        }
-
-        // Melee/Fire のいずれも持たない場合は武器ではない
-        <span class="cov8" title="1">if itemSpec.Melee == nil &amp;&amp; itemSpec.Fire == nil </span>{
-                <span class="cov8" title="1">return gc.EntitySpec{}, fmt.Errorf("%s is not a weapon (Melee/Fire component missing)", name)
-</span>        }
-
-        <span class="cov8" title="1">return itemSpec, nil</span>
 }
 
 // PlayerMemberID は player を持つ member の id を返す。読み込み時にちょうど1つあることを確かめる
@@ -29835,13 +29817,52 @@ func GetProfession(raws rawschema.Raws, id string) (rawschema.Profession, error)
         <span class="cov8" title="1">return prof, nil</span>
 }
 
-// SelectCommandByWeight はコマンドテーブルから重み付きランダム選択する
-func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (string, error) {
+// SelectCommandByWeight はコマンドテーブルから行を重み付きランダムに選ぶ。重みを持つ行が無ければ ok は偽
+func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (rawschema.CommandTableEntry, bool) {
         <span class="cov8" title="1">i, ok := consts.Pick(rng, ct.Entries, func(e rawschema.CommandTableEntry) float64 </span>{ <span class="cov8" title="1">return e.Weight }</span>)
         <span class="cov8" title="1">if !ok </span>{
-                <span class="cov8" title="1">return "", nil
+                <span class="cov8" title="1">return rawschema.CommandTableEntry{}, false
 </span>        }
-        <span class="cov8" title="1">return ct.Entries[i].Id, nil</span>
+        <span class="cov8" title="1">return ct.Entries[i], true</span>
+}
+
+// BareHands は素手の体の攻撃の id
+const BareHands = "bare_hands"
+
+// FindBodyAttack は id の体の攻撃を返す
+func FindBodyAttack(raws rawschema.Raws, id string) (rawschema.BodyAttack, error) {
+        <span class="cov8" title="1">bodyAttack, ok := FindByKey(raws.BodyAttacks, func(a rawschema.BodyAttack) string </span>{ <span class="cov8" title="1">return a.Id }</span>, id)
+        <span class="cov8" title="1">if !ok </span>{
+                <span class="cov8" title="1">return rawschema.BodyAttack{}, NewKeyNotFoundError(id, "BodyAttacks")
+</span>        }
+        <span class="cov8" title="1">return bodyAttack, nil</span>
+}
+
+// BodyAttackMelee は体の攻撃の近接攻撃と名前を返す
+func BodyAttackMelee(raws rawschema.Raws, id string) (*gc.Melee, i18n.Msgid, error) {
+        <span class="cov8" title="1">bodyAttack, err := FindBodyAttack(raws, id)
+        if err != nil </span>{
+                <span class="cov8" title="1">return nil, "", err
+</span>        }
+        <span class="cov8" title="1">return parseMelee(&amp;bodyAttack.Melee), i18n.Msgid(bodyAttack.Name), nil</span>
+}
+
+// CommandEntryMelee は敵の攻撃表の行が引く近接攻撃と名前を返す。体の攻撃かアイテムかは行の欄で決まる
+func CommandEntryMelee(raws rawschema.Raws, entry rawschema.CommandTableEntry) (*gc.Melee, i18n.Msgid, error) {
+        <span class="cov8" title="1">if entry.BodyAttack != nil </span>{
+                <span class="cov8" title="1">return BodyAttackMelee(raws, *entry.BodyAttack)
+</span>        }
+        <span class="cov8" title="1">if entry.Item == nil </span>{
+                <span class="cov8" title="1">return nil, "", errCommandEntryTarget
+</span>        }
+        <span class="cov8" title="1">item, err := FindItem(raws, *entry.Item)
+        if err != nil </span>{
+                <span class="cov8" title="1">return nil, "", err
+</span>        }
+        <span class="cov8" title="1">if item.Melee == nil </span>{
+                <span class="cov8" title="1">return nil, "", fmt.Errorf("%w: %s", errItemNoMelee, item.Id)
+</span>        }
+        <span class="cov8" title="1">return parseMelee(item.Melee), i18n.Msgid(item.Name), nil</span>
 }
 
 // SelectDropByWeight はドロップテーブルから重み付きランダム選択する。何も落とさないときは空文字を返す。
@@ -30227,6 +30248,7 @@ var (
         errEnumRowMissing                = errors.New("enum value has no raw row")
         errTableMissing                  = errors.New("table required by code is missing")
         errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
+        errBareHandsMissing              = errors.New("bare hands body attack is missing")
         errRemedyTooWeak                 = errors.New("remedy potency is too low to speed recovery")
         errRemedyNotTendable             = errors.New("remedy treats a condition that does not recover after tending")
 )
@@ -30553,6 +30575,9 @@ func validateCodeRows(raws rawschema.Raws) error {
 </span>        }
         <span class="cov8" title="1">if err := validateSkillCodeRows(raws); err != nil </span>{
                 <span class="cov8" title="1">return err
+</span>        }
+        <span class="cov8" title="1">if _, err := FindBodyAttack(raws, BareHands); err != nil </span>{
+                <span class="cov8" title="1">return fmt.Errorf("%w: %w", errBareHandsMissing, err)
 </span>        }
         <span class="cov8" title="1">enumRows := []struct {
                 schema string
@@ -31063,6 +31088,15 @@ type BlocksPassage = bool
 // BlocksView 視線を遮るかどうか
 type BlocksView = bool
 
+// BodyAttack 体の攻撃。体に備わり、拾えない攻撃
+type BodyAttack struct {
+        Id EntityID `json:"id"`
+
+        Melee Melee `json:"melee"`
+
+        Name EntityName `json:"name"`
+}
+
 // BodyPart 部位。部位の集合と身体機能との対応は Go が持ち、raw は表示名と命中の重みを持つ
 type BodyPart struct {
         // HitWeight 戦闘の命中抽選の重み。0 は命中先にならない
@@ -31150,8 +31184,11 @@ type CommandTable struct {
 
 // CommandTableEntry コマンドテーブルエントリ
 type CommandTableEntry struct {
-        // Id 使う武器の id
-        Id EntityID `json:"id"`
+        // BodyAttack 使う体の攻撃の id。bodyAttack と item のどちらか1つだけを書く
+        BodyAttack *EntityID `json:"bodyAttack,omitempty"`
+
+        // Item 使う武器のアイテムの id。近接攻撃を持つアイテムに限る
+        Item *EntityID `json:"item,omitempty"`
 
         Weight EntryWeight `json:"weight"`
 }
@@ -32910,6 +32947,8 @@ type Raws struct {
         AutomataSteps *[]AutomataStep `json:"automataSteps,omitempty"`
 
         BigRoomSteps *[]BigRoomStep `json:"bigRoomSteps,omitempty"`
+
+        BodyAttacks *[]BodyAttack `json:"bodyAttacks,omitempty"`
 
         BodyParts *[]BodyPart `json:"bodyParts,omitempty"`
 
@@ -56252,7 +56291,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov8" title="1">return 1
+                <span class="cov0" title="0">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
@@ -56928,6 +56967,8 @@ import (
 var (
         // errNoCommandTable は敵がCommandTableを持たないときに返す
         errNoCommandTable = errors.New("enemy has no CommandTable component")
+        // errEmptyCommandTable は CommandTable に重みを持つ行が無いときに返す
+        errEmptyCommandTable = errors.New("command table has no weighted entry")
         // errWeaponNoName は武器がNameを持たないときに返す
         errWeaponNoName = errors.New("weapon has no Name component")
         // errWeaponNoMelee は武器がMeleeを持たないときに返す
@@ -56949,26 +56990,15 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
                 <span class="cov0" title="0">return nil, "", fmt.Errorf("failed to get command table: %w", err)
 </span>        }
 
-        <span class="cov8" title="1">weaponName, err := raw.SelectCommandByWeight(commandTable, world.Resources.Config.RNG)
+        <span class="cov8" title="1">entry, ok := raw.SelectCommandByWeight(commandTable, world.Resources.Config.RNG)
+        if !ok </span>{
+                <span class="cov8" title="1">return nil, "", fmt.Errorf("%w: %s", errEmptyCommandTable, commandTableName)
+</span>        }
+        <span class="cov8" title="1">melee, name, err := raw.CommandEntryMelee(world.Resources.RawMaster, entry)
         if err != nil </span>{
-                <span class="cov0" title="0">return nil, "", fmt.Errorf("failed to select weapon: %w", err)
+                <span class="cov0" title="0">return nil, "", fmt.Errorf("failed to get command attack from %s: %w", commandTableName, err)
 </span>        }
-        <span class="cov8" title="1">if weaponName == "" </span>{
-                <span class="cov0" title="0">return nil, "", fmt.Errorf("no weapon selected from command table")
-</span>        }
-
-        <span class="cov8" title="1">weaponSpec, err := raw.NewWeaponSpec(world.Resources.RawMaster, weaponName)
-        if err != nil </span>{
-                <span class="cov0" title="0">return nil, "", fmt.Errorf("failed to get weapon spec: %w", err)
-</span>        }
-
-        <span class="cov8" title="1">if weaponSpec.Melee == nil </span>{
-                <span class="cov0" title="0">return nil, "", fmt.Errorf("%w: %s", errWeaponNoMelee, weaponName)
-</span>        }
-        <span class="cov8" title="1">if weaponSpec.Name == nil </span>{
-                <span class="cov0" title="0">return nil, "", fmt.Errorf("%w: %s", errWeaponNoName, weaponName)
-</span>        }
-        <span class="cov8" title="1">return weaponSpec.Melee, weaponSpec.Name.Name, nil</span>
+        <span class="cov8" title="1">return melee, name, nil</span>
 }
 
 // GetMeleeFromWeapon は武器エンティティからMeleeコンポーネントを取得する

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-21 01:24:43</td>
+            <td class="headerValue">2026-11-21 02:26:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,14 +81,14 @@
 <span id="L19"><span class="lineNum">      19</span>              : }</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // WeaponRestrictionValues は経過日 day の廃墟プールに対し、装備可能な武器(近接・遠距離)それぞれの死亡確率と素手へ</span>
-<span id="L22"><span class="lineNum">      22</span>              : // 制限したときの劣化量を、劣化量の降順で返す。基準は強化なしの BaselinePlayer、素手 BaselineWeapon がフォールバック。</span>
+<span id="L22"><span class="lineNum">      22</span>              : // 制限したときの劣化量を、劣化量の降順で返す。基準は強化なしの BaselinePlayer、素手 raw.BareHands がフォールバック。</span>
 <span id="L23"><span class="lineNum">      23</span>              : func WeaponRestrictionValues(master rawschema.Raws, enemyTableName string, day int) ([]ElementValue, float64, error) {</span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         danger := int(query.DangerLevelForDay(day))</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, BaselinePlayer)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 return nil, 0, err</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         bare, err := LoadWeaponFromItem(master, BaselineWeapon)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         bare, err := LoadWeaponFromBodyAttack(master, raw.BareHands)</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                 return nil, 0, err</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -103,9 +103,9 @@
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(master.Items)</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         values := make([]ElementValue, 0, len(items))</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
-<span id="L44"><span class="lineNum">      44</span>              :                 // 近接と遠距離の武器を対象にする。素手は基準そのものなので除く。遠距離は Sensation で撃つが、</span>
+<span id="L44"><span class="lineNum">      44</span>              :                 // 近接と遠距離の武器を対象にする。遠距離は Sensation で撃つが、</span>
 <span id="L45"><span class="lineNum">      45</span>              :                 // 弾薬の消費と費用はこの指標に含めないので、遠距離の劣化量は弾薬コストを無視した上限になる。</span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 if (items[i].Melee == nil &amp;&amp; items[i].Fire == nil) || items[i].Id == BaselineWeapon {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 if items[i].Melee == nil &amp;&amp; items[i].Fire == nil {</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L48"><span class="lineNum">      48</span>              :                 }</span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 weapon, err := LoadWeaponFromItem(master, items[i].Id)</span></span>
