@@ -40,9 +40,10 @@ func TestUseHints(t *testing.T) {
 			want: []string{"Edible"},
 		},
 		{
-			name: "栄養も回復も持たない消費物は道具として使える",
+			name: "使うの効果を持つ消費物は使える",
 			setup: func(world w.World, e ecs.Entity) {
 				world.Components.Consumable.Add(e, &gc.Consumable{})
+				world.Components.Remedy.Add(e, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 100})
 			},
 			want: []string{"Usable"},
 		},

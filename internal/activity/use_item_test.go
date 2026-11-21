@@ -183,12 +183,12 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		}
 
 		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorUseItem,
+			BehaviorName: gc.BehaviorEat,
 			State:        gc.ActivityStateRunning,
 			Params:       &gc.UseItemParams{Target: bread},
 		}
 
-		ua := &UseItemBehavior{}
+		ua := &UseItemBehavior{eat: true}
 		err := ua.DoTurn(comp, actor, world)
 
 		require.NoError(t, err)
@@ -265,12 +265,12 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorUseItem,
+			BehaviorName: gc.BehaviorEat,
 			State:        gc.ActivityStateRunning,
 			Params:       &gc.UseItemParams{Target: item},
 		}
 
-		ua := &UseItemBehavior{}
+		ua := &UseItemBehavior{eat: true}
 		err = ua.DoTurn(comp, player, world)
 
 		require.NoError(t, err)
@@ -322,11 +322,11 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 50})
 
 		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorUseItem,
+			BehaviorName: gc.BehaviorEat,
 			Params:       &gc.UseItemParams{Target: item},
 		}
 
-		ua := &UseItemBehavior{}
+		ua := &UseItemBehavior{eat: true}
 		err := ua.Validate(comp, actor, world)
 		assert.NoError(t, err)
 	})
@@ -341,11 +341,11 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorUseItem,
+			BehaviorName: gc.BehaviorEat,
 			Params:       &gc.UseItemParams{Target: item},
 		}
 
-		ua := &UseItemBehavior{}
+		ua := &UseItemBehavior{eat: true}
 		err = ua.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
@@ -826,7 +826,7 @@ func TestUseItem_満腹なら食べずにログを出す(t *testing.T) {
 			item, err := lifecycle.SpawnBackpackItem(world, "almond", 1)
 			require.NoError(t, err)
 
-			result, err := Execute(NewUseItemActivity(item), player, world)
+			result, err := Execute(NewEatActivity(item), player, world)
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.wantEaten, result.Success)

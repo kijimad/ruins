@@ -1,6 +1,7 @@
 package entityspec
 
 import (
+	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -16,17 +17,15 @@ func UseHints(world w.World, e ecs.Entity) []SpecRow {
 	}
 	c := world.Components
 	consumable := c.Consumable.Has(e)
-	nutrition := c.ProvidesNutrition.Has(e)
-	healing := c.ProvidesHealing.Has(e)
 
 	var uses []string
-	if consumable && (nutrition || healing) { // acceptConsumeFood
+	if consumable && activity.HasEatEffect(world, e) {
 		uses = append(uses, query.T(world, "Edible"))
 	}
 	if c.Book.Has(e) {
 		uses = append(uses, query.T(world, "Readable"))
 	}
-	if consumable && !nutrition && !healing { // acceptUseTool
+	if consumable && activity.HasUseEffect(world, e) {
 		uses = append(uses, query.T(world, "Usable"))
 	}
 	// 武器も防具も装備スロットに付けるので同じ「装備できる」にまとめる

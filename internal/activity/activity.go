@@ -40,6 +40,8 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 		return &DropBehavior{}, nil
 	case gc.BehaviorUseItem:
 		return &UseItemBehavior{}, nil
+	case gc.BehaviorEat:
+		return &UseItemBehavior{eat: true}, nil
 	case gc.BehaviorTalk:
 		return &TalkBehavior{}, nil
 	case gc.BehaviorOpenDoor:

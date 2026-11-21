@@ -6,8 +6,10 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -282,8 +284,8 @@ func TestIsRemedyOnly(t *testing.T) {
 
 	combo := world.ECS.NewEntity()
 	world.Components.Remedy.Add(combo, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 100})
-	world.Components.ProvidesHealing.Add(combo, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 10})
-	assert.False(t, u.isRemedyOnly(world, combo), "回復も持つなら治療専用でない")
+	world.Components.InflictsDamage.Add(combo, &gc.InflictsDamage{Amount: 1})
+	assert.False(t, u.isRemedyOnly(world, combo), "使うの組のほかの効果も持つなら治療専用でない")
 }
 
 func TestUseItemBehavior_Validate_治療専用は治せる不調がないと使えない(t *testing.T) {
@@ -319,34 +321,53 @@ func TestUseItemBehavior_Validate_併用効果があれば空振りでも使え�
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	// 治療に加えて回復も持つアイテムは、治せる不調が無くても回復で使える
+	// 治療に加えて使うの組のほかの効果も持つアイテムは、治せる不調が無くてもその効果で使える
 	item := world.ECS.NewEntity()
 	world.Components.Consumable.Add(item, &gc.Consumable{})
 	world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 150})
-	world.Components.ProvidesHealing.Add(item, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 10})
+	world.Components.InflictsDamage.Add(item, &gc.InflictsDamage{Amount: 1})
 
 	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
 	u := &UseItemBehavior{}
 	assert.NoError(t, u.Validate(comp, player, world), "治療専用でなければ弾かない")
 }
 
-func TestUseItem_蜂蜜を食べると空腹が満ち傷も手当てされる(t *testing.T) {
+func TestUseItem_蜂蜜(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-	world.Components.Hunger.Get(player).Current = 100
-	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].SetCondition(
-		gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 60, Severity: gc.TimerToSeverity(60)})
-	honey, err := lifecycle.SpawnBackpackItem(world, "honey", 1)
-	require.NoError(t, err)
+	setup := func(t *testing.T) (w.World, ecs.Entity, ecs.Entity) {
+		t.Helper()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		world.Components.Hunger.Get(player).Current = 100
+		world.Components.HP.Get(player).Current = 10
+		world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].SetCondition(
+			gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 60, Severity: gc.TimerToSeverity(60)})
+		honey, err := lifecycle.SpawnBackpackItem(world, "honey", 1)
+		require.NoError(t, err)
+		return world, player, honey
+	}
+	tendQuality := func(world w.World, player ecs.Entity) consts.Percent {
+		return world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].GetCondition(gc.ConditionType("laceration")).TendQuality
+	}
 
-	_, err = Execute(NewUseItemActivity(honey), player, world)
-	require.NoError(t, err)
-
-	assert.Equal(t, 175, world.Components.Hunger.Get(player).Current)
-	leg := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].GetCondition(gc.ConditionType("laceration"))
-	require.NotNil(t, leg)
-	assert.Equal(t, consts.Percent(100), leg.TendQuality)
+	t.Run("食べると空腹とHPが満ち、傷は手当てされない", func(t *testing.T) {
+		t.Parallel()
+		world, player, honey := setup(t)
+		_, err := Execute(NewEatActivity(honey), player, world)
+		require.NoError(t, err)
+		assert.Equal(t, 175, world.Components.Hunger.Get(player).Current)
+		assert.Greater(t, world.Components.HP.Get(player).Current, 10)
+		assert.Equal(t, consts.Percent(0), tendQuality(world, player))
+	})
+	t.Run("使うと傷が手当てされ、空腹とHPは変わらない", func(t *testing.T) {
+		t.Parallel()
+		world, player, honey := setup(t)
+		_, err := Execute(NewUseItemActivity(honey), player, world)
+		require.NoError(t, err)
+		assert.Equal(t, 100, world.Components.Hunger.Get(player).Current)
+		assert.Equal(t, 10, world.Components.HP.Get(player).Current)
+		assert.Equal(t, consts.Percent(100), tendQuality(world, player))
+	})
 }

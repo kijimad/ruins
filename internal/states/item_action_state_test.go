@@ -110,18 +110,18 @@ func TestVerbs_調べるは実行を持たず詳細モーダルを開く(t *test
 	assert.Fail(t, "調べるタブが verbList に存在しない")
 }
 
-// 食べるタブと使うタブの対象は排他で、同一アイテムが両方に現れないことを保証する。
-// フラグを増やしたときの取りこぼしを検知する
-func TestAcceptConsumeFood_食べる対象と使う対象は排他になる(t *testing.T) {
+func TestAcceptEatUse_食べると使うの対象は効果の組で決まる(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name    string
-		item    string
-		consume bool
-		use     bool
+		name string
+		item string
+		eat  bool
+		use  bool
 	}{
 		{"回復薬は回復を持つので食べる対象", "healing_potion", true, false},
-		{"手榴弾は栄養も回復も持たないので使う対象", "grenade", false, true},
+		{"手榴弾は使うの効果だけを持つので使う対象", "grenade", false, true},
+		{"包帯は治療だけを持つので使う対象", "bandage", false, true},
+		{"蜂蜜は栄養と治療を持つので両方の対象", "honey", true, true},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -131,9 +131,8 @@ func TestAcceptConsumeFood_食べる対象と使う対象は排他になる(t *t
 			require.NoError(t, err)
 			entity, err := lifecycle.SpawnBackpackItem(world, tt.item, 1)
 			require.NoError(t, err)
-			assert.Equal(t, tt.consume, acceptConsumeFood(world, entity), "食べる対象の判定")
-			assert.Equal(t, tt.use, acceptUseTool(world, entity), "使う対象の判定")
-			assert.False(t, acceptConsumeFood(world, entity) && acceptUseTool(world, entity), "食べると使うは同時に真にならない")
+			assert.Equal(t, tt.eat, acceptEat(world, entity), "食べる対象の判定")
+			assert.Equal(t, tt.use, acceptUse(world, entity), "使う対象の判定")
 		})
 	}
 }

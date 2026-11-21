@@ -18,8 +18,18 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// UseItemBehavior はBehaviorの実装
-type UseItemBehavior struct{}
+// UseItemBehavior はBehaviorの実装。eat が真なら食べるの効果を、偽なら使うの効果を適用する
+type UseItemBehavior struct {
+	eat bool
+}
+
+// effects はこの行動で適用する効果の組を返す
+func (u *UseItemBehavior) effects() []useEffect {
+	if u.eat {
+		return eatEffects
+	}
+	return useEffects
+}
 
 // Info はBehaviorの実装
 func (u *UseItemBehavior) Info() Info {
@@ -35,6 +45,9 @@ func (u *UseItemBehavior) Info() Info {
 
 // Name はBehaviorの実装
 func (u *UseItemBehavior) Name() gc.BehaviorName {
+	if u.eat {
+		return gc.BehaviorEat
+	}
 	return gc.BehaviorUseItem
 }
 
@@ -43,6 +56,27 @@ func NewUseItemActivity(target ecs.Entity) *gc.Activity {
 	comp := NewActivity(gc.BehaviorUseItem, 0)
 	comp.Params = &gc.UseItemParams{Target: target}
 	return comp
+}
+
+// NewEatActivity は食べるアイテムを指定して食べるアクティビティを組む。
+func NewEatActivity(target ecs.Entity) *gc.Activity {
+	comp := NewActivity(gc.BehaviorEat, 0)
+	comp.Params = &gc.UseItemParams{Target: target}
+	return comp
+}
+
+// HasUseEffect は物が使うの効果を1つ以上持つかを返す
+func HasUseEffect(world w.World, item ecs.Entity) bool {
+	return hasEffect(useEffects, world, item)
+}
+
+// HasEatEffect は物が食べるの効果を1つ以上持つかを返す
+func HasEatEffect(world w.World, item ecs.Entity) bool {
+	return hasEffect(eatEffects, world, item)
+}
+
+func hasEffect(effects []useEffect, world w.World, item ecs.Entity) bool {
+	return slices.ContainsFunc(effects, func(e useEffect) bool { return e.present(world, item) })
 }
 
 // Validate はBehaviorの実装
@@ -54,15 +88,8 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 	item := p.Target
 
-	// Use は効果のあるアイテムにしか提示されない。ここで効果なしなのは不変条件違反
-	hasEffect := false
-	for _, e := range useEffects {
-		if e.present(world, item) {
-			hasEffect = true
-			break
-		}
-	}
-	if !hasEffect {
+	// 食べる・使うは、その組の効果を持つアイテムにしか提示されない。ここで効果なしなのは不変条件違反
+	if !hasEffect(u.effects(), world, item) {
 		return fmt.Errorf("item has no effect")
 	}
 
@@ -71,7 +98,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 	}
 
 	// 各効果の使用前検証。空振りなど使えない理由があれば使う前に弾く
-	for _, e := range useEffects {
+	for _, e := range u.effects() {
 		if !e.present(world, item) {
 			continue
 		}
@@ -100,8 +127,8 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 	item := p.Target
 
-	// アイテムが持つ効果を順に適用する。効果の一覧は useEffects が単一の真実
-	for _, e := range useEffects {
+	// アイテムが持つ効果のうち、この行動の組の効果を順に適用する
+	for _, e := range u.effects() {
 		if !e.present(world, item) {
 			continue
 		}
@@ -190,12 +217,12 @@ func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *g
 }
 
 // isRemedyOnly はアイテムが治療だけを効果に持つかを返す。治療専用が空振りするなら Validate で使用を弾く。
-// 治療以外の効果を1つでも持てば専用でない。useEffects を見るので効果を足しても追従する
+// 同じ組の治療以外の効果を1つでも持てば専用でない
 func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
 	if !world.Components.Remedy.Has(item) {
 		return false
 	}
-	for _, e := range useEffects {
+	for _, e := range u.effects() {
 		if _, isRemedy := e.(remedyEffect); isRemedy {
 			continue
 		}

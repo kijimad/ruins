@@ -15486,6 +15486,10 @@
     targetGroup = "ALLY"
     targetNum = "SINGLE"
     usableScene = "ANY"
+  [items.providesHealing]
+    amount = 15
+    ratio = 0
+    valueType = "NUMERAL"
   [items.remedy]
     potency = 100
     treats = ["laceration"]
