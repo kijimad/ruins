@@ -789,9 +789,6 @@ import (
 #Throw: {
 	damage!:   #BaseDamage
 	accuracy!: #Accuracy
-
-	// 投げると壊れて無くなる。省くと壊れず、狙った敵の足元に落ちる
-	breaks?: bool
 }
 
 // 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す

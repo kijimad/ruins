@@ -83,41 +83,7 @@ func TestThrowBehavior_Validate(t *testing.T) {
 	}
 }
 
-func TestLandThrown(t *testing.T) {
-	t.Parallel()
-
-	t.Run("消える物は1つ減る", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
-		require.NoError(t, err)
-		_, err = lifecycle.SpawnBackpackItem(world, "stone", 1)
-		require.NoError(t, err)
-
-		require.NoError(t, landThrown(world, player, stone, consts.Coord[consts.Tile]{X: 13, Y: 10}, true))
-		assert.Equal(t, 1, countBackpackByRawID(world, player, "stone"))
-		assert.True(t, world.Components.WeightDirty.Has(player), "持ち主の重さを計算し直す")
-	})
-	t.Run("消えない物は落ちて拾い直せる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-		require.NoError(t, err)
-		stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
-		require.NoError(t, err)
-		coord := consts.Coord[consts.Tile]{X: 13, Y: 10}
-
-		require.NoError(t, landThrown(world, player, stone, coord, false))
-		assert.False(t, world.Components.LocationInBackpack.Has(stone))
-		require.True(t, world.Components.GridElement.Has(stone))
-		assert.Equal(t, coord, world.Components.GridElement.Get(stone).Coord)
-		assert.True(t, world.Components.WeightDirty.Has(player), "持ち主の重さを計算し直す")
-	})
-}
-
-func TestThrowBehavior_DoTurn_投げた物はバックパックから出る(t *testing.T) {
+func TestThrowBehavior_DoTurn_投げた物は無くなる(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -131,25 +97,7 @@ func TestThrowBehavior_DoTurn_投げた物はバックパックから出る(t *t
 
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(comp, player, world))
 	assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-	assert.Equal(t, 0, countBackpackByRawID(world, player, "stone"), "当たれば消え、外れれば敵の足元に落ちる")
-}
-
-func TestThrowBehavior_DoTurn_壊れる物は外れても無くなる(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
-	require.NoError(t, err)
-	grenade, err := lifecycle.SpawnBackpackItem(world, "grenade", 1)
-	require.NoError(t, err)
-	comp := NewThrowActivity(grenade, enemy)
-
-	require.NoError(t, (&ThrowBehavior{}).DoTurn(comp, player, world))
-
-	assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-	assert.False(t, world.ECS.Alive(grenade))
+	assert.False(t, world.ECS.Alive(stone), "当たっても外れても無くなる")
 	assert.True(t, world.Components.WeightDirty.Has(player), "持ち主の重さを計算し直す")
 }
 
@@ -167,7 +115,7 @@ func TestGrowWeaponSkill_投げると投擲のスキルが伸びる(t *testing.T
 	assert.Greater(t, skills.Get(rawschema.SkillIdThrow).Exp.Current, before)
 }
 
-func TestThrowBehavior_DoTurn_壊れる物は1つだけ減る(t *testing.T) {
+func TestThrowBehavior_DoTurn_積み重なった物は1つだけ減る(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -201,5 +149,5 @@ func TestThrowBehavior_DoTurn_威力0の物は傷を負わせずスキルも伸�
 
 	assert.Equal(t, hp, world.Components.HP.Get(enemy).Current)
 	assert.Equal(t, exp, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current)
-	assert.False(t, world.ECS.Alive(smoke), "壊れる物は無くなる")
+	assert.False(t, world.ECS.Alive(smoke), "投げた物は無くなる")
 }

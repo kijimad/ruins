@@ -340,8 +340,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 			AttackCategory: rawschema.AttackCategoryFist,
 		}
 
-		_, err := applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0)
-		require.NoError(t, err)
+		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
 
 		// CancelActivity は RemoveActivity で Activity を削除するので、キャンセルは Has で観測する
 		assert.False(t, world.Components.Activity.Has(target),
@@ -374,8 +373,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 			AttackCategory: rawschema.AttackCategoryFist,
 		}
 
-		_, err := applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0)
-		require.NoError(t, err)
+		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
 
 		// 中断不可なので生存中はアクティビティが残る
 		assert.True(t, world.Components.Activity.Has(target),
@@ -410,8 +408,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 			AttackCategory: rawschema.AttackCategoryFist,
 		}
 
-		_, err := applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0)
-		require.NoError(t, err)
+		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
 
 		// 死亡時のアクティビティキャンセルはDeadCleanupSystemが担当する
 		// applyAttackDamage時点ではアクティビティはまだ残っている
@@ -677,8 +674,7 @@ func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
 
 			// 命中率は上限があり外れうるので、補正を大きく取って何度も殴り、少なくとも1回は当てる
 			for range 20 {
-				_, err := applyAttackDamage(player, tree, world, attack, name, 1000, 0)
-				require.NoError(t, err)
+				require.NoError(t, applyAttackDamage(player, tree, world, attack, name, 1000, 0))
 			}
 
 			hp := world.Components.HP.Get(tree)

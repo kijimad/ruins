@@ -22,7 +22,7 @@ func TestThrowAttackOf(t *testing.T) {
 		wantOK bool
 	}{
 		{name: "投げの欄を書いた物は欄の値", item: "sharp_stone", want: gc.ThrowAttack{Damage: 7, Accuracy: 80}, wantOK: true},
-		{name: "壊れる物は壊れる", item: "grenade", want: gc.ThrowAttack{Damage: 20, Accuracy: 75, Breaks: true}, wantOK: true},
+		{name: "手榴弾は欄の値", item: "grenade", want: gc.ThrowAttack{Damage: 20, Accuracy: 75}, wantOK: true},
 		{name: "欄の無い物は重さから導く", item: "bread", want: gc.ThrowAttack{Damage: 1, Accuracy: 68}, wantOK: true},
 		{name: "5 kg を超える物は投げられない", item: "deployable_bed", wantOK: false},
 	}

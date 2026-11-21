@@ -930,7 +930,6 @@ func FindThrow(raws rawschema.Raws, name string) (gc.ThrowAttack, bool) {
 	return gc.ThrowAttack{
 		Damage:   item.Throw.Damage,
 		Accuracy: item.Throw.Accuracy,
-		Breaks:   item.Throw.Breaks != nil && *item.Throw.Breaks,
 	}, true
 }
 

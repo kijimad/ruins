@@ -267,11 +267,10 @@ func (m *Melee) GetCost() int { return m.Cost }
 // GetTargetType はAttackerの実装
 func (m *Melee) GetTargetType() TargetType { return m.TargetType }
 
-// ThrowAttack は物を投げたときの攻撃の値。コンポーネントでなく、投げるときに raw の欄か重さから導く
+// ThrowAttack は物を投げたときの攻撃の値。コンポーネントでなく、投げるときに raw の欄か重さから導く。投げた物は必ず無くなる
 type ThrowAttack struct {
 	Damage   int
 	Accuracy int
-	Breaks   bool // 投げると壊れて無くなる
 }
 
 // GetAccuracy はAttackerの実装

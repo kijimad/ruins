@@ -149,8 +149,7 @@ func (ab *MeleeBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, worl
 		return fmt.Errorf("failed to get attack parameters: %w", err)
 	}
 
-	_, err = applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)
-	return err
+	return applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)
 }
 
 func (ab *MeleeBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
@@ -242,17 +241,17 @@ func elementMult(target ecs.Entity, element rawschema.Element, world w.World) co
 }
 
 // applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
-// 射撃と投げるからも使う。当たったかを返す
-func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) (bool, error) {
+// 射撃と投げるからも使う
+func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) error {
 	if attack == nil {
-		return false, fmt.Errorf("attack must not be nil")
+		return fmt.Errorf("attack must not be nil")
 	}
 
 	hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
 	if !hit {
 		logAttackResult(actor, target, world, false, false, 0, attackMethodName)
 		lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
-		return false, nil
+		return nil
 	}
 
 	damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)
@@ -266,7 +265,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	gameaction.ApplyDamage(world, target, damage, actor)
 	if world.Components.Prop.Has(target) && world.Components.Dead.Has(target) {
 		if err := dropSalvage(world, actor, target); err != nil {
-			return true, err
+			return err
 		}
 	}
 	// HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
@@ -277,7 +276,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 		CancelActivity(target, "took an attack", world)
 	}
 
-	return true, nil
+	return nil
 }
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する

@@ -13986,7 +13986,6 @@
   weight = "400 g"
   [items.throw]
     accuracy = 75
-    breaks = true
     damage = 20
 
 [[items]]
@@ -14018,7 +14017,6 @@
   weight = "400 g"
   [items.throw]
     accuracy = 75
-    breaks = true
     damage = 15
 
 [[items]]
@@ -14078,7 +14076,6 @@
   weight = "400 g"
   [items.throw]
     accuracy = 75
-    breaks = true
     damage = 25
 
 [[items]]
@@ -14096,7 +14093,6 @@
     usableScene = "BATTLE"
   [items.throw]
     accuracy = 75
-    breaks = true
     damage = 0
 
 [[items]]
@@ -14244,7 +14240,6 @@
     usableScene = "BATTLE"
   [items.throw]
     accuracy = 75
-    breaks = true
     damage = 0
 
 [[items]]

@@ -2939,9 +2939,6 @@ type TemplateStart struct {
 type Throw struct {
 	Accuracy Accuracy `json:"accuracy"`
 
-	// Breaks 投げると壊れて無くなる。省くと壊れず、狙った敵の足元に落ちる
-	Breaks *bool `json:"breaks,omitempty"`
-
 	Damage BaseDamage `json:"damage"`
 }
 
