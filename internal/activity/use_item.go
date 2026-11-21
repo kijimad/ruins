@@ -33,9 +33,13 @@ func (u *UseItemBehavior) effects() []useEffect {
 
 // Info はBehaviorの実装
 func (u *UseItemBehavior) Info() Info {
+	name, desc := "Use Item", "Use an item"
+	if u.eat {
+		name, desc = "Eat", "Eat an item"
+	}
 	return Info{
-		Name:            "Use Item",
-		Description:     "Use an item",
+		Name:            name,
+		Description:     desc,
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
@@ -90,7 +94,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 	// 食べる・使うは、その組の効果を持つアイテムにしか提示されない。ここで効果なしなのは不変条件違反
 	if !hasEffect(u.effects(), world, item) {
-		return fmt.Errorf("item has no effect")
+		return errItemNoEffect
 	}
 
 	if !world.Components.HP.Has(actor) {
@@ -291,9 +295,12 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	actorMarkup := query.NameMarkup(actor, actorName, world)
 	itemMarkup := gamelog.Tag("item", itemName)
 	logger := gamelog.New(query.GetGameLog(world))
-	if isHealing {
+	switch {
+	case isHealing && u.eat:
+		logger.Markup(query.T(world, "%s ate %s and recovered %d HP.", actorMarkup, itemMarkup, amount))
+	case isHealing:
 		logger.Markup(query.T(world, "%s used %s and recovered %d HP.", actorMarkup, itemMarkup, amount))
-	} else {
+	default:
 		logger.Markup(query.T(world, "%s used %s and took %d damage.", actorMarkup, itemMarkup, amount))
 	}
 	logger.Log()

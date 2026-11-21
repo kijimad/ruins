@@ -840,3 +840,35 @@ func TestUseItem_満腹なら食べずにログを出す(t *testing.T) {
 		})
 	}
 }
+
+func TestGetBehavior_食べるは食べるの組で動く(t *testing.T) {
+	t.Parallel()
+
+	b, err := GetBehavior(gc.BehaviorEat)
+	require.NoError(t, err)
+	ub, ok := b.(*UseItemBehavior)
+	require.Truef(t, ok, "GetBehavior(BehaviorEat) は *UseItemBehavior を返すべきだが %T だった", b)
+	assert.Equal(t, gc.BehaviorEat, ub.Name())
+	assert.Equal(t, "Eat", ub.Info().Name)
+}
+
+func TestEffectSets_食べると使うの組は重ならない(t *testing.T) {
+	t.Parallel()
+
+	for _, e := range eatEffects {
+		assert.NotContains(t, useEffects, e, "%T が両方の組にある", e)
+	}
+}
+
+func TestUseItemBehavior_Validate_食べるの組の効果を持たない物は食べられない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	bandage, err := lifecycle.SpawnBackpackItem(world, "bandage", 1)
+	require.NoError(t, err)
+
+	ub := &UseItemBehavior{eat: true}
+	require.ErrorIs(t, ub.Validate(NewEatActivity(bandage), player, world), errItemNoEffect)
+}
