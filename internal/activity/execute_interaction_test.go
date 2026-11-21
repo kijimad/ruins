@@ -184,6 +184,25 @@ func TestExecuteInteraction_Ignite_火種の残量を減らし尽きれば燃え
 	}
 }
 
+func TestExecuteInteraction_Ignite_火種が無ければ火を立てない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
+	fuel := world.ECS.NewEntity()
+	world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
+	world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.Milligram(50000)})
+	world.Components.GridElement.Add(fuel, &gc.GridElement{Coord: tile})
+	world.Components.LocationOnField.Add(fuel, &gc.LocationOnField{})
+
+	_, err := ExecuteInteraction(world.ECS.NewEntity(), fuel, gc.InteractionIgnite, world)
+
+	require.Error(t, err)
+	assert.True(t, world.ECS.Alive(fuel), "燃料は残る")
+	fires := ecs.NewFilter1[gc.Burning](world.ECS).Query()
+	assert.Zero(t, fires.Count(), "火は立たない")
+	fires.Close()
+}
+
 // TestExecuteInteraction_UnknownKind は未知の種類が無効なConfigとして弾かれることを確認。
 // 平坦化により未知の種類はゼロ値（無効）のConfigを返すため、発動前の検証で拒否される
 func TestExecuteInteraction_UnknownKind(t *testing.T) {

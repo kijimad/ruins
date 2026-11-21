@@ -16,7 +16,7 @@ func FindStackInInventory(world w.World, id string) (ecs.Entity, bool) {
 	q := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 	for q.Next() {
 		entity := q.Entity()
-		if world.Components.RawID.Get(entity).ID == id && !worn(world, entity) {
+		if world.Components.RawID.Get(entity).ID == id && !partlyUsed(world, entity) {
 			q.Close()
 			return entity, true
 		}
@@ -24,8 +24,8 @@ func FindStackInInventory(world w.World, id string) (ecs.Entity, bool) {
 	return gc.InvalidEntity, false
 }
 
-// worn は entity が残量を持ち、上限まで残っていないかを返す
-func worn(world w.World, entity ecs.Entity) bool {
+// partlyUsed は entity が残量を持ち、上限まで残っていないかを返す
+func partlyUsed(world w.World, entity ecs.Entity) bool {
 	if !world.Components.Charge.Has(entity) {
 		return false
 	}
