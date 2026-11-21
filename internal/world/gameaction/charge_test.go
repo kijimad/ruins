@@ -61,12 +61,12 @@ func TestConsumeCharge_減っていく途中はログを出さない(t *testing.
 	torch, err := lifecycle.SpawnFieldItem(world, "torch", 3, 4, 1)
 	require.NoError(t, err)
 	lifecycle.MoveToEquip(world, torch, player, gc.SlotHand2)
-	world.Components.Charge.Get(torch).Current = 481
+	world.Components.Charge.Get(torch).Current = 300
 	logs := query.GetGameLog(world).Count()
 
 	ConsumeCharge(world, torch, 1)
 
-	assert.Equal(t, logs, query.GetGameLog(world).Count(), "ゲージの段が下がってもログは出さない")
+	assert.Equal(t, logs, query.GetGameLog(world).Count(), "減ってもログは出さない")
 }
 
 func TestConsumeCharge_尽きると燃え尽きたとログを出す(t *testing.T) {

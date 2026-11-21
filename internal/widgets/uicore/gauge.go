@@ -21,9 +21,14 @@ type Gauge struct {
 // Layout は Widget を満たす。
 func (g *Gauge) Layout(r image.Rectangle) { g.rect = r }
 
-// Draw は Widget を満たす。比率ぶんの塗りを枠内へ敷き、枠を重ねる。
+// Draw は Widget を満たす。比率ぶんの塗りを枠内へ敷き、枠を重ねる。比率は 0..1 に収める。
+// 比率が正なら最低1pxを塗り、残りわずかでも尽きたようには見せない
 func (g *Gauge) Draw(cv Canvas) {
-	fillW := int(float64(g.rect.Dx()) * g.Ratio)
+	ratio := max(0, min(1, g.Ratio))
+	fillW := int(float64(g.rect.Dx()) * ratio)
+	if ratio > 0 {
+		fillW = max(fillW, 1)
+	}
 	if fillW > 0 && g.Fill != nil {
 		// 塗りは上下1pxだけ内へ寄せ、枠の線と角の丸みに塗りが食み出さないようにする
 		dst := image.Rect(g.rect.Min.X, g.rect.Min.Y+1, g.rect.Min.X+fillW, g.rect.Max.Y-1)
