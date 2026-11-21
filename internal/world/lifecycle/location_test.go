@@ -193,6 +193,10 @@ func TestMoveToEquip(t *testing.T) {
 
 		require.NoError(t, MoveToBackpack(world, torch, owner))
 		assert.True(t, world.Components.LightSource.Get(torch).Enabled, "外しても消えない")
+
+		MoveToField(world, torch, &owner)
+		world.Components.GridElement.Add(torch, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
+		assert.True(t, query.LightLit(world, owner, torch), "背負ってから床に捨てても点いたまま照らす")
 	})
 
 	t.Run("バックパックから装備すると元オーナーと新オーナーの両方にWeightDirtyが付く", func(t *testing.T) {
