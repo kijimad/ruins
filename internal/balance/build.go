@@ -35,7 +35,7 @@ func RepresentativeBuilds(master rawschema.Raws) ([]BuildProfile, error) {
 	if err != nil {
 		return nil, err
 	}
-	weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+	weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
 	if err != nil {
 		return nil, err
 	}

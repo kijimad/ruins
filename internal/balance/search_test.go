@@ -3,6 +3,7 @@ package balance
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -22,13 +23,13 @@ func TestSolveScalar_範囲外は両立不能(t *testing.T) {
 	assert.False(t, ok)
 }
 
-func TestWithScaledMeleeDamage_不在アイテムはそのまま実行する(t *testing.T) {
+func TestWithScaledMeleeDamages_不在アイテムはそのまま実行する(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 	before := ruinsDay20PowerRatio(master)
 	called := false
 	// 存在しないアイテムIDでは何も変更せず fn だけ呼ぶ。指標は変わらない
-	withScaledMeleeDamage(master, "no_such_item", 2.0, func() {
+	withScaledMeleeDamages(master, map[string]float64{"no_such_item": 2.0}, func() {
 		called = true
 		assert.InDelta(t, before, ruinsDay20PowerRatio(master), 1e-9, "変更されない")
 	})
@@ -44,7 +45,7 @@ func TestSolveScalar_敵武器スケールで目標戦力比を探す(t *testing
 	base := ruinsDay20PowerRatio(master)
 	eval := func(k float64) float64 {
 		var got float64
-		withScaledMeleeDamage(master, "bite", k, func() { got = ruinsDay20PowerRatio(master) })
+		withScaledMeleeDamages(master, map[string]float64{BaselineEnemyAttack: k}, func() { got = ruinsDay20PowerRatio(master) })
 		return got
 	}
 	target := (eval(1.0) + eval(4.0)) / 2
@@ -68,7 +69,7 @@ func TestParetoFront_非劣集合を返す(t *testing.T) {
 	master := loadTestMaster(t)
 	base := ruinsDay20PowerRatio(master)
 	// プレイヤー武器と敵武器を動かし、序盤day1・中盤day10・終盤day20の目標逸脱を目的にする。
-	front := ParetoFront(master, []string{"bare_hands", "bite"}, []float64{0.8, 1.0, 1.5}, []int{1, 10, 20})
+	front := ParetoFront(master, []string{raw.BareHands, BaselineEnemyAttack}, []float64{0.8, 1.0, 1.5}, []int{1, 10, 20})
 	require.NotEmpty(t, front, "非劣集合は空でない")
 	for _, p := range front {
 		assert.Len(t, p.Deviations, 3, "代表日3つ分の逸脱を持つ")

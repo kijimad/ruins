@@ -30,7 +30,7 @@ func runBalanceReport(_ context.Context, _ *cli.Command) error {
 	if err != nil {
 		return fmt.Errorf("failed to load raw.toml: %w", err)
 	}
-	md, err := balance.RenderBaselineMarkdown(master, balance.BaselinePlayer, balance.BaselineWeapon, balance.BaselineDays)
+	md, err := balance.RenderBaselineMarkdown(master, balance.BaselinePlayer, raw.BareHands, balance.BaselineDays)
 	if err != nil {
 		return fmt.Errorf("failed to render baseline: %w", err)
 	}

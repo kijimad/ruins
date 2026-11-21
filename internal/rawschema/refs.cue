@@ -5,6 +5,7 @@ package rawschema
 
 // 索引が表を名前で引けるよう、#Raws の表をパッケージの最上位にも置く。省いた表は索引を空にする
 items?:            _
+bodyAttacks?:      _
 members?:          _
 commandTables?:    _
 dropTables?:       _
@@ -43,6 +44,8 @@ gladeSteps?:       _
 simpleSteps?:      _
 
 _itemIDs: {if items != _|_ for x in items {(x.id): true}}
+_bodyAttackIDs: {if bodyAttacks != _|_ for x in bodyAttacks {(x.id): true}}
+_meleeItemIDs: {if items != _|_ for x in items if x.melee != _|_ {(x.id): true}}
 _memberIDs: {if members != _|_ for x in members {(x.id): true}}
 _commandTableIDs: {if commandTables != _|_ for x in commandTables {(x.id): true}}
 _dropTableIDs: {if dropTables != _|_ for x in dropTables {(x.id): true}}

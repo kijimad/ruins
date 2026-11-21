@@ -3,6 +3,7 @@ package balance
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -10,7 +11,9 @@ import (
 func TestSkillDepthProfileFor_実効と死んだティアで全段を分ける(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
-	prof, err := SkillDepthProfileFor(master, BaselineWeapon, "ruins_area", 20)
+	bare, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
+	require.NoError(t, err)
+	prof, err := SkillDepthProfileFor(master, bare, "ruins_area", 20)
 	require.NoError(t, err)
 	require.GreaterOrEqual(t, len(prof.Tiers), 2)
 
@@ -30,9 +33,13 @@ func TestSkillDepthProfileFor_弱い武器ほど死んだティアが多い(t *t
 	master := loadTestMaster(t)
 	// 素手はダメージが小さく、+5%%/レベルの倍率が整数丸めで多く吸われるので死んだティアが多い。
 	// ダメージの大きい鉄剣は同じ倍率でも刻みが立ちやすく、実効ティアが増える。
-	bare, err := SkillDepthProfileFor(master, BaselineWeapon, "ruins_area", 20)
+	bareWeapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
 	require.NoError(t, err)
-	iron, err := SkillDepthProfileFor(master, "iron_sword", "ruins_area", 20)
+	ironWeapon, err := LoadWeaponFromItem(master, "iron_sword")
+	require.NoError(t, err)
+	bare, err := SkillDepthProfileFor(master, bareWeapon, "ruins_area", 20)
+	require.NoError(t, err)
+	iron, err := SkillDepthProfileFor(master, ironWeapon, "ruins_area", 20)
 	require.NoError(t, err)
 	assert.Greater(t, bare.DeadTiers, iron.DeadTiers, "弱い素手のほうが死んだティアが多い")
 	assert.Less(t, bare.EffectiveSteps, iron.EffectiveSteps, "弱い素手のほうが実効ティアが少ない")

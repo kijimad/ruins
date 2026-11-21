@@ -128,6 +128,13 @@ import (
 // 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
 #CombatPolicyType: "attack" | "evade" | "ignore"
 
+// 体の攻撃。体に備わり、拾えない攻撃
+#BodyAttack: {
+	id!:    #EntityID
+	name!:  #EntityName
+	melee!: #Melee
+}
+
 // コマンドテーブル
 #CommandTable: {
 	id!:   #EntityID
@@ -137,9 +144,21 @@ import (
 
 // コマンドテーブルエントリ
 #CommandTableEntry: {
-	// 使う武器の id
-	id!:     #EntityID
-	id_ref:  _itemIDs[id] @rawgen(-)
+	// 使う体の攻撃の id。bodyAttack と item のどちらか1つだけを書く
+	bodyAttack?: #EntityID
+	if bodyAttack != _|_ {
+		bodyAttack_ref: _bodyAttackIDs[bodyAttack] @rawgen(-)
+		itemAbsent:     true & item == _|_         @rawgen(-)
+	}
+
+	// 使う武器のアイテムの id。近接攻撃を持つアイテムに限る
+	item?: #EntityID
+	if bodyAttack == _|_ {
+		item!: _ @rawgen(-)
+	}
+	if item != _|_ {
+		item_ref: _meleeItemIDs[item] @rawgen(-)
+	}
 	weight!: #EntryWeight
 }
 
@@ -1279,6 +1298,7 @@ import (
 // ローデータ全体。TOMLファイルのルート構造を定義する
 #Raws: {
 	items?: [...#Item]
+	bodyAttacks?: [...#BodyAttack]
 	recipes?: [...#Recipe]
 	members?: [...#Member]
 	commandTables?: [...#CommandTable]
@@ -1340,6 +1360,7 @@ import (
 	dialogues?: [...#Dialogue]
 
 	// id は表ごとに一意にする。重複すると同じ id に別の行番号が入り、値が食い違う
+	bodyAttackIds_unique: {if bodyAttacks != _|_ for i, x in bodyAttacks {(x.id): i}} @rawgen(-)
 	facilityIds_unique: {if facilities != _|_ for i, x in facilities {(x.id): i}} @rawgen(-)
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)

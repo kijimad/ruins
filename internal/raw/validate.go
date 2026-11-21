@@ -38,6 +38,7 @@ var (
 	errEnumRowMissing                = errors.New("enum value has no raw row")
 	errTableMissing                  = errors.New("table required by code is missing")
 	errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
+	errBareHandsMissing              = errors.New("bare hands body attack is missing")
 	errRemedyTooWeak                 = errors.New("remedy potency is too low to speed recovery")
 	errRemedyNotTendable             = errors.New("remedy treats a condition that does not recover after tending")
 )
@@ -364,6 +365,9 @@ func validateCodeRows(raws rawschema.Raws) error {
 	}
 	if err := validateSkillCodeRows(raws); err != nil {
 		return err
+	}
+	if _, err := FindBodyAttack(raws, BareHands); err != nil {
+		return fmt.Errorf("%w: %w", errBareHandsMissing, err)
 	}
 	enumRows := []struct {
 		schema string

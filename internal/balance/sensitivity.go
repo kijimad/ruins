@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -49,13 +50,13 @@ func metricValue(master rawschema.Raws, p Params, idx int) float64 {
 		if err != nil {
 			return 0
 		}
-		weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+		weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
 		if err != nil {
 			return 0
 		}
 		player.Strength = int(math.Round(float64(player.Strength) * p.PlayerStrengthScale))
 		ratio := 0.0
-		withScaledMeleeDamage(master, "bite", p.EnemyWeaponScale, func() {
+		withScaledMeleeDamages(master, map[string]float64{BaselineEnemyAttack: p.EnemyWeaponScale}, func() {
 			if curve, e := DifficultyCurve(master, player, weapon, BaselineAreaTable, 20); e == nil && len(curve) >= 20 {
 				ratio = curve[19].PowerRatio
 			}

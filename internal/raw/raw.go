@@ -66,6 +66,10 @@ func LoadFromFile(path string) (rawschema.Raws, error) {
 var (
 	// errTOMLDecode はTOMLの構文が壊れていてデコードできないときに返す
 	errTOMLDecode = errors.New("TOML decode error")
+	// errCommandEntryTarget はコマンドテーブルの行が体の攻撃もアイテムも持たないときに返す
+	errCommandEntryTarget = errors.New("command table entry has neither bodyAttack nor item")
+	// errItemNoMelee はコマンドテーブルの行が引くアイテムが近接攻撃を持たないときに返す
+	errItemNoMelee = errors.New("item has no melee")
 	// errUnknownTOMLKeys はTOMLにスキーマにないキーが含まれるときに返す
 	errUnknownTOMLKeys = errors.New("unknown keys found in TOML")
 	// errBookSkillMissing は本にスキルが指定されていないときに返す
@@ -474,26 +478,6 @@ func NewRecipeSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	return entitySpec, nil
-}
-
-// NewWeaponSpec は指定された名前の武器のEntitySpecを生成する
-func NewWeaponSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
-	// 武器はアイテムの一種なので、Itemsから検索して存在確認
-	if _, err := FindItem(raws, name); err != nil {
-		return gc.EntitySpec{}, err
-	}
-
-	itemSpec, err := NewItemSpec(raws, name)
-	if err != nil {
-		return gc.EntitySpec{}, fmt.Errorf("failed to generate weapon spec: %w", err)
-	}
-
-	// Melee/Fire のいずれも持たない場合は武器ではない
-	if itemSpec.Melee == nil && itemSpec.Fire == nil {
-		return gc.EntitySpec{}, fmt.Errorf("%s is not a weapon (Melee/Fire component missing)", name)
-	}
-
-	return itemSpec, nil
 }
 
 // PlayerMemberID は player を持つ member の id を返す。読み込み時にちょうど1つあることを確かめる
@@ -962,13 +946,52 @@ func GetProfession(raws rawschema.Raws, id string) (rawschema.Profession, error)
 	return prof, nil
 }
 
-// SelectCommandByWeight はコマンドテーブルから重み付きランダム選択する
-func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (string, error) {
+// SelectCommandByWeight はコマンドテーブルから行を重み付きランダムに選ぶ。重みを持つ行が無ければ ok は偽
+func SelectCommandByWeight(ct rawschema.CommandTable, rng *rand.Rand) (rawschema.CommandTableEntry, bool) {
 	i, ok := consts.Pick(rng, ct.Entries, func(e rawschema.CommandTableEntry) float64 { return e.Weight })
 	if !ok {
-		return "", nil
+		return rawschema.CommandTableEntry{}, false
 	}
-	return ct.Entries[i].Id, nil
+	return ct.Entries[i], true
+}
+
+// BareHands は素手の体の攻撃の id
+const BareHands = "bare_hands"
+
+// FindBodyAttack は id の体の攻撃を返す
+func FindBodyAttack(raws rawschema.Raws, id string) (rawschema.BodyAttack, error) {
+	bodyAttack, ok := FindByKey(raws.BodyAttacks, func(a rawschema.BodyAttack) string { return a.Id }, id)
+	if !ok {
+		return rawschema.BodyAttack{}, NewKeyNotFoundError(id, "BodyAttacks")
+	}
+	return bodyAttack, nil
+}
+
+// BodyAttackMelee は体の攻撃の近接攻撃と名前を返す
+func BodyAttackMelee(raws rawschema.Raws, id string) (*gc.Melee, i18n.Msgid, error) {
+	bodyAttack, err := FindBodyAttack(raws, id)
+	if err != nil {
+		return nil, "", err
+	}
+	return parseMelee(&bodyAttack.Melee), i18n.Msgid(bodyAttack.Name), nil
+}
+
+// CommandEntryMelee は敵の攻撃表の行が引く近接攻撃と名前を返す。体の攻撃かアイテムかは行の欄で決まる
+func CommandEntryMelee(raws rawschema.Raws, entry rawschema.CommandTableEntry) (*gc.Melee, i18n.Msgid, error) {
+	if entry.BodyAttack != nil {
+		return BodyAttackMelee(raws, *entry.BodyAttack)
+	}
+	if entry.Item == nil {
+		return nil, "", errCommandEntryTarget
+	}
+	item, err := FindItem(raws, *entry.Item)
+	if err != nil {
+		return nil, "", err
+	}
+	if item.Melee == nil {
+		return nil, "", fmt.Errorf("%w: %s", errItemNoMelee, item.Id)
+	}
+	return parseMelee(item.Melee), i18n.Msgid(item.Name), nil
 }
 
 // SelectDropByWeight はドロップテーブルから重み付きランダム選択する。何も落とさないときは空文字を返す。

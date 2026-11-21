@@ -14,7 +14,7 @@ func ruinsDay20PowerRatio(master rawschema.Raws) float64 {
 	if err != nil {
 		return 0
 	}
-	weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+	weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
 	if err != nil {
 		return 0
 	}
@@ -23,23 +23,6 @@ func ruinsDay20PowerRatio(master rawschema.Raws) float64 {
 		return 0
 	}
 	return curve[len(curve)-1].PowerRatio
-}
-
-// withScaledMeleeDamage は itemID の近接ダメージを factor 倍した状態で fn を呼び、後で元へ戻す。master の item は
-// backing array を共有するので値を退避・復元する。並行変更は競合するので、使うなら master を呼び出しごとに独立させる。
-func withScaledMeleeDamage(master rawschema.Raws, itemID string, factor float64, fn func()) {
-	items := raw.PtrSlice(master.Items)
-	for i := range items {
-		if items[i].Id == itemID && items[i].Melee != nil {
-			orig := items[i].Melee.Damage
-			// 丸めで反映する。切り捨てだと factor=1.1 で奇数値が変化せず摂動が無反応になる
-			items[i].Melee.Damage = int(math.Round(float64(orig) * factor))
-			fn()
-			items[i].Melee.Damage = orig
-			return
-		}
-	}
-	fn()
 }
 
 // SolveScalar は eval が単調な区間 [lo,hi] で eval(x)=target となる x を二分探索で返す。端点が挟まなければ ok=false。
@@ -61,29 +44,36 @@ func SolveScalar(eval func(float64) float64, target, lo, hi float64, iters int) 
 	return (lo + hi) / 2, true
 }
 
-// withScaledMeleeDamages は複数アイテムの近接ダメージを同時に factor 倍して fn を呼び、後で全て戻す。単変数版の
-// 多変数化で、並行変更が競合する点も同じ。
+// withScaledMeleeDamages は体の攻撃とアイテムの近接ダメージを id ごとに factor 倍して fn を呼び、後で全て戻す。
+// id は両方の表で重ならない前提にする。master を書き換えるので並行に呼ばない
 func withScaledMeleeDamages(master rawschema.Raws, factors map[string]float64, fn func()) {
-	items := raw.PtrSlice(master.Items)
 	type saved struct {
-		idx  int
-		orig int
+		melee *rawschema.Melee
+		orig  int
 	}
 	restore := make([]saved, 0, len(factors))
-	for i := range items {
-		if items[i].Melee == nil {
-			continue
-		}
-		factor, ok := factors[items[i].Id]
+	scale := func(id string, m *rawschema.Melee) {
+		factor, ok := factors[id]
 		if !ok {
-			continue
+			return
 		}
-		restore = append(restore, saved{idx: i, orig: items[i].Melee.Damage})
-		items[i].Melee.Damage = int(math.Round(float64(items[i].Melee.Damage) * factor))
+		restore = append(restore, saved{melee: m, orig: m.Damage})
+		// 丸めで反映する。切り捨てだと factor=1.1 で奇数値が変化せず摂動が無反応になる
+		m.Damage = int(math.Round(float64(m.Damage) * factor))
+	}
+	bodyAttacks := raw.PtrSlice(master.BodyAttacks)
+	for i := range bodyAttacks {
+		scale(bodyAttacks[i].Id, &bodyAttacks[i].Melee)
+	}
+	items := raw.PtrSlice(master.Items)
+	for i := range items {
+		if items[i].Melee != nil {
+			scale(items[i].Id, items[i].Melee)
+		}
 	}
 	fn()
 	for _, s := range restore {
-		items[s.idx].Melee.Damage = s.orig
+		s.melee.Damage = s.orig
 	}
 }
 
@@ -100,7 +90,7 @@ func combatDeviations(master rawschema.Raws, repDays []int) ([]float64, bool) {
 	if err != nil {
 		return nil, false
 	}
-	weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+	weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
 	if err != nil {
 		return nil, false
 	}

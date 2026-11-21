@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -58,7 +59,7 @@ func TestCombatRiskCurve_危険度上昇で死亡確率が非減少傾向(t *tes
 	master := loadTestMaster(t)
 	player, err := LoadCombatantFromMember(master, BaselinePlayer)
 	require.NoError(t, err)
-	weapon, err := LoadWeaponFromItem(master, BaselineWeapon)
+	weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
 	require.NoError(t, err)
 
 	curve, err := CombatRiskCurve(master, player, weapon, BaselineAreaTable, BaselineDays)

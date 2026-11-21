@@ -612,29 +612,6 @@ Amount = 1
 	assert.Equal(t, KeyNotFoundError{Key: "対応アイテムなしレシピ", Collection: "Items"}, keyErr)
 }
 
-func TestNewWeaponSpec_アイテム生成に失敗するとエラー(t *testing.T) {
-	t.Parallel()
-
-	str := `
-[[Items]]
-Name = "不正な重量の武器"
-id = "不正な重量の武器"
-Weight = "abc"
-
-[Items.Melee]
-Damage = 10
-Accuracy = 80
-AttackCount = 1
-Element = "none"
-AttackCategory = "sword"
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	_, err = NewWeaponSpec(raws, "不正な重量の武器")
-	require.ErrorIs(t, err, consts.ErrInvalidWeight)
-}
-
 func TestNewMemberSpec_未存在はエラー(t *testing.T) {
 	t.Parallel()
 

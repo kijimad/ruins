@@ -26,7 +26,9 @@ func TestTargetPowerRatio_境界と補間(t *testing.T) {
 func TestBaseline_行数と範囲判定(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
-	rows, err := Baseline(master, BaselinePlayer, BaselineWeapon, BaselineAreaTable, BaselineDays)
+	weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
+	require.NoError(t, err)
+	rows, err := Baseline(master, BaselinePlayer, weapon, BaselineAreaTable, BaselineDays)
 	require.NoError(t, err)
 	require.Len(t, rows, BaselineDays)
 
