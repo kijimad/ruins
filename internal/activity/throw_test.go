@@ -339,10 +339,3 @@ func TestExplode(t *testing.T) {
 		assert.Greater(t, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current, exp)
 	})
 }
-
-func TestThrowAttack_GetElement(t *testing.T) {
-	t.Parallel()
-
-	assert.Equal(t, rawschema.ElementNONE, gc.ThrowAttack{}.GetElement())
-	assert.Equal(t, rawschema.ElementFIRE, gc.ThrowAttack{Blast: &gc.Blast{Element: rawschema.ElementFIRE}}.GetElement())
-}

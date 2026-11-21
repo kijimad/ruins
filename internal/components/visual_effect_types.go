@@ -99,7 +99,7 @@ func NewDamageEffect(damage int, element rawschema.Element, elementMult consts.P
 func elementDamageColor(element rawschema.Element) color.RGBA {
 	switch element {
 	case rawschema.ElementNONE:
-		return color.RGBA{255, 80, 80, 255}
+		return noElementDamageColor
 	case rawschema.ElementFIRE:
 		return color.RGBA{255, 150, 40, 255}
 	case rawschema.ElementTHUNDER:
@@ -109,8 +109,11 @@ func elementDamageColor(element rawschema.Element) color.RGBA {
 	case rawschema.ElementPHOTON:
 		return color.RGBA{255, 255, 230, 255}
 	}
-	return color.RGBA{255, 80, 80, 255}
+	return noElementDamageColor
 }
+
+// noElementDamageColor は無属性のダメージの数字の色
+var noElementDamageColor = color.RGBA{255, 80, 80, 255}
 
 // NewConditionDamageEffect は毒や失血など不調で削れた HP の数字を、攻撃のダメージと見分けられる紫で浮かべる
 func NewConditionDamageEffect(damage int) *DamageTextEffect {

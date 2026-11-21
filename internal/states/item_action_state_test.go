@@ -239,3 +239,19 @@ func TestThrowMode_drawSource_画面を開いたときの威力を出す(t *test
 	throwMode{item: stone, attack: gc.ThrowAttack{Damage: 9}}.drawSource(world, player, func(line string) { lines = append(lines, line) })
 	assert.Equal(t, []string{"Item: Stone", "Attack power: 9"}, lines)
 }
+
+func TestThrowMode_爆ぜる物は命中率100(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	grenade, err := lifecycle.SpawnBackpackItem(world, "grenade", 1)
+	require.NoError(t, err)
+	attack, ok := query.ThrowAttackOf(world, grenade)
+	require.True(t, ok)
+
+	assert.Equal(t, 100, throwMode{item: grenade, attack: attack}.hitRate(world, player, enemy))
+}

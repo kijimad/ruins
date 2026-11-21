@@ -152,7 +152,8 @@ func explode(world w.World, actor, target ecs.Entity, attack gc.ThrowAttack, nam
 			infect(world, victim, attack.Blast.Condition)
 		}
 	}
-	if hurtOther {
+	// 自分の爆風で倒れた本人のスキルは伸ばさない
+	if hurtOther && !world.Components.Dead.Has(actor) {
 		growWeaponSkill(actor, world, attack)
 	}
 	return nil
