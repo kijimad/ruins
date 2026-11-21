@@ -329,3 +329,24 @@ func TestUseItemBehavior_Validate_併用効果があれば空振りでも使え�
 	u := &UseItemBehavior{}
 	assert.NoError(t, u.Validate(comp, player, world), "治療専用でなければ弾かない")
 }
+
+func TestUseItem_蜂蜜を食べると空腹が満ち傷も手当てされる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	world.Components.Hunger.Get(player).Current = 100
+	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].SetCondition(
+		gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 60, Severity: gc.TimerToSeverity(60)})
+	honey, err := lifecycle.SpawnBackpackItem(world, "honey", 1)
+	require.NoError(t, err)
+
+	_, err = Execute(NewUseItemActivity(honey), player, world)
+	require.NoError(t, err)
+
+	assert.Equal(t, 175, world.Components.Hunger.Get(player).Current)
+	leg := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].GetCondition(gc.ConditionType("laceration"))
+	require.NotNil(t, leg)
+	assert.Equal(t, consts.Percent(100), leg.TendQuality)
+}
