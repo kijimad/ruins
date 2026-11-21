@@ -145,7 +145,7 @@ func (st *TargetingState) doAction(world w.World, action inputmapper.ActionID) (
 	return st.ConsumeTransition(), nil
 }
 
-// refreshEnemies は射撃可能な敵一覧を距離順で更新する。
+// refreshEnemies は狙える敵の一覧を距離順で更新する。
 // 視界内の敵から死亡済み・射程外・射線遮断の敵を除外する
 func (st *TargetingState) refreshEnemies(world w.World) error {
 	enemies, err := query.GetVisibleEnemies(world)
@@ -158,22 +158,22 @@ func (st *TargetingState) refreshEnemies(world w.World) error {
 		return playerErr
 	}
 
-	// 射撃可能な敵のみ残す
-	var shootable []ecs.Entity
+	// 狙える敵のみ残す
+	var targetable []ecs.Entity
 	for _, e := range enemies {
 		if st.mode.canTarget(world, playerEntity, e) {
-			shootable = append(shootable, e)
+			targetable = append(targetable, e)
 		}
 	}
 
 	// プレイヤーからの距離順にソート
-	slices.SortFunc(shootable, func(a, b ecs.Entity) int {
+	slices.SortFunc(targetable, func(a, b ecs.Entity) int {
 		da := activity.EntityDistance(playerEntity, a, world)
 		db := activity.EntityDistance(playerEntity, b, world)
 		return cmp.Compare(da, db)
 	})
 
-	st.enemies = shootable
+	st.enemies = targetable
 	if st.targetIndex >= len(st.enemies) {
 		st.targetIndex = 0
 	}

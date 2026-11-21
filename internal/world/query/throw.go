@@ -28,11 +28,10 @@ func ThrowAttackOf(world w.World, item ecs.Entity) (gc.ThrowAttack, bool) {
 	if !CanThrow(world, item) {
 		return gc.ThrowAttack{}, false
 	}
-	mg := itemWeight(world, item)
 	if attack, ok := raw.FindThrow(world.Resources.RawMaster, GetEntityID(item, world)); ok {
 		return attack, true
 	}
-	return throwAttackFromWeight(mg), true
+	return throwAttackFromWeight(itemWeight(world, item)), true
 }
 
 // throwAttackFromWeight は重さから投げの値を導く。威力は 1 kg あたり 1、命中は 1 kg あたり 5 下がる。どちらも四捨五入する

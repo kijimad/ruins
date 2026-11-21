@@ -92,10 +92,15 @@ func (tb *ThrowBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 		name = world.Components.Name.Get(p.Item).Name
 	}
 
-	hitModifier := calculateRangedHitModifier(actor, p.Target, attack, world)
-	hit, err := applyAttackDamage(actor, p.Target, world, attack, name, hitModifier, 0)
-	if err != nil {
-		return err
+	// 威力 0 の物は、効果を持つまで攻撃として扱わない。ダメージの式は威力 0 でも能力値と出目で傷を負わせる
+	hit := false
+	if attack.Damage > 0 {
+		hitModifier := calculateRangedHitModifier(actor, p.Target, attack, world)
+		var err error
+		hit, err = applyAttackDamage(actor, p.Target, world, attack, name, hitModifier, 0)
+		if err != nil {
+			return err
+		}
 	}
 	if err := landThrown(world, actor, p.Item, coord, hit || attack.Breaks); err != nil {
 		return err

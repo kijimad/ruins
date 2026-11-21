@@ -183,3 +183,23 @@ func TestThrowBehavior_DoTurn_壊れる物は1つだけ減る(t *testing.T) {
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(grenade, enemy), player, world))
 	assert.Equal(t, 1, countBackpackByRawID(world, player, "grenade"))
 }
+
+func TestThrowBehavior_DoTurn_威力0の物は傷を負わせずスキルも伸ばさない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	smoke, err := lifecycle.SpawnBackpackItem(world, "smoke_bomb", 1)
+	require.NoError(t, err)
+	hp := world.Components.HP.Get(enemy).Current
+	exp := world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current
+
+	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(smoke, enemy), player, world))
+
+	assert.Equal(t, hp, world.Components.HP.Get(enemy).Current)
+	assert.Equal(t, exp, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current)
+	assert.False(t, world.ECS.Alive(smoke), "壊れる物は無くなる")
+}
