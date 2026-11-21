@@ -220,8 +220,8 @@ func (u *UseItemBehavior) applyRemedy(actor ecs.Entity, world w.World, remedy *g
 	return true
 }
 
-// isRemedyOnly はアイテムが治療だけを効果に持つかを返す。治療専用が空振りするなら Validate で使用を弾く。
-// 同じ組の治療以外の効果を1つでも持てば専用でない
+// isRemedyOnly はこの行動の組の中で、アイテムが治療だけを効果に持つかを返す。治療専用が空振りするなら Validate で使用を弾く。
+// ほかの組の効果は見ないので、栄養を持つ蜂蜜も使うの組では治療専用になる
 func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
 	if !world.Components.Remedy.Has(item) {
 		return false
