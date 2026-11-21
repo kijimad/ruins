@@ -87,7 +87,10 @@ func (tb *ThrowBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	}
 	// 倒した敵の死亡の処理に頼らないよう、落とす座標は当てる前に取る
 	coord := world.Components.GridElement.Get(p.Target).Coord
-	name := i18n.Msgid(query.GetEntityName(p.Item, world))
+	var name i18n.Msgid
+	if world.Components.Name.Has(p.Item) {
+		name = world.Components.Name.Get(p.Item).Name
+	}
 
 	hitModifier := calculateRangedHitModifier(actor, p.Target, attack, world)
 	hit, err := applyAttackDamage(actor, p.Target, world, attack, name, hitModifier, 0)

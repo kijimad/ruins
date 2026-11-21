@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -168,4 +169,39 @@ func TestItemActionBindings_条件が重ならない(t *testing.T) {
 	t.Parallel()
 
 	assert.NotPanics(t, func() { keybind.MustMerge(itemActionBindings) })
+}
+
+func TestExecThrow_狙う画面へ切り替える(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
+
+	trans, err := execThrow(world, stone)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransSwitch, trans.Type)
+	require.Len(t, trans.NewStateFuncs, 1)
+	state, err := trans.NewStateFuncs[0]()
+	require.NoError(t, err)
+	targeting, ok := state.(*TargetingState)
+	require.True(t, ok)
+	assert.Equal(t, throwMode{item: stone}, targeting.mode)
+}
+
+func TestThrowMode_unavailable(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
+	mode := throwMode{item: stone}
+
+	assert.Empty(t, mode.unavailable(world, player))
+	lifecycle.MoveMembersToField(world, []ecs.Entity{stone}, consts.Coord[consts.Tile]{X: 2, Y: 2}, player)
+	assert.Equal(t, query.T(world, "Nothing to throw"), mode.unavailable(world, player))
 }

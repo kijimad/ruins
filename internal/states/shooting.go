@@ -284,9 +284,10 @@ func (st *TargetingState) drawTargetInfo(world w.World, target ecs.Entity, drawT
 // ShootMode は装備中の遠距離武器で撃つ狙い方。R でリロードする
 type ShootMode struct{}
 
-func (ShootMode) bindings() []keybind.Binding {
-	return append(slices.Clone(targetingBindings), keybind.Binding{Key: ebiten.KeyR, Action: inputmapper.ActionReload})
-}
+// shootBindings は射撃の束縛。狙う画面の共通の束縛に、R のリロードを足す
+var shootBindings = append(slices.Clone(targetingBindings), keybind.Binding{Key: ebiten.KeyR, Action: inputmapper.ActionReload})
+
+func (ShootMode) bindings() []keybind.Binding { return shootBindings }
 
 func (ShootMode) canTarget(world w.World, player, target ecs.Entity) bool {
 	return activity.CanShootTarget(player, target, world)
