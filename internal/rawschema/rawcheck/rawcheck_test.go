@@ -97,7 +97,7 @@ func TestValidate_携行光源を持つアイテムは残量と近接攻撃を�
 	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
 	assert.Equal(t, []string{"items.1.melee"}, ce.Paths(), "残量だけでは近接攻撃が欠ける")
 
-	lamp.Melee = &rawschema.Melee{Accuracy: 100, Damage: 1, AttackCount: 1, AttackCategory: rawschema.AttackCategoryFist, Element: rawschema.ElementNONE, TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE}
+	lamp.Melee = (*raws.Items)[0].Melee
 	require.NoError(t, rawcheck.Validate(raws), "残量と近接攻撃を持てば通る")
 }
 
