@@ -157,7 +157,7 @@ func execUseItem(world w.World, entity ecs.Entity) (es.Transition[w.World], erro
 
 // execEat は選択アイテムを食べダンジョンへ戻る
 func execEat(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
-	return execItemActivity(world, activity.NewEatActivity(entity))
+	return execItemActivity(world, activity.NewEatItemActivity(entity))
 }
 
 // execItemActivity はプレイヤーにアイテムのアクティビティを実行させダンジョンへ戻る

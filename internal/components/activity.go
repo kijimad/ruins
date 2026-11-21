@@ -47,7 +47,7 @@ const (
 	BehaviorPickup    BehaviorName = "Pickup"
 	BehaviorDrop      BehaviorName = "Drop"
 	BehaviorUseItem   BehaviorName = "UseItem"
-	BehaviorEat       BehaviorName = "Eat"
+	BehaviorEatItem   BehaviorName = "EatItem"
 	BehaviorTalk      BehaviorName = "Talk"
 	BehaviorOpenDoor  BehaviorName = "OpenDoor"
 	BehaviorCloseDoor BehaviorName = "CloseDoor"

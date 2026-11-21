@@ -183,12 +183,12 @@ func TestConsumeBehavior_DoTurn(t *testing.T) {
 		}
 
 		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorEat,
+			BehaviorName: gc.BehaviorEatItem,
 			State:        gc.ActivityStateRunning,
 			Params:       &gc.ConsumeParams{Target: bread},
 		}
 
-		ua := &eatBehavior
+		ua := &eatItemBehavior
 		err := ua.DoTurn(comp, actor, world)
 
 		require.NoError(t, err)
@@ -341,11 +341,11 @@ func TestConsumeBehavior_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorEat,
+			BehaviorName: gc.BehaviorEatItem,
 			Params:       &gc.ConsumeParams{Target: item},
 		}
 
-		ua := &eatBehavior
+		ua := &eatItemBehavior
 		err = ua.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
@@ -826,7 +826,7 @@ func TestUseItem_満腹なら食べずにログを出す(t *testing.T) {
 			item, err := lifecycle.SpawnBackpackItem(world, "almond", 1)
 			require.NoError(t, err)
 
-			result, err := Execute(NewEatActivity(item), player, world)
+			result, err := Execute(NewEatItemActivity(item), player, world)
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.wantEaten, result.Success)
@@ -844,11 +844,11 @@ func TestUseItem_満腹なら食べずにログを出す(t *testing.T) {
 func TestGetBehavior_食べるは食べるの組で動く(t *testing.T) {
 	t.Parallel()
 
-	b, err := GetBehavior(gc.BehaviorEat)
+	b, err := GetBehavior(gc.BehaviorEatItem)
 	require.NoError(t, err)
 	ub, ok := b.(*ConsumeBehavior)
-	require.Truef(t, ok, "GetBehavior(BehaviorEat) は *ConsumeBehavior を返すべきだが %T だった", b)
-	assert.Equal(t, gc.BehaviorEat, ub.Name())
+	require.Truef(t, ok, "GetBehavior(BehaviorEatItem) は *ConsumeBehavior を返すべきだが %T だった", b)
+	assert.Equal(t, gc.BehaviorEatItem, ub.Name())
 	assert.Equal(t, "Eat", ub.Info().Name)
 }
 
@@ -869,6 +869,6 @@ func TestConsumeBehavior_Validate_食べるの組の効果を持たない物は�
 	bandage, err := lifecycle.SpawnBackpackItem(world, "bandage", 1)
 	require.NoError(t, err)
 
-	ub := &eatBehavior
-	require.ErrorIs(t, ub.Validate(NewEatActivity(bandage), player, world), errItemNoEffect)
+	ub := &eatItemBehavior
+	require.ErrorIs(t, ub.Validate(NewEatItemActivity(bandage), player, world), errItemNoEffect)
 }

@@ -355,7 +355,7 @@ func TestUseItem_蜂蜜(t *testing.T) {
 	t.Run("食べると空腹が満ち、HPと傷は変わらない", func(t *testing.T) {
 		t.Parallel()
 		world, player, honey := setup(t)
-		_, err := Execute(NewEatActivity(honey), player, world)
+		_, err := Execute(NewEatItemActivity(honey), player, world)
 		require.NoError(t, err)
 		assert.Equal(t, 175, world.Components.Hunger.Get(player).Current)
 		assert.Equal(t, 10, world.Components.HP.Get(player).Current)
@@ -374,7 +374,7 @@ func TestUseItem_蜂蜜(t *testing.T) {
 		h := world.Components.Hunger.Get(player)
 		h.Current = h.Max
 		var ue *UserError
-		require.ErrorAs(t, (&eatBehavior).Validate(NewEatActivity(honey), player, world), &ue)
+		require.ErrorAs(t, (&eatItemBehavior).Validate(NewEatItemActivity(honey), player, world), &ue)
 	})
 	t.Run("使うと傷が手当てされ、空腹とHPは変わらない", func(t *testing.T) {
 		t.Parallel()

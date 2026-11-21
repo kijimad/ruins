@@ -19,7 +19,7 @@ import (
 )
 
 // ConsumeBehavior は物を食べる・使う行動。どの効果を適用するかを effects で持つ。
-// 値は eatBehavior と useItemBehavior の2つだけで、書き換える状態を持たないので GetBehavior はそのまま返す
+// 値は eatItemBehavior と useItemBehavior の2つだけで、書き換える状態を持たないので GetBehavior はそのまま返す
 type ConsumeBehavior struct {
 	name    gc.BehaviorName
 	label   string
@@ -28,7 +28,7 @@ type ConsumeBehavior struct {
 }
 
 var (
-	eatBehavior     = ConsumeBehavior{name: gc.BehaviorEat, label: "Eat", desc: "Eat an item", effects: eatEffects}
+	eatItemBehavior = ConsumeBehavior{name: gc.BehaviorEatItem, label: "Eat", desc: "Eat an item", effects: eatEffects}
 	useItemBehavior = ConsumeBehavior{name: gc.BehaviorUseItem, label: "Use Item", desc: "Use an item", effects: useEffects}
 )
 
@@ -56,9 +56,9 @@ func NewUseItemActivity(target ecs.Entity) *gc.Activity {
 	return comp
 }
 
-// NewEatActivity は食べるアイテムを指定して食べるアクティビティを組む。
-func NewEatActivity(target ecs.Entity) *gc.Activity {
-	comp := NewActivity(gc.BehaviorEat, 0)
+// NewEatItemActivity は食べるアイテムを指定して食べるアクティビティを組む。
+func NewEatItemActivity(target ecs.Entity) *gc.Activity {
+	comp := NewActivity(gc.BehaviorEatItem, 0)
 	comp.Params = &gc.ConsumeParams{Target: target}
 	return comp
 }
