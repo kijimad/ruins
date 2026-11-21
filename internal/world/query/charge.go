@@ -5,23 +5,14 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ChargeStageCount は残量を見せる段階の数
-const ChargeStageCount = 5
-
-// ChargeStage は残量を ChargeStageCount 段のうち何段残っているかで返す。上限を ChargeStageCount 等分した境目を割るたびに
-// 1段下がり、0 は尽きている。残量を持たなければ ok は偽
-func ChargeStage(world w.World, entity ecs.Entity) (int, bool) {
+// ChargeRatio は残量の上限に対する割合を 0 から 1 で返す。残量を持たなければ ok は偽
+func ChargeRatio(world w.World, entity ecs.Entity) (float64, bool) {
 	if !world.Components.Charge.Has(entity) {
 		return 0, false
 	}
 	charge := world.Components.Charge.Get(entity)
-	return chargeStage(charge.Current, charge.Max), true
-}
-
-// chargeStage は current と max から段階を求める。割り切れないときは切り上げ、少しでも残れば1段になる
-func chargeStage(current, maxCharge int) int {
-	if current <= 0 || maxCharge <= 0 {
-		return 0
+	if charge.Max <= 0 {
+		return 0, true
 	}
-	return min((current*ChargeStageCount+maxCharge-1)/maxCharge, ChargeStageCount)
+	return max(0, min(1, float64(charge.Current)/float64(charge.Max))), true
 }

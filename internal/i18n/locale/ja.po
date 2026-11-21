@@ -464,12 +464,6 @@ msgstr "%sを構えた"
 msgid "%s burned out."
 msgstr "%sが燃え尽きた"
 
-msgid "Charge"
-msgstr "残量"
-
-msgid "%d / %d turns"
-msgstr "%d / %d ターン"
-
 msgid "Command"
 msgstr "命令"
 

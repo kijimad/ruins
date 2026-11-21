@@ -199,7 +199,7 @@ func buildEquipSelectUI(world w.World, props EquipSelectProps, selectedIndex int
 		rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(nil), styled.TextCell(query.T(world, "Unequip"))}})
 	}
 	for _, entity := range props.Items {
-		rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(menuIcon(world, entity)), styled.TextCell(query.GetEntityName(entity, world))}})
+		rows = append(rows, menuframe.Row{Cells: []styled.Cell{itemIconCell(world, entity), styled.TextCell(query.GetEntityName(entity, world))}})
 	}
 	list, pager := menuframe.RenderList(selectedIndex, rows, styled.Cols(styled.Icon(), styled.Name()),
 		menuframe.ListOpts{EmptyText: query.T(world, "Nothing to equip")}, res)

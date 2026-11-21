@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/draw"
@@ -22,21 +21,6 @@ var errNilSpriteRender = errors.New("sprite render is nil")
 type SpriteStore struct {
 	sheets map[string]components.SpriteSheet
 	images map[spriteKey]*ebiten.Image
-	gauges map[gaugeKey]*ebiten.Image
-}
-
-// gaugeKey はゲージを描き込んだ縮小画像を一意に決める組
-type gaugeKey struct {
-	sprite spriteKey
-	gauge  Gauge
-}
-
-// Gauge はアイコンの下端に描き込む、残量を Total 段に区切ったゲージ。残っている Filled 段を Fill の色で、残りを Empty の色で塗る
-type Gauge struct {
-	Filled int
-	Total  int
-	Fill   color.RGBA
-	Empty  color.RGBA
 }
 
 // spriteKey は解決結果を一意に決める組。size=0 は等倍、正の size は同じスプライトの縮小を表す。
@@ -48,7 +32,7 @@ type spriteKey struct {
 
 // NewSpriteStore は空のスプライト置き場を作る。
 func NewSpriteStore() *SpriteStore {
-	return &SpriteStore{images: map[spriteKey]*ebiten.Image{}, gauges: map[gaugeKey]*ebiten.Image{}}
+	return &SpriteStore{images: map[spriteKey]*ebiten.Image{}}
 }
 
 // SetSheets は解決元のスプライトシートを差し替える。Resources.SetSpriteSheets から呼ぶ。
@@ -56,7 +40,6 @@ func NewSpriteStore() *SpriteStore {
 func (s *SpriteStore) SetSheets(sheets map[string]components.SpriteSheet) {
 	s.sheets = sheets
 	s.images = map[spriteKey]*ebiten.Image{}
-	s.gauges = map[gaugeKey]*ebiten.Image{}
 }
 
 // Image は sr が指すスプライトの等倍の部分画像を返す。解決できなければ nil を返し、描かない行として扱わせる。
@@ -98,67 +81,6 @@ func (s *SpriteStore) Sized(sr *components.SpriteRender, size int) *ebiten.Image
 	return img
 }
 
-// SizedGauge は Sized と同じ縮小画像の下端に gauge を描き込んだ画像を返す。スプライトとゲージの組ごとに一度だけ作る。
-// CPU 側の元画像が無いスプライトはゲージを描き込めないので、Sized の画像を返す
-func (s *SpriteStore) SizedGauge(sr *components.SpriteRender, size int, gauge Gauge) *ebiten.Image {
-	if sr == nil || size <= 0 {
-		return nil
-	}
-	key := gaugeKey{sprite: spriteKey{sheet: sr.SpriteSheetName, sprite: sr.SpriteKey, size: size}, gauge: gauge}
-	if img, ok := s.gauges[key]; ok {
-		return img
-	}
-	tex, rect, ok := s.Rect(sr)
-	if !ok {
-		return nil
-	}
-	if tex.Source == nil {
-		return s.Sized(sr, size)
-	}
-	dst := shrinkToRGBA(tex, rect, size)
-	if dst == nil {
-		return nil
-	}
-	drawGauge(dst, gauge)
-	img := ebiten.NewImage(dst.Bounds().Dx(), dst.Bounds().Dy())
-	img.WritePixels(dst.Pix)
-	s.gauges[key] = img
-	return img
-}
-
-// drawGauge は dst の下端3行に段階のゲージを描く
-func drawGauge(dst *image.RGBA, g Gauge) {
-	const height = 3
-	b := dst.Bounds()
-	for i, r := range GaugeSegments(image.Rect(b.Min.X, b.Max.Y-height, b.Max.X, b.Max.Y), g.Total, 1) {
-		c := g.Empty
-		if i < g.Filled {
-			c = g.Fill
-		}
-		draw.Draw(dst, r, image.NewUniform(c), image.Point{}, draw.Src)
-	}
-}
-
-// GaugeSegments は area の中にゲージの total 段の矩形を左から並べて返す。段のあいだを gap 空けて中央に寄せる。
-// 幅が足りなければ段のあいだを詰め、段の幅は1ピクセルより細くしない。段の数より狭ければ左に寄せ、右の段は area をはみ出す。
-// 一覧のアイコンと HUD の手持ち欄が同じ並べ方を使う
-func GaugeSegments(area image.Rectangle, total, gap int) []image.Rectangle {
-	if total <= 0 {
-		return nil
-	}
-	if area.Dx() < total+gap*(total-1) {
-		gap = 0
-	}
-	segW := max(1, (area.Dx()-gap*(total-1))/total)
-	left := area.Min.X + max(0, (area.Dx()-(segW*total+gap*(total-1)))/2)
-	segments := make([]image.Rectangle, 0, total)
-	for i := range total {
-		x := left + i*(segW+gap)
-		segments = append(segments, image.Rect(x, area.Min.Y, x+segW, area.Max.Y))
-	}
-	return segments
-}
-
 // Rect は sr が指すスプライトのテクスチャと、その中の切り出し矩形を返す。解決できなければ ok=false。
 // 矩形はテクスチャ範囲へクランプした絶対座標で、SubImage の切り出しにも、アトラス全体を
 // 使うときの UV 座標にも使える。スプライトの矩形を求める箇所はこれを通し、解決を1つに保つ。
@@ -198,45 +120,30 @@ func spriteRect(sheets map[string]components.SpriteSheet, sr *components.SpriteR
 	return sheet, rect, nil
 }
 
-// shrinkToRGBA は元画像から rect を切り出し、size の正方へ縦横比を保って収めた CPU 側の画像を返す。
-// size より小さいスプライトは縮めずに写す
-func shrinkToRGBA(tex components.Texture, rect image.Rectangle, size int) *image.RGBA {
-	sw, sh := rect.Dx(), rect.Dy()
-	if sw <= 0 || sh <= 0 {
-		return nil
-	}
-	dw, dh := sw, sh
-	if sw > size || sh > size {
-		dw, dh = size, size
-		if sw >= sh {
-			dh = max(1, sh*size/sw)
-		} else {
-			dw = max(1, sw*size/sh)
-		}
-	}
-	dst := image.NewRGBA(image.Rect(0, 0, dw, dh))
-	if dw == sw && dh == sh {
-		draw.Draw(dst, dst.Bounds(), tex.Source, rect.Min, draw.Src)
-		return dst
-	}
-	// image.RGBA は乗算済みアルファなので、透過の境界でも色がにじまない重み付けになる
-	draw.CatmullRom.Scale(dst, dst.Bounds(), tex.Source, rect, draw.Src, nil)
-	return dst
-}
-
 // shrinkToFit は tex の rect の部分を size の正方へ収まるまで縦横比を保って縮める。
 // 拡大はしないので、すでに収まっている部分はテクスチャの部分画像をそのまま返す。
 //
 // GPU の端数倍率の縮小はテクセル境界の読みが揺れて決定的でないため、縮小は CPU で一度だけ行う。
 func shrinkToFit(tex components.Texture, rect image.Rectangle, size int) *ebiten.Image {
-	if rect.Dx() <= 0 || rect.Dy() <= 0 {
+	sw, sh := rect.Dx(), rect.Dy()
+	if sw <= 0 || sh <= 0 {
 		return nil
 	}
-	if (rect.Dx() <= size && rect.Dy() <= size) || tex.Source == nil {
+	if (sw <= size && sh <= size) || tex.Source == nil {
 		return components.SubImage(tex.Image, rect)
 	}
-	dst := shrinkToRGBA(tex, rect, size)
-	out := ebiten.NewImage(dst.Bounds().Dx(), dst.Bounds().Dy())
+	dw, dh := size, size
+	if sw >= sh {
+		dh = max(1, sh*size/sw)
+	} else {
+		dw = max(1, sw*size/sh)
+	}
+
+	// image.RGBA は乗算済みアルファなので、透過の境界でも色がにじまない重み付けになる
+	dst := image.NewRGBA(image.Rect(0, 0, dw, dh))
+	draw.CatmullRom.Scale(dst, dst.Bounds(), tex.Source, rect, draw.Src, nil)
+
+	out := ebiten.NewImage(dw, dh)
 	out.WritePixels(dst.Pix)
 	return out
 }

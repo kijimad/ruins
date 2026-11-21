@@ -40,18 +40,6 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	}, labels)
 }
 
-func TestUpdateSpec_残量を今の値と上限で表示する(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	e := world.ECS.NewEntity()
-	world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: 420})
-
-	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
-
-	assert.Equal(t, []string{"Basic", "Charge", "420 / 600 turns"}, labels)
-}
-
 func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

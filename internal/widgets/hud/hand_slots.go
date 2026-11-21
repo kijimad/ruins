@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -58,12 +59,13 @@ func (hs *HandSlots) Draw(cv uicore.Canvas, data HandSlotsData, world w.World) {
 		}
 		widths = append(widths, config.SlotSize)
 		cells = append(cells, &slotWidget{
-			chrome:   hs.chrome,
-			face:     hs.face,
-			slot:     slot,
-			number:   i + 1,
-			selected: slot.SlotNumber == data.SelectedSlot,
-			sprites:  sprites,
+			chrome:    hs.chrome,
+			face:      hs.face,
+			slot:      slot,
+			number:    i + 1,
+			selected:  slot.SlotNumber == data.SelectedSlot,
+			sprites:   sprites,
+			gaugeFill: world.Resources.UIResources.GaugeFill,
 		})
 	}
 	widths = append(widths, 0)
@@ -86,6 +88,8 @@ type slotWidget struct {
 	number   int
 	selected bool
 	sprites  *resources.SpriteStore
+	// gaugeFill は残量のゲージの塗りのテクスチャ
+	gaugeFill *ebiten.Image
 }
 
 // Layout は uicore.Widget を満たす。
@@ -104,26 +108,21 @@ func (s *slotWidget) Draw(cv uicore.Canvas) {
 			cv.DrawImage(image.Pt(s.rect.Min.X+(s.rect.Dx()-b.Dx())/2, s.rect.Min.Y+(s.rect.Dy()-b.Dy())/2), img)
 		}
 	}
-	if s.slot.ChargeStages > 0 {
+	if s.slot.HasCharge {
 		s.drawGauge(cv)
 	}
 	numberText := fmt.Sprint(s.number)
 	cv.DrawText(image.Pt(s.rect.Min.X+slotNumberPad, s.rect.Min.Y+slotNumberPad), numberText, s.face, theme.TextPrimary)
 }
 
-// drawGauge は欄の下端に残量の段階のゲージを描く
+// drawGauge は欄の下端に残量のゲージを描く。HUD のほかのゲージと同じ部品で描く
 func (s *slotWidget) drawGauge(cv uicore.Canvas) {
-	const height, gap = 4, 2
+	const height = 6
 	inner := s.rect.Inset(slotNumberPad)
-	fill := theme.ChargeColor(s.slot.ChargeStage, s.slot.ChargeStages)
-	area := image.Rect(inner.Min.X, inner.Max.Y-height, inner.Max.X, inner.Max.Y)
-	for i, r := range resources.GaugeSegments(area, s.slot.ChargeStages, gap) {
-		c := theme.ChargeEmpty
-		if i < s.slot.ChargeStage {
-			c = fill
-		}
-		cv.FillRect(r, c, uicore.RectOptions{})
-	}
+	g := newGauge(s.gaugeFill, s.slot.ChargeRatio, theme.HealthGaugeColor(s.slot.ChargeRatio))
+	g.Radius = 2
+	g.Layout(image.Rect(inner.Min.X, inner.Max.Y-height, inner.Max.X, inner.Max.Y))
+	g.Draw(cv)
 }
 
 // Children は uicore.Widget を満たす。子は持たない。

@@ -203,14 +203,6 @@ var basicParts = []specPart{
 			return nutritionRows(world, s.ProvidesNutrition)
 		},
 	},
-	{ // 残量。減った今の値が要るので実体のみ
-		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
-			if !world.Components.Charge.Has(e) {
-				return nil
-			}
-			return []SpecRow{chargeRow(world, world.Components.Charge.Get(e))}
-		},
-	},
 	{ // 鮮度。生成時の刻印が要るので実体のみ
 		fromEntity: func(world w.World, e ecs.Entity) []SpecRow {
 			if !world.Components.Perishable.Has(e) {
@@ -420,11 +412,6 @@ func remedyRows(world w.World, remedy *gc.Remedy) []SpecRow {
 	}
 	rows = append(rows, SpecRow{Label: query.T(world, "Potency"), Value: fmt.Sprintf("%d%%", int(remedy.Potency))})
 	return markChildren(rows)
-}
-
-// chargeRow は残量の1行を返す。灯りの残量はターン数で数える
-func chargeRow(world w.World, charge *gc.Charge) SpecRow {
-	return SpecRow{Label: query.T(world, "Charge"), Value: query.T(world, "%d / %d turns", charge.Current, charge.Max)}
 }
 
 // freshnessRow は鮮度の1行を返す。鮮度の算出は query.FreshnessStageOf に委ねる

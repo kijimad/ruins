@@ -1,8 +1,10 @@
 package menuframe
 
 import (
+	"image"
 	"image/color"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
 	"github.com/kijimaD/ruins/internal/resources"
@@ -166,7 +168,7 @@ func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, se
 	cellWidgets := make([]uicore.Widget, len(cells))
 	for i, c := range cells {
 		if c.Icon != nil {
-			cellWidgets[i] = uicore.NewGraphic(c.Icon)
+			cellWidgets[i] = iconCell(c, res.GaugeFill)
 			continue
 		}
 		t := uicore.NewText(c.Text, face, textColor)
@@ -178,6 +180,43 @@ func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, se
 	}
 	return rowChrome(indentedRow(indent, colWidths, cellWidgets), res, selected)
 }
+
+// iconCell はアイコンのセルを返す。ゲージを持つなら、アイコンの下端に HUD と同じゲージを重ねる
+func iconCell(c styled.Cell, gaugeFill *ebiten.Image) uicore.Widget {
+	icon := uicore.NewGraphic(c.Icon)
+	if c.Gauge == nil {
+		return icon
+	}
+	return &gaugedIcon{icon: icon, size: c.Icon.Bounds().Size(), gauge: &uicore.Gauge{
+		Fill: gaugeFill, Ratio: c.Gauge.Ratio, FillColor: c.Gauge.Color, Border: theme.HUDGaugeBorder, Radius: 1,
+	}}
+}
+
+// gaugedIcon はアイコンの下端にゲージを重ねたセル
+type gaugedIcon struct {
+	icon  *uicore.Graphic
+	size  image.Point
+	gauge *uicore.Gauge
+}
+
+// gaugedIconHeight はアイコンに重ねるゲージの高さ
+const gaugedIconHeight = 4
+
+// Layout は uicore.Widget を満たす。アイコンは左寄せ・縦中央に置かれるので、ゲージをその下端に合わせる
+func (g *gaugedIcon) Layout(r image.Rectangle) {
+	g.icon.Layout(r)
+	bottom := r.Min.Y + (r.Dy()+g.size.Y)/2
+	g.gauge.Layout(image.Rect(r.Min.X, bottom-gaugedIconHeight, r.Min.X+g.size.X, bottom))
+}
+
+// Draw は uicore.Widget を満たす。アイコンを描いてからゲージを重ねる
+func (g *gaugedIcon) Draw(cv uicore.Canvas) {
+	g.icon.Draw(cv)
+	g.gauge.Draw(cv)
+}
+
+// Children は uicore.Widget を満たす。子は自分で描くので返さない
+func (g *gaugedIcon) Children() []uicore.Widget { return nil }
 
 // SelectionRow は中身を持たない1行ぶんの意匠を返す。選択中の強調と下端の区切り線だけを持ち、
 // 中身は呼び出し側が別に重ねる。行の内容を列で表せない一覧が、意匠だけを共有するのに使う。

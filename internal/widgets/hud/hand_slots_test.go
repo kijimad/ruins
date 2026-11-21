@@ -2,13 +2,12 @@ package hud
 
 import (
 	"image"
-	"image/color"
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/kijimaD/ruins/internal/loader"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,16 +32,15 @@ func TestSlotWidget_Draw(t *testing.T) {
 		assert.Equal(t, 1, cv.roundedStrokes, "非選択は背景の枠だけで選択枠は描かない")
 	})
 
-	t.Run("残量を持つ物は下端にゲージの段を並べる", func(t *testing.T) {
+	t.Run("残量を持つ物は下端に割合のぶんだけ塗ったゲージを描く", func(t *testing.T) {
 		t.Parallel()
 		cv := &fakeCanvas{}
-		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: HandSlotInfo{ChargeStage: 3, ChargeStages: 5}, number: 1}
+		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: HandSlotInfo{ChargeRatio: 0.5, HasCharge: true}, number: 1, gaugeFill: ebiten.NewImage(1, 1)}
 		s.Draw(cv)
 
-		inner := rect.Inset(slotNumberPad)
-		assert.Equal(t, resources.GaugeSegments(image.Rect(inner.Min.X, inner.Max.Y-4, inner.Max.X, inner.Max.Y), 5, 2), cv.fillRects)
-		fill := theme.ChargeColor(3, 5)
-		assert.Equal(t, []color.Color{fill, fill, fill, theme.ChargeEmpty, theme.ChargeEmpty}, cv.fillColors)
+		// 欄の内側の下端6pxに枠を引き、枠の上下1px内側へ幅の半分を塗る
+		assert.Equal(t, []image.Rectangle{image.Rect(14, 59, 34, 63)}, cv.tintedRects)
+		assert.Equal(t, 2, cv.roundedStrokes, "背景の枠とゲージの枠")
 	})
 
 	t.Run("残量を持たない物はゲージを描かない", func(t *testing.T) {
@@ -51,7 +49,8 @@ func TestSlotWidget_Draw(t *testing.T) {
 		s := &slotWidget{rect: rect, chrome: chrome, face: res.Text.SmallFace, slot: HandSlotInfo{}, number: 1}
 		s.Draw(cv)
 
-		assert.Empty(t, cv.fillRects)
+		assert.Empty(t, cv.tintedRects)
+		assert.Equal(t, 1, cv.roundedStrokes, "背景の枠だけでゲージの枠は描かない")
 	})
 
 	t.Run("選択中は矩形いっぱいに枠線を重ねる", func(t *testing.T) {

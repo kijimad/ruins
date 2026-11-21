@@ -2,7 +2,6 @@ package resources
 
 import (
 	"image"
-	"image/color"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -242,110 +241,4 @@ func TestSpriteStoreSized_縦長の矩形は縦を基準に縮める(t *testing.
 	require.NotNil(t, img)
 	assert.Equal(t, 20, img.Bounds().Dy())
 	assert.Equal(t, 10, img.Bounds().Dx())
-}
-
-func TestDrawGauge_満ちた段を色で残りを暗く描く(t *testing.T) {
-	t.Parallel()
-	dst := image.NewRGBA(image.Rect(0, 0, 19, 10))
-	fill := color.RGBA{R: 1, G: 2, B: 3, A: 255}
-
-	empty := color.RGBA{R: 0x30, G: 0x30, B: 0x30, A: 0xff}
-	drawGauge(dst, Gauge{Filled: 2, Total: 5, Fill: fill, Empty: empty})
-
-	// 段は幅3で1ピクセル空けて並び、下端の3行に描く
-	assert.Equal(t, fill, dst.RGBAAt(0, 9), "1段目は満ちた色")
-	assert.Equal(t, fill, dst.RGBAAt(4, 7), "2段目は満ちた色")
-	assert.Equal(t, empty, dst.RGBAAt(8, 9), "3段目は空きの色")
-	assert.Equal(t, color.RGBA{}, dst.RGBAAt(3, 9), "段のあいだは空ける")
-	assert.Equal(t, color.RGBA{}, dst.RGBAAt(0, 6), "ゲージの上は描かない")
-}
-
-func TestSizedGauge(t *testing.T) {
-	t.Parallel()
-
-	source := image.NewRGBA(image.Rect(0, 0, 8, 8))
-	sheet := func(src image.Image) map[string]components.SpriteSheet {
-		return map[string]components.SpriteSheet{"sheet": {
-			Texture: components.Texture{Image: ebiten.NewImage(8, 8), Source: src},
-			Sprites: map[string]components.Sprite{"key": {X: 0, Y: 0, Width: 8, Height: 8}},
-		}}
-	}
-	sr := &components.SpriteRender{SpriteSheetName: "sheet", SpriteKey: "key"}
-	gauge := Gauge{Filled: 3, Total: 5, Fill: color.RGBA{G: 255, A: 255}}
-
-	t.Run("同じスプライトと段階なら同じ画像を使い回す", func(t *testing.T) {
-		t.Parallel()
-		s := newSpriteStore(t, sheet(source))
-		img := s.SizedGauge(sr, 20, gauge)
-		require.NotNil(t, img)
-		assert.Same(t, img, s.SizedGauge(sr, 20, gauge))
-		assert.NotSame(t, img, s.SizedGauge(sr, 20, Gauge{Filled: 2, Total: 5, Fill: gauge.Fill}))
-	})
-	t.Run("CPU 側の元画像が無ければゲージを焼かずに縮小画像を返す", func(t *testing.T) {
-		t.Parallel()
-		s := newSpriteStore(t, sheet(nil))
-		assert.Same(t, s.Sized(sr, 20), s.SizedGauge(sr, 20, gauge))
-	})
-}
-
-func TestDrawGauge_段が描けない大きさでも落ちない(t *testing.T) {
-	t.Parallel()
-	fill := color.RGBA{R: 1, A: 255}
-	assert.NotPanics(t, func() { drawGauge(image.NewRGBA(image.Rect(0, 0, 4, 4)), Gauge{Filled: 1, Total: 0, Fill: fill}) })
-	assert.NotPanics(t, func() { drawGauge(image.NewRGBA(image.Rect(0, 0, 3, 2)), Gauge{Filled: 5, Total: 5, Fill: fill}) })
-}
-
-func TestDrawGauge_幅が足りなければ段のあいだを詰めて全段を収める(t *testing.T) {
-	t.Parallel()
-	dst := image.NewRGBA(image.Rect(0, 0, 6, 4))
-	fill := color.RGBA{R: 1, A: 255}
-	empty := color.RGBA{B: 1, A: 255}
-
-	drawGauge(dst, Gauge{Filled: 2, Total: 5, Fill: fill, Empty: empty})
-
-	got := make([]color.RGBA, 0, 5)
-	for x := range 5 {
-		got = append(got, dst.RGBAAt(x, 3))
-	}
-	assert.Equal(t, []color.RGBA{fill, fill, empty, empty, empty}, got)
-}
-
-func TestSizedGauge_解決できなければnil(t *testing.T) {
-	t.Parallel()
-	s := newSpriteStore(t, map[string]components.SpriteSheet{})
-	gauge := Gauge{Filled: 1, Total: 5}
-	sr := &components.SpriteRender{SpriteSheetName: "missing", SpriteKey: "a"}
-
-	assert.Nil(t, s.SizedGauge(nil, 20, gauge), "SpriteRender が nil")
-	assert.Nil(t, s.SizedGauge(sr, 0, gauge), "大きさが0")
-	assert.Nil(t, s.SizedGauge(sr, 20, gauge), "シートが見つからない")
-}
-
-func TestGaugeSegments(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name  string
-		area  image.Rectangle
-		total int
-		gap   int
-		want  []image.Rectangle
-	}{
-		{name: "余りを左右に分けて中央に寄せる", area: image.Rect(10, 0, 50, 4), total: 5, gap: 2, want: []image.Rectangle{
-			image.Rect(11, 0, 17, 4), image.Rect(19, 0, 25, 4), image.Rect(27, 0, 33, 4), image.Rect(35, 0, 41, 4), image.Rect(43, 0, 49, 4),
-		}},
-		{name: "幅が足りなければ段のあいだを詰める", area: image.Rect(0, 0, 6, 1), total: 5, gap: 1, want: []image.Rectangle{
-			image.Rect(0, 0, 1, 1), image.Rect(1, 0, 2, 1), image.Rect(2, 0, 3, 1), image.Rect(3, 0, 4, 1), image.Rect(4, 0, 5, 1),
-		}},
-		{name: "段の数より狭ければ左端から並べる", area: image.Rect(10, 0, 13, 1), total: 5, gap: 1, want: []image.Rectangle{
-			image.Rect(10, 0, 11, 1), image.Rect(11, 0, 12, 1), image.Rect(12, 0, 13, 1), image.Rect(13, 0, 14, 1), image.Rect(14, 0, 15, 1),
-		}},
-		{name: "段が無ければ並べない", area: image.Rect(0, 0, 6, 1), total: 0, gap: 1},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, GaugeSegments(tt.area, tt.total, tt.gap))
-		})
-	}
 }

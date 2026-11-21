@@ -155,14 +155,6 @@ var (
 	StatusSuccess = rgb(0x198754)
 	// StatusDanger は危険色
 	StatusDanger = rgb(0xdc3545)
-	// ChargeHigh は残量が多いときのゲージの色
-	ChargeHigh = rgb(0x4caf50)
-	// ChargeMid は残量が半ばのときのゲージの色
-	ChargeMid = rgb(0xffc107)
-	// ChargeLow は残量が少ないときのゲージの色
-	ChargeLow = rgb(0xdc3545)
-	// ChargeEmpty はゲージの空いた段の色
-	ChargeEmpty = rgb(0x303030)
 )
 
 // ========== 属性色 ==========
@@ -178,14 +170,10 @@ var (
 	ElementPhoton = rgb(0xffff00)
 )
 
-// ChargeColor は残量のゲージの満ちた段の色を返す。満ちた段が全体の8割以上なら緑、4割以上なら黄、その下は赤にする
-func ChargeColor(filled, total int) color.RGBA {
-	switch {
-	case filled*5 >= total*4:
-		return ChargeHigh
-	case filled*5 >= total*2:
-		return ChargeMid
-	default:
-		return ChargeLow
+// HealthGaugeColor は HP のように減ると悪くなるゲージの塗り色を返す。半分を境に緑から黄、黄から赤へ寄る
+func HealthGaugeColor(ratio float64) color.RGBA {
+	if ratio > 0.5 {
+		return LerpColor(HUDHealthFull, HUDHealthHalf, (1.0-ratio)*2)
 	}
+	return LerpColor(HUDHealthEmpty, HUDHealthHalf, ratio*2)
 }

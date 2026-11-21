@@ -1,6 +1,8 @@
 package styled
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -19,6 +21,14 @@ const (
 type Cell struct {
 	Text string
 	Icon *ebiten.Image
+	// Gauge はアイコンの下端に重ねるゲージ。nil なら重ねない
+	Gauge *CellGauge
+}
+
+// CellGauge はアイコンの下端に重ねるゲージの割合と塗りの色
+type CellGauge struct {
+	Ratio float64
+	Color color.RGBA
 }
 
 // TextCell は文字列を表すセルを返す

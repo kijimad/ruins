@@ -8,43 +8,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestChargeStage_割るたびに1段下がる(t *testing.T) {
+func TestChargeRatio(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		current int
-		want    int
+		name   string
+		charge *gc.Charge
+		want   float64
+		wantOK bool
 	}{
-		{current: 600, want: 5},
-		{current: 481, want: 5},
-		{current: 480, want: 4},
-		{current: 361, want: 4},
-		{current: 360, want: 3},
-		{current: 120, want: 1},
-		{current: 1, want: 1},
-		{current: 0, want: 0},
+		{name: "上限に対する割合を返す", charge: &gc.Charge{Max: 600, Current: 150}, want: 0.25, wantOK: true},
+		{name: "上限を超えても1に収める", charge: &gc.Charge{Max: 600, Current: 700}, want: 1, wantOK: true},
+		{name: "上限が無ければ0", charge: &gc.Charge{Max: 0, Current: 10}, want: 0, wantOK: true},
+		{name: "残量を持たなければ ok は偽"},
 	}
 	for _, tt := range tests {
-		assert.Equal(t, tt.want, chargeStage(tt.current, 600), tt.current)
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			e := world.ECS.NewEntity()
+			if tt.charge != nil {
+				world.Components.Charge.Add(e, tt.charge)
+			}
+			got, ok := ChargeRatio(world, e)
+			assert.Equal(t, tt.wantOK, ok)
+			assert.InDelta(t, tt.want, got, 1e-9)
+		})
 	}
-}
-
-func TestChargeStage_上限が無いか超えたときも段の数に収まる(t *testing.T) {
-	t.Parallel()
-	assert.Equal(t, 0, chargeStage(10, 0), "上限が無ければ尽きている扱い")
-	assert.Equal(t, ChargeStageCount, chargeStage(700, 600), "上限を超えても全段まで")
-}
-
-func TestChargeStage_残量を持つ物だけ段階を返す(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	torch := world.ECS.NewEntity()
-	world.Components.Charge.Add(torch, &gc.Charge{Max: 600, Current: 300})
-	rock := world.ECS.NewEntity()
-
-	stage, ok := ChargeStage(world, torch)
-	assert.True(t, ok)
-	assert.Equal(t, 3, stage)
-	_, ok = ChargeStage(world, rock)
-	assert.False(t, ok)
 }

@@ -2,7 +2,6 @@ package states
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -30,14 +29,18 @@ func itemMenuColumns(trailing ...styled.Col) []styled.Col {
 }
 
 // menuIcon は entity のスプライトを一覧のアイコン列の大きさで返す。縮小はリソース側が
-// 一度だけ済ませるので、描画は等倍になる。残量を持つ物はアイコンの下端に残量のゲージを描き込む
+// 一度だけ済ませるので、描画は等倍になる
 func menuIcon(world w.World, e ecs.Entity) *ebiten.Image {
-	sr := world.Components.SpriteRender.Get(e)
-	stage, ok := query.ChargeStage(world, e)
-	if !ok {
-		return world.Resources.Sprites.Sized(sr, theme.MenuIconW)
+	return world.Resources.Sprites.Sized(world.Components.SpriteRender.Get(e), theme.MenuIconW)
+}
+
+// itemIconCell は entity のアイコンのセルを返す。残量を持つ物は、アイコンの下端に HUD と同じ残量のゲージを重ねる
+func itemIconCell(world w.World, e ecs.Entity) styled.Cell {
+	cell := styled.IconCell(menuIcon(world, e))
+	if ratio, ok := query.ChargeRatio(world, e); ok {
+		cell.Gauge = &styled.CellGauge{Ratio: ratio, Color: theme.HealthGaugeColor(ratio)}
 	}
-	return world.Resources.Sprites.SizedGauge(sr, theme.MenuIconW, resources.Gauge{Filled: stage, Total: query.ChargeStageCount, Fill: theme.ChargeColor(stage, query.ChargeStageCount), Empty: theme.ChargeEmpty})
+	return cell
 }
 
 // itemMenuRow はアイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、
@@ -46,13 +49,12 @@ func menuIcon(world w.World, e ecs.Entity) *ebiten.Image {
 // 全走査が走るため、束ねた結果を持ち回って表示する
 func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuframe.Row {
 	name := query.GetEntityName(e, world)
-	icon := menuIcon(world, e)
 	label := query.FormatNameCount(name, count)
 	// 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする
 	if marker := query.FreshnessMarker(world, e); marker != "" {
 		label += " (" + marker + ")"
 	}
-	cells := append([]styled.Cell{styled.IconCell(icon), styled.TextCell(label)}, styled.TextCells(trailing...)...)
+	cells := append([]styled.Cell{itemIconCell(world, e), styled.TextCell(label)}, styled.TextCells(trailing...)...)
 	return menuframe.Row{Cells: cells}
 }
 

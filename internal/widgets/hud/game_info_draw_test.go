@@ -16,7 +16,7 @@ import (
 )
 
 // newTestGameInfo は GameInfo を作る。fill は塗りテクスチャで、塗り幅を検証するテストは非 nil を、
-// 検証しないテストは nil を渡す。gaugeWidget.Draw は fill==nil だと塗りを描かないので、塗りを見るテストに
+// 検証しないテストは nil を渡す。uicore.Gauge.Draw は Fill==nil だと塗りを描かないので、塗りを見るテストに
 // nil を渡すと tintedRects が黙って空になる。fill を呼び出し側で明示させてこの誤用を防ぐ。
 func newTestGameInfo(t *testing.T, fill *ebiten.Image) *GameInfo {
 	t.Helper()
