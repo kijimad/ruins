@@ -76,3 +76,21 @@ func TestLightChargeSystem_手持ち欄の灯りは2本とも燃え尽きる(t *
 	require.Len(t, entries, 1)
 	assert.Equal(t, query.T(world, "%s burned out.", "Torch"), entries[0].Text())
 }
+
+func TestLightChargeSystem_束で床に置いた松明はどれも減る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	torch, err := lifecycle.SpawnBackpackItem(world, "torch", 3)
+	require.NoError(t, err)
+	torches := query.StackMembers(world, torch)
+	require.Len(t, torches, 3)
+
+	lifecycle.MoveStackToField(world, torch, consts.Coord[consts.Tile]{X: 6, Y: 5}, player)
+	require.NoError(t, (&LightChargeSystem{}).Update(world))
+
+	for _, e := range torches {
+		assert.Equal(t, 599, world.Components.Charge.Get(e).Current, "床に置いた束はどれも照らして減る")
+	}
+}
