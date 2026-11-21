@@ -36,6 +36,13 @@ var (
 	// 射撃関連エラー
 	ErrShootNoFireWeapon = errors.New("no ranged weapon equipped")
 
+	// 投げる関連エラー
+	errThrowItemNotInBackpack = errors.New("thrown item is not in the actor's backpack")
+	errThrowTooHeavy          = errors.New("item is too heavy to throw")
+	errThrowTargetInvalid     = errors.New("throw target is invalid")
+	errThrowOutOfRange        = errors.New("throw target is out of range")
+	errThrowLineBlocked       = errors.New("throw line is blocked")
+
 	// 移動関連エラー
 	ErrMoveTargetInvalid   = errors.New("move destination is invalid")
 	ErrGridElementNotFound = errors.New("GridElement component not found")

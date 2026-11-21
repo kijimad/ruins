@@ -34,6 +34,7 @@ const (
 	verbConsume     verbID = "consume"     // 食べる。飲み物も含む
 	verbRead        verbID = "read"        // 読む
 	verbUse         verbID = "use"         // 使う
+	verbThrow       verbID = "throw"       // 投げる
 	verbDisassemble verbID = "disassemble" // 分解する
 )
 
@@ -57,7 +58,6 @@ type itemVerb struct {
 }
 
 // verbList は表示順に並べた動詞タブの一覧。タブ順を兼ねる。内容は定数なのでパッケージ変数で1度だけ構築する。
-// 投げるは Throwable と ThrowActivity の実装後に足す。
 var verbList = []itemVerb{
 	{
 		ID:      verbExamine,
@@ -103,9 +103,20 @@ var verbList = []itemVerb{
 		Label:   "Use",
 		KeyHint: "t",
 		Key:     ebiten.KeyT,
+		Shift:   keybind.ShiftForbidden,
 		Action:  inputmapper.ActionVerbUse,
 		Accept:  activity.CanUse,
 		Exec:    execUseItem,
+	},
+	{
+		ID:      verbThrow,
+		Label:   "Throw",
+		KeyHint: "T",
+		Key:     ebiten.KeyT,
+		Shift:   keybind.ShiftRequired,
+		Action:  inputmapper.ActionVerbThrow,
+		Accept:  query.CanThrow,
+		Exec:    execThrow,
 	},
 	{
 		ID:      verbDisassemble,
@@ -148,6 +159,19 @@ func execPlace(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
+}
+
+// execThrow は持ち物画面を、選択アイテムを投げる敵を狙う画面に切り替える。投げても取り消しても、持ち物画面を開いた元の画面へ戻る
+func execThrow(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
+	attack, ok := query.ThrowAttackOf(world, entity)
+	if !ok {
+		return es.Transition[w.World]{}, fmt.Errorf("item cannot be thrown: %v", entity)
+	}
+	return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{
+		func() (es.State[w.World], error) {
+			return NewTargetingState(throwMode{item: entity, attack: attack}), nil
+		},
+	}}, nil
 }
 
 // execUseItem は選択アイテムを使いダンジョンへ戻る

@@ -44,7 +44,8 @@ var dungeonBindings = []keybind.Binding{
 	{Key: ebiten.KeyD, Shift: keybind.ShiftRequired, Action: inputmapper.ActionVerbDisassemble, Label: "Disassemble"},
 	{Key: ebiten.KeyE, Action: inputmapper.ActionVerbConsume, Label: "Eat"},
 	{Key: ebiten.KeyR, Action: inputmapper.ActionVerbRead, Label: "Read"},
-	{Key: ebiten.KeyT, Action: inputmapper.ActionVerbUse, Label: "Use"},
+	{Key: ebiten.KeyT, Shift: keybind.ShiftForbidden, Action: inputmapper.ActionVerbUse, Label: "Use"},
+	{Key: ebiten.KeyT, Shift: keybind.ShiftRequired, Action: inputmapper.ActionVerbThrow, Label: "Throw"},
 	{Key: ebiten.KeyB, Action: inputmapper.ActionSleep, Label: "Sleep"},
 	// 移動。WASD は動詞へ空けるため矢印キーのみを使う。斜めへは視点を回してから直進する
 	{Key: ebiten.KeyUp, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveNorth, Label: "Move"},
@@ -149,7 +150,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		}}, nil
 	case inputmapper.ActionShoot:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() (es.State[w.World], error) { return &ShootingState{}, nil },
+			func() (es.State[w.World], error) { return NewTargetingState(ShootMode{}), nil },
 		}}, nil
 	case inputmapper.ActionAttack:
 		return startDirectionAction(world, attackAction(world))

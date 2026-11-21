@@ -73,6 +73,18 @@
   range = "ranged"
   skill = "cannon"
 
+[[attackTypes]]
+  accuracy = "throw_accuracy"
+  damage = "throw_damage"
+  id = "throw"
+  injury = "fracture"
+  maxRange = 6
+  name = "Throwing"
+  optimalRange = 3
+  penaltyPerTile = 10
+  range = "ranged"
+  skill = "throw"
+
 [[automataSteps]]
   id = "cave_automata"
   iterations = 3
@@ -9901,7 +9913,7 @@
   weight = "500 g"
   [items.fire]
     accuracy = 80
-    attackCategory = "bow"
+    attackCategory = "throw"
     attackCount = 2
     cost = 2
     damage = 7
@@ -9922,7 +9934,7 @@
   weight = "100 g"
   [items.fire]
     accuracy = 90
-    attackCategory = "bow"
+    attackCategory = "throw"
     attackCount = 3
     cost = 2
     damage = 4
@@ -13966,17 +13978,15 @@
 [[items]]
   description = "A hand-thrown bomb that deals damage with its blast and shrapnel."
   id = "grenade"
-  inflictsDamage = 20
   material = "METAL"
   name = "Grenade"
   spriteKey = "grenade"
   spriteSheetName = "field"
   value = 150
   weight = "400 g"
-  [items.consumable]
-    targetGroup = "ENEMY"
-    targetNum = "ALL"
-    usableScene = "BATTLE"
+  [items.throw]
+    accuracy = 75
+    damage = 20
 
 [[items]]
   description = "A toothbrush and toothpaste, using it restores a bit of vigor."
@@ -13999,17 +14009,15 @@
 [[items]]
   description = "A thrown bomb coated in poison, a hit spreads venom."
   id = "poison_grenade"
-  inflictsDamage = 15
   material = "METAL"
   name = "Venom Grenade"
   spriteKey = "poison_grenade"
   spriteSheetName = "field"
   value = 180
   weight = "400 g"
-  [items.consumable]
-    targetGroup = "ENEMY"
-    targetNum = "ALL"
-    usableScene = "BATTLE"
+  [items.throw]
+    accuracy = 75
+    damage = 15
 
 [[items]]
   description = "A herb that cures poison and status ailments."
@@ -14060,17 +14068,15 @@
 [[items]]
   description = "A thrown bomb that unleashes fire, dealing flame damage over a wide area."
   id = "flame_grenade"
-  inflictsDamage = 25
   material = "METAL"
   name = "Flame Grenade"
   spriteKey = "fire_grenade"
   spriteSheetName = "field"
   value = 220
   weight = "400 g"
-  [items.consumable]
-    targetGroup = "ENEMY"
-    targetNum = "ALL"
-    usableScene = "BATTLE"
+  [items.throw]
+    accuracy = 75
+    damage = 25
 
 [[items]]
   description = "A hand-thrown bomb that creates a screen of vision-blocking smoke."
@@ -14085,6 +14091,9 @@
     targetGroup = "ALLY"
     targetNum = "ALL"
     usableScene = "BATTLE"
+  [items.throw]
+    accuracy = 75
+    damage = 0
 
 [[items]]
   description = "Quality beef, grilling it makes a supreme feast."
@@ -14229,6 +14238,9 @@
     targetGroup = "ENEMY"
     targetNum = "ALL"
     usableScene = "BATTLE"
+  [items.throw]
+    accuracy = 75
+    damage = 0
 
 [[items]]
   description = "A soft, fluffy loaf of white bread."
@@ -15943,6 +15955,9 @@
   spriteSheetName = "field"
   value = 2
   weight = "300 g"
+  [items.throw]
+    accuracy = 80
+    damage = 7
 
 [[items]]
   description = "Dried grass, usable as fuel or livestock feed."
@@ -16223,6 +16238,9 @@
   spriteSheetName = "field"
   value = 1
   weight = "1 kg"
+  [items.throw]
+    accuracy = 70
+    damage = 6
 
 [[items]]
   description = "A stone fixture used to hold something in place."
@@ -23651,6 +23669,23 @@
     id = "photon_resist"
     perLevel = -3
     resists = "PHOTON"
+
+[[skills]]
+  ability = "sen"
+  category = "ranged"
+  effect = "Increases throwing damage and accuracy"
+  gainedBy = "Raised by throwing items at enemies"
+  id = "throw"
+  name = "Throwing"
+  summary = "Technique for throwing items"
+
+  [[skills.proficiencies]]
+    id = "throw_damage"
+    perLevel = 5
+
+  [[skills.proficiencies]]
+    id = "throw_accuracy"
+    perLevel = 3
 
 [[spriteSheets]]
   name = "bg"

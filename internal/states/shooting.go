@@ -21,10 +21,30 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ShootingState は射撃ターゲット選択モードのステート
-// 視界内の敵をTabで巡回し、Enterで射撃、Rでリロード、Escapeでキャンセルする
-type ShootingState struct {
+// targetMode は敵を狙う画面で、射撃と投げるで違う部分
+type targetMode interface {
+	// bindings はこの狙い方のキーの束縛
+	bindings() []keybind.Binding
+	canTarget(world w.World, player, target ecs.Entity) bool
+	hitRate(world w.World, player, target ecs.Entity) int
+	execute(world w.World, player, target ecs.Entity) error
+	// handle は狙い方に固有のアクションを処理する。処理しないアクションなら handled=false を返す
+	handle(world w.World, player ecs.Entity, action inputmapper.ActionID) (handled bool, err error)
+	// title は情報パネルの見出し
+	title(world w.World) string
+	// drawSource は情報パネルに、使う武器や物の行を描く
+	drawSource(world w.World, player ecs.Entity, drawText func(string))
+	// unavailable は狙えない理由を返す。狙えるなら空文字
+	unavailable(world w.World, player ecs.Entity) string
+	noTarget(world w.World) string
+	help(world w.World) string
+}
+
+// TargetingState は敵を狙う画面のステート。射撃と投げるで共有する。
+// 視界内の狙える敵をTabで巡回し、Enterで実行し、Escapeでキャンセルする
+type TargetingState struct {
 	es.BaseState[w.World]
+	mode           targetMode
 	enemies        []ecs.Entity // 視界内の敵一覧
 	targetIndex    int          // 現在選択中の敵インデックス
 	blinkCounter   int          // カーソル点滅用カウンタ
@@ -32,16 +52,21 @@ type ShootingState struct {
 	cachedDistance float64      // キャッシュ済み距離
 }
 
-var _ es.State[w.World] = &ShootingState{}
+var _ es.State[w.World] = &TargetingState{}
+
+// NewTargetingState は狙い方を指定して敵を狙う画面を作る
+func NewTargetingState(mode targetMode) *TargetingState {
+	return &TargetingState{mode: mode}
+}
 
 // OnPause はステートが一時停止される際に呼ばれる
-func (st *ShootingState) OnPause(_ w.World) error { return nil }
+func (st *TargetingState) OnPause(_ w.World) error { return nil }
 
 // OnResume はステートが再開される際に呼ばれる
-func (st *ShootingState) OnResume(_ w.World) error { return nil }
+func (st *TargetingState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
-func (st *ShootingState) OnStart(world w.World) error {
+func (st *TargetingState) OnStart(world w.World) error {
 	if err := st.refreshEnemies(world); err != nil {
 		return err
 	}
@@ -50,31 +75,30 @@ func (st *ShootingState) OnStart(world w.World) error {
 }
 
 // OnStop はステートが終了する際に呼ばれる
-func (st *ShootingState) OnStop(_ w.World) error { return nil }
+func (st *TargetingState) OnStop(_ w.World) error { return nil }
 
 // Update はステートの更新処理
-func (st *ShootingState) Update(world w.World) (es.Transition[w.World], error) {
+func (st *TargetingState) Update(world w.World) (es.Transition[w.World], error) {
 	st.blinkCounter++
 
-	if action, ok := keybind.ReadInput(world, shootingBindings); ok {
+	if action, ok := keybind.ReadInput(world, st.mode.bindings()); ok {
 		return st.doAction(world, action)
 	}
 
 	return st.ConsumeTransition(), nil
 }
 
-// shootingBindings は射撃モードの束縛表。Tab で標的を切り替え、Enter で撃つ。
+// targetingBindings は狙う画面に共通の束縛。Tab で標的を切り替え、Enter で実行する。
 // Shift+Tab の行を Tab の行より先に置き、Shift 併用を先に判定する
-var shootingBindings = []keybind.Binding{
+var targetingBindings = []keybind.Binding{
 	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
 	{Key: ebiten.KeyTab, Shift: keybind.ShiftRequired, Action: inputmapper.ActionMenuTabPrev},
 	{Key: ebiten.KeyTab, Action: inputmapper.ActionMenuTabNext},
 	{Key: ebiten.KeyEnter, Action: inputmapper.ActionShoot},
-	{Key: ebiten.KeyR, Action: inputmapper.ActionReload},
 }
 
 // doAction はActionIDを実行する
-func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *TargetingState) doAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
@@ -97,50 +121,33 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
 			if err != nil {
 				return es.Transition[w.World]{}, err
 			}
-			target := st.enemies[st.targetIndex]
-			if _, err := activity.Execute(activity.NewShootActivity(target), playerEntity, world); err != nil {
+			if err := st.mode.execute(world, playerEntity, st.enemies[st.targetIndex]); err != nil {
 				return es.Transition[w.World]{}, err
 			}
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}
 
-	case inputmapper.ActionReload:
+	default:
 		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		if _, err := activity.Execute(activity.NewReloadActivity(playerEntity, world), playerEntity, world); err != nil {
+		handled, err := st.mode.handle(world, playerEntity, action)
+		if err != nil {
 			return es.Transition[w.World]{}, err
 		}
+		if !handled {
+			return es.Transition[w.World]{}, fmt.Errorf("unsupported action: %s", action)
+		}
 		return es.Transition[w.World]{Type: es.TransPop}, nil
-
-	default:
-		return es.Transition[w.World]{}, fmt.Errorf("unsupported action: %s", action)
 	}
 
 	return st.ConsumeTransition(), nil
 }
 
-// checkFireWeaponStatus は選択中の武器の射撃可否をチェックし、不可の場合は理由メッセージを返す。
-// 射撃可能な場合は空文字を返す
-func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
-	playerEntity, err := query.GetPlayerEntity(world)
-	if err != nil {
-		return ""
-	}
-	weapon, ok := query.SelectedHeld(world, playerEntity)
-	if !ok || !world.Components.Fire.Has(weapon) {
-		return query.T(world, "No ranged weapon equipped")
-	}
-	if world.Components.Fire.Get(weapon).Magazine <= 0 {
-		return query.T(world, "Not loaded")
-	}
-	return ""
-}
-
-// refreshEnemies は射撃可能な敵一覧を距離順で更新する。
+// refreshEnemies は狙える敵の一覧を距離順で更新する。
 // 視界内の敵から死亡済み・射程外・射線遮断の敵を除外する
-func (st *ShootingState) refreshEnemies(world w.World) error {
+func (st *TargetingState) refreshEnemies(world w.World) error {
 	enemies, err := query.GetVisibleEnemies(world)
 	if err != nil {
 		return err
@@ -151,22 +158,22 @@ func (st *ShootingState) refreshEnemies(world w.World) error {
 		return playerErr
 	}
 
-	// 射撃可能な敵のみ残す
-	var shootable []ecs.Entity
+	// 狙える敵のみ残す
+	var targetable []ecs.Entity
 	for _, e := range enemies {
-		if activity.CanShootTarget(playerEntity, e, world) {
-			shootable = append(shootable, e)
+		if st.mode.canTarget(world, playerEntity, e) {
+			targetable = append(targetable, e)
 		}
 	}
 
 	// プレイヤーからの距離順にソート
-	slices.SortFunc(shootable, func(a, b ecs.Entity) int {
+	slices.SortFunc(targetable, func(a, b ecs.Entity) int {
 		da := activity.EntityDistance(playerEntity, a, world)
 		db := activity.EntityDistance(playerEntity, b, world)
 		return cmp.Compare(da, db)
 	})
 
-	st.enemies = shootable
+	st.enemies = targetable
 	if st.targetIndex >= len(st.enemies) {
 		st.targetIndex = 0
 	}
@@ -174,7 +181,7 @@ func (st *ShootingState) refreshEnemies(world w.World) error {
 }
 
 // updateTargetCache はターゲット変更時に命中率と距離をキャッシュする
-func (st *ShootingState) updateTargetCache(world w.World) {
+func (st *TargetingState) updateTargetCache(world w.World) {
 	if len(st.enemies) == 0 {
 		return
 	}
@@ -183,12 +190,12 @@ func (st *ShootingState) updateTargetCache(world w.World) {
 		return
 	}
 	target := st.enemies[st.targetIndex]
-	st.cachedHitRate = activity.CalculateShootHitRate(playerEntity, target, world)
+	st.cachedHitRate = st.mode.hitRate(world, playerEntity, target)
 	st.cachedDistance = activity.EntityDistance(playerEntity, target, world)
 }
 
 // Draw はステートの描画処理
-func (st *ShootingState) Draw(world w.World, screen *ebiten.Image) error {
+func (st *TargetingState) Draw(world w.World, screen *ebiten.Image) error {
 	if len(st.enemies) > 0 {
 		if err := st.drawTargetCursor(world, screen); err != nil {
 			return err
@@ -198,7 +205,7 @@ func (st *ShootingState) Draw(world w.World, screen *ebiten.Image) error {
 }
 
 // drawTargetCursor は選択中の敵にカーソルを描画する
-func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) error {
+func (st *TargetingState) drawTargetCursor(world w.World, screen *ebiten.Image) error {
 	target := st.enemies[st.targetIndex]
 	if !world.Components.GridElement.Has(target) {
 		return nil
@@ -223,31 +230,29 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) e
 }
 
 // drawShootingPanel は射撃情報パネルを描画する
-func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) error {
+func (st *TargetingState) drawShootingPanel(world w.World, screen *ebiten.Image) error {
 	face := world.Resources.UIResources.Text.BodyFace
 
 	const panelHeight = 250
 	panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.Chrome{}, face, screen.Bounds().Dx(), panelHeight)
 	drawText := panel.Line
 
-	drawText(query.T(world, "== Shooting Mode =="))
-	panel.Gap(5)
-
-	// 武器・残弾情報
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		drawText(query.T(world, "Error: player not found"))
 		return err
 	}
 
-	st.drawWeaponInfo(world, playerEntity, drawText)
+	drawText(st.mode.title(world))
+	panel.Gap(5)
+	st.mode.drawSource(world, playerEntity, drawText)
 	panel.Gap(5)
 
 	// ターゲット情報
-	if msg := st.checkFireWeaponStatus(world); msg != "" {
+	if msg := st.mode.unavailable(world, playerEntity); msg != "" {
 		drawText(msg)
 	} else if len(st.enemies) == 0 {
-		drawText(query.T(world, "No shooting target"))
+		drawText(st.mode.noTarget(world))
 	} else {
 		target := st.enemies[st.targetIndex]
 		st.drawTargetInfo(world, target, drawText)
@@ -255,25 +260,13 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 
 	// 操作説明
 	panel.SeekBottom(30)
-	drawText(query.T(world, "Tab: Switch  Enter: Fire  R: Reload  Esc: Back"))
+	drawText(st.mode.help(world))
 
 	return nil
 }
 
-// drawWeaponInfo は選んだ欄の射撃武器と残弾を描画する。射撃を持たない物は射撃に使えないので出さない
-func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, drawText func(string)) {
-	weapon, ok := query.SelectedHeld(world, playerEntity)
-	if !ok || !world.Components.Fire.Has(weapon) {
-		drawText(query.T(world, "Weapon: none"))
-		return
-	}
-	fire := world.Components.Fire.Get(weapon)
-	drawText(fmt.Sprintf("%s: %s", query.T(world, "Weapon"), query.GetEntityName(weapon, world)))
-	drawText(fmt.Sprintf("%s: %d/%d", query.T(world, "Ammo"), fire.Magazine, fire.MagazineSize))
-}
-
 // drawTargetInfo はターゲット情報を描画する。キャッシュ済みの値を使用する
-func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawText func(string)) {
+func (st *TargetingState) drawTargetInfo(world w.World, target ecs.Entity, drawText func(string)) {
 	drawText(fmt.Sprintf("%s: %s (%d/%d)", query.T(world, "Target"),
 		query.GetEntityName(target, world),
 		st.targetIndex+1, len(st.enemies)))
@@ -286,4 +279,65 @@ func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawTe
 
 	drawText(fmt.Sprintf("%s: %d%%", query.T(world, "Hit rate"), st.cachedHitRate))
 	drawText(fmt.Sprintf("%s: %.1f", query.T(world, "Distance"), st.cachedDistance))
+}
+
+// ShootMode は装備中の遠距離武器で撃つ狙い方。R でリロードする
+type ShootMode struct{}
+
+// shootBindings は射撃の束縛。狙う画面の共通の束縛に、R のリロードを足す
+var shootBindings = append(slices.Clone(targetingBindings), keybind.Binding{Key: ebiten.KeyR, Action: inputmapper.ActionReload})
+
+func (ShootMode) bindings() []keybind.Binding { return shootBindings }
+
+func (ShootMode) canTarget(world w.World, player, target ecs.Entity) bool {
+	return activity.CanShootTarget(player, target, world)
+}
+
+func (ShootMode) hitRate(world w.World, player, target ecs.Entity) int {
+	return activity.CalculateShootHitRate(player, target, world)
+}
+
+func (ShootMode) execute(world w.World, player, target ecs.Entity) error {
+	_, err := activity.Execute(activity.NewShootActivity(target), player, world)
+	return err
+}
+
+func (ShootMode) handle(world w.World, player ecs.Entity, action inputmapper.ActionID) (bool, error) {
+	if action != inputmapper.ActionReload {
+		return false, nil
+	}
+	_, err := activity.Execute(activity.NewReloadActivity(player, world), player, world)
+	return true, err
+}
+
+func (ShootMode) noTarget(world w.World) string { return query.T(world, "No shooting target") }
+
+func (ShootMode) help(world w.World) string {
+	return query.T(world, "Tab: Switch  Enter: Fire  R: Reload  Esc: Back")
+}
+
+// unavailable は選択中の武器で撃てない理由を返す。撃てるなら空文字
+func (ShootMode) unavailable(world w.World, playerEntity ecs.Entity) string {
+	weapon, ok := query.SelectedHeld(world, playerEntity)
+	if !ok || !world.Components.Fire.Has(weapon) {
+		return query.T(world, "No ranged weapon equipped")
+	}
+	if world.Components.Fire.Get(weapon).Magazine <= 0 {
+		return query.T(world, "Not loaded")
+	}
+	return ""
+}
+
+func (ShootMode) title(world w.World) string { return query.T(world, "== Shooting Mode ==") }
+
+// drawSource は選んだ欄の射撃武器と残弾を描く。射撃を持たない物は射撃に使えないので出さない
+func (ShootMode) drawSource(world w.World, playerEntity ecs.Entity, drawText func(string)) {
+	weapon, ok := query.SelectedHeld(world, playerEntity)
+	if !ok || !world.Components.Fire.Has(weapon) {
+		drawText(query.T(world, "Weapon: none"))
+		return
+	}
+	fire := world.Components.Fire.Get(weapon)
+	drawText(fmt.Sprintf("%s: %s", query.T(world, "Weapon"), query.GetEntityName(weapon, world)))
+	drawText(fmt.Sprintf("%s: %d/%d", query.T(world, "Ammo"), fire.Magazine, fire.MagazineSize))
 }
