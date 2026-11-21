@@ -240,8 +240,8 @@ func elementMult(target ecs.Entity, element rawschema.Element, world w.World) co
 	return query.ProficiencyValue(world, target, key)
 }
 
-// applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
-// 射撃と投げるからも使う
+// applyAttackDamage は命中を判定し、当たれば applyHit で与える。外れたらログと見た目の効果を出す。
+// 近接・射撃・投げるが使う
 func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) error {
 	if attack == nil {
 		return fmt.Errorf("attack must not be nil")
@@ -253,30 +253,50 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 		lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
 		return nil
 	}
+	_, err := applyHit(actor, target, world, attack, attackMethodName, hitOptions{
+		critical:  criticalHit,
+		injury:    true,
+		growSkill: true,
+		damageMod: damageModifier,
+	})
+	return err
+}
 
-	damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)
+// hitOptions は命中したあとの処理のうち、呼ぶ側が決める部分
+type hitOptions struct {
+	critical  bool // 会心
+	injury    bool // 怪我を抽選する
+	growSkill bool // 傷つけたら武器スキルを伸ばす
+	damageMod int
+}
 
-	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
+// applyHit は命中した攻撃を target に与え、与えたダメージを返す。ログ・見た目の効果・ダメージ・置物の廃材・
+// 被弾した者の行動の中断をまとめて行う。命中の判定をしない爆風もこれを使う
+func applyHit(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, opts hitOptions) (int, error) {
+	damage := max(calculateDamage(actor, target, world, attack, opts.critical, opts.damageMod), 0)
+
+	logAttackResult(actor, target, world, true, opts.critical, damage, attackMethodName)
 	// 削れない相手を殴り続けて安全に稼げないよう、ダメージ0では武器スキルを伸ばさない
-	if damage > 0 {
+	if opts.growSkill && damage > 0 {
 		growWeaponSkill(actor, world, attack)
 	}
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
 	if world.Components.Prop.Has(target) && world.Components.Dead.Has(target) {
 		if err := dropSalvage(world, actor, target); err != nil {
-			return err
+			return damage, err
 		}
 	}
-	// HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
-	applyInjury(actor, target, world, attack)
+	if opts.injury {
+		applyInjury(actor, target, world, attack)
+	}
 
 	// 被ダメージで中断可能なアクティビティをキャンセルする
 	if comp := query.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
 		CancelActivity(target, "took an attack", world)
 	}
 
-	return nil
+	return damage, nil
 }
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する

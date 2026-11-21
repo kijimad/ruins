@@ -1348,6 +1348,15 @@
   onset = "hunger"
   painPerSeverity = 0
 
+[[conditions]]
+  bodyFuncDropPerSeverity = 10
+  description = "Venom is spreading through the body. It clears on its own over time."
+  id = "venom"
+  name = "Venom"
+  painPerSeverity = 4
+  recoverPer = 1
+  recovery = "recover_over_time"
+
 [[corridorSteps]]
   id = "line_corridor"
   width = 3
@@ -13987,6 +13996,8 @@
   [items.throw]
     accuracy = 75
     damage = 20
+    [items.throw.blast]
+      radius = 1
 
 [[items]]
   description = "A toothbrush and toothpaste, using it restores a bit of vigor."
@@ -14017,7 +14028,10 @@
   weight = "400 g"
   [items.throw]
     accuracy = 75
-    damage = 15
+    damage = 10
+    [items.throw.blast]
+      condition = "venom"
+      radius = 1
 
 [[items]]
   description = "A herb that cures poison and status ailments."
@@ -14077,6 +14091,9 @@
   [items.throw]
     accuracy = 75
     damage = 25
+    [items.throw.blast]
+      element = "FIRE"
+      radius = 1
 
 [[items]]
   description = "A hand-thrown bomb that creates a screen of vision-blocking smoke."

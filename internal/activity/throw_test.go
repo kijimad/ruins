@@ -179,3 +179,143 @@ func TestThrowBehavior_DoTurn_当たると傷を負わせ物は無くなる(t *t
 	assert.Less(t, world.Components.HP.Get(enemy).Current, hp)
 	assert.False(t, world.ECS.Alive(stone))
 }
+
+func TestThrowBehavior_DoTurn_爆風は範囲の者すべてに効き範囲の外には効かない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	target, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	beside, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 14, Y: 11}, "fireball")
+	require.NoError(t, err)
+	outside, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 15, Y: 10}, "fireball")
+	require.NoError(t, err)
+	grenade, err := lifecycle.SpawnBackpackItem(world, "grenade", 1)
+	require.NoError(t, err)
+	hp := func(e ecs.Entity) int { return world.Components.HP.Get(e).Current }
+	targetHP, besideHP, outsideHP, playerHP := hp(target), hp(beside), hp(outside), hp(player)
+
+	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(grenade, target), player, world))
+
+	assert.Less(t, hp(target), targetHP)
+	assert.Less(t, hp(beside), besideHP)
+	assert.Equal(t, outsideHP, hp(outside))
+	assert.Equal(t, playerHP, hp(player))
+	assert.False(t, world.ECS.Alive(grenade))
+}
+
+func TestThrowBehavior_DoTurn_爆風は投げた本人も巻き込む(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
+	require.NoError(t, err)
+	grenade, err := lifecycle.SpawnBackpackItem(world, "grenade", 1)
+	require.NoError(t, err)
+	playerHP := world.Components.HP.Get(player).Current
+
+	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(grenade, enemy), player, world))
+
+	assert.Less(t, world.Components.HP.Get(player).Current, playerHP)
+}
+
+func TestThrowBehavior_DoTurn_自分の爆風で倒れても物を消して終える(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
+	require.NoError(t, err)
+	grenade, err := lifecycle.SpawnBackpackItem(world, "grenade", 1)
+	require.NoError(t, err)
+	world.Components.HP.Get(player).Current = 1
+	comp := NewThrowActivity(grenade, enemy)
+
+	require.NoError(t, (&ThrowBehavior{}).DoTurn(comp, player, world))
+
+	assert.True(t, world.Components.Dead.Has(player))
+	assert.False(t, world.ECS.Alive(grenade))
+	assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+}
+
+func TestThrowBehavior_DoTurn_毒の爆風は毒を付け重ねない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	world.Components.HP.Get(enemy).Current = 1000
+	world.Components.HP.Get(enemy).Max = 1000
+	first, err := lifecycle.SpawnBackpackItem(world, "poison_grenade", 1)
+	require.NoError(t, err)
+	venom := gc.ConditionType("venom")
+
+	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(first, enemy), player, world))
+	cond := world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom)
+	require.NotNil(t, cond)
+	timer := cond.Timer
+	assert.Equal(t, "Fireball contracted Venom.", query.GetGameLog(world).GetRecent(1)[0])
+
+	second, err := lifecycle.SpawnBackpackItem(world, "poison_grenade", 1)
+	require.NoError(t, err)
+	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(second, enemy), player, world))
+	assert.InDelta(t, timer, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom).Timer, 0, "2発目で進行度は延びない")
+}
+
+func TestExplode(t *testing.T) {
+	t.Parallel()
+
+	venom := gc.ConditionType("venom")
+	t.Run("威力0でも爆風の不調は付く", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+		require.NoError(t, err)
+		hp := world.Components.HP.Get(enemy).Current
+
+		attack := gc.ThrowAttack{Blast: &gc.Blast{Radius: 1, Condition: venom}}
+		require.NoError(t, explode(world, player, enemy, attack, "test"))
+		assert.Equal(t, hp, world.Components.HP.Get(enemy).Current)
+		assert.NotNil(t, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom))
+	})
+	t.Run("自分だけを傷つけてもスキルは伸びない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		exp := world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current
+
+		attack := gc.ThrowAttack{Damage: 5, Blast: &gc.Blast{Radius: 1}}
+		require.NoError(t, explode(world, player, player, attack, "test"))
+		assert.Equal(t, exp, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current)
+	})
+	t.Run("ほかの者を傷つけるとスキルが伸びる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+		require.NoError(t, err)
+		exp := world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current
+
+		attack := gc.ThrowAttack{Damage: 5, Blast: &gc.Blast{Radius: 1}}
+		require.NoError(t, explode(world, player, enemy, attack, "test"))
+		assert.Greater(t, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current, exp)
+	})
+}
+
+func TestThrowAttack_GetElement(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, rawschema.ElementNONE, gc.ThrowAttack{}.GetElement())
+	assert.Equal(t, rawschema.ElementFIRE, gc.ThrowAttack{Blast: &gc.Blast{Element: rawschema.ElementFIRE}}.GetElement())
+}

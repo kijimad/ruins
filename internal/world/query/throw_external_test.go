@@ -3,6 +3,8 @@ package query_test
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/rawschema"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -22,7 +24,9 @@ func TestThrowAttackOf(t *testing.T) {
 		wantOK bool
 	}{
 		{name: "投げの欄を書いた物は欄の値", item: "sharp_stone", want: gc.ThrowAttack{Damage: 7, Accuracy: 80}, wantOK: true},
-		{name: "手榴弾は欄の値", item: "grenade", want: gc.ThrowAttack{Damage: 20, Accuracy: 75}, wantOK: true},
+		{name: "手榴弾は欄の値と爆風", item: "grenade", want: gc.ThrowAttack{Damage: 20, Accuracy: 75, Blast: &gc.Blast{Radius: 1, Element: rawschema.ElementNONE}}, wantOK: true},
+		{name: "火炎手榴弾の爆風は火の属性", item: "flame_grenade", want: gc.ThrowAttack{Damage: 25, Accuracy: 75, Blast: &gc.Blast{Radius: 1, Element: rawschema.ElementFIRE}}, wantOK: true},
+		{name: "毒手榴弾の爆風は毒を付ける", item: "poison_grenade", want: gc.ThrowAttack{Damage: 10, Accuracy: 75, Blast: &gc.Blast{Radius: 1, Element: rawschema.ElementNONE, Condition: "venom"}}, wantOK: true},
 		{name: "欄の無い物は重さから導く", item: "bread", want: gc.ThrowAttack{Damage: 1, Accuracy: 68}, wantOK: true},
 		{name: "5 kg を超える物は投げられない", item: "deployable_bed", wantOK: false},
 	}
