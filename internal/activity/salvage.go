@@ -15,16 +15,16 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// wieldedTool は actor が構えている武器が分解定義 def に合う道具ならそのグレードを返す
+// wieldedTool は actor が選んだ手持ち欄の物が分解定義 def に合う道具ならそのグレードを返す
 func wieldedTool(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (int, bool) {
 	if def.ToolCategory == nil || !world.Components.Player.Has(actor) {
 		return 0, false
 	}
-	weapon, ok := query.SelectedHeld(world, actor)
+	held, ok := query.SelectedHeld(world, actor)
 	if !ok {
 		return 0, false
 	}
-	tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))
+	tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(held, world))
 	if !ok {
 		return 0, false
 	}

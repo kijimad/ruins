@@ -39,6 +39,7 @@ var (
 	errTableMissing                  = errors.New("table required by code is missing")
 	errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
 	errBareHandsMissing              = errors.New("bare hands body attack is missing")
+	errLightWithoutCharge            = errors.New("item with lightSource has no charge")
 	errRemedyTooWeak                 = errors.New("remedy potency is too low to speed recovery")
 	errRemedyNotTendable             = errors.New("remedy treats a condition that does not recover after tending")
 )
@@ -58,6 +59,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateGrounds,
 		validateNeedStages,
 		validateFlatShapes,
+		validateLightCharges,
 	}
 	for _, v := range validators {
 		if err := v(raws); err != nil {
@@ -607,6 +609,17 @@ func validateFlatShapes(raws rawschema.Raws) error {
 	for i := range decors {
 		if err := check(decors[i].Id, decors[i].SpriteRender); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+// validateLightCharges は携行光源を持つアイテムの行が残量を持つことを検証する。残量が無いと燃え尽きずに照らし続ける
+func validateLightCharges(raws rawschema.Raws) error {
+	items := PtrSlice(raws.Items)
+	for i := range items {
+		if items[i].LightSource != nil && items[i].Charge == nil {
+			return fmt.Errorf("item %q: %w", items[i].Id, errLightWithoutCharge)
 		}
 	}
 	return nil

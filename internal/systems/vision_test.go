@@ -514,3 +514,17 @@ func TestTileRenderAt(t *testing.T) {
 		assert.Equal(t, TileRenderUnexplored{}, tileRenderAt(m, absent))
 	})
 }
+
+func TestCollectLitLights_点いた光源だけを集める(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	for i, enabled := range []bool{true, false} {
+		e := world.ECS.NewEntity()
+		world.Components.LightSource.Add(e, &gc.LightSource{Radius: 4, Enabled: enabled})
+		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(i), Y: 0}})
+	}
+
+	lights := collectLitLights(world)
+	require.Len(t, lights, 1)
+	assert.Equal(t, gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}}, lights[0].pos)
+}

@@ -522,3 +522,29 @@ func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くと
 	require.ErrorIs(t, validateLandmarkMinDanger(raws(rawschema.MilitaryArmory, new(3))), errLandmarkMinDanger)
 	require.NoError(t, validateLandmarkMinDanger(raws(rawschema.Downtown, new(3))), "区域が割り振らない地区の行は抽選を通るので深さの下限を書ける")
 }
+
+func TestValidateLightCharges(t *testing.T) {
+	t.Parallel()
+
+	light := &rawschema.LightSource{Radius: 4}
+	tests := []struct {
+		name    string
+		item    rawschema.Item
+		wantErr error
+	}{
+		{name: "残量を持つ灯りは通る", item: rawschema.Item{Id: "torch", LightSource: light, Charge: &rawschema.Charge{Max: 600}}},
+		{name: "灯りでない物は残量が無くても通る", item: rawschema.Item{Id: "rock"}},
+		{name: "残量を持たない灯りはエラー", item: rawschema.Item{Id: "torch", LightSource: light}, wantErr: errLightWithoutCharge},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := validateLightCharges(rawschema.Raws{Items: &[]rawschema.Item{tt.item}})
+			if tt.wantErr == nil {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}

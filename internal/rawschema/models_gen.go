@@ -306,6 +306,15 @@ type BuildingStart struct {
 // Chance 確率
 type Chance = float64
 
+// Charge アイテムの残量。灯りは点いている間に減り、0で尽きる
+type Charge struct {
+	// Max 残量の上限。灯りはターン数
+	Max ChargeAmount `json:"max"`
+}
+
+// ChargeAmount 残量の量
+type ChargeAmount = int
+
 // ClearingStart 円に近い空き地を部屋として置く最初の段
 type ClearingStart struct {
 	// ClearingSize 空き地の幅と高さ。それぞれ引く
@@ -1399,6 +1408,9 @@ type Item struct {
 	AnimKeys *[]SpriteKey `json:"animKeys,omitempty"`
 
 	Book *Book `json:"book,omitempty"`
+
+	// Charge 残量。携行光源を持つ行は必ず持つ
+	Charge *Charge `json:"charge,omitempty"`
 
 	Consumable *Consumable `json:"consumable,omitempty"`
 

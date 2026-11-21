@@ -380,6 +380,9 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 
 	// 携行光源。消えた状態で生まれ、装備すると点く
 	entitySpec.LightSource = toGCLightSource(item.LightSource, false)
+	if item.Charge != nil {
+		entitySpec.Charge = &gc.Charge{Max: item.Charge.Max, Current: item.Charge.Max}
+	}
 
 	// 材質。可燃性と燃焼熱量の算出根拠。観察メニューで見せるためエンティティに保持する
 	if item.Material != nil {

@@ -8703,6 +8703,8 @@
   spriteSheetName = "field"
   value = 15
   weight = "500 g"
+  [items.charge]
+    max = 600
   [items.fireStarter]
   [items.lightSource]
     radius = 6

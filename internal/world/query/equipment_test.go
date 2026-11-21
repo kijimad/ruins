@@ -66,7 +66,7 @@ func TestGetHeld_Empty(t *testing.T) {
 	}
 }
 
-func TestSelectedWeapon(t *testing.T) {
+func TestSelectedHeld(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)

@@ -458,6 +458,15 @@ import (
 	spread!: int & >=1
 }
 
+// アイテムの残量。灯りは点いている間に減り、0で尽きる
+#Charge: {
+	// 残量の上限。灯りはターン数
+	max!: #ChargeAmount
+}
+
+// 残量の量
+#ChargeAmount: int & >=1
+
 // 確率
 #Chance: number & >=0 & <=1
 
@@ -929,6 +938,9 @@ import (
 
 	// 携行光源。装備すると owner を照らす
 	lightSource?: #LightSource
+
+	// 残量。携行光源を持つ行は必ず持つ
+	charge?: #Charge
 
 	// 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
 	material?: #Material
