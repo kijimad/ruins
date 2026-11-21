@@ -382,8 +382,9 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 	if bd := world.Resources.ConditionDefs.BloodDrop(cond); bd > 0 {
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Blood loss"), Value: fmt.Sprintf("-%d", bd)})
 	}
-	// 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする
-	if name, ok := remedyItemNameFor(world, cond.Type); ok {
+	// 治し方を示す。当てずっぽうにせず、どのアイテムで治せるか分かるようにする。
+	// 治療は発症した不調だけを対象にするので、発症前には出さない
+	if name, ok := remedyItemNameFor(world, cond.Type); ok && cond.IsActive() {
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Treated by"), Value: query.T(world, name)})
 	}
 	return overlay.DetailContent{

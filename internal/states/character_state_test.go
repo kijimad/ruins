@@ -166,6 +166,23 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 	assert.Equal(t, "-20", manip, "応急処置で機能低下が半減する")
 }
 
+func TestHealthDetailContent_治し方は発症した不調にだけ出す(t *testing.T) {
+	t.Parallel()
+
+	labels := func(timer float64) []string {
+		world := testutil.InitTestWorld(t)
+		cond := &gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: timer, Severity: gc.TimerToSeverity(timer)}
+		content := healthDetailContent(world, statusItemData{BodyPart: gc.BodyPartArms, Condition: cond})
+		out := make([]string, 0, len(content.Rows))
+		for _, r := range content.Rows {
+			out = append(out, r.Label)
+		}
+		return out
+	}
+	assert.Equal(t, []string{"Progress", "Treatment"}, labels(20), "発症前は治し方を出さない")
+	assert.Equal(t, []string{"Progress", "Treatment", "Pain", "Manipulation", "Blood loss", "Treated by"}, labels(30), "発症すると治し方を出す")
+}
+
 func TestCharacterState_過労の詳細は重症度と意識代謝の低下を出す(t *testing.T) {
 	t.Parallel()
 
