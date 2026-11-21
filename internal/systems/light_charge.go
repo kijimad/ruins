@@ -18,7 +18,7 @@ func (sys *LightChargeSystem) String() string {
 
 // Update は照らしている灯りを集めてから、残量を減らす。尽きた灯りを消すので走査の外で減らす
 func (sys *LightChargeSystem) Update(world w.World) error {
-	// プレイヤーがいなくても床の灯りは減らす。ゼロ値の持ち主はいないので手持ち欄の灯りは照らさない扱いになる
+	// プレイヤーがいなくても床の灯りは減らす
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		player = ecs.Entity{}

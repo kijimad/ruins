@@ -423,8 +423,8 @@ type litLight struct {
 	light gc.LightSource
 }
 
-// collectLitLights は位置を持ち今照らしている光源を集める。タイルごとに光源を走査しないよう、視界の計算の先頭で1度だけ呼ぶ。
-// 退避中ステージの光源は現ステージを照らさない。手持ち欄の灯りは位置を持たず、プレイヤー自身の光源を通して照らす
+// collectLitLights は位置を持ち今照らしている光源を集める。タイルごとに走査しないよう視界の計算の先頭で1度だけ呼ぶ。
+// 手持ち欄の灯りは位置を持たず、プレイヤー自身の光源を通して照らす
 func collectLitLights(world w.World) []litLight {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {

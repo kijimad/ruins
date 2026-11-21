@@ -145,7 +145,7 @@ func BenchmarkRemains(b *testing.B) {
 	}
 }
 
-// refillHeldLights は player が装備した灯りの残量を満たす。長く回すと初期装備の松明が燃え尽きて暗い階を測ることになるので、同じ状況を保つ
+// refillHeldLights は player が装備した灯りの残量を満たす。燃え尽きて暗い階を測らないよう反復ごとに戻す
 func refillHeldLights(world w.World, player ecs.Entity) {
 	q := ecs.NewFilter2[gc.LocationEquipped, gc.Charge](world.ECS).Query()
 	for q.Next() {

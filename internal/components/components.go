@@ -153,8 +153,8 @@ type Wallet struct {
 // なくなるとキャラクターはゲームオーバー、物は壊れる
 type HP Pool[int]
 
-// Charge はアイテムの残量。灯りは照らしている間に減り、Current が0で尽きる。攻撃されて減る HP とは別のデータ。
-// Max は生成時に写すので、raw を調整しても生成済みの実体には効かない
+// Charge はアイテムの残量。灯りは照らしている間に減り、0で尽きる。
+// Max は生成時に写すので、raw を変えても生成済みの物には効かない
 type Charge Pool[int]
 
 // WeightCapacity は重量容量を表すコンポーネント。

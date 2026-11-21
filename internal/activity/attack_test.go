@@ -445,7 +445,7 @@ func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んで�
 
 	tests := []struct {
 		name string
-		// spawn は手持ち欄1に持たせる物を作る。nil なら何も持たせない
+		// nil なら何も持たせない
 		spawn func(t *testing.T, world w.World) ecs.Entity
 	}{
 		{name: "何も持っていない"},
