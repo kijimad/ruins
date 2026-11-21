@@ -29,7 +29,7 @@ func TestApplyRemedy_最も重い一致不調を治療する(t *testing.T) {
 	world.Components.Name.Add(item, &gc.Name{Name: "Splint"})
 	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 150}
 
-	u := &UseItemBehavior{}
+	u := &useItemBehavior
 	treated := u.applyRemedy(player, world, remedy, item)
 
 	assert.True(t, treated)
@@ -62,7 +62,7 @@ func TestApplyRemedy_積み重なった同種の傷から最も重い1つを治�
 	world.Components.Name.Add(item, &gc.Name{Name: "Bandage"})
 	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 150}
 
-	u := &UseItemBehavior{}
+	u := &useItemBehavior
 	require.True(t, u.applyRemedy(player, world, remedy, item))
 
 	// 最も重い傷、Timer 80 の重度だけが治療される。時間経過で Timer が分かれても最重症を選ぶ
@@ -94,7 +94,7 @@ func TestApplyRemedy_一致しなければ何もしない(t *testing.T) {
 	world.Components.Name.Add(item, &gc.Name{Name: "Splint"})
 	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 150}
 
-	u := &UseItemBehavior{}
+	u := &useItemBehavior
 	treated := u.applyRemedy(player, world, remedy, item)
 
 	assert.False(t, treated, "一致する不調が無ければ治療しない")
@@ -117,7 +117,7 @@ func TestApplyRemedy_質の低い物は治療済みの傷を飛ばして未治�
 	world.Components.Name.Add(item, &gc.Name{Name: "Rag"})
 	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 50}
 
-	u := &UseItemBehavior{}
+	u := &useItemBehavior
 	require.True(t, u.applyRemedy(player, world, remedy, item))
 
 	got := map[float64]consts.Percent{}
@@ -140,7 +140,7 @@ func TestApplyRemedy_質の高い物は質の低い治療を上書きする(t *t
 	world.Components.Name.Add(item, &gc.Name{Name: "Bandage"})
 	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 100}
 
-	u := &UseItemBehavior{}
+	u := &useItemBehavior
 	require.True(t, u.applyRemedy(player, world, remedy, item))
 	assert.Equal(t, consts.Percent(100), hs.Parts[gc.BodyPartArms].GetCondition(gc.ConditionType("laceration")).TendQuality)
 }
@@ -159,7 +159,7 @@ func TestApplyRemedy_質の高い物も未治療の傷を先に治療する(t *t
 	world.Components.Name.Add(item, &gc.Name{Name: "Bandage"})
 	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 100}
 
-	u := &UseItemBehavior{}
+	u := &useItemBehavior
 	require.True(t, u.applyRemedy(player, world, remedy, item))
 
 	got := map[float64]consts.Percent{}
@@ -194,7 +194,7 @@ func TestUseItemBehavior_Validate_治療で質が上がる傷が無ければ使�
 			world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 50})
 
 			comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
-			u := &UseItemBehavior{}
+			u := &useItemBehavior
 			var ve *UserError
 			require.ErrorAs(t, u.Validate(comp, player, world), &ve)
 		})
@@ -240,7 +240,7 @@ func TestApplyRemedy_ログに部位と不調を出す(t *testing.T) {
 	world.Components.Name.Add(item, &gc.Name{Name: "Rag"})
 	remedy := &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("laceration")}, Potency: 50}
 
-	u := &UseItemBehavior{}
+	u := &useItemBehavior
 	require.True(t, u.applyRemedy(player, world, remedy, item))
 
 	recent := query.GetGameLog(world).GetRecent(1)
@@ -276,7 +276,7 @@ func TestIsRemedyOnly(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	u := &UseItemBehavior{}
+	u := &useItemBehavior
 
 	pure := world.ECS.NewEntity()
 	world.Components.Remedy.Add(pure, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 100})
@@ -302,7 +302,7 @@ func TestUseItemBehavior_Validate_治療専用は治せる不調がないと使�
 	world.Components.Remedy.Add(item, &gc.Remedy{Treats: []gc.ConditionType{gc.ConditionType("fracture")}, Potency: 150})
 
 	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
-	u := &UseItemBehavior{}
+	u := &useItemBehavior
 
 	// 骨折が無ければ使う前に弾く
 	var ve *UserError
@@ -328,7 +328,7 @@ func TestUseItemBehavior_Validate_併用効果があれば空振りでも使え�
 	world.Components.InflictsDamage.Add(item, &gc.InflictsDamage{Amount: 1})
 
 	comp := &gc.Activity{BehaviorName: gc.BehaviorUseItem, Params: &gc.UseItemParams{Target: item}}
-	u := &UseItemBehavior{}
+	u := &useItemBehavior
 	assert.NoError(t, u.Validate(comp, player, world), "治療専用でなければ弾かない")
 }
 
@@ -352,28 +352,21 @@ func TestUseItem_蜂蜜(t *testing.T) {
 		return world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].GetCondition(gc.ConditionType("laceration")).TendQuality
 	}
 
-	t.Run("食べると空腹とHPが満ち、傷は手当てされない", func(t *testing.T) {
+	t.Run("食べると空腹が満ち、HPと傷は変わらない", func(t *testing.T) {
 		t.Parallel()
 		world, player, honey := setup(t)
 		_, err := Execute(NewEatActivity(honey), player, world)
 		require.NoError(t, err)
 		assert.Equal(t, 175, world.Components.Hunger.Get(player).Current)
-		assert.Greater(t, world.Components.HP.Get(player).Current, 10)
+		assert.Equal(t, 10, world.Components.HP.Get(player).Current)
 		assert.Equal(t, consts.Percent(0), tendQuality(world, player))
-	})
-	t.Run("食べると栄養と回復のログを1行ずつ出す", func(t *testing.T) {
-		t.Parallel()
-		world, player, honey := setup(t)
-		_, err := Execute(NewEatActivity(honey), player, world)
-		require.NoError(t, err)
-		assert.Equal(t, []string{"Ash ate fresh Honey.", "Ash recovered 15 HP."}, query.GetGameLog(world).GetRecent(2))
 	})
 	t.Run("傷が無ければ使えない", func(t *testing.T) {
 		t.Parallel()
 		world, player, honey := setup(t)
 		world.Components.HealthStatus.Get(player).Parts[gc.BodyPartLegs].Conditions = nil
 		var ue *UserError
-		require.ErrorAs(t, (&UseItemBehavior{}).Validate(NewUseItemActivity(honey), player, world), &ue)
+		require.ErrorAs(t, (&useItemBehavior).Validate(NewUseItemActivity(honey), player, world), &ue)
 	})
 	t.Run("満腹なら食べられない", func(t *testing.T) {
 		t.Parallel()
@@ -381,7 +374,7 @@ func TestUseItem_蜂蜜(t *testing.T) {
 		h := world.Components.Hunger.Get(player)
 		h.Current = h.Max
 		var ue *UserError
-		require.ErrorAs(t, (&UseItemBehavior{eat: true}).Validate(NewEatActivity(honey), player, world), &ue)
+		require.ErrorAs(t, (&eatBehavior).Validate(NewEatActivity(honey), player, world), &ue)
 	})
 	t.Run("使うと傷が手当てされ、空腹とHPは変わらない", func(t *testing.T) {
 		t.Parallel()

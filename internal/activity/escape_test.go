@@ -26,7 +26,7 @@ func TestUseItemBehavior_修理した脱出の鍵を使うと脱出を頼む(t *
 	core, err := gameaction.Craft(world, "escape_core")
 	require.NoError(t, err)
 
-	b := &UseItemBehavior{}
+	b := &useItemBehavior
 	comp := NewUseItemActivity(core)
 	require.NoError(t, b.Validate(comp, player, world))
 	require.NoError(t, b.Start(comp, player, world))

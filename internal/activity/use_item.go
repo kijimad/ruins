@@ -18,28 +18,25 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// UseItemBehavior はBehaviorの実装。eat が真なら食べるの効果を、偽なら使うの効果を適用する
+// UseItemBehavior は物を食べる・使う行動。どの効果を適用するかを effects で持つ。
+// 値は eatBehavior と useItemBehavior の2つだけで、GetBehavior が複写して返す
 type UseItemBehavior struct {
-	eat bool
+	name    gc.BehaviorName
+	label   string
+	desc    string
+	effects []useEffect
 }
 
-// effects はこの行動で適用する効果の組を返す
-func (u *UseItemBehavior) effects() []useEffect {
-	if u.eat {
-		return eatEffects
-	}
-	return useEffects
-}
+var (
+	eatBehavior     = UseItemBehavior{name: gc.BehaviorEat, label: "Eat", desc: "Eat an item", effects: eatEffects}
+	useItemBehavior = UseItemBehavior{name: gc.BehaviorUseItem, label: "Use Item", desc: "Use an item", effects: useEffects}
+)
 
 // Info はBehaviorの実装
 func (u *UseItemBehavior) Info() Info {
-	name, desc := "Use Item", "Use an item"
-	if u.eat {
-		name, desc = "Eat", "Eat an item"
-	}
 	return Info{
-		Name:            name,
-		Description:     desc,
+		Name:            u.label,
+		Description:     u.desc,
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
@@ -49,10 +46,7 @@ func (u *UseItemBehavior) Info() Info {
 
 // Name はBehaviorの実装
 func (u *UseItemBehavior) Name() gc.BehaviorName {
-	if u.eat {
-		return gc.BehaviorEat
-	}
-	return gc.BehaviorUseItem
+	return u.name
 }
 
 // NewUseItemActivity は使用アイテムを指定してアイテム使用アクティビティを組む。
@@ -93,7 +87,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 	item := p.Target
 
 	// 食べる・使うは、その組の効果を持つアイテムにしか提示されない。ここで効果なしなのは不変条件違反
-	if !hasEffect(u.effects(), world, item) {
+	if !hasEffect(u.effects, world, item) {
 		return errItemNoEffect
 	}
 
@@ -102,7 +96,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 	}
 
 	// 各効果の使用前検証。空振りなど使えない理由があれば使う前に弾く
-	for _, e := range u.effects() {
+	for _, e := range u.effects {
 		if !e.present(world, item) {
 			continue
 		}
@@ -132,7 +126,7 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	item := p.Target
 
 	// アイテムが持つ効果のうち、この行動の組の効果を順に適用する
-	for _, e := range u.effects() {
+	for _, e := range u.effects {
 		if !e.present(world, item) {
 			continue
 		}
@@ -226,7 +220,7 @@ func (u *UseItemBehavior) isRemedyOnly(world w.World, item ecs.Entity) bool {
 	if !world.Components.Remedy.Has(item) {
 		return false
 	}
-	for _, e := range u.effects() {
+	for _, e := range u.effects {
 		if _, isRemedy := e.(remedyEffect); isRemedy {
 			continue
 		}
@@ -295,13 +289,9 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	actorMarkup := query.NameMarkup(actor, actorName, world)
 	itemMarkup := gamelog.Tag("item", itemName)
 	logger := gamelog.New(query.GetGameLog(world))
-	switch {
-	case isHealing && world.Components.ProvidesNutrition.Has(item):
-		// 食べたことは栄養のログが出すので、回復の量だけを出す
-		logger.Markup(query.T(world, "%s recovered %d HP.", actorMarkup, amount))
-	case isHealing:
+	if isHealing {
 		logger.Markup(query.T(world, "%s used %s and recovered %d HP.", actorMarkup, itemMarkup, amount))
-	default:
+	} else {
 		logger.Markup(query.T(world, "%s used %s and took %d damage.", actorMarkup, itemMarkup, amount))
 	}
 	logger.Log()

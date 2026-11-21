@@ -119,7 +119,8 @@ func TestAcceptEatUse_食べると使うの対象は効果の組で決まる(t *
 		eat  bool
 		use  bool
 	}{
-		{"回復薬は回復を持つので食べる対象", "healing_potion", true, false},
+		{"パンは栄養を持つので食べる対象", "bread", true, false},
+		{"回復薬は回復を持つので使う対象", "healing_potion", false, true},
 		{"手榴弾は使うの効果だけを持つので使う対象", "grenade", false, true},
 		{"包帯は治療だけを持つので使う対象", "bandage", false, true},
 		{"蜂蜜は栄養と治療を持つので両方の対象", "honey", true, true},

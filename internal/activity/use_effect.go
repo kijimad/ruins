@@ -24,11 +24,11 @@ type useEffect interface {
 	apply(u *UseItemBehavior, comp *gc.Activity, actor, item ecs.Entity, world w.World) error
 }
 
-// eatEffects は食べると体の内側に働く効果の一覧。順に present を見て、持つ効果だけ適用する
-var eatEffects = []useEffect{nutritionEffect{}, healEffect{}}
+// eatEffects は口に入れて体の内側に働く効果の一覧。順に present を見て、持つ効果だけ適用する
+var eatEffects = []useEffect{nutritionEffect{}}
 
-// useEffects は使うと働く効果の一覧。塗る・巻くのように部位に働く治療もここに入る
-var useEffects = []useEffect{damageEffect{}, remedyEffect{}, escapeEffect{}, cubeCoreEffect{}}
+// useEffects は手当てや道具として外から働く効果の一覧
+var useEffects = []useEffect{healEffect{}, damageEffect{}, remedyEffect{}, escapeEffect{}, cubeCoreEffect{}}
 
 // healEffect は HP を回復する
 type healEffect struct{}
