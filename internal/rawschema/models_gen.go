@@ -309,9 +309,9 @@ type BuildingStart struct {
 // Chance 確率
 type Chance = float64
 
-// Charge アイテムの残量。灯りは点いている間に減り、0で尽きる
+// Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる
 type Charge struct {
-	// Max 残量の上限。灯りはターン数
+	// Max 残量の上限。灯りはターン数、武器と道具は回数
 	Max ChargeAmount `json:"max"`
 }
 
@@ -1412,7 +1412,7 @@ type Item struct {
 
 	Book *Book `json:"book,omitempty"`
 
-	// Charge 残量。携行光源を持つ行は必ず持つ。持たないと燃え尽きずに照らし続ける
+	// Charge 残量。灯り・武器・道具の行は必ず持つ。持たないと尽きずに使い続けられる
 	Charge *Charge `json:"charge,omitempty"`
 
 	Consumable *Consumable `json:"consumable,omitempty"`

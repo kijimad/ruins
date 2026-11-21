@@ -212,6 +212,7 @@ func TestShootBehavior_DoTurn(t *testing.T) {
 
 		fire := world.Components.Fire.Get(weaponEntity)
 		before := fire.Magazine
+		chargeBefore := world.Components.Charge.Get(weaponEntity).Current
 
 		sa := &ShootBehavior{}
 		comp := NewActivity(gc.BehaviorShoot, 0)
@@ -221,6 +222,7 @@ func TestShootBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, before-1, fire.Magazine)
+		assert.Equal(t, chargeBefore-1, world.Components.Charge.Get(weaponEntity).Current, "撃つと銃の残量も1減る")
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 	})
 
@@ -498,7 +500,7 @@ func TestGetEquippedFire(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
-		fire, _, err := getEquippedFire(player, world)
+		fire, _, _, err := getEquippedFire(player, world)
 		require.NoError(t, err)
 		assert.Positive(t, fire.MagazineSize)
 	})
@@ -511,7 +513,7 @@ func TestGetEquippedFire(t *testing.T) {
 		require.NoError(t, err)
 		query.GetHandSelection(world).Slot = gc.SlotHand1
 
-		_, _, err = getEquippedFire(player, world)
+		_, _, _, err = getEquippedFire(player, world)
 		assert.ErrorIs(t, err, ErrShootNoFireWeapon)
 	})
 }

@@ -103,6 +103,26 @@ func TestThrowBehavior_DoTurn_投げた物は無くなる(t *testing.T) {
 	assert.True(t, world.Components.WeightDirty.Has(player), "持ち主の重さを計算し直す")
 }
 
+func TestThrowBehavior_DoTurn_構えた武器の残量は減らない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+	sword, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
+	require.NoError(t, err)
+	lifecycle.MoveToEquip(world, sword, player, gc.SlotHand1)
+	query.GetHandSelection(world).Slot = gc.SlotHand1
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+	stone, err := lifecycle.SpawnBackpackItem(world, "stone", 1)
+	require.NoError(t, err)
+
+	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(stone, enemy), player, world))
+	assert.Equal(t, 150, world.Components.Charge.Get(sword).Current)
+}
+
 func TestGrowWeaponSkill_投げると投擲のスキルが伸びる(t *testing.T) {
 	t.Parallel()
 

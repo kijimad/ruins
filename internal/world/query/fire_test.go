@@ -8,7 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEstimateBurnTurns_残量がそのままターン数になる(t *testing.T) {
@@ -75,4 +77,37 @@ func TestHoldsFireStarter_装備した火種も所持とみなす(t *testing.T) 
 	world.Components.FireStarter.Add(equippedStarter, &gc.FireStarter{})
 	world.Components.LocationEquipped.Add(equippedStarter, &gc.LocationEquipped{Owner: player})
 	assert.True(t, query.HoldsFireStarter(world, player), "装備した火種も所持とみなす")
+}
+
+func TestFireStarterOf_照らしていない物から残量の少ない順に選ぶ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	starter := func(charge int, equipped bool) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.FireStarter.Add(e, &gc.FireStarter{})
+		if charge > 0 {
+			world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: charge})
+		}
+		if equipped {
+			world.Components.LocationEquipped.Add(e, &gc.LocationEquipped{Owner: player})
+		} else {
+			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: player})
+		}
+		return e
+	}
+
+	equipped := starter(100, true)
+	got, ok := query.FireStarterOf(world, player)
+	require.True(t, ok)
+	assert.Equal(t, equipped, got, "装備の物しか無ければそれを使う")
+
+	starter(600, false)
+	low := starter(400, false)
+	got, _ = query.FireStarterOf(world, player)
+	assert.Equal(t, low, got, "バックパックの物を装備の物より先に、残量の少ない物から使う")
+
+	endless := starter(0, true)
+	got, _ = query.FireStarterOf(world, player)
+	assert.Equal(t, endless, got, "残量を持たない物を最初に使う")
 }
