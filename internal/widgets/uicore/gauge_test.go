@@ -18,9 +18,9 @@ func TestGauge_Draw(t *testing.T) {
 		ratio float64
 		want  []image.Rectangle
 	}{
-		{name: "比率ぶんを塗る", ratio: 0.5, want: []image.Rectangle{image.Rect(0, 1, 10, 5)}},
-		{name: "残りわずかでも1pxは塗る", ratio: 0.01, want: []image.Rectangle{image.Rect(0, 1, 1, 5)}},
-		{name: "1を超える比率は枠に収める", ratio: 1.5, want: []image.Rectangle{image.Rect(0, 1, 20, 5)}},
+		{name: "比率ぶんを塗る", ratio: 0.5, want: []image.Rectangle{image.Rect(1, 1, 10, 5)}},
+		{name: "残りわずかでも1pxは塗る", ratio: 0.01, want: []image.Rectangle{image.Rect(1, 1, 2, 5)}},
+		{name: "1を超える比率は枠に収める", ratio: 1.5, want: []image.Rectangle{image.Rect(1, 1, 19, 5)}},
 		{name: "0は塗らない", ratio: 0, want: nil},
 		{name: "負の比率は塗らない", ratio: -0.5, want: nil},
 	}

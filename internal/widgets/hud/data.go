@@ -119,7 +119,6 @@ type HandSlotInfo struct {
 	WeaponName  string                 // 武器名（空文字列なら武器なし）
 	SpriteSheet string                 // スプライトシート名
 	SpriteName  string                 // スプライト名
-	// ChargeRatio は残量の上限に対する割合。HasCharge が偽ならゲージを描かない
-	ChargeRatio float64
-	HasCharge   bool
+	ChargeRatio float64                // 残量の上限に対する割合
+	HasCharge   bool                   // 残量を持つか。偽ならゲージを描かない
 }

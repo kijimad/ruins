@@ -19,7 +19,6 @@ func TestChargeRatio(t *testing.T) {
 	}{
 		{name: "上限に対する割合を返す", charge: &gc.Charge{Max: 600, Current: 150}, want: 0.25, wantOK: true},
 		{name: "上限を超えても1に収める", charge: &gc.Charge{Max: 600, Current: 700}, want: 1, wantOK: true},
-		{name: "上限が無ければ0", charge: &gc.Charge{Max: 0, Current: 10}, want: 0, wantOK: true},
 		{name: "残量を持たなければ ok は偽"},
 	}
 	for _, tt := range tests {

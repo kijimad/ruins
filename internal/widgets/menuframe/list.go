@@ -188,7 +188,7 @@ func iconCell(c styled.Cell, gaugeFill *ebiten.Image) uicore.Widget {
 		return icon
 	}
 	return &gaugedIcon{icon: icon, size: c.Icon.Bounds().Size(), gauge: &uicore.Gauge{
-		Fill: gaugeFill, Ratio: c.Gauge.Ratio, FillColor: c.Gauge.Color, Border: theme.HUDGaugeBorder, Radius: 1,
+		Fill: gaugeFill, Ratio: c.Gauge.Ratio, FillColor: c.Gauge.Color, Border: theme.HUDGaugeBorder, Radius: gaugedIconRadius,
 	}}
 }
 
@@ -199,8 +199,11 @@ type gaugedIcon struct {
 	gauge *uicore.Gauge
 }
 
-// gaugedIconHeight はアイコンに重ねるゲージの高さ
-const gaugedIconHeight = 4
+// アイコンに重ねるゲージの高さと角の丸み
+const (
+	gaugedIconHeight = 4
+	gaugedIconRadius = 1
+)
 
 // Layout は uicore.Widget を満たす。アイコンは矩形に収まるよう縮んで左寄せ・縦中央に置かれるので、
 // ゲージを縮んだアイコンの幅と下端に合わせる

@@ -117,12 +117,17 @@ func (s *slotWidget) Draw(cv uicore.Canvas) {
 	cv.DrawText(image.Pt(s.rect.Min.X+slotNumberPad, s.rect.Min.Y+slotNumberPad), numberText, s.face, theme.TextPrimary)
 }
 
+// 手持ち欄の残量のゲージの高さと角の丸み
+const (
+	slotGaugeHeight = 6
+	slotGaugeRadius = 2
+)
+
 // drawGauge は欄の下端に残量のゲージを描く。HUD のほかのゲージと同じ部品で描く
 func (s *slotWidget) drawGauge(cv uicore.Canvas) {
-	const height = 6
 	inner := s.rect.Inset(slotNumberPad)
-	g := &uicore.Gauge{Fill: s.gaugeFill, Ratio: s.slot.ChargeRatio, FillColor: theme.HealthGaugeColor(s.slot.ChargeRatio), Border: theme.HUDGaugeBorder, Radius: 2}
-	g.Layout(image.Rect(inner.Min.X, inner.Max.Y-height, inner.Max.X, inner.Max.Y))
+	g := &uicore.Gauge{Fill: s.gaugeFill, Ratio: s.slot.ChargeRatio, FillColor: theme.HealthGaugeColor(s.slot.ChargeRatio), Border: theme.HUDGaugeBorder, Radius: slotGaugeRadius}
+	g.Layout(image.Rect(inner.Min.X, inner.Max.Y-slotGaugeHeight, inner.Max.X, inner.Max.Y))
 	g.Draw(cv)
 }
 

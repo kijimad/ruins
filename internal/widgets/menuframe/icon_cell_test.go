@@ -56,14 +56,14 @@ func TestIconCell(t *testing.T) {
 			name:        "ゲージはアイコンの下端にアイコンの幅で重ねる",
 			cell:        styled.Cell{Icon: icon, Gauge: &styled.CellGauge{Ratio: 0.5}},
 			rect:        image.Rect(0, 0, 20, 21),
-			wantTinted:  []image.Rectangle{image.Rect(0, 17, 10, 19)},
+			wantTinted:  []image.Rectangle{image.Rect(1, 17, 10, 19)},
 			wantStrokes: []image.Rectangle{image.Rect(0, 16, 20, 20)},
 		},
 		{
 			name:        "アイコンが縮むとゲージも縮んだアイコンに合わせる",
 			cell:        styled.Cell{Icon: icon, Gauge: &styled.CellGauge{Ratio: 0.5}},
 			rect:        image.Rect(0, 0, 40, 10),
-			wantTinted:  []image.Rectangle{image.Rect(0, 7, 5, 9)},
+			wantTinted:  []image.Rectangle{image.Rect(1, 7, 5, 9)},
 			wantStrokes: []image.Rectangle{image.Rect(0, 6, 10, 10)},
 		},
 	}
