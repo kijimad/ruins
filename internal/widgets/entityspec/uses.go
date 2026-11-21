@@ -1,6 +1,7 @@
 package entityspec
 
 import (
+	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -8,25 +9,21 @@ import (
 )
 
 // UseHints は実体の性質・使い道を「用途」見出しでまとめた行の並びを返す。
-// 各判定は item_action_state の動詞タブの Accept と同条件にし、使える動詞と出る性質を一致させる。
 // 死んだ実体や性質を持たない実体には nil を返す。
 func UseHints(world w.World, e ecs.Entity) []SpecRow {
 	if !world.ECS.Alive(e) {
 		return nil
 	}
 	c := world.Components
-	consumable := c.Consumable.Has(e)
-	nutrition := c.ProvidesNutrition.Has(e)
-	healing := c.ProvidesHealing.Has(e)
 
 	var uses []string
-	if consumable && (nutrition || healing) { // acceptConsumeFood
+	if activity.CanEat(world, e) {
 		uses = append(uses, query.T(world, "Edible"))
 	}
 	if c.Book.Has(e) {
 		uses = append(uses, query.T(world, "Readable"))
 	}
-	if consumable && !nutrition && !healing { // acceptUseTool
+	if activity.CanUse(world, e) {
 		uses = append(uses, query.T(world, "Usable"))
 	}
 	// 武器も防具も装備スロットに付けるので同じ「装備できる」にまとめる

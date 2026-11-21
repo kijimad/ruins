@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -110,18 +113,19 @@ func TestVerbs_調べるは実行を持たず詳細モーダルを開く(t *test
 	assert.Fail(t, "調べるタブが verbList に存在しない")
 }
 
-// 食べるタブと使うタブの対象は排他で、同一アイテムが両方に現れないことを保証する。
-// フラグを増やしたときの取りこぼしを検知する
-func TestAcceptConsumeFood_食べる対象と使う対象は排他になる(t *testing.T) {
+func TestAcceptEatUse_食べると使うの対象は効果の組で決まる(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name    string
-		item    string
-		consume bool
-		use     bool
+		name string
+		item string
+		eat  bool
+		use  bool
 	}{
-		{"回復薬は回復を持つので食べる対象", "healing_potion", true, false},
-		{"手榴弾は栄養も回復も持たないので使う対象", "grenade", false, true},
+		{"パンは栄養を持つので食べる対象", "bread", true, false},
+		{"回復薬は回復を持つので使う対象", "healing_potion", false, true},
+		{"手榴弾は使うの効果だけを持つので使う対象", "grenade", false, true},
+		{"包帯は治療だけを持つので使う対象", "bandage", false, true},
+		{"蜂蜜は栄養と治療を持つので両方の対象", "honey", true, true},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -131,9 +135,31 @@ func TestAcceptConsumeFood_食べる対象と使う対象は排他になる(t *t
 			require.NoError(t, err)
 			entity, err := lifecycle.SpawnBackpackItem(world, tt.item, 1)
 			require.NoError(t, err)
-			assert.Equal(t, tt.consume, acceptConsumeFood(world, entity), "食べる対象の判定")
-			assert.Equal(t, tt.use, acceptUseTool(world, entity), "使う対象の判定")
-			assert.False(t, acceptConsumeFood(world, entity) && acceptUseTool(world, entity), "食べると使うは同時に真にならない")
+			assert.Equal(t, tt.eat, activity.CanEat(world, entity), "食べる対象の判定")
+			assert.Equal(t, tt.use, activity.CanUse(world, entity), "使う対象の判定")
 		})
 	}
+}
+
+func TestExecEat_食べるの動詞は食べるの行動を動かす(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	world.Components.Hunger.Get(player).Current = 100
+	bread, err := lifecycle.SpawnBackpackItem(world, "bread", 1)
+	require.NoError(t, err)
+
+	var exec func(w.World, ecs.Entity) (es.Transition[w.World], error)
+	for _, v := range verbList {
+		if v.ID == verbConsume {
+			exec = v.Exec
+		}
+	}
+	require.NotNil(t, exec)
+	trans, err := exec(world, bread)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPop, trans.Type)
+	assert.Greater(t, world.Components.Hunger.Get(player).Current, 100)
 }

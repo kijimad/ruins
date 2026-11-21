@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUseItemBehavior_修理した脱出の鍵を使うと脱出を頼む(t *testing.T) {
+func TestConsumeBehavior_修理した脱出の鍵を使うと脱出を頼む(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
@@ -26,7 +26,7 @@ func TestUseItemBehavior_修理した脱出の鍵を使うと脱出を頼む(t *
 	core, err := gameaction.Craft(world, "escape_core")
 	require.NoError(t, err)
 
-	b := &UseItemBehavior{}
+	b := &useItemBehavior
 	comp := NewUseItemActivity(core)
 	require.NoError(t, b.Validate(comp, player, world))
 	require.NoError(t, b.Start(comp, player, world))

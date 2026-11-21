@@ -942,6 +942,11 @@ import (
 
 	// キューブの核。使うと隣に新しいキューブが組み上がる
 	cubeCore?: #CubeCore
+
+	// 食べる・使うの効果を持つ物は、食べたり使ったりすると無くなる消費物にする
+	for f in [providesNutrition, providesHealing, remedy, inflictsDamage, escapeDevice, cubeCore] if f != _|_ {
+		consumable!: _ @rawgen(-)
+	}
 }
 
 // アイテムコレクション。各エントリを chance の確率で独立に判定する。複数当選することもありうる

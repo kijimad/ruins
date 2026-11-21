@@ -86,8 +86,8 @@ var verbList = []itemVerb{
 		KeyHint: "e",
 		Key:     ebiten.KeyE,
 		Action:  inputmapper.ActionVerbConsume,
-		Accept:  acceptConsumeFood,
-		Exec:    execUseItem,
+		Accept:  activity.CanEat,
+		Exec:    execEat,
 	},
 	{
 		ID:      verbRead,
@@ -104,7 +104,7 @@ var verbList = []itemVerb{
 		KeyHint: "t",
 		Key:     ebiten.KeyT,
 		Action:  inputmapper.ActionVerbUse,
-		Accept:  acceptUseTool,
+		Accept:  activity.CanUse,
 		Exec:    execUseItem,
 	},
 	{
@@ -117,22 +117,6 @@ var verbList = []itemVerb{
 		Accept:  acceptDisassemble,
 		Exec:    execDisassemble,
 	},
-}
-
-// acceptConsumeFood は栄養か回復を持つ消費物を食べるの対象とする。飲み物も含む
-func acceptConsumeFood(world w.World, entity ecs.Entity) bool {
-	if !world.Components.Consumable.Has(entity) {
-		return false
-	}
-	return world.Components.ProvidesNutrition.Has(entity) || world.Components.ProvidesHealing.Has(entity)
-}
-
-// acceptUseTool は栄養も回復も持たない消費物を使うの対象とする
-func acceptUseTool(world w.World, entity ecs.Entity) bool {
-	if !world.Components.Consumable.Has(entity) {
-		return false
-	}
-	return !world.Components.ProvidesNutrition.Has(entity) && !world.Components.ProvidesHealing.Has(entity)
 }
 
 // acceptDisassemble は材質の素材に戻せるアイテムを分解するの対象とする
@@ -166,14 +150,23 @@ func execPlace(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
 	return es.Transition[w.World]{Type: es.TransPop}, nil
 }
 
-// execUseItem は選択アイテムへ UseItemBehavior を適用しダンジョンへ戻る。
-// 効果の有無で食べた・使ったのログ文言は UseItemBehavior 側が出し分ける。
+// execUseItem は選択アイテムを使いダンジョンへ戻る
 func execUseItem(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
+	return execItemActivity(world, activity.NewUseItemActivity(entity))
+}
+
+// execEat は選択アイテムを食べダンジョンへ戻る
+func execEat(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
+	return execItemActivity(world, activity.NewEatItemActivity(entity))
+}
+
+// execItemActivity はプレイヤーにアイテムのアクティビティを実行させダンジョンへ戻る
+func execItemActivity(world w.World, act *gc.Activity) (es.Transition[w.World], error) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return es.Transition[w.World]{}, err
 	}
-	if _, err := activity.Execute(activity.NewUseItemActivity(entity), player, world); err != nil {
+	if _, err := activity.Execute(act, player, world); err != nil {
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
