@@ -340,7 +340,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 			AttackCategory: rawschema.AttackCategoryFist,
 		}
 
-		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
+		require.NoError(t, applyAttackDamage(attacker, target, world, gc.InvalidEntity, melee, "テスト攻撃", 0, 0))
 
 		// CancelActivity は RemoveActivity で Activity を削除するので、キャンセルは Has で観測する
 		assert.False(t, world.Components.Activity.Has(target),
@@ -373,7 +373,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 			AttackCategory: rawschema.AttackCategoryFist,
 		}
 
-		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
+		require.NoError(t, applyAttackDamage(attacker, target, world, gc.InvalidEntity, melee, "テスト攻撃", 0, 0))
 
 		// 中断不可なので生存中はアクティビティが残る
 		assert.True(t, world.Components.Activity.Has(target),
@@ -408,7 +408,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 			AttackCategory: rawschema.AttackCategoryFist,
 		}
 
-		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
+		require.NoError(t, applyAttackDamage(attacker, target, world, gc.InvalidEntity, melee, "テスト攻撃", 0, 0))
 
 		// 死亡時のアクティビティキャンセルはDeadCleanupSystemが担当する
 		// applyAttackDamage時点ではアクティビティはまだ残っている
@@ -431,8 +431,9 @@ func TestGetAttackParams_プレイヤーが装備した近接武器のパラメ�
 	lifecycle.MoveToEquip(world, weapon, player, gc.SlotHand1)
 	query.GetHandSelection(world).Slot = gc.SlotHand1
 
-	attack, name, err := getAttackParams(player, world)
+	attack, name, got, err := getAttackParams(player, world)
 	require.NoError(t, err)
+	assert.Equal(t, weapon, got, "構えた武器の実体を返す")
 	assert.Equal(t, i18n.Msgid("Torch"), name)
 	melee, ok := attack.(*gc.Melee)
 	require.True(t, ok)
@@ -466,7 +467,7 @@ func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んで�
 			tt.hold(t, world, player)
 			query.GetHandSelection(world).Slot = gc.SlotHand1
 
-			attack, name, err := getAttackParams(player, world)
+			attack, name, _, err := getAttackParams(player, world)
 			require.NoError(t, err)
 			assert.Equal(t, i18n.Msgid("Bare Hands"), name)
 			melee, ok := attack.(*gc.Melee)
@@ -484,7 +485,7 @@ func TestGetAttackParams_敵はCommandTableから攻撃を取得する(t *testin
 	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "bat")
 	require.NoError(t, err)
 
-	attack, name, err := getAttackParams(enemy, world)
+	attack, name, _, err := getAttackParams(enemy, world)
 	require.NoError(t, err)
 	// 具体的な攻撃 id は bat の CommandTable 定義依存なので、攻撃が取れて Melee である契約だけを見る
 	assert.NotEmpty(t, name)
@@ -499,7 +500,7 @@ func TestGetAttackParams_CommandTableを引けなければエラーを返す(t *
 	enemy := world.ECS.NewEntity()
 	world.Components.CommandTable.Add(enemy, &gc.CommandTable{Name: "no_such_table"})
 
-	_, _, err := getAttackParams(enemy, world)
+	_, _, _, err := getAttackParams(enemy, world)
 	var notFound raw.KeyNotFoundError
 	require.ErrorAs(t, err, &notFound)
 	assert.Equal(t, raw.KeyNotFoundError{Key: "no_such_table", Collection: "CommandTables"}, notFound)
@@ -511,7 +512,7 @@ func TestGetAttackParams_プレイヤーでも敵でもない場合はエラー�
 	world := testutil.InitTestWorld(t)
 	entity := world.ECS.NewEntity()
 
-	_, _, err := getAttackParams(entity, world)
+	_, _, _, err := getAttackParams(entity, world)
 	require.ErrorIs(t, err, ErrNoAttackSource)
 }
 
@@ -665,7 +666,7 @@ func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
 			query.GetHandSelection(world).Slot = gc.SlotHand1
 			tree, err := lifecycle.SpawnProp(world, "tree_a", 10, 9)
 			require.NoError(t, err)
-			attack, name, err := getAttackParams(player, world)
+			attack, name, weapon, err := getAttackParams(player, world)
 			require.NoError(t, err)
 			w, ok := world.Resources.SkillDefs.Weapon(attack.GetAttackCategory())
 			require.True(t, ok)
@@ -674,7 +675,7 @@ func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
 
 			// 命中率は上限があり外れうるので、補正を大きく取って何度も殴り、少なくとも1回は当てる
 			for range 20 {
-				require.NoError(t, applyAttackDamage(player, tree, world, attack, name, 1000, 0))
+				require.NoError(t, applyAttackDamage(player, tree, world, weapon, attack, name, 1000, 0))
 			}
 
 			hp := world.Components.HP.Get(tree)
@@ -687,4 +688,74 @@ func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestApplyAttackDamage_武器の残量を本来の用途かで減らす(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		weapon string
+		prop   string
+		want   int
+	}{
+		{name: "剣で敵を攻撃すると1減る", weapon: "iron_sword", want: 1},
+		{name: "斧で敵を攻撃すると2減る", weapon: "axe", want: 2},
+		{name: "斧で木を殴ると1減る", weapon: "axe", prop: "tree_a", want: 1},
+		{name: "斧で岩を殴ると2減る", weapon: "axe", prop: "rock", want: 2},
+		{name: "剣で木を殴ると2減る", weapon: "iron_sword", prop: "tree_a", want: 2},
+		{name: "松明で敵を攻撃しても減らない", weapon: "torch", want: 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			require.NoError(t, err)
+			require.NoError(t, lifecycle.UnequipAll(world, player))
+			item, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
+			require.NoError(t, err)
+			lifecycle.MoveToEquip(world, item, player, gc.SlotHand1)
+			query.GetHandSelection(world).Slot = gc.SlotHand1
+			var target ecs.Entity
+			if tt.prop == "" {
+				target, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "bat")
+			} else {
+				target, err = lifecycle.SpawnProp(world, tt.prop, 10, 9)
+			}
+			require.NoError(t, err)
+			attack, name, weapon, err := getAttackParams(player, world)
+			require.NoError(t, err)
+			require.Equal(t, item, weapon)
+			before := world.Components.Charge.Get(item).Current
+
+			require.NoError(t, applyAttackDamage(player, target, world, weapon, attack, name, 0, 0))
+
+			assert.Equal(t, before-tt.want, world.Components.Charge.Get(item).Current)
+		})
+	}
+}
+
+func TestApplyAttackDamage_武器の残量が尽きると壊れて素手に戻る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+	sword, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
+	require.NoError(t, err)
+	lifecycle.MoveToEquip(world, sword, player, gc.SlotHand1)
+	query.GetHandSelection(world).Slot = gc.SlotHand1
+	world.Components.Charge.Get(sword).Current = 1
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "bat")
+	require.NoError(t, err)
+	attack, name, weapon, err := getAttackParams(player, world)
+	require.NoError(t, err)
+
+	require.NoError(t, applyAttackDamage(player, enemy, world, weapon, attack, name, 0, 0))
+
+	assert.False(t, world.ECS.Alive(sword))
+	assert.Equal(t, query.T(world, "%s broke.", "Iron Sword"), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+	_, _, weapon, err = getAttackParams(player, world)
+	require.NoError(t, err)
+	assert.Equal(t, gc.InvalidEntity, weapon, "壊れた後は素手で攻撃する")
 }

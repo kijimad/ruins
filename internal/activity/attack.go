@@ -24,6 +24,9 @@ import (
 // 攻撃システムの定数
 const (
 	MeleeAttackRange = 1.5 // 近接攻撃の最大射程（斜めも考慮）
+
+	// misuseChargeMultiplier は本来の用途以外に使ったときに残量が減る倍率
+	misuseChargeMultiplier = 2
 )
 
 // MeleeBehavior はBehaviorの実装
@@ -144,12 +147,12 @@ func (ab *MeleeBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, worl
 
 	log.Debug("performing attack", "attacker", actor, "target", target)
 
-	attack, attackMethodName, err := getAttackParams(actor, world)
+	attack, attackMethodName, weapon, err := getAttackParams(actor, world)
 	if err != nil {
 		return fmt.Errorf("failed to get attack parameters: %w", err)
 	}
 
-	return applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)
+	return applyAttackDamage(actor, target, world, weapon, attack, attackMethodName, 0, 0)
 }
 
 func (ab *MeleeBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
@@ -196,22 +199,25 @@ func getBareHandsAttack(world w.World) (gc.Attacker, i18n.Msgid, error) {
 	return melee, name, nil
 }
 
-// getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
-// 戻り値: (攻撃パラメータ, 攻撃方法名, エラー)
-func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, i18n.Msgid, error) {
+// getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名と武器の実体を取得する。
+// 素手や敵の攻撃表の攻撃は武器の実体を持たないので gc.InvalidEntity を返す
+func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, i18n.Msgid, ecs.Entity, error) {
 	if world.Components.Player.Has(attacker) {
 		weapon, ok := query.SelectedHeld(world, attacker)
 		if !ok || !world.Components.Melee.Has(weapon) {
-			return getBareHandsAttack(world)
+			attack, name, err := getBareHandsAttack(world)
+			return attack, name, gc.InvalidEntity, err
 		}
-		return query.GetMeleeFromWeapon(world, weapon)
+		attack, name, err := query.GetMeleeFromWeapon(world, weapon)
+		return attack, name, weapon, err
 	}
 
 	if world.Components.CommandTable.Has(attacker) {
-		return query.GetAttackFromCommandTable(world, attacker)
+		attack, name, err := query.GetAttackFromCommandTable(world, attacker)
+		return attack, name, gc.InvalidEntity, err
 	}
 
-	return nil, "", ErrNoAttackSource
+	return nil, "", gc.InvalidEntity, ErrNoAttackSource
 }
 
 // getSkillMult はスキル倍率(%)を返す。
@@ -241,10 +247,15 @@ func elementMult(target ecs.Entity, element rawschema.Element, world w.World) co
 }
 
 // applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
-// 射撃と投げるからも使う
-func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) error {
+// 射撃と投げるからも使う。weapon は攻撃に使った武器の実体で、残量を持てば当たっても外れても最後に減らす。
+// 武器の実体を持たない攻撃は gc.InvalidEntity を渡す
+func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entity, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) error {
 	if attack == nil {
 		return fmt.Errorf("attack must not be nil")
+	}
+	// 減らす量は殴る前の対象で決め、武器は最後に減らす。先に消すと、壊したときの産出が武器の道具の値を読めない
+	if wearsWithUse(world, weapon) {
+		defer gameaction.ConsumeCharge(world, weapon, attackChargeCost(world, actor, weapon, target))
 	}
 
 	hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
@@ -277,6 +288,30 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	}
 
 	return nil
+}
+
+// wearsWithUse は weapon が使うたびに残量の減る物かを返す。灯りは照らしている間に減るので、殴っても減らない
+func wearsWithUse(world w.World, weapon ecs.Entity) bool {
+	return weapon != gc.InvalidEntity &&
+		world.Components.Charge.Has(weapon) &&
+		!world.Components.LightSource.Has(weapon)
+}
+
+// attackChargeCost は weapon で target を攻撃したときに減る残量を返す。置物は分類の合う道具で殴れば1、
+// ほかは本来の用途以外として倍にする。敵などは道具で攻撃すれば倍、武器なら1
+func attackChargeCost(world w.World, actor, weapon, target ecs.Entity) int {
+	if world.Components.Prop.Has(target) {
+		if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world)); ok {
+			if _, fit := wieldedTool(world, actor, def); fit {
+				return 1
+			}
+		}
+		return misuseChargeMultiplier
+	}
+	if _, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(weapon, world)); ok {
+		return misuseChargeMultiplier
+	}
+	return 1
 }
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する

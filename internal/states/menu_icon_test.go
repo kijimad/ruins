@@ -17,10 +17,10 @@ func TestItemIconCell(t *testing.T) {
 	t.Run("残量を持たない物はゲージを重ねない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		sword, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 1, 1, 1)
+		coat, err := lifecycle.SpawnFieldItem(world, "captain_coat", 1, 1, 1)
 		require.NoError(t, err)
 
-		assert.Equal(t, styled.IconCell(menuIcon(world, sword)), itemIconCell(world, sword))
+		assert.Equal(t, styled.IconCell(menuIcon(world, coat)), itemIconCell(world, coat))
 	})
 
 	t.Run("残量を持つ物は残量の割合のゲージを重ねる", func(t *testing.T) {

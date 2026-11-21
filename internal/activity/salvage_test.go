@@ -196,13 +196,13 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 			query.GetHandSelection(world).Slot = gc.SlotHand1
 			target, err := lifecycle.SpawnProp(world, tt.prop, 10, 9)
 			require.NoError(t, err)
-			attack, name, err := getAttackParams(player, world)
+			attack, name, weapon, err := getAttackParams(player, world)
 			require.NoError(t, err)
 			expBefore := world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current
 
 			// 命中率の補正を大きく取り、壊れるまで必ず命中させる
 			for range 20 {
-				require.NoError(t, applyAttackDamage(player, target, world, attack, name, 1000, 0))
+				require.NoError(t, applyAttackDamage(player, target, world, weapon, attack, name, 1000, 0))
 				if world.Components.Dead.Has(target) {
 					break
 				}
@@ -234,12 +234,12 @@ func TestApplyAttackDamage_つるはしで岩を壊すと石を落とす(t *test
 	query.GetHandSelection(world).Slot = gc.SlotHand1
 	rock, err := lifecycle.SpawnProp(world, "rock", 10, 9)
 	require.NoError(t, err)
-	attack, name, err := getAttackParams(player, world)
+	attack, name, weapon, err := getAttackParams(player, world)
 	require.NoError(t, err)
 
 	// 命中率の補正を大きく取り、壊れるまで必ず命中させる
 	for range 20 {
-		require.NoError(t, applyAttackDamage(player, rock, world, attack, name, 1000, 0))
+		require.NoError(t, applyAttackDamage(player, rock, world, weapon, attack, name, 1000, 0))
 		if world.Components.Dead.Has(rock) {
 			break
 		}
