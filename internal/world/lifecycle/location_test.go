@@ -412,3 +412,43 @@ func TestRemoveOwnedEntities(t *testing.T) {
 		assert.False(t, world.ECS.Alive(module), "装着モジュールも道連れ")
 	})
 }
+
+func TestRemoveItem(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		place     func(world w.World, item, owner ecs.Entity)
+		wantMarks bool
+	}{
+		{name: "装備した物は持ち主に計算し直させる", place: func(world w.World, item, owner ecs.Entity) {
+			MoveToEquip(world, item, owner, gc.SlotHand1)
+		}, wantMarks: true},
+		{name: "背負った物は持ち主に計算し直させる", place: func(world w.World, item, owner ecs.Entity) {
+			require.NoError(t, MoveToBackpack(world, item, owner))
+		}, wantMarks: true},
+		{name: "床の物はそのまま消える", place: func(w.World, ecs.Entity, ecs.Entity) {}, wantMarks: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			owner := world.ECS.NewEntity()
+			item, err := SpawnFieldItem(world, "torch", 3, 4, 1)
+			require.NoError(t, err)
+			tt.place(world, item, owner)
+			if world.Components.StatsChanged.Has(owner) {
+				world.Components.StatsChanged.Remove(owner)
+			}
+			if world.Components.WeightDirty.Has(owner) {
+				world.Components.WeightDirty.Remove(owner)
+			}
+
+			RemoveItem(world, item)
+
+			assert.False(t, world.ECS.Alive(item))
+			assert.Equal(t, tt.wantMarks, world.Components.StatsChanged.Has(owner))
+			assert.Equal(t, tt.wantMarks, world.Components.WeightDirty.Has(owner))
+		})
+	}
+}

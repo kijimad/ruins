@@ -8,7 +8,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ConsumeCharge は item の残量を amount 減らす。0になったら物を消し、視界を計算し直させる。
+// ConsumeCharge は Charge を持つ item の残量を amount 減らす。0になったら物を消し、視界を計算し直させる。
 // 持ち主がプレイヤーなら尽きたことをログに出す
 func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
 	charge := world.Components.Charge.Get(item)

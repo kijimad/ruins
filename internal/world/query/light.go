@@ -6,7 +6,7 @@ import (
 )
 
 // LightLit は light が今照らしているかを返す。点いていて、残量を持つなら残っていて、照らせる置き場所にあるときに照らす。
-// 照らせる置き場所は、位置を持つ床や置物と、player の手持ち欄で、背負っている物は照らさない
+// 照らせる置き場所は、位置を持つ床や置物と、player の手持ち欄。背負っている物は照らさない
 func LightLit(world w.World, player, light ecs.Entity) bool {
 	if !world.Components.LightSource.Has(light) || !world.Components.LightSource.Get(light).Enabled {
 		return false
