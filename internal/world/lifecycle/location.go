@@ -103,6 +103,10 @@ func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.Equ
 		EquipmentSlot: slot,
 	})
 	ensureRemoved(world.Components.GridElement, entity)
+	// 灯りは装備したときに点く。外しても消さない
+	if world.Components.LightSource.Has(entity) {
+		world.Components.LightSource.Get(entity).Enabled = true
+	}
 	ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 }

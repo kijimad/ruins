@@ -346,7 +346,7 @@ func (st *DungeonState) switchHandSlot(world w.World, slot gc.EquipmentSlotNumbe
 
 	// プレイヤーの手持ち欄の情報を取得してログメッセージを出力
 	query.Player(world, func(playerEntity ecs.Entity) {
-		if weapon, ok := query.SelectedWeapon(world, playerEntity); ok {
+		if weapon, ok := query.SelectedHeld(world, playerEntity); ok {
 			// 武器が装備されている場合は武器名を表示
 			if world.Components.Name.Has(weapon) {
 				weaponName := query.GetEntityName(weapon, world)

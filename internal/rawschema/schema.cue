@@ -235,9 +235,8 @@ import (
 
 // 装着設定。キューブの展開空間へ装着するとフィールドで設備として働くアイテムであることを表す
 #Deployable: {
-	storage?:     #StorageRaw
-	lightSource?: #LightSource
-	bedding?:     #Bedding
+	storage?: #StorageRaw
+	bedding?: #Bedding
 }
 
 // 器用さ。クリティカル率に影響する
@@ -1022,9 +1021,6 @@ import (
 	weight!: int32 & >=1
 }
 
-// 光源が有効かどうか
-#LightEnabled: bool
-
 // 光の強さ。0 が真っ暗、1 が最大
 #LightLevel: number & >=0 & <=1
 
@@ -1033,9 +1029,8 @@ import (
 
 // 光源設定
 #LightSource: {
-	radius!:  #LightRadius
-	color!:   #RGBAColor
-	enabled!: #LightEnabled
+	radius!: #LightRadius
+	color!:  #RGBAColor
 }
 
 // マガジン容量

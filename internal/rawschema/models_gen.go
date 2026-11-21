@@ -556,8 +556,6 @@ type Defense = int
 type Deployable struct {
 	Bedding *Bedding `json:"bedding,omitempty"`
 
-	LightSource *LightSource `json:"lightSource,omitempty"`
-
 	Storage *StorageRaw `json:"storage,omitempty"`
 }
 
@@ -1561,9 +1559,6 @@ type LayoutTiles struct {
 	Wall EntityID `json:"wall"`
 }
 
-// LightEnabled 光源が有効かどうか
-type LightEnabled = bool
-
 // LightLevel 光の強さ。0 が真っ暗、1 が最大
 type LightLevel = float64
 
@@ -1573,8 +1568,6 @@ type LightRadius = int
 // LightSource 光源設定
 type LightSource struct {
 	Color RGBAColor `json:"color"`
-
-	Enabled LightEnabled `json:"enabled"`
 
 	Radius LightRadius `json:"radius"`
 }

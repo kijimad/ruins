@@ -176,9 +176,6 @@ msgstr "武器"
 msgid "Ammo"
 msgstr "残弾"
 
-msgid "Melee weapon"
-msgstr "近接武器"
-
 msgid "Target"
 msgstr "対象"
 

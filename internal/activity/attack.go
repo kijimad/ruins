@@ -200,7 +200,7 @@ func getBareHandsAttack(world w.World) (gc.Attacker, i18n.Msgid, error) {
 // 戻り値: (攻撃パラメータ, 攻撃方法名, エラー)
 func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, i18n.Msgid, error) {
 	if world.Components.Player.Has(attacker) {
-		weapon, ok := query.SelectedWeapon(world, attacker)
+		weapon, ok := query.SelectedHeld(world, attacker)
 		if !ok || !world.Components.Melee.Has(weapon) {
 			return getBareHandsAttack(world)
 		}

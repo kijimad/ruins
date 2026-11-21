@@ -442,11 +442,13 @@ func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んで�
 	t.Parallel()
 
 	tests := []struct {
-		name string
-		hold string
+		name  string
+		hold  string
+		light bool
 	}{
 		{name: "何も持っていない"},
 		{name: "射撃だけを持つ物を選んでいる", hold: "hunter_bow"},
+		{name: "灯りだけを持つ物を選んでいる", light: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -460,6 +462,12 @@ func TestGetAttackParams_プレイヤーが近接攻撃を持つ物を選んで�
 				item, err := lifecycle.SpawnBackpackItem(world, tt.hold, 1)
 				require.NoError(t, err)
 				lifecycle.MoveToEquip(world, item, player, gc.SlotHand1)
+			}
+			if tt.light {
+				lamp := world.ECS.NewEntity()
+				world.Components.Name.Add(lamp, &gc.Name{Name: "Lamp"})
+				world.Components.LightSource.Add(lamp, &gc.LightSource{Radius: 4})
+				lifecycle.MoveToEquip(world, lamp, player, gc.SlotHand1)
 			}
 			query.GetHandSelection(world).Slot = gc.SlotHand1
 

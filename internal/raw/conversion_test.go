@@ -1,6 +1,7 @@
 package raw
 
 import (
+	"image/color"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -162,25 +163,19 @@ func TestToGCLightSource(t *testing.T) {
 
 	t.Run("nilはnilを返す", func(t *testing.T) {
 		t.Parallel()
-		assert.Nil(t, toGCLightSource(nil))
+		assert.Nil(t, toGCLightSource(nil, true))
 	})
 
-	t.Run("正常な値を変換する", func(t *testing.T) {
-		t.Parallel()
-		ls := &rawschema.LightSource{
-			Radius:  5,
-			Enabled: true,
-			Color:   rawschema.RGBAColor{R: 255, G: 128, B: 64, A: 200},
-		}
-		result := toGCLightSource(ls)
-		require.NotNil(t, result)
-		assert.Equal(t, 5, int(result.Radius))
-		assert.True(t, result.Enabled)
-		assert.Equal(t, uint8(255), result.Color.R)
-		assert.Equal(t, uint8(128), result.Color.G)
-		assert.Equal(t, uint8(64), result.Color.B)
-		assert.Equal(t, uint8(200), result.Color.A)
-	})
+	ls := &rawschema.LightSource{Radius: 5, Color: rawschema.RGBAColor{R: 255, G: 128, B: 64, A: 200}}
+	for _, tt := range []struct {
+		name    string
+		enabled bool
+	}{{"点けて作る", true}, {"消して作る", false}} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, &gc.LightSource{Radius: 5, Color: color.RGBA{R: 255, G: 128, B: 64, A: 200}, Enabled: tt.enabled}, toGCLightSource(ls, tt.enabled))
+		})
+	}
 }
 
 func TestToGCHeatSource(t *testing.T) {

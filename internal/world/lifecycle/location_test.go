@@ -179,6 +179,22 @@ func TestMoveToEquip(t *testing.T) {
 		assert.True(t, world.Components.WeightDirty.Has(owner), "所有者にWeightDirtyが付与される")
 	})
 
+	t.Run("消えた灯りは装備すると点き、外しても消えない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		owner := world.ECS.NewEntity()
+
+		torch, err := SpawnFieldItem(world, "torch", 3, 4, 1)
+		require.NoError(t, err)
+		require.False(t, world.Components.LightSource.Get(torch).Enabled, "生成した灯りは消えている")
+
+		MoveToEquip(world, torch, owner, gc.SlotHand1)
+		assert.True(t, world.Components.LightSource.Get(torch).Enabled, "装備すると点く")
+
+		require.NoError(t, MoveToBackpack(world, torch, owner))
+		assert.True(t, world.Components.LightSource.Get(torch).Enabled, "外しても消えない")
+	})
+
 	t.Run("バックパックから装備すると元オーナーと新オーナーの両方にWeightDirtyが付く", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
