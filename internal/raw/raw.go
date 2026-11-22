@@ -1275,7 +1275,7 @@ func NewTileEnvDefs(raws rawschema.Raws) gc.TileEnvDefs {
 	return defs
 }
 
-// NewWeatherDefs は raw の weathers から天候の定義の表を組み立てる。id と季節は enum なのでスキーマ検証で尽くされる
+// NewWeatherDefs は raw の weathers から天候の定義の表を組み立てる。id と季節が列挙の値をそろえて持つことは、実データのテスト enum_rows_test.go で確かめる
 func NewWeatherDefs(raws rawschema.Raws) gc.WeatherDefs {
 	var kinds [gc.NumWeatherKind]gc.WeatherDef
 	for _, row := range PtrSlice(raws.Weathers) {
@@ -1294,7 +1294,7 @@ func NewWeatherDefs(raws rawschema.Raws) gc.WeatherDefs {
 	return gc.WeatherDefs{Kinds: kinds}
 }
 
-// NewCalendarDefs は raw の timesOfDay と seasons から時間帯と季節の表を組み立てる。id は enum なので検証で尽くされる
+// NewCalendarDefs は raw の timesOfDay と seasons から時間帯と季節の表を組み立てる。id が列挙の値をそろえて持つことは、実データのテスト enum_rows_test.go で確かめる
 func NewCalendarDefs(raws rawschema.Raws) gc.CalendarDefs {
 	var defs gc.CalendarDefs
 	for _, row := range PtrSlice(raws.TimesOfDay) {
