@@ -250,11 +250,14 @@ func TestRefillMenuState_選べる灯りを選ぶと給油メニューへ進み�
 	t.Parallel()
 	tests := []struct {
 		name  string
+		tab   int
 		light int
 		want  es.TransType
 	}{
-		{name: "満たせる灯り", light: 600, want: es.TransPush},
-		{name: "満タンの灯り", light: 1500, want: es.TransNone},
+		{name: "満たせる灯り", tab: 0, light: 600, want: es.TransPush},
+		{name: "満タンの灯りは満たせない", tab: 0, light: 1500, want: es.TransNone},
+		{name: "抜ける灯り", tab: 1, light: 600, want: es.TransPush},
+		{name: "残量0の灯りからは抜けない", tab: 1, light: 0, want: es.TransNone},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -265,11 +268,15 @@ func TestRefillMenuState_選べる灯りを選ぶと給油メニューへ進み�
 			lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
 			require.NoError(t, err)
 			world.Components.Charge.Get(lantern).Current = tt.light
-			_, err = lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
+			oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
 			require.NoError(t, err)
+			world.Components.Charge.Get(oil).Current = 700
 			world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return "", false }
 			st := &RefillMenuState{}
 			require.NoError(t, st.OnStart(world))
+			_, err = st.Update(world)
+			require.NoError(t, err)
+			st.screen.SetTab(tt.tab)
 			_, err = st.Update(world)
 			require.NoError(t, err)
 

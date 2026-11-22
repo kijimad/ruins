@@ -106,8 +106,8 @@ func (st *RefillMenuState) Fetch(world w.World) (RefillProps, error) {
 	drain := refillTab{Label: query.T(world, "Drain"), sinkOf: LightDrainSink}
 	for _, light := range lights {
 		charge := world.Components.Charge.Get(light)
-		fill.Rows = append(fill.Rows, newRefillRow(world, light, LightFuelSink, charge.Max-charge.Current, query.T(world, "Charge full"), query.T(world, "No fuel")))
-		drain.Rows = append(drain.Rows, newRefillRow(world, light, LightDrainSink, charge.Current, query.T(world, "No charge"), query.T(world, "No container")))
+		fill.Rows = append(fill.Rows, newRefillRow(world, light, fill.sinkOf, charge.Max-charge.Current, query.T(world, "Charge full"), query.T(world, "No fuel")))
+		drain.Rows = append(drain.Rows, newRefillRow(world, light, drain.sinkOf, charge.Current, query.T(world, "No charge"), query.T(world, "No container")))
 	}
 	return RefillProps{Tabs: []refillTab{fill, drain}}, nil
 }

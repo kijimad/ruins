@@ -333,6 +333,25 @@ func TestUseTabMenu_MultipleInstances(t *testing.T) {
 	assert.Equal(t, 1, s2.TabIndex)
 }
 
+func TestUseTabMenu_今の行がスキップ対象に変わると次の選べる行へ寄せる(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	config := func(skips []bool) TabMenuConfig {
+		return TabMenuConfig{TabCount: 1, ItemCounts: []int{3}, Skips: [][]bool{skips}}
+	}
+	UseTabMenu(mount.Store(), "menu", config([]bool{false, false, false}))
+	mount.Update()
+	mount.Dispatch(inputmapper.ActionMenuDown)
+	UseTabMenu(mount.Store(), "menu", config([]bool{false, false, false}))
+	mount.Update()
+	s, _ := GetState[TabMenuState](mount, "menu")
+	require.Equal(t, 1, s.ItemIndex)
+
+	got := UseTabMenu(mount.Store(), "menu", config([]bool{false, true, false}))
+
+	assert.Equal(t, 2, got.ItemIndex)
+}
+
 func TestUseTabMenu_Skip(t *testing.T) {
 	t.Parallel()
 

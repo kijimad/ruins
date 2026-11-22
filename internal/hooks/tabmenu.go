@@ -59,14 +59,18 @@ func (n *tabMenuNav) firstSelectable(tabIdx int) int {
 	return n.skipNext(tabIdx, 0, 1)
 }
 
-// clamp はアイテム数変化に対してインデックスを安全な範囲に収める
+// clamp はアイテム数とスキップ対象の変化に対してインデックスを安全な範囲に収める。
+// 表示中に今の行がスキップ対象へ変わることがあるので、そのときは次の選べる行へ寄せる
 func (n *tabMenuNav) clamp(s TabMenuState) TabMenuState {
 	count := n.itemCountForTab(s.TabIndex)
 	if count == 0 {
 		s.ItemIndex = 0
-	} else if s.ItemIndex >= count {
+		return s
+	}
+	if s.ItemIndex >= count {
 		s.ItemIndex = count - 1
 	}
+	s.ItemIndex = n.skipNext(s.TabIndex, s.ItemIndex, 1)
 	return s
 }
 
