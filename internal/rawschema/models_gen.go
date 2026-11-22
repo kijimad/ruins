@@ -325,6 +325,9 @@ type Chance = float64
 
 // Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる
 type Charge struct {
+	// AcceptedFuel 受ける燃料の種別。省くと使い切りで、尽きると無くなる
+	AcceptedFuel *FuelKindId `json:"acceptedFuel,omitempty"`
+
 	// Max 残量の上限。灯りはターン数、武器と道具は回数
 	Max ChargeAmount `json:"max"`
 }
@@ -1259,6 +1262,14 @@ func FreshnessStageIdValues() []FreshnessStageId {
 // FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
 type FuelCapacityBonus = int
 
+// FuelKind 燃料の種別。灯りが受ける種別と燃料の種別を、この表の id で引き合わせる
+type FuelKind struct {
+	Id FuelKindId `json:"id"`
+}
+
+// FuelKindId 燃料の種別の id
+type FuelKindId = string
+
 // GladeStep 小さな円形の床を撒く段
 type GladeStep struct {
 	Id EntityID `json:"id"`
@@ -1466,6 +1477,9 @@ type Item struct {
 
 	ProvidesNutrition *NutritionAmount `json:"providesNutrition,omitempty"`
 
+	// Refill この行が燃料であること
+	Refill *Refill `json:"refill,omitempty"`
+
 	Remedy *Remedy `json:"remedy,omitempty"`
 
 	SpriteKey SpriteKey `json:"spriteKey"`
@@ -1473,6 +1487,8 @@ type Item struct {
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 
 	StageLength *StageLengthTurns `json:"stageLength,omitempty"`
+
+	Switch *Switch `json:"switch,omitempty"`
 
 	// Throw 投げたときの値。書かない物は重さから導く
 	Throw *Throw `json:"throw,omitempty"`
@@ -2190,6 +2206,8 @@ type Raws struct {
 
 	FreshnessStages *[]FreshnessStage `json:"freshnessStages,omitempty"`
 
+	FuelKinds *[]FuelKind `json:"fuelKinds,omitempty"`
+
 	GladeSteps *[]GladeStep `json:"gladeSteps,omitempty"`
 
 	HungerStages *[]HungerStage `json:"hungerStages,omitempty"`
@@ -2325,6 +2343,11 @@ type RectRoomStart struct {
 	RoomSize RandInt `json:"roomSize"`
 
 	Rooms RandInt `json:"rooms"`
+}
+
+// Refill 燃料。受ける種別が同じ灯りを上限まで満たす
+type Refill struct {
+	Kind FuelKindId `json:"kind"`
 }
 
 // ReloadEffort リロードに必要な行動力
@@ -2882,6 +2905,9 @@ type StorageRaw struct {
 
 // Strength 筋力。物理ダメージに影響する
 type Strength = int
+
+// Switch スイッチ。持つ物は「使う」で点け消しでき、オフで生まれる
+type Switch = map[string]interface{}
 
 // TargetGroup ターゲットグループ
 type TargetGroup string

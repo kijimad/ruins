@@ -239,3 +239,32 @@ func TestThrowMode_drawSource_画面を開いたときの威力を出す(t *test
 	throwMode{item: stone, attack: gc.ThrowAttack{Damage: 9}}.drawSource(world, player, func(line string) { lines = append(lines, line) })
 	assert.Equal(t, []string{"Item: Stone", "Attack power: 9"}, lines)
 }
+
+func TestExecUse_スイッチを持つ物は点け消しする(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	require.True(t, acceptUse(world, lantern), "スイッチを持つ物は使うの対象になる")
+
+	_, err = execUse(world, lantern)
+	require.NoError(t, err)
+	assert.True(t, world.Components.Switch.Get(lantern).On)
+	assert.True(t, world.ECS.Alive(lantern), "点け消しは物を消費しない")
+}
+
+func TestItemMenuRow_スイッチを持つ物はオンかオフかを添える(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	name := query.GetEntityName(lantern, world)
+
+	assert.Equal(t, name+" ("+query.T(world, "Switched off")+")", itemMenuRow(world, lantern, 1).Cells[1].Text)
+	world.Components.Switch.Get(lantern).On = true
+	assert.Equal(t, name+" ("+query.T(world, "Switched on")+")", itemMenuRow(world, lantern, 1).Cells[1].Text)
+}

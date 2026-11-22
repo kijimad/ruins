@@ -48,7 +48,7 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 
 // TestStatsChangedSystem_装備した光源をプレイヤーへ転写する は携行光源の中核を固定する。
 // トーチを装備するとプレイヤーの LightSource が点灯し半径が写り、外すと消灯する。
-func TestStatsChangedSystem_装備した光源をプレイヤーへ転写する(t *testing.T) {
+func TestStatsChangedSystem_持っている光源をプレイヤーへ転写する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -63,10 +63,17 @@ func TestStatsChangedSystem_装備した光源をプレイヤーへ転写する(
 	assert.True(t, ls.Enabled, "松明を装備しているので点灯する")
 	assert.Equal(t, 6, int(ls.Radius), "松明の半径がプレイヤーへ写る")
 
-	// 松明を外すと光源が消灯する
 	require.NoError(t, lifecycle.UnequipAll(world, player))
 	require.NoError(t, sys.Update(world))
-	assert.False(t, world.Components.LightSource.Get(player).Enabled, "外すと消灯する")
+	assert.True(t, world.Components.LightSource.Get(player).Enabled, "バックパックの松明も照らす")
+
+	for _, stack := range query.BackpackStacks(world, player) {
+		if world.Components.LightSource.Has(stack.Rep) {
+			lifecycle.MoveStackToField(world, stack.Rep, consts.Coord[consts.Tile]{X: 5, Y: 5}, player)
+		}
+	}
+	require.NoError(t, sys.Update(world))
+	assert.False(t, world.Components.LightSource.Get(player).Enabled, "手放すと消灯する")
 }
 
 func TestMaxHP(t *testing.T) {

@@ -4355,6 +4355,12 @@
   name = "Rotten"
   nutritionPercent = 30
 
+[[fuelKinds]]
+  id = "oil"
+
+[[fuelKinds]]
+  id = "battery"
+
 [[gladeSteps]]
   id = "forest_glades"
   [gladeSteps.spots]
@@ -5589,6 +5595,26 @@
     chance = 100
     id = "pickaxe"
     pack = "1d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "hand_lantern"
+    pack = "1d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "flashlight"
+    pack = "1d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "lamp_oil"
+    pack = "2d1"
+
+  [[itemCollections.entries]]
+    chance = 100
+    id = "battery"
+    pack = "2d1"
 
   [[itemCollections.entries]]
     chance = 100
@@ -7624,6 +7650,26 @@
     pack = "1d1"
     weight = 1
 
+  [[itemGroups.entries]]
+    id = "hand_lantern"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "flashlight"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "lamp_oil"
+    pack = "1d1"
+    weight = 1
+
+  [[itemGroups.entries]]
+    id = "battery"
+    pack = "1d2"
+    weight = 1
+
 [[itemGroups]]
   id = "antique_goods"
   name = "骨董品"
@@ -8037,6 +8083,11 @@
     id = "firewood"
     pack = "1d3"
     weight = 2
+
+  [[itemGroups.entries]]
+    id = "lamp_oil"
+    pack = "1d1"
+    weight = 1
 
 [[itemTables]]
   id = "ruins_area"
@@ -8753,6 +8804,90 @@
     element = "NONE"
     targetGroup = "ENEMY"
     targetNum = "SINGLE"
+
+[[items]]
+  description = "An oil lantern with a carry handle. Burns long and can be refilled with lamp oil. Heavy enough to swing."
+  id = "hand_lantern"
+  material = "METAL"
+  name = "Hand Lantern"
+  spriteKey = "dummy_floor_lamp"
+  spriteSheetName = "field"
+  value = 60
+  weight = "1500 g"
+  [items.charge]
+    acceptedFuel = "oil"
+    max = 1500
+  [items.lightSource]
+    radius = 5
+    [items.lightSource.color]
+      a = 255
+      b = 130
+      g = 210
+      r = 255
+  [items.melee]
+    accuracy = 80
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 1
+    damage = 8
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+  [items.switch]
+
+[[items]]
+  description = "A battery-powered flashlight. Reaches the farthest of any light, but batteries are scarce."
+  id = "flashlight"
+  material = "METAL"
+  name = "Flashlight"
+  spriteKey = "magnelight"
+  spriteSheetName = "field"
+  value = 80
+  weight = "300 g"
+  [items.charge]
+    acceptedFuel = "battery"
+    max = 1000
+  [items.lightSource]
+    radius = 8
+    [items.lightSource.color]
+      a = 255
+      b = 255
+      g = 255
+      r = 255
+  [items.melee]
+    accuracy = 90
+    attackCategory = "fist"
+    attackCount = 1
+    cost = 1
+    damage = 4
+    element = "NONE"
+    targetGroup = "ENEMY"
+    targetNum = "SINGLE"
+  [items.switch]
+
+[[items]]
+  description = "A can of lamp oil. Refills an oil lantern, and burns well on a fire."
+  id = "lamp_oil"
+  material = "OIL"
+  name = "Lamp Oil"
+  spriteKey = "dummy_coolant_vial"
+  spriteSheetName = "field"
+  value = 20
+  weight = "500 g"
+  [items.refill]
+    kind = "oil"
+
+[[items]]
+  description = "A fresh battery. Refills a flashlight."
+  id = "battery"
+  material = "METAL"
+  name = "Battery"
+  spriteKey = "dummy_scrap_battery"
+  spriteSheetName = "field"
+  value = 30
+  weight = "50 g"
+  [items.refill]
+    kind = "battery"
 
 [[items]]
   description = "A long-handled cleaning tool. Its reach makes it a surprisingly usable bludgeon."
