@@ -450,3 +450,26 @@ func TestExplode_閃光弾は範囲の者の体を鈍らせる(t *testing.T) {
 	assert.Equal(t, consts.Percent(60), funcs.Sight)
 	assert.Less(t, query.CalculateSpeed(world, enemy), speed)
 }
+
+func TestExplode_閃光弾は半径2までの者を本人も含めて鈍らせる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	target, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
+	require.NoError(t, err)
+	far, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 15, Y: 10}, "fireball")
+	require.NoError(t, err)
+	flashbang, err := lifecycle.SpawnBackpackItem(world, "flashbang", 1)
+	require.NoError(t, err)
+	attack, ok := query.ThrowAttackOf(world, flashbang)
+	require.True(t, ok)
+
+	require.NoError(t, explode(world, player, target, attack, "Flashbang"))
+
+	daze := gc.ConditionType("daze")
+	dazed := func(e ecs.Entity) bool {
+		return world.Components.HealthStatus.Get(e).Parts[gc.BodyPartWholeBody].GetCondition(daze) != nil
+	}
+	assert.Equal(t, []bool{true, true, false}, []bool{dazed(player), dazed(target), dazed(far)})
+}
