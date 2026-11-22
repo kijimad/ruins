@@ -34,6 +34,12 @@ func TestWeaponViability_viableと罠と差を集計する(t *testing.T) {
 	}
 }
 
+func TestViabilitySummary_ViableRate_評価数が0なら0(t *testing.T) {
+	t.Parallel()
+	// 0件を0件で割る0除算を避け、評価していないなら0を返す。
+	assert.Equal(t, 0.0, ViabilitySummary{Total: 0}.ViableRate())
+}
+
 func TestViabilitySummary_symmetryとviabilityの判定(t *testing.T) {
 	t.Parallel()
 	// 幅が下限未満なら symmetry 寄り、超えれば viability ありと判定する。

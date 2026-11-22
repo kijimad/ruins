@@ -17,6 +17,12 @@ func TestFollowRangeTiles_手計算と一致(t *testing.T) {
 	assert.InDelta(t, 10, FollowRangeTiles(1000, 95*consts.MilligramPerKg), 1e-9)
 }
 
+func TestFollowRangeTiles_燃費が0以下なら0除算を避けて0(t *testing.T) {
+	t.Parallel()
+	// 積載が十分な負の値だと FollowFuelCost 自体が0以下になる。0除算を避け0歩を返す。
+	assert.Equal(t, 0.0, FollowRangeTiles(1000, -10*consts.MilligramPerKg))
+}
+
 func TestFuelBurnTurns_熱量と効率で決まる(t *testing.T) {
 	t.Parallel()
 	defs, err := raw.NewMaterialDefs(loadTestMaster(t))
