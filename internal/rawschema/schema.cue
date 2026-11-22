@@ -1695,8 +1695,8 @@ import (
 
 // 3D で置物を描く形。省くとカメラを向く立て板になる。
 // inset は扉や窓のように壁の並びにはめる薄い板、facing は棚のように並びと隣の空きに合わせて向きを決め、その向きに回した薄い板、
-// flat は土の模様やワープの穴のように地面に寝かせた板
-#SpriteShape: "inset" | "facing" | "flat"
+// flat は土の模様やワープの穴のように地面に寝かせた板、linked は柵のように東西南北の隣の linked の置物へ中心から板を伸ばしてつなぐ格子
+#SpriteShape: "inset" | "facing" | "flat" | "linked"
 
 // スプライトシート
 #SpriteSheet: {

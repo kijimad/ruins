@@ -185,7 +185,7 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	// 前フレームのバッファを [:0] で使い回す。追記で伸びた容量を最後に持ち越す
 	walls := render3d.BoxTileSet(world)
 	quads := sys.collectTiles(world, sys.quads[:0], projector, visTint, walls)
-	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world), posesAt(world))
+	quads = sys.collectBillboards(world, quads, projector, visTint, walls, closedInsets(world), posesAt(world), linkedAt(world))
 	// 状態従属の装飾もクアッドとして積み、深度ソートで手前の壁に隠させる
 	quads = sys.collectDecorations(world, quads, projector)
 	// 展開中キューブの野営エリアを囲むレーザー壁も状態従属の装飾として積む
@@ -421,7 +421,8 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 
 // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
 // inset は壁にはめる板、facing は置き方 Pose に合わせて立てる閉じた板にし、Pose が無ければ立て板にする。flat は地面に寝かせる。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, poses map[consts.Coord[consts.Tile]]gc.Pose) []r3quad {
+// linked は描けるマスの linked の隣へ中心から伸ばす格子の板にする
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, poses map[consts.Coord[consts.Tile]]gc.Pose, linked map[consts.Coord[consts.Tile]]bool) []r3quad {
 	right := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
@@ -450,6 +451,22 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			// 奥行きが床と同値になるので、副キーの描画順で床の後に段の順に描く
 			sys.addQuad(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)
 			quads[len(quads)-1].depth = sr.Depth.Rank()
+			continue
+		}
+		if sr.Shape == rawschema.Linked {
+			// 壁と同じく動かない仕切りなので、記憶エリアにも描く。まだ見ていないマスの柵の在りかを板の伸び方で明かさないよう、
+			// 描けるマスの隣だけをつなぐ
+			known := func(n consts.Coord[consts.Tile]) bool {
+				if !linked[n] {
+					return false
+				}
+				_, ok, _ := visTint(&gc.GridElement{Coord: n})
+				return ok
+			}
+			for _, s := range linkedSpans(g.Coord, known) {
+				sys.addLinkedSpan(&quads, g.Coord, s, atlas, ux, uy, uw, uh, tint)
+				quads[len(quads)-1].depth = sr.Depth.Rank()
+			}
 			continue
 		}
 		if sr.Shape == rawschema.Inset {
@@ -486,6 +503,66 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		quads[len(quads)-1].depth = depth
 	}
 	return quads
+}
+
+// linkedAt は linked の置物がある座標の集合を返す
+func linkedAt(world w.World) map[consts.Coord[consts.Tile]]bool {
+	linked := map[consts.Coord[consts.Tile]]bool{}
+	q := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
+	for q.Next() {
+		if world.Components.SpriteRender.Get(q.Entity()).Shape == rawschema.Linked {
+			linked[world.Components.GridElement.Get(q.Entity()).Coord] = true
+		}
+	}
+	return linked
+}
+
+// linkedSpan はマスの中で板が占める範囲。northSouth なら x=0.5 の線を北から南へ、そうでなければ z=0.5 の線を西から東へ、
+// from から to までを占める。絵も同じ割合で切り出す
+type linkedSpan struct {
+	northSouth bool
+	from, to   float64
+}
+
+// linkedSpans はマス c の格子の板を返す。東西と南北の両方につなぐ隣 linked があれば、隣のある方向へだけ中心から端まで伸ばす。
+// 片方の軸だけなら、その軸に沿ってマスの端から端まで渡す。隣が無ければ東西に渡す
+func linkedSpans(c consts.Coord[consts.Tile], linked func(consts.Coord[consts.Tile]) bool) []linkedSpan {
+	east, west := linked(c.Add(consts.East.Delta())), linked(c.Add(consts.West.Delta()))
+	north, south := linked(c.Add(consts.North.Delta())), linked(c.Add(consts.South.Delta()))
+	ew, ns := east || west, north || south
+	switch {
+	case ew && ns:
+		var spans []linkedSpan
+		if west {
+			spans = append(spans, linkedSpan{from: 0, to: 0.5})
+		}
+		if east {
+			spans = append(spans, linkedSpan{from: 0.5, to: 1})
+		}
+		if north {
+			spans = append(spans, linkedSpan{northSouth: true, from: 0, to: 0.5})
+		}
+		if south {
+			spans = append(spans, linkedSpan{northSouth: true, from: 0.5, to: 1})
+		}
+		return spans
+	case ns:
+		return []linkedSpan{{northSouth: true, from: 0, to: 1}}
+	default:
+		return []linkedSpan{{from: 0, to: 1}}
+	}
+}
+
+// addLinkedSpan は格子の板を1枚積む。中身を塗らず絵だけを貼るので、絵の透けた所から向こうが見える
+func (sys *Render3DSystem) addLinkedSpan(out *[]r3quad, c consts.Coord[consts.Tile], s linkedSpan, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
+	const h = render3d.WallHeight
+	at := func(along, y float64) render3d.Vec {
+		if s.northSouth {
+			return render3d.At(float64(c.X)+0.5, y, float64(c.Y)+along)
+		}
+		return render3d.At(float64(c.X)+along, y, float64(c.Y)+0.5)
+	}
+	sys.addQuad(out, at(s.from, h), at(s.to, h), at(s.to, 0), at(s.from, 0), atlas, ux+uw*s.from, uy, uw*(s.to-s.from), uh, tint)
 }
 
 // insetThickness は壁にはめる置物の板の厚み
