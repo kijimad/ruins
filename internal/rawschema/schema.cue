@@ -993,6 +993,11 @@ import (
 	for f in [providesNutrition, providesHealing, remedy, escapeDevice, cubeCore] if f != _|_ {
 		consumable!: _ @rawgen(-)
 	}
+
+	// 道具は手に構えて殴ったときに効くので、近接の値を持たせる
+	if tool != _|_ {
+		melee!: _ @rawgen(-)
+	}
 }
 
 // アイテムコレクション。各エントリを chance の確率で独立に判定する。複数当選することもありうる

@@ -279,7 +279,7 @@ type hitOptions struct {
 	critical  bool       // 会心
 	injury    bool       // 怪我を抽選する
 	growSkill bool       // 傷つけたら武器スキルを伸ばす
-	weapon    ecs.Entity // 攻撃に使った物。置物への道具の倍率と廃材の抽選に使う。持たない攻撃は gc.InvalidEntity
+	weapon    ecs.Entity // 攻撃に使った物。置物への道具の倍率・廃材の抽選・道具スキルの伸びを決める。持たない攻撃は gc.InvalidEntity
 	damageMod int
 }
 

@@ -162,6 +162,14 @@ func TestSchema_制約の違反を位置で返す(t *testing.T) {
 			wantPath: "items.0.melee.attackCount",
 		},
 		{
+			name: "道具が近接の値を持たない",
+			raws: makeItemRaws(func(i *rawschema.Item) {
+				i.Melee = nil
+				i.Tool = &rawschema.Tool{Categories: []rawschema.ToolCategory{"chopping"}, Grade: 1}
+			}),
+			wantPath: "items.0.melee",
+		},
+		{
 			name:     "コレクションの出現確率が0",
 			raws:     makeCollectionRaws(0),
 			wantPath: "itemCollections.0.entries.0.chance",
