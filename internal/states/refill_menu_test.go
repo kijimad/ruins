@@ -7,7 +7,9 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -90,4 +92,43 @@ func TestFeedFuelMenuState_灯りを満タンにしたら閉じる(t *testing.T)
 	require.NoError(t, err)
 	assert.Equal(t, es.TransPop, tr.Type)
 	assert.Equal(t, 1500, world.Components.Charge.Get(lantern).Current)
+}
+
+func TestRefillChoices(t *testing.T) {
+	t.Parallel()
+	type row struct {
+		Label    string
+		Disabled bool
+	}
+	tests := []struct {
+		name  string
+		setup func(world w.World) []row
+	}{
+		{name: "満たせる物が無ければ無効の行と閉じるを出す", setup: func(world w.World) []row {
+			return []row{{Label: query.T(world, "Nothing to refill"), Disabled: true}, {Label: query.T(world, "Close")}}
+		}},
+		{name: "満タンでない物を並べる", setup: func(world w.World) []row {
+			lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+			require.NoError(t, err)
+			world.Components.Charge.Get(lantern).Current = 0
+			return []row{{Label: query.GetEntityName(lantern, world)}, {Label: query.T(world, "Close")}}
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+			require.NoError(t, err)
+			want := tt.setup(world)
+
+			title, choices := refillChoices(world)
+			got := make([]row, 0, len(choices))
+			for _, c := range choices {
+				got = append(got, row{Label: c.Label, Disabled: c.Disabled})
+			}
+			assert.Equal(t, query.T(world, "Refill"), title)
+			assert.Equal(t, want, got)
+		})
+	}
 }

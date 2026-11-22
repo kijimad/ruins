@@ -53,7 +53,7 @@ var (
 	// ErrChargeFull は満タンの物を満たそうとしたときに返す
 	ErrChargeFull = errors.New("charge is already full")
 	// ErrRefillMismatch は種別の合わない燃料で満たそうとしたときに返す
-	ErrRefillMismatch = errors.New("fuel does not match the refill tag")
+	ErrRefillMismatch = errors.New("fuel kind does not match the accepted fuel")
 )
 
 // RefillCharge は fuel を1つ使い、item の残量を上限まで戻す。種別が合わなければ ErrRefillMismatch を、
@@ -61,8 +61,7 @@ var (
 // 尽きていた灯りが照らし直すので、持ち主の灯りと視界を計算し直させる
 func RefillCharge(world w.World, item, fuel ecs.Entity) error {
 	want, refillable := query.AcceptedFuelOf(world, item)
-	got, isFuel := query.FuelKindOf(world, fuel)
-	if !refillable || !isFuel || got != want {
+	if !refillable || !query.FuelKindMatches(world, want, fuel) {
 		return ErrRefillMismatch
 	}
 	charge := world.Components.Charge.Get(item)

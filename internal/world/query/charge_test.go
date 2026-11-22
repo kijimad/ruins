@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -102,4 +103,18 @@ func TestIsOn(t *testing.T) {
 			assert.Equal(t, tt.want, IsOn(world, gc.InvalidEntity, e))
 		})
 	}
+}
+
+func TestFuelKindMatches(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	noRaw := world.ECS.NewEntity()
+	_, ok := AcceptedFuelOf(world, noRaw)
+	assert.False(t, ok, "raw の行を持たない物は受ける種別を持たない")
+	assert.False(t, FuelKindMatches(world, rawschema.FuelKindOil, noRaw), "raw の行を持たない物は燃料でない")
+
+	oil := world.ECS.NewEntity()
+	world.Components.RawID.Add(oil, &gc.RawID{ID: "lamp_oil"})
+	assert.True(t, FuelKindMatches(world, rawschema.FuelKindOil, oil))
+	assert.False(t, FuelKindMatches(world, rawschema.FuelKindBattery, oil))
 }

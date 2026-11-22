@@ -90,8 +90,7 @@ func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 			return query.T(world, "Refill %s", query.GetEntityName(light, world))
 		},
 		accepts: func(world w.World, fuel ecs.Entity) bool {
-			got, ok := query.FuelKindOf(world, fuel)
-			return refillable && ok && got == want
+			return refillable && query.FuelKindMatches(world, want, fuel)
 		},
 		gain: func(world w.World, _ ecs.Entity) string {
 			charge := world.Components.Charge.Get(light)

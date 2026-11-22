@@ -17,7 +17,7 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	clearLocation(world, entity)
 	world.Components.LocationInBackpack.Add(entity, &gc.LocationInBackpack{Owner: owner})
 	ensureRemoved(world.Components.GridElement, entity)
-	ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+	MarkStatsChanged(world, owner)
 	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	return nil
 }
@@ -103,7 +103,7 @@ func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.Equ
 		EquipmentSlot: slot,
 	})
 	ensureRemoved(world.Components.GridElement, entity)
-	ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+	MarkStatsChanged(world, owner)
 	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 }
 
@@ -215,7 +215,7 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	}
 	if world.Components.LocationEquipped.Has(entity) {
 		owner := world.Components.LocationEquipped.Get(entity).Owner
-		ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+		MarkStatsChanged(world, owner)
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 	if world.Components.LocationInStorage.Has(entity) {
@@ -228,7 +228,7 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	}
 	if world.Components.LocationInstalled.Has(entity) {
 		owner := world.Components.LocationInstalled.Get(entity).Owner
-		ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+		MarkStatsChanged(world, owner)
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 
@@ -245,7 +245,7 @@ func MoveToInstalled(world w.World, entity ecs.Entity, cube ecs.Entity, slot int
 	clearLocation(world, entity)
 	world.Components.LocationInstalled.Add(entity, &gc.LocationInstalled{Owner: cube, Slot: slot})
 	ensureRemoved(world.Components.GridElement, entity)
-	ensureMarker(world, world.Components.StatsChanged, cube, &gc.StatsChanged{})
+	MarkStatsChanged(world, cube)
 	ensureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
 }
 
@@ -306,7 +306,7 @@ func RemoveItem(world w.World, item ecs.Entity) {
 	}
 	world.ECS.RemoveEntity(item)
 	if hasOwner {
-		ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+		MarkStatsChanged(world, owner)
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 }

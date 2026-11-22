@@ -65,3 +65,9 @@ func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.FuelKind, bool) {
 	}
 	return raw.FindFuelKind(world.Resources.RawMaster, world.Components.RawID.Get(fuel).ID)
 }
+
+// FuelKindMatches は fuel が燃料で、その種別が want かを返す。灯りが受ける種別との一致を、一覧の絞り込みと補充の両方がこれで判定する
+func FuelKindMatches(world w.World, want rawschema.FuelKind, fuel ecs.Entity) bool {
+	got, ok := FuelKindOf(world, fuel)
+	return ok && got == want
+}
