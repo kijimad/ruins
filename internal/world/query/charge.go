@@ -21,7 +21,7 @@ const (
 )
 
 // ChargeTriggerOf は item の残量が何で減るかを、持つコンポーネントから導く。光源を持つ物はオンの間に減り、
-// ほかは使うたびに減る
+// ほかは使うたびに減る。燃料もほかに入るが、燃料は武器にも灯りにもならず、灯りへ移すときだけ減る
 func ChargeTriggerOf(world w.World, item ecs.Entity) ChargeTrigger {
 	switch {
 	case item == gc.InvalidEntity || !world.Components.Charge.Has(item):
@@ -57,16 +57,16 @@ func AcceptedFuelOf(world w.World, item ecs.Entity) (rawschema.FuelKindId, bool)
 	return raw.FindAcceptedFuel(world.Resources.RawMaster, world.Components.RawID.Get(item).ID)
 }
 
-// FuelKindOf は燃料の fuel の種別を返す。燃料でない物は ok が偽
-func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.FuelKindId, bool) {
+// RefillOf は燃料の fuel の燃料の欄を返す。燃料でない物は ok が偽
+func RefillOf(world w.World, fuel ecs.Entity) (rawschema.Refill, bool) {
 	if !world.Components.RawID.Has(fuel) {
-		return "", false
+		return rawschema.Refill{}, false
 	}
-	return raw.FindFuelKind(world.Resources.RawMaster, world.Components.RawID.Get(fuel).ID)
+	return raw.FindRefill(world.Resources.RawMaster, world.Components.RawID.Get(fuel).ID)
 }
 
 // FuelKindMatches は fuel が燃料で、その種別が want かを返す
 func FuelKindMatches(world w.World, want rawschema.FuelKindId, fuel ecs.Entity) bool {
-	got, ok := FuelKindOf(world, fuel)
-	return ok && got == want
+	refill, ok := RefillOf(world, fuel)
+	return ok && refill.Kind == want
 }

@@ -7,8 +7,10 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMaterialDefs_HeatOf_材質のkgあたり熱量へ重量を掛ける(t *testing.T) {
@@ -64,4 +66,34 @@ func TestIsCombustible(t *testing.T) {
 
 		assert.False(t, query.IsCombustible(world, e))
 	})
+}
+
+func TestHeatContent_燃料の行の物は残量の割合を掛ける(t *testing.T) {
+	t.Parallel()
+	// 灯油は OIL 1000/kg × 500g で熱 500、残量の上限は 1500。松明は WOOD 200/kg × 500g で熱 100
+	tests := []struct {
+		name    string
+		rawID   string
+		current int
+		want    consts.Heat
+	}{
+		{name: "満タンの灯油は材質と重さの熱", rawID: "lamp_oil", current: 1500, want: 500},
+		{name: "半分の灯油は半分の熱", rawID: "lamp_oil", current: 750, want: 250},
+		{name: "残量1の灯油も燃やせる物のまま", rawID: "lamp_oil", current: 1, want: 1},
+		{name: "燃料でない松明は残量で変わらない", rawID: "torch", current: 1, want: 100},
+		{name: "空の缶は燃えない", rawID: "empty_oil_can"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			item, err := lifecycle.SpawnFieldItem(world, tt.rawID, 3, 4, 1)
+			require.NoError(t, err)
+			if world.Components.Charge.Has(item) {
+				world.Components.Charge.Get(item).Current = tt.current
+			}
+
+			assert.Equal(t, tt.want, query.HeatContent(world, item))
+		})
+	}
 }

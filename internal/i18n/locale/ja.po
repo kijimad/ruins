@@ -6770,6 +6770,15 @@ msgstr "補充"
 msgid "Nothing to refill"
 msgstr "補充できる物が無い"
 
+msgid "Fill"
+msgstr "満たす"
+
+msgid "Drain"
+msgstr "抜く"
+
+msgid "Drained %s into %s."
+msgstr "%sから%sへ抜き取った"
+
 msgid "Hand Lantern"
 msgstr "手提げランタン"
 

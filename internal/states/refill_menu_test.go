@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRefillableItems_持っている満たせる物のうち満タンでない物を並べる(t *testing.T) {
+func TestRefillableItems_持っている燃料を受ける灯りを満タンの物も含めて並べる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -23,13 +23,15 @@ func TestRefillableItems_持っている満たせる物のうち満タンでな�
 	used, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
 	require.NoError(t, err)
 	world.Components.Charge.Get(used).Current = 100
-	_, err = lifecycle.SpawnBackpackItem(world, "flashlight", 1)
+	full, err := lifecycle.SpawnBackpackItem(world, "flashlight", 1)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnBackpackItem(world, "torch", 1)
 	require.NoError(t, err)
 	floor, err := lifecycle.SpawnFieldItem(world, "hand_lantern", 1, 1, 1)
 	require.NoError(t, err)
 	world.Components.Charge.Get(floor).Current = 100
 
-	assert.Equal(t, []ecs.Entity{used}, refillableItems(world), "満タンの懐中電灯と床のランタンは並べない")
+	assert.ElementsMatch(t, []ecs.Entity{used, full}, refillableItems(world), "使い切りの松明と床のランタンは並べない")
 }
 
 func TestLightFuelSink_同じ種別の燃料だけをくべられる(t *testing.T) {
@@ -69,7 +71,26 @@ func TestLightFuelSink_満タンになったら閉じてよい(t *testing.T) {
 	require.False(t, sink.done(world))
 
 	require.NoError(t, sink.feed(world, oil))
-	assert.True(t, sink.done(world), "1つで満タンになる")
+	assert.True(t, sink.done(world), "満タンの燃料1つで満タンになる")
+}
+
+func TestLightFuelSink_燃料の残りが足りなければ満タンにならず閉じない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(lantern).Current = 0
+	oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(oil).Current = 400
+	sink := LightFuelSink(world, lantern)
+	assert.Equal(t, consts.Turn(400).String(), sink.gain(world, oil), "増える量は燃料の残り")
+
+	require.NoError(t, sink.feed(world, oil))
+	assert.Equal(t, 400, world.Components.Charge.Get(lantern).Current)
+	assert.False(t, sink.done(world))
 }
 
 func TestFeedFuelMenuState_灯りを満タンにしたら閉じる(t *testing.T) {
@@ -107,10 +128,9 @@ func TestRefillChoices(t *testing.T) {
 		{name: "満たせる物が無ければ無効の行と閉じるを出す", setup: func(world w.World) []row {
 			return []row{{Label: query.T(world, "Nothing to refill"), Disabled: true}, {Label: query.T(world, "Close")}}
 		}},
-		{name: "満タンでない物を並べる", setup: func(world w.World) []row {
+		{name: "満タンの物も並べる", setup: func(world w.World) []row {
 			lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
 			require.NoError(t, err)
-			world.Components.Charge.Get(lantern).Current = 0
 			return []row{{Label: query.GetEntityName(lantern, world)}, {Label: query.T(world, "Close")}}
 		}},
 	}
@@ -148,4 +168,71 @@ func TestLightFuelSink_満タンなら燃料を使わずログだけ出す(t *te
 	require.NoError(t, sink.feed(world, oil))
 	assert.True(t, world.ECS.Alive(oil), "燃料は使わない")
 	assert.Equal(t, query.T(world, "It is already full."), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+}
+
+func TestLightRefillChoices(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		current   int
+		fuel      string
+		wantFill  bool
+		wantDrain bool
+	}{
+		{name: "満タンで燃料も空の缶も無ければどちらも選べない", current: 1500},
+		{name: "減っていて燃料を持てば満たせる", current: 600, fuel: "lamp_oil", wantFill: true},
+		{name: "満タンなら燃料を持っても満たせない", current: 1500, fuel: "lamp_oil"},
+		{name: "空の缶を持てば抜ける", current: 600, fuel: "empty_oil_can", wantDrain: true},
+		{name: "残量0なら空の缶を持っても抜けない", current: 0, fuel: "empty_oil_can"},
+		{name: "種別の合わない燃料では満たせない", current: 600, fuel: "battery"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+			require.NoError(t, err)
+			lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+			require.NoError(t, err)
+			world.Components.Charge.Get(lantern).Current = tt.current
+			if tt.fuel != "" {
+				_, err = lifecycle.SpawnBackpackItem(world, tt.fuel, 1)
+				require.NoError(t, err)
+			}
+
+			title, choices := lightRefillChoices(world, lantern)
+
+			assert.Equal(t, query.GetEntityName(lantern, world), title)
+			labels := make([]string, 0, len(choices))
+			enabled := make([]bool, 0, len(choices))
+			for _, c := range choices {
+				labels = append(labels, c.Label)
+				enabled = append(enabled, !c.Disabled)
+			}
+			assert.Equal(t, []string{query.T(world, "Fill"), query.T(world, "Drain"), query.T(world, "Close")}, labels)
+			assert.Equal(t, []bool{tt.wantFill, tt.wantDrain, true}, enabled)
+		})
+	}
+}
+
+func TestLightRefillChoices_抜くと空の缶が灯油に戻りログを出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(lantern).Current = 600
+	_, err = lifecycle.SpawnBackpackItem(world, "empty_oil_can", 1)
+	require.NoError(t, err)
+	_, choices := lightRefillChoices(world, lantern)
+
+	tr, err := choices[1].Run(world)
+
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPop, tr.Type)
+	oil, ok := query.FindInBackpack(world, player, "lamp_oil")
+	require.True(t, ok)
+	assert.Equal(t, 600, world.Components.Charge.Get(oil).Current)
+	assert.Equal(t, query.T(world, "Drained %s into %s.", "Hand Lantern", "Lamp Oil"), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
 }

@@ -130,40 +130,68 @@ func TestConsumeCharge_満たせる灯りは尽きても残る(t *testing.T) {
 	assert.Equal(t, query.T(world, "%s ran out.", "Hand Lantern"), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
 }
 
-func TestRefillCharge(t *testing.T) {
+func TestConsumeCharge_燃料が尽きると同じ置き場所の空の物に変わる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	battery, err := lifecycle.SpawnBackpackItem(world, "battery", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(battery).Current = 1
+
+	ConsumeCharge(world, battery, 1)
+
+	assert.False(t, world.ECS.Alive(battery))
+	_, ok := query.FindInBackpack(world, player, "empty_battery")
+	assert.True(t, ok, "空の物が持ち物に残る")
+	assert.Equal(t, query.T(world, "%s is used up.", "Battery"), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+}
+
+func TestTransferCharge(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		name        string
-		current     int
-		wantErr     error
-		wantCharge  int
-		wantFuelHas bool
+		name      string
+		light     int
+		fuel      int
+		wantErr   error
+		wantMoved int
+		wantLight int
+		wantFuel  int
+		wantEmpty bool
 	}{
-		{name: "減った灯りは燃料を1つ使って満タンに戻る", current: 0, wantCharge: 1500, wantFuelHas: false},
-		{name: "満タンなら燃料を使わない", current: 1500, wantErr: ErrChargeFull, wantCharge: 1500, wantFuelHas: true},
+		{name: "灯りの不足分だけ移り、燃料は残りを持つ", light: 1000, fuel: 1500, wantMoved: 500, wantLight: 1500, wantFuel: 1000},
+		{name: "燃料の残りだけ移り、燃料は空の缶になる", light: 0, fuel: 600, wantMoved: 600, wantLight: 600, wantEmpty: true},
+		{name: "満タンの灯りは満たさない", light: 1500, fuel: 1500, wantErr: ErrChargeFull, wantLight: 1500, wantFuel: 1500},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
-			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 			require.NoError(t, err)
 			lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
 			require.NoError(t, err)
-			world.Components.Charge.Get(lantern).Current = tt.current
+			world.Components.Charge.Get(lantern).Current = tt.light
 			oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
 			require.NoError(t, err)
+			world.Components.Charge.Get(oil).Current = tt.fuel
 
-			err = RefillCharge(world, lantern, oil)
+			moved, err := TransferCharge(world, oil, lantern)
 
 			require.ErrorIs(t, err, tt.wantErr)
-			assert.Equal(t, tt.wantCharge, world.Components.Charge.Get(lantern).Current)
-			assert.Equal(t, tt.wantFuelHas, world.ECS.Alive(oil))
+			assert.Equal(t, tt.wantMoved, moved)
+			assert.Equal(t, tt.wantLight, world.Components.Charge.Get(lantern).Current)
+			_, hasCan := query.FindInBackpack(world, player, "empty_oil_can")
+			assert.Equal(t, tt.wantEmpty, hasCan)
+			assert.Equal(t, !tt.wantEmpty, world.ECS.Alive(oil))
+			if !tt.wantEmpty {
+				assert.Equal(t, tt.wantFuel, world.Components.Charge.Get(oil).Current)
+			}
 		})
 	}
 }
 
-func TestRefillCharge_種別の合わない燃料では満たさない(t *testing.T) {
+func TestTransferCharge_種別の合わない燃料では満たさない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -174,7 +202,156 @@ func TestRefillCharge_種別の合わない燃料では満たさない(t *testin
 	battery, err := lifecycle.SpawnBackpackItem(world, "battery", 1)
 	require.NoError(t, err)
 
-	require.ErrorIs(t, RefillCharge(world, lantern, battery), ErrRefillMismatch)
+	_, err = TransferCharge(world, battery, lantern)
+
+	require.ErrorIs(t, err, ErrRefillMismatch)
 	assert.Equal(t, 0, world.Components.Charge.Get(lantern).Current)
-	assert.True(t, world.ECS.Alive(battery), "燃料は使わない")
+	assert.Equal(t, 1000, world.Components.Charge.Get(battery).Current, "燃料は使わない")
+}
+
+func TestTransferCharge_灯りが0から戻ると持ち主に写し直させる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(lantern).Current = 0
+	oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
+	require.NoError(t, err)
+	world.Components.StatsChanged.Remove(player)
+	query.GetVisionState(world).ConsumePendingUpdate()
+
+	_, err = TransferCharge(world, oil, lantern)
+
+	require.NoError(t, err)
+	assert.True(t, world.Components.StatsChanged.Has(player))
+	assert.True(t, query.GetVisionState(world).ConsumePendingUpdate())
+}
+
+func TestTransferCharge_束の1個から移すとその1個だけ別の束に分かれる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	flashlight, err := lifecycle.SpawnBackpackItem(world, "flashlight", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(flashlight).Current = 600
+	battery, err := lifecycle.SpawnBackpackItem(world, "battery", 2)
+	require.NoError(t, err)
+	members := query.StackMembers(world, battery)
+	require.Len(t, members, 2)
+
+	_, err = TransferCharge(world, members[0], flashlight)
+
+	require.NoError(t, err)
+	assert.Equal(t, 600, world.Components.Charge.Get(members[0]).Current)
+	assert.Equal(t, 1000, world.Components.Charge.Get(members[1]).Current, "同じ束のほかの電池は変わらない")
+	var counts []int
+	for _, stack := range query.BackpackStacks(world, player) {
+		if world.Components.RawID.Get(stack.Rep).ID == "battery" {
+			counts = append(counts, stack.Count)
+		}
+	}
+	assert.Equal(t, []int{1, 1}, counts)
+}
+
+func TestDrainCharge(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		light     int
+		lightMax  int
+		cans      int
+		wantErr   error
+		wantMoved int
+		wantLight int
+	}{
+		{name: "空の缶が灯りの残量を持った灯油に戻る", light: 600, lightMax: 1500, cans: 1, wantMoved: 600, wantLight: 0},
+		{name: "燃料の上限を超える分は灯りに残る", light: 2000, lightMax: 2000, cans: 1, wantMoved: 1500, wantLight: 500},
+		{name: "空の缶を持たなければ抜けない", light: 600, lightMax: 1500, wantErr: ErrNoContainer, wantLight: 600},
+		{name: "残量0の灯りは抜けない", light: 0, lightMax: 1500, cans: 1, wantErr: ErrChargeEmpty, wantLight: 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+			require.NoError(t, err)
+			lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+			require.NoError(t, err)
+			charge := world.Components.Charge.Get(lantern)
+			charge.Max, charge.Current = tt.lightMax, tt.light
+			if tt.cans > 0 {
+				_, err = lifecycle.SpawnBackpackItem(world, "empty_oil_can", tt.cans)
+				require.NoError(t, err)
+			}
+
+			oil, moved, err := DrainCharge(world, lantern)
+
+			require.ErrorIs(t, err, tt.wantErr)
+			assert.Equal(t, tt.wantMoved, moved)
+			assert.Equal(t, tt.wantLight, world.Components.Charge.Get(lantern).Current)
+			if tt.wantErr != nil {
+				return
+			}
+			assert.Equal(t, player, world.Components.LocationInBackpack.Get(oil).Owner, "入れ物と同じ持ち物の中にできる")
+			assert.Equal(t, "lamp_oil", world.Components.RawID.Get(oil).ID)
+			assert.Equal(t, tt.wantMoved, world.Components.Charge.Get(oil).Current)
+			_, hasCan := query.FindInBackpack(world, player, "empty_oil_can")
+			assert.False(t, hasCan, "入れ物を使う")
+		})
+	}
+}
+
+func TestDrainCharge_灯りが0になってもログを出さず視界を計算し直させる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	flashlight, err := lifecycle.SpawnBackpackItem(world, "flashlight", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(flashlight).Current = 300
+	_, err = lifecycle.SpawnBackpackItem(world, "empty_battery", 1)
+	require.NoError(t, err)
+	world.Components.StatsChanged.Remove(player)
+	query.GetVisionState(world).ConsumePendingUpdate()
+	logs := query.GetGameLog(world).Count()
+
+	_, _, err = DrainCharge(world, flashlight)
+
+	require.NoError(t, err)
+	assert.Equal(t, 0, world.Components.Charge.Get(flashlight).Current)
+	assert.Equal(t, logs, query.GetGameLog(world).Count())
+	assert.True(t, world.Components.StatsChanged.Has(player))
+	assert.True(t, query.GetVisionState(world).ConsumePendingUpdate())
+}
+
+func TestTransferChargeとDrainCharge_繰り返しても燃料と空の物の数の合計は変わらない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	flashlight, err := lifecycle.SpawnBackpackItem(world, "flashlight", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(flashlight).Current = 0
+	_, err = lifecycle.SpawnBackpackItem(world, "battery", 1)
+	require.NoError(t, err)
+
+	for range 3 {
+		battery, ok := query.FindInBackpack(world, player, "battery")
+		require.True(t, ok)
+		_, err := TransferCharge(world, battery, flashlight)
+		require.NoError(t, err)
+		_, _, err = DrainCharge(world, flashlight)
+		require.NoError(t, err)
+	}
+
+	count := map[string]int{}
+	for _, stack := range query.BackpackStacks(world, player) {
+		if id := world.Components.RawID.Get(stack.Rep).ID; id == "battery" || id == "empty_battery" {
+			count[id] += stack.Count
+		}
+	}
+	assert.Equal(t, map[string]int{"battery": 1}, count)
 }

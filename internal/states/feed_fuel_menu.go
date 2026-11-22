@@ -81,7 +81,7 @@ func CubeFuelSink(cube ecs.Entity) FuelSink {
 	}
 }
 
-// LightFuelSink は満たせる灯りをくべ先にする。1つで満タンになるので、満たしたらメニューを閉じる。
+// LightFuelSink は満たせる灯りをくべ先にする。燃料の残量を移すので、1つで満タンになるとは限らない。満タンになったらメニューを閉じる。
 // メニューを開いている間はターンが進まず灯りが消えないので、灯りの生存は確かめない
 func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 	want, refillable := query.AcceptedFuelOf(world, light)
@@ -92,12 +92,12 @@ func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 		accepts: func(world w.World, fuel ecs.Entity) bool {
 			return refillable && query.FuelKindMatches(world, want, fuel)
 		},
-		gain: func(world w.World, _ ecs.Entity) string {
+		gain: func(world w.World, fuel ecs.Entity) string {
 			charge := world.Components.Charge.Get(light)
-			return consts.Turn(charge.Max - charge.Current).String()
+			return consts.Turn(min(charge.Max-charge.Current, world.Components.Charge.Get(fuel).Current)).String()
 		},
 		feed: func(world w.World, fuel ecs.Entity) error {
-			err := gameaction.RefillCharge(world, light, fuel)
+			_, err := gameaction.TransferCharge(world, fuel, light)
 			if errors.Is(err, gameaction.ErrChargeFull) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "It is already full.")).
