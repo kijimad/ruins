@@ -55,12 +55,28 @@ func (n *tabMenuNav) skipNext(tabIdx, idx, dir int) int {
 	return idx
 }
 
+// nearestSelectable は idx から下へ、無ければ上へ探した最初のスキップ対象でないインデックスを返す。どれもスキップ対象なら idx を返す
+func (n *tabMenuNav) nearestSelectable(tabIdx, idx int) int {
+	count := n.itemCountForTab(tabIdx)
+	for i := idx; i < count; i++ {
+		if !n.isSkip(tabIdx, i) {
+			return i
+		}
+	}
+	for i := idx - 1; i >= 0; i-- {
+		if !n.isSkip(tabIdx, i) {
+			return i
+		}
+	}
+	return idx
+}
+
 func (n *tabMenuNav) firstSelectable(tabIdx int) int {
 	return n.skipNext(tabIdx, 0, 1)
 }
 
 // clamp はアイテム数とスキップ対象の変化に対してインデックスを安全な範囲に収める。
-// 表示中に今の行がスキップ対象へ変わることがあるので、そのときは次の選べる行へ寄せる
+// 表示中に今の行がスキップ対象へ変わることがあるので、そのときは近い選べる行へ寄せる。先頭へ回すと離れたページへ飛ぶ
 func (n *tabMenuNav) clamp(s TabMenuState) TabMenuState {
 	count := n.itemCountForTab(s.TabIndex)
 	if count == 0 {
@@ -70,7 +86,7 @@ func (n *tabMenuNav) clamp(s TabMenuState) TabMenuState {
 	if s.ItemIndex >= count {
 		s.ItemIndex = count - 1
 	}
-	s.ItemIndex = n.skipNext(s.TabIndex, s.ItemIndex, 1)
+	s.ItemIndex = n.nearestSelectable(s.TabIndex, s.ItemIndex)
 	return s
 }
 

@@ -40,11 +40,15 @@ type RefillProps struct {
 	Tabs []refillTab
 }
 
-// refillTab は補充メニューの1タブ。sinkOf は灯りを選んだときに開く給油メニューのくべ先を作る
+// refillTab は補充メニューの1タブ。sinkOf は灯りを選んだときに開く給油メニューのくべ先を作る。
+// amount は灯りの側で移せる量の上限で、0なら lightReason を、持ち物に sinkOf が受ける物が無ければ noneReason を理由に出す
 type refillTab struct {
-	Label  string
-	Rows   []refillRow
-	sinkOf func(world w.World, light ecs.Entity) FuelSink
+	Label       string
+	Rows        []refillRow
+	sinkOf      func(world w.World, light ecs.Entity) FuelSink
+	amount      func(charge gc.Charge) int
+	lightReason string
+	noneReason  string
 }
 
 // refillRow は補充メニューの1行。Disabled なら Value に選べない理由を、選べるなら移せる量を入れる。
@@ -102,25 +106,38 @@ func (st *RefillMenuState) DoAction(world w.World, action inputmapper.ActionID) 
 
 // Fetch は世界から表示 props を構築する
 func (st *RefillMenuState) Fetch(world w.World) (RefillProps, error) {
-	lights := refillableItems(world)
-	fill := refillTab{Label: query.T(world, "Fill"), sinkOf: LightFuelSink}
-	drain := refillTab{Label: query.T(world, "Drain"), sinkOf: LightDrainSink}
-	for _, light := range lights {
-		charge := world.Components.Charge.Get(light)
-		fill.Rows = append(fill.Rows, newRefillRow(world, light, fill.sinkOf, charge.Max-charge.Current, query.T(world, "Charge full"), query.T(world, "No fuel")))
-		drain.Rows = append(drain.Rows, newRefillRow(world, light, drain.sinkOf, charge.Current, query.T(world, "No charge"), query.T(world, "No container")))
+	tabs := []refillTab{
+		{
+			Label:       query.T(world, "Fill"),
+			sinkOf:      LightFuelSink,
+			amount:      func(c gc.Charge) int { return c.Max - c.Current },
+			lightReason: query.T(world, "Charge full"),
+			noneReason:  query.T(world, "No fuel"),
+		},
+		{
+			Label:       query.T(world, "Drain"),
+			sinkOf:      LightDrainSink,
+			amount:      func(c gc.Charge) int { return c.Current },
+			lightReason: query.T(world, "No charge"),
+			noneReason:  query.T(world, "No container"),
+		},
 	}
-	return RefillProps{Tabs: []refillTab{fill, drain}}, nil
+	for _, light := range refillableItems(world) {
+		for i := range tabs {
+			tabs[i].Rows = append(tabs[i].Rows, tabs[i].row(world, light))
+		}
+	}
+	return RefillProps{Tabs: tabs}, nil
 }
 
-// newRefillRow は灯りの light の1行を組む。灯りの側で移せる量 amount が0なら lightReason を、持ち物に sinkOf が受ける物が
-// 無ければ noneReason を理由に出して選べない行にし、選べるなら amount を出す
-func newRefillRow(world w.World, light ecs.Entity, sinkOf func(w.World, ecs.Entity) FuelSink, amount int, lightReason, noneReason string) refillRow {
+// row は灯りの light の1行を組む。選べなければ理由を出し、選べるなら移せる量の上限を出す
+func (tab refillTab) row(world w.World, light ecs.Entity) refillRow {
+	amount := tab.amount(*world.Components.Charge.Get(light))
 	switch {
 	case amount <= 0:
-		return refillRow{Entity: light, Value: lightReason, Disabled: true}
-	case !carriesAccepted(world, sinkOf(world, light)):
-		return refillRow{Entity: light, Value: noneReason, Disabled: true}
+		return refillRow{Entity: light, Value: tab.lightReason, Disabled: true}
+	case !carriesAccepted(world, tab.sinkOf(world, light)):
+		return refillRow{Entity: light, Value: tab.noneReason, Disabled: true}
 	}
 	return refillRow{Entity: light, Value: consts.Turn(amount).String()}
 }
