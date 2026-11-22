@@ -114,3 +114,14 @@ func TestWhileOnChargeSystem_切ったランタンは持っていても減らな
 	assert.Equal(t, 1500, world.Components.Charge.Get(off).Current, "切ったランタンは減らない")
 	assert.Equal(t, 1499, world.Components.Charge.Get(on).Current, "点けたランタンは減る")
 }
+
+func TestWhileOnChargeSystem_床に置いたオンのランタンは減る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	lantern, err := lifecycle.SpawnFieldItem(world, "hand_lantern", 3, 4, 1)
+	require.NoError(t, err)
+	world.Components.Switch.Get(lantern).On = true
+
+	require.NoError(t, (&WhileOnChargeSystem{}).Update(world))
+	assert.Equal(t, 1499, world.Components.Charge.Get(lantern).Current, "床でもオンなら照らして減る")
+}
