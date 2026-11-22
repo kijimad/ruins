@@ -112,7 +112,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
-| draft | [燃料に残量を持たせ、灯りとの間で移す](docs/design/261122193721.md) | 0/13 | item, gamedesign |
+| | No open documents | | |
 
 
 ## References

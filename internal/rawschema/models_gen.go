@@ -299,12 +299,12 @@ type BuildingStart struct {
 // Chance 確率
 type Chance = float64
 
-// Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる
+// Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、燃料は灯りへ移すと減り、0で尽きる
 type Charge struct {
 	// AcceptedFuel 受ける燃料の種別。省くと使い切りで、尽きると無くなる
 	AcceptedFuel *FuelKindId `json:"acceptedFuel,omitempty"`
 
-	// Max 残量の上限。灯りはターン数、武器と道具は回数
+	// Max 残量の上限。灯りはターン数、武器と道具は回数、燃料は灯りへ移せるターン数
 	Max ChargeAmount `json:"max"`
 }
 
@@ -2235,7 +2235,7 @@ type RectRoomStart struct {
 	Rooms RandInt `json:"rooms"`
 }
 
-// Refill 燃料。受ける種別が同じ灯りを上限まで満たす
+// Refill 燃料。受ける種別が同じ灯りとの間で残量を移す。残量0でも残り、抜くときの入れ物になる
 type Refill struct {
 	Kind FuelKindId `json:"kind"`
 }
@@ -2644,7 +2644,7 @@ type SpriteRender struct {
 
 // SpriteShape 3D で置物を描く形。省くとカメラを向く立て板になる。
 // inset は扉や窓のように壁の並びにはめる薄い板、facing は棚のように並びと隣の空きに合わせて向きを決め、その向きに回した薄い板、
-// flat は土の模様やワープの穴のように地面に寝かせた板
+// flat は土の模様やワープの穴のように地面に寝かせた板、linked は柵のように東西南北の隣の linked の置物へ中心から板を伸ばしてつなぐ格子
 type SpriteShape string
 
 // Defines values for SpriteShape.
@@ -2652,6 +2652,7 @@ const (
 	Facing SpriteShape = "facing"
 	Flat   SpriteShape = "flat"
 	Inset  SpriteShape = "inset"
+	Linked SpriteShape = "linked"
 )
 
 // Valid indicates whether the value is a known member of the SpriteShape enum.
@@ -2663,6 +2664,8 @@ func (e SpriteShape) Valid() bool {
 		return true
 	case Inset:
 		return true
+	case Linked:
+		return true
 	default:
 		return false
 	}
@@ -2670,7 +2673,7 @@ func (e SpriteShape) Valid() bool {
 
 // SpriteShapeValues は SpriteShape の値を、スキーマに書いた順に返す。
 func SpriteShapeValues() []SpriteShape {
-	return []SpriteShape{Inset, Facing, Flat}
+	return []SpriteShape{Inset, Facing, Flat, Linked}
 }
 
 // SpriteSheet スプライトシート

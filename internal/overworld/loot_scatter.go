@@ -48,7 +48,7 @@ func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chu
 			if d.Name == "" {
 				continue
 			}
-			if _, err := lifecycle.SpawnFieldItem(world, d.Name, bl.X, bl.Y, d.Count); err != nil {
+			if err := lifecycle.SpawnFieldLoot(world, d.Name, bl.X, bl.Y, d.Count, rng); err != nil {
 				return fmt.Errorf("failed to place outdoor loot (%s): %w", d.Name, err)
 			}
 		}

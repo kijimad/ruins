@@ -81,7 +81,7 @@ func CubeFuelSink(cube ecs.Entity) FuelSink {
 	}
 }
 
-// LightFuelSink は満たせる灯りをくべ先にする。1つで満タンになるので、満たしたらメニューを閉じる。
+// LightFuelSink は満たせる灯りをくべ先にする。燃料の残量を移すので、1つで満タンになるとは限らない。満タンになったらメニューを閉じる。
 // メニューを開いている間はターンが進まず灯りが消えないので、灯りの生存は確かめない
 func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 	want, refillable := query.AcceptedFuelOf(world, light)
@@ -90,14 +90,13 @@ func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 			return query.T(world, "Refill %s", query.GetEntityName(light, world))
 		},
 		accepts: func(world w.World, fuel ecs.Entity) bool {
-			return refillable && query.FuelKindMatches(world, want, fuel)
+			return refillable && query.FuelKindMatches(world, want, fuel) && world.Components.Charge.Get(fuel).Current > 0
 		},
-		gain: func(world w.World, _ ecs.Entity) string {
-			charge := world.Components.Charge.Get(light)
-			return consts.Turn(charge.Max - charge.Current).String()
+		gain: func(world w.World, fuel ecs.Entity) string {
+			return consts.Turn(query.TransferableCharge(world, fuel, light)).String()
 		},
 		feed: func(world w.World, fuel ecs.Entity) error {
-			err := gameaction.RefillCharge(world, light, fuel)
+			_, err := gameaction.TransferCharge(world, fuel, light)
 			if errors.Is(err, gameaction.ErrChargeFull) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "It is already full.")).
@@ -111,6 +110,42 @@ func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 			return charge.Current >= charge.Max
 		},
 	}
+}
+
+// LightDrainSink は灯りの残量を抜いて入れる、同じ種別の満タンでない燃料を並べる。灯りが0になるか、抜く先が無くなったらメニューを閉じる
+func LightDrainSink(world w.World, light ecs.Entity) FuelSink {
+	want, refillable := query.AcceptedFuelOf(world, light)
+	var sink FuelSink
+	sink = FuelSink{
+		title: func(world w.World) string {
+			return query.T(world, "Drain %s", query.GetEntityName(light, world))
+		},
+		accepts: func(world w.World, container ecs.Entity) bool {
+			if !refillable || !query.FuelKindMatches(world, want, container) {
+				return false
+			}
+			charge := world.Components.Charge.Get(container)
+			return charge.Current < charge.Max
+		},
+		gain: func(world w.World, container ecs.Entity) string {
+			return consts.Turn(query.TransferableCharge(world, light, container)).String()
+		},
+		feed: func(world w.World, container ecs.Entity) error {
+			if _, err := gameaction.TransferCharge(world, light, container); err != nil {
+				return err
+			}
+			gamelog.New(query.GetGameLog(world)).
+				Markup(query.T(world, "Drained %s into %s.",
+					gamelog.Tag("item", query.GetEntityName(light, world)),
+					gamelog.Tag("item", query.GetEntityName(container, world)))).
+				Log()
+			return nil
+		},
+		done: func(world w.World) bool {
+			return world.Components.Charge.Get(light).Current <= 0 || !carriesAccepted(world, sink)
+		},
+	}
+	return sink
 }
 
 var _ es.State[w.World] = &FeedFuelMenuState{}

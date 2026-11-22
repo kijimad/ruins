@@ -264,7 +264,7 @@ func TestCollectBillboards_寝かせる形のpropは地面に寝かせる(t *tes
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil, nil)
 
 	require.Len(t, quads, 1)
 	assert.Equal(t, [4]render3d.Vec{
@@ -292,7 +292,7 @@ func TestCollectBillboards_視界の外では跡を描かず床の模様は描�
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, remembered, nil, nil, nil)
+	quads := sys.collectBillboards(world, nil, projector, remembered, nil, nil, nil, nil)
 
 	require.Len(t, quads, 1, "記憶しているマスには床の模様だけを描く")
 	assert.Equal(t, rawschema.SpriteDepthDecal.Rank(), quads[0].depth)
@@ -448,7 +448,7 @@ func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
 	require.NoError(t, lifecycle.OpenDoor(world, door))
 	sys := &Render3DSystem{}
 
-	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil))
+	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil, nil))
 }
 
 func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T) {
@@ -523,7 +523,7 @@ func TestCollectBillboards_同じマスのテーブルとアイテムはアイ�
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil, nil)
 	sortQuadsByDepth(quads, projector.Depth)
 
 	require.Len(t, quads, 2)
@@ -550,9 +550,90 @@ func TestCollectBillboards_同じマスのアイテムとプレイヤーはプ�
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil, nil)
 	sortQuadsByDepth(quads, projector.Depth)
 
 	require.Len(t, quads, 2)
 	assert.Equal(t, []int{rawschema.SpriteDepthItem.Rank(), rawschema.SpriteDepthPlayer.Rank()}, []int{quads[0].depth, quads[1].depth}, "後に描くプレイヤーが手前に出る")
+}
+
+func TestLinkedSpans(t *testing.T) {
+	t.Parallel()
+
+	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	tests := []struct {
+		name      string
+		neighbors []consts.Cardinal
+		want      []linkedSpan
+	}{
+		{name: "隣が無ければ東西に渡す", want: []linkedSpan{{from: 0, to: 1}}},
+		{name: "東西の並びは東西に渡す", neighbors: []consts.Cardinal{consts.East, consts.West}, want: []linkedSpan{{from: 0, to: 1}}},
+		{name: "並びの端も端から端まで渡す", neighbors: []consts.Cardinal{consts.East}, want: []linkedSpan{{from: 0, to: 1}}},
+		{name: "南北の並びは南北に渡す", neighbors: []consts.Cardinal{consts.North}, want: []linkedSpan{{northSouth: true, from: 0, to: 1}}},
+		{name: "角は隣のある2方向へだけ伸ばす", neighbors: []consts.Cardinal{consts.East, consts.South}, want: []linkedSpan{{from: 0.5, to: 1}, {northSouth: true, from: 0.5, to: 1}}},
+		{name: "T字は隣のある3方向へ伸ばす", neighbors: []consts.Cardinal{consts.East, consts.West, consts.North}, want: []linkedSpan{{from: 0, to: 0.5}, {from: 0.5, to: 1}, {northSouth: true, from: 0, to: 0.5}}},
+		{name: "十字は4方向へ伸ばす", neighbors: []consts.Cardinal{consts.East, consts.West, consts.North, consts.South}, want: []linkedSpan{{from: 0, to: 0.5}, {from: 0.5, to: 1}, {northSouth: true, from: 0, to: 0.5}, {northSouth: true, from: 0.5, to: 1}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			linked := map[consts.Coord[consts.Tile]]bool{c: true}
+			for _, d := range tt.neighbors {
+				linked[c.Add(d.Delta())] = true
+			}
+			assert.Equal(t, tt.want, linkedSpans(c, func(n consts.Coord[consts.Tile]) bool { return linked[n] }))
+		})
+	}
+}
+
+func TestCollectBillboards_柵は描けるマスの隣とだけつなぐ(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	east, south := center.Add(consts.East.Delta()), center.Add(consts.South.Delta())
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {
+			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
+			Sprites: map[string]gc.Sprite{"fence": {Width: 32, Height: 32}},
+		},
+	})
+	for _, c := range []consts.Coord[consts.Tile]{center, east, south} {
+		_, err := lifecycle.SpawnProp(world, "fence", c.X, c.Y)
+		require.NoError(t, err)
+	}
+	sys := &Render3DSystem{}
+	// 中央のマスの板だけを見る。隣の柵の板は中央のマスの外から始まる
+	inCenter := func(q r3quad) bool {
+		return q.p[0].X >= 25 && q.p[0].X <= 25.5 && q.p[0].Z >= 25 && q.p[0].Z <= 25.5
+	}
+	centerQuads := func(known func(consts.Coord[consts.Tile]) bool) []r3quad {
+		vis := func(g *gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, known(g.Coord), true }
+		var got []r3quad
+		for _, q := range sys.collectBillboards(world, nil, projector, vis, nil, nil, nil, linkedAt(world)) {
+			if inCenter(q) {
+				got = append(got, q)
+			}
+		}
+		return got
+	}
+
+	corner := centerQuads(func(consts.Coord[consts.Tile]) bool { return true })
+	require.Len(t, corner, 2, "角は東と南へ半分ずつ伸ばす")
+	assert.Equal(t, [4]render3d.Vec{render3d.At(25.5, 1, 25.5), render3d.At(26, 1, 25.5), render3d.At(26, 0, 25.5), render3d.At(25.5, 0, 25.5)}, corner[0].p)
+	assert.Equal(t, [4]render3d.Vec{render3d.At(25.5, 1, 25.5), render3d.At(25.5, 1, 26), render3d.At(25.5, 0, 26), render3d.At(25.5, 0, 25.5)}, corner[1].p)
+	half := corner[0].uv[1][0] - corner[0].uv[0][0]
+	for _, q := range corner {
+		assert.InDelta(t, half, q.uv[1][0]-q.uv[0][0], 1e-9, "角の2枚は同じ幅の絵を貼る")
+		assert.Equal(t, rawschema.SpriteDepthTaller.Rank(), q.depth)
+	}
+
+	southUnseen := centerQuads(func(c consts.Coord[consts.Tile]) bool { return c != south })
+	require.Len(t, southUnseen, 1, "見ていない南の柵とはつながず、東西に渡す")
+	assert.Equal(t, [4]render3d.Vec{render3d.At(25, 1, 25.5), render3d.At(26, 1, 25.5), render3d.At(26, 0, 25.5), render3d.At(25, 0, 25.5)}, southUnseen[0].p)
+	assert.InDelta(t, 2*half, southUnseen[0].uv[1][0]-southUnseen[0].uv[0][0], 1e-9, "端から端までの板は半分の板の倍の幅の絵を貼る")
+	assert.InDelta(t, corner[0].uv[1][0], southUnseen[0].uv[1][0], 1e-9, "東の半分の板は絵の右半分を貼る")
+
+	assert.Empty(t, centerQuads(func(c consts.Coord[consts.Tile]) bool { return c != center }), "描けないマスの柵は板を積まない")
 }

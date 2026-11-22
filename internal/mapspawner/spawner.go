@@ -143,8 +143,7 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 		if item.Count <= 0 {
 			return fmt.Errorf("%w (%d, %d): count=%d", errInvalidItemCount, item.X, item.Y, item.Count)
 		}
-		_, err := lifecycle.SpawnFieldItem(world, item.Name, tileX, tileY, item.Count)
-		if err != nil {
+		if err := lifecycle.SpawnFieldLoot(world, item.Name, tileX, tileY, item.Count, metaPlan.RNG); err != nil {
 			return fmt.Errorf("failed to spawn item (%d, %d): %w", item.X, item.Y, err)
 		}
 	}
@@ -297,7 +296,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 			return fmt.Errorf("%w: %w", errDrawLoot, err)
 		}
 		for _, d := range draws {
-			if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, storageEntity); err != nil {
+			if err := lifecycle.SpawnStorageLoot(world, d.Name, d.Count, storageEntity, metaPlan.RNG); err != nil {
 				return fmt.Errorf("failed to spawn item '%s': %w", d.Name, err)
 			}
 		}

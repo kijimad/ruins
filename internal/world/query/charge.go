@@ -21,7 +21,7 @@ const (
 )
 
 // ChargeTriggerOf は item の残量が何で減るかを、持つコンポーネントから導く。光源を持つ物はオンの間に減り、
-// ほかは使うたびに減る
+// ほかは使うたびに減る。燃料もほかに入るが、灯りへ移すときだけ減る
 func ChargeTriggerOf(world w.World, item ecs.Entity) ChargeTrigger {
 	switch {
 	case item == gc.InvalidEntity || !world.Components.Charge.Has(item):
@@ -69,4 +69,19 @@ func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.FuelKindId, bool) {
 func FuelKindMatches(world w.World, want rawschema.FuelKindId, fuel ecs.Entity) bool {
 	got, ok := FuelKindOf(world, fuel)
 	return ok && got == want
+}
+
+// TransferableCharge は from から to へ移せる量を返す。to の空きと from の残りの少ない方
+func TransferableCharge(world w.World, from, to ecs.Entity) int {
+	fromCharge := world.Components.Charge.Get(from)
+	toCharge := world.Components.Charge.Get(to)
+	return max(0, min(toCharge.Max-toCharge.Current, fromCharge.Current))
+}
+
+// ChargeKindOf は item が残量を移し合う燃料の種別を返す。灯りは受ける種別、燃料は自分の種別を返し、どちらでもなければ ok が偽
+func ChargeKindOf(world w.World, item ecs.Entity) (rawschema.FuelKindId, bool) {
+	if kind, ok := AcceptedFuelOf(world, item); ok {
+		return kind, true
+	}
+	return FuelKindOf(world, item)
 }

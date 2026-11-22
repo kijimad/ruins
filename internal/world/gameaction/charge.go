@@ -12,25 +12,22 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ConsumeCharge は item の残量を amount 減らす。0になれば、満たせる物は残し、使い切りの物は消す。
+// ConsumeCharge は item の残量を amount 減らす。0になれば、燃料と灯りのように残量を移し合う物は残し、使い切りの物は消す。
 // ログは尽きたときだけ出す。減っていく途中はゲージで見せる
 func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
 	charge := world.Components.Charge.Get(item)
+	before := charge.Current
 	charge.Current = max(charge.Current-amount, 0)
 	if charge.Current > 0 {
 		return
 	}
 	owner, carried := query.Carrier(world, item)
 	byPlayer := carried && world.Components.Player.Has(owner)
-	if _, refillable := query.AcceptedFuelOf(world, item); refillable {
+	if _, kept := query.ChargeKindOf(world, item); kept {
 		if byPlayer {
 			logItem(world, item, "%s ran out.")
 		}
-		// 物は残るので、持ち主の灯りを写し直させる
-		if carried {
-			lifecycle.EnsureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
-		}
-		query.GetVisionState(world).RequestUpdate()
+		syncCarrierLight(world, item, before)
 		return
 	}
 	if byPlayer {
@@ -47,31 +44,46 @@ func logItem(world w.World, item ecs.Entity, msgid i18n.Msgid) {
 }
 
 var (
-	// ErrChargeFull は満タンの物を満たそうとしたときに返す
+	// ErrChargeFull は満タンの物へ移そうとしたときに返す
 	ErrChargeFull = errors.New("charge is already full")
-	// ErrRefillMismatch は種別の合わない燃料で満たそうとしたときに返す
+	// ErrChargeEmpty は残量0の物から移そうとしたときに返す
+	ErrChargeEmpty = errors.New("charge is empty")
+	// ErrRefillMismatch は種別の合わない物の間で移そうとしたときに返す
 	ErrRefillMismatch = errors.New("fuel kind does not match the accepted fuel")
 )
 
-// RefillCharge は fuel を1つ使い、item の残量を上限まで戻す。種別が合わなければ ErrRefillMismatch を、
-// 満タンなら ErrChargeFull を返し、どちらも燃料を使わない
-func RefillCharge(world w.World, item, fuel ecs.Entity) error {
-	want, refillable := query.AcceptedFuelOf(world, item)
-	if !refillable || !query.FuelKindMatches(world, want, fuel) {
-		return ErrRefillMismatch
+// TransferCharge は from から to へ、to の空きと from の残りの少ない方を移し、移した量を返す。
+// 燃料から灯りへ満たすのも、灯りから燃料へ抜くのもこれを通す
+func TransferCharge(world w.World, from, to ecs.Entity) (int, error) {
+	fromKind, fromOK := query.ChargeKindOf(world, from)
+	toKind, toOK := query.ChargeKindOf(world, to)
+	if from == to || !fromOK || !toOK || fromKind != toKind {
+		return 0, ErrRefillMismatch
 	}
-	charge := world.Components.Charge.Get(item)
-	if charge.Current >= charge.Max {
-		return ErrChargeFull
+	fromCharge := world.Components.Charge.Get(from)
+	toCharge := world.Components.Charge.Get(to)
+	if toCharge.Current >= toCharge.Max {
+		return 0, ErrChargeFull
 	}
-	if err := lifecycle.ChangeItemCount(world, fuel, -1); err != nil {
-		return err
+	if fromCharge.Current <= 0 {
+		return 0, ErrChargeEmpty
 	}
-	charge = world.Components.Charge.Get(item)
-	charge.Current = charge.Max
-	if owner, carried := query.Carrier(world, item); carried {
+	fromBefore, toBefore := fromCharge.Current, toCharge.Current
+	moved := query.TransferableCharge(world, from, to)
+	fromCharge.Current -= moved
+	toCharge.Current += moved
+	syncCarrierLight(world, from, fromBefore)
+	syncCarrierLight(world, to, toBefore)
+	return moved, nil
+}
+
+// syncCarrierLight は灯りの light の残量が0の境目をまたいだとき、持ち主に灯りを写し直させ、視界を計算し直させる。灯りでない物には何もしない
+func syncCarrierLight(world w.World, light ecs.Entity, before int) {
+	if !world.Components.LightSource.Has(light) || (before > 0) == (world.Components.Charge.Get(light).Current > 0) {
+		return
+	}
+	if owner, carried := query.Carrier(world, light); carried {
 		lifecycle.EnsureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 	}
 	query.GetVisionState(world).RequestUpdate()
-	return nil
 }

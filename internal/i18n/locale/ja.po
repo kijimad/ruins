@@ -6767,6 +6767,9 @@ msgstr "%sが切れた"
 msgid "Refill %s"
 msgstr "%sを満たす"
 
+msgid "Drain %s"
+msgstr "%sから抜く"
+
 msgid "It is already full."
 msgstr "もう満タンだ"
 
@@ -6775,6 +6778,15 @@ msgstr "補充"
 
 msgid "Nothing to refill"
 msgstr "補充できる物が無い"
+
+msgid "Fill"
+msgstr "満たす"
+
+msgid "Drain"
+msgstr "抜く"
+
+msgid "Drained %s into %s."
+msgstr "%sから%sへ抜き取った"
 
 msgid "Hand Lantern"
 msgstr "手提げランタン"
@@ -6791,14 +6803,14 @@ msgstr "電池で光る懐中電灯。どの灯りよりも遠くまで照らす
 msgid "Lamp Oil"
 msgstr "灯油"
 
-msgid "A can of lamp oil. Refills an oil lantern, and burns well on a fire."
-msgstr "灯油の缶。油のランタンを満たし、火にくべてもよく燃える。"
+msgid "A can of lamp oil. Its oil can be poured into an oil lantern and drained back out, and it burns well on a fire."
+msgstr "灯油の缶。油のランタンへ注ぎ、また抜き取れる。火にくべてもよく燃える。"
 
 msgid "Battery"
 msgstr "電池"
 
-msgid "A fresh battery. Refills a flashlight."
-msgstr "使える電池。懐中電灯を満たす。"
+msgid "A battery. Its charge can be moved into a flashlight and drawn back out."
+msgstr "電池。懐中電灯へ電気を移し、また抜き取れる。"
 
 msgid "%s has no fuel."
 msgstr "%sは燃料が切れている"
