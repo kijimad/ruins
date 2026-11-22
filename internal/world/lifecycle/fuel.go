@@ -13,7 +13,7 @@ import (
 // errNoReplaceLocation は持ち物にも装備にも収納にも床にもない物を置き換えようとしたときに返す
 var errNoReplaceLocation = errors.New("cannot replace item: entity has no backpack, equipped, storage or field location")
 
-// ReplaceItem は item を、同じ置き場所の rawID の物1個に置き換え、新しい物を返す。持ち物・装備・収納・床のどこでも置き場所を保つ
+// ReplaceItem は item を、同じ置き場所の rawID の物1個に置き換え、新しい物を返す
 func ReplaceItem(world w.World, item ecs.Entity, rawID string) (ecs.Entity, error) {
 	next, err := spawnItemBase(world, rawID)
 	if err != nil {

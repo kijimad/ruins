@@ -474,7 +474,7 @@ import (
 #FuelKind: {
 	id!: #FuelKindId
 
-	// 灯りから抜いたときに作る燃料。同じ種別の燃料を指すことは #Raws で確かめる
+	// 灯りから抜いたときに作る燃料
 	item!: #EntityID
 }
 

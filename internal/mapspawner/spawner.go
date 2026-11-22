@@ -50,8 +50,7 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
 	if err := spawnNPCs(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
-	// 残量の流れの種は物の種類に依らず1回だけ引く。残量を計画の乱数から直に引くと、燃料や灯りの数で消費が変わり、
-	// 物の定義を変えるたびに後の抽選がずれる
+	// 物の種類に依らず1回だけ引き、物の定義を変えても後の抽選をずらさない
 	chargeRNG := rand.New(rand.NewPCG(metaPlan.RNG.Uint64()^lifecycle.LootChargeChannel, 0))
 	if err := spawnItems(world, metaPlan, offsetX, offsetY, chargeRNG); err != nil {
 		return gc.Level{}, err
@@ -140,7 +139,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 	return nil
 }
 
-// spawnItems はアイテムを生成する。残量は chargeRNG から引く
+// spawnItems はアイテムを生成する
 func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile, chargeRNG *rand.Rand) error {
 	for _, item := range metaPlan.Items {
 		tileX, tileY := item.X+offsetX, item.Y+offsetY
@@ -164,7 +163,7 @@ func spawnDecors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY 
 	return nil
 }
 
-// spawnProps はPropsを生成する。収納の中身の残量は chargeRNG から引く
+// spawnProps はPropsを生成する
 func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile, chargeRNG *rand.Rand) error {
 	poses, err := planPoses(metaPlan)
 	if err != nil {
@@ -272,7 +271,7 @@ func detectPropDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorO
 	return gc.DoorOrientationHorizontal
 }
 
-// populateStorageLoot は収納propにルートテーブルからアイテムを格納する。残量は chargeRNG から引く
+// populateStorageLoot は収納propにルートテーブルからアイテムを格納する
 func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEntity ecs.Entity, propRaw rawschema.Prop, chargeRNG *rand.Rand) error {
 	tableName := *propRaw.Storage.LootTableId
 	itemTable, err := raw.GetItemTable(*metaPlan.RawMaster, tableName)

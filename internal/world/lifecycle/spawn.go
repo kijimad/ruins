@@ -376,9 +376,8 @@ func spawnFieldItems(world w.World, itemName string, x consts.Tile, y consts.Til
 	return items, nil
 }
 
-// LootChargeChannel は見つかる物の残量の乱数を、物の選択と配置の乱数から切り離すハッシュチャネル。種に XOR して流れを作る。
-// 配置の乱数は後の抽選にも使われるので、そこから引くと後の配置がずれる。第2引数の定数で分けると、同じ種で同じ定数を使う
-// 別の処理と同じ乱数列になり、計画の乱数のように第2引数が種で変わる流れとは重ならないことを保証できない
+// LootChargeChannel は見つかる物の残量の乱数を配置の乱数から切り離すハッシュチャネル。種に XOR する。
+// 第2引数の定数では、第2引数が種で変わる計画の乱数と重ならないことを保証できない
 const LootChargeChannel uint64 = 0x6c6f6f745f636867 // "loot_chg"
 
 // lootChargeSteps は見つかる物の残量の段階の数。1個ずつ一様に引くと残量ごとに別の束になり、拾った物がほぼ1個ずつ並ぶ

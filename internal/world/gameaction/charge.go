@@ -62,8 +62,8 @@ var (
 	ErrNoContainer = errors.New("no empty container to drain into")
 )
 
-// TransferCharge は燃料の fuel から灯りの light へ、灯りの不足分と燃料の残りの少ない方だけ移し、移した量を返す。
-// 燃料が0になれば空の物に変える。種別が合わなければ ErrRefillMismatch を、満タンなら ErrChargeFull を返し、何も移さない
+// TransferCharge は燃料の fuel から灯りの light へ、灯りの不足分と燃料の残りの少ない方を移し、移した量を返す。
+// 燃料が0になれば空の物に変える
 func TransferCharge(world w.World, fuel, light ecs.Entity) (int, error) {
 	want, refillable := query.AcceptedFuelOf(world, light)
 	if !refillable || !query.FuelKindMatches(world, want, fuel) {
@@ -86,8 +86,7 @@ func TransferCharge(world w.World, fuel, light ecs.Entity) (int, error) {
 	return moved, nil
 }
 
-// DrainContainer は灯りの light から抜くときに使う、持ち主が持つ空の物と、戻す燃料の行の id を返す。
-// 空の物を持たなければ ErrNoContainer を返す
+// DrainContainer は灯りの light から抜くときに使う、持ち主が持つ空の物と、戻す燃料の行の id を返す
 func DrainContainer(world w.World, light ecs.Entity) (ecs.Entity, string, error) {
 	kind, refillable := query.AcceptedFuelOf(world, light)
 	if !refillable {
@@ -113,8 +112,7 @@ func DrainContainer(world w.World, light ecs.Entity) (ecs.Entity, string, error)
 	return container, fuelID, nil
 }
 
-// DrainCharge は灯りの light の持ち主が持つ空の物を1つ燃料に戻し、灯りの残量を燃料の上限まで移す。戻した燃料と移した量を返す。
-// 燃料の上限を超える分は灯りに残る。残量0なら ErrChargeEmpty を、空の物を持たなければ ErrNoContainer を返し、何も移さない
+// DrainCharge は灯りの light の持ち主が持つ空の物を1つ燃料に戻し、灯りの残量を燃料の上限まで移す。戻した燃料と移した量を返す
 func DrainCharge(world w.World, light ecs.Entity) (ecs.Entity, int, error) {
 	if world.Components.Charge.Get(light).Current <= 0 {
 		return gc.InvalidEntity, 0, ErrChargeEmpty

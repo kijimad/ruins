@@ -21,7 +21,7 @@ const (
 )
 
 // ChargeTriggerOf は item の残量が何で減るかを、持つコンポーネントから導く。光源を持つ物はオンの間に減り、
-// ほかは使うたびに減る。燃料もほかに入るが、燃料は武器にも灯りにもならず、灯りへ移すときだけ減る
+// ほかは使うたびに減る。燃料もほかに入るが、灯りへ移すときだけ減る
 func ChargeTriggerOf(world w.World, item ecs.Entity) ChargeTrigger {
 	switch {
 	case item == gc.InvalidEntity || !world.Components.Charge.Has(item):

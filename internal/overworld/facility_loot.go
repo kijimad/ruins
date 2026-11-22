@@ -12,7 +12,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// spawnFieldLoot は item group から1山を引き、pos の床へ置く。地上なので深度は扱わない。残量は chargeRNG から引く
+// spawnFieldLoot は item group から1山を引き、pos の床へ置く。地上なので深度は扱わない
 func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile], rng, chargeRNG *rand.Rand) error {
 	draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)
 	if err != nil {
@@ -47,7 +47,7 @@ func spawnFacilityBeing(world w.World, fac string, danger consts.Danger, pos con
 }
 
 // populateStorageLoot は収納家具に、パレットが書いた戦利品表 tableID から件数ぶん引いて入れる。施設 fac の
-// 荒らされ率で空のまま残す。収納家具なのに表が無ければ error を返す。残量は chargeRNG から引く
+// 荒らされ率で空のまま残す。収納家具なのに表が無ければ error を返す。
 func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fac string, rng, chargeRNG *rand.Rand) error {
 	propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)
 	if err != nil {
