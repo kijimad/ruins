@@ -487,13 +487,13 @@
 				
 				<option value="file215">github.com/kijimaD/ruins/internal/raw/raw.go (97.1%)</option>
 				
-				<option value="file216">github.com/kijimaD/ruins/internal/raw/validate.go (98.1%)</option>
+				<option value="file216">github.com/kijimaD/ruins/internal/raw/validate.go (97.9%)</option>
 				
-				<option value="file217">github.com/kijimaD/ruins/internal/rawschema/models_gen.go (0.3%)</option>
+				<option value="file217">github.com/kijimaD/ruins/internal/rawschema/models_gen.go (0.4%)</option>
 				
 				<option value="file218">github.com/kijimaD/ruins/internal/rawschema/randint.go (100.0%)</option>
 				
-				<option value="file219">github.com/kijimaD/ruins/internal/rawschema/rawcheck/rawcheck.go (76.8%)</option>
+				<option value="file219">github.com/kijimaD/ruins/internal/rawschema/rawcheck/rawcheck.go (78.6%)</option>
 				
 				<option value="file220">github.com/kijimaD/ruins/internal/rawschema/sprite_depth.go (100.0%)</option>
 				
@@ -1908,7 +1908,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
         <span class="cov8" title="1">if skill.GainExp(s, abils.ValueOf(ablID)) </span>{
                 <span class="cov8" title="1">actorName := query.GetEntityName(actor, world)
                 gamelog.New(query.GetGameLog(world)).
-                        Markup(query.T(world, "%s's skill rose! (%s Lv%d)", actorName, string(skillID), s.Value)).
+                        Markup(query.T(world, "%s's skill rose! (%s Lv%d)", actorName, skillID, s.Value)).
                         Log()
 </span>        }
 }
@@ -6962,14 +6962,14 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, attackID string, 
                 <span class="cov0" title="0">return "", err
 </span>        }
         <span class="cov8" title="1">writeMDTable(&amp;b, []string{"くべる燃料", "燃料ポイント", "積荷0の航続(歩)"}, []tw.Align{alignL, alignR, alignR}, [][]string{
-                {"OIL 10kg", fmt.Sprintf("%d", materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg), 0))},
-                {"WOOD 10kg", fmt.Sprintf("%d", materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg), 0))},
+                {"oil 10kg", fmt.Sprintf("%d", materials.HeatOf("oil", 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf("oil", 10*consts.MilligramPerKg), 0))},
+                {"wood 10kg", fmt.Sprintf("%d", materials.HeatOf("wood", 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf("wood", 10*consts.MilligramPerKg), 0))},
         })
 </span>
         <span class="cov8" title="1">fmt.Fprintf(&amp;b, "同じ燃料は火にくべると燃焼ターンになる。地面直の火は熱量の半分を時間へ変える。\n\n")
         writeMDTable(&amp;b, []string{"燃料", "燃焼ターン"}, []tw.Align{alignL, alignR}, [][]string{
-                {"OIL 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, rawschema.OIL, 10))},
-                {"WOOD 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, rawschema.WOOD, 10))},
+                {"oil 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, "oil", 10))},
+                {"wood 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, "wood", 10))},
         })
 </span>
         // 感度行列。つまみ×メトリクスの横断ヤコビアン
@@ -8014,7 +8014,7 @@ func SkillLevelAfterAttacks(abilityValue, attacks int) int {
 // 中立にしスキル寄与だけを見る。適用は ApplyInt の切り捨てなので、丸め前の Percent を渡せるこの形を単一出典にする。
 func SkillDamagePercent(defs gc.SkillDefs, skillLevel int) consts.Percent {
         <span class="cov8" title="1">skills := gc.NewSkills()
-        skills.Get(rawschema.SkillIdFist).Value = skillLevel
+        skills.Get("fist").Value = skillLevel
         return defs.ProficiencyValue(skills, &amp;gc.Abilities{}, gc.HealthyBodyFuncs(), rawschema.ProficiencyIdFistDamage)
 </span>}
 
@@ -8046,7 +8046,7 @@ func FollowRangeTiles(fuel consts.Heat, load consts.Milligram) float64 {
 
 // FuelBurnTurns は material を weightKg だけ地面直の火にくべたとき増える燃焼ターン数を返す。熱量を地面の燃焼効率で
 // 割り引く。MaterialDefs.HeatOf と consts.Heat.BurnTurns に自動追従する。移動燃料と同じ熱量が火では燃焼時間へ変わる。
-func FuelBurnTurns(defs gc.MaterialDefs, material rawschema.Material, weightKg int) int {
+func FuelBurnTurns(defs gc.MaterialDefs, material rawschema.MaterialId, weightKg int) int {
         <span class="cov8" title="1">weight := consts.Milligram(weightKg) * consts.MilligramPerKg
         return int(defs.HeatOf(material, weight).BurnTurns(query.GroundBurnEfficiency))
 </span>}
@@ -10891,8 +10891,7 @@ func (c Camera) Yaw() float64 {
 
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
-        UsableScene rawschema.UsableScene
-        TargetType  TargetType
+        TargetType TargetType
 }
 
 // Name はエンティティの表示名を保持する
@@ -11014,9 +11013,9 @@ type WeightDirty struct{}
 
 // Ammo は弾薬アイテムの性能を定義する
 type Ammo struct {
-        AmmoTag       rawschema.AmmoTag // 口径タグ。武器の AmmoTag とマッチする
-        DamageBonus   int               // ダメージ修正値
-        AccuracyBonus int               // 命中率修正値
+        AmmoTag       rawschema.AmmoKindId // 口径タグ。武器の AmmoTag とマッチする
+        DamageBonus   int                  // ダメージ修正値
+        AccuracyBonus int                  // 命中率修正値
 }
 
 // Attacker は近接・遠距離攻撃の共通インターフェース。
@@ -11118,12 +11117,12 @@ type Fire struct {
         Cost           int                      // 行動コスト
         TargetType     TargetType               // 対象タイプ
         // 弾薬管理
-        Magazine            int               // 現在の装弾数
-        MagazineSize        int               // 最大装弾数
-        ReloadEffort        int               // リロード完了に必要な総工数
-        AmmoTag             rawschema.AmmoTag // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする
-        LoadedDamageBonus   int               // 装填中の弾薬によるダメージ修正値。リロード時に設定される
-        LoadedAccuracyBonus int               // 装填中の弾薬による命中修正値。リロード時に設定される
+        Magazine            int                  // 現在の装弾数
+        MagazineSize        int                  // 最大装弾数
+        ReloadEffort        int                  // リロード完了に必要な総工数
+        AmmoTag             rawschema.AmmoKindId // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする
+        LoadedDamageBonus   int                  // 装填中の弾薬によるダメージ修正値。リロード時に設定される
+        LoadedAccuracyBonus int                  // 装填中の弾薬による命中修正値。リロード時に設定される
 }
 
 // GetAccuracy はAttackerの実装
@@ -13398,10 +13397,10 @@ import (
 )
 
 // Material はアイテムの材質を表す。可燃性と燃焼熱量の算出根拠で、生成時に raw から付く。
-// Kind は raw の Material enum の値。金属や石など不燃の材質も保持し、
+// Kind は raw の材質の表の id。金属や石など不燃の材質も保持し、
 // 観察メニューで材質を見せて、なぜ燃える/燃えないかを読み取れるようにする。
 type Material struct {
-        Kind rawschema.Material // 材質の種類。WOOD・METAL・FOOD など。enum で比較のタイプミスを型が弾く
+        Kind rawschema.MaterialId // 材質の種類。wood・metal・food など
 }
 
 // MaterialDef は材質1つの定義。raw の materials の1行から組み立てる
@@ -13418,17 +13417,17 @@ type MaterialDisassembly struct {
 }
 
 // MaterialDefs は材質ごとの表示名と燃焼熱量の表。読み込み時に raw から1度だけ組み立て、以後は変えない
-type MaterialDefs map[rawschema.Material]MaterialDef
+type MaterialDefs map[rawschema.MaterialId]MaterialDef
 
 // HeatOf は材質と重量から燃焼熱量を導く。不燃の材質は0を返す。
 // 整数で閉じるため mg 基準で計算し 1kg=1_000_000mg で割って kg 換算する。切り捨てで軽い物は0になる
-func (d MaterialDefs) HeatOf(material rawschema.Material, weight consts.Milligram) consts.Heat {
+func (d MaterialDefs) HeatOf(material rawschema.MaterialId, weight consts.Milligram) consts.Heat {
         <span class="cov8" title="1">return consts.Heat(d[material].HeatPerKg * int(weight) / consts.MilligramPerKg)
 </span>}
 
 // DisassemblyOf は材質と重さのアイテム itemID を分解したときに戻る素材の id と個数を返す。
 // 個数は重さを PerWeight で割って切り捨てる。分解できない材質、戻し先の素材そのもの、1個に満たない軽い物は ok が false
-func (d MaterialDefs) DisassemblyOf(itemID string, material rawschema.Material, weight consts.Milligram) (id string, count int, ok bool) {
+func (d MaterialDefs) DisassemblyOf(itemID string, material rawschema.MaterialId, weight consts.Milligram) (id string, count int, ok bool) {
         <span class="cov8" title="1">dis := d[material].Disassembly
         if dis == nil || dis.Item == itemID </span>{
                 <span class="cov8" title="1">return "", 0, false
@@ -13851,9 +13850,9 @@ type SkillDefs struct {
         Skills        map[rawschema.SkillId]SkillDef
         Categories    []SkillCategory // 表示順
         Proficiencies map[rawschema.ProficiencyId]ProficiencyDef
-        Weapons       []WeaponDef                                  // 表示順
-        Resists       []ResistDef                                  // 表示順
-        ToolSkills    map[rawschema.ToolCategory]rawschema.SkillId // 合う道具で壊したとき伸びるスキル。伸ばさない分類は持たない
+        Weapons       []WeaponDef                                    // 表示順
+        Resists       []ResistDef                                    // 表示順
+        ToolSkills    map[rawschema.ToolCategoryId]rawschema.SkillId // 合う道具で壊したとき伸びるスキル。伸ばさない分類は持たない
 }
 
 // ResistDef は攻撃属性と、そのダメージを軽減する熟練の効果倍率。raw の熟練の効果倍率の行の resists から組み立てる
@@ -14277,7 +14276,7 @@ import (
 type TileEnvironment struct {
         Shelter         rawschema.Shelter
         Water           rawschema.WaterExposure // ゼロ値は水の影響なし
-        Foliage         rawschema.Foliage       // ゼロ値は植生なし
+        Foliage         rawschema.FoliageId     // ゼロ値は植生なし
         SnowMeltPercent int                     // 積もる雪を減らす割合。ゼロ値は減らさない
 }
 
@@ -14294,7 +14293,7 @@ type ShelterDef struct {
 type TileEnvDefs struct {
         Shelters map[rawschema.Shelter]ShelterDef
         Water    map[rawschema.WaterExposure]int
-        Foliage  map[rawschema.Foliage]int
+        Foliage  map[rawschema.FoliageId]int
 }
 
 // ShelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す。表に無い囲われは世界温度をそのまま受ける
@@ -25953,11 +25952,11 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
                 <span class="cov8" title="1">facilities[f.Id] = f
 </span>        }
         <span class="cov8" title="1">taken := map[consts.Coord[consts.Chunk]]bool{}
-        free := func(x, y consts.Chunk, z rawschema.Zone) bool </span>{
+        free := func(x, y consts.Chunk, z rawschema.ZoneId) bool </span>{
                 <span class="cov8" title="1">c := consts.Coord[consts.Chunk]{X: x, Y: y}
                 return x &lt; r.w &amp;&amp; y &lt; r.h &amp;&amp; !taken[c] &amp;&amp; r.zoneAt(c) == z
 </span>        }
-        <span class="cov8" title="1">fits := func(x, y, w, h consts.Chunk, z rawschema.Zone) bool </span>{
+        <span class="cov8" title="1">fits := func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool </span>{
                 <span class="cov8" title="1">for dy := range h </span>{
                         <span class="cov8" title="1">for dx := range w </span>{
                                 <span class="cov8" title="1">if !free(x+dx, y+dy, z) </span>{
@@ -26015,7 +26014,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 
 // landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、
 // 地区に収まるものを選ぶ。区域の作りがその地区を割り振らなければ置かない
-func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.Zone) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
+func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
         <span class="cov8" title="1">for _, fz := range f.Zones </span>{
                 <span class="cov8" title="1">var cells []consts.Coord[consts.Chunk]
                 for y := range r.h </span>{
@@ -28953,7 +28952,7 @@ type facilityWeight struct {
 }
 
 // zoneCatalog は地区ごとの施設抽選重み。
-type zoneCatalog map[rawschema.Zone][]facilityWeight
+type zoneCatalog map[rawschema.ZoneId][]facilityWeight
 
 // zoneCatalogFrom は facilities 行から地区ごとの施設抽選重みを導出する。
 func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
@@ -28974,7 +28973,7 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 const zoneChoiceShift = 32
 
 // zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ
-func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.Zone {
+func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.ZoneId {
         <span class="cov8" title="1">zones := r.kind.Layers[r.layerAt(l)].Zones
         return zones[(r.seed&gt;&gt;zoneChoiceShift)%uint64(len(zones))]
 </span>}
@@ -29028,7 +29027,7 @@ func rowsLayer(layers []rawschema.DistrictLayer, ly, ch consts.Chunk) int {
 }
 
 // rollFacilityInZone は地区の重み表から、規模 span と危険度 danger の足切りを通った施設 id を重みで抽選する。exclude の施設は引かない
-func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk, danger consts.Danger, exclude string) string {
+func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.ZoneId, span consts.Chunk, danger consts.Danger, exclude string) string {
         <span class="cov8" title="1">zc := cat[z]
         i, ok := consts.Pick(rng, zc, func(f facilityWeight) float64 </span>{
                 <span class="cov8" title="1">if span &lt; f.minSpan || danger &lt; f.minDanger || f.kind == exclude </span>{
@@ -29628,7 +29627,7 @@ func parseMelee(m *rawschema.Melee) *gc.Melee {
 
 // parseFire はrawschema.Fireからgc.Fireを生成する
 func parseFire(f *rawschema.Fire) *gc.Fire {
-        <span class="cov8" title="1">var ammoTag rawschema.AmmoTag
+        <span class="cov8" title="1">var ammoTag rawschema.AmmoKindId
         if f.AmmoTag != nil </span>{
                 <span class="cov8" title="1">ammoTag = *f.AmmoTag
 </span>        }
@@ -29707,7 +29706,6 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 
         <span class="cov8" title="1">if item.Consumable != nil </span>{
                 <span class="cov8" title="1">entitySpec.Consumable = &amp;gc.Consumable{
-                        UsableScene: item.Consumable.UsableScene,
                         TargetType: gc.TargetType{
                                 TargetGroup: item.Consumable.TargetGroup,
                                 TargetNum:   item.Consumable.TargetNum,
@@ -29737,7 +29735,7 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
         }
 
         <span class="cov8" title="1">if item.Ammo != nil </span>{
-                <span class="cov8" title="1">var ammoAmmoTag rawschema.AmmoTag
+                <span class="cov8" title="1">var ammoAmmoTag rawschema.AmmoKindId
                 if item.Ammo.AmmoTag != nil </span>{
                         <span class="cov8" title="1">ammoAmmoTag = *item.Ammo.AmmoTag
 </span>                }
@@ -30646,7 +30644,7 @@ func NewSkillDefs(raws rawschema.Raws) (gc.SkillDefs, error) {
 </span>                }
                 <span class="cov8" title="1">proficiencies[row.Accuracy] = accuracy</span>
         }
-        <span class="cov8" title="1">toolSkills := make(map[rawschema.ToolCategory]rawschema.SkillId)
+        <span class="cov8" title="1">toolSkills := make(map[rawschema.ToolCategoryId]rawschema.SkillId)
         for _, row := range PtrSlice(raws.ToolCategories) </span>{
                 <span class="cov8" title="1">if row.Skill != nil </span>{
                         <span class="cov8" title="1">toolSkills[row.Id] = *row.Skill
@@ -30689,7 +30687,7 @@ var (
 
 // NewTileEnvDefs は raw の shelterEffects、waterEffects、foliageEffects から、囲われの受け方と、水と植生がタイルの気温に足す補正の表を組み立てる
 func NewTileEnvDefs(raws rawschema.Raws) gc.TileEnvDefs {
-        <span class="cov8" title="1">defs := gc.TileEnvDefs{Shelters: map[rawschema.Shelter]gc.ShelterDef{}, Water: map[rawschema.WaterExposure]int{}, Foliage: map[rawschema.Foliage]int{}}
+        <span class="cov8" title="1">defs := gc.TileEnvDefs{Shelters: map[rawschema.Shelter]gc.ShelterDef{}, Water: map[rawschema.WaterExposure]int{}, Foliage: map[rawschema.FoliageId]int{}}
         for _, row := range PtrSlice(raws.ShelterEffects) </span>{
                 <span class="cov8" title="1">defs.Shelters[row.Id] = gc.ShelterDef{Name: i18n.Msgid(row.Name), AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered, DaylightPercent: row.DaylightPercent}
 </span>        }
@@ -30702,7 +30700,7 @@ func NewTileEnvDefs(raws rawschema.Raws) gc.TileEnvDefs {
         <span class="cov8" title="1">return defs</span>
 }
 
-// NewWeatherDefs は raw の weathers から天候の定義の表を組み立てる。id と季節は enum なのでスキーマ検証で尽くされる
+// NewWeatherDefs は raw の weathers から天候の定義の表を組み立てる。id と季節が列挙の値をそろえて持つことは、実データのテスト enum_rows_test.go で確かめる
 func NewWeatherDefs(raws rawschema.Raws) gc.WeatherDefs {
         <span class="cov8" title="1">var kinds [gc.NumWeatherKind]gc.WeatherDef
         for _, row := range PtrSlice(raws.Weathers) </span>{
@@ -30721,7 +30719,7 @@ func NewWeatherDefs(raws rawschema.Raws) gc.WeatherDefs {
         <span class="cov8" title="1">return gc.WeatherDefs{Kinds: kinds}</span>
 }
 
-// NewCalendarDefs は raw の timesOfDay と seasons から時間帯と季節の表を組み立てる。id は enum なので検証で尽くされる
+// NewCalendarDefs は raw の timesOfDay と seasons から時間帯と季節の表を組み立てる。id が列挙の値をそろえて持つことは、実データのテスト enum_rows_test.go で確かめる
 func NewCalendarDefs(raws rawschema.Raws) gc.CalendarDefs {
         <span class="cov8" title="1">var defs gc.CalendarDefs
         for _, row := range PtrSlice(raws.TimesOfDay) </span>{
@@ -30819,7 +30817,6 @@ var (
         errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
         errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
         errMapGlyphMissing               = errors.New("map glyph is missing")
-        errDuplicateID                   = errors.New("duplicate id")
         errPlayerMemberMissing           = errors.New("no member is marked as the player")
         errPlayerMemberDuplicate         = errors.New("more than one member is marked as the player")
         errDisassemblyToolRequiredNoTool = errors.New("disassembly requires a tool but has no tool category")
@@ -30830,11 +30827,9 @@ var (
         errInjuryWithoutParts            = errors.New("injury condition has no parts")
         errConditionNoHitPart            = errors.New("condition has no body part that can be hit")
         errAttackRangeParams             = errors.New("only ranged attack types must have all range params")
-        errResistNone                    = errors.New("no proficiency can resist the none element")
         errWeaponProficiencyOwner        = errors.New("weapon proficiency is owned by another skill")
         errSpellTurnsReversed            = errors.New("weather spell turns min exceeds max")
         errNeedStageNoZero               = errors.New("need stages have no stage from zero")
-        errEnumRowMissing                = errors.New("enum value has no raw row")
         errTableMissing                  = errors.New("table required by code is missing")
         errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
         errBareHandsMissing              = errors.New("bare hands body attack is missing")
@@ -30853,7 +30848,6 @@ func validateRules(raws rawschema.Raws) error {
                 validateConditions,
                 validateRemedies,
                 validateWeathers,
-                validateTileEffects,
                 validateGrounds,
                 validateNeedStages,
                 validateFlatShapes,
@@ -30915,8 +30909,8 @@ func validateDistrictLayers(d *rawschema.District) error {
 }
 
 // DistrictZones は区域 d が割り振る地区を、層の順に重複なく返す
-func DistrictZones(d rawschema.District) []rawschema.Zone {
-        <span class="cov8" title="1">var out []rawschema.Zone
+func DistrictZones(d rawschema.District) []rawschema.ZoneId {
+        <span class="cov8" title="1">var out []rawschema.ZoneId
         for _, l := range d.Layers </span>{
                 <span class="cov8" title="1">for _, z := range l.Zones </span>{
                         <span class="cov8" title="1">if !slices.Contains(out, z) </span>{
@@ -31067,13 +31061,7 @@ func validateMapGlyphReferences(raws rawschema.Raws) error {
 </span>                        }
                 }
         }
-        <span class="cov8" title="1">var chunks []string
-        for _, g := range glyphs </span>{
-                <span class="cov8" title="1">if g.Chunk != nil </span>{
-                        <span class="cov8" title="1">chunks = append(chunks, string(*g.Chunk))
-</span>                }
-        }
-        <span class="cov8" title="1">return validateEnumRows("GlyphChunk", enumStrings(rawschema.GlyphChunkValues()), chunks)</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // validateConditions は部位の行が Go の部位にあり、不調の部位が全身を含まず、怪我の抽選の対象が空にならないことを検証する
@@ -31149,19 +31137,7 @@ func validateCodeRows(raws rawschema.Raws) error {
 </span>                }
         }
 
-        <span class="cov8" title="1">var onsets []string
-        conditions := PtrSlice(raws.Conditions)
-        for i := range conditions </span>{
-                <span class="cov8" title="1">if onset := conditions[i].Onset; onset != nil </span>{
-                        <span class="cov8" title="1">onsets = append(onsets, string(*onset))
-</span>                }
-        }
-        <span class="cov8" title="1">if err := validateEnumRows("ConditionOnset", enumStrings(rawschema.ConditionOnsetValues()), onsets); err != nil </span>{
-                <span class="cov8" title="1">return err
-</span>        }
-
         <span class="cov8" title="1">attackTypes := PtrSlice(raws.AttackTypes)
-        attackTypeIDs := make([]string, 0, len(attackTypes))
         for i := range attackTypes </span>{
                 <span class="cov8" title="1">a := &amp;attackTypes[i]
                 hasAll := a.OptimalRange != nil &amp;&amp; a.MaxRange != nil &amp;&amp; a.PenaltyPerTile != nil
@@ -31169,45 +31145,17 @@ func validateCodeRows(raws rawschema.Raws) error {
                 if a.Range == rawschema.AttackRangeRanged &amp;&amp; !hasAll || a.Range != rawschema.AttackRangeRanged &amp;&amp; hasAny </span>{
                         <span class="cov8" title="1">return fmt.Errorf("attack type %q: %w", a.Id, errAttackRangeParams)
 </span>                }
-                <span class="cov8" title="1">attackTypeIDs = append(attackTypeIDs, string(a.Id))</span>
         }
-        <span class="cov8" title="1">if err := validateEnumRows("AttackCategory", enumStrings(rawschema.AttackCategoryValues()), attackTypeIDs); err != nil </span>{
-                <span class="cov8" title="1">return err
-</span>        }
         <span class="cov8" title="1">if err := validateSkillCodeRows(raws); err != nil </span>{
                 <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">if _, err := FindBodyAttack(raws, BareHands); err != nil </span>{
                 <span class="cov8" title="1">return fmt.Errorf("%w: %w", errBareHandsMissing, err)
 </span>        }
-        <span class="cov8" title="1">enumRows := []struct {
-                schema string
-                values []string
-                ids    []string
-        }{
-                {"FreshnessStageId", enumStrings(rawschema.FreshnessStageIdValues()), rowIDs(PtrSlice(raws.FreshnessStages), func(r rawschema.FreshnessStage) rawschema.FreshnessStageId </span>{ <span class="cov8" title="1">return r.Id }</span>)},
-                {"Material", enumStrings(rawschema.MaterialValues()), rowIDs(PtrSlice(raws.Materials), func(r rawschema.MaterialDef) rawschema.Material { <span class="cov8" title="1">return r.Id }</span>)},
-                {"ToolCategory", enumStrings(rawschema.ToolCategoryValues()), rowIDs(PtrSlice(raws.ToolCategories), func(r rawschema.ToolCategoryDef) rawschema.ToolCategory { <span class="cov8" title="1">return r.Id }</span>)},
-                {"TimeOfDayId", enumStrings(rawschema.TimeOfDayIdValues()), rowIDs(PtrSlice(raws.TimesOfDay), func(r rawschema.TimeOfDay) rawschema.TimeOfDayId { <span class="cov8" title="1">return r.Id }</span>)},
-                {"SeasonId", enumStrings(rawschema.SeasonIdValues()), rowIDs(PtrSlice(raws.Seasons), func(r rawschema.Season) rawschema.SeasonId { <span class="cov8" title="1">return r.Id }</span>)},
-                {"PointFeatureKind", enumStrings(rawschema.PointFeatureKindValues()), rowIDs(PtrSlice(raws.PointFeatures), func(r rawschema.PointFeature) rawschema.PointFeatureKind { <span class="cov8" title="1">return r.Id }</span>)},
-        }
-        <span class="cov8" title="1">for _, e := range enumRows </span>{
-                <span class="cov8" title="1">if err := validateEnumRows(e.schema, e.values, e.ids); err != nil </span>{
-                        <span class="cov8" title="1">return err
-</span>                }
-        }
-
         <span class="cov8" title="1">required := []struct {
                 name    string
                 present bool
         }{
-                {"weathers", len(PtrSlice(raws.Weathers)) &gt; 0},
-                {"shelterEffects", len(PtrSlice(raws.ShelterEffects)) &gt; 0},
-                {"waterEffects", len(PtrSlice(raws.WaterEffects)) &gt; 0},
-                {"foliageEffects", len(PtrSlice(raws.FoliageEffects)) &gt; 0},
-                {"hungerStages", len(PtrSlice(raws.HungerStages)) &gt; 0},
-                {"fatigueStages", len(PtrSlice(raws.FatigueStages)) &gt; 0},
                 {"dungeons", len(PtrSlice(raws.Dungeons)) &gt; 0},
                 {"settlements", len(PtrSlice(raws.Settlements)) &gt; 0},
 </span>        }
@@ -31219,30 +31167,15 @@ func validateCodeRows(raws rawschema.Raws) error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// validateSkillCodeRows はスキーマの enum のスキルと熟練の効果倍率それぞれに raw の行がちょうど1つあり、
-// 攻撃の種類のダメージと命中の効果倍率を、その攻撃の種類のスキルの行が持つことを検証する
+// validateSkillCodeRows は攻撃の種類のダメージと命中の効果倍率を、その攻撃の種類のスキルの行が持つことを検証する
 func validateSkillCodeRows(raws rawschema.Raws) error {
         <span class="cov8" title="1">skills := PtrSlice(raws.Skills)
-        skillIDs := make([]string, 0, len(skills))
-        var proficiencyIDs []string
         owners := make(map[rawschema.ProficiencyId]rawschema.SkillId)
         for i := range skills </span>{
-                <span class="cov8" title="1">id := skills[i].Id
-                skillIDs = append(skillIDs, string(id))
-                for _, p := range PtrSlice(skills[i].Proficiencies) </span>{
-                        <span class="cov8" title="1">proficiencyIDs = append(proficiencyIDs, string(p.Id))
-                        owners[p.Id] = id
+                <span class="cov8" title="1">for _, p := range PtrSlice(skills[i].Proficiencies) </span>{
+                        <span class="cov8" title="1">owners[p.Id] = skills[i].Id
 </span>                }
         }
-        <span class="cov8" title="1">if err := validateEnumRows("SkillId", enumStrings(rawschema.SkillIdValues()), skillIDs); err != nil </span>{
-                <span class="cov8" title="1">return err
-</span>        }
-        <span class="cov8" title="1">if err := validateEnumRows("ProficiencyId", enumStrings(rawschema.ProficiencyIdValues()), proficiencyIDs); err != nil </span>{
-                <span class="cov8" title="1">return err
-</span>        }
-        <span class="cov8" title="1">if err := validateResists(skills); err != nil </span>{
-                <span class="cov8" title="1">return err
-</span>        }
         <span class="cov8" title="1">attackTypes := PtrSlice(raws.AttackTypes)
         for i := range attackTypes </span>{
                 <span class="cov8" title="1">at := &amp;attackTypes[i]
@@ -31255,25 +31188,7 @@ func validateSkillCodeRows(raws rawschema.Raws) error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// validateResists は無属性を除く攻撃属性それぞれを、ちょうど1つの熟練の効果倍率が軽減することを検証する
-func validateResists(skills []rawschema.Skill) error {
-        // 無属性は軽減の対象外なので、enum の網羅の検証では持っているものとして数える
-        <span class="cov8" title="1">elements := []string{string(rawschema.ElementNONE)}
-        for i := range skills </span>{
-                <span class="cov8" title="1">for _, p := range PtrSlice(skills[i].Proficiencies) </span>{
-                        <span class="cov8" title="1">if p.Resists == nil </span>{
-                                <span class="cov8" title="1">continue</span>
-                        }
-                        <span class="cov8" title="1">if *p.Resists == rawschema.ElementNONE </span>{
-                                <span class="cov8" title="1">return fmt.Errorf("proficiency %q: %w", p.Id, errResistNone)
-</span>                        }
-                        <span class="cov8" title="1">elements = append(elements, string(*p.Resists))</span>
-                }
-        }
-        <span class="cov8" title="1">return validateEnumRows("Element", enumStrings(rawschema.ElementValues()), elements)</span>
-}
-
-// rowIDs は行それぞれの enum の id を文字列にして返す
+// rowIDs は行それぞれの id を文字列にして返す
 func rowIDs[R any, ID ~string](rows []R, id func(R) ID) []string {
         <span class="cov8" title="1">out := make([]string, 0, len(rows))
         for _, r := range rows </span>{
@@ -31282,47 +31197,14 @@ func rowIDs[R any, ID ~string](rows []R, id func(R) ID) []string {
         <span class="cov8" title="1">return out</span>
 }
 
-// validateEnumRows は enum の値 values それぞれを ids がちょうど1回ずつ持つことを検証する
-func validateEnumRows(name string, values, ids []string) error {
-        <span class="cov8" title="1">seen := make(map[string]struct{}, len(ids))
-        for _, id := range ids </span>{
-                <span class="cov8" title="1">if _, ok := seen[id]; ok </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("%s %q: %w", name, id, errDuplicateID)
-</span>                }
-                <span class="cov8" title="1">seen[id] = struct{}{}</span>
-        }
-        <span class="cov8" title="1">for _, v := range values </span>{
-                <span class="cov8" title="1">if _, ok := seen[v]; !ok </span>{
-                        <span class="cov8" title="1">return fmt.Errorf("%s %q: %w", name, v, errEnumRowMissing)
-</span>                }
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// enumStrings は enum の値を文字列にして返す
-func enumStrings[T ~string](values []T) []string {
-        <span class="cov8" title="1">out := make([]string, len(values))
-        for i, v := range values </span>{
-                <span class="cov8" title="1">out[i] = string(v)
-</span>        }
-        <span class="cov8" title="1">return out</span>
-}
-
-// validateWeathers は天候の行が enum の全値を1回ずつ持ち、各行が季節の全値の重みを持ち、スペルの下限が上限以下であることを検証する
+// validateWeathers は天候の行のスペルの下限が上限以下であることを検証する
 func validateWeathers(raws rawschema.Raws) error {
-        <span class="cov8" title="1">weathers := PtrSlice(raws.Weathers)
-        if len(weathers) == 0 </span>{
-                <span class="cov8" title="1">return nil
-</span>        }
-        <span class="cov8" title="1">for _, w := range weathers </span>{
-                <span class="cov8" title="1">if err := validateEnumRows("SeasonId", enumStrings(rawschema.SeasonIdValues()), rowIDs(w.Seasons, func(sw rawschema.WeatherSeasonWeight) rawschema.SeasonId </span>{ <span class="cov8" title="1">return sw.Id }</span>)); err != nil {
-                        <span class="cov8" title="1">return fmt.Errorf("weather %q: %w", w.Id, err)
-</span>                }
+        <span class="cov8" title="1">for _, w := range PtrSlice(raws.Weathers) </span>{
                 <span class="cov8" title="1">if w.SpellTurnsMin &gt; w.SpellTurnsMax </span>{
                         <span class="cov8" title="1">return fmt.Errorf("weather %q: %w", w.Id, errSpellTurnsReversed)
 </span>                }
         }
-        <span class="cov8" title="1">return validateEnumRows("WeatherId", enumStrings(rawschema.WeatherIdValues()), rowIDs(weathers, func(w rawschema.Weather) rawschema.WeatherId </span>{ <span class="cov8" title="1">return w.Id }</span>))
+        <span class="cov8" title="1">return nil</span>
 }
 
 // validateGrounds は区分とダンジョンの下地が土の地面のタイルを指すことを検証する。
@@ -31349,41 +31231,15 @@ func validateGrounds(raws rawschema.Raws) error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する
-func validateTileEffects(raws rawschema.Raws) error {
-        <span class="cov8" title="1">if shelters := PtrSlice(raws.ShelterEffects); len(shelters) &gt; 0 </span>{
-                <span class="cov8" title="1">if err := validateEnumRows("Shelter", enumStrings(rawschema.ShelterValues()), rowIDs(shelters, func(s rawschema.ShelterEffect) rawschema.Shelter </span>{ <span class="cov8" title="1">return s.Id }</span>)); err != nil {
-                        <span class="cov8" title="1">return err
-</span>                }
-        }
-        <span class="cov8" title="1">if water := PtrSlice(raws.WaterEffects); len(water) &gt; 0 </span>{
-                <span class="cov8" title="1">if err := validateEnumRows("WaterExposure", enumStrings(rawschema.WaterExposureValues()), rowIDs(water, func(w rawschema.WaterEffect) rawschema.WaterExposure </span>{ <span class="cov8" title="1">return w.Id }</span>)); err != nil {
-                        <span class="cov8" title="1">return err
-</span>                }
-        }
-        <span class="cov8" title="1">if foliage := PtrSlice(raws.FoliageEffects); len(foliage) &gt; 0 </span>{
-                <span class="cov8" title="1">if err := validateEnumRows("Foliage", enumStrings(rawschema.FoliageValues()), rowIDs(foliage, func(f rawschema.FoliageEffect) rawschema.Foliage </span>{ <span class="cov8" title="1">return f.Id }</span>)); err != nil {
-                        <span class="cov8" title="1">return err
-</span>                }
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、空腹と疲労と鮮度の段階が0から始まる段階を持つことを検証する。
+// validateNeedStages は空腹と疲労と鮮度の段階が0から始まる段階を持つことを検証する。
 // 0の段階が無いと、どの段階にも当たらない割合や劣化量が生まれる
 func validateNeedStages(raws rawschema.Raws) error {
         <span class="cov8" title="1">if hunger := PtrSlice(raws.HungerStages); len(hunger) &gt; 0 </span>{
-                <span class="cov8" title="1">if err := validateEnumRows("HungerStageId", enumStrings(rawschema.HungerStageIdValues()), rowIDs(hunger, func(h rawschema.HungerStage) rawschema.HungerStageId </span>{ <span class="cov8" title="1">return h.Id }</span>)); err != nil {
-                        <span class="cov8" title="1">return err
-</span>                }
                 <span class="cov8" title="1">if !slices.ContainsFunc(hunger, func(h rawschema.HungerStage) bool </span>{ <span class="cov8" title="1">return h.From == 0 }</span>) {
                         <span class="cov0" title="0">return fmt.Errorf("hunger: %w", errNeedStageNoZero)
 </span>                }
         }
         <span class="cov8" title="1">if fatigue := PtrSlice(raws.FatigueStages); len(fatigue) &gt; 0 </span>{
-                <span class="cov8" title="1">if err := validateEnumRows("FatigueStageId", enumStrings(rawschema.FatigueStageIdValues()), rowIDs(fatigue, func(f rawschema.FatigueStage) rawschema.FatigueStageId </span>{ <span class="cov8" title="1">return f.Id }</span>)); err != nil {
-                        <span class="cov0" title="0">return err
-</span>                }
                 <span class="cov8" title="1">if !slices.ContainsFunc(fatigue, func(f rawschema.FatigueStage) bool </span>{ <span class="cov8" title="1">return f.From == 0 }</span>) {
                         <span class="cov8" title="1">return fmt.Errorf("fatigue: %w", errNeedStageNoZero)
 </span>                }
@@ -31506,42 +31362,18 @@ type AmbientColor struct {
 type Ammo struct {
         AccuracyBonus AccuracyBonus `json:"accuracyBonus"`
 
-        AmmoTag *AmmoTag `json:"ammoTag,omitempty"`
+        AmmoTag *AmmoKindId `json:"ammoTag,omitempty"`
 
         DamageBonus DamageBonus `json:"damageBonus"`
 }
 
-// AmmoTag 弾薬タグ
-type AmmoTag string
-
-// Defines values for AmmoTag.
-const (
-        AmmoTagEnergyCell AmmoTag = "energy_cell"
-        AmmoTagN9mm       AmmoTag = "9mm"
-        AmmoTagRifle      AmmoTag = "rifle"
-        AmmoTagShell      AmmoTag = "shell"
-)
-
-// Valid indicates whether the value is a known member of the AmmoTag enum.
-func (e AmmoTag) Valid() bool {
-        <span class="cov0" title="0">switch e </span>{
-        case AmmoTagEnergyCell:
-                <span class="cov0" title="0">return true</span>
-        case AmmoTagN9mm:
-                <span class="cov0" title="0">return true</span>
-        case AmmoTagRifle:
-                <span class="cov0" title="0">return true</span>
-        case AmmoTagShell:
-                <span class="cov0" title="0">return true</span>
-        default:
-                <span class="cov0" title="0">return false</span>
-        }
+// AmmoKind 弾の口径の表。銃が撃てる口径と弾の口径を、この表の id で引き合わせる。口径を足すときは raw にこの表の行を1つ足す
+type AmmoKind struct {
+        Id AmmoKindId `json:"id"`
 }
 
-// AmmoTagValues は AmmoTag の値を、スキーマに書いた順に返す。
-func AmmoTagValues() []AmmoTag {
-        <span class="cov0" title="0">return []AmmoTag{AmmoTagN9mm, AmmoTagRifle, AmmoTagShell, AmmoTagEnergyCell}
-</span>}
+// AmmoKindId 弾の口径の id
+type AmmoKindId = TableId
 
 // ArmorDefense 防具の防御力
 type ArmorDefense = int
@@ -31726,7 +31558,7 @@ type BodyPart struct {
 }
 
 // BodyPartId 部位の id
-type BodyPartId = string
+type BodyPartId = TableId
 
 // Book 本の設定
 type Book struct {
@@ -31959,8 +31791,6 @@ type Consumable struct {
         TargetGroup TargetGroup `json:"targetGroup"`
 
         TargetNum TargetNum `json:"targetNum"`
-
-        UsableScene UsableScene `json:"usableScene"`
 }
 
 // CorridorStep 部屋どうしを直線の廊下で結ぶ段
@@ -32039,7 +31869,7 @@ type Dice = string
 type Disassembly struct {
         Bonus *[]DisassemblyBonus `json:"bonus,omitempty"`
 
-        ToolCategory *ToolCategory `json:"toolCategory,omitempty"`
+        ToolCategory *ToolCategoryId `json:"toolCategory,omitempty"`
 
         ToolRequired *DisassemblyToolRequired `json:"toolRequired,omitempty"`
 
@@ -32122,7 +31952,7 @@ type DistrictLayer struct {
         Rows *int `json:"rows,omitempty"`
 
         // Zones 候補の地区
-        Zones []Zone `json:"zones"`
+        Zones []ZoneId `json:"zones"`
 }
 
 // DistrictPattern 地区の並べ方。rings は層を2つ持ち、1つ目を外側、2つ目を中心にする。
@@ -32495,7 +32325,7 @@ type FacilityZone struct {
         Weight int32 `json:"weight"`
 
         // Zone 施設が建つ地区
-        Zone Zone `json:"zone"`
+        Zone ZoneId `json:"zone"`
 }
 
 // FactionMemberType 派閥タイプ
@@ -32575,7 +32405,7 @@ func FatigueStageIdValues() []FatigueStageId {
 type Fire struct {
         Accuracy Accuracy `json:"accuracy"`
 
-        AmmoTag *AmmoTag `json:"ammoTag,omitempty"`
+        AmmoTag *AmmoKindId `json:"ammoTag,omitempty"`
 
         AttackCategory AttackCategory `json:"attackCategory"`
 
@@ -32599,38 +32429,15 @@ type Fire struct {
 // FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 type FireStarter = map[string]interface{}
 
-// Foliage タイルの植生
-type Foliage string
-
-// Defines values for Foliage.
-const (
-        FoliageForest Foliage = "forest"
-        FoliageGrass  Foliage = "grass"
-)
-
-// Valid indicates whether the value is a known member of the Foliage enum.
-func (e Foliage) Valid() bool {
-        <span class="cov0" title="0">switch e </span>{
-        case FoliageForest:
-                <span class="cov0" title="0">return true</span>
-        case FoliageGrass:
-                <span class="cov0" title="0">return true</span>
-        default:
-                <span class="cov0" title="0">return false</span>
-        }
-}
-
-// FoliageValues は Foliage の値を、スキーマに書いた順に返す。
-func FoliageValues() []Foliage {
-        <span class="cov0" title="0">return []Foliage{FoliageGrass, FoliageForest}
-</span>}
-
-// FoliageEffect 植生がタイルの気温に足す補正
-type FoliageEffect struct {
-        Id Foliage `json:"id"`
+// Foliage タイルの植生の表。raw の foliageEffects の行で、植生がタイルの気温に足す補正を持つ。植生を足すときは raw にこの表の行を1つ足す
+type Foliage struct {
+        Id FoliageId `json:"id"`
 
         TempModifier TileTempModifier `json:"tempModifier"`
 }
+
+// FoliageId 植生の id
+type FoliageId = TableId
 
 // FreshnessStage 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合
 type FreshnessStage struct {
@@ -32694,7 +32501,7 @@ type FuelKind struct {
 }
 
 // FuelKindId 燃料の種別の id
-type FuelKindId = string
+type FuelKindId = TableId
 
 // GladeStep 小さな円形の床を撒く段
 type GladeStep struct {
@@ -32893,7 +32700,7 @@ type Item struct {
         LightSource *LightSource `json:"lightSource,omitempty"`
 
         // Material 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
-        Material *Material `json:"material,omitempty"`
+        Material *MaterialId `json:"material,omitempty"`
 
         Melee *Melee `json:"melee,omitempty"`
 
@@ -33063,89 +32870,21 @@ type MapGlyph struct {
         Order int32 `json:"order"`
 }
 
-// Material 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-// 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
-type Material string
-
-// Defines values for Material.
-const (
-        BONE    Material = "BONE"
-        CERAMIC Material = "CERAMIC"
-        CLOTH   Material = "CLOTH"
-        COAL    Material = "COAL"
-        CRYSTAL Material = "CRYSTAL"
-        FOOD    Material = "FOOD"
-        GLASS   Material = "GLASS"
-        LEATHER Material = "LEATHER"
-        LIQUID  Material = "LIQUID"
-        METAL   Material = "METAL"
-        OIL     Material = "OIL"
-        PAPER   Material = "PAPER"
-        PLANT   Material = "PLANT"
-        PLASTIC Material = "PLASTIC"
-        STONE   Material = "STONE"
-        WOOD    Material = "WOOD"
-)
-
-// Valid indicates whether the value is a known member of the Material enum.
-func (e Material) Valid() bool {
-        <span class="cov0" title="0">switch e </span>{
-        case BONE:
-                <span class="cov0" title="0">return true</span>
-        case CERAMIC:
-                <span class="cov0" title="0">return true</span>
-        case CLOTH:
-                <span class="cov0" title="0">return true</span>
-        case COAL:
-                <span class="cov0" title="0">return true</span>
-        case CRYSTAL:
-                <span class="cov0" title="0">return true</span>
-        case FOOD:
-                <span class="cov0" title="0">return true</span>
-        case GLASS:
-                <span class="cov0" title="0">return true</span>
-        case LEATHER:
-                <span class="cov0" title="0">return true</span>
-        case LIQUID:
-                <span class="cov0" title="0">return true</span>
-        case METAL:
-                <span class="cov0" title="0">return true</span>
-        case OIL:
-                <span class="cov0" title="0">return true</span>
-        case PAPER:
-                <span class="cov0" title="0">return true</span>
-        case PLANT:
-                <span class="cov0" title="0">return true</span>
-        case PLASTIC:
-                <span class="cov0" title="0">return true</span>
-        case STONE:
-                <span class="cov0" title="0">return true</span>
-        case WOOD:
-                <span class="cov0" title="0">return true</span>
-        default:
-                <span class="cov0" title="0">return false</span>
-        }
-}
-
-// MaterialValues は Material の値を、スキーマに書いた順に返す。
-func MaterialValues() []Material {
-        <span class="cov0" title="0">return []Material{WOOD, PAPER, CLOTH, LEATHER, PLANT, FOOD, BONE, OIL, COAL, PLASTIC, METAL, STONE, GLASS, CRYSTAL, CERAMIC, LIQUID}
-</span>}
-
-// MaterialAmount 素材必要数
-type MaterialAmount = int
-
-// MaterialDef 材質の表示名と燃焼の熱量
-type MaterialDef struct {
+// Material 材質の表。表示名と燃焼の熱量を持つ。燃料熱量は材質のkgあたり熱量へ重量を掛けて導き、
+// 不燃の材質は係数0で燃料にならない。材質を足すときは raw にこの表の行を1つ足す
+type Material struct {
         // Disassembly 分解で戻る素材。無い材質のアイテムは分解できない
         Disassembly *MaterialDisassembly `json:"disassembly,omitempty"`
 
         HeatPerKg HeatPerKg `json:"heatPerKg"`
 
-        Id Material `json:"id"`
+        Id MaterialId `json:"id"`
 
         Name EntityName `json:"name"`
 }
+
+// MaterialAmount 素材必要数
+type MaterialAmount = int
 
 // MaterialDisassembly 材質のアイテムを分解したときに戻る素材
 type MaterialDisassembly struct {
@@ -33154,6 +32893,9 @@ type MaterialDisassembly struct {
         // PerWeight 素材1個に要るアイテムの重さ
         PerWeight Weight `json:"perWeight"`
 }
+
+// MaterialId 材質の id
+type MaterialId = TableId
 
 // Melee 近接攻撃設定
 type Melee struct {
@@ -33359,7 +33101,7 @@ type ProfessionEquip struct {
 }
 
 // ProfessionId 職業ID
-type ProfessionId = string
+type ProfessionId = TableId
 
 // ProfessionItem 職業初期所持アイテム
 type ProfessionItem struct {
@@ -33588,6 +33330,8 @@ type RangeTiles = int
 
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {
+        AmmoKinds *[]AmmoKind `json:"ammoKinds,omitempty"`
+
         AttackTypes *[]AttackType `json:"attackTypes,omitempty"`
 
         AutomataSteps *[]AutomataStep `json:"automataSteps,omitempty"`
@@ -33628,7 +33372,7 @@ type Raws struct {
 
         FatigueStages *[]FatigueStage `json:"fatigueStages,omitempty"`
 
-        FoliageEffects *[]FoliageEffect `json:"foliageEffects,omitempty"`
+        FoliageEffects *[]Foliage `json:"foliageEffects,omitempty"`
 
         FreshnessStages *[]FreshnessStage `json:"freshnessStages,omitempty"`
 
@@ -33652,7 +33396,7 @@ type Raws struct {
 
         MapGlyphs *[]MapGlyph `json:"mapGlyphs,omitempty"`
 
-        Materials *[]MaterialDef `json:"materials,omitempty"`
+        Materials *[]Material `json:"materials,omitempty"`
 
         Members *[]Member `json:"members,omitempty"`
 
@@ -33700,7 +33444,7 @@ type Raws struct {
 
         TimesOfDay *[]TimeOfDay `json:"timesOfDay,omitempty"`
 
-        ToolCategories *[]ToolCategoryDef `json:"toolCategories,omitempty"`
+        ToolCategories *[]ToolCategory `json:"toolCategories,omitempty"`
 
         TrailSteps *[]TrailStep `json:"trailSteps,omitempty"`
 
@@ -33711,6 +33455,8 @@ type Raws struct {
         Weathers *[]Weather `json:"weathers,omitempty"`
 
         WidenSteps *[]WidenStep `json:"widenSteps,omitempty"`
+
+        Zones *[]Zone `json:"zones,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量
@@ -34095,102 +33841,10 @@ type SkillCategory struct {
 }
 
 // SkillCategoryId スキルのカテゴリの id
-type SkillCategoryId = string
+type SkillCategoryId = TableId
 
-// SkillId スキルID
-type SkillId string
-
-// Defines values for SkillId.
-const (
-        SkillIdBow           SkillId = "bow"
-        SkillIdCannon        SkillId = "cannon"
-        SkillIdChillResist   SkillId = "chill_resist"
-        SkillIdColdResist    SkillId = "cold_resist"
-        SkillIdCrafting      SkillId = "crafting"
-        SkillIdExploration   SkillId = "exploration"
-        SkillIdFireResist    SkillId = "fire_resist"
-        SkillIdFist          SkillId = "fist"
-        SkillIdHandgun       SkillId = "handgun"
-        SkillIdHealing       SkillId = "healing"
-        SkillIdHeavyArmor    SkillId = "heavy_armor"
-        SkillIdHungerResist  SkillId = "hunger_resist"
-        SkillIdMechanic      SkillId = "mechanic"
-        SkillIdNegotiation   SkillId = "negotiation"
-        SkillIdNightVision   SkillId = "night_vision"
-        SkillIdPhotonResist  SkillId = "photon_resist"
-        SkillIdRifle         SkillId = "rifle"
-        SkillIdSmithing      SkillId = "smithing"
-        SkillIdSpear         SkillId = "spear"
-        SkillIdSprinting     SkillId = "sprinting"
-        SkillIdStealth       SkillId = "stealth"
-        SkillIdSword         SkillId = "sword"
-        SkillIdThrow         SkillId = "throw"
-        SkillIdThunderResist SkillId = "thunder_resist"
-        SkillIdWeightBearing SkillId = "weight_bearing"
-)
-
-// Valid indicates whether the value is a known member of the SkillId enum.
-func (e SkillId) Valid() bool {
-        <span class="cov0" title="0">switch e </span>{
-        case SkillIdBow:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdCannon:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdChillResist:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdColdResist:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdCrafting:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdExploration:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdFireResist:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdFist:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdHandgun:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdHealing:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdHeavyArmor:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdHungerResist:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdMechanic:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdNegotiation:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdNightVision:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdPhotonResist:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdRifle:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdSmithing:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdSpear:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdSprinting:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdStealth:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdSword:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdThrow:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdThunderResist:
-                <span class="cov0" title="0">return true</span>
-        case SkillIdWeightBearing:
-                <span class="cov0" title="0">return true</span>
-        default:
-                <span class="cov0" title="0">return false</span>
-        }
-}
-
-// SkillIdValues は SkillId の値を、スキーマに書いた順に返す。
-func SkillIdValues() []SkillId {
-        <span class="cov0" title="0">return []SkillId{SkillIdSword, SkillIdSpear, SkillIdFist, SkillIdWeightBearing, SkillIdBow, SkillIdHandgun, SkillIdRifle, SkillIdCannon, SkillIdExploration, SkillIdCrafting, SkillIdSmithing, SkillIdNegotiation, SkillIdMechanic, SkillIdSprinting, SkillIdStealth, SkillIdNightVision, SkillIdColdResist, SkillIdHungerResist, SkillIdHealing, SkillIdHeavyArmor, SkillIdFireResist, SkillIdThunderResist, SkillIdChillResist, SkillIdPhotonResist, SkillIdThrow}
-</span>}
+// SkillId スキルの表の id
+type SkillId = TableId
 
 // SkillLevel スキルレベル
 type SkillLevel = int
@@ -34338,6 +33992,9 @@ type Strength = int
 // Switch スイッチ。持つ物は「使う」で点け消しでき、オフで生まれる
 type Switch = map[string]interface{}
 
+// TableId 表の id の共通の書式
+type TableId = string
+
 // TargetGroup ターゲットグループ
 type TargetGroup string
 
@@ -34426,7 +34083,7 @@ type Tile struct {
         Earth *bool `json:"earth,omitempty"`
 
         // Foliage 植生。省くと植生なし
-        Foliage *Foliage `json:"foliage,omitempty"`
+        Foliage *FoliageId `json:"foliage,omitempty"`
 
         // Id ground は施設のパレットで下地を残す地形の予約語なので、タイルの id に使わない
         Id EntityID `json:"id"`
@@ -34517,52 +34174,20 @@ type TimeOfDayTempModifier = int
 
 // Tool 道具の性質。道具の分類とグレードを持つ
 type Tool struct {
-        Categories []ToolCategory `json:"categories"`
+        Categories []ToolCategoryId `json:"categories"`
 
         Grade ToolGrade `json:"grade"`
 }
 
-// ToolCategory 道具の分類
-type ToolCategory string
-
-// Defines values for ToolCategory.
-const (
-        Chopping  ToolCategory = "chopping"
-        Cutting   ToolCategory = "cutting"
-        Mining    ToolCategory = "mining"
-        Precision ToolCategory = "precision"
-        Prying    ToolCategory = "prying"
-)
-
-// Valid indicates whether the value is a known member of the ToolCategory enum.
-func (e ToolCategory) Valid() bool {
-        <span class="cov0" title="0">switch e </span>{
-        case Chopping:
-                <span class="cov0" title="0">return true</span>
-        case Cutting:
-                <span class="cov0" title="0">return true</span>
-        case Mining:
-                <span class="cov0" title="0">return true</span>
-        case Precision:
-                <span class="cov0" title="0">return true</span>
-        case Prying:
-                <span class="cov0" title="0">return true</span>
-        default:
-                <span class="cov0" title="0">return false</span>
-        }
-}
-
-// ToolCategoryValues は ToolCategory の値を、スキーマに書いた順に返す。
-func ToolCategoryValues() []ToolCategory {
-        <span class="cov0" title="0">return []ToolCategory{Prying, Precision, Cutting, Chopping, Mining}
-</span>}
-
-// ToolCategoryDef 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
-type ToolCategoryDef struct {
-        Id ToolCategory `json:"id"`
+// ToolCategory 道具の分類の表。合う道具で壊したときに伸ばすスキルを持ち、省くと伸びない。分類を足すときは raw にこの表の行を1つ足す
+type ToolCategory struct {
+        Id ToolCategoryId `json:"id"`
 
         Skill *SkillId `json:"skill,omitempty"`
 }
+
+// ToolCategoryId 道具の分類の id
+type ToolCategoryId = TableId
 
 // ToolGrade 道具のグレード。高いほど速く壊し多く得る
 type ToolGrade = int
@@ -34584,35 +34209,6 @@ type TreeStep struct {
         // LargeTreeChance 木の周りにも木を足す確率
         LargeTreeChance Chance `json:"largeTreeChance"`
 }
-
-// UsableScene 使用可能シーン
-type UsableScene string
-
-// Defines values for UsableScene.
-const (
-        ANY    UsableScene = "ANY"
-        BATTLE UsableScene = "BATTLE"
-        FIELD  UsableScene = "FIELD"
-)
-
-// Valid indicates whether the value is a known member of the UsableScene enum.
-func (e UsableScene) Valid() bool {
-        <span class="cov0" title="0">switch e </span>{
-        case ANY:
-                <span class="cov0" title="0">return true</span>
-        case BATTLE:
-                <span class="cov0" title="0">return true</span>
-        case FIELD:
-                <span class="cov0" title="0">return true</span>
-        default:
-                <span class="cov0" title="0">return false</span>
-        }
-}
-
-// UsableSceneValues は UsableScene の値を、スキーマに書いた順に返す。
-func UsableSceneValues() []UsableScene {
-        <span class="cov0" title="0">return []UsableScene{BATTLE, FIELD, ANY}
-</span>}
 
 // ViewDistance AI視界距離（タイル単位）
 type ViewDistance = int
@@ -34753,64 +34349,13 @@ type WidenStep struct {
         Id EntityID `json:"id"`
 }
 
-// Zone 区域の地区。区域の層が候補として持ち、施設は建つ地区として持つ
-type Zone string
-
-// Defines values for Zone.
-const (
-        CampusGate       Zone = "campus_gate"
-        CampusInner      Zone = "campus_inner"
-        CampusQuarantine Zone = "campus_quarantine"
-        Downtown         Zone = "downtown"
-        FarmField        Zone = "farm_field"
-        FarmYard         Zone = "farm_yard"
-        Industrial       Zone = "industrial"
-        MilitaryArmory   Zone = "military_armory"
-        MilitaryGate     Zone = "military_gate"
-        MilitaryInner    Zone = "military_inner"
-        PlantCore        Zone = "plant_core"
-        PlantOuter       Zone = "plant_outer"
-        Residential      Zone = "residential"
-)
-
-// Valid indicates whether the value is a known member of the Zone enum.
-func (e Zone) Valid() bool {
-        <span class="cov0" title="0">switch e </span>{
-        case CampusGate:
-                <span class="cov0" title="0">return true</span>
-        case CampusInner:
-                <span class="cov0" title="0">return true</span>
-        case CampusQuarantine:
-                <span class="cov0" title="0">return true</span>
-        case Downtown:
-                <span class="cov0" title="0">return true</span>
-        case FarmField:
-                <span class="cov0" title="0">return true</span>
-        case FarmYard:
-                <span class="cov0" title="0">return true</span>
-        case Industrial:
-                <span class="cov0" title="0">return true</span>
-        case MilitaryArmory:
-                <span class="cov0" title="0">return true</span>
-        case MilitaryGate:
-                <span class="cov0" title="0">return true</span>
-        case MilitaryInner:
-                <span class="cov0" title="0">return true</span>
-        case PlantCore:
-                <span class="cov0" title="0">return true</span>
-        case PlantOuter:
-                <span class="cov0" title="0">return true</span>
-        case Residential:
-                <span class="cov0" title="0">return true</span>
-        default:
-                <span class="cov0" title="0">return false</span>
-        }
+// Zone 区域の地区の表。区域の層が候補として持ち、施設は建つ地区として持つ。地区を足すときは raw にこの表の行を1つ足す
+type Zone struct {
+        Id ZoneId `json:"id"`
 }
 
-// ZoneValues は Zone の値を、スキーマに書いた順に返す。
-func ZoneValues() []Zone {
-        <span class="cov0" title="0">return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore, FarmYard, FarmField}
-</span>}
+// ZoneId 区域の地区の id
+type ZoneId = TableId
 </pre>
 		
 		<pre class="file" id="file218" style="display: none">package rawschema
@@ -34965,7 +34510,7 @@ func toError(err error) error {
                 <span class="cov8" title="1">format, args := e.Msg()
                 v := Violation{Path: strings.Join(e.Path(), "."), Message: fmt.Sprintf(format, args...)}
                 if seen[v] </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">seen[v] = true
                 out.Violations = append(out.Violations, v)</span>
@@ -58977,7 +58522,7 @@ func SpecDisassemblyYield(world w.World, spec gc.EntitySpec) (id string, count i
 }
 
 // disassemblyYield は装着する設備を除き、材質と重さから戻る素材を導く
-func disassemblyYield(world w.World, id string, material rawschema.Material, weight consts.Milligram, deployable bool) (string, int, bool) {
+func disassemblyYield(world w.World, id string, material rawschema.MaterialId, weight consts.Milligram, deployable bool) (string, int, bool) {
         <span class="cov8" title="1">if deployable </span>{
                 <span class="cov8" title="1">return "", 0, false
 </span>        }
@@ -59410,7 +58955,7 @@ func partlyUsed(world w.World, entity ecs.Entity) bool {
 }
 
 // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する
-func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoTag) (ecs.Entity, bool) {
+func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoKindId) (ecs.Entity, bool) {
         <span class="cov8" title="1">q := ecs.NewFilter2[gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
         for q.Next() </span>{
                 <span class="cov8" title="1">entity := q.Entity()

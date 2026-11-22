@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:37:26</td>
+            <td class="headerValue">2026-11-22 16:46:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -107,7 +107,7 @@
 <span id="L45"><span class="lineNum">      45</span>              : }</span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
 <span id="L47"><span class="lineNum">      47</span>              : // zoneCatalog は地区ごとの施設抽選重み。</span>
-<span id="L48"><span class="lineNum">      48</span>              : type zoneCatalog map[rawschema.Zone][]facilityWeight</span>
+<span id="L48"><span class="lineNum">      48</span>              : type zoneCatalog map[rawschema.ZoneId][]facilityWeight</span>
 <span id="L49"><span class="lineNum">      49</span>              : </span>
 <span id="L50"><span class="lineNum">      50</span>              : // zoneCatalogFrom は facilities 行から地区ごとの施設抽選重みを導出する。</span>
 <span id="L51"><span class="lineNum">      51</span>              : func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {</span>
@@ -128,7 +128,7 @@
 <span id="L66"><span class="lineNum">      66</span>              : const zoneChoiceShift = 32</span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
 <span id="L68"><span class="lineNum">      68</span>              : // zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ</span>
-<span id="L69"><span class="lineNum">      69</span>              : func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.Zone {</span>
+<span id="L69"><span class="lineNum">      69</span>              : func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.ZoneId {</span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         zones := r.kind.Layers[r.layerAt(l)].Zones</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return zones[(r.seed&gt;&gt;zoneChoiceShift)%uint64(len(zones))]</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : }</span></span>
@@ -182,7 +182,7 @@
 <span id="L120"><span class="lineNum">     120</span>              : }</span>
 <span id="L121"><span class="lineNum">     121</span>              : </span>
 <span id="L122"><span class="lineNum">     122</span>              : // rollFacilityInZone は地区の重み表から、規模 span と危険度 danger の足切りを通った施設 id を重みで抽選する。exclude の施設は引かない</span>
-<span id="L123"><span class="lineNum">     123</span>              : func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk, danger consts.Danger, exclude string) string {</span>
+<span id="L123"><span class="lineNum">     123</span>              : func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.ZoneId, span consts.Chunk, danger consts.Danger, exclude string) string {</span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         zc := cat[z]</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         i, ok := consts.Pick(rng, zc, func(f facilityWeight) float64 {</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 if span &lt; f.minSpan || danger &lt; f.minDanger || f.kind == exclude {</span></span>

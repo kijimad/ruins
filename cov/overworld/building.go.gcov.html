@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:37:26</td>
+            <td class="headerValue">2026-11-22 16:46:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,11 +97,11 @@
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 facilities[f.Id] = f</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         taken := map[consts.Coord[consts.Chunk]]bool{}</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         free := func(x, y consts.Chunk, z rawschema.Zone) bool {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         free := func(x, y consts.Chunk, z rawschema.ZoneId) bool {</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 c := consts.Coord[consts.Chunk]{X: x, Y: y}</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 return x &lt; r.w &amp;&amp; y &lt; r.h &amp;&amp; !taken[c] &amp;&amp; r.zoneAt(c) == z</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         fits := func(x, y, w, h consts.Chunk, z rawschema.Zone) bool {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         fits := func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 for dy := range h {</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                         for dx := range w {</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                                 if !free(x+dx, y+dy, z) {</span></span>
@@ -159,7 +159,7 @@
 <span id="L97"><span class="lineNum">      97</span>              : </span>
 <span id="L98"><span class="lineNum">      98</span>              : // landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、</span>
 <span id="L99"><span class="lineNum">      99</span>              : // 地区に収まるものを選ぶ。区域の作りがその地区を割り振らなければ置かない</span>
-<span id="L100"><span class="lineNum">     100</span>              : func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.Zone) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {</span>
+<span id="L100"><span class="lineNum">     100</span>              : func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {</span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         for _, fz := range f.Zones {</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 var cells []consts.Coord[consts.Chunk]</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 for y := range r.h {</span></span>

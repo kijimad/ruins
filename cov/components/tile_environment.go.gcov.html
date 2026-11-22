@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:37:26</td>
+            <td class="headerValue">2026-11-22 16:46:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,7 +72,7 @@
 <span id="L10"><span class="lineNum">      10</span>              : type TileEnvironment struct {</span>
 <span id="L11"><span class="lineNum">      11</span>              :         Shelter         rawschema.Shelter</span>
 <span id="L12"><span class="lineNum">      12</span>              :         Water           rawschema.WaterExposure // ゼロ値は水の影響なし</span>
-<span id="L13"><span class="lineNum">      13</span>              :         Foliage         rawschema.Foliage       // ゼロ値は植生なし</span>
+<span id="L13"><span class="lineNum">      13</span>              :         Foliage         rawschema.FoliageId     // ゼロ値は植生なし</span>
 <span id="L14"><span class="lineNum">      14</span>              :         SnowMeltPercent int                     // 積もる雪を減らす割合。ゼロ値は減らさない</span>
 <span id="L15"><span class="lineNum">      15</span>              : }</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
@@ -89,7 +89,7 @@
 <span id="L27"><span class="lineNum">      27</span>              : type TileEnvDefs struct {</span>
 <span id="L28"><span class="lineNum">      28</span>              :         Shelters map[rawschema.Shelter]ShelterDef</span>
 <span id="L29"><span class="lineNum">      29</span>              :         Water    map[rawschema.WaterExposure]int</span>
-<span id="L30"><span class="lineNum">      30</span>              :         Foliage  map[rawschema.Foliage]int</span>
+<span id="L30"><span class="lineNum">      30</span>              :         Foliage  map[rawschema.FoliageId]int</span>
 <span id="L31"><span class="lineNum">      31</span>              : }</span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              : // ShelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す。表に無い囲われは世界温度をそのまま受ける</span>

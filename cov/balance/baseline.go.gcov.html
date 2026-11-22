@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:37:26</td>
+            <td class="headerValue">2026-11-22 16:46:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -284,14 +284,14 @@
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                 return &quot;&quot;, err</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         writeMDTable(&amp;b, []string{&quot;くべる燃料&quot;, &quot;燃料ポイント&quot;, &quot;積荷0の航続(歩)&quot;}, []tw.Align{alignL, alignR, alignR}, [][]string{</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 {&quot;OIL 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf(&quot;%.0f&quot;, FollowRangeTiles(materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg), 0))},</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 {&quot;WOOD 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf(&quot;%.0f&quot;, FollowRangeTiles(materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg), 0))},</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 {&quot;oil 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, materials.HeatOf(&quot;oil&quot;, 10*consts.MilligramPerKg)), fmt.Sprintf(&quot;%.0f&quot;, FollowRangeTiles(materials.HeatOf(&quot;oil&quot;, 10*consts.MilligramPerKg), 0))},</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 {&quot;wood 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, materials.HeatOf(&quot;wood&quot;, 10*consts.MilligramPerKg)), fmt.Sprintf(&quot;%.0f&quot;, FollowRangeTiles(materials.HeatOf(&quot;wood&quot;, 10*consts.MilligramPerKg), 0))},</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         fmt.Fprintf(&amp;b, &quot;同じ燃料は火にくべると燃焼ターンになる。地面直の火は熱量の半分を時間へ変える。\n\n&quot;)</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         writeMDTable(&amp;b, []string{&quot;燃料&quot;, &quot;燃焼ターン&quot;}, []tw.Align{alignL, alignR}, [][]string{</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 {&quot;OIL 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, FuelBurnTurns(materials, rawschema.OIL, 10))},</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 {&quot;WOOD 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, FuelBurnTurns(materials, rawschema.WOOD, 10))},</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 {&quot;oil 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, FuelBurnTurns(materials, &quot;oil&quot;, 10))},</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 {&quot;wood 10kg&quot;, fmt.Sprintf(&quot;%d&quot;, FuelBurnTurns(materials, &quot;wood&quot;, 10))},</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L235"><span class="lineNum">     235</span>              :         // 感度行列。つまみ×メトリクスの横断ヤコビアン</span>

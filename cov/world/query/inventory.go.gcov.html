@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:37:26</td>
+            <td class="headerValue">2026-11-22 16:46:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -96,7 +96,7 @@
 <span id="L34"><span class="lineNum">      34</span>              : }</span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する</span>
-<span id="L37"><span class="lineNum">      37</span>              : func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoTag) (ecs.Entity, bool) {</span>
+<span id="L37"><span class="lineNum">      37</span>              : func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoKindId) (ecs.Entity, bool) {</span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter2[gc.LocationInBackpack, gc.Ammo](world.ECS).Query()</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>

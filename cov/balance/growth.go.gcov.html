@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:37:26</td>
+            <td class="headerValue">2026-11-22 16:46:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -98,7 +98,7 @@
 <span id="L36"><span class="lineNum">      36</span>              : // 中立にしスキル寄与だけを見る。適用は ApplyInt の切り捨てなので、丸め前の Percent を渡せるこの形を単一出典にする。</span>
 <span id="L37"><span class="lineNum">      37</span>              : func SkillDamagePercent(defs gc.SkillDefs, skillLevel int) consts.Percent {</span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         skills := gc.NewSkills()</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         skills.Get(rawschema.SkillIdFist).Value = skillLevel</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         skills.Get(&quot;fist&quot;).Value = skillLevel</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return defs.ProficiencyValue(skills, &amp;gc.Abilities{}, gc.HealthyBodyFuncs(), rawschema.ProficiencyIdFistDamage)</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>

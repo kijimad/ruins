@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:37:26</td>
+            <td class="headerValue">2026-11-22 16:46:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -98,9 +98,9 @@
 <span id="L36"><span class="lineNum">      36</span>              :         Skills        map[rawschema.SkillId]SkillDef</span>
 <span id="L37"><span class="lineNum">      37</span>              :         Categories    []SkillCategory // 表示順</span>
 <span id="L38"><span class="lineNum">      38</span>              :         Proficiencies map[rawschema.ProficiencyId]ProficiencyDef</span>
-<span id="L39"><span class="lineNum">      39</span>              :         Weapons       []WeaponDef                                  // 表示順</span>
-<span id="L40"><span class="lineNum">      40</span>              :         Resists       []ResistDef                                  // 表示順</span>
-<span id="L41"><span class="lineNum">      41</span>              :         ToolSkills    map[rawschema.ToolCategory]rawschema.SkillId // 合う道具で壊したとき伸びるスキル。伸ばさない分類は持たない</span>
+<span id="L39"><span class="lineNum">      39</span>              :         Weapons       []WeaponDef                                    // 表示順</span>
+<span id="L40"><span class="lineNum">      40</span>              :         Resists       []ResistDef                                    // 表示順</span>
+<span id="L41"><span class="lineNum">      41</span>              :         ToolSkills    map[rawschema.ToolCategoryId]rawschema.SkillId // 合う道具で壊したとき伸びるスキル。伸ばさない分類は持たない</span>
 <span id="L42"><span class="lineNum">      42</span>              : }</span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span>              : // ResistDef は攻撃属性と、そのダメージを軽減する熟練の効果倍率。raw の熟練の効果倍率の行の resists から組み立てる</span>

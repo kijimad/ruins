@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:37:26</td>
+            <td class="headerValue">2026-11-22 16:46:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,10 +69,10 @@
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span>              : // Material はアイテムの材質を表す。可燃性と燃焼熱量の算出根拠で、生成時に raw から付く。</span>
-<span id="L10"><span class="lineNum">      10</span>              : // Kind は raw の Material enum の値。金属や石など不燃の材質も保持し、</span>
+<span id="L10"><span class="lineNum">      10</span>              : // Kind は raw の材質の表の id。金属や石など不燃の材質も保持し、</span>
 <span id="L11"><span class="lineNum">      11</span>              : // 観察メニューで材質を見せて、なぜ燃える/燃えないかを読み取れるようにする。</span>
 <span id="L12"><span class="lineNum">      12</span>              : type Material struct {</span>
-<span id="L13"><span class="lineNum">      13</span>              :         Kind rawschema.Material // 材質の種類。WOOD・METAL・FOOD など。enum で比較のタイプミスを型が弾く</span>
+<span id="L13"><span class="lineNum">      13</span>              :         Kind rawschema.MaterialId // 材質の種類。wood・metal・food など</span>
 <span id="L14"><span class="lineNum">      14</span>              : }</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // MaterialDef は材質1つの定義。raw の materials の1行から組み立てる</span>
@@ -89,17 +89,17 @@
 <span id="L27"><span class="lineNum">      27</span>              : }</span>
 <span id="L28"><span class="lineNum">      28</span>              : </span>
 <span id="L29"><span class="lineNum">      29</span>              : // MaterialDefs は材質ごとの表示名と燃焼熱量の表。読み込み時に raw から1度だけ組み立て、以後は変えない</span>
-<span id="L30"><span class="lineNum">      30</span>              : type MaterialDefs map[rawschema.Material]MaterialDef</span>
+<span id="L30"><span class="lineNum">      30</span>              : type MaterialDefs map[rawschema.MaterialId]MaterialDef</span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // HeatOf は材質と重量から燃焼熱量を導く。不燃の材質は0を返す。</span>
 <span id="L33"><span class="lineNum">      33</span>              : // 整数で閉じるため mg 基準で計算し 1kg=1_000_000mg で割って kg 換算する。切り捨てで軽い物は0になる</span>
-<span id="L34"><span class="lineNum">      34</span>              : func (d MaterialDefs) HeatOf(material rawschema.Material, weight consts.Milligram) consts.Heat {</span>
+<span id="L34"><span class="lineNum">      34</span>              : func (d MaterialDefs) HeatOf(material rawschema.MaterialId, weight consts.Milligram) consts.Heat {</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return consts.Heat(d[material].HeatPerKg * int(weight) / consts.MilligramPerKg)</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span>              : // DisassemblyOf は材質と重さのアイテム itemID を分解したときに戻る素材の id と個数を返す。</span>
 <span id="L39"><span class="lineNum">      39</span>              : // 個数は重さを PerWeight で割って切り捨てる。分解できない材質、戻し先の素材そのもの、1個に満たない軽い物は ok が false</span>
-<span id="L40"><span class="lineNum">      40</span>              : func (d MaterialDefs) DisassemblyOf(itemID string, material rawschema.Material, weight consts.Milligram) (id string, count int, ok bool) {</span>
+<span id="L40"><span class="lineNum">      40</span>              : func (d MaterialDefs) DisassemblyOf(itemID string, material rawschema.MaterialId, weight consts.Milligram) (id string, count int, ok bool) {</span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         dis := d[material].Disassembly</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         if dis == nil || dis.Item == itemID {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, 0, false</span></span>
