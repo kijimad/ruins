@@ -533,8 +533,6 @@ type Consumable struct {
 	TargetGroup TargetGroup `json:"targetGroup"`
 
 	TargetNum TargetNum `json:"targetNum"`
-
-	UsableScene UsableScene `json:"usableScene"`
 }
 
 // CorridorStep 部屋どうしを直線の廊下で結ぶ段
@@ -3154,35 +3152,6 @@ type TreeStep struct {
 
 	// LargeTreeChance 木の周りにも木を足す確率
 	LargeTreeChance Chance `json:"largeTreeChance"`
-}
-
-// UsableScene 使用可能シーン
-type UsableScene string
-
-// Defines values for UsableScene.
-const (
-	ANY    UsableScene = "ANY"
-	BATTLE UsableScene = "BATTLE"
-	FIELD  UsableScene = "FIELD"
-)
-
-// Valid indicates whether the value is a known member of the UsableScene enum.
-func (e UsableScene) Valid() bool {
-	switch e {
-	case ANY:
-		return true
-	case BATTLE:
-		return true
-	case FIELD:
-		return true
-	default:
-		return false
-	}
-}
-
-// UsableSceneValues は UsableScene の値を、スキーマに書いた順に返す。
-func UsableSceneValues() []UsableScene {
-	return []UsableScene{BATTLE, FIELD, ANY}
 }
 
 // ViewDistance AI視界距離（タイル単位）

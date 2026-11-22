@@ -13603,7 +13603,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A nutritious nut that provides high energy in small amounts."
@@ -13619,7 +13618,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A soft, sweet pumpkin that is delicious grilled or stewed."
@@ -13635,7 +13633,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Bread whose garlic aroma whets the appetite."
@@ -13651,7 +13648,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A crisp baked treat that satisfies hunger just a little."
@@ -13667,7 +13663,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A buttery, fragrant pastry with high nutritional value."
@@ -13683,7 +13678,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A carbonated drink with a refreshing kick."
@@ -13699,7 +13693,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A quick meal of fillings between bread, well balanced in nutrition."
@@ -13715,7 +13708,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A large green fruit, rich in water and filling."
@@ -13731,7 +13723,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A smooth, cold drink that soothes a weary body."
@@ -13747,7 +13738,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A juicy link sausage."
@@ -13763,7 +13753,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Tender, richly marbled beef tongue."
@@ -13779,7 +13768,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A small red fruit that staves off hunger just a little."
@@ -13795,7 +13783,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fried treat dusted with sugar."
@@ -13811,7 +13798,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A sweet, delicious treat that sinks into a tired body."
@@ -13827,7 +13813,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Aged cheese, full of nutrition."
@@ -13843,7 +13828,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A ripe red vegetable that can be eaten raw."
@@ -13859,7 +13843,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A sweet fried treat that fills you up."
@@ -13875,7 +13858,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A soft, chewy flatbread."
@@ -13891,7 +13873,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Meat and bread together, thoroughly satisfying."
@@ -13907,7 +13888,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A French bread known for its hard crust."
@@ -13923,7 +13903,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A sweet fruit that is easy to eat on the go."
@@ -13939,7 +13918,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Freshly baked bread that fills an empty stomach."
@@ -13955,7 +13933,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fluffy baked treat whose sweet aroma whets the appetite."
@@ -13971,7 +13948,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A hard biscuit that keeps well as a preserved food."
@@ -13987,7 +13963,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Dried beef that lasts a long time."
@@ -14003,7 +13978,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Thinly stretched dough topped with ingredients and baked."
@@ -14019,7 +13993,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A boiled green vegetable with very high nutritional value."
@@ -14035,7 +14008,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A chewy ring-shaped bread."
@@ -14051,7 +14023,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A bagel loaded with sesame seeds."
@@ -14067,7 +14038,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A light snack with a popping texture that is hard to stop eating."
@@ -14083,7 +14053,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Finely ground raw meat."
@@ -14099,7 +14068,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A warm meal of noodles in rich broth that heats you to the core."
@@ -14115,7 +14083,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A round-cut hunk of meat."
@@ -14131,7 +14098,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Preserved meat with high nutritional value."
@@ -14147,7 +14113,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Fragrant bread with a slit cut into the top."
@@ -14163,7 +14128,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A splint. Set a broken bone so it can heal."
@@ -14177,7 +14141,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.remedy]
     potency = 100
     treats = ["fracture"]
@@ -14194,7 +14157,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.remedy]
     potency = 100
     treats = ["laceration"]
@@ -14211,7 +14173,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 0
     ratio = 0.5
@@ -14231,7 +14192,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Thinly sliced meat."
@@ -14247,7 +14207,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A hand-thrown bomb that deals damage with its blast and shrapnel."
@@ -14276,7 +14235,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 15
     ratio = 0
@@ -14312,7 +14270,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Bread with a beautiful swirling pattern."
@@ -14328,7 +14285,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A thrown bomb that unleashes fire, dealing flame damage over a wide area."
@@ -14358,7 +14314,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "ALL"
-    usableScene = "BATTLE"
   [items.throw]
     accuracy = 75
     damage = 0
@@ -14377,7 +14332,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Salt-cured and aged pork."
@@ -14393,7 +14347,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Fresh raw meat, delicious once cooked."
@@ -14409,7 +14362,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fragrant plant with calming and stimulating effects, pressing it to a wound restores a little health."
@@ -14423,7 +14375,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 30
     ratio = 0
@@ -14443,7 +14394,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Meat stuffed into a casing and smoked."
@@ -14459,7 +14409,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fatty cut of belly meat."
@@ -14475,7 +14424,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A pig's head, prized as a delicacy."
@@ -14491,7 +14439,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A thrown grenade that stuns with a burst of blinding light and sound."
@@ -14505,7 +14452,6 @@
   [items.consumable]
     targetGroup = "ENEMY"
     targetNum = "ALL"
-    usableScene = "BATTLE"
   [items.throw]
     accuracy = 75
     damage = 0
@@ -14524,7 +14470,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Bread baked from dark grain."
@@ -14540,7 +14485,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A large cut of meat on the bone, hearty and filling."
@@ -14556,7 +14500,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Tender chicken that works in many dishes."
@@ -14572,7 +14515,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A plant that bolsters vitality, brewed into a drink to mend wounds."
@@ -14586,7 +14528,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 40
     ratio = 0
@@ -15729,7 +15670,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.remedy]
     potency = 100
     treats = ["laceration"]
@@ -15856,7 +15796,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.remedy]
     potency = 50
     treats = ["laceration"]
@@ -17238,7 +17177,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A white-feathered chicken with a red comb and yellow beak, good for cooking."
@@ -17254,7 +17192,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A long ear of grain ripened to golden yellow."
@@ -17270,7 +17207,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A cup of black tea on a white saucer, filled with amber liquid."
@@ -17286,7 +17222,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Chicken fried to a golden brown, its crisp batter dimpled all over."
@@ -17302,7 +17237,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fizzy drink in a purple can labeled with white lettering."
@@ -17318,7 +17252,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fizzy drink in a green bottle."
@@ -17334,7 +17267,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A blue tropical drink served in a glass with a straw."
@@ -17350,7 +17282,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fizzy drink in yellow packaging."
@@ -17366,7 +17297,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Bright green mint leaves."
@@ -17382,7 +17312,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A long red chili with a pointed tip."
@@ -17398,7 +17327,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A salmon fillet, its orange flesh streaked with white lines of fat."
@@ -17414,7 +17342,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Sushi wrapped in seaweed, with two pieces set side by side."
@@ -17430,7 +17357,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A gray external hard disk with a small indicator light glowing on the front."
@@ -17594,7 +17520,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A spear humming with charge."
@@ -17740,7 +17665,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 0
     ratio = 0.3
@@ -17906,7 +17830,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A rusted gear worth a little when sold."
@@ -18025,7 +17948,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 0
     ratio = 0.25
@@ -18043,7 +17965,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 0
     ratio = 0.7
@@ -18063,7 +17984,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A layered fiber vest that blunts impacts."
@@ -18113,7 +18033,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Split wood for burning."
@@ -18177,7 +18096,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.escapeDevice]
 
 [[items]]
@@ -18192,7 +18110,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "FIELD"
   [items.cubeCore]
 
 [[items]]
@@ -18207,7 +18124,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.remedy]
     potency = 50
     treats = ["laceration"]

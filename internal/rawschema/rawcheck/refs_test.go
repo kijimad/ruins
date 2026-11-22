@@ -22,7 +22,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Recipes:   &[]rawschema.Recipe{{Id: "iron", Name: "Iron", Inputs: []rawschema.RecipeInput{{Id: "iron", Amount: 1}}}},
 		Items: &[]rawschema.Item{{
 			Id: "iron", Name: "Iron", Description: "Iron", SpriteSheetName: "field", SpriteKey: "iron",
-			Consumable: &rawschema.Consumable{UsableScene: rawschema.ANY, TargetGroup: rawschema.TargetGroupALLY, TargetNum: rawschema.SINGLE},
+			Consumable: &rawschema.Consumable{TargetGroup: rawschema.TargetGroupALLY, TargetNum: rawschema.SINGLE},
 			Melee:      &rawschema.Melee{Accuracy: 100, Damage: 1, AttackCount: 1, AttackCategory: rawschema.AttackCategoryFist, Element: rawschema.ElementNONE, TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE},
 			Charge:     &rawschema.Charge{Max: 150},
 			Remedy:     &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"fracture"}, Potency: 1},

@@ -281,7 +281,6 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 
 	if item.Consumable != nil {
 		entitySpec.Consumable = &gc.Consumable{
-			UsableScene: item.Consumable.UsableScene,
 			TargetType: gc.TargetType{
 				TargetGroup: item.Consumable.TargetGroup,
 				TargetNum:   item.Consumable.TargetNum,

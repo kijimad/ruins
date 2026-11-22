@@ -213,7 +213,6 @@ import (
 
 // 消費可能アイテムの設定
 #Consumable: {
-	usableScene!: #UsableScene
 	targetGroup!: #TargetGroup
 	targetNum!:   #TargetNum
 }
@@ -1812,9 +1811,6 @@ import (
 
 // 道具のグレード。高いほど速く壊し多く得る
 #ToolGrade: int & >=1 & <=3
-
-// 使用可能シーン
-#UsableScene: "BATTLE" | "FIELD" | "ANY"
 
 // AI視界距離（タイル単位）
 #ViewDistance: int & >=1 & <=100

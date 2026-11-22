@@ -31,7 +31,6 @@ ProvidesNutrition = 10
 [Items.Consumable]
 TargetGroup = "ALLY"
 TargetNum = "SINGLE"
-UsableScene = "ANY"
 
 [Items.ProvidesHealing]
 Amount = 0
@@ -485,7 +484,6 @@ InsulationHeat = 0
 [Items.Consumable]
 TargetGroup = "ALLY"
 TargetNum = "SINGLE"
-UsableScene = "ANY"
 
 [[Recipes]]
 Name = "改造拳銃"

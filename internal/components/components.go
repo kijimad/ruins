@@ -95,8 +95,7 @@ func (c Camera) Yaw() float64 {
 
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
-	UsableScene rawschema.UsableScene
-	TargetType  TargetType
+	TargetType TargetType
 }
 
 // Name はエンティティの表示名を保持する
