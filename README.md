@@ -112,7 +112,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
-| draft | [ゲームのコードが名指ししない列挙を raw の表で定義し、列挙と表の一致を CUE で確かめる](docs/design/261122182942.md) | 0/14 | refactor, item |
+| draft | [ゲームのコードが名指ししない列挙を raw の表で定義し、列挙と表の一致を CUE で確かめる](docs/design/261122182942.md) | 0/15 | refactor, item |
 
 
 ## References
