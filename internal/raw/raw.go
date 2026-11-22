@@ -202,7 +202,7 @@ func parseMelee(m *rawschema.Melee) *gc.Melee {
 
 // parseFire はrawschema.Fireからgc.Fireを生成する
 func parseFire(f *rawschema.Fire) *gc.Fire {
-	var ammoTag rawschema.AmmoTag
+	var ammoTag rawschema.AmmoKindId
 	if f.AmmoTag != nil {
 		ammoTag = *f.AmmoTag
 	}
@@ -310,7 +310,7 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if item.Ammo != nil {
-		var ammoAmmoTag rawschema.AmmoTag
+		var ammoAmmoTag rawschema.AmmoKindId
 		if item.Ammo.AmmoTag != nil {
 			ammoAmmoTag = *item.Ammo.AmmoTag
 		}
@@ -1219,7 +1219,7 @@ func NewSkillDefs(raws rawschema.Raws) (gc.SkillDefs, error) {
 		}
 		proficiencies[row.Accuracy] = accuracy
 	}
-	toolSkills := make(map[rawschema.ToolCategory]rawschema.SkillId)
+	toolSkills := make(map[rawschema.ToolCategoryId]rawschema.SkillId)
 	for _, row := range PtrSlice(raws.ToolCategories) {
 		if row.Skill != nil {
 			toolSkills[row.Id] = *row.Skill

@@ -80,42 +80,18 @@ type AmbientColor struct {
 type Ammo struct {
 	AccuracyBonus AccuracyBonus `json:"accuracyBonus"`
 
-	AmmoTag *AmmoTag `json:"ammoTag,omitempty"`
+	AmmoTag *AmmoKindId `json:"ammoTag,omitempty"`
 
 	DamageBonus DamageBonus `json:"damageBonus"`
 }
 
-// AmmoTag 弾薬タグ
-type AmmoTag string
-
-// Defines values for AmmoTag.
-const (
-	AmmoTagEnergyCell AmmoTag = "energy_cell"
-	AmmoTagN9mm       AmmoTag = "9mm"
-	AmmoTagRifle      AmmoTag = "rifle"
-	AmmoTagShell      AmmoTag = "shell"
-)
-
-// Valid indicates whether the value is a known member of the AmmoTag enum.
-func (e AmmoTag) Valid() bool {
-	switch e {
-	case AmmoTagEnergyCell:
-		return true
-	case AmmoTagN9mm:
-		return true
-	case AmmoTagRifle:
-		return true
-	case AmmoTagShell:
-		return true
-	default:
-		return false
-	}
+// AmmoKind 弾の口径の表。銃が撃てる口径と弾の口径を、この表の id で引き合わせる。口径を足すときは raw にこの表の行を1つ足す
+type AmmoKind struct {
+	Id AmmoKindId `json:"id"`
 }
 
-// AmmoTagValues は AmmoTag の値を、スキーマに書いた順に返す。
-func AmmoTagValues() []AmmoTag {
-	return []AmmoTag{AmmoTagN9mm, AmmoTagRifle, AmmoTagShell, AmmoTagEnergyCell}
-}
+// AmmoKindId 弾の口径の id
+type AmmoKindId = TableId
 
 // ArmorDefense 防具の防御力
 type ArmorDefense = int
@@ -611,7 +587,7 @@ type Dice = string
 type Disassembly struct {
 	Bonus *[]DisassemblyBonus `json:"bonus,omitempty"`
 
-	ToolCategory *ToolCategory `json:"toolCategory,omitempty"`
+	ToolCategory *ToolCategoryId `json:"toolCategory,omitempty"`
 
 	ToolRequired *DisassemblyToolRequired `json:"toolRequired,omitempty"`
 
@@ -1147,7 +1123,7 @@ func FatigueStageIdValues() []FatigueStageId {
 type Fire struct {
 	Accuracy Accuracy `json:"accuracy"`
 
-	AmmoTag *AmmoTag `json:"ammoTag,omitempty"`
+	AmmoTag *AmmoKindId `json:"ammoTag,omitempty"`
 
 	AttackCategory AttackCategory `json:"attackCategory"`
 
@@ -1266,7 +1242,7 @@ type FuelKind struct {
 }
 
 // FuelKindId 燃料の種別の id
-type FuelKindId = string
+type FuelKindId = TableId
 
 // GladeStep 小さな円形の床を撒く段
 type GladeStep struct {
@@ -2160,6 +2136,8 @@ type RangeTiles = int
 
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {
+	AmmoKinds *[]AmmoKind `json:"ammoKinds,omitempty"`
+
 	AttackTypes *[]AttackType `json:"attackTypes,omitempty"`
 
 	AutomataSteps *[]AutomataStep `json:"automataSteps,omitempty"`
@@ -2272,7 +2250,7 @@ type Raws struct {
 
 	TimesOfDay *[]TimeOfDay `json:"timesOfDay,omitempty"`
 
-	ToolCategories *[]ToolCategoryDef `json:"toolCategories,omitempty"`
+	ToolCategories *[]ToolCategory `json:"toolCategories,omitempty"`
 
 	TrailSteps *[]TrailStep `json:"trailSteps,omitempty"`
 
@@ -2907,6 +2885,9 @@ type Strength = int
 // Switch スイッチ。持つ物は「使う」で点け消しでき、オフで生まれる
 type Switch = map[string]interface{}
 
+// TableId 表の id の共通の書式
+type TableId = string
+
 // TargetGroup ターゲットグループ
 type TargetGroup string
 
@@ -3086,52 +3067,20 @@ type TimeOfDayTempModifier = int
 
 // Tool 道具の性質。道具の分類とグレードを持つ
 type Tool struct {
-	Categories []ToolCategory `json:"categories"`
+	Categories []ToolCategoryId `json:"categories"`
 
 	Grade ToolGrade `json:"grade"`
 }
 
-// ToolCategory 道具の分類
-type ToolCategory string
-
-// Defines values for ToolCategory.
-const (
-	Chopping  ToolCategory = "chopping"
-	Cutting   ToolCategory = "cutting"
-	Mining    ToolCategory = "mining"
-	Precision ToolCategory = "precision"
-	Prying    ToolCategory = "prying"
-)
-
-// Valid indicates whether the value is a known member of the ToolCategory enum.
-func (e ToolCategory) Valid() bool {
-	switch e {
-	case Chopping:
-		return true
-	case Cutting:
-		return true
-	case Mining:
-		return true
-	case Precision:
-		return true
-	case Prying:
-		return true
-	default:
-		return false
-	}
-}
-
-// ToolCategoryValues は ToolCategory の値を、スキーマに書いた順に返す。
-func ToolCategoryValues() []ToolCategory {
-	return []ToolCategory{Prying, Precision, Cutting, Chopping, Mining}
-}
-
-// ToolCategoryDef 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
-type ToolCategoryDef struct {
-	Id ToolCategory `json:"id"`
+// ToolCategory 道具の分類の表。合う道具で壊したときに伸ばすスキルを持ち、省くと伸びない。分類を足すときは raw にこの表の行を1つ足す
+type ToolCategory struct {
+	Id ToolCategoryId `json:"id"`
 
 	Skill *SkillId `json:"skill,omitempty"`
 }
+
+// ToolCategoryId 道具の分類の id
+type ToolCategoryId = TableId
 
 // ToolGrade 道具のグレード。高いほど速く壊し多く得る
 type ToolGrade = int

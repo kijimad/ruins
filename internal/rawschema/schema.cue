@@ -39,13 +39,21 @@ import (
 
 // 弾薬設定
 #Ammo: {
-	ammoTag?:       #AmmoTag
+	ammoTag?: #AmmoKindId
+	if ammoTag != _|_ {
+		ammoTag_ref: _ammoKindIDs[ammoTag] @rawgen(-)
+	}
 	damageBonus!:   #DamageBonus
 	accuracyBonus!: #AccuracyBonus
 }
 
-// 弾薬タグ
-#AmmoTag: "9mm" | "rifle" | "shell" | "energy_cell" @rawgen(prefix)
+// 弾の口径の表。銃が撃てる口径と弾の口径を、この表の id で引き合わせる。口径を足すときは raw にこの表の行を1つ足す
+#AmmoKind: {
+	id!: #AmmoKindId
+}
+
+// 弾の口径の id
+#AmmoKindId: #TableId
 
 // 防具の防御力
 #ArmorDefense: int & >=0 & <=999
@@ -262,7 +270,10 @@ import (
 
 // 分解定義。これを持つ prop は殴って壊すと産出を落とす。toolCategory の道具を構えて壊すと多く得る
 #Disassembly: {
-	toolCategory?: #ToolCategory
+	toolCategory?: #ToolCategoryId
+	if toolCategory != _|_ {
+		toolCategory_ref: _toolCategoryIDs[toolCategory] @rawgen(-)
+	}
 	toolRequired?: #DisassemblyToolRequired
 	yields!: [...#DisassemblyYield]
 	bonus?: [...#DisassemblyBonus]
@@ -475,9 +486,7 @@ import (
 }
 
 // 燃料の種別の id
-#FuelKindId: string & strings.MinRunes(
-		1) & strings.MaxRunes(
-		50) & =~"^[a-z][a-z0-9_]*$"
+#FuelKindId: #TableId
 
 // 燃料。受ける種別が同じ灯りを上限まで満たす
 #Refill: {
@@ -803,7 +812,10 @@ import (
 	targetNum!:      #TargetNum
 	magazineSize!:   #MagazineSize
 	reloadEffort!:   #ReloadEffort
-	ammoTag?:        #AmmoTag
+	ammoTag?:        #AmmoKindId
+	if ammoTag != _|_ {
+		ammoTag_ref: _ammoKindIDs[ammoTag] @rawgen(-)
+	}
 }
 
 // 投げたときの値。投げ向きの物だけが書き、ほかの物は重さから導く
@@ -1413,7 +1425,8 @@ import (
 	fatigueStages?: [...#FatigueStage]
 	freshnessStages?: [...#FreshnessStage]
 	materials?: [...#MaterialDef]
-	toolCategories?: [...#ToolCategoryDef]
+	toolCategories?: [...#ToolCategory]
+	ammoKinds?: [...#AmmoKind]
 	timesOfDay?: [...#TimeOfDay]
 	seasons?: [...#Season]
 	dungeons?: [...#Dungeon]
@@ -1443,6 +1456,8 @@ import (
 	bodyAttackIds_unique: {if bodyAttacks != _|_ for i, x in bodyAttacks {(x.id): i}} @rawgen(-)
 	facilityIds_unique: {if facilities != _|_ for i, x in facilities {(x.id): i}} @rawgen(-)
 	fuelKindIds_unique: {if fuelKinds != _|_ for i, x in fuelKinds {(x.id): i}} @rawgen(-)
+	toolCategoryIds_unique: {if toolCategories != _|_ for i, x in toolCategories {(x.id): i}} @rawgen(-)
+	ammoKindIds_unique: {if ammoKinds != _|_ for i, x in ammoKinds {(x.id): i}} @rawgen(-)
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)
@@ -1794,20 +1809,24 @@ import (
 // 時間帯による世界温度への加算。℃
 #TimeOfDayTempModifier: int & >=-50 & <=50
 
+// 表の id の共通の書式
+#TableId: string & strings.MinRunes(1) & strings.MaxRunes(50) & =~"^[a-z0-9][a-z0-9_]*$"
+
 // 道具の性質。道具の分類とグレードを持つ
 #Tool: {
-	categories!: [...#ToolCategory]
+	categories!: [...#ToolCategoryId]
+	categories_ref: [for x in categories {_toolCategoryIDs[x]}] @rawgen(-)
 	grade!: #ToolGrade
 }
 
-// 道具の分類
-#ToolCategory: "prying" | "precision" | "cutting" | "chopping" | "mining"
-
-// 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
-#ToolCategoryDef: {
-	id!:    #ToolCategory
+// 道具の分類の表。合う道具で壊したときに伸ばすスキルを持ち、省くと伸びない。分類を足すときは raw にこの表の行を1つ足す
+#ToolCategory: {
+	id!:    #ToolCategoryId
 	skill?: #SkillId
 }
+
+// 道具の分類の id
+#ToolCategoryId: #TableId
 
 // 道具のグレード。高いほど速く壊し多く得る
 #ToolGrade: int & >=1 & <=3

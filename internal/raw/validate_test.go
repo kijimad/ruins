@@ -163,10 +163,14 @@ func TestSchema_制約の違反を位置で返す(t *testing.T) {
 		},
 		{
 			name: "道具が近接の値を持たない",
-			raws: makeItemRaws(func(i *rawschema.Item) {
-				i.Melee = nil
-				i.Tool = &rawschema.Tool{Categories: []rawschema.ToolCategory{"chopping"}, Grade: 1}
-			}),
+			raws: func() rawschema.Raws {
+				r := makeItemRaws(func(i *rawschema.Item) {
+					i.Melee = nil
+					i.Tool = &rawschema.Tool{Categories: []rawschema.ToolCategoryId{"chopping"}, Grade: 1}
+				})
+				r.ToolCategories = &[]rawschema.ToolCategory{{Id: "chopping"}}
+				return r
+			}(),
 			wantPath: "items.0.melee",
 		},
 		{
@@ -234,7 +238,7 @@ func TestValidateDisassemblies(t *testing.T) {
 	}{
 		{
 			name: "道具の分類と HP を持てば通る",
-			prop: rawschema.Prop{Name: "棚", Hp: new(rawschema.HitPoints(10)), Disassembly: &rawschema.Disassembly{ToolCategory: new(rawschema.Prying)}},
+			prop: rawschema.Prop{Name: "棚", Hp: new(rawschema.HitPoints(10)), Disassembly: &rawschema.Disassembly{ToolCategory: new("prying")}},
 		},
 		{
 			name:    "道具が必須なのに道具の分類が無いとエラー",

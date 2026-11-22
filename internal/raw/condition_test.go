@@ -72,9 +72,6 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		return rawschema.FreshnessStage{Id: rawschema.FreshnessStageId(id)}
 	})
 	materials := enumRowsOf(enumStrings(rawschema.MaterialValues()), func(id string) rawschema.MaterialDef { return rawschema.MaterialDef{Id: rawschema.Material(id)} })
-	tools := enumRowsOf(enumStrings(rawschema.ToolCategoryValues()), func(id string) rawschema.ToolCategoryDef {
-		return rawschema.ToolCategoryDef{Id: rawschema.ToolCategory(id)}
-	})
 	timesOfDay := enumRowsOf(enumStrings(rawschema.TimeOfDayIdValues()), func(id string) rawschema.TimeOfDay { return rawschema.TimeOfDay{Id: rawschema.TimeOfDayId(id)} })
 	seasons := enumRowsOf(enumStrings(rawschema.SeasonIdValues()), func(id string) rawschema.Season { return rawschema.Season{Id: rawschema.SeasonId(id)} })
 	pointFeatures := enumRowsOf(enumStrings(rawschema.PointFeatureKindValues()), func(id string) rawschema.PointFeature {
@@ -89,7 +86,6 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		PointFeatures:   &pointFeatures,
 		FreshnessStages: &freshness,
 		Materials:       &materials,
-		ToolCategories:  &tools,
 		BodyParts:       &bodyParts,
 		Conditions:      &conditions,
 		AttackTypes:     &attackTypes,
@@ -238,13 +234,6 @@ func TestValidateCodeRows(t *testing.T) {
 				*r.Materials = append(*r.Materials, rawschema.MaterialDef{Id: rawschema.WOOD})
 			},
 			wantErr: errDuplicateID,
-		},
-		{
-			name: "道具の分類の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				r.ToolCategories = nil
-			},
-			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "集落が無い",

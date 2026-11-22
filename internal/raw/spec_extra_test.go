@@ -104,7 +104,7 @@ DamageBonus = -2
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.Ammo)
-	assert.Equal(t, rawschema.AmmoTagN9mm, spec.Ammo.AmmoTag)
+	assert.Equal(t, "9mm", spec.Ammo.AmmoTag)
 	assert.Equal(t, -2, spec.Ammo.DamageBonus)
 	assert.Equal(t, 5, spec.Ammo.AccuracyBonus)
 }

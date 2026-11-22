@@ -205,10 +205,10 @@ func TestNewSkillDefs_道具の分類が伸ばすスキルの実データ(t *tes
 	require.NoError(t, err)
 	defs, err := NewSkillDefs(raws)
 	require.NoError(t, err)
-	assert.Equal(t, map[rawschema.ToolCategory]rawschema.SkillId{
-		rawschema.Prying:    rawschema.SkillIdMechanic,
-		rawschema.Precision: rawschema.SkillIdMechanic,
-		rawschema.Cutting:   rawschema.SkillIdMechanic,
+	assert.Equal(t, map[rawschema.ToolCategoryId]rawschema.SkillId{
+		"prying":    rawschema.SkillIdMechanic,
+		"precision": rawschema.SkillIdMechanic,
+		"cutting":   rawschema.SkillIdMechanic,
 	}, defs.ToolSkills)
 }
 

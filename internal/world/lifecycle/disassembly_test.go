@@ -21,7 +21,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(1, 0))
 		def := &rawschema.Disassembly{
-			ToolCategory: new(rawschema.Prying),
+			ToolCategory: new("prying"),
 			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "2d1"}},
 		}
 
@@ -37,7 +37,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(2, 0))
 		def := &rawschema.Disassembly{
-			ToolCategory: new(rawschema.Prying),
+			ToolCategory: new("prying"),
 			Yields:       []rawschema.DisassemblyYield{{Id: "硬木", Count: "1d3"}},
 		}
 
@@ -57,7 +57,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(3, 0))
 		def := &rawschema.Disassembly{
-			ToolCategory: new(rawschema.Precision),
+			ToolCategory: new("precision"),
 			Yields:       []rawschema.DisassemblyYield{{Id: "ネジ", Count: "1d1", Chance: new(rawschema.DisassemblyChance(60))}},
 		}
 
@@ -73,7 +73,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(4, 0))
 		def := &rawschema.Disassembly{
-			ToolCategory: new(rawschema.Precision),
+			ToolCategory: new("precision"),
 			Yields:       []rawschema.DisassemblyYield{{Id: "ネジ", Count: "1d1", Chance: new(rawschema.DisassemblyChance(50))}},
 		}
 
@@ -92,7 +92,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(5, 0))
 		def := &rawschema.Disassembly{
-			ToolCategory: new(rawschema.Prying),
+			ToolCategory: new("prying"),
 			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 			Bonus:        &[]rawschema.DisassemblyBonus{{Id: "鉄", Count: "1d1", MinSkill: new(rawschema.SkillLevel(10))}},
 		}
@@ -112,7 +112,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(6, 0))
 		def := &rawschema.Disassembly{
-			ToolCategory: new(rawschema.Prying),
+			ToolCategory: new("prying"),
 			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 			Bonus:        &[]rawschema.DisassemblyBonus{{Id: "鉄", Count: "1d1", MinGrade: new(rawschema.ToolGrade(2))}},
 		}
@@ -132,7 +132,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(8, 0))
 		def := &rawschema.Disassembly{
-			ToolCategory: new(rawschema.Prying),
+			ToolCategory: new("prying"),
 			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 			Bonus: &[]rawschema.DisassemblyBonus{
 				{Id: "鉄", Count: "1d1", MinSkill: new(rawschema.SkillLevel(10)), MinGrade: new(rawschema.ToolGrade(2))},
@@ -159,7 +159,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(9, 0))
 		def := &rawschema.Disassembly{
-			ToolCategory: new(rawschema.Prying),
+			ToolCategory: new("prying"),
 			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 			Bonus:        &[]rawschema.DisassemblyBonus{{Id: "鉄", Count: "1d1"}},
 		}
@@ -174,7 +174,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(7, 0))
 		def := &rawschema.Disassembly{
-			ToolCategory: new(rawschema.Prying),
+			ToolCategory: new("prying"),
 			Yields: []rawschema.DisassemblyYield{
 				{Id: "鉄くず", Count: "1d1"},
 				{Id: "ネジ", Count: "1d1", Chance: new(rawschema.DisassemblyChance(100))},
@@ -200,7 +200,7 @@ func TestRollDisassemblyYields(t *testing.T) {
 		t.Parallel()
 		rng := rand.New(rand.NewPCG(10, 0))
 		def := &rawschema.Disassembly{
-			ToolCategory: new(rawschema.Prying),
+			ToolCategory: new("prying"),
 			Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "invalid"}},
 		}
 

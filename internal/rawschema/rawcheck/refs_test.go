@@ -18,8 +18,10 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		return rawschema.Tile{Id: id, Name: id, Description: id, SpriteRender: render(id), Spawn: spawn}
 	}
 	raws := rawschema.Raws{
-		Materials: &[]rawschema.MaterialDef{{Id: rawschema.METAL, Name: "Metal", Disassembly: &rawschema.MaterialDisassembly{Item: "iron", PerWeight: "1 kg"}}},
-		Recipes:   &[]rawschema.Recipe{{Id: "iron", Name: "Iron", Inputs: []rawschema.RecipeInput{{Id: "iron", Amount: 1}}}},
+		ToolCategories: &[]rawschema.ToolCategory{{Id: "mining"}},
+		AmmoKinds:      &[]rawschema.AmmoKind{{Id: "9mm"}},
+		Materials:      &[]rawschema.MaterialDef{{Id: rawschema.METAL, Name: "Metal", Disassembly: &rawschema.MaterialDisassembly{Item: "iron", PerWeight: "1 kg"}}},
+		Recipes:        &[]rawschema.Recipe{{Id: "iron", Name: "Iron", Inputs: []rawschema.RecipeInput{{Id: "iron", Amount: 1}}}},
 		Items: &[]rawschema.Item{{
 			Id: "iron", Name: "Iron", Description: "Iron", SpriteSheetName: "field", SpriteKey: "iron",
 			Consumable: &rawschema.Consumable{TargetGroup: rawschema.TargetGroupALLY, TargetNum: rawschema.SINGLE},
@@ -149,6 +151,13 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"コマンドテーブルの体の攻撃と武器の両方", func(r *rawschema.Raws) { (*r.CommandTables)[0].Entries[0].Item = new("iron") }, "commandTables.0.entries.0.itemAbsent"},
 		{"コマンドテーブルの体の攻撃も武器も無い", func(r *rawschema.Raws) { (*r.CommandTables)[0].Entries[0].BodyAttack = nil }, "commandTables.0.entries.0.item"},
 		{"ドロップテーブルの素材", func(r *rawschema.Raws) { (*r.DropTables)[0].Entries[0].Id = "none" }, "dropTables.0.entries.0.id_ref"},
+		{"道具の分類", func(r *rawschema.Raws) {
+			(*r.Items)[0].Tool = &rawschema.Tool{Categories: []rawschema.ToolCategoryId{"none"}, Grade: 1}
+		}, "items.0.tool.categories_ref.0"},
+		{"分解の道具の分類", func(r *rawschema.Raws) { (*r.Props)[0].Disassembly.ToolCategory = new("none") }, "props.0.disassembly.toolCategory_ref"},
+		{"弾の口径", func(r *rawschema.Raws) {
+			(*r.Items)[0].Ammo = &rawschema.Ammo{AmmoTag: new("none"), DamageBonus: 1, AccuracyBonus: 1}
+		}, "items.0.ammo.ammoTag_ref"},
 		{"施設の敵テーブル", func(r *rawschema.Raws) { (*r.Facilities)[0].EnemyTable = "none" }, "facilities.0.enemyTable_ref"},
 		{"ランドマークの施設", func(r *rawschema.Raws) { (*r.Landmarks)[0].Id = "none" }, "landmarks.0.id_ref"},
 		{"区域の塀の家具", func(r *rawschema.Raws) { (*r.Districts)[0].Fence = new(rawschema.EntityID("none")) }, "districts.0.fence_ref"},
@@ -218,6 +227,8 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"地面の飾り", func(r *rawschema.Raws) { *r.Decors = append(*r.Decors, (*r.Decors)[0]) }, "decorIds_unique.moss"},
 		{"散布ゾーン", func(r *rawschema.Raws) { *r.ScatterZones = append(*r.ScatterZones, (*r.ScatterZones)[0]) }, "scatterZoneIds_unique.meadow"},
 		{"地図記号", func(r *rawschema.Raws) { *r.MapGlyphs = append(*r.MapGlyphs, (*r.MapGlyphs)[0]) }, "mapGlyphIds_unique.house"},
+		{"道具の分類", func(r *rawschema.Raws) { *r.ToolCategories = append(*r.ToolCategories, (*r.ToolCategories)[0]) }, "toolCategoryIds_unique.mining"},
+		{"弾の口径", func(r *rawschema.Raws) { *r.AmmoKinds = append(*r.AmmoKinds, (*r.AmmoKinds)[0]) }, `ammoKindIds_unique."9mm"`},
 		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.village"},
 		{"部位", func(r *rawschema.Raws) { *r.BodyParts = append(*r.BodyParts, (*r.BodyParts)[0]) }, "bodyPartIds_unique.arm"},
 		{"不調", func(r *rawschema.Raws) { *r.Conditions = append(*r.Conditions, (*r.Conditions)[0]) }, "conditionIds_unique.fracture"},

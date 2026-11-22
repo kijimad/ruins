@@ -1,3 +1,15 @@
+[[ammoKinds]]
+  id = "9mm"
+
+[[ammoKinds]]
+  id = "rifle"
+
+[[ammoKinds]]
+  id = "shell"
+
+[[ammoKinds]]
+  id = "energy_cell"
+
 [[attackTypes]]
   accuracy = "sword_accuracy"
   damage = "sword_damage"

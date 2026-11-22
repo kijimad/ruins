@@ -12,7 +12,7 @@ func TestFindDisassembly(t *testing.T) {
 	t.Parallel()
 
 	propDisassembly := &rawschema.Disassembly{
-		ToolCategory: new(rawschema.Prying),
+		ToolCategory: new("prying"),
 		Yields:       []rawschema.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 	}
 	raws := rawschema.Raws{
@@ -48,7 +48,7 @@ func TestFindTool(t *testing.T) {
 	t.Parallel()
 
 	tool := &rawschema.Tool{
-		Categories: []rawschema.ToolCategory{rawschema.Prying, rawschema.Cutting},
+		Categories: []rawschema.ToolCategoryId{"prying", "cutting"},
 		Grade:      2,
 	}
 	raws := rawschema.Raws{

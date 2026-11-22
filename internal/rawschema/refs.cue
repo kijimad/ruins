@@ -21,6 +21,8 @@ decors?:           _
 conditions?:       _
 bodyParts?:        _
 fuelKinds?:        _
+toolCategories?:   _
+ammoKinds?:        _
 skills?:           _
 skillCategories?:  _
 dialogues?:        _
@@ -59,6 +61,8 @@ _itemIDs: {if items != _|_ for x in items {(x.id): true}}
 _bodyAttackIDs: {if bodyAttacks != _|_ for x in bodyAttacks {(x.id): true}}
 _meleeItemIDs: {if items != _|_ for x in items if x.melee != _|_ {(x.id): true}}
 _fuelKindIDs: {if fuelKinds != _|_ for x in fuelKinds {(x.id): true}}
+_toolCategoryIDs: {if toolCategories != _|_ for x in toolCategories {(x.id): true}}
+_ammoKindIDs: {if ammoKinds != _|_ for x in ammoKinds {(x.id): true}}
 _memberIDs: {if members != _|_ for x in members {(x.id): true}}
 _commandTableIDs: {if commandTables != _|_ for x in commandTables {(x.id): true}}
 _dropTableIDs: {if dropTables != _|_ for x in dropTables {(x.id): true}}

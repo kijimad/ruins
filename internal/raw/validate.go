@@ -357,7 +357,6 @@ func validateCodeRows(raws rawschema.Raws) error {
 		ids    []string
 	}{
 		{"Material", enumStrings(rawschema.MaterialValues()), rowIDs(PtrSlice(raws.Materials), func(r rawschema.MaterialDef) rawschema.Material { return r.Id })},
-		{"ToolCategory", enumStrings(rawschema.ToolCategoryValues()), rowIDs(PtrSlice(raws.ToolCategories), func(r rawschema.ToolCategoryDef) rawschema.ToolCategory { return r.Id })},
 	}
 	for _, e := range enumRows {
 		if err := validateEnumRows(e.schema, e.values, e.ids); err != nil {
