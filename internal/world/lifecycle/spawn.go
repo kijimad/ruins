@@ -299,7 +299,8 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 	return nil
 }
 
-// SpawnStorageItem は収納内にアイテムを count 個生成する。戻り値はスタック代表としての1個。
+// SpawnStorageItem は収納内にアイテムを count 個生成する。戻り値はスタック代表としての1個。残量は満タンで生まれる。
+// 地図に置く見つかる物は SpawnStorageLoot で作る
 func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {
 	items, err := spawnStorageItems(world, itemName, count, storage)
 	if err != nil {
@@ -337,7 +338,8 @@ func spawnStorageItems(world w.World, itemName string, count int, storage ecs.En
 	return items, nil
 }
 
-// SpawnFieldItem はフィールド上に同じ位置へアイテムを count 個生成する。戻り値はスタック代表としての1個。
+// SpawnFieldItem はフィールド上に同じ位置へアイテムを count 個生成する。戻り値はスタック代表としての1個。残量は満タンで生まれる。
+// 地図に置く見つかる物は SpawnFieldLoot で作る
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {
 	items, err := spawnFieldItems(world, itemName, x, y, count)
 	if err != nil {
