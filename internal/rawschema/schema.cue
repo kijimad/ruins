@@ -858,7 +858,7 @@ import (
 // キューブの核。使うと隣に新しいキューブが組み上がる
 #CubeCore: {}
 
-// タイルの植生の表。植生がタイルの気温に足す補正を持つ。植生を足すときは raw にこの表の行を1つ足す
+// タイルの植生の表。raw の foliageEffects の行で、植生がタイルの気温に足す補正を持つ。植生を足すときは raw にこの表の行を1つ足す
 #Foliage: {
 	id!:           #FoliageId
 	tempModifier!: #TileTempModifier

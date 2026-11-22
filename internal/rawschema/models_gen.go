@@ -1147,7 +1147,7 @@ type Fire struct {
 // FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 type FireStarter = map[string]interface{}
 
-// Foliage タイルの植生の表。植生がタイルの気温に足す補正を持つ。植生を足すときは raw にこの表の行を1つ足す
+// Foliage タイルの植生の表。raw の foliageEffects の行で、植生がタイルの気温に足す補正を持つ。植生を足すときは raw にこの表の行を1つ足す
 type Foliage struct {
 	Id FoliageId `json:"id"`
 
