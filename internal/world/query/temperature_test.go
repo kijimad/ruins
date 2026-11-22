@@ -101,7 +101,7 @@ func TestTileEnvironmentAt(t *testing.T) {
 		world.Components.TileEnvironment.Add(tile, &gc.TileEnvironment{
 			Shelter: rawschema.Outdoor,
 			Water:   rawschema.Nearby,
-			Foliage: rawschema.FoliageForest,
+			Foliage: "forest",
 		})
 
 		shelter, modifier := query.TileEnvironmentAt(world, 5, 5)

@@ -24,7 +24,7 @@ type itemUseCheck struct {
 
 // itemUseChecks は物 it の使い道の判定を表に並べる順で返す。燃料と解体は素材の表から、作成の材料はレシピから決まる。
 // 使い道を足すときはここへ1行足すだけで、判定と並び順が揃う
-func itemUseChecks(it *rawschema.Item, material rawschema.MaterialDef, recipeInputs map[rawschema.EntityID]bool) []itemUseCheck {
+func itemUseChecks(it *rawschema.Item, material rawschema.Material, recipeInputs map[rawschema.EntityID]bool) []itemUseCheck {
 	eat := it.ProvidesNutrition != nil
 	heal := it.ProvidesHealing != nil || it.Remedy != nil
 	throw := it.Throw != nil
@@ -55,7 +55,7 @@ func itemUseChecks(it *rawschema.Item, material rawschema.MaterialDef, recipeInp
 
 // itemUsesReport は物の使い道の統計を Markdown の表にする
 func itemUsesReport(raws rawschema.Raws) (string, error) {
-	materials := map[rawschema.Material]rawschema.MaterialDef{}
+	materials := map[rawschema.MaterialId]rawschema.Material{}
 	for _, m := range PtrSlice(raws.Materials) {
 		materials[m.Id] = m
 	}
@@ -71,13 +71,13 @@ func itemUsesReport(raws rawschema.Raws) (string, error) {
 	byUse := map[itemUse]int{}
 	byCombo := map[string]int{}
 	noUse := []string{}
-	columns := itemUseChecks(&rawschema.Item{}, rawschema.MaterialDef{}, nil)
+	columns := itemUseChecks(&rawschema.Item{}, rawschema.Material{}, nil)
 	order := make([]itemUse, 0, len(columns))
 	for _, c := range columns {
 		order = append(order, c.use)
 	}
 	for i := range items {
-		var material rawschema.MaterialDef
+		var material rawschema.Material
 		if items[i].Material != nil {
 			m, ok := materials[*items[i].Material]
 			if !ok {

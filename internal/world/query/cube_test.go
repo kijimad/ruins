@@ -88,7 +88,7 @@ func TestActiveCube(t *testing.T) {
 
 // addCubeStorageItem はキューブ収納に材質と重量を持つアイテムを1つ足す。
 // 生エンティティで足りる query 層のユニットテスト用。
-func addCubeStorageItem(t *testing.T, world w.World, cube ecs.Entity, kind rawschema.Material, mg consts.Milligram) {
+func addCubeStorageItem(t *testing.T, world w.World, cube ecs.Entity, kind rawschema.MaterialId, mg consts.Milligram) {
 	t.Helper()
 	e := world.ECS.NewEntity()
 	world.Components.Material.Add(e, &gc.Material{Kind: kind})
@@ -102,7 +102,7 @@ func TestCubeFuelTotal_燃料ポイントを返し収納の可燃物は数えな
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
 	require.NoError(t, err)
 	world.Components.FuelTank.Get(cube).Current = 1200
-	addCubeStorageItem(t, world, cube, rawschema.COAL, consts.Milligram(2*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, cube, "coal", consts.Milligram(2*consts.MilligramPerKg))
 
 	assert.Equal(t, consts.Heat(1200), query.CubeFuelTotal(world, cube))
 }
@@ -121,8 +121,8 @@ func TestCubeWeight_収納の物を合算する(t *testing.T) {
 	cube := world.ECS.NewEntity()
 
 	// 材質は重量に無関係。addCubeStorageItem は Weight と収納所属を付ける
-	addCubeStorageItem(t, world, cube, rawschema.STONE, consts.Milligram(2*consts.MilligramPerKg))
-	addCubeStorageItem(t, world, cube, rawschema.STONE, consts.Milligram(3*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, cube, "stone", consts.Milligram(2*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, cube, "stone", consts.Milligram(3*consts.MilligramPerKg))
 
 	assert.Equal(t, consts.Milligram(5*consts.MilligramPerKg), query.CubeWeight(world, cube))
 }
@@ -313,8 +313,8 @@ func TestCubeWeight_別の収納の物は数えない(t *testing.T) {
 	cube := world.ECS.NewEntity()
 	other := world.ECS.NewEntity()
 
-	addCubeStorageItem(t, world, cube, rawschema.STONE, consts.Milligram(2*consts.MilligramPerKg))
-	addCubeStorageItem(t, world, other, rawschema.STONE, consts.Milligram(9*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, cube, "stone", consts.Milligram(2*consts.MilligramPerKg))
+	addCubeStorageItem(t, world, other, "stone", consts.Milligram(9*consts.MilligramPerKg))
 
 	assert.Equal(t, consts.Milligram(2*consts.MilligramPerKg), query.CubeWeight(world, cube), "別の収納の物は除外する")
 }

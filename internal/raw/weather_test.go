@@ -179,22 +179,22 @@ func TestNewMaterialDefs_実データ(t *testing.T) {
 		return &gc.MaterialDisassembly{Item: item, PerWeight: per}
 	}
 	assert.Equal(t, gc.MaterialDefs{
-		rawschema.WOOD:    {Name: "Wood", HeatPerKg: 200, Disassembly: disassembly("branch", 300*consts.MilligramPerGram)},
-		rawschema.PAPER:   {Name: "Paper", HeatPerKg: 300},
-		rawschema.CLOTH:   {Name: "Cloth", HeatPerKg: 160, Disassembly: disassembly("rag", 100*consts.MilligramPerGram)},
-		rawschema.LEATHER: {Name: "Leather", HeatPerKg: 120, Disassembly: disassembly("leather_scrap", 200*consts.MilligramPerGram)},
-		rawschema.PLANT:   {Name: "Plant fiber", HeatPerKg: 120},
-		rawschema.FOOD:    {Name: "Food", HeatPerKg: 60},
-		rawschema.BONE:    {Name: "Bone", HeatPerKg: 40, Disassembly: disassembly("ancient_bone", 200*consts.MilligramPerGram)},
-		rawschema.OIL:     {Name: "Oil", HeatPerKg: 1000},
-		rawschema.COAL:    {Name: "Coal", HeatPerKg: 800},
-		rawschema.PLASTIC: {Name: "Plastic", HeatPerKg: 240},
-		rawschema.METAL:   {Name: "Metal", HeatPerKg: 0, Disassembly: disassembly("scrap_iron", consts.MilligramPerKg)},
-		rawschema.STONE:   {Name: "Stone", HeatPerKg: 0, Disassembly: disassembly("stone", consts.MilligramPerKg)},
-		rawschema.GLASS:   {Name: "Glass", HeatPerKg: 0},
-		rawschema.CRYSTAL: {Name: "Crystal", HeatPerKg: 0, Disassembly: disassembly("crystal_powder", 100*consts.MilligramPerGram)},
-		rawschema.CERAMIC: {Name: "Ceramic", HeatPerKg: 0},
-		rawschema.LIQUID:  {Name: "Liquid", HeatPerKg: 0},
+		"wood":    {Name: "Wood", HeatPerKg: 200, Disassembly: disassembly("branch", 300*consts.MilligramPerGram)},
+		"paper":   {Name: "Paper", HeatPerKg: 300},
+		"cloth":   {Name: "Cloth", HeatPerKg: 160, Disassembly: disassembly("rag", 100*consts.MilligramPerGram)},
+		"leather": {Name: "Leather", HeatPerKg: 120, Disassembly: disassembly("leather_scrap", 200*consts.MilligramPerGram)},
+		"plant":   {Name: "Plant fiber", HeatPerKg: 120},
+		"food":    {Name: "Food", HeatPerKg: 60},
+		"bone":    {Name: "Bone", HeatPerKg: 40, Disassembly: disassembly("ancient_bone", 200*consts.MilligramPerGram)},
+		"oil":     {Name: "Oil", HeatPerKg: 1000},
+		"coal":    {Name: "Coal", HeatPerKg: 800},
+		"plastic": {Name: "Plastic", HeatPerKg: 240},
+		"metal":   {Name: "Metal", HeatPerKg: 0, Disassembly: disassembly("scrap_iron", consts.MilligramPerKg)},
+		"stone":   {Name: "Stone", HeatPerKg: 0, Disassembly: disassembly("stone", consts.MilligramPerKg)},
+		"glass":   {Name: "Glass", HeatPerKg: 0},
+		"crystal": {Name: "Crystal", HeatPerKg: 0, Disassembly: disassembly("crystal_powder", 100*consts.MilligramPerGram)},
+		"ceramic": {Name: "Ceramic", HeatPerKg: 0},
+		"liquid":  {Name: "Liquid", HeatPerKg: 0},
 	}, defs)
 }
 
@@ -212,45 +212,6 @@ func TestNewSkillDefs_道具の分類が伸ばすスキルの実データ(t *tes
 	}, defs.ToolSkills)
 }
 
-func TestValidateTileEffects(t *testing.T) {
-	t.Parallel()
-
-	full := func() rawschema.Raws {
-		return rawschema.Raws{
-			ShelterEffects: &[]rawschema.ShelterEffect{{Id: rawschema.Outdoor}, {Id: rawschema.Partial}, {Id: rawschema.Indoor}},
-			WaterEffects:   &[]rawschema.WaterEffect{{Id: rawschema.Nearby, TempModifier: -5}, {Id: rawschema.Submerged, TempModifier: -10}},
-			FoliageEffects: &[]rawschema.FoliageEffect{{Id: rawschema.FoliageGrass, TempModifier: -1}, {Id: rawschema.FoliageForest, TempModifier: -3}},
-		}
-	}
-	tests := []struct {
-		name    string
-		mutate  func(*rawschema.Raws)
-		wantErr error
-	}{
-		{name: "全値の行があれば通る", mutate: func(*rawschema.Raws) {}},
-		{
-			name: "植生の行が重複する",
-			mutate: func(r *rawschema.Raws) {
-				*r.FoliageEffects = append(*r.FoliageEffects, rawschema.FoliageEffect{Id: rawschema.FoliageGrass})
-			},
-			wantErr: errDuplicateID,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			raws := full()
-			tt.mutate(&raws)
-			err := validateTileEffects(raws)
-			if tt.wantErr == nil {
-				require.NoError(t, err)
-				return
-			}
-			require.ErrorIs(t, err, tt.wantErr)
-		})
-	}
-}
-
 func TestNewTileEnvDefs_実データ(t *testing.T) {
 	t.Parallel()
 
@@ -263,6 +224,6 @@ func TestNewTileEnvDefs_実データ(t *testing.T) {
 			rawschema.Indoor:  {Name: "Indoor", AnchorTemp: 15, InfluencePercent: 25, Covered: true, DaylightPercent: 25},
 		},
 		Water:   map[rawschema.WaterExposure]int{rawschema.Nearby: -5, rawschema.Submerged: -10},
-		Foliage: map[rawschema.Foliage]int{rawschema.FoliageGrass: -1, rawschema.FoliageForest: -3},
+		Foliage: map[rawschema.FoliageId]int{"grass": -1, "forest": -3},
 	}, NewTileEnvDefs(raws))
 }

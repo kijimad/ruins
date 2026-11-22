@@ -53,7 +53,6 @@ func validateRules(raws rawschema.Raws) error {
 		validateConditions,
 		validateRemedies,
 		validateWeathers,
-		validateTileEffects,
 		validateGrounds,
 		validateNeedStages,
 		validateFlatShapes,
@@ -351,19 +350,6 @@ func validateCodeRows(raws rawschema.Raws) error {
 	if _, err := FindBodyAttack(raws, BareHands); err != nil {
 		return fmt.Errorf("%w: %w", errBareHandsMissing, err)
 	}
-	enumRows := []struct {
-		schema string
-		values []string
-		ids    []string
-	}{
-		{"Material", enumStrings(rawschema.MaterialValues()), rowIDs(PtrSlice(raws.Materials), func(r rawschema.MaterialDef) rawschema.Material { return r.Id })},
-	}
-	for _, e := range enumRows {
-		if err := validateEnumRows(e.schema, e.values, e.ids); err != nil {
-			return err
-		}
-	}
-
 	required := []struct {
 		name    string
 		present bool
@@ -472,16 +458,6 @@ func validateGrounds(raws rawschema.Raws) error {
 		d := &dungeons[i]
 		if d.Ground != nil && !earth[*d.Ground] {
 			return fmt.Errorf("dungeon %q ground %q: %w", d.Id, *d.Ground, errGroundNotEarth)
-		}
-	}
-	return nil
-}
-
-// validateTileEffects は植生の行が enum の全値を1回ずつ持つことを検証する
-func validateTileEffects(raws rawschema.Raws) error {
-	if foliage := PtrSlice(raws.FoliageEffects); len(foliage) > 0 {
-		if err := validateEnumRows("Foliage", enumStrings(rawschema.FoliageValues()), rowIDs(foliage, func(f rawschema.FoliageEffect) rawschema.Foliage { return f.Id })); err != nil {
-			return err
 		}
 	}
 	return nil

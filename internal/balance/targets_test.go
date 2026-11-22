@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -69,8 +68,8 @@ func TestBaselineSnapshot_物流(t *testing.T) {
 	require.NoError(t, err)
 	assert.InDelta(t, 600, FollowRangeTiles(consts.CubeFuelCapacityBase, 0), 1, "満タンで積荷0の航続")
 	assert.InDelta(t, 120, FollowRangeTiles(consts.CubeFuelCapacityBase, 20*consts.MilligramPerKg), 1, "満タンで積荷20kgの航続")
-	assert.Equal(t, 5000, FuelBurnTurns(defs, rawschema.OIL, 10), "OIL 10kg の燃焼ターン")
-	assert.Equal(t, 1000, FuelBurnTurns(defs, rawschema.WOOD, 10), "WOOD 10kg の燃焼ターン")
+	assert.Equal(t, 5000, FuelBurnTurns(defs, "oil", 10), "oil 10kg の燃焼ターン")
+	assert.Equal(t, 1000, FuelBurnTurns(defs, "wood", 10), "wood 10kg の燃焼ターン")
 }
 
 func TestBaselineSnapshot_気候(t *testing.T) {

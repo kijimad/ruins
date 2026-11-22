@@ -20,7 +20,8 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	raws := rawschema.Raws{
 		ToolCategories: &[]rawschema.ToolCategory{{Id: "mining"}},
 		AmmoKinds:      &[]rawschema.AmmoKind{{Id: "9mm"}},
-		Materials:      &[]rawschema.MaterialDef{{Id: rawschema.METAL, Name: "Metal", Disassembly: &rawschema.MaterialDisassembly{Item: "iron", PerWeight: "1 kg"}}},
+		FoliageEffects: &[]rawschema.Foliage{{Id: "grass", TempModifier: -1}},
+		Materials:      &[]rawschema.Material{{Id: "metal", Name: "Metal", Disassembly: &rawschema.MaterialDisassembly{Item: "iron", PerWeight: "1 kg"}}},
 		Recipes:        &[]rawschema.Recipe{{Id: "iron", Name: "Iron", Inputs: []rawschema.RecipeInput{{Id: "iron", Amount: 1}}}},
 		Items: &[]rawschema.Item{{
 			Id: "iron", Name: "Iron", Description: "Iron", SpriteSheetName: "field", SpriteKey: "iron",
@@ -154,6 +155,8 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"道具の分類", func(r *rawschema.Raws) {
 			(*r.Items)[0].Tool = &rawschema.Tool{Categories: []rawschema.ToolCategoryId{"none"}, Grade: 1}
 		}, "items.0.tool.categories_ref.0"},
+		{"アイテムの材質", func(r *rawschema.Raws) { (*r.Items)[0].Material = new("none") }, "itemMaterials_ref.iron"},
+		{"タイルの植生", func(r *rawschema.Raws) { (*r.Tiles)[1].Foliage = new("none") }, "tiles.1.foliage_ref"},
 		{"分解の道具の分類", func(r *rawschema.Raws) { (*r.Props)[0].Disassembly.ToolCategory = new("none") }, "props.0.disassembly.toolCategory_ref"},
 		{"弾の口径", func(r *rawschema.Raws) {
 			(*r.Items)[0].Ammo = &rawschema.Ammo{AmmoTag: new("none"), DamageBonus: 1, AccuracyBonus: 1}
@@ -227,6 +230,8 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"地面の飾り", func(r *rawschema.Raws) { *r.Decors = append(*r.Decors, (*r.Decors)[0]) }, "decorIds_unique.moss"},
 		{"散布ゾーン", func(r *rawschema.Raws) { *r.ScatterZones = append(*r.ScatterZones, (*r.ScatterZones)[0]) }, "scatterZoneIds_unique.meadow"},
 		{"地図記号", func(r *rawschema.Raws) { *r.MapGlyphs = append(*r.MapGlyphs, (*r.MapGlyphs)[0]) }, "mapGlyphIds_unique.house"},
+		{"材質", func(r *rawschema.Raws) { *r.Materials = append(*r.Materials, (*r.Materials)[0]) }, "materialIds_unique.metal"},
+		{"植生", func(r *rawschema.Raws) { *r.FoliageEffects = append(*r.FoliageEffects, (*r.FoliageEffects)[0]) }, "foliageEffectIds_unique.grass"},
 		{"道具の分類", func(r *rawschema.Raws) { *r.ToolCategories = append(*r.ToolCategories, (*r.ToolCategories)[0]) }, "toolCategoryIds_unique.mining"},
 		{"弾の口径", func(r *rawschema.Raws) { *r.AmmoKinds = append(*r.AmmoKinds, (*r.AmmoKinds)[0]) }, `ammoKindIds_unique."9mm"`},
 		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.village"},

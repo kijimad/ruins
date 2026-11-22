@@ -1147,38 +1147,15 @@ type Fire struct {
 // FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 type FireStarter = map[string]interface{}
 
-// Foliage タイルの植生
-type Foliage string
-
-// Defines values for Foliage.
-const (
-	FoliageForest Foliage = "forest"
-	FoliageGrass  Foliage = "grass"
-)
-
-// Valid indicates whether the value is a known member of the Foliage enum.
-func (e Foliage) Valid() bool {
-	switch e {
-	case FoliageForest:
-		return true
-	case FoliageGrass:
-		return true
-	default:
-		return false
-	}
-}
-
-// FoliageValues は Foliage の値を、スキーマに書いた順に返す。
-func FoliageValues() []Foliage {
-	return []Foliage{FoliageGrass, FoliageForest}
-}
-
-// FoliageEffect 植生がタイルの気温に足す補正
-type FoliageEffect struct {
-	Id Foliage `json:"id"`
+// Foliage タイルの植生の表。植生がタイルの気温に足す補正を持つ。植生を足すときは raw にこの表の行を1つ足す
+type Foliage struct {
+	Id FoliageId `json:"id"`
 
 	TempModifier TileTempModifier `json:"tempModifier"`
 }
+
+// FoliageId 植生の id
+type FoliageId = TableId
 
 // FreshnessStage 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合
 type FreshnessStage struct {
@@ -1441,7 +1418,7 @@ type Item struct {
 	LightSource *LightSource `json:"lightSource,omitempty"`
 
 	// Material 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
-	Material *Material `json:"material,omitempty"`
+	Material *MaterialId `json:"material,omitempty"`
 
 	Melee *Melee `json:"melee,omitempty"`
 
@@ -1611,89 +1588,21 @@ type MapGlyph struct {
 	Order int32 `json:"order"`
 }
 
-// Material 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-// 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
-type Material string
-
-// Defines values for Material.
-const (
-	BONE    Material = "BONE"
-	CERAMIC Material = "CERAMIC"
-	CLOTH   Material = "CLOTH"
-	COAL    Material = "COAL"
-	CRYSTAL Material = "CRYSTAL"
-	FOOD    Material = "FOOD"
-	GLASS   Material = "GLASS"
-	LEATHER Material = "LEATHER"
-	LIQUID  Material = "LIQUID"
-	METAL   Material = "METAL"
-	OIL     Material = "OIL"
-	PAPER   Material = "PAPER"
-	PLANT   Material = "PLANT"
-	PLASTIC Material = "PLASTIC"
-	STONE   Material = "STONE"
-	WOOD    Material = "WOOD"
-)
-
-// Valid indicates whether the value is a known member of the Material enum.
-func (e Material) Valid() bool {
-	switch e {
-	case BONE:
-		return true
-	case CERAMIC:
-		return true
-	case CLOTH:
-		return true
-	case COAL:
-		return true
-	case CRYSTAL:
-		return true
-	case FOOD:
-		return true
-	case GLASS:
-		return true
-	case LEATHER:
-		return true
-	case LIQUID:
-		return true
-	case METAL:
-		return true
-	case OIL:
-		return true
-	case PAPER:
-		return true
-	case PLANT:
-		return true
-	case PLASTIC:
-		return true
-	case STONE:
-		return true
-	case WOOD:
-		return true
-	default:
-		return false
-	}
-}
-
-// MaterialValues は Material の値を、スキーマに書いた順に返す。
-func MaterialValues() []Material {
-	return []Material{WOOD, PAPER, CLOTH, LEATHER, PLANT, FOOD, BONE, OIL, COAL, PLASTIC, METAL, STONE, GLASS, CRYSTAL, CERAMIC, LIQUID}
-}
-
-// MaterialAmount 素材必要数
-type MaterialAmount = int
-
-// MaterialDef 材質の表示名と燃焼の熱量
-type MaterialDef struct {
+// Material 材質の表。表示名と燃焼の熱量を持つ。燃料熱量は材質のkgあたり熱量へ重量を掛けて導き、
+// 不燃の材質は係数0で燃料にならない。材質を足すときは raw にこの表の行を1つ足す
+type Material struct {
 	// Disassembly 分解で戻る素材。無い材質のアイテムは分解できない
 	Disassembly *MaterialDisassembly `json:"disassembly,omitempty"`
 
 	HeatPerKg HeatPerKg `json:"heatPerKg"`
 
-	Id Material `json:"id"`
+	Id MaterialId `json:"id"`
 
 	Name EntityName `json:"name"`
 }
+
+// MaterialAmount 素材必要数
+type MaterialAmount = int
 
 // MaterialDisassembly 材質のアイテムを分解したときに戻る素材
 type MaterialDisassembly struct {
@@ -1702,6 +1611,9 @@ type MaterialDisassembly struct {
 	// PerWeight 素材1個に要るアイテムの重さ
 	PerWeight Weight `json:"perWeight"`
 }
+
+// MaterialId 材質の id
+type MaterialId = TableId
 
 // Melee 近接攻撃設定
 type Melee struct {
@@ -2178,7 +2090,7 @@ type Raws struct {
 
 	FatigueStages *[]FatigueStage `json:"fatigueStages,omitempty"`
 
-	FoliageEffects *[]FoliageEffect `json:"foliageEffects,omitempty"`
+	FoliageEffects *[]Foliage `json:"foliageEffects,omitempty"`
 
 	FreshnessStages *[]FreshnessStage `json:"freshnessStages,omitempty"`
 
@@ -2202,7 +2114,7 @@ type Raws struct {
 
 	MapGlyphs *[]MapGlyph `json:"mapGlyphs,omitempty"`
 
-	Materials *[]MaterialDef `json:"materials,omitempty"`
+	Materials *[]Material `json:"materials,omitempty"`
 
 	Members *[]Member `json:"members,omitempty"`
 
@@ -2976,7 +2888,7 @@ type Tile struct {
 	Earth *bool `json:"earth,omitempty"`
 
 	// Foliage 植生。省くと植生なし
-	Foliage *Foliage `json:"foliage,omitempty"`
+	Foliage *FoliageId `json:"foliage,omitempty"`
 
 	// Id ground は施設のパレットで下地を残す地形の予約語なので、タイルの id に使わない
 	Id EntityID `json:"id"`

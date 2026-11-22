@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
@@ -23,12 +22,12 @@ func TestAddFuel(t *testing.T) {
 		world.Components.Burning.Add(fire, &gc.Burning{Remaining: 0})
 
 		fuel := world.ECS.NewEntity()
-		world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
+		world.Components.Material.Add(fuel, &gc.Material{Kind: "wood"})
 		world.Components.Weight.Add(fuel, &gc.Weight{Milligram: 200 * consts.MilligramPerGram})
 
 		lifecycle.AddFuel(world, fire, fuel)
 
-		// WOOD 200/kg × 200g = 40。地面直の効率50%で 40*50/100 = 20 ターン
+		// wood 200/kg × 200g = 40。地面直の効率50%で 40*50/100 = 20 ターン
 		assert.Equal(t, consts.Turn(20), world.Components.Burning.Get(fire).Remaining, "残ターンへ畳み込む")
 		assert.False(t, world.ECS.Alive(fuel), "くべた燃料は消費される")
 	})
@@ -41,7 +40,7 @@ func TestAddFuel(t *testing.T) {
 		fire := world.ECS.NewEntity()
 
 		fuel := world.ECS.NewEntity()
-		world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
+		world.Components.Material.Add(fuel, &gc.Material{Kind: "wood"})
 		world.Components.Weight.Add(fuel, &gc.Weight{Milligram: 200 * consts.MilligramPerGram})
 
 		lifecycle.AddFuel(world, fire, fuel)

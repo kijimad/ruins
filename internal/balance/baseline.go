@@ -222,14 +222,14 @@ func RenderBaselineMarkdown(master rawschema.Raws, playerName, attackID string, 
 		return "", err
 	}
 	writeMDTable(&b, []string{"くべる燃料", "燃料ポイント", "積荷0の航続(歩)"}, []tw.Align{alignL, alignR, alignR}, [][]string{
-		{"OIL 10kg", fmt.Sprintf("%d", materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(rawschema.OIL, 10*consts.MilligramPerKg), 0))},
-		{"WOOD 10kg", fmt.Sprintf("%d", materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf(rawschema.WOOD, 10*consts.MilligramPerKg), 0))},
+		{"oil 10kg", fmt.Sprintf("%d", materials.HeatOf("oil", 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf("oil", 10*consts.MilligramPerKg), 0))},
+		{"wood 10kg", fmt.Sprintf("%d", materials.HeatOf("wood", 10*consts.MilligramPerKg)), fmt.Sprintf("%.0f", FollowRangeTiles(materials.HeatOf("wood", 10*consts.MilligramPerKg), 0))},
 	})
 
 	fmt.Fprintf(&b, "同じ燃料は火にくべると燃焼ターンになる。地面直の火は熱量の半分を時間へ変える。\n\n")
 	writeMDTable(&b, []string{"燃料", "燃焼ターン"}, []tw.Align{alignL, alignR}, [][]string{
-		{"OIL 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, rawschema.OIL, 10))},
-		{"WOOD 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, rawschema.WOOD, 10))},
+		{"oil 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, "oil", 10))},
+		{"wood 10kg", fmt.Sprintf("%d", FuelBurnTurns(materials, "wood", 10))},
 	})
 
 	// 感度行列。つまみ×メトリクスの横断ヤコビアン

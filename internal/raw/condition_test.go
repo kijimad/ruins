@@ -71,7 +71,6 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	freshness := enumRowsOf(enumStrings(rawschema.FreshnessStageIdValues()), func(id string) rawschema.FreshnessStage {
 		return rawschema.FreshnessStage{Id: rawschema.FreshnessStageId(id)}
 	})
-	materials := enumRowsOf(enumStrings(rawschema.MaterialValues()), func(id string) rawschema.MaterialDef { return rawschema.MaterialDef{Id: rawschema.Material(id)} })
 	timesOfDay := enumRowsOf(enumStrings(rawschema.TimeOfDayIdValues()), func(id string) rawschema.TimeOfDay { return rawschema.TimeOfDay{Id: rawschema.TimeOfDayId(id)} })
 	seasons := enumRowsOf(enumStrings(rawschema.SeasonIdValues()), func(id string) rawschema.Season { return rawschema.Season{Id: rawschema.SeasonId(id)} })
 	pointFeatures := enumRowsOf(enumStrings(rawschema.PointFeatureKindValues()), func(id string) rawschema.PointFeature {
@@ -85,7 +84,6 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Seasons:         &seasons,
 		PointFeatures:   &pointFeatures,
 		FreshnessStages: &freshness,
-		Materials:       &materials,
 		BodyParts:       &bodyParts,
 		Conditions:      &conditions,
 		AttackTypes:     &attackTypes,
@@ -94,7 +92,7 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Members:         &[]rawschema.Member{{Id: "ash", Player: new(true)}},
 		ShelterEffects:  &[]rawschema.ShelterEffect{{Id: rawschema.Outdoor}, {Id: rawschema.Partial}, {Id: rawschema.Indoor}},
 		WaterEffects:    &[]rawschema.WaterEffect{{Id: rawschema.Nearby}, {Id: rawschema.Submerged}},
-		FoliageEffects:  &[]rawschema.FoliageEffect{{Id: rawschema.FoliageGrass}, {Id: rawschema.FoliageForest}},
+		FoliageEffects:  &[]rawschema.Foliage{{Id: "grass"}, {Id: "forest"}},
 		HungerStages:    &[]rawschema.HungerStage{{Id: rawschema.HungerStageIdStarving}},
 		FatigueStages:   &[]rawschema.FatigueStage{{Id: rawschema.FatigueStageIdRested}},
 	}
@@ -227,13 +225,6 @@ func TestValidateCodeRows(t *testing.T) {
 				(*r.Skills)[sword].Proficiencies, (*r.Skills)[spear].Proficiencies = (*r.Skills)[spear].Proficiencies, (*r.Skills)[sword].Proficiencies
 			},
 			wantErr: errWeaponProficiencyOwner,
-		},
-		{
-			name: "材質の行が重複する",
-			mutate: func(r *rawschema.Raws) {
-				*r.Materials = append(*r.Materials, rawschema.MaterialDef{Id: rawschema.WOOD})
-			},
-			wantErr: errDuplicateID,
 		},
 		{
 			name: "集落が無い",

@@ -856,14 +856,14 @@ import (
 // キューブの核。使うと隣に新しいキューブが組み上がる
 #CubeCore: {}
 
-// タイルの植生
-#Foliage: "grass" | "forest" @rawgen(prefix)
-
-// 植生がタイルの気温に足す補正
-#FoliageEffect: {
-	id!:           #Foliage
+// タイルの植生の表。植生がタイルの気温に足す補正を持つ。植生を足すときは raw にこの表の行を1つ足す
+#Foliage: {
+	id!:           #FoliageId
 	tempModifier!: #TileTempModifier
 }
+
+// 植生の id
+#FoliageId: #TableId
 
 // 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合
 #FreshnessStage: {
@@ -1018,7 +1018,7 @@ import (
 	refill?: #Refill
 
 	// 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
-	material?: #Material
+	material?: #MaterialId
 
 	// 火種。所持していると隣接の燃焼物に着火できる
 	fireStarter?: #FireStarter
@@ -1149,22 +1149,22 @@ import (
 	chunk?: #GlyphChunk
 }
 
-// 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-// 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
-#Material: "WOOD" | "PAPER" | "CLOTH" | "LEATHER" | "PLANT" | "FOOD" | "BONE" | "OIL" | "COAL" | "PLASTIC" | "METAL" | "STONE" | "GLASS" | "CRYSTAL" | "CERAMIC" | "LIQUID"
-
-// 素材必要数
-#MaterialAmount: int & >=1 & <=99
-
-// 材質の表示名と燃焼の熱量
-#MaterialDef: {
-	id!:        #Material
+// 材質の表。表示名と燃焼の熱量を持つ。燃料熱量は材質のkgあたり熱量へ重量を掛けて導き、
+// 不燃の材質は係数0で燃料にならない。材質を足すときは raw にこの表の行を1つ足す
+#Material: {
+	id!:        #MaterialId
 	name!:      #EntityName
 	heatPerKg!: #HeatPerKg
 
 	// 分解で戻る素材。無い材質のアイテムは分解できない
 	disassembly?: #MaterialDisassembly
 }
+
+// 材質の id
+#MaterialId: #TableId
+
+// 素材必要数
+#MaterialAmount: int & >=1 & <=99
 
 // 材質のアイテムを分解したときに戻る素材
 #MaterialDisassembly: {
@@ -1420,11 +1420,11 @@ import (
 	weathers?: [...#Weather]
 	shelterEffects?: [...#ShelterEffect]
 	waterEffects?: [...#WaterEffect]
-	foliageEffects?: [...#FoliageEffect]
+	foliageEffects?: [...#Foliage]
 	hungerStages?: [...#HungerStage]
 	fatigueStages?: [...#FatigueStage]
 	freshnessStages?: [...#FreshnessStage]
-	materials?: [...#MaterialDef]
+	materials?: [...#Material]
 	toolCategories?: [...#ToolCategory]
 	ammoKinds?: [...#AmmoKind]
 	timesOfDay?: [...#TimeOfDay]
@@ -1458,6 +1458,8 @@ import (
 	fuelKindIds_unique: {if fuelKinds != _|_ for i, x in fuelKinds {(x.id): i}} @rawgen(-)
 	toolCategoryIds_unique: {if toolCategories != _|_ for i, x in toolCategories {(x.id): i}} @rawgen(-)
 	ammoKindIds_unique: {if ammoKinds != _|_ for i, x in ammoKinds {(x.id): i}} @rawgen(-)
+	materialIds_unique: {if materials != _|_ for i, x in materials {(x.id): i}} @rawgen(-)
+	foliageEffectIds_unique: {if foliageEffects != _|_ for i, x in foliageEffects {(x.id): i}} @rawgen(-)
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)
@@ -1513,6 +1515,12 @@ import (
 	// 循環し、実在するタイルも見つからない。表の外で引く
 	tileSpawns_ref: {
 		if tiles != _|_ for x in tiles if x.spawn.tile != _|_ {(x.id): _tileIDs[x.spawn.tile]}
+	} @rawgen(-)
+
+	// アイテムの材質は材質の表を指し、材質の分解はアイテムを指す。アイテムの中で材質の索引を引くと、2つの索引が
+	// 互いの評価を待って循環し、実在するアイテムも見つからない。表の外で引く
+	itemMaterials_ref: {
+		if items != _|_ for x in items if x.material != _|_ {(x.id): _materialIDs[x.material]}
 	} @rawgen(-)
 
 	// 熟練の効果倍率の id はスキルをまたいで一意にする
@@ -1763,7 +1771,10 @@ import (
 	water?: bool
 
 	// 植生。省くと植生なし
-	foliage?: #Foliage
+	foliage?: #FoliageId
+	if foliage != _|_ {
+		foliage_ref: _foliageIDs[foliage] @rawgen(-)
+	}
 
 	// マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
 	spawn?: #TileSpawn
