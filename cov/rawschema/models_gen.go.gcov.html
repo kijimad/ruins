@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 12:58:03</td>
+            <td class="headerValue">2026-11-22 13:21:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -324,7 +324,7 @@
 <span id="L262"><span class="lineNum">     262</span>              : </span>
 <span id="L263"><span class="lineNum">     263</span>              : // Blast 爆風。爆ぜたマスから radius マスまでの者すべてに効く</span>
 <span id="L264"><span class="lineNum">     264</span>              : type Blast struct {</span>
-<span id="L265"><span class="lineNum">     265</span>              :         // Condition 爆風に入った者に付ける不調</span>
+<span id="L265"><span class="lineNum">     265</span>              :         // Condition 爆風に入った者に付ける不調。怪我は攻撃で部位に負うものなので付けない</span>
 <span id="L266"><span class="lineNum">     266</span>              :         Condition *ConditionTypeName `json:&quot;condition,omitempty&quot;`</span>
 <span id="L267"><span class="lineNum">     267</span>              : </span>
 <span id="L268"><span class="lineNum">     268</span>              :         // Element 爆風の属性。省くと無属性</span>
@@ -478,7 +478,7 @@
 <span id="L416"><span class="lineNum">     416</span>              : </span>
 <span id="L417"><span class="lineNum">     417</span>              :         PainPerSeverity ConditionAmountPerSeverity `json:&quot;painPerSeverity&quot;`</span>
 <span id="L418"><span class="lineNum">     418</span>              : </span>
-<span id="L419"><span class="lineNum">     419</span>              :         // Parts 起こりうる部位。省くと全部位</span>
+<span id="L419"><span class="lineNum">     419</span>              :         // Parts 起こりうる部位。省くと全身性の不調で、全身に付く</span>
 <span id="L420"><span class="lineNum">     420</span>              :         Parts *[]BodyPartId `json:&quot;parts,omitempty&quot;`</span>
 <span id="L421"><span class="lineNum">     421</span>              : </span>
 <span id="L422"><span class="lineNum">     422</span>              :         // RecoverPer 治療済みで1ターンに進行度を減らす基準量</span>

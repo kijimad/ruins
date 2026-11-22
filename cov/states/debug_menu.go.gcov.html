@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">17.3&nbsp;%</td>
+            <td class="headerCovTableEntryLo">26.2&nbsp;%</td>
             <td class="headerCovTableEntry">202</td>
-            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntry">53</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 12:58:03</td>
+            <td class="headerValue">2026-11-22 13:21:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -224,30 +224,30 @@
 <span id="L162"><span class="lineNum">     162</span>              : </span>
 <span id="L163"><span class="lineNum">     163</span>              : // debugInflictConditions はデバッグでプレイヤーへ raw の不調をまとめて付ける。量から導出する不調は付けられない</span>
 <span id="L164"><span class="lineNum">     164</span>              : func debugInflictConditions(world w.World) error {</span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         if !world.Components.HealthStatus.Has(player) {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(player) {</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                 return nil</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         hs := world.Components.HealthStatus.Get(player)</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         defs := world.Resources.ConditionDefs</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         cold := defs.ByOnset(rawschema.Cold)</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         for _, ct := range defs.Types() {</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 if defs.IsDerived(ct) {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         hs := world.Components.HealthStatus.Get(player)</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         defs := world.Resources.ConditionDefs</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         cold := defs.ByOnset(rawschema.Cold)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         for _, ct := range defs.Types() {</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 if defs.IsDerived(ct) {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L178"><span class="lineNum">     178</span>              :                 }</span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 part, timer := gc.BodyPartTorso, 60.0</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 if def, _ := defs.Def(ct); len(def.Parts) &gt; 0 {</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                         part = def.Parts[0]</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                 if ct == cold {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                         part, timer = gc.BodyPartWholeBody, 90</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                 hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 part, timer := gc.BodyPartWholeBody, 60.0</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 if def, _ := defs.Def(ct); len(def.Parts) &gt; 0 {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                         part = def.Parts[0]</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 if ct == cold {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                         timer = 90</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})</span></span>
 <span id="L187"><span class="lineNum">     187</span>              :         }</span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L189"><span class="lineNum">     189</span>              : }</span>
 <span id="L190"><span class="lineNum">     190</span>              : </span>
 <span id="L191"><span class="lineNum">     191</span>              : // debugExhaustFatigue はデバッグでプレイヤーの疲労を過労まで上げる。入眠をすぐ試すため</span>

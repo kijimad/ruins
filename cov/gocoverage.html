@@ -113,7 +113,7 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -197,7 +197,7 @@
 				
 				<option value="file70">github.com/kijimaD/ruins/internal/components/components_gen.go (100.0%)</option>
 				
-				<option value="file71">github.com/kijimaD/ruins/internal/components/condition_defs.go (95.5%)</option>
+				<option value="file71">github.com/kijimaD/ruins/internal/components/condition_defs.go (91.7%)</option>
 				
 				<option value="file72">github.com/kijimaD/ruins/internal/components/dungeon.go (100.0%)</option>
 				
@@ -559,7 +559,7 @@
 				
 				<option value="file251">github.com/kijimaD/ruins/internal/states/cube_module_menu.go (25.0%)</option>
 				
-				<option value="file252">github.com/kijimaD/ruins/internal/states/debug_menu.go (17.4%)</option>
+				<option value="file252">github.com/kijimaD/ruins/internal/states/debug_menu.go (27.7%)</option>
 				
 				<option value="file253">github.com/kijimaD/ruins/internal/states/direction_select.go (66.7%)</option>
 				
@@ -765,7 +765,7 @@
 				
 				<option value="file354">github.com/kijimaD/ruins/internal/world/gameaction/damage.go (100.0%)</option>
 				
-				<option value="file355">github.com/kijimaD/ruins/internal/world/gameaction/illness.go (91.7%)</option>
+				<option value="file355">github.com/kijimaD/ruins/internal/world/gameaction/illness.go (93.3%)</option>
 				
 				<option value="file356">github.com/kijimaD/ruins/internal/world/gameaction/profession.go (96.3%)</option>
 				
@@ -6131,7 +6131,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -11694,7 +11694,7 @@ type ConditionDef struct {
         RecoverPer              int                      // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
         BloodDropPerSeverity    int                      // 重症度1段あたりに下げる血液量。外傷は出血、重い全身性は循環低下
         Cause                   DeathCause               // 血液量が尽きて倒したときの死因
-        Parts                   []BodyPart               // 起こりうる部位。空なら全部位
+        Parts                   []BodyPart               // 起こりうる部位。空なら全身性で、全身に付く
         Onset                   rawschema.ConditionOnset // 不調を起こす仕組み。攻撃で負う怪我ときっかけの無い不調は空
 }
 
@@ -11742,7 +11742,10 @@ func (d ConditionDefs) CanAffect(ct ConditionType, part BodyPart) bool {
         if !ok </span>{
                 <span class="cov8" title="1">return false
 </span>        }
-        <span class="cov8" title="1">return len(def.Parts) == 0 || slices.Contains(def.Parts, part)</span>
+        <span class="cov8" title="1">if len(def.Parts) == 0 </span>{
+                <span class="cov0" title="0">return part == BodyPartWholeBody
+</span>        }
+        <span class="cov8" title="1">return slices.Contains(def.Parts, part)</span>
 }
 
 // PartName は部位の表示名 msgid を返す
@@ -30798,7 +30801,6 @@ func NewNeedDefs(raws rawschema.Raws) gc.NeedDefs {
 import (
         "errors"
         "fmt"
-        "maps"
         "slices"
         "unicode/utf8"
 
@@ -30824,6 +30826,7 @@ var (
         errBodyPartRowMissing            = errors.New("body part has no raw row")
         errBodyPartUnknown               = errors.New("body part is not defined in code")
         errConditionPartWholeBody        = errors.New("condition parts include whole body")
+        errInjuryWithoutParts            = errors.New("injury condition has no parts")
         errConditionNoHitPart            = errors.New("condition has no body part that can be hit")
         errAttackRangeParams             = errors.New("only ranged attack types must have all range params")
         errResistNone                    = errors.New("no proficiency can resist the none element")
@@ -31082,10 +31085,18 @@ func validateConditions(raws rawschema.Raws) error {
 </span>                }
                 <span class="cov8" title="1">hitWeights[b.Id] = b.HitWeight</span>
         }
+        <span class="cov8" title="1">injuries := map[rawschema.ConditionTypeName]bool{}
+        attackTypes := PtrSlice(raws.AttackTypes)
+        for i := range attackTypes </span>{
+                <span class="cov8" title="1">injuries[attackTypes[i].Injury] = true
+</span>        }
         <span class="cov8" title="1">conditions := PtrSlice(raws.Conditions)
         for i := range conditions </span>{
                 <span class="cov8" title="1">c := &amp;conditions[i]
-                if err := validateConditionParts(c, hitWeights); err != nil </span>{
+                if injuries[c.Id] &amp;&amp; len(PtrSlice(c.Parts)) == 0 </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("condition %q: %w", c.Id, errInjuryWithoutParts)
+</span>                }
+                <span class="cov8" title="1">if err := validateConditionParts(c, hitWeights); err != nil </span>{
                         <span class="cov8" title="1">return err
 </span>                }
         }
@@ -31093,17 +31104,16 @@ func validateConditions(raws rawschema.Raws) error {
 }
 
 // validateConditionParts は不調の起こりうる部位が全身を含まず、命中の重みが正の部位を1つ以上持つことを検証する。
-// parts を省いた不調は全部位が対象になる
+// parts を省いた不調は全身性なので検証しない
 func validateConditionParts(c *rawschema.Condition, hitWeights map[string]float64) error {
         <span class="cov8" title="1">parts := PtrSlice(c.Parts)
-        if slices.Contains(parts, gc.BodyPartWholeBody.ID()) </span>{
+        if len(parts) == 0 </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+        <span class="cov8" title="1">if slices.Contains(parts, gc.BodyPartWholeBody.ID()) </span>{
                 <span class="cov8" title="1">return fmt.Errorf("condition %q: %w", c.Id, errConditionPartWholeBody)
 </span>        }
-        <span class="cov8" title="1">candidates := parts
-        if len(parts) == 0 </span>{
-                <span class="cov8" title="1">candidates = slices.Collect(maps.Keys(hitWeights))
-</span>        }
-        <span class="cov8" title="1">for _, id := range candidates </span>{
+        <span class="cov8" title="1">for _, id := range parts </span>{
                 <span class="cov8" title="1">if hitWeights[id] &gt; 0 </span>{
                         <span class="cov8" title="1">return nil
 </span>                }
@@ -31677,7 +31687,7 @@ type BigRoomStep struct {
 
 // Blast 爆風。爆ぜたマスから radius マスまでの者すべてに効く
 type Blast struct {
-        // Condition 爆風に入った者に付ける不調
+        // Condition 爆風に入った者に付ける不調。怪我は攻撃で部位に負うものなので付けない
         Condition *ConditionTypeName `json:"condition,omitempty"`
 
         // Element 爆風の属性。省くと無属性
@@ -31831,7 +31841,7 @@ type Condition struct {
 
         PainPerSeverity ConditionAmountPerSeverity `json:"painPerSeverity"`
 
-        // Parts 起こりうる部位。省くと全部位
+        // Parts 起こりうる部位。省くと全身性の不調で、全身に付く
         Parts *[]BodyPartId `json:"parts,omitempty"`
 
         // RecoverPer 治療済みで1ターンに進行度を減らす基準量
@@ -40042,30 +40052,30 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 
 // debugInflictConditions はデバッグでプレイヤーへ raw の不調をまとめて付ける。量から導出する不調は付けられない
 func debugInflictConditions(world w.World) error {
-        <span class="cov0" title="0">player, err := query.GetPlayerEntity(world)
+        <span class="cov8" title="1">player, err := query.GetPlayerEntity(world)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov0" title="0">if !world.Components.HealthStatus.Has(player) </span>{
+        <span class="cov8" title="1">if !world.Components.HealthStatus.Has(player) </span>{
                 <span class="cov0" title="0">return nil
 </span>        }
-        <span class="cov0" title="0">hs := world.Components.HealthStatus.Get(player)
+        <span class="cov8" title="1">hs := world.Components.HealthStatus.Get(player)
         defs := world.Resources.ConditionDefs
         cold := defs.ByOnset(rawschema.Cold)
         for _, ct := range defs.Types() </span>{
-                <span class="cov0" title="0">if defs.IsDerived(ct) </span>{
-                        <span class="cov0" title="0">continue</span>
+                <span class="cov8" title="1">if defs.IsDerived(ct) </span>{
+                        <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov0" title="0">part, timer := gc.BodyPartTorso, 60.0
+                <span class="cov8" title="1">part, timer := gc.BodyPartWholeBody, 60.0
                 if def, _ := defs.Def(ct); len(def.Parts) &gt; 0 </span>{
-                        <span class="cov0" title="0">part = def.Parts[0]
+                        <span class="cov8" title="1">part = def.Parts[0]
 </span>                }
-                <span class="cov0" title="0">if ct == cold </span>{
-                        <span class="cov0" title="0">part, timer = gc.BodyPartWholeBody, 90
+                <span class="cov8" title="1">if ct == cold </span>{
+                        <span class="cov8" title="1">timer = 90
 </span>                }
-                <span class="cov0" title="0">hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})</span>
+                <span class="cov8" title="1">hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})</span>
         }
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // debugExhaustFatigue はデバッグでプレイヤーの疲労を過労まで上げる。入眠をすぐ試すため
@@ -56373,15 +56383,20 @@ import (
 // illnessOnsetTimer は発症したての病気の初期進行度。発症する 25 以上にして浅く始め、早期発見を効かせる
 const illnessOnsetTimer = 30
 
-// ContractIllness は病気を1つ発症させる。病気は全身性なので胴に付ける。同じ病気が発症中なら重ねない。
-// 治りかけで発症していない同じ病気が残っていれば、発症したての進行度に戻す。
+// ContractIllness は病気などの不調を1つ発症させる。部位を書いた不調はその最初の部位に、ほかは全身性なので全身に付ける。
+// 同じ不調が発症中なら重ねない。
+// 治りかけで発症していない同じ不調が残っていれば、発症したての進行度に戻す。
 // HealthStatus を持たない対象には何もしない。発症したら true を返し、身体機能の再計算を促す。
 // 発症したての浅い進行度で始まり、以降の進行は不調ごとの回復モードに従う
 func ContractIllness(world w.World, entity ecs.Entity, ct gc.ConditionType) bool {
         <span class="cov8" title="1">if !world.Components.HealthStatus.Has(entity) </span>{
                 <span class="cov8" title="1">return false
 </span>        }
-        <span class="cov8" title="1">part := &amp;world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartTorso]
+        <span class="cov8" title="1">at := gc.BodyPartWholeBody
+        if def, ok := world.Resources.ConditionDefs.Def(ct); ok &amp;&amp; len(def.Parts) &gt; 0 </span>{
+                <span class="cov8" title="1">at = def.Parts[0]
+</span>        }
+        <span class="cov8" title="1">part := &amp;world.Components.HealthStatus.Get(entity).Parts[at]
         if existing := part.GetCondition(ct); existing != nil &amp;&amp; existing.IsActive() </span>{
                 <span class="cov8" title="1">return false
 </span>        }
