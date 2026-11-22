@@ -281,7 +281,7 @@ func TestThrowBehavior_DoTurn_毒の爆風は毒を付け重ねない(t *testing
 	venom := gc.ConditionType("venom")
 
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(first, enemy), player, world))
-	cond := world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom)
+	cond := world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartWholeBody].GetCondition(venom)
 	require.NotNil(t, cond)
 	timer := cond.Timer
 	assert.Equal(t, "Fireball contracted Venom.", query.GetGameLog(world).GetRecent(1)[0])
@@ -289,7 +289,7 @@ func TestThrowBehavior_DoTurn_毒の爆風は毒を付け重ねない(t *testing
 	second, err := lifecycle.SpawnBackpackItem(world, "poison_grenade", 1)
 	require.NoError(t, err)
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(second, enemy), player, world))
-	assert.InDelta(t, timer, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom).Timer, 0, "2発目で進行度は延びない")
+	assert.InDelta(t, timer, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartWholeBody].GetCondition(venom).Timer, 0, "2発目で進行度は延びない")
 }
 
 func TestExplode(t *testing.T) {
@@ -308,7 +308,7 @@ func TestExplode(t *testing.T) {
 		attack := gc.ThrowAttack{Blast: &gc.Blast{Radius: 1, Condition: venom}}
 		require.NoError(t, explode(world, player, enemy, attack, "test"))
 		assert.Equal(t, hp, world.Components.HP.Get(enemy).Current)
-		assert.NotNil(t, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom))
+		assert.NotNil(t, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartWholeBody].GetCondition(venom))
 	})
 	t.Run("自分だけを傷つけてもスキルは伸びない", func(t *testing.T) {
 		t.Parallel()
@@ -346,7 +346,7 @@ func TestExplode(t *testing.T) {
 		attack := gc.ThrowAttack{Damage: 10, Blast: &gc.Blast{Radius: 1, Condition: venom}}
 		require.NoError(t, explode(world, player, enemy, attack, "test"))
 		require.True(t, world.Components.Dead.Has(enemy))
-		assert.Nil(t, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom))
+		assert.Nil(t, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartWholeBody].GetCondition(venom))
 	})
 	t.Run("ほかの者を傷つけるとスキルが伸びる", func(t *testing.T) {
 		t.Parallel()

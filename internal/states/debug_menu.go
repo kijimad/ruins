@@ -176,7 +176,7 @@ func debugInflictConditions(world w.World) error {
 		if defs.IsDerived(ct) {
 			continue
 		}
-		part, timer := gc.BodyPartTorso, 60.0
+		part, timer := gc.BodyPartWholeBody, 60.0
 		if def, _ := defs.Def(ct); len(def.Parts) > 0 {
 			part = def.Parts[0]
 		}

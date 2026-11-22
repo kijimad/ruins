@@ -493,7 +493,7 @@ func TestConsumeBehavior_applyNutrition_腐敗食は食中毒を起こしうる(
 			u := &eatItemBehavior
 			require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorEatItem, 1), actor, world, 30, bread))
 
-			cond := world.Components.HealthStatus.Get(actor).Parts[gc.BodyPartTorso].GetCondition(gc.ConditionType("food_poisoning"))
+			cond := world.Components.HealthStatus.Get(actor).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("food_poisoning"))
 			if tt.wantContract {
 				require.NotNil(t, cond, "腐敗食で食中毒を発症する")
 			} else {
