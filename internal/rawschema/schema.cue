@@ -794,6 +794,9 @@ import (
 // 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 #FireStarter: {}
 
+// スイッチ。持つ物は「使う」で点け消しでき、オフで生まれる
+#Switch: {}
+
 // 脱出の装置。使うと惑星を脱出してクリアになる
 #EscapeDevice: {}
 
@@ -959,6 +962,7 @@ import (
 
 	// 火種。所持していると隣接の燃焼物に着火できる
 	fireStarter?: #FireStarter
+	switch?:      #Switch
 
 	// 脱出の装置。使うとクリアになる
 	escapeDevice?: #EscapeDevice

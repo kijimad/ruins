@@ -1460,6 +1460,8 @@ type Item struct {
 
 	StageLength *StageLengthTurns `json:"stageLength,omitempty"`
 
+	Switch *Switch `json:"switch,omitempty"`
+
 	// Throw 投げたときの値。書かない物は重さから導く
 	Throw *Throw `json:"throw,omitempty"`
 
@@ -2868,6 +2870,9 @@ type StorageRaw struct {
 
 // Strength 筋力。物理ダメージに影響する
 type Strength = int
+
+// Switch スイッチ。持つ物は「使う」で点け消しでき、オフで生まれる
+type Switch = map[string]interface{}
 
 // TargetGroup ターゲットグループ
 type TargetGroup string

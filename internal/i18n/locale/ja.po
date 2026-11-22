@@ -6739,3 +6739,15 @@ msgstr "植物のくず"
 
 msgid "Cloth Scraps"
 msgstr "布きれ"
+
+msgid "You switched on %s."
+msgstr "%sを点けた"
+
+msgid "You switched off %s."
+msgstr "%sを消した"
+
+msgid "On"
+msgstr "オン"
+
+msgid "Off"
+msgstr "オフ"

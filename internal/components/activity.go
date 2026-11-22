@@ -69,6 +69,8 @@ const (
 	BehaviorDisassemble BehaviorName = "Disassemble"
 	// BehaviorSearch はまだ探していない収納を探し、終えると収納を開く
 	BehaviorSearch BehaviorName = "Search"
+	// BehaviorToggle は持っている物のスイッチを点け消しする
+	BehaviorToggle BehaviorName = "Toggle"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント

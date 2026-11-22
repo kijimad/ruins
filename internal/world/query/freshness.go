@@ -46,3 +46,14 @@ func FreshnessMarker(world w.World, entity ecs.Entity) string {
 func FreshnessName(world w.World, stage rawschema.FreshnessStageId) string {
 	return T(world, world.Resources.NeedDefs.FreshnessOf(stage).Name)
 }
+
+// SwitchMarker はスイッチを持つ物の、オンかオフかの訳した表示を返す。スイッチを持たなければ空文字
+func SwitchMarker(world w.World, entity ecs.Entity) string {
+	if !world.Components.Switch.Has(entity) {
+		return ""
+	}
+	if world.Components.Switch.Get(entity).On {
+		return T(world, "On")
+	}
+	return T(world, "Off")
+}
