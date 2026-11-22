@@ -99,3 +99,24 @@ func TestFireStarterOf_オフの物から残量の少ない順に選ぶ(t *testi
 	got, _ = query.FireStarterOf(world, player)
 	assert.Equal(t, endless, got, "残量を持たない物を最初に使う")
 }
+
+func TestFireStarterOf_尽きた火種は選ばない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	empty := world.ECS.NewEntity()
+	world.Components.FireStarter.Add(empty, &gc.FireStarter{})
+	world.Components.Charge.Add(empty, &gc.Charge{Max: 600, Current: 0})
+	world.Components.LocationInBackpack.Add(empty, &gc.LocationInBackpack{Owner: player})
+
+	_, ok := query.FireStarterOf(world, player)
+	assert.False(t, ok, "尽きた物しか無ければ火を点けられない")
+
+	full := world.ECS.NewEntity()
+	world.Components.FireStarter.Add(full, &gc.FireStarter{})
+	world.Components.Charge.Add(full, &gc.Charge{Max: 600, Current: 600})
+	world.Components.LocationInBackpack.Add(full, &gc.LocationInBackpack{Owner: player})
+	got, ok := query.FireStarterOf(world, player)
+	require.True(t, ok)
+	assert.Equal(t, full, got, "残量の少ない順でも、尽きた物は飛ばす")
+}

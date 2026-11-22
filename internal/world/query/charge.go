@@ -33,10 +33,10 @@ func ChargeTriggerOf(world w.World, item ecs.Entity) ChargeTrigger {
 }
 
 // IsOn は、オンの間に減る item がいまオンかを返す。オンの間に減るのは今は灯りだけで、照らしているかで決まる。
-// 灯りでない物は、スイッチを持っていてもオフとして扱う
-func IsOn(world w.World, player, item ecs.Entity) bool {
+// 灯りでない物は、スイッチを持っていてもオフとして扱う。holder は LightLit と同じく、持っている物を照らす物とみなす者
+func IsOn(world w.World, holder, item ecs.Entity) bool {
 	if world.Components.LightSource.Has(item) {
-		return LightLit(world, player, item)
+		return LightLit(world, holder, item)
 	}
 	return false
 }

@@ -59,6 +59,10 @@ func FireStarterOf(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
 			continue
 		}
 		charge := chargeKey(world, e)
+		// 尽きて残った満たせる物は火を点けられない
+		if charge == 0 {
+			continue
+		}
 		rank := 1
 		switch {
 		case charge < 0:

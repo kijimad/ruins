@@ -132,3 +132,20 @@ func TestRefillChoices(t *testing.T) {
 		})
 	}
 }
+
+func TestLightFuelSink_満タンなら燃料を使わずログだけ出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
+	require.NoError(t, err)
+	sink := LightFuelSink(world, lantern)
+	assert.Equal(t, consts.Turn(0).String(), sink.gain(world, oil), "満タンなら増える量は0")
+
+	require.NoError(t, sink.feed(world, oil))
+	assert.True(t, world.ECS.Alive(oil), "燃料は使わない")
+	assert.Equal(t, query.T(world, "It is already full."), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+}
