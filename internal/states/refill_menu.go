@@ -47,7 +47,8 @@ type refillTab struct {
 	sinkOf func(world w.World, light ecs.Entity) FuelSink
 }
 
-// refillRow は補充メニューの1行。Disabled なら Value に選べない理由を、選べるなら移せる量を入れる
+// refillRow は補充メニューの1行。Disabled なら Value に選べない理由を、選べるなら移せる量を入れる。
+// 選べない行もほかの物の一覧と同じ色で描き、理由の文とカーソルを止めないことで見分けさせる
 type refillRow struct {
 	Entity   ecs.Entity
 	Value    string
@@ -151,7 +152,6 @@ func (st *RefillMenuState) ViewUI(world w.World, props RefillProps, cursor menul
 		rows := make([]menuframe.Row, len(tab.Rows))
 		for i, r := range tab.Rows {
 			rows[i] = itemMenuRow(world, r.Entity, 1, r.Value)
-			rows[i].Disabled = r.Disabled
 		}
 		content, pager = menuframe.RenderList(cursor.ItemIndex, rows, itemMenuColumns(styled.Num()), menuframe.ListOpts{EmptyText: query.T(world, "Nothing to refill"), ItemsPerPage: cursor.PageSize}, res)
 	}
