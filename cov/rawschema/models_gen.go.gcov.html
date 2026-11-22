@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 02:12:35</td>
+            <td class="headerValue">2026-11-22 02:52:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -371,9 +371,9 @@
 <span id="L309"><span class="lineNum">     309</span>              : // Chance 確率</span>
 <span id="L310"><span class="lineNum">     310</span>              : type Chance = float64</span>
 <span id="L311"><span class="lineNum">     311</span>              : </span>
-<span id="L312"><span class="lineNum">     312</span>              : // Charge アイテムの残量。灯りは点いている間に減り、0で尽きる</span>
+<span id="L312"><span class="lineNum">     312</span>              : // Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる</span>
 <span id="L313"><span class="lineNum">     313</span>              : type Charge struct {</span>
-<span id="L314"><span class="lineNum">     314</span>              :         // Max 残量の上限。灯りはターン数</span>
+<span id="L314"><span class="lineNum">     314</span>              :         // Max 残量の上限。灯りはターン数、武器と道具は回数</span>
 <span id="L315"><span class="lineNum">     315</span>              :         Max ChargeAmount `json:&quot;max&quot;`</span>
 <span id="L316"><span class="lineNum">     316</span>              : }</span>
 <span id="L317"><span class="lineNum">     317</span>              : </span>
@@ -1474,7 +1474,7 @@
 <span id="L1412"><span class="lineNum">    1412</span>              : </span>
 <span id="L1413"><span class="lineNum">    1413</span>              :         Book *Book `json:&quot;book,omitempty&quot;`</span>
 <span id="L1414"><span class="lineNum">    1414</span>              : </span>
-<span id="L1415"><span class="lineNum">    1415</span>              :         // Charge 残量。携行光源を持つ行は必ず持つ。持たないと燃え尽きずに照らし続ける</span>
+<span id="L1415"><span class="lineNum">    1415</span>              :         // Charge 残量。灯り・武器・道具の行は必ず持つ。持たないと尽きずに使い続けられる</span>
 <span id="L1416"><span class="lineNum">    1416</span>              :         Charge *Charge `json:&quot;charge,omitempty&quot;`</span>
 <span id="L1417"><span class="lineNum">    1417</span>              : </span>
 <span id="L1418"><span class="lineNum">    1418</span>              :         Consumable *Consumable `json:&quot;consumable,omitempty&quot;`</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 02:12:35</td>
+            <td class="headerValue">2026-11-22 02:52:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -156,7 +156,7 @@
 <span id="L94"><span class="lineNum">      94</span>              :         // 威力 0 の物は、効果を持つまで攻撃として扱わない。ダメージの式は威力 0 でも能力値と出目で傷を負わせる</span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         if attack.Damage &gt; 0 {</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 hitModifier := calculateRangedHitModifier(actor, p.Target, attack, world)</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 if err := applyAttackDamage(actor, p.Target, world, attack, name, hitModifier, 0); err != nil {</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 if err := applyAttackDamage(actor, p.Target, world, gc.InvalidEntity, attack, name, hitModifier, 0); err != nil {</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                         return err</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L100"><span class="lineNum">     100</span>              :         } else {</span>

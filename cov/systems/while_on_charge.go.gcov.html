@@ -4,7 +4,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>LCOV - coverage.lcov - systems/light_charge.go</title>
+  <title>LCOV - coverage.lcov - systems/while_on_charge.go</title>
   <link rel="stylesheet" type="text/css" href="../gcov.css">
 </head>
 
@@ -19,7 +19,7 @@
                 <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory systems">systems</a> - light_charge.go</td>
+            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory systems">systems</a> - while_on_charge.go</td>
             <td width="5%"></td>
             <td width="5%"></td>
             <td width="5%" class="headerCovTableHead">Coverage</td>
@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">16</td>
-            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">17</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 02:12:35</td>
+            <td class="headerValue">2026-11-22 02:52:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,33 +70,34 @@
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
-<span id="L11"><span class="lineNum">      11</span>              : // LightChargeSystem は照らしている灯りの残量を毎ターン1減らす。退避中のステージの灯りは減らない</span>
-<span id="L12"><span class="lineNum">      12</span>              : type LightChargeSystem struct{}</span>
+<span id="L11"><span class="lineNum">      11</span>              : // WhileOnChargeSystem はオンの間に減る物のうち、いまオンの物の残量を毎ターン1減らす。退避中のステージの物は減らない</span>
+<span id="L12"><span class="lineNum">      12</span>              : type WhileOnChargeSystem struct{}</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
 <span id="L14"><span class="lineNum">      14</span>              : // String はシステム名を返す</span>
-<span id="L15"><span class="lineNum">      15</span>              : func (sys *LightChargeSystem) String() string {</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         return &quot;LightChargeSystem&quot;</span></span>
+<span id="L15"><span class="lineNum">      15</span>              : func (sys *WhileOnChargeSystem) String() string {</span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         return &quot;WhileOnChargeSystem&quot;</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : // Update は照らしている灯りを集めてから、残量を減らす。尽きた灯りを消すので走査の外で減らす</span>
-<span id="L20"><span class="lineNum">      20</span>              : func (sys *LightChargeSystem) Update(world w.World) error {</span>
-<span id="L21"><span class="lineNum">      21</span>              :         // プレイヤーがいなくても床の灯りは減らす</span>
+<span id="L19"><span class="lineNum">      19</span>              : // Update はオンの物を集めてから、残量を減らす。尽きた物を消すので走査の外で減らす</span>
+<span id="L20"><span class="lineNum">      20</span>              : func (sys *WhileOnChargeSystem) Update(world w.World) error {</span>
+<span id="L21"><span class="lineNum">      21</span>              :         // プレイヤーがいなくても床の物は減らす</span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 player = ecs.Entity{}</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 player = gc.InvalidEntity</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         var lights []ecs.Entity</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         lightQuery := query.ActiveFilter2[gc.LightSource, gc.Charge](world).Query()</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         for lightQuery.Next() {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 if e := lightQuery.Entity(); query.LightLit(world, player, e) {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                         lights = append(lights, e)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L32"><span class="lineNum">      32</span>              :         }</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         for _, light := range lights {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 gameaction.ConsumeCharge(world, light, 1)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L37"><span class="lineNum">      37</span>              : }</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         var on []ecs.Entity</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter1[gc.Charge](world).Query()</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 e := q.Entity()</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 if query.ChargeTriggerOf(world, e) == query.ChargeTriggerWhileOn &amp;&amp; query.IsOn(world, player, e) {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                         on = append(on, e)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L33"><span class="lineNum">      33</span>              :         }</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         for _, item := range on {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 gameaction.ConsumeCharge(world, item, 1)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : }</span>
         </pre>
               </td>
             </tr>

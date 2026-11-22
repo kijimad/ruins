@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 02:12:35</td>
+            <td class="headerValue">2026-11-22 02:52:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -127,7 +127,7 @@
 <span id="L65"><span class="lineNum">      65</span>              : </span>
 <span id="L66"><span class="lineNum">      66</span>              :         // 遠距離武器が装備されているか。CanShootTarget が事前に絞るので、手持ち欄不正も</span>
 <span id="L67"><span class="lineNum">      67</span>              :         // 遠距離武器なしもここでは起こらない。発火したら不変条件違反なのでそのまま伝播させる</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         fire, _, err := getEquippedFire(actor, world)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         fire, _, _, err := getEquippedFire(actor, world)</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 return err</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -173,7 +173,7 @@
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         target := p.Target</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L113"><span class="lineNum">     113</span>              :         // 装備武器を取得</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         fire, weaponName, err := getEquippedFire(actor, world)</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         fire, weaponName, weapon, err := getEquippedFire(actor, world)</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -186,7 +186,7 @@
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         hitModifier += fire.LoadedAccuracyBonus</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L126"><span class="lineNum">     126</span>              :         // ダメージ適用（共通関数を使用）</span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         if err := applyAttackDamage(actor, target, world, fire, weaponName, hitModifier, fire.LoadedDamageBonus); err != nil {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         if err := applyAttackDamage(actor, target, world, weapon, fire, weaponName, hitModifier, fire.LoadedDamageBonus); err != nil {</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L130"><span class="lineNum">     130</span>              : </span>
@@ -206,18 +206,18 @@
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L146"><span class="lineNum">     146</span>              : </span>
-<span id="L147"><span class="lineNum">     147</span>              : // getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する</span>
-<span id="L148"><span class="lineNum">     148</span>              : func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, i18n.Msgid, error) {</span>
+<span id="L147"><span class="lineNum">     147</span>              : // getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名と武器の実体を取得する</span>
+<span id="L148"><span class="lineNum">     148</span>              : func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, i18n.Msgid, ecs.Entity, error) {</span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         weapon, ok := query.SelectedHeld(world, actor)</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 return nil, &quot;&quot;, ErrShootNoFireWeapon</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 return nil, &quot;&quot;, gc.InvalidEntity, ErrShootNoFireWeapon</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L153"><span class="lineNum">     153</span>              : </span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         fire, name, err := query.GetFireFromWeapon(world, weapon)</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, ErrShootNoFireWeapon</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, gc.InvalidEntity, ErrShootNoFireWeapon</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         return fire, name, nil</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         return fire, name, weapon, nil</span></span>
 <span id="L159"><span class="lineNum">     159</span>              : }</span>
 <span id="L160"><span class="lineNum">     160</span>              : </span>
 <span id="L161"><span class="lineNum">     161</span>              : // calculateRangedHitModifier は距離と遮蔽による命中率修正を計算する</span>
@@ -282,7 +282,7 @@
 <span id="L220"><span class="lineNum">     220</span>              : </span>
 <span id="L221"><span class="lineNum">     221</span>              : // CalculateShootHitRate は射撃の命中率を計算して返す。情報パネル表示用</span>
 <span id="L222"><span class="lineNum">     222</span>              : func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int {</span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         fire, _, err := getEquippedFire(actor, world)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         fire, _, _, err := getEquippedFire(actor, world)</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                 return 0</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :         }</span></span>

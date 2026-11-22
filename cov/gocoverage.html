@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (89.1%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (90.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.0%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (81.4%)</option>
 				
@@ -69,7 +69,7 @@
 				
 				<option value="file6">github.com/kijimaD/ruins/internal/activity/errors.go (100.0%)</option>
 				
-				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (78.9%)</option>
+				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (80.2%)</option>
 				
 				<option value="file8">github.com/kijimaD/ruins/internal/activity/injury.go (93.5%)</option>
 				
@@ -639,25 +639,25 @@
 				
 				<option value="file291">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file292">github.com/kijimaD/ruins/internal/systems/light_charge.go (100.0%)</option>
+				<option value="file292">github.com/kijimaD/ruins/internal/systems/render3d.go (65.0%)</option>
 				
-				<option value="file293">github.com/kijimaD/ruins/internal/systems/render3d.go (65.0%)</option>
+				<option value="file293">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.4%)</option>
 				
-				<option value="file294">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.4%)</option>
+				<option value="file294">github.com/kijimaD/ruins/internal/systems/stats_changed.go (97.4%)</option>
 				
-				<option value="file295">github.com/kijimaD/ruins/internal/systems/stats_changed.go (97.4%)</option>
+				<option value="file295">github.com/kijimaD/ruins/internal/systems/temperature.go (90.4%)</option>
 				
-				<option value="file296">github.com/kijimaD/ruins/internal/systems/temperature.go (90.4%)</option>
+				<option value="file296">github.com/kijimaD/ruins/internal/systems/turn_system.go (88.7%)</option>
 				
-				<option value="file297">github.com/kijimaD/ruins/internal/systems/turn_system.go (88.7%)</option>
+				<option value="file297">github.com/kijimaD/ruins/internal/systems/vision.go (70.2%)</option>
 				
-				<option value="file298">github.com/kijimaD/ruins/internal/systems/vision.go (70.2%)</option>
+				<option value="file298">github.com/kijimaD/ruins/internal/systems/visual_effect.go (19.5%)</option>
 				
-				<option value="file299">github.com/kijimaD/ruins/internal/systems/visual_effect.go (19.5%)</option>
+				<option value="file299">github.com/kijimaD/ruins/internal/systems/weather.go (93.3%)</option>
 				
-				<option value="file300">github.com/kijimaD/ruins/internal/systems/weather.go (93.3%)</option>
+				<option value="file300">github.com/kijimaD/ruins/internal/systems/weight_dirty.go (100.0%)</option>
 				
-				<option value="file301">github.com/kijimaD/ruins/internal/systems/weight_dirty.go (100.0%)</option>
+				<option value="file301">github.com/kijimaD/ruins/internal/systems/while_on_charge.go (100.0%)</option>
 				
 				<option value="file302">github.com/kijimaD/ruins/internal/testutil/world.go (100.0%)</option>
 				
@@ -785,7 +785,7 @@
 				
 				<option value="file364">github.com/kijimaD/ruins/internal/world/lifecycle/remains.go (85.7%)</option>
 				
-				<option value="file365">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.2%)</option>
+				<option value="file365">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.8%)</option>
 				
 				<option value="file366">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (90.7%)</option>
 				
@@ -821,7 +821,7 @@
 				
 				<option value="file382">github.com/kijimaD/ruins/internal/world/query/fuel.go (100.0%)</option>
 				
-				<option value="file383">github.com/kijimaD/ruins/internal/world/query/inventory.go (100.0%)</option>
+				<option value="file383">github.com/kijimaD/ruins/internal/world/query/inventory.go (97.9%)</option>
 				
 				<option value="file384">github.com/kijimaD/ruins/internal/world/query/light.go (100.0%)</option>
 				
@@ -1495,6 +1495,9 @@ import (
 // 攻撃システムの定数
 const (
         MeleeAttackRange = 1.5 // 近接攻撃の最大射程（斜めも考慮）
+
+        // misuseChargeMultiplier は本来の用途以外に使ったときに残量が減る倍率
+        misuseChargeMultiplier = 2
 )
 
 // MeleeBehavior はBehaviorの実装
@@ -1615,12 +1618,12 @@ func (ab *MeleeBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, worl
 </span>
         <span class="cov8" title="1">log.Debug("performing attack", "attacker", actor, "target", target)
 </span>
-        <span class="cov8" title="1">attack, attackMethodName, err := getAttackParams(actor, world)
+        <span class="cov8" title="1">attack, attackMethodName, weapon, err := getAttackParams(actor, world)
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to get attack parameters: %w", err)
 </span>        }
 
-        <span class="cov8" title="1">return applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)</span>
+        <span class="cov8" title="1">return applyAttackDamage(actor, target, world, weapon, attack, attackMethodName, 0, 0)</span>
 }
 
 func (ab *MeleeBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
@@ -1667,22 +1670,25 @@ func getBareHandsAttack(world w.World) (gc.Attacker, i18n.Msgid, error) {
         <span class="cov8" title="1">return melee, name, nil</span>
 }
 
-// getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
-// 戻り値: (攻撃パラメータ, 攻撃方法名, エラー)
-func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, i18n.Msgid, error) {
+// getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名と武器の実体を取得する。
+// 素手や敵の攻撃表の攻撃は武器の実体を持たないので gc.InvalidEntity を返す
+func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, i18n.Msgid, ecs.Entity, error) {
         <span class="cov8" title="1">if world.Components.Player.Has(attacker) </span>{
                 <span class="cov8" title="1">weapon, ok := query.SelectedHeld(world, attacker)
                 if !ok || !world.Components.Melee.Has(weapon) </span>{
-                        <span class="cov8" title="1">return getBareHandsAttack(world)
+                        <span class="cov8" title="1">attack, name, err := getBareHandsAttack(world)
+                        return attack, name, gc.InvalidEntity, err
 </span>                }
-                <span class="cov8" title="1">return query.GetMeleeFromWeapon(world, weapon)</span>
+                <span class="cov8" title="1">attack, name, err := query.GetMeleeFromWeapon(world, weapon)
+                return attack, name, weapon, err</span>
         }
 
         <span class="cov8" title="1">if world.Components.CommandTable.Has(attacker) </span>{
-                <span class="cov8" title="1">return query.GetAttackFromCommandTable(world, attacker)
+                <span class="cov8" title="1">attack, name, err := query.GetAttackFromCommandTable(world, attacker)
+                return attack, name, gc.InvalidEntity, err
 </span>        }
 
-        <span class="cov8" title="1">return nil, "", ErrNoAttackSource</span>
+        <span class="cov8" title="1">return nil, "", gc.InvalidEntity, ErrNoAttackSource</span>
 }
 
 // getSkillMult はスキル倍率(%)を返す。
@@ -1712,10 +1718,15 @@ func elementMult(target ecs.Entity, element rawschema.Element, world w.World) co
 }
 
 // applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
-// 射撃と投げるからも使う
-func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) error {
+// 射撃と投げるからも使う。weapon は攻撃に使った武器の実体で、残量を持てば当たっても外れても最後に減らす。
+// 武器の実体を持たない攻撃は gc.InvalidEntity を渡す
+func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entity, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) error {
         <span class="cov8" title="1">if attack == nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("attack must not be nil")
+</span>        }
+        // 減らす量は殴る前の対象で決め、武器は最後に減らす。先に消すと、壊したときの産出が武器の道具の値を読めない
+        <span class="cov8" title="1">if query.ChargeTriggerOf(world, weapon) == query.ChargeTriggerOnUse </span>{
+                <span class="cov8" title="1">defer gameaction.ConsumeCharge(world, weapon, attackChargeCost(world, actor, target))
 </span>        }
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
@@ -1748,6 +1759,20 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
+}
+
+// attackChargeCost は actor が構えた物で target を攻撃したときに減る残量を返す。置物は分類の合う道具で殴れば1、
+// ほかは本来の用途以外として倍にする。敵などへの攻撃は、道具を兼ねる物でも1
+func attackChargeCost(world w.World, actor, target ecs.Entity) int {
+        <span class="cov8" title="1">if !world.Components.Prop.Has(target) </span>{
+                <span class="cov8" title="1">return 1
+</span>        }
+        <span class="cov8" title="1">if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world)); ok </span>{
+                <span class="cov8" title="1">if _, fit := wieldedTool(world, actor, def); fit </span>{
+                        <span class="cov8" title="1">return 1
+</span>                }
+        }
+        <span class="cov8" title="1">return misuseChargeMultiplier</span>
 }
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する
@@ -2502,10 +2527,14 @@ import (
         "github.com/kijimaD/ruins/internal/consts"
         w "github.com/kijimaD/ruins/internal/world"
 
+        "github.com/kijimaD/ruins/internal/world/gameaction"
         "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
 )
+
+// igniteChargeCost は着火で火種の残量が減る量
+const igniteChargeCost = 30
 
 var (
         // errDoorInteractionNoDoor は扉の相互作用の対象がDoorを持たないときに返す
@@ -2546,7 +2575,7 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
         case gc.InteractionOpenCubeMenu:
                 <span class="cov0" title="0">return executePortal(world, gc.OpenCubeMenuEvent(target), "cube menu state change request error", "opened cube menu")</span>
         case gc.InteractionIgnite:
-                <span class="cov8" title="1">return executeIgnite(target, world)</span>
+                <span class="cov8" title="1">return executeIgnite(actor, target, world)</span>
         case gc.InteractionFeedFuel:
                 <span class="cov8" title="1">return executeFeedFuel(target, world)</span>
         case gc.InteractionSwap:
@@ -2613,10 +2642,14 @@ func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRes
 // executeIgnite は隣接タイルの燃焼物に火をつける。target はそのタイルにある燃料の代表。
 // タイルへ炎だけを立て、タイル上の燃焼物をすべて残ターン数へ畳み込んで燃やし始める。
 // 石組などの構造物は伴わず、地面で燃える火そのものを生む。
-// 足元でなく隣接タイルに火が立つのは、足元だと自分が燃えるため。火種の所持は呼び出し側が判定済み。
-func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
+// 足元でなく隣接タイルに火が立つのは、足元だと自分が燃えるため。使った火種が残量を持てば減らす。
+func executeIgnite(actor, target ecs.Entity, world w.World) (*ActionResult, error) {
         <span class="cov8" title="1">if !world.Components.GridElement.Has(target) </span>{
                 <span class="cov0" title="0">return nil, fmt.Errorf("ignite target has no position")
+</span>        }
+        <span class="cov8" title="1">starter, ok := query.FireStarterOf(world, actor)
+        if !ok </span>{
+                <span class="cov8" title="1">return nil, fmt.Errorf("no fire starter to ignite with")
 </span>        }
         <span class="cov8" title="1">coord := world.Components.GridElement.Get(target).Coord
 </span>
@@ -2642,7 +2675,10 @@ func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 
         // 火は光源を持つ。灯りを即反映するため視界の再計算を要求する
         <span class="cov8" title="1">query.GetVisionState(world).RequestUpdate()
-</span>
+        if world.Components.Charge.Has(starter) </span>{
+                <span class="cov8" title="1">gameaction.ConsumeCharge(world, starter, igniteChargeCost)
+</span>        }
+
         <span class="cov8" title="1">return &amp;ActionResult{Success: true, ActivityName: gc.BehaviorIgnite, Message: "lit a fire"}, nil</span>
 }
 
@@ -3767,7 +3803,7 @@ func (rb *ReloadBehavior) Name() gc.BehaviorName {
 // 遠距離武器が無ければ工数0で組み、遠距離武器なしの判定は Validate に委ねる
 func NewReloadActivity(actor ecs.Entity, world w.World) *gc.Activity {
         <span class="cov8" title="1">effort := 0
-        if fire, _, err := getEquippedFire(actor, world); err == nil </span>{
+        if fire, _, _, err := getEquippedFire(actor, world); err == nil </span>{
                 <span class="cov8" title="1">effort = fire.ReloadEffort
 </span>        }
         <span class="cov8" title="1">return NewActivity(gc.BehaviorReload, effort)</span>
@@ -3780,7 +3816,7 @@ func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
                 <span class="cov8" title="1">return &amp;UserError{Msg: query.T(world, "cannot reload because enemies are nearby")}
 </span>        }
 
-        <span class="cov8" title="1">fire, _, err := getEquippedFire(actor, world)
+        <span class="cov8" title="1">fire, _, _, err := getEquippedFire(actor, world)
         if err != nil </span>{
                 <span class="cov8" title="1">if errors.Is(err, ErrShootNoFireWeapon) </span>{
                         <span class="cov8" title="1">return &amp;UserError{Msg: query.T(world, "no ranged weapon equipped")}
@@ -3816,7 +3852,7 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
                 return nil
 </span>        }
 
-        <span class="cov8" title="1">fire, _, err := getEquippedFire(actor, world)
+        <span class="cov8" title="1">fire, _, _, err := getEquippedFire(actor, world)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
@@ -4367,7 +4403,7 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 
         // 遠距離武器が装備されているか。CanShootTarget が事前に絞るので、手持ち欄不正も
         // 遠距離武器なしもここでは起こらない。発火したら不変条件違反なのでそのまま伝播させる
-        <span class="cov8" title="1">fire, _, err := getEquippedFire(actor, world)
+        <span class="cov8" title="1">fire, _, _, err := getEquippedFire(actor, world)
         if err != nil </span>{
                 <span class="cov8" title="1">return err
 </span>        }
@@ -4413,7 +4449,7 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
         <span class="cov8" title="1">target := p.Target
 </span>
         // 装備武器を取得
-        <span class="cov8" title="1">fire, weaponName, err := getEquippedFire(actor, world)
+        <span class="cov8" title="1">fire, weaponName, weapon, err := getEquippedFire(actor, world)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
@@ -4426,7 +4462,7 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
         hitModifier += fire.LoadedAccuracyBonus
 </span>
         // ダメージ適用（共通関数を使用）
-        <span class="cov8" title="1">if err := applyAttackDamage(actor, target, world, fire, weaponName, hitModifier, fire.LoadedDamageBonus); err != nil </span>{
+        <span class="cov8" title="1">if err := applyAttackDamage(actor, target, world, weapon, fire, weaponName, hitModifier, fire.LoadedDamageBonus); err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
 
@@ -4446,18 +4482,18 @@ func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
         return nil
 </span>}
 
-// getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する
-func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, i18n.Msgid, error) {
+// getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名と武器の実体を取得する
+func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, i18n.Msgid, ecs.Entity, error) {
         <span class="cov8" title="1">weapon, ok := query.SelectedHeld(world, actor)
         if !ok </span>{
-                <span class="cov0" title="0">return nil, "", ErrShootNoFireWeapon
+                <span class="cov0" title="0">return nil, "", gc.InvalidEntity, ErrShootNoFireWeapon
 </span>        }
 
         <span class="cov8" title="1">fire, name, err := query.GetFireFromWeapon(world, weapon)
         if err != nil </span>{
-                <span class="cov8" title="1">return nil, "", ErrShootNoFireWeapon
+                <span class="cov8" title="1">return nil, "", gc.InvalidEntity, ErrShootNoFireWeapon
 </span>        }
-        <span class="cov8" title="1">return fire, name, nil</span>
+        <span class="cov8" title="1">return fire, name, weapon, nil</span>
 }
 
 // calculateRangedHitModifier は距離と遮蔽による命中率修正を計算する
@@ -4522,7 +4558,7 @@ func CanShootTarget(actor, target ecs.Entity, world w.World) bool {
 
 // CalculateShootHitRate は射撃の命中率を計算して返す。情報パネル表示用
 func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int {
-        <span class="cov8" title="1">fire, _, err := getEquippedFire(actor, world)
+        <span class="cov8" title="1">fire, _, _, err := getEquippedFire(actor, world)
         if err != nil </span>{
                 <span class="cov0" title="0">return 0
 </span>        }
@@ -5081,7 +5117,7 @@ func (tb *ThrowBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
         // 威力 0 の物は、効果を持つまで攻撃として扱わない。ダメージの式は威力 0 でも能力値と出目で傷を負わせる
         <span class="cov8" title="1">if attack.Damage &gt; 0 </span>{
                 <span class="cov8" title="1">hitModifier := calculateRangedHitModifier(actor, p.Target, attack, world)
-                if err := applyAttackDamage(actor, p.Target, world, attack, name, hitModifier, 0); err != nil </span>{
+                if err := applyAttackDamage(actor, p.Target, world, gc.InvalidEntity, attack, name, hitModifier, 0); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
         } else {
@@ -31385,9 +31421,9 @@ type BuildingStart struct {
 // Chance 確率
 type Chance = float64
 
-// Charge アイテムの残量。灯りは点いている間に減り、0で尽きる
+// Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる
 type Charge struct {
-        // Max 残量の上限。灯りはターン数
+        // Max 残量の上限。灯りはターン数、武器と道具は回数
         Max ChargeAmount `json:"max"`
 }
 
@@ -32488,7 +32524,7 @@ type Item struct {
 
         Book *Book `json:"book,omitempty"`
 
-        // Charge 残量。携行光源を持つ行は必ず持つ。持たないと燃え尽きずに照らし続ける
+        // Charge 残量。灯り・武器・道具の行は必ず持つ。持たないと尽きずに使い続けられる
         Charge *Charge `json:"charge,omitempty"`
 
         Consumable *Consumable `json:"consumable,omitempty"`
@@ -36446,7 +36482,7 @@ func appendFeedFuelActions(world w.World, playerGrid *gc.GridElement, actions []
 // 足元は自分が燃えるため対象にしない。同じタイルに複数の燃料があっても着火は1タイル1回にまとめる。
 // 着火の可否は火種の所持だけで判定する。火種を消費するかは別の関心で、ここでは扱わない。
 func appendIgniteActions(world w.World, player ecs.Entity, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
-        <span class="cov8" title="1">if !query.HoldsFireStarter(world, player) </span>{
+        <span class="cov8" title="1">if _, ok := query.FireStarterOf(world, player); !ok </span>{
                 <span class="cov8" title="1">return actions
 </span>        }
         // タイルごとに代表の燃料を1つ選ぶ。map の走査順に依存しないよう出現順を別に記録する
@@ -46105,8 +46141,8 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
         <span class="cov8" title="1">fireSystem := &amp;FireSystem{}
         updaters[fireSystem.String()] = fireSystem
 </span>
-        <span class="cov8" title="1">lightChargeSystem := &amp;LightChargeSystem{}
-        updaters[lightChargeSystem.String()] = lightChargeSystem
+        <span class="cov8" title="1">whileOnChargeSystem := &amp;WhileOnChargeSystem{}
+        updaters[whileOnChargeSystem.String()] = whileOnChargeSystem
 </span>
         <span class="cov8" title="1">visionSystem := NewVisionSystem()
         updaters[visionSystem.String()] = visionSystem
@@ -46806,45 +46842,6 @@ func hungerNoise(entity ecs.Entity, turn consts.Turn) uint64 {
 </pre>
 		
 		<pre class="file" id="file292" style="display: none">package systems
-
-import (
-        gc "github.com/kijimaD/ruins/internal/components"
-        w "github.com/kijimaD/ruins/internal/world"
-        "github.com/kijimaD/ruins/internal/world/gameaction"
-        "github.com/kijimaD/ruins/internal/world/query"
-        "github.com/mlange-42/ark/ecs"
-)
-
-// LightChargeSystem は照らしている灯りの残量を毎ターン1減らす。退避中のステージの灯りは減らない
-type LightChargeSystem struct{}
-
-// String はシステム名を返す
-func (sys *LightChargeSystem) String() string {
-        <span class="cov8" title="1">return "LightChargeSystem"
-</span>}
-
-// Update は照らしている灯りを集めてから、残量を減らす。尽きた灯りを消すので走査の外で減らす
-func (sys *LightChargeSystem) Update(world w.World) error {
-        // プレイヤーがいなくても床の灯りは減らす
-        <span class="cov8" title="1">player, err := query.GetPlayerEntity(world)
-        if err != nil </span>{
-                <span class="cov8" title="1">player = ecs.Entity{}
-</span>        }
-        <span class="cov8" title="1">var lights []ecs.Entity
-        lightQuery := query.ActiveFilter2[gc.LightSource, gc.Charge](world).Query()
-        for lightQuery.Next() </span>{
-                <span class="cov8" title="1">if e := lightQuery.Entity(); query.LightLit(world, player, e) </span>{
-                        <span class="cov8" title="1">lights = append(lights, e)
-</span>                }
-        }
-        <span class="cov8" title="1">for _, light := range lights </span>{
-                <span class="cov8" title="1">gameaction.ConsumeCharge(world, light, 1)
-</span>        }
-        <span class="cov8" title="1">return nil</span>
-}
-</pre>
-		
-		<pre class="file" id="file293" style="display: none">package systems
 
 import (
         "fmt"
@@ -47587,7 +47584,7 @@ func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r
 }
 </pre>
 		
-		<pre class="file" id="file294" style="display: none">package systems
+		<pre class="file" id="file293" style="display: none">package systems
 
 import (
         "cmp"
@@ -48061,7 +48058,7 @@ func (sys *RenderSpriteSystem) ensureDarknessMap(width, height int) {
 }
 </pre>
 		
-		<pre class="file" id="file295" style="display: none">package systems
+		<pre class="file" id="file294" style="display: none">package systems
 
 import (
         gc "github.com/kijimaD/ruins/internal/components"
@@ -48224,7 +48221,7 @@ func maxHP(abils *gc.Abilities) int {
 </span>}
 </pre>
 		
-		<pre class="file" id="file296" style="display: none">package systems
+		<pre class="file" id="file295" style="display: none">package systems
 
 import (
         "errors"
@@ -48442,7 +48439,7 @@ func getRecoveryMessage(severity gc.Severity) i18n.Msgid {
 }
 </pre>
 		
-		<pre class="file" id="file297" style="display: none">package systems
+		<pre class="file" id="file296" style="display: none">package systems
 
 import (
         "context"
@@ -48684,7 +48681,7 @@ func runTurnEndSystems(world w.World) error {
                 &amp;HealthRegenSystem{},
                 &amp;ConditionSystem{},
                 &amp;FireSystem{},
-                &amp;LightChargeSystem{},
+                &amp;WhileOnChargeSystem{},
                 &amp;DeadCleanupSystem{},
                 &amp;DebugInvincibleSystem{},
                 &amp;AreaEntrySystem{},
@@ -48732,7 +48729,7 @@ func processPlayerContinuousActivity(world w.World) (bool, error) {
 }
 </pre>
 		
-		<pre class="file" id="file298" style="display: none">package systems
+		<pre class="file" id="file297" style="display: none">package systems
 
 import (
         "image/color"
@@ -49257,7 +49254,7 @@ func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
 }
 </pre>
 		
-		<pre class="file" id="file299" style="display: none">package systems
+		<pre class="file" id="file298" style="display: none">package systems
 
 import (
         "image"
@@ -49545,7 +49542,7 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 }
 </pre>
 		
-		<pre class="file" id="file300" style="display: none">package systems
+		<pre class="file" id="file299" style="display: none">package systems
 
 import (
         "math/rand/v2"
@@ -49621,7 +49618,7 @@ func playerNorthDepth(world w.World) int {
 }
 </pre>
 		
-		<pre class="file" id="file301" style="display: none">package systems
+		<pre class="file" id="file300" style="display: none">package systems
 
 import (
         gc "github.com/kijimaD/ruins/internal/components"
@@ -49657,6 +49654,46 @@ func (sys *WeightDirtySystem) Update(world w.World) error {
                 query.UpdateWeightCapacity(world, entity)
 </span>        }
 
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file301" style="display: none">package systems
+
+import (
+        gc "github.com/kijimaD/ruins/internal/components"
+        w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/world/gameaction"
+        "github.com/kijimaD/ruins/internal/world/query"
+        "github.com/mlange-42/ark/ecs"
+)
+
+// WhileOnChargeSystem はオンの間に減る物のうち、いまオンの物の残量を毎ターン1減らす。退避中のステージの物は減らない
+type WhileOnChargeSystem struct{}
+
+// String はシステム名を返す
+func (sys *WhileOnChargeSystem) String() string {
+        <span class="cov8" title="1">return "WhileOnChargeSystem"
+</span>}
+
+// Update はオンの物を集めてから、残量を減らす。尽きた物を消すので走査の外で減らす
+func (sys *WhileOnChargeSystem) Update(world w.World) error {
+        // プレイヤーがいなくても床の物は減らす
+        <span class="cov8" title="1">player, err := query.GetPlayerEntity(world)
+        if err != nil </span>{
+                <span class="cov8" title="1">player = gc.InvalidEntity
+</span>        }
+        <span class="cov8" title="1">var on []ecs.Entity
+        q := query.ActiveFilter1[gc.Charge](world).Query()
+        for q.Next() </span>{
+                <span class="cov8" title="1">e := q.Entity()
+                if query.ChargeTriggerOf(world, e) == query.ChargeTriggerWhileOn &amp;&amp; query.IsOn(world, player, e) </span>{
+                        <span class="cov8" title="1">on = append(on, e)
+</span>                }
+        }
+        <span class="cov8" title="1">for _, item := range on </span>{
+                <span class="cov8" title="1">gameaction.ConsumeCharge(world, item, 1)
+</span>        }
         <span class="cov8" title="1">return nil</span>
 }
 </pre>
@@ -55523,20 +55560,34 @@ import (
 )
 
 // ConsumeCharge は Charge を持つ item の残量を amount 減らす。0になったら物を消し、視界を計算し直させる。
-// 持ち主がプレイヤーなら尽きたことをログに出す。減っていく途中はゲージで見せるのでログを出さない
+// プレイヤーが持つ物なら、灯りは燃え尽きた、ほかは壊れたとログに出す。減っていく途中はゲージで見せるのでログを出さない
 func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
         <span class="cov8" title="1">charge := world.Components.Charge.Get(item)
         charge.Current = max(charge.Current-amount, 0)
         if charge.Current &gt; 0 </span>{
                 <span class="cov8" title="1">return
 </span>        }
-        <span class="cov8" title="1">if world.Components.LocationEquipped.Has(item) &amp;&amp; world.Components.Player.Has(world.Components.LocationEquipped.Get(item).Owner) </span>{
-                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
-                        Markup(query.T(world, "%s burned out.", gamelog.Tag("item", query.GetEntityName(item, world)))).
-                        Log()
-</span>        }
+        <span class="cov8" title="1">if heldByPlayer(world, item) </span>{
+                <span class="cov8" title="1">name := gamelog.Tag("item", query.GetEntityName(item, world))
+                text := query.T(world, "%s broke.", name)
+                if world.Components.LightSource.Has(item) </span>{
+                        <span class="cov8" title="1">text = query.T(world, "%s burned out.", name)
+</span>                }
+                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).Markup(text).Log()</span>
+        }
         <span class="cov8" title="1">lifecycle.RemoveItem(world, item)
         query.GetVisionState(world).RequestUpdate()</span>
+}
+
+// heldByPlayer は item がプレイヤーの手持ち欄かバックパックにあるかを返す
+func heldByPlayer(world w.World, item ecs.Entity) bool {
+        <span class="cov8" title="1">switch </span>{
+        case world.Components.LocationEquipped.Has(item):
+                <span class="cov8" title="1">return world.Components.Player.Has(world.Components.LocationEquipped.Get(item).Owner)</span>
+        case world.Components.LocationInBackpack.Has(item):
+                <span class="cov8" title="1">return world.Components.Player.Has(world.Components.LocationInBackpack.Get(item).Owner)</span>
+        }
+        <span class="cov8" title="1">return false</span>
 }
 </pre>
 		
@@ -56927,7 +56978,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov0" title="0">return -1</span>
+        <span class="cov8" title="1">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
@@ -57760,9 +57811,42 @@ func ConditionDescription(world w.World, ct gc.ConditionType) string {
 		<pre class="file" id="file372" style="display: none">package query
 
 import (
+        gc "github.com/kijimaD/ruins/internal/components"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/mlange-42/ark/ecs"
 )
+
+// ChargeTrigger は残量が減るきっかけ
+type ChargeTrigger int
+
+const (
+        // ChargeTriggerNone は残量を持たない
+        ChargeTriggerNone ChargeTrigger = iota
+        // ChargeTriggerWhileOn はオンになっている1ターンごとに減る
+        ChargeTriggerWhileOn
+        // ChargeTriggerOnUse は使う行動1回ごとに減る
+        ChargeTriggerOnUse
+)
+
+// ChargeTriggerOf は item の残量が何で減るかを、持つコンポーネントから導く。光源を持つ物はオンの間に減り、
+// ほかは使うたびに減る
+func ChargeTriggerOf(world w.World, item ecs.Entity) ChargeTrigger {
+        <span class="cov8" title="1">switch </span>{
+        case item == gc.InvalidEntity || !world.Components.Charge.Has(item):
+                <span class="cov8" title="1">return ChargeTriggerNone</span>
+        case world.Components.LightSource.Has(item):
+                <span class="cov8" title="1">return ChargeTriggerWhileOn</span>
+        }
+        <span class="cov8" title="1">return ChargeTriggerOnUse</span>
+}
+
+// IsOn は、オンの間に減る item がいまオンかを返す。灯りは照らしているかで決まる
+func IsOn(world w.World, player, item ecs.Entity) bool {
+        <span class="cov8" title="1">if world.Components.LightSource.Has(item) </span>{
+                <span class="cov8" title="1">return LightLit(world, player, item)
+</span>        }
+        <span class="cov8" title="1">return false</span>
+}
 
 // ChargeRatio は残量の上限に対する割合を 0 から 1 で返す。残量を持たなければ ok は偽。上限は raw で1以上に決まる
 func ChargeRatio(world w.World, entity ecs.Entity) (float64, bool) {
@@ -58484,18 +58568,27 @@ import (
 )
 
 // FindStackInInventory は RawID でバックパック内のスタックアイテムを1つ返す。
-// 個数照会や消費の起点に使う。鮮度による束の分割は合流側の query.SameStack が担うため、
-// ここは鮮度を見ず RawID だけで引く。腐敗食は鮮度違いの別束が複数ありうる点に注意する。
+// クラフトの個数照会や消費の起点に使う。残量を持つ物は新品だけを選び、使いかけの物は材料にしない。
+// 鮮度による束の分割は合流側の query.SameStack が担うため、ここは鮮度を見ない。腐敗食は鮮度違いの別束が複数ありうる点に注意する。
 func FindStackInInventory(world w.World, id string) (ecs.Entity, bool) {
         <span class="cov8" title="1">q := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()
         for q.Next() </span>{
                 <span class="cov8" title="1">entity := q.Entity()
-                if world.Components.RawID.Get(entity).ID == id </span>{
+                if world.Components.RawID.Get(entity).ID == id &amp;&amp; !partlyUsed(world, entity) </span>{
                         <span class="cov8" title="1">q.Close()
                         return entity, true
 </span>                }
         }
         <span class="cov8" title="1">return gc.InvalidEntity, false</span>
+}
+
+// partlyUsed は entity が残量を持ち、上限まで残っていないかを返す
+func partlyUsed(world w.World, entity ecs.Entity) bool {
+        <span class="cov8" title="1">if !world.Components.Charge.Has(entity) </span>{
+                <span class="cov8" title="1">return false
+</span>        }
+        <span class="cov8" title="1">charge := world.Components.Charge.Get(entity)
+        return charge.Current &lt; charge.Max</span>
 }
 
 // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する
@@ -58511,24 +58604,40 @@ func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoTag) (ecs.Entity, 
         <span class="cov8" title="1">return gc.InvalidEntity, false</span>
 }
 
-// HoldsFireStarter は owner が火種の道具を所持しているかを返す。
-// バックパックと装備の両方を見る。着火の可否を所持の有無だけで判定する。消費はこの関数の関心ではない
-func HoldsFireStarter(world w.World, owner ecs.Entity) bool {
+// FireStarterOf は owner が着火に使う火種を返す。残量を持たない物、バックパックの物、オフの装備の物、オンの装備の物の順に選び、
+// 同じ順位なら残量の少ない物を選ぶ。照らしている装備の灯りを削らずに済むよう、オフの物から使う。
+// 減るのを1本に集め、ほかを新品のまま束ねてクラフトの材料にも使えるようにする
+func FireStarterOf(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
+        <span class="cov8" title="1">best := gc.InvalidEntity
+        bestRank, bestCharge := 0, 0
+        consider := func(e ecs.Entity, rank int) </span>{
+                <span class="cov8" title="1">charge := chargeKey(world, e)
+                if charge &lt; 0 </span>{
+                        <span class="cov8" title="1">rank = 0
+</span>                }
+                <span class="cov8" title="1">if best == gc.InvalidEntity || rank &lt; bestRank || (rank == bestRank &amp;&amp; charge &lt; bestCharge) </span>{
+                        <span class="cov8" title="1">best, bestRank, bestCharge = e, rank, charge
+</span>                }
+        }
         <span class="cov8" title="1">backpack := ecs.NewFilter2[gc.LocationInBackpack, gc.FireStarter](world.ECS).Query()
         for backpack.Next() </span>{
                 <span class="cov8" title="1">if world.Components.LocationInBackpack.Get(backpack.Entity()).Owner == owner </span>{
-                        <span class="cov8" title="1">backpack.Close()
-                        return true
+                        <span class="cov8" title="1">consider(backpack.Entity(), 1)
 </span>                }
         }
         <span class="cov8" title="1">equipped := ecs.NewFilter2[gc.LocationEquipped, gc.FireStarter](world.ECS).Query()
         for equipped.Next() </span>{
-                <span class="cov8" title="1">if world.Components.LocationEquipped.Get(equipped.Entity()).Owner == owner </span>{
-                        <span class="cov8" title="1">equipped.Close()
-                        return true
+                <span class="cov8" title="1">e := equipped.Entity()
+                if world.Components.LocationEquipped.Get(e).Owner != owner </span>{
+                        <span class="cov0" title="0">continue</span>
+                }
+                <span class="cov8" title="1">if IsOn(world, owner, e) </span>{
+                        <span class="cov8" title="1">consider(e, 3)
+</span>                } else {
+                        <span class="cov8" title="1">consider(e, 2)
 </span>                }
         }
-        <span class="cov8" title="1">return false</span>
+        <span class="cov8" title="1">return best, best != gc.InvalidEntity</span>
 }
 
 // GetEntityCount は entity が属するスタックの個数を返す。個数は保存せず、同じ所有者かつ
