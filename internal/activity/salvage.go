@@ -59,13 +59,16 @@ func salvageRoll(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (g
 	return grade, withTool || def.ToolCategory == nil, withTool
 }
 
-// dropSalvage は actor が壊した prop の産出を足元へ落とす
-func dropSalvage(world w.World, actor, target ecs.Entity) error {
+// dropSalvage は actor が壊した prop の産出を足元へ落とす。useTool が偽なら構えた道具を見ず、道具なしで壊したとして抽選する
+func dropSalvage(world w.World, actor, target ecs.Entity, useTool bool) error {
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
 	if !ok || !world.Components.GridElement.Has(target) {
 		return nil
 	}
-	grade, full, withTool := salvageRoll(world, actor, def)
+	grade, full, withTool := 0, def.ToolCategory == nil, false
+	if useTool {
+		grade, full, withTool = salvageRoll(world, actor, def)
+	}
 	var skillID rawschema.SkillId
 	hasSkill := false
 	if withTool {

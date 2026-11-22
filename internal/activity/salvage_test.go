@@ -77,7 +77,7 @@ func TestDropSalvage_分解定義が無ければ何もせず終わる(t *testing
 	target, err := lifecycle.SpawnProp(world, "carpet", 10, 9)
 	require.NoError(t, err)
 
-	err = dropSalvage(world, player, target)
+	err = dropSalvage(world, player, target, true)
 
 	require.NoError(t, err)
 	assert.Empty(t, query.PickablesAt(world, consts.Coord[consts.Tile]{X: 10, Y: 9}), "分解定義が無いので産出を落とさない")

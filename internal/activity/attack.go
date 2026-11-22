@@ -257,6 +257,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 		critical:  criticalHit,
 		injury:    true,
 		growSkill: true,
+		tool:      true,
 		damageMod: damageModifier,
 	})
 	return err
@@ -267,6 +268,7 @@ type hitOptions struct {
 	critical  bool // 会心
 	injury    bool // 怪我を抽選する
 	growSkill bool // 傷つけたら武器スキルを伸ばす
+	tool      bool // 手に構えた道具を置物のダメージと廃材に効かせる
 	damageMod int
 }
 
@@ -275,6 +277,10 @@ type hitOptions struct {
 func applyHit(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, opts hitOptions) (int, error) {
 	mult := elementMult(target, attack.GetElement(), world)
 	damage := max(calculateDamage(actor, target, world, attack, opts.critical, opts.damageMod, mult), 0)
+	// 道具の倍率は最低保証の後に掛け、道具が必須なのに無いときは確実に0にする
+	if opts.tool {
+		damage *= toolDamageMultiplier(world, actor, target)
+	}
 
 	logAttackResult(actor, target, world, true, opts.critical, damage, attackMethodName)
 	logElementAffinity(actor, target, world, attack.GetElement(), mult)
@@ -285,7 +291,7 @@ func applyHit(actor, target ecs.Entity, world w.World, attack gc.Attacker, attac
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage, attack.GetElement(), mult), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
 	if world.Components.Prop.Has(target) && world.Components.Dead.Has(target) {
-		if err := dropSalvage(world, actor, target); err != nil {
+		if err := dropSalvage(world, actor, target, opts.tool); err != nil {
 			return damage, err
 		}
 	}
@@ -359,7 +365,6 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		defense = world.Components.Abilities.Get(target).Defense.Total
 	}
 
-	// 道具の倍率は最低保証の後に掛け、道具が必須なのに無いときは確実に0にする
 	return formula.Damage(formula.DamageInput{
 		Ability:      ability,
 		Die:          world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1,
@@ -369,7 +374,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		Critical:     critical,
 		ElementMult:  int(elemMult),
 		Defense:      defense,
-	}) * toolDamageMultiplier(world, attacker, target)
+	})
 }
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する

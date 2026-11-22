@@ -7,6 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	iw "github.com/kijimaD/ruins/internal/world"
@@ -352,4 +353,56 @@ func TestCalculateThrowHitRate_爆ぜる物は100(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, 100, CalculateThrowHitRate(player, enemy, gc.ThrowAttack{Damage: 20, Accuracy: 10, Blast: &gc.Blast{Radius: 1}}, world))
+}
+
+func TestExplode_構えた道具は置物に効かせない(t *testing.T) {
+	t.Parallel()
+
+	t.Run("道具が必須の木も道具なしで削る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		require.NoError(t, lifecycle.UnequipAll(world, player))
+		torch, err := lifecycle.SpawnBackpackItem(world, "torch", 1)
+		require.NoError(t, err)
+		lifecycle.MoveToEquip(world, torch, player, gc.SlotHand1)
+		query.GetHandSelection(world).Slot = gc.SlotHand1
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+		require.NoError(t, err)
+		tree, err := lifecycle.SpawnProp(world, "tree_a", 13, 9)
+		require.NoError(t, err)
+		treeHP := world.Components.HP.Get(tree).Current
+
+		require.NoError(t, explode(world, player, enemy, gc.ThrowAttack{Damage: 20, Accuracy: 75, Blast: &gc.Blast{Radius: 1}}, "Grenade"))
+
+		assert.Less(t, world.Components.HP.Get(tree).Current, treeHP)
+	})
+
+	t.Run("合う道具を構えていても道具のスキルは伸びない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+		require.NoError(t, lifecycle.UnequipAll(world, player))
+		wrench, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
+		require.NoError(t, err)
+		lifecycle.MoveToEquip(world, wrench, player, gc.SlotHand1)
+		query.GetHandSelection(world).Slot = gc.SlotHand1
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+		require.NoError(t, err)
+		crate, err := lifecycle.SpawnProp(world, "wooden_crate", 13, 9)
+		require.NoError(t, err)
+		world.Components.HP.Get(crate).Current = 1
+		def, ok := raw.FindDisassembly(world.Resources.RawMaster, "wooden_crate")
+		require.True(t, ok)
+		skillID, ok := world.Resources.SkillDefs.ToolSkills[*def.ToolCategory]
+		require.True(t, ok)
+		before := *world.Components.Skills.Get(player).Get(skillID)
+
+		require.NoError(t, explode(world, player, enemy, gc.ThrowAttack{Damage: 20, Accuracy: 75, Blast: &gc.Blast{Radius: 1}}, "Grenade"))
+
+		require.True(t, world.Components.Dead.Has(crate))
+		assert.Equal(t, before, *world.Components.Skills.Get(player).Get(skillID))
+	})
 }
