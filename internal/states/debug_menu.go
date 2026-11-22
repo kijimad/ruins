@@ -181,7 +181,7 @@ func debugInflictConditions(world w.World) error {
 			part = def.Parts[0]
 		}
 		if ct == cold {
-			part, timer = gc.BodyPartWholeBody, 90
+			timer = 90
 		}
 		hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})
 	}

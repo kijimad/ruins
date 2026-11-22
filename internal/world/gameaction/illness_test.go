@@ -21,7 +21,7 @@ func TestContractIllness(t *testing.T) {
 	contracted := ContractIllness(world, player, gc.ConditionType("liver_illness"))
 	assert.True(t, contracted, "発症する")
 	cond := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("liver_illness"))
-	require.NotNil(t, cond, "胴に病気が付く")
+	require.NotNil(t, cond, "全身に病気が付く")
 	assert.True(t, cond.IsActive(), "発症済みで即座に効く")
 	assert.True(t, world.Components.StatsChanged.Has(player), "StatsChanged を立てる")
 
