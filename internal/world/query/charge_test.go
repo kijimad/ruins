@@ -118,3 +118,26 @@ func TestFuelKindMatches(t *testing.T) {
 	assert.True(t, FuelKindMatches(world, rawschema.FuelKindId("oil"), oil))
 	assert.False(t, FuelKindMatches(world, rawschema.FuelKindId("battery"), oil))
 }
+
+func TestChargeRandomOnLoot(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		rawID string
+		want  bool
+	}{
+		{rawID: "battery", want: true},
+		{rawID: "flashlight", want: true},
+		{rawID: "torch", want: false},
+		{rawID: "empty_battery", want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.rawID, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			item := world.ECS.NewEntity()
+			world.Components.RawID.Add(item, &gc.RawID{ID: tt.rawID})
+
+			assert.Equal(t, tt.want, ChargeRandomOnLoot(world, item))
+		})
+	}
+}
