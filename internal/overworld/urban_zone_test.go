@@ -43,12 +43,12 @@ func TestDistrictRegion_zoneAt_層の候補を区域のseedで1つ選ぶ(t *test
 	t.Parallel()
 
 	town := &rawschema.District{Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers}
-	zones := func(seed uint64) []rawschema.Zone {
+	zones := func(seed uint64) []rawschema.ZoneId {
 		r := districtRegion{kind: town, w: 3, h: 3, seed: seed}
-		return []rawschema.Zone{r.zoneAt(consts.Coord[consts.Chunk]{X: 0, Y: 0}), r.zoneAt(consts.Coord[consts.Chunk]{X: 1, Y: 1})}
+		return []rawschema.ZoneId{r.zoneAt(consts.Coord[consts.Chunk]{X: 0, Y: 0}), r.zoneAt(consts.Coord[consts.Chunk]{X: 1, Y: 1})}
 	}
-	assert.Equal(t, []rawschema.Zone{rawschema.Residential, rawschema.Downtown}, zones(0))
-	assert.Equal(t, []rawschema.Zone{rawschema.Industrial, rawschema.Downtown}, zones(1<<zoneChoiceShift))
+	assert.Equal(t, []rawschema.ZoneId{"residential", "downtown"}, zones(0))
+	assert.Equal(t, []rawschema.ZoneId{"industrial", "downtown"}, zones(1<<zoneChoiceShift))
 }
 
 // TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出る は、都心の骨董品店・診療所が minSpan=3 なので
@@ -61,8 +61,8 @@ func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出�
 	small := map[string]bool{}
 	big := map[string]bool{}
 	for s := range uint64(300) {
-		small[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 2, 1, "")] = true
-		big[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 3, 1, "")] = true
+		small[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, "downtown", 2, 1, "")] = true
+		big[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, "downtown", 3, 1, "")] = true
 	}
 	for _, f := range []string{"antique", "clinic"} {
 		assert.Falsef(t, small[f], "span=2 の都心に minSpan=3 の %s は出ない", f)
@@ -75,28 +75,28 @@ func TestRollFacilityInZone_住宅地と産業区は一番小さい町でも珍�
 	t.Parallel()
 
 	cat := zoneCatalogFrom(testutil.InitTestWorld(t).Resources.RawMaster)
-	seen := func(z rawschema.Zone) []string {
+	seen := func(z rawschema.ZoneId) []string {
 		got := map[string]bool{}
 		for s := range uint64(300) {
 			got[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, z, 2, 1, "")] = true
 		}
 		return slices.Sorted(maps.Keys(got))
 	}
-	assert.Equal(t, []string{"antique", "clinic", "gunshop", "house", "store"}, seen(rawschema.Residential))
-	assert.Equal(t, []string{"clinic", "depot", "gunshop", "house", "office"}, seen(rawschema.Industrial))
+	assert.Equal(t, []string{"antique", "clinic", "gunshop", "house", "store"}, seen("residential"))
+	assert.Equal(t, []string{"clinic", "depot", "gunshop", "house", "office"}, seen("industrial"))
 }
 
 func TestRollFacilityInZone_深さの下限に届く危険度でだけ出る(t *testing.T) {
 	t.Parallel()
 
-	cat := zoneCatalog{rawschema.Downtown: {
+	cat := zoneCatalog{"downtown": {
 		{kind: "store", weight: 1, minSpan: 1, minDanger: 1},
 		{kind: "comms", weight: 1, minSpan: 1, minDanger: 3},
 	}}
 	seen := func(danger consts.Danger) []string {
 		got := map[string]bool{}
 		for s := range uint64(100) {
-			got[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 1, danger, "")] = true
+			got[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, "downtown", 1, danger, "")] = true
 		}
 		return slices.Sorted(maps.Keys(got))
 	}
@@ -108,12 +108,12 @@ func TestLotsOf_施設の深さは起点の行から測った区域の北の端�
 	t.Parallel()
 
 	town := &rawschema.District{Id: "town", Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{
-		{Zones: []rawschema.Zone{rawschema.Residential}},
-		{Zones: []rawschema.Zone{rawschema.Downtown}},
+		{Zones: []rawschema.ZoneId{"residential"}},
+		{Zones: []rawschema.ZoneId{"downtown"}},
 	}}
 	raws := rawschema.Raws{Facilities: &[]rawschema.Facility{
-		{Id: "house", Zones: []rawschema.FacilityZone{{Zone: rawschema.Residential, Weight: 1, MinSpan: 1}, {Zone: rawschema.Downtown, Weight: 1, MinSpan: 1}}},
-		{Id: "comms", Zones: []rawschema.FacilityZone{{Zone: rawschema.Residential, Weight: 1000, MinSpan: 1, MinDanger: new(2)}}},
+		{Id: "house", Zones: []rawschema.FacilityZone{{Zone: "residential", Weight: 1, MinSpan: 1}, {Zone: "downtown", Weight: 1, MinSpan: 1}}},
+		{Id: "comms", Zones: []rawschema.FacilityZone{{Zone: "residential", Weight: 1000, MinSpan: 1, MinDanger: new(2)}}},
 	}}
 	cat := zoneCatalogFrom(raws)
 	r := districtRegion{kind: town, anchor: consts.Coord[consts.Chunk]{X: 0, Y: -2}, w: 2, h: 2, seed: 1}
@@ -136,7 +136,7 @@ func TestRollFacilityInZone_実データの通信施設は危険度6から都心
 	seen := func(danger consts.Danger) []string {
 		got := map[string]bool{}
 		for s := range uint64(300) {
-			got[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, rawschema.Downtown, 3, danger, "")] = true
+			got[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), cat, "downtown", 3, danger, "")] = true
 		}
 		return slices.Sorted(maps.Keys(got))
 	}
@@ -149,10 +149,10 @@ func TestRollFacilityInZone_決定的(t *testing.T) {
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	cat := zoneCatalogFrom(raws)
-	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, rawschema.Residential, 3, 1, "")
+	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, "residential", 3, 1, "")
 	assert.NotEmpty(t, first, "有効な施設種別を返す")
 	for range 5 {
-		got := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, rawschema.Residential, 3, 1, "")
+		got := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), cat, "residential", 3, 1, "")
 		assert.Equal(t, first, got, "同じ rng シードなら同じ施設")
 	}
 }
@@ -237,7 +237,7 @@ func TestDistrictRegion_zoneAt_区域が割り振る地区はrawの地区の一�
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	for _, d := range districtsFrom(raws) {
-		got := map[rawschema.Zone]bool{}
+		got := map[rawschema.ZoneId]bool{}
 		for _, size := range d.row.Sizes {
 			for seed := range uint64(4) {
 				r := districtRegion{kind: d.row, w: consts.Chunk(size.W), h: consts.Chunk(size.H), seed: seed << zoneChoiceShift}

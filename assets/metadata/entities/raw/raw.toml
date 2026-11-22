@@ -25436,3 +25436,42 @@
 [[widenSteps]]
   chance = 0.3
   id = "cave_widen"
+
+[[zones]]
+  id = "downtown"
+
+[[zones]]
+  id = "residential"
+
+[[zones]]
+  id = "industrial"
+
+[[zones]]
+  id = "campus_gate"
+
+[[zones]]
+  id = "campus_inner"
+
+[[zones]]
+  id = "campus_quarantine"
+
+[[zones]]
+  id = "military_gate"
+
+[[zones]]
+  id = "military_inner"
+
+[[zones]]
+  id = "military_armory"
+
+[[zones]]
+  id = "plant_outer"
+
+[[zones]]
+  id = "plant_core"
+
+[[zones]]
+  id = "farm_yard"
+
+[[zones]]
+  id = "farm_field"

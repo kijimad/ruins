@@ -20,6 +20,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	raws := rawschema.Raws{
 		ToolCategories: &[]rawschema.ToolCategory{{Id: "mining"}},
 		AmmoKinds:      &[]rawschema.AmmoKind{{Id: "9mm"}},
+		Zones:          &[]rawschema.Zone{{Id: "residential"}, {Id: "downtown"}},
 		FoliageEffects: &[]rawschema.Foliage{{Id: "grass", TempModifier: -1}},
 		Materials:      &[]rawschema.Material{{Id: "metal", Name: "Metal", Disassembly: &rawschema.MaterialDisassembly{Item: "iron", PerWeight: "1 kg"}}},
 		Recipes:        &[]rawschema.Recipe{{Id: "iron", Name: "Iron", Inputs: []rawschema.RecipeInput{{Id: "iron", Amount: 1}}}},
@@ -50,10 +51,10 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		EnemyTables:     &[]rawschema.EnemyTable{{Id: "wild", Name: "Wild", Entries: []rawschema.EnemyTableEntry{{Id: "slime", Weight: 1, Pack: "1d1"}}}},
 		Facilities: &[]rawschema.Facility{{
 			Id: "house", EnemyTable: "wild",
-			Zones: []rawschema.FacilityZone{{Zone: rawschema.Residential, Weight: 1}},
+			Zones: []rawschema.FacilityZone{{Zone: "residential", Weight: 1}},
 		}},
 		Districts: &[]rawschema.District{{
-			Id: "town", Name: "Town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{{Zones: []rawschema.Zone{rawschema.Residential}}, {Zones: []rawschema.Zone{rawschema.Downtown}}}, Landmark: new(rawschema.EntityID("house")),
+			Id: "town", Name: "Town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{{Zones: []rawschema.ZoneId{"residential"}}, {Zones: []rawschema.ZoneId{"downtown"}}}, Landmark: new(rawschema.EntityID("house")),
 			Street: "floor", Verge: new(rawschema.EntityID("floor")), StreetEnemies: "1d2",
 			Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}},
 		}},
@@ -155,6 +156,8 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"道具の分類", func(r *rawschema.Raws) {
 			(*r.Items)[0].Tool = &rawschema.Tool{Categories: []rawschema.ToolCategoryId{"none"}, Grade: 1}
 		}, "items.0.tool.categories_ref.0"},
+		{"施設の地区", func(r *rawschema.Raws) { (*r.Facilities)[0].Zones[0].Zone = "none" }, "facilities.0.zones.0.zone_ref"},
+		{"区域の層の地区", func(r *rawschema.Raws) { (*r.Districts)[0].Layers[1].Zones[0] = "none" }, "districts.0.layers.1.zones_ref.0"},
 		{"アイテムの材質", func(r *rawschema.Raws) { (*r.Items)[0].Material = new("none") }, "itemMaterials_ref.iron"},
 		{"タイルの植生", func(r *rawschema.Raws) { (*r.Tiles)[1].Foliage = new("none") }, "tiles.1.foliage_ref"},
 		{"分解の道具の分類", func(r *rawschema.Raws) { (*r.Props)[0].Disassembly.ToolCategory = new("none") }, "props.0.disassembly.toolCategory_ref"},
@@ -230,6 +233,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"地面の飾り", func(r *rawschema.Raws) { *r.Decors = append(*r.Decors, (*r.Decors)[0]) }, "decorIds_unique.moss"},
 		{"散布ゾーン", func(r *rawschema.Raws) { *r.ScatterZones = append(*r.ScatterZones, (*r.ScatterZones)[0]) }, "scatterZoneIds_unique.meadow"},
 		{"地図記号", func(r *rawschema.Raws) { *r.MapGlyphs = append(*r.MapGlyphs, (*r.MapGlyphs)[0]) }, "mapGlyphIds_unique.house"},
+		{"地区", func(r *rawschema.Raws) { *r.Zones = append(*r.Zones, (*r.Zones)[0]) }, "zoneIds_unique.residential"},
 		{"材質", func(r *rawschema.Raws) { *r.Materials = append(*r.Materials, (*r.Materials)[0]) }, "materialIds_unique.metal"},
 		{"植生", func(r *rawschema.Raws) { *r.FoliageEffects = append(*r.FoliageEffects, (*r.FoliageEffects)[0]) }, "foliageEffectIds_unique.grass"},
 		{"道具の分類", func(r *rawschema.Raws) { *r.ToolCategories = append(*r.ToolCategories, (*r.ToolCategories)[0]) }, "toolCategoryIds_unique.mining"},

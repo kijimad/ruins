@@ -670,7 +670,7 @@ type DistrictLayer struct {
 	Rows *int `json:"rows,omitempty"`
 
 	// Zones 候補の地区
-	Zones []Zone `json:"zones"`
+	Zones []ZoneId `json:"zones"`
 }
 
 // DistrictPattern 地区の並べ方。rings は層を2つ持ち、1つ目を外側、2つ目を中心にする。
@@ -1043,7 +1043,7 @@ type FacilityZone struct {
 	Weight int32 `json:"weight"`
 
 	// Zone 施設が建つ地区
-	Zone Zone `json:"zone"`
+	Zone ZoneId `json:"zone"`
 }
 
 // FactionMemberType 派閥タイプ
@@ -2173,6 +2173,8 @@ type Raws struct {
 	Weathers *[]Weather `json:"weathers,omitempty"`
 
 	WidenSteps *[]WidenStep `json:"widenSteps,omitempty"`
+
+	Zones *[]Zone `json:"zones,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量
@@ -3154,61 +3156,10 @@ type WidenStep struct {
 	Id EntityID `json:"id"`
 }
 
-// Zone 区域の地区。区域の層が候補として持ち、施設は建つ地区として持つ
-type Zone string
-
-// Defines values for Zone.
-const (
-	CampusGate       Zone = "campus_gate"
-	CampusInner      Zone = "campus_inner"
-	CampusQuarantine Zone = "campus_quarantine"
-	Downtown         Zone = "downtown"
-	FarmField        Zone = "farm_field"
-	FarmYard         Zone = "farm_yard"
-	Industrial       Zone = "industrial"
-	MilitaryArmory   Zone = "military_armory"
-	MilitaryGate     Zone = "military_gate"
-	MilitaryInner    Zone = "military_inner"
-	PlantCore        Zone = "plant_core"
-	PlantOuter       Zone = "plant_outer"
-	Residential      Zone = "residential"
-)
-
-// Valid indicates whether the value is a known member of the Zone enum.
-func (e Zone) Valid() bool {
-	switch e {
-	case CampusGate:
-		return true
-	case CampusInner:
-		return true
-	case CampusQuarantine:
-		return true
-	case Downtown:
-		return true
-	case FarmField:
-		return true
-	case FarmYard:
-		return true
-	case Industrial:
-		return true
-	case MilitaryArmory:
-		return true
-	case MilitaryGate:
-		return true
-	case MilitaryInner:
-		return true
-	case PlantCore:
-		return true
-	case PlantOuter:
-		return true
-	case Residential:
-		return true
-	default:
-		return false
-	}
+// Zone 区域の地区の表。区域の層が候補として持ち、施設は建つ地区として持つ。地区を足すときは raw にこの表の行を1つ足す
+type Zone struct {
+	Id ZoneId `json:"id"`
 }
 
-// ZoneValues は Zone の値を、スキーマに書いた順に返す。
-func ZoneValues() []Zone {
-	return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore, FarmYard, FarmField}
-}
+// ZoneId 区域の地区の id
+type ZoneId = TableId

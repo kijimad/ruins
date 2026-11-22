@@ -114,8 +114,8 @@ func validateDistrictLayers(d *rawschema.District) error {
 }
 
 // DistrictZones は区域 d が割り振る地区を、層の順に重複なく返す
-func DistrictZones(d rawschema.District) []rawschema.Zone {
-	var out []rawschema.Zone
+func DistrictZones(d rawschema.District) []rawschema.ZoneId {
+	var out []rawschema.ZoneId
 	for _, l := range d.Layers {
 		for _, z := range l.Zones {
 			if !slices.Contains(out, z) {

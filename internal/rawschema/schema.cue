@@ -420,7 +420,8 @@ import (
 // 地区の層。候補の地区から区域の seed で1つ選ぶ
 #DistrictLayer: {
 	// 候補の地区
-	zones!: [...#Zone] & [_, ...]
+	zones!: [...#ZoneId] & [_, ...]
+	zones_ref: [for x in zones {_zoneIDs[x]}] @rawgen(-)
 	// rows の並べ方で、この層が占める行の数
 	rows?: int & >=1
 }
@@ -769,7 +770,8 @@ import (
 // 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
 #FacilityZone: {
 	// 施設が建つ地区
-	zone!: #Zone
+	zone!:    #ZoneId
+	zone_ref: _zoneIDs[zone] @rawgen(-)
 	// 地区の中での抽選の重み
 	weight!: int32 & >=1
 	// 区域の長い方の辺がこのチャンク数以上のときだけ抽選する
@@ -1427,6 +1429,7 @@ import (
 	materials?: [...#Material]
 	toolCategories?: [...#ToolCategory]
 	ammoKinds?: [...#AmmoKind]
+	zones?: [...#Zone]
 	timesOfDay?: [...#TimeOfDay]
 	seasons?: [...#Season]
 	dungeons?: [...#Dungeon]
@@ -1458,6 +1461,7 @@ import (
 	fuelKindIds_unique: {if fuelKinds != _|_ for i, x in fuelKinds {(x.id): i}} @rawgen(-)
 	toolCategoryIds_unique: {if toolCategories != _|_ for i, x in toolCategories {(x.id): i}} @rawgen(-)
 	ammoKindIds_unique: {if ammoKinds != _|_ for i, x in ammoKinds {(x.id): i}} @rawgen(-)
+	zoneIds_unique: {if zones != _|_ for i, x in zones {(x.id): i}} @rawgen(-)
 	materialIds_unique: {if materials != _|_ for i, x in materials {(x.id): i}} @rawgen(-)
 	foliageEffectIds_unique: {if foliageEffects != _|_ for i, x in foliageEffects {(x.id): i}} @rawgen(-)
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
@@ -1904,5 +1908,10 @@ import (
 // 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 #Weight: string & =~"^[0-9]+(\\.[0-9]+)? (mg|g|kg)$"
 
-// 区域の地区。区域の層が候補として持ち、施設は建つ地区として持つ
-#Zone: "downtown" | "residential" | "industrial" | "campus_gate" | "campus_inner" | "campus_quarantine" | "military_gate" | "military_inner" | "military_armory" | "plant_outer" | "plant_core" | "farm_yard" | "farm_field"
+// 区域の地区の表。区域の層が候補として持ち、施設は建つ地区として持つ。地区を足すときは raw にこの表の行を1つ足す
+#Zone: {
+	id!: #ZoneId
+}
+
+// 区域の地区の id
+#ZoneId: #TableId

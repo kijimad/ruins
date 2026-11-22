@@ -35,11 +35,11 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 		facilities[f.Id] = f
 	}
 	taken := map[consts.Coord[consts.Chunk]]bool{}
-	free := func(x, y consts.Chunk, z rawschema.Zone) bool {
+	free := func(x, y consts.Chunk, z rawschema.ZoneId) bool {
 		c := consts.Coord[consts.Chunk]{X: x, Y: y}
 		return x < r.w && y < r.h && !taken[c] && r.zoneAt(c) == z
 	}
-	fits := func(x, y, w, h consts.Chunk, z rawschema.Zone) bool {
+	fits := func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool {
 		for dy := range h {
 			for dx := range w {
 				if !free(x+dx, y+dy, z) {
@@ -97,7 +97,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 
 // landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、
 // 地区に収まるものを選ぶ。区域の作りがその地区を割り振らなければ置かない
-func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.Zone) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
+func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
 	for _, fz := range f.Zones {
 		var cells []consts.Coord[consts.Chunk]
 		for y := range r.h {
