@@ -276,7 +276,7 @@ type BodyPart struct {
 }
 
 // BodyPartId 部位の id
-type BodyPartId = string
+type BodyPartId = TableId
 
 // Book 本の設定
 type Book struct {
@@ -1819,7 +1819,7 @@ type ProfessionEquip struct {
 }
 
 // ProfessionId 職業ID
-type ProfessionId = string
+type ProfessionId = TableId
 
 // ProfessionItem 職業初期所持アイテム
 type ProfessionItem struct {
@@ -2559,7 +2559,7 @@ type SkillCategory struct {
 }
 
 // SkillCategoryId スキルのカテゴリの id
-type SkillCategoryId = string
+type SkillCategoryId = TableId
 
 // SkillId スキルの表の id
 type SkillId = TableId

@@ -121,9 +121,7 @@ import (
 }
 
 // 部位の id
-#BodyPartId: string & strings.MinRunes(
-		1) & strings.MaxRunes(
-		50) & =~"^[a-z][a-z0-9_]*$"
+#BodyPartId: #TableId
 
 // 本の設定
 #Book: {
@@ -1285,9 +1283,7 @@ import (
 }
 
 // 職業ID
-#ProfessionId: string & strings.MinRunes(
-		1) & strings.MaxRunes(
-		50) & =~"^[a-z][a-z0-9_]*$"
+#ProfessionId: #TableId
 
 // 職業初期所持アイテム
 #ProfessionItem: {
@@ -1681,9 +1677,7 @@ import (
 }
 
 // スキルのカテゴリの id
-#SkillCategoryId: string & strings.MinRunes(
-			1) & strings.MaxRunes(
-			50) & =~"^[a-z][a-z0-9_]*$"
+#SkillCategoryId: #TableId
 
 // スキルの表の id
 #SkillId: #TableId
