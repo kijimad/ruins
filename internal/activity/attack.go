@@ -280,7 +280,7 @@ type hitOptions struct {
 	injury    bool       // 怪我を抽選する
 	growSkill bool       // 傷つけたら武器スキルを伸ばす
 	weapon    ecs.Entity // 攻撃に使った物。置物への道具の倍率・廃材の抽選・道具スキルの伸びを決める。持たない攻撃は gc.InvalidEntity
-	damageMod int
+	damageMod int        // ダメージに足す値。射撃の装填のボーナスなど
 }
 
 // applyHit は命中した攻撃を target に与え、与えたダメージを返す。ログ・見た目の効果・ダメージ・置物の廃材・
