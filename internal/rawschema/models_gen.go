@@ -404,7 +404,7 @@ type Condition struct {
 
 	Description EntityDescription `json:"description"`
 
-	// HpDrainPerSeverity 発症中に重症度1段あたり1ターンで削る HP。毒のように直に削る不調が持つ
+	// HpDrainPerSeverity 重症度1段あたりに1ターンで削る HP。毒のように直に削る不調が持つ
 	HpDrainPerSeverity *ConditionAmountPerSeverity `json:"hpDrainPerSeverity,omitempty"`
 
 	Id ConditionTypeName `json:"id"`

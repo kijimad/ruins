@@ -690,7 +690,7 @@ func TestApplyAttackDamage_道具が必須のprop(t *testing.T) {
 	}
 }
 
-func TestApplyAttackDamage_属性の耐性で減ったらログに出す(t *testing.T) {
+func TestApplyHit_属性の耐性で減ったらログに出す(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name    string
@@ -712,7 +712,8 @@ func TestApplyAttackDamage_属性の耐性で減ったらログに出す(t *test
 			melee := &gc.Melee{Damage: 10, Element: tt.element, AttackCategory: rawschema.AttackCategoryFist}
 			before := query.GetGameLog(world).Count()
 
-			require.NoError(t, applyAttackDamage(attacker, player, world, melee, "", 1000, 0))
+			_, err = applyHit(attacker, player, world, melee, "", hitOptions{})
+			require.NoError(t, err)
 
 			affinity := []string{}
 			for _, e := range query.GetGameLog(world).GetRecentEntries(query.GetGameLog(world).Count() - before) {

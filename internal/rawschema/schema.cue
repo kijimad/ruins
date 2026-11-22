@@ -180,9 +180,14 @@ import (
 	recoverPer?:           #ConditionTimerRate
 	bloodDropPerSeverity?: #ConditionAmountPerSeverity
 
-	// 発症中に重症度1段あたり1ターンで削る HP。毒のように直に削る不調が持つ
+	// 重症度1段あたりに1ターンで削る HP。毒のように直に削る不調が持つ
 	hpDrainPerSeverity?: #ConditionAmountPerSeverity
 	cause?:              #ConditionDeathCause
+
+	// HP を削る不調は、倒れたときの死因を書く
+	if hpDrainPerSeverity != _|_ {
+		cause!: _ @rawgen(-)
+	}
 
 	// 起こりうる部位。省くと全部位
 	parts?: [...#BodyPartId]

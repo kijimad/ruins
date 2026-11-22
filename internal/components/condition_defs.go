@@ -20,7 +20,7 @@ type ConditionDef struct {
 	WorsenPer               int                      // rawschema.ProgressUntilTend で未治療のとき1ターン Timer を増やす量
 	RecoverPer              int                      // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
 	BloodDropPerSeverity    int                      // 重症度1段あたりに下げる血液量。外傷は出血、重い全身性は循環低下
-	HPDrainPerSeverity      int                      // 発症中に重症度1段あたり1ターンで削る HP
+	HPDrainPerSeverity      int                      // 重症度1段あたりに1ターンで削る HP
 	Cause                   DeathCause               // 血液量や HP が尽きて倒したときの死因
 	Parts                   []BodyPart               // 起こりうる部位。空なら全部位
 	Onset                   rawschema.ConditionOnset // 不調を起こす仕組み。攻撃で負う怪我ときっかけの無い不調は空
