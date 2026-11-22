@@ -262,7 +262,7 @@ type BigRoomStep struct {
 
 // Blast 爆風。爆ぜたマスから radius マスまでの者すべてに効く
 type Blast struct {
-	// Condition 爆風に入った者に付ける不調
+	// Condition 爆風に入った者に付ける不調。怪我は攻撃で部位に負うものなので付けない
 	Condition *ConditionTypeName `json:"condition,omitempty"`
 
 	// Element 爆風の属性。省くと無属性

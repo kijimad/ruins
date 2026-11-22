@@ -176,7 +176,13 @@ func debugInflictConditions(world w.World) error {
 		if defs.IsDerived(ct) {
 			continue
 		}
-		part, timer := defs.DefaultPart(ct), 60.0
+		// 部位を書いた不調は最初の部位に置く。部位を限らない怪我は胴に、病気と寒さは全身性なので全身に置く
+		part, timer := gc.BodyPartWholeBody, 60.0
+		if def, _ := defs.Def(ct); len(def.Parts) > 0 {
+			part = def.Parts[0]
+		} else if defs.IsInjury(ct) {
+			part = gc.BodyPartTorso
+		}
 		if ct == cold {
 			timer = 90
 		}

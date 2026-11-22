@@ -88,18 +88,14 @@ func (d ConditionDefs) Injury(at rawschema.AttackCategory) (ConditionType, bool)
 	return ct, ok
 }
 
-// DefaultPart は部位を指定せずに不調を付けるときの部位を返す。部位を書いた不調は最初の部位、
-// 部位を限らない怪我は胴、ほかは全身性なので全身にする
-func (d ConditionDefs) DefaultPart(ct ConditionType) BodyPart {
-	if def, ok := d.Def(ct); ok && len(def.Parts) > 0 {
-		return def.Parts[0]
-	}
+// IsInjury は不調がいずれかの攻撃種別で負う怪我かを返す
+func (d ConditionDefs) IsInjury(ct ConditionType) bool {
 	for _, injury := range d.injuries {
 		if injury == ct {
-			return BodyPartTorso
+			return true
 		}
 	}
-	return BodyPartWholeBody
+	return false
 }
 
 // ByOnset は仕組み o が起こす不調を返す。仕組みごとに不調があることは読み込み時に確かめるので、無ければ panic する

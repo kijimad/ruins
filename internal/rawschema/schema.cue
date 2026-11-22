@@ -823,10 +823,11 @@ import (
 	// 爆風の属性。省くと無属性
 	element?: #Element
 
-	// 爆風に入った者に付ける不調
+	// 爆風に入った者に付ける不調。怪我は攻撃で部位に負うものなので付けない
 	condition?: #ConditionTypeName
 	if condition != _|_ {
-		condition_ref: _conditionIDs[condition] @rawgen(-)
+		condition_ref:       _conditionIDs[condition]              @rawgen(-)
+		condition_notInjury: true & (_injuryIDs[condition] == _|_) @rawgen(-)
 	}
 }
 
