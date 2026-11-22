@@ -33,14 +33,6 @@ id = "crate"
 tile = "ground"
 id = "crate"
 
-[palette.props."P"]
-tile = "ground"
-id = "stone_pillar"
-
-[palette.props."i"]
-tile = "ground"
-id = "candle"
-
 [palette.props."H"]
 tile = "ground"
 id = "hearth"
@@ -48,11 +40,6 @@ id = "hearth"
 [palette.props."n"]
 tile = "ground"
 id = "bench"
-
-[palette.items."o"]
-itemGroup = "antique_goods"
-tile = "ground"
-chance = 50
 
 [palette.items."f"]
 itemGroup = "food"
