@@ -71,6 +71,13 @@ func FuelKindMatches(world w.World, want rawschema.FuelKindId, fuel ecs.Entity) 
 	return ok && got == want
 }
 
+// TransferableCharge は from から to へ移せる量を返す。to の空きと from の残りの少ない方
+func TransferableCharge(world w.World, from, to ecs.Entity) int {
+	fromCharge := world.Components.Charge.Get(from)
+	toCharge := world.Components.Charge.Get(to)
+	return max(0, min(toCharge.Max-toCharge.Current, fromCharge.Current))
+}
+
 // ChargeKindOf は item が残量を移し合う燃料の種別を返す。灯りは受ける種別、燃料は自分の種別を返し、どちらでもなければ ok が偽
 func ChargeKindOf(world w.World, item ecs.Entity) (rawschema.FuelKindId, bool) {
 	if kind, ok := AcceptedFuelOf(world, item); ok {

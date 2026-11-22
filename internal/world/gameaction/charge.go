@@ -12,7 +12,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ConsumeCharge は item の残量を amount 減らす。0になれば、燃料と満たせる灯りは残し、使い切りの物は消す。
+// ConsumeCharge は item の残量を amount 減らす。0になれば、燃料と灯りのように残量を移し合う物は残し、使い切りの物は消す。
 // ログは尽きたときだけ出す。減っていく途中はゲージで見せる
 func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
 	charge := world.Components.Charge.Get(item)
@@ -69,7 +69,7 @@ func TransferCharge(world w.World, from, to ecs.Entity) (int, error) {
 		return 0, ErrChargeEmpty
 	}
 	fromBefore, toBefore := fromCharge.Current, toCharge.Current
-	moved := min(toCharge.Max-toCharge.Current, fromCharge.Current)
+	moved := query.TransferableCharge(world, from, to)
 	fromCharge.Current -= moved
 	toCharge.Current += moved
 	syncCarrierLight(world, from, fromBefore)

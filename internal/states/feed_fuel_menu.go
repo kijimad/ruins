@@ -93,8 +93,7 @@ func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 			return refillable && query.FuelKindMatches(world, want, fuel) && world.Components.Charge.Get(fuel).Current > 0
 		},
 		gain: func(world w.World, fuel ecs.Entity) string {
-			charge := world.Components.Charge.Get(light)
-			return consts.Turn(min(charge.Max-charge.Current, world.Components.Charge.Get(fuel).Current)).String()
+			return consts.Turn(query.TransferableCharge(world, fuel, light)).String()
 		},
 		feed: func(world w.World, fuel ecs.Entity) error {
 			_, err := gameaction.TransferCharge(world, fuel, light)
@@ -113,10 +112,11 @@ func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 	}
 }
 
-// LightDrainSink は灯りの残量を抜いて入れる、同じ種別の満タンでない燃料を並べる。灯りが0になったらメニューを閉じる
+// LightDrainSink は灯りの残量を抜いて入れる、同じ種別の満タンでない燃料を並べる。灯りが0になるか、抜く先が無くなったらメニューを閉じる
 func LightDrainSink(world w.World, light ecs.Entity) FuelSink {
 	want, refillable := query.AcceptedFuelOf(world, light)
-	return FuelSink{
+	var sink FuelSink
+	sink = FuelSink{
 		title: func(world w.World) string {
 			return query.T(world, "Drain %s", query.GetEntityName(light, world))
 		},
@@ -128,8 +128,7 @@ func LightDrainSink(world w.World, light ecs.Entity) FuelSink {
 			return charge.Current < charge.Max
 		},
 		gain: func(world w.World, container ecs.Entity) string {
-			charge := world.Components.Charge.Get(container)
-			return consts.Turn(min(charge.Max-charge.Current, world.Components.Charge.Get(light).Current)).String()
+			return consts.Turn(query.TransferableCharge(world, light, container)).String()
 		},
 		feed: func(world w.World, container ecs.Entity) error {
 			if _, err := gameaction.TransferCharge(world, light, container); err != nil {
@@ -143,9 +142,10 @@ func LightDrainSink(world w.World, light ecs.Entity) FuelSink {
 			return nil
 		},
 		done: func(world w.World) bool {
-			return world.Components.Charge.Get(light).Current <= 0
+			return world.Components.Charge.Get(light).Current <= 0 || !carriesAccepted(world, sink)
 		},
 	}
+	return sink
 }
 
 var _ es.State[w.World] = &FeedFuelMenuState{}

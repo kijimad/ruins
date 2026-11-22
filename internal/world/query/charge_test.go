@@ -145,3 +145,30 @@ func TestChargeKindOf(t *testing.T) {
 		})
 	}
 }
+
+func TestTransferableCharge(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		from int
+		to   int
+		want int
+	}{
+		{name: "受け側の空きのほうが少ない", from: 800, to: 700, want: 300},
+		{name: "出し側の残りのほうが少ない", from: 200, to: 100, want: 200},
+		{name: "受け側が満タン", from: 800, to: 1000, want: 0},
+		{name: "出し側が空", from: 0, to: 100, want: 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			from := world.ECS.NewEntity()
+			world.Components.Charge.Add(from, &gc.Charge{Current: tt.from, Max: 1000})
+			to := world.ECS.NewEntity()
+			world.Components.Charge.Add(to, &gc.Charge{Current: tt.to, Max: 1000})
+
+			assert.Equal(t, tt.want, TransferableCharge(world, from, to))
+		})
+	}
+}

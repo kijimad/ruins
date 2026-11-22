@@ -237,3 +237,21 @@ func TestLightDrainSink_空の燃料へ抜いてログを出し灯りが0にな�
 	assert.True(t, sink.done(world))
 	assert.Equal(t, query.T(world, "Drained %s into %s.", "Hand Lantern", "Lamp Oil"), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
 }
+
+func TestLightDrainSink_抜く先が満タンになって無くなれば閉じてよい(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(oil).Current = 1125
+	sink := LightDrainSink(world, lantern)
+
+	require.NoError(t, sink.feed(world, oil))
+
+	assert.Equal(t, 1125, world.Components.Charge.Get(lantern).Current, "灯りには抜ききれない分が残る")
+	assert.True(t, sink.done(world))
+}
