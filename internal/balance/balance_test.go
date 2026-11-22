@@ -87,6 +87,16 @@ func TestLoadWeaponFromItem(t *testing.T) {
 		require.ErrorAs(t, err, &notFound)
 		assert.Equal(t, raw.KeyNotFoundError{Key: "存在しない武器", Collection: "Items"}, notFound)
 	})
+
+	t.Run("近接も遠距離も持たないアイテムはエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := rawschema.Raws{
+			Items: &[]rawschema.Item{{Id: "potion", Name: "Potion"}},
+		}
+		_, err := LoadWeaponFromItem(raws, "potion")
+		require.Error(t, err)
+		assert.Equal(t, `item "potion" has neither Melee nor Fire`, err.Error())
+	})
 }
 
 func TestLoadWeaponFromMember(t *testing.T) {
@@ -137,6 +147,47 @@ func TestLoadWeaponFromMember(t *testing.T) {
 		t.Parallel()
 		_, err := LoadWeaponFromMember(master, "存在しない敵")
 		require.Error(t, err)
+	})
+
+	t.Run("存在しないコマンドテーブルを指すメンバーはエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := rawschema.Raws{
+			Members: &[]rawschema.Member{{Id: "ghost", Name: "Ghost", CommandTableId: new("missing")}},
+		}
+		_, err := LoadWeaponFromMember(raws, "ghost")
+		var notFound raw.KeyNotFoundError
+		require.ErrorAs(t, err, &notFound)
+		assert.Equal(t, raw.KeyNotFoundError{Key: "missing", Collection: "CommandTables"}, notFound)
+	})
+
+	t.Run("行が無いコマンドテーブルはエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := rawschema.Raws{
+			CommandTables: &[]rawschema.CommandTable{{Id: "empty", Name: "Empty", Entries: []rawschema.CommandTableEntry{}}},
+			Members:       &[]rawschema.Member{{Id: "ghost", Name: "Ghost", CommandTableId: new("empty")}},
+		}
+		_, err := LoadWeaponFromMember(raws, "ghost")
+		require.Error(t, err)
+		assert.Equal(t, `command table "empty" has no entry`, err.Error())
+	})
+
+	t.Run("最も重い行が存在しないアイテムを指すとエラー", func(t *testing.T) {
+		t.Parallel()
+		hands := rawschema.Melee{Accuracy: 100, Damage: 3}
+		raws := rawschema.Raws{
+			BodyAttacks: &[]rawschema.BodyAttack{{Id: raw.BareHands, Name: "Bare hands", Melee: hands}},
+			CommandTables: &[]rawschema.CommandTable{
+				{Id: "thief", Name: "Thief", Entries: []rawschema.CommandTableEntry{
+					{BodyAttack: new(raw.BareHands), Weight: 1},
+					{Item: new("missing_item"), Weight: 10},
+				}},
+			},
+			Members: &[]rawschema.Member{{Id: "ghost", Name: "Ghost", CommandTableId: new("thief")}},
+		}
+		_, err := LoadWeaponFromMember(raws, "ghost")
+		var notFound raw.KeyNotFoundError
+		require.ErrorAs(t, err, &notFound)
+		assert.Equal(t, raw.KeyNotFoundError{Key: "missing_item", Collection: "Items"}, notFound)
 	})
 }
 
