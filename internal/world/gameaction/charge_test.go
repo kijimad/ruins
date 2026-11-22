@@ -162,3 +162,19 @@ func TestRefillCharge(t *testing.T) {
 		})
 	}
 }
+
+func TestRefillCharge_種別の合わない燃料では満たさない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(lantern).Current = 0
+	battery, err := lifecycle.SpawnBackpackItem(world, "battery", 1)
+	require.NoError(t, err)
+
+	require.ErrorIs(t, RefillCharge(world, lantern, battery), ErrRefillMismatch)
+	assert.Equal(t, 0, world.Components.Charge.Get(lantern).Current)
+	assert.True(t, world.ECS.Alive(battery), "燃料は使わない")
+}

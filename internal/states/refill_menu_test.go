@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
@@ -81,4 +83,26 @@ func TestExecUseItem_スイッチを持つ物は点け消しする(t *testing.T)
 	require.NoError(t, err)
 	assert.True(t, world.Components.Switch.Get(lantern).On)
 	assert.True(t, world.ECS.Alive(lantern), "点け消しは物を消費しない")
+}
+
+func TestFeedFuelMenuState_灯りを満タンにしたら閉じる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t, testutil.WithUI())
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(lantern).Current = 0
+	_, err = lifecycle.SpawnBackpackItem(world, "lamp_oil", 2)
+	require.NoError(t, err)
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return "", false }
+	st := &FeedFuelMenuState{sink: LightFuelSink(world, lantern)}
+	require.NoError(t, st.OnStart(world))
+	_, err = st.Update(world)
+	require.NoError(t, err)
+
+	tr, err := st.DoAction(world, inputmapper.ActionMenuSelect)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPop, tr.Type)
+	assert.Equal(t, 1500, world.Components.Charge.Get(lantern).Current)
 }

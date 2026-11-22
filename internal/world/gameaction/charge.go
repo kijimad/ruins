@@ -3,7 +3,6 @@ package gameaction
 import (
 	"errors"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/i18n"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -50,12 +49,22 @@ func logItem(world w.World, item ecs.Entity, msgid i18n.Msgid) {
 	gamelog.New(query.GetGameLog(world)).Markup(query.T(world, msgid, name)).Log()
 }
 
-// ErrChargeFull は満タンの物を満たそうとしたときに返す
-var ErrChargeFull = errors.New("charge is already full")
+var (
+	// ErrChargeFull は満タンの物を満たそうとしたときに返す
+	ErrChargeFull = errors.New("charge is already full")
+	// ErrRefillMismatch は種別の合わない燃料で満たそうとしたときに返す
+	ErrRefillMismatch = errors.New("fuel does not match the refill tag")
+)
 
-// RefillCharge は fuel を1つ使い、item の残量を上限まで戻す。満タンなら燃料を使わず ErrChargeFull を返す。
+// RefillCharge は fuel を1つ使い、item の残量を上限まで戻す。種別が合わなければ ErrRefillMismatch を、
+// 満タンなら ErrChargeFull を返し、どちらも燃料を使わない。
 // 尽きていた灯りが照らし直すので、持ち主の灯りと視界を計算し直させる
 func RefillCharge(world w.World, item, fuel ecs.Entity) error {
+	want, refillable := query.RefillTagOf(world, item)
+	got, isFuel := query.RefillOf(world, fuel)
+	if !refillable || !isFuel || got != want {
+		return ErrRefillMismatch
+	}
 	charge := world.Components.Charge.Get(item)
 	if charge.Current >= charge.Max {
 		return ErrChargeFull
@@ -65,8 +74,8 @@ func RefillCharge(world w.World, item, fuel ecs.Entity) error {
 	}
 	charge = world.Components.Charge.Get(item)
 	charge.Current = charge.Max
-	if owner, carried := query.Carrier(world, item); carried && !world.Components.StatsChanged.Has(owner) {
-		world.Components.StatsChanged.Add(owner, &gc.StatsChanged{})
+	if owner, carried := query.Carrier(world, item); carried {
+		lifecycle.MarkStatsChanged(world, owner)
 	}
 	query.GetVisionState(world).RequestUpdate()
 	return nil

@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAddFuel(t *testing.T) {
@@ -47,4 +48,22 @@ func TestAddFuel(t *testing.T) {
 
 		assert.True(t, world.ECS.Alive(fuel), "火が燃えていなければ燃料は消費されない")
 	})
+}
+
+func TestAddFuel_バックパックの松明をくべると持ち主に灯りを写し直させる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	torch, err := lifecycle.SpawnBackpackItem(world, "torch", 1)
+	require.NoError(t, err)
+	fire := world.ECS.NewEntity()
+	world.Components.Burning.Add(fire, &gc.Burning{})
+	world.Components.GridElement.Add(fire, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
+	world.Components.StatsChanged.Remove(player)
+
+	lifecycle.AddFuel(world, fire, torch)
+
+	assert.False(t, world.ECS.Alive(torch))
+	assert.True(t, world.Components.StatsChanged.Has(player), "くべた松明の灯りを外す")
 }
