@@ -26,11 +26,17 @@ func LightLit(world w.World, player, light ecs.Entity) bool {
 
 // CarriedBy は item が owner のバックパックか装備にあるかを返す
 func CarriedBy(world w.World, item, owner ecs.Entity) bool {
+	carrier, ok := Carrier(world, item)
+	return ok && carrier == owner
+}
+
+// Carrier は item を持つ者を返す。バックパックか装備になければ ok は偽
+func Carrier(world w.World, item ecs.Entity) (ecs.Entity, bool) {
 	switch {
 	case world.Components.LocationInBackpack.Has(item):
-		return world.Components.LocationInBackpack.Get(item).Owner == owner
+		return world.Components.LocationInBackpack.Get(item).Owner, true
 	case world.Components.LocationEquipped.Has(item):
-		return world.Components.LocationEquipped.Get(item).Owner == owner
+		return world.Components.LocationEquipped.Get(item).Owner, true
 	}
-	return false
+	return ecs.Entity{}, false
 }

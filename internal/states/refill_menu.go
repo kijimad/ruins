@@ -20,7 +20,7 @@ func refillChoices(world w.World) (string, []Choice) {
 		choices = append(choices, Choice{
 			Label: query.GetEntityName(item, world),
 			Run: pushChoice(func() (es.State[w.World], error) {
-				return NewFeedFuelMenuState(LightFuelSink(item))
+				return NewFeedFuelMenuState(LightFuelSink(world, item))
 			}),
 		})
 	}

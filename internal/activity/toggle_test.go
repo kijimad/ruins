@@ -43,3 +43,21 @@ func TestToggleBehavior_Validate(t *testing.T) {
 	require.Error(t, tb.Validate(NewToggleActivity(noSwitch), actor, world), "スイッチを持たない物は点け消しできない")
 	require.Error(t, tb.Validate(NewToggleActivity(others), actor, world), "ほかの者の物は点け消しできない")
 }
+
+func TestToggleBehavior_尽きた物を点けると燃料が切れているとログに出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	actor := world.ECS.NewEntity()
+	lamp := world.ECS.NewEntity()
+	world.Components.Name.Add(lamp, &gc.Name{Name: "Lamp"})
+	world.Components.Switch.Add(lamp, &gc.Switch{})
+	world.Components.Charge.Add(lamp, &gc.Charge{Max: 1500, Current: 0})
+	world.Components.LocationInBackpack.Add(lamp, &gc.LocationInBackpack{Owner: actor})
+
+	_, err := Execute(NewToggleActivity(lamp), actor, world)
+	require.NoError(t, err)
+	entries := query.GetGameLog(world).GetRecentEntries(2)
+	require.Len(t, entries, 2)
+	assert.Equal(t, query.T(world, "You switched on %s.", "Lamp"), entries[0].Text())
+	assert.Equal(t, query.T(world, "%s has no fuel.", "Lamp"), entries[1].Text())
+}

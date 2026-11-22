@@ -98,3 +98,19 @@ func TestWhileOnChargeSystem_束で床に置いた松明はどれも減る(t *te
 		assert.Equal(t, 599, world.Components.Charge.Get(e).Current, "床に置いた束はどれも照らして減る")
 	}
 }
+
+func TestWhileOnChargeSystem_切ったランタンは持っていても減らない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	off, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	on, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Switch.Get(on).On = true
+
+	require.NoError(t, (&WhileOnChargeSystem{}).Update(world))
+	assert.Equal(t, 1500, world.Components.Charge.Get(off).Current, "切ったランタンは減らない")
+	assert.Equal(t, 1499, world.Components.Charge.Get(on).Current, "点けたランタンは減る")
+}

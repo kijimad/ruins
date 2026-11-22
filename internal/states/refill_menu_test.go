@@ -35,7 +35,7 @@ func TestLightFuelSink_同じ種別の燃料だけをくべられる(t *testing.
 	require.NoError(t, err)
 	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
 	require.NoError(t, err)
-	sink := LightFuelSink(lantern)
+	sink := LightFuelSink(world, lantern)
 	tests := []struct {
 		rawID string
 		want  bool
@@ -49,4 +49,36 @@ func TestLightFuelSink_同じ種別の燃料だけをくべられる(t *testing.
 		require.NoError(t, err)
 		assert.Equal(t, tt.want, sink.accepts(world, fuel), tt.rawID)
 	}
+}
+
+func TestLightFuelSink_満タンになったら閉じてよい(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(lantern).Current = 0
+	oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
+	require.NoError(t, err)
+	sink := LightFuelSink(world, lantern)
+	require.False(t, sink.done(world))
+
+	require.NoError(t, sink.feed(world, oil))
+	assert.True(t, sink.done(world), "1つで満タンになる")
+}
+
+func TestExecUseItem_スイッチを持つ物は点け消しする(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	require.True(t, acceptUse(world, lantern), "スイッチを持つ物は使うの対象になる")
+
+	_, err = execUseItem(world, lantern)
+	require.NoError(t, err)
+	assert.True(t, world.Components.Switch.Get(lantern).On)
+	assert.True(t, world.ECS.Alive(lantern), "点け消しは物を消費しない")
 }

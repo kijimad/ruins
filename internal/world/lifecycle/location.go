@@ -176,6 +176,11 @@ func UnequipAll(world w.World, playerEntity ecs.Entity) error {
 	return nil
 }
 
+// MarkStatsChanged は持ち主に能力値と灯りを計算し直させる。持ち主が生きていなければ何もしない
+func MarkStatsChanged(world w.World, owner ecs.Entity) {
+	ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+}
+
 // ensureMarker はマーカーコンポーネントを冪等に付与する。
 // エンティティが死亡している場合や既に付与済みの場合は何もしない。
 // Arkは死亡エンティティへの付与と二重付与でパニックするため、ここで吸収する

@@ -6746,10 +6746,10 @@ msgstr "%sを点けた"
 msgid "You switched off %s."
 msgstr "%sを消した"
 
-msgid "On"
+msgid "Switched on"
 msgstr "オン"
 
-msgid "Off"
+msgid "Switched off"
 msgstr "オフ"
 
 msgid "%s ran out."
@@ -6790,3 +6790,6 @@ msgstr "電池"
 
 msgid "A fresh battery. Refills a flashlight."
 msgstr "使える電池。懐中電灯を満たす。"
+
+msgid "%s has no fuel."
+msgstr "%sは燃料が切れている"

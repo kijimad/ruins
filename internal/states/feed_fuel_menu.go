@@ -32,12 +32,13 @@ type FeedFuelMenuState struct {
 }
 
 // FuelSink は給油メニューのくべ先。見出し、くべられる燃料の判定、1つくべると増える量の表示、くべる処理を持つ。
-// 一覧に出す燃料と、選んだときにくべる燃料は同じ accepts で決める
+// 一覧に出す燃料と、選んだときにくべる燃料は同じ accepts で決める。done が真を返せば、くべた後にメニューを閉じる
 type FuelSink struct {
 	title   func(world w.World) string
 	accepts func(world w.World, fuel ecs.Entity) bool
 	gain    func(world w.World, fuel ecs.Entity) string
 	feed    func(world w.World, fuel ecs.Entity) error
+	done    func(world w.World) bool
 }
 
 // FireFuelSink は火をくべ先にする。増える量は燃焼ターン数で表す。
@@ -80,19 +81,16 @@ func CubeFuelSink(cube ecs.Entity) FuelSink {
 }
 
 // LightFuelSink は満たせる灯りをくべ先にする。灯りと同じ種別の燃料を1つ使い、残量を上限まで戻す。
-// 増える量は満たせる量で表す
-func LightFuelSink(light ecs.Entity) FuelSink {
+// 増える量は満たせる量で表す。1つで満タンになるので、満たしたらメニューを閉じる
+func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
+	want, refillable := query.RefillTagOf(world, light)
 	return FuelSink{
 		title: func(world w.World) string {
 			return query.T(world, "Refill %s", query.GetEntityName(light, world))
 		},
 		accepts: func(world w.World, fuel ecs.Entity) bool {
-			want, ok := query.RefillTagOf(world, light)
-			if !ok {
-				return false
-			}
 			got, ok := query.RefillOf(world, fuel)
-			return ok && got == want
+			return refillable && ok && got == want
 		},
 		gain: func(world w.World, _ ecs.Entity) string {
 			charge := world.Components.Charge.Get(light)
@@ -107,6 +105,10 @@ func LightFuelSink(light ecs.Entity) FuelSink {
 				return nil
 			}
 			return err
+		},
+		done: func(world w.World) bool {
+			charge := world.Components.Charge.Get(light)
+			return charge.Current >= charge.Max
 		},
 	}
 }
@@ -162,6 +164,9 @@ func (st *FeedFuelMenuState) DoAction(world w.World, action inputmapper.ActionID
 		if entity, ok := st.selectedEntity(); ok && world.ECS.Alive(entity) && st.sink.accepts(world, entity) {
 			if err := st.sink.feed(world, entity); err != nil {
 				return es.Transition[w.World]{}, err
+			}
+			if st.sink.done != nil && st.sink.done(world) {
+				return es.Transition[w.World]{Type: es.TransPop}, nil
 			}
 		}
 	default:

@@ -20,15 +20,15 @@ func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
 	if charge.Current > 0 {
 		return
 	}
-	owner, carried := carrier(world, item)
+	owner, carried := query.Carrier(world, item)
 	byPlayer := carried && world.Components.Player.Has(owner)
 	if _, refillable := query.RefillTagOf(world, item); refillable {
 		if byPlayer {
 			logItem(world, item, "%s ran out.")
 		}
 		// 物は残るので、持ち主の灯りを写し直させる
-		if carried && !world.Components.StatsChanged.Has(owner) {
-			world.Components.StatsChanged.Add(owner, &gc.StatsChanged{})
+		if carried {
+			lifecycle.MarkStatsChanged(world, owner)
 		}
 		query.GetVisionState(world).RequestUpdate()
 		return
@@ -50,17 +50,6 @@ func logItem(world w.World, item ecs.Entity, msgid i18n.Msgid) {
 	gamelog.New(query.GetGameLog(world)).Markup(query.T(world, msgid, name)).Log()
 }
 
-// carrier は item を持つ者を返す。バックパックか装備になければ ok は偽
-func carrier(world w.World, item ecs.Entity) (ecs.Entity, bool) {
-	switch {
-	case world.Components.LocationEquipped.Has(item):
-		return world.Components.LocationEquipped.Get(item).Owner, true
-	case world.Components.LocationInBackpack.Has(item):
-		return world.Components.LocationInBackpack.Get(item).Owner, true
-	}
-	return gc.InvalidEntity, false
-}
-
 // ErrChargeFull は満タンの物を満たそうとしたときに返す
 var ErrChargeFull = errors.New("charge is already full")
 
@@ -76,7 +65,7 @@ func RefillCharge(world w.World, item, fuel ecs.Entity) error {
 	}
 	charge = world.Components.Charge.Get(item)
 	charge.Current = charge.Max
-	if owner, carried := carrier(world, item); carried && !world.Components.StatsChanged.Has(owner) {
+	if owner, carried := query.Carrier(world, item); carried && !world.Components.StatsChanged.Has(owner) {
 		world.Components.StatsChanged.Add(owner, &gc.StatsChanged{})
 	}
 	query.GetVisionState(world).RequestUpdate()

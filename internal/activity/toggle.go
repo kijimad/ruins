@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -76,10 +77,12 @@ func (tb *ToggleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		text = query.T(world, "You switched on %s.", name)
 	}
 	gamelog.New(query.GetGameLog(world)).Markup(text).Log()
-
-	if !world.Components.StatsChanged.Has(actor) {
-		world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
+	// 尽きた物はオンでも働かない。補充すればそのまま働くので、点けることは許して理由だけ知らせる
+	if sw.On && world.Components.Charge.Has(p.Target) && world.Components.Charge.Get(p.Target).Current <= 0 {
+		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "%s has no fuel.", name)).Log()
 	}
+
+	lifecycle.MarkStatsChanged(world, actor)
 	query.GetVisionState(world).RequestUpdate()
 	Complete(comp)
 	return nil
