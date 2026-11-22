@@ -255,7 +255,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entit
 	}
 	// 減らす量は殴る前の対象で決め、武器は最後に減らす。先に消すと、壊したときの産出が武器の道具の値を読めない
 	if wearsWithUse(world, weapon) {
-		defer gameaction.ConsumeCharge(world, weapon, attackChargeCost(world, actor, weapon, target))
+		defer gameaction.ConsumeCharge(world, weapon, attackChargeCost(world, actor, target))
 	}
 
 	hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
@@ -297,21 +297,18 @@ func wearsWithUse(world w.World, weapon ecs.Entity) bool {
 		!world.Components.LightSource.Has(weapon)
 }
 
-// attackChargeCost は weapon で target を攻撃したときに減る残量を返す。置物は分類の合う道具で殴れば1、
-// ほかは本来の用途以外として倍にする。敵などは道具で攻撃すれば倍、武器なら1
-func attackChargeCost(world w.World, actor, weapon, target ecs.Entity) int {
-	if world.Components.Prop.Has(target) {
-		if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world)); ok {
-			if _, fit := wieldedTool(world, actor, def); fit {
-				return 1
-			}
+// attackChargeCost は actor が構えた物で target を攻撃したときに減る残量を返す。置物は分類の合う道具で殴れば1、
+// ほかは本来の用途以外として倍にする。敵などへの攻撃は、道具を兼ねる物でも1
+func attackChargeCost(world w.World, actor, target ecs.Entity) int {
+	if !world.Components.Prop.Has(target) {
+		return 1
+	}
+	if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world)); ok {
+		if _, fit := wieldedTool(world, actor, def); fit {
+			return 1
 		}
-		return misuseChargeMultiplier
 	}
-	if _, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(weapon, world)); ok {
-		return misuseChargeMultiplier
-	}
-	return 1
+	return misuseChargeMultiplier
 }
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する

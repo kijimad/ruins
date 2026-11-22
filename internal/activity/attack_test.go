@@ -699,7 +699,7 @@ func TestApplyAttackDamage_武器の残量を本来の用途かで減らす(t *t
 		want   int
 	}{
 		{name: "剣で敵を攻撃すると1減る", weapon: "iron_sword", want: 1},
-		{name: "斧で敵を攻撃すると2減る", weapon: "axe", want: 2},
+		{name: "斧で敵を攻撃しても1減る", weapon: "axe", want: 1},
 		{name: "斧で木を殴ると1減る", weapon: "axe", prop: "tree_a", want: 1},
 		{name: "斧で岩を殴ると2減る", weapon: "axe", prop: "rock", want: 2},
 		{name: "剣で木を殴ると2減る", weapon: "iron_sword", prop: "tree_a", want: 2},
