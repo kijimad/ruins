@@ -60,6 +60,18 @@ func TestExpectedGroupValue_グループの参照先アイテムが見つから�
 	assert.Equal(t, 0.0, expectedGroupValue(raws, "junk"), "参照先のアイテムが1件も見つからなければ個数の総和が0のまま0を返す")
 }
 
+func TestExpectedGroupValue_グループの全行の重みが0なら個数の総和が0のまま0(t *testing.T) {
+	t.Parallel()
+	raws := rawschema.Raws{
+		Items: &[]rawschema.Item{{Id: "gem", Name: "Gem", Value: 42}},
+		ItemGroups: &[]rawschema.ItemGroup{{
+			Id:      "junk",
+			Entries: []rawschema.ItemGroupEntry{{Id: "gem", Weight: 0, Pack: "1d1"}},
+		}},
+	}
+	assert.Equal(t, 0.0, expectedGroupValue(raws, "junk"), "重みの総和が0だと行が1件も出ず個数の総和が0のまま0を返す")
+}
+
 func TestExpectedPack_解釈できないダイス表記は0(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, 0.0, expectedPack(""))
