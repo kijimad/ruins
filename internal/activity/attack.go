@@ -254,7 +254,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entit
 		return fmt.Errorf("attack must not be nil")
 	}
 	// 減らす量は殴る前の対象で決め、武器は最後に減らす。先に消すと、壊したときの産出が武器の道具の値を読めない
-	if drainsOnAttack(world, weapon) {
+	if query.ChargeTriggerOf(world, weapon) == query.ChargeTriggerOnUse {
 		defer gameaction.ConsumeCharge(world, weapon, attackChargeCost(world, actor, target))
 	}
 
@@ -288,13 +288,6 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entit
 	}
 
 	return nil
-}
-
-// drainsOnAttack は weapon で攻撃すると残量が減るかを返す。灯りは照らしている間に減るので、殴っても減らない
-func drainsOnAttack(world w.World, weapon ecs.Entity) bool {
-	return weapon != gc.InvalidEntity &&
-		world.Components.Charge.Has(weapon) &&
-		!world.Components.LightSource.Has(weapon)
 }
 
 // attackChargeCost は actor が構えた物で target を攻撃したときに減る残量を返す。置物は分類の合う道具で殴れば1、

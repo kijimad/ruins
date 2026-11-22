@@ -5,6 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,4 +36,37 @@ func TestChargeRatio(t *testing.T) {
 			assert.InDelta(t, tt.want, got, 1e-9)
 		})
 	}
+}
+
+func TestChargeTriggerOf(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name  string
+		build func(world w.World, e ecs.Entity)
+		want  ChargeTrigger
+	}{
+		{name: "光源を持つ物はオンの間に減る", build: func(world w.World, e ecs.Entity) {
+			world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: 600})
+			world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: true})
+		}, want: ChargeTriggerWhileOn},
+		{name: "ほかは使うたびに減る", build: func(world w.World, e ecs.Entity) {
+			world.Components.Charge.Add(e, &gc.Charge{Max: 150, Current: 150})
+		}, want: ChargeTriggerOnUse},
+		{name: "残量を持たない物は減らない", build: func(world w.World, e ecs.Entity) {
+			world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: true})
+		}, want: ChargeTriggerNone},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			e := world.ECS.NewEntity()
+			tt.build(world, e)
+			assert.Equal(t, tt.want, ChargeTriggerOf(world, e))
+		})
+	}
+	t.Run("武器の実体が無ければ減らない", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, ChargeTriggerNone, ChargeTriggerOf(testutil.InitTestWorld(t), gc.InvalidEntity))
+	})
 }

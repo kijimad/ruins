@@ -8,7 +8,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// LightChargeSystem は照らしている灯りの残量を毎ターン1減らす。退避中のステージの灯りは減らない
+// LightChargeSystem はオンの間に減る物のうち、照らしている灯りの残量を毎ターン1減らす。退避中のステージの灯りは減らない
 type LightChargeSystem struct{}
 
 // String はシステム名を返す
@@ -24,9 +24,10 @@ func (sys *LightChargeSystem) Update(world w.World) error {
 		player = ecs.Entity{}
 	}
 	var lights []ecs.Entity
-	lightQuery := query.ActiveFilter2[gc.LightSource, gc.Charge](world).Query()
+	lightQuery := query.ActiveFilter1[gc.Charge](world).Query()
 	for lightQuery.Next() {
-		if e := lightQuery.Entity(); query.LightLit(world, player, e) {
+		e := lightQuery.Entity()
+		if query.ChargeTriggerOf(world, e) == query.ChargeTriggerWhileOn && query.LightLit(world, player, e) {
 			lights = append(lights, e)
 		}
 	}
