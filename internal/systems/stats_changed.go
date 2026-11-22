@@ -83,17 +83,17 @@ func updateCharacterStats(world w.World, entity ecs.Entity) {
 		abils.Agility.Modifier += wearable.EquipBonus.Agility
 	}
 
-	// 装備した光源をプレイヤー自身の LightSource へ写す。装備品は位置を持たず vision に
+	// 持っている光源をプレイヤー自身の LightSource へ写す。持ち物は位置を持たず vision に
 	// 拾われないので、位置を持つプレイヤーが代わりに光源になる。複数あれば最も明るいもの。
 	// プレイヤー限定なのは、発光する member 等の内蔵光源を装備の有無で消さないため。
 	if world.Components.Player.Has(entity) && world.Components.LightSource.Has(entity) {
 		ls := world.Components.LightSource.Get(entity)
 		ls.Enabled = false
 		var bestRadius consts.Tile
-		lightQuery := query.ActiveFilter2[gc.LocationEquipped, gc.LightSource](world).Query()
+		lightQuery := query.ActiveFilter1[gc.LightSource](world).Query()
 		for lightQuery.Next() {
 			litem := lightQuery.Entity()
-			if !query.LightLit(world, entity, litem) {
+			if !query.CarriedBy(world, litem, entity) || !query.LightLit(world, entity, litem) {
 				continue
 			}
 			src := world.Components.LightSource.Get(litem)

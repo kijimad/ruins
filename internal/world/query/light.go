@@ -6,7 +6,7 @@ import (
 )
 
 // LightLit は light が今照らしているかを返す。点いていて、残量を持つなら残っていて、照らせる置き場所にあるときに照らす。
-// 照らせる置き場所は、位置を持つ床や置物と、player の手持ち欄。背負っている物は照らさない
+// 照らせる置き場所は、位置を持つ床や置物と、player が持っている物。バックパックでも手持ち欄でもよい
 func LightLit(world w.World, player, light ecs.Entity) bool {
 	if !world.Components.LightSource.Has(light) || !world.Components.LightSource.Get(light).Enabled {
 		return false
@@ -17,13 +17,16 @@ func LightLit(world w.World, player, light ecs.Entity) bool {
 	if world.Components.GridElement.Has(light) {
 		return true
 	}
-	if !world.Components.LocationEquipped.Has(light) {
-		return false
+	return CarriedBy(world, light, player)
+}
+
+// CarriedBy は item が owner のバックパックか装備にあるかを返す
+func CarriedBy(world w.World, item, owner ecs.Entity) bool {
+	switch {
+	case world.Components.LocationInBackpack.Has(item):
+		return world.Components.LocationInBackpack.Get(item).Owner == owner
+	case world.Components.LocationEquipped.Has(item):
+		return world.Components.LocationEquipped.Get(item).Owner == owner
 	}
-	equipped := world.Components.LocationEquipped.Get(light)
-	if equipped.Owner != player {
-		return false
-	}
-	_, ok := equipped.EquipmentSlot.HandIndex()
-	return ok
+	return false
 }

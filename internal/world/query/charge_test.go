@@ -83,10 +83,10 @@ func TestIsOn(t *testing.T) {
 			world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: true})
 			world.Components.GridElement.Add(e, &gc.GridElement{})
 		}, want: true},
-		{name: "バックパックの灯りはオフ", build: func(world w.World, e ecs.Entity) {
+		{name: "ほかの者のバックパックの灯りはオフ", build: func(world w.World, e ecs.Entity) {
 			world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: 600})
 			world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: true})
-			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{})
+			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: world.ECS.NewEntity()})
 		}, want: false},
 		{name: "光源を持たない物はオフ", build: func(world w.World, e ecs.Entity) {
 			world.Components.Charge.Add(e, &gc.Charge{Max: 150, Current: 150})

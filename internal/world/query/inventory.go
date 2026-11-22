@@ -46,37 +46,28 @@ func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoTag) (ecs.Entity, 
 	return gc.InvalidEntity, false
 }
 
-// FireStarterOf は owner が着火に使う火種を返す。残量を持たない物、バックパックの物、オフの装備の物、オンの装備の物の順に選び、
-// 同じ順位なら残量の少ない物を選ぶ。照らしている装備の灯りを削らずに済むよう、オフの物から使う。
+// FireStarterOf は owner が着火に使う火種を返す。残量を持たない物、オフの物、オンの物の順に選び、
+// 同じ順位なら残量の少ない物を選ぶ。照らしている灯りを削らずに済むよう、オフの物から使う。
 // 減るのを1本に集め、ほかを新品のまま束ねてクラフトの材料にも使えるようにする
 func FireStarterOf(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
 	best := gc.InvalidEntity
 	bestRank, bestCharge := 0, 0
-	consider := func(e ecs.Entity, rank int) {
+	q := ecs.NewFilter1[gc.FireStarter](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if !CarriedBy(world, e, owner) {
+			continue
+		}
 		charge := chargeKey(world, e)
-		if charge < 0 {
+		rank := 1
+		switch {
+		case charge < 0:
 			rank = 0
+		case IsOn(world, owner, e):
+			rank = 2
 		}
 		if best == gc.InvalidEntity || rank < bestRank || (rank == bestRank && charge < bestCharge) {
 			best, bestRank, bestCharge = e, rank, charge
-		}
-	}
-	backpack := ecs.NewFilter2[gc.LocationInBackpack, gc.FireStarter](world.ECS).Query()
-	for backpack.Next() {
-		if world.Components.LocationInBackpack.Get(backpack.Entity()).Owner == owner {
-			consider(backpack.Entity(), 1)
-		}
-	}
-	equipped := ecs.NewFilter2[gc.LocationEquipped, gc.FireStarter](world.ECS).Query()
-	for equipped.Next() {
-		e := equipped.Entity()
-		if world.Components.LocationEquipped.Get(e).Owner != owner {
-			continue
-		}
-		if IsOn(world, owner, e) {
-			consider(e, 3)
-		} else {
-			consider(e, 2)
 		}
 	}
 	return best, best != gc.InvalidEntity
