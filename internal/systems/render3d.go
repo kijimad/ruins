@@ -421,7 +421,7 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 
 // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
 // inset は壁にはめる板、facing は置き方 Pose に合わせて立てる閉じた板にし、Pose が無ければ立て板にする。flat は地面に寝かせる。
-// linked は隣の linked へ中心から伸ばす格子の板にする
+// linked は描けるマスの linked の隣へ中心から伸ばす格子の板にする
 func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, poses map[consts.Coord[consts.Tile]]gc.Pose, linked map[consts.Coord[consts.Tile]]bool) []r3quad {
 	right := projector.Right()
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
@@ -454,9 +454,15 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		if sr.Shape == rawschema.Linked {
-			// 壁と同じく動かない仕切りなので、記憶エリアにも描く
-			for _, s := range linkedSpans(g.Coord, linked) {
+			// 壁と同じく動かない仕切りなので、記憶エリアにも描く。まだ見ていないマスの柵の在りかを板の伸び方で明かさないよう、
+			// 描けるマスの隣だけをつなぐ
+			known := func(n consts.Coord[consts.Tile]) bool {
+				_, ok, _ := visTint(&gc.GridElement{Coord: n})
+				return linked[n] && ok
+			}
+			for _, s := range linkedSpans(g.Coord, known) {
 				sys.addLinkedSpan(&quads, g.Coord, s, atlas, ux, uy, uw, uh, tint)
+				quads[len(quads)-1].depth = sr.Depth.Rank()
 			}
 			continue
 		}
@@ -515,11 +521,11 @@ type linkedSpan struct {
 	from, to   float64
 }
 
-// linkedSpans はマス c の格子の板を返す。東西と南北の両方に linked の隣があれば、隣のある方向へだけ中心から端まで伸ばす。
+// linkedSpans はマス c の格子の板を返す。東西と南北の両方につなぐ隣 linked があれば、隣のある方向へだけ中心から端まで伸ばす。
 // 片方の軸だけなら、その軸に沿ってマスの端から端まで渡す。隣が無ければ東西に渡す
-func linkedSpans(c consts.Coord[consts.Tile], linked map[consts.Coord[consts.Tile]]bool) []linkedSpan {
-	east, west := linked[c.Add(consts.East.Delta())], linked[c.Add(consts.West.Delta())]
-	north, south := linked[c.Add(consts.North.Delta())], linked[c.Add(consts.South.Delta())]
+func linkedSpans(c consts.Coord[consts.Tile], linked func(consts.Coord[consts.Tile]) bool) []linkedSpan {
+	east, west := linked(c.Add(consts.East.Delta())), linked(c.Add(consts.West.Delta()))
+	north, south := linked(c.Add(consts.North.Delta())), linked(c.Add(consts.South.Delta()))
 	ew, ns := east || west, north || south
 	switch {
 	case ew && ns:

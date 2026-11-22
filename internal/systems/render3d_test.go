@@ -572,6 +572,7 @@ func TestLinkedSpans(t *testing.T) {
 		{name: "南北の並びは南北に渡す", neighbors: []consts.Cardinal{consts.North}, want: []linkedSpan{{northSouth: true, from: 0, to: 1}}},
 		{name: "角は隣のある2方向へだけ伸ばす", neighbors: []consts.Cardinal{consts.East, consts.South}, want: []linkedSpan{{from: 0.5, to: 1}, {northSouth: true, from: 0.5, to: 1}}},
 		{name: "T字は隣のある3方向へ伸ばす", neighbors: []consts.Cardinal{consts.East, consts.West, consts.North}, want: []linkedSpan{{from: 0, to: 0.5}, {from: 0.5, to: 1}, {northSouth: true, from: 0, to: 0.5}}},
+		{name: "十字は4方向へ伸ばす", neighbors: []consts.Cardinal{consts.East, consts.West, consts.North, consts.South}, want: []linkedSpan{{from: 0, to: 0.5}, {from: 0.5, to: 1}, {northSouth: true, from: 0, to: 0.5}, {northSouth: true, from: 0.5, to: 1}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -580,7 +581,48 @@ func TestLinkedSpans(t *testing.T) {
 			for _, d := range tt.neighbors {
 				linked[c.Add(d.Delta())] = true
 			}
-			assert.Equal(t, tt.want, linkedSpans(c, linked))
+			assert.Equal(t, tt.want, linkedSpans(c, func(n consts.Coord[consts.Tile]) bool { return linked[n] }))
 		})
 	}
+}
+
+func TestCollectBillboards_柵は描けるマスの隣とだけつなぐ(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	east, south := center.Add(consts.East.Delta()), center.Add(consts.South.Delta())
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {
+			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
+			Sprites: map[string]gc.Sprite{"fence": {Width: 32, Height: 32}},
+		},
+	})
+	for _, c := range []consts.Coord[consts.Tile]{center, east, south} {
+		_, err := lifecycle.SpawnProp(world, "fence", c.X, c.Y)
+		require.NoError(t, err)
+	}
+	sys := &Render3DSystem{}
+	spans := func(known func(consts.Coord[consts.Tile]) bool) [][4]render3d.Vec {
+		vis := func(g *gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, known(g.Coord), true }
+		var got [][4]render3d.Vec
+		for _, q := range sys.collectBillboards(world, nil, projector, vis, nil, nil, nil, linkedAt(world)) {
+			if q.p[0].X >= 25 && q.p[0].X <= 25.5 && q.p[0].Z >= 25 && q.p[0].Z <= 25.5 {
+				got = append(got, q.p)
+			}
+		}
+		return got
+	}
+
+	all := func(consts.Coord[consts.Tile]) bool { return true }
+	assert.Equal(t, [][4]render3d.Vec{
+		{render3d.At(25.5, 1, 25.5), render3d.At(26, 1, 25.5), render3d.At(26, 0, 25.5), render3d.At(25.5, 0, 25.5)},
+		{render3d.At(25.5, 1, 25.5), render3d.At(25.5, 1, 26), render3d.At(25.5, 0, 26), render3d.At(25.5, 0, 25.5)},
+	}, spans(all), "角は東と南へ半分ずつ伸ばす")
+
+	southUnseen := func(c consts.Coord[consts.Tile]) bool { return c != south }
+	assert.Equal(t, [][4]render3d.Vec{
+		{render3d.At(25, 1, 25.5), render3d.At(26, 1, 25.5), render3d.At(26, 0, 25.5), render3d.At(25, 0, 25.5)},
+	}, spans(southUnseen), "見ていない南の柵とはつながず、東西に渡す")
 }
