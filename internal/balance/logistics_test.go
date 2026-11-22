@@ -19,19 +19,10 @@ func TestFollowRangeTiles_手計算と一致(t *testing.T) {
 
 func TestFollowRangeTiles_燃費が0以下なら0除算を避けて0(t *testing.T) {
 	t.Parallel()
-	tests := []struct {
-		name string
-		load consts.Milligram
-	}{
-		{"積載-5kgで燃費はちょうど0", -5 * consts.MilligramPerKg},
-		{"積載-10kgで燃費は負", -10 * consts.MilligramPerKg},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, 0.0, FollowRangeTiles(1000, tt.load))
-		})
-	}
+	// 燃費が0になる負の積載。基準燃料を1kgあたりの燃料で打ち消す
+	zeroKg := consts.Milligram(-consts.FollowFuelBase / consts.FollowFuelPerKg)
+	assert.Equal(t, 0.0, FollowRangeTiles(1000, zeroKg*consts.MilligramPerKg), "燃費がちょうど0")
+	assert.Equal(t, 0.0, FollowRangeTiles(1000, (zeroKg-1)*consts.MilligramPerKg), "燃費が負")
 }
 
 func TestFuelBurnTurns_熱量と効率で決まる(t *testing.T) {

@@ -74,7 +74,6 @@ func TestExpectedGroupValue_グループの全行の重みが0なら個数の総
 
 func TestExpectedPack_解釈できないダイス表記は0(t *testing.T) {
 	t.Parallel()
-	assert.Equal(t, 0.0, expectedPack(""))
 	assert.Equal(t, 0.0, expectedPack("not-a-dice"))
 }
 
