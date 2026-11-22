@@ -70,55 +70,53 @@ func TestFireStarterOf_バックパックと装備の火種を見て他人の物
 	assert.Equal(t, equippedStarter, got, "装備した火種も使う")
 }
 
-func TestFireStarterOf_照らしていない物から残量の少ない順に選ぶ(t *testing.T) {
+func TestFireStarterOf_オフの物から残量の少ない順に選ぶ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player := world.ECS.NewEntity()
-	starter := func(charge int, equipped bool) ecs.Entity {
+	starter := func(charge int, on bool) ecs.Entity {
 		e := world.ECS.NewEntity()
 		world.Components.FireStarter.Add(e, &gc.FireStarter{})
 		if charge > 0 {
 			world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: charge})
+			world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: on})
 		}
-		if equipped {
-			world.Components.LocationEquipped.Add(e, &gc.LocationEquipped{Owner: player})
-		} else {
-			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: player})
-		}
+		world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: player})
 		return e
 	}
 
-	equipped := starter(100, true)
+	onLow := starter(100, true)
 	got, ok := query.FireStarterOf(world, player)
 	require.True(t, ok)
-	assert.Equal(t, equipped, got, "装備の物しか無ければそれを使う")
+	assert.Equal(t, onLow, got, "オンの物しか無ければそれを使う")
 
 	starter(600, false)
-	low := starter(400, false)
+	offLow := starter(400, false)
 	got, _ = query.FireStarterOf(world, player)
-	assert.Equal(t, low, got, "バックパックの物を装備の物より先に、残量の少ない物から使う")
+	assert.Equal(t, offLow, got, "オンの物より先に、オフの物を残量の少ない順に使う")
 
 	endless := starter(0, true)
 	got, _ = query.FireStarterOf(world, player)
 	assert.Equal(t, endless, got, "残量を持たない物を最初に使う")
 }
 
-func TestFireStarterOf_装備の物はオフの物を先に使う(t *testing.T) {
+func TestFireStarterOf_尽きた火種は選ばない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player := world.ECS.NewEntity()
-	torch := func(charge int, enabled bool, slot gc.EquipmentSlotNumber) ecs.Entity {
-		e := world.ECS.NewEntity()
-		world.Components.FireStarter.Add(e, &gc.FireStarter{})
-		world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: charge})
-		world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: enabled})
-		world.Components.LocationEquipped.Add(e, &gc.LocationEquipped{Owner: player, EquipmentSlot: slot})
-		return e
-	}
-	torch(100, true, gc.SlotHand1)
-	off := torch(500, false, gc.SlotHand2)
+	empty := world.ECS.NewEntity()
+	world.Components.FireStarter.Add(empty, &gc.FireStarter{})
+	world.Components.Charge.Add(empty, &gc.Charge{Max: 600, Current: 0})
+	world.Components.LocationInBackpack.Add(empty, &gc.LocationInBackpack{Owner: player})
 
+	_, ok := query.FireStarterOf(world, player)
+	assert.False(t, ok, "尽きた物しか無ければ火を点けられない")
+
+	full := world.ECS.NewEntity()
+	world.Components.FireStarter.Add(full, &gc.FireStarter{})
+	world.Components.Charge.Add(full, &gc.Charge{Max: 600, Current: 600})
+	world.Components.LocationInBackpack.Add(full, &gc.LocationInBackpack{Owner: player})
 	got, ok := query.FireStarterOf(world, player)
 	require.True(t, ok)
-	assert.Equal(t, off, got, "照らしている方が残量が少なくても、オフの方を使う")
+	assert.Equal(t, full, got, "残量の少ない順でも、尽きた物は飛ばす")
 }

@@ -34,20 +34,28 @@ func TestLightLit(t *testing.T) {
 		{name: "ほかの者の手持ち欄の灯りは照らさない", enabled: true, place: func(l, _, o ecs.Entity, world w.World) {
 			world.Components.LocationEquipped.Add(l, &gc.LocationEquipped{Owner: o, EquipmentSlot: gc.SlotHand1})
 		}, want: false},
-		{name: "プレイヤーの防具の欄の灯りは照らさない", enabled: true, place: func(l, p, _ ecs.Entity, world w.World) {
-			world.Components.LocationEquipped.Add(l, &gc.LocationEquipped{Owner: p, EquipmentSlot: gc.SlotHead})
-		}, want: false},
 		{name: "消えた手持ち欄の灯りは照らさない", enabled: false, place: func(l, p, _ ecs.Entity, world w.World) {
 			world.Components.LocationEquipped.Add(l, &gc.LocationEquipped{Owner: p, EquipmentSlot: gc.SlotHand1})
 		}, want: false},
+		{name: "スイッチを切った床の灯りは照らさない", enabled: true, place: func(l, _, _ ecs.Entity, world w.World) {
+			world.Components.Switch.Add(l, &gc.Switch{On: false})
+			world.Components.GridElement.Add(l, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
+		}, want: false},
+		{name: "スイッチを入れた持ち物の灯りは照らす", enabled: true, place: func(l, p, _ ecs.Entity, world w.World) {
+			world.Components.Switch.Add(l, &gc.Switch{On: true})
+			world.Components.LocationInBackpack.Add(l, &gc.LocationInBackpack{Owner: p})
+		}, want: true},
 		{name: "残量の残る床の灯りは照らす", enabled: true, charge: &gc.Charge{Max: 600, Current: 1}, place: func(l, _, _ ecs.Entity, world w.World) {
 			world.Components.GridElement.Add(l, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
 		}, want: true},
 		{name: "残量が尽きた床の灯りは照らさない", enabled: true, charge: &gc.Charge{Max: 600, Current: 0}, place: func(l, _, _ ecs.Entity, world w.World) {
 			world.Components.GridElement.Add(l, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
 		}, want: false},
-		{name: "背負った灯りは照らさない", enabled: true, place: func(l, p, _ ecs.Entity, world w.World) {
+		{name: "プレイヤーのバックパックの灯りは照らす", enabled: true, place: func(l, p, _ ecs.Entity, world w.World) {
 			world.Components.LocationInBackpack.Add(l, &gc.LocationInBackpack{Owner: p})
+		}, want: true},
+		{name: "ほかの者のバックパックの灯りは照らさない", enabled: true, place: func(l, _, o ecs.Entity, world w.World) {
+			world.Components.LocationInBackpack.Add(l, &gc.LocationInBackpack{Owner: o})
 		}, want: false},
 	}
 	for _, tt := range tests {

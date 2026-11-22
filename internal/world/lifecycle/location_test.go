@@ -192,7 +192,7 @@ func TestMoveToEquip(t *testing.T) {
 		assert.True(t, query.LightLit(world, owner, torch), "手持ち欄では照らす")
 
 		require.NoError(t, MoveToBackpack(world, torch, owner))
-		assert.False(t, query.LightLit(world, owner, torch), "背負うと照らさない")
+		assert.True(t, query.LightLit(world, owner, torch), "背負っても照らす")
 
 		MoveStackToField(world, torch, consts.Coord[consts.Tile]{X: 3, Y: 4}, owner)
 		assert.True(t, query.LightLit(world, owner, torch), "床に戻すとまた照らす")

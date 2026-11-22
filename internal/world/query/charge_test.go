@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -83,10 +84,10 @@ func TestIsOn(t *testing.T) {
 			world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: true})
 			world.Components.GridElement.Add(e, &gc.GridElement{})
 		}, want: true},
-		{name: "バックパックの灯りはオフ", build: func(world w.World, e ecs.Entity) {
+		{name: "ほかの者のバックパックの灯りはオフ", build: func(world w.World, e ecs.Entity) {
 			world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: 600})
 			world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: true})
-			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{})
+			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: world.ECS.NewEntity()})
 		}, want: false},
 		{name: "光源を持たない物はオフ", build: func(world w.World, e ecs.Entity) {
 			world.Components.Charge.Add(e, &gc.Charge{Max: 150, Current: 150})
@@ -102,4 +103,18 @@ func TestIsOn(t *testing.T) {
 			assert.Equal(t, tt.want, IsOn(world, gc.InvalidEntity, e))
 		})
 	}
+}
+
+func TestFuelKindMatches(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	noRaw := world.ECS.NewEntity()
+	_, ok := AcceptedFuelOf(world, noRaw)
+	assert.False(t, ok, "raw の行を持たない物は受ける種別を持たない")
+	assert.False(t, FuelKindMatches(world, rawschema.FuelKindId("oil"), noRaw), "raw の行を持たない物は燃料でない")
+
+	oil := world.ECS.NewEntity()
+	world.Components.RawID.Add(oil, &gc.RawID{ID: "lamp_oil"})
+	assert.True(t, FuelKindMatches(world, rawschema.FuelKindId("oil"), oil))
+	assert.False(t, FuelKindMatches(world, rawschema.FuelKindId("battery"), oil))
 }

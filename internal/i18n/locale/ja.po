@@ -476,11 +476,8 @@ msgstr "外す"
 msgid "Readied %s."
 msgstr "%sを構えた"
 
-msgid "%s burned out."
-msgstr "%sが燃え尽きた"
-
-msgid "%s broke."
-msgstr "%sが壊れた"
+msgid "%s is used up."
+msgstr "%sを使い切った"
 
 msgid "Command"
 msgstr "命令"
@@ -5874,7 +5871,7 @@ msgid "Burning, %s left"
 msgstr "燃焼中 残り%s"
 
 msgid "No fuel to add"
-msgstr "くべる燃料がない"
+msgstr "足す燃料がない"
 
 msgid "Hearth"
 msgstr "石組"
@@ -6751,6 +6748,60 @@ msgstr "植物のくず"
 
 msgid "Cloth Scraps"
 msgstr "布きれ"
+
+msgid "You switched on %s."
+msgstr "%sを点けた"
+
+msgid "You switched off %s."
+msgstr "%sを消した"
+
+msgid "Switched on"
+msgstr "オン"
+
+msgid "Switched off"
+msgstr "オフ"
+
+msgid "%s ran out."
+msgstr "%sが切れた"
+
+msgid "Refill %s"
+msgstr "%sを満たす"
+
+msgid "It is already full."
+msgstr "もう満タンだ"
+
+msgid "Refill"
+msgstr "補充"
+
+msgid "Nothing to refill"
+msgstr "補充できる物が無い"
+
+msgid "Hand Lantern"
+msgstr "手提げランタン"
+
+msgid "An oil lantern with a carry handle. Burns long and can be refilled with lamp oil. Heavy enough to swing."
+msgstr "持ち手の付いた油のランタン。長く灯り、灯油で満たし直せる。振り回せるほど重い。"
+
+msgid "Flashlight"
+msgstr "懐中電灯"
+
+msgid "A battery-powered flashlight. Reaches the farthest of any light, but batteries are scarce."
+msgstr "電池で光る懐中電灯。どの灯りよりも遠くまで照らすが、電池は貴重だ。"
+
+msgid "Lamp Oil"
+msgstr "灯油"
+
+msgid "A can of lamp oil. Refills an oil lantern, and burns well on a fire."
+msgstr "灯油の缶。油のランタンを満たし、火にくべてもよく燃える。"
+
+msgid "Battery"
+msgstr "電池"
+
+msgid "A fresh battery. Refills a flashlight."
+msgstr "使える電池。懐中電灯を満たす。"
+
+msgid "%s has no fuel."
+msgstr "%sは燃料が切れている"
 
 msgid "%s resisted the %s."
 msgstr "%sは%sに耐えた"

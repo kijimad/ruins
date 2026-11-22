@@ -64,6 +64,8 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 		return &DisassembleBehavior{}, nil
 	case gc.BehaviorSearch:
 		return &SearchBehavior{}, nil
+	case gc.BehaviorToggle:
+		return &ToggleBehavior{}, nil
 	case gc.BehaviorPortal, gc.BehaviorStorage, gc.BehaviorIgnite, gc.BehaviorFeedFuel:
 		// ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
 	}

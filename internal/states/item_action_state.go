@@ -105,8 +105,8 @@ var verbList = []itemVerb{
 		Key:     ebiten.KeyT,
 		Shift:   keybind.ShiftForbidden,
 		Action:  inputmapper.ActionVerbUse,
-		Accept:  activity.CanUse,
-		Exec:    execUseItem,
+		Accept:  acceptUse,
+		Exec:    execUse,
 	},
 	{
 		ID:      verbThrow,
@@ -174,8 +174,16 @@ func execThrow(world w.World, entity ecs.Entity) (es.Transition[w.World], error)
 	}}, nil
 }
 
-// execUseItem は選択アイテムを使いダンジョンへ戻る
-func execUseItem(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
+// acceptUse は使うの効果を持つ物と、スイッチを持つ物を使うの対象とする
+func acceptUse(world w.World, entity ecs.Entity) bool {
+	return activity.CanUse(world, entity) || world.Components.Switch.Has(entity)
+}
+
+// execUse は使うの動詞を実行しダンジョンへ戻る。スイッチを持つ物は点け消しし、ほかは使うの効果を適用する
+func execUse(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
+	if world.Components.Switch.Has(entity) {
+		return execItemActivity(world, activity.NewToggleActivity(entity))
+	}
 	return execItemActivity(world, activity.NewUseItemActivity(entity))
 }
 
