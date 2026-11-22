@@ -43,7 +43,7 @@ func TestSpawnFieldLoot_床に戦利品が出る(t *testing.T) {
 	rng := rand.New(rand.NewPCG(1, 0x4))
 
 	pos := consts.Coord[consts.Tile]{X: 0, Y: 0}
-	require.NoError(t, spawnFieldLoot(world, "healing_item", pos, rng, rand.New(rand.NewPCG(2, 0))))
+	require.NoError(t, spawnFieldLoot(world, "healing_item", pos, rng))
 	assert.Positive(t, countFieldItems(world), "loot group から床にアイテムが1つ以上出る")
 }
 
@@ -53,7 +53,7 @@ func TestSpawnFieldLoot_未存在グループはエラー(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	rng := rand.New(rand.NewPCG(1, 0x4))
 	pos := consts.Coord[consts.Tile]{X: 0, Y: 0}
-	require.Error(t, spawnFieldLoot(world, "no_such_group", pos, rng, rand.New(rand.NewPCG(2, 0))))
+	require.Error(t, spawnFieldLoot(world, "no_such_group", pos, rng))
 }
 
 // 家は荒らされ率を持つので、押入れを複数置いて数える
@@ -66,14 +66,14 @@ func TestPopulateStorageLoot_収納家具に戦利品が入る(t *testing.T) {
 	for i := range 10 {
 		closet, err := lifecycle.SpawnProp(world, "closet", consts.Tile(i), 0)
 		require.NoError(t, err)
-		require.NoError(t, populateStorageLoot(world, closet, "closet", "house_closet", "house", rng, rand.New(rand.NewPCG(2, 0))))
+		require.NoError(t, populateStorageLoot(world, closet, "closet", "house_closet", "house", rng))
 	}
 	assert.Positive(t, countStoredItems(world), "収納家具の押入れに戦利品が入る")
 
 	before := countStoredItems(world)
 	candle, err := lifecycle.SpawnProp(world, "candle", 1, 1)
 	require.NoError(t, err)
-	require.NoError(t, populateStorageLoot(world, candle, "candle", "", "house", rng, rand.New(rand.NewPCG(2, 0))))
+	require.NoError(t, populateStorageLoot(world, candle, "candle", "", "house", rng))
 	assert.Equal(t, before, countStoredItems(world), "収納でない蝋燭は戦利品を入れない")
 }
 
@@ -82,7 +82,7 @@ func TestPopulateStorageLoot_未登録の施設はエラー(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	closet, err := lifecycle.SpawnProp(world, "closet", 0, 0)
 	require.NoError(t, err)
-	require.Error(t, populateStorageLoot(world, closet, "closet", "house_closet", "no_such", rand.New(rand.NewPCG(1, 0x4)), rand.New(rand.NewPCG(2, 0))))
+	require.Error(t, populateStorageLoot(world, closet, "closet", "house_closet", "no_such", rand.New(rand.NewPCG(1, 0x4))))
 }
 
 func TestPopulateStorageLoot_表の無い収納家具はエラー(t *testing.T) {
@@ -90,7 +90,7 @@ func TestPopulateStorageLoot_表の無い収納家具はエラー(t *testing.T) 
 	world := testutil.InitTestWorld(t)
 	closet, err := lifecycle.SpawnProp(world, "closet", 0, 0)
 	require.NoError(t, err)
-	require.Error(t, populateStorageLoot(world, closet, "closet", "", "house", rand.New(rand.NewPCG(1, 0x4)), rand.New(rand.NewPCG(2, 0))))
+	require.Error(t, populateStorageLoot(world, closet, "closet", "", "house", rand.New(rand.NewPCG(1, 0x4))))
 }
 
 func TestPopulateStorageLoot_施設の荒らされ率で空のまま残す(t *testing.T) {
@@ -116,7 +116,7 @@ func TestPopulateStorageLoot_施設の荒らされ率で空のまま残す(t *te
 			for i := range n {
 				ent, err := lifecycle.SpawnProp(world, "goods_shelf", consts.Tile(i), 0)
 				require.NoError(t, err)
-				require.NoError(t, populateStorageLoot(world, ent, "goods_shelf", "store_goods", tt.fac, rng, rand.New(rand.NewPCG(2, 0))))
+				require.NoError(t, populateStorageLoot(world, ent, "goods_shelf", "store_goods", tt.fac, rng))
 				if len(query.GetStorageItems(world, ent)) == 0 {
 					empty++
 				}

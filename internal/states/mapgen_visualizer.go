@@ -15,7 +15,6 @@ import (
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -164,8 +163,7 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 		NextPortals: snap.NextPortals,
 		SpawnPoints: snap.SpawnPoints,
 		// 収納の中身の抽選が乱数を引くので、シードから決まる乱数を渡して描画を毎回同じにする
-		RNG:       rand.New(rand.NewPCG(st.Seed, st.Seed)),
-		ChargeRNG: rand.New(rand.NewPCG(st.Seed^lifecycle.LootChargeChannel, 0)),
+		RNG: rand.New(rand.NewPCG(st.Seed, st.Seed)),
 	}
 	// 計画の前のフェーズの空のタイルは void で描く
 	for i := range tiles {

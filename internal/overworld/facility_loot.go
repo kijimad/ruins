@@ -13,8 +13,8 @@ import (
 )
 
 // spawnFieldLoot は item group から1山を引き、pos の床へ置く。地上なので深度は扱わない
-func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile], itemRNG, chargeRNG *rand.Rand) error {
-	draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, itemRNG)
+func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile], rng *rand.Rand) error {
+	draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)
 	if err != nil {
 		return err
 	}
@@ -22,7 +22,7 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
 		if d.Name == "" {
 			continue
 		}
-		if err := lifecycle.SpawnFieldLoot(world, d.Name, pos.X, pos.Y, d.Count, chargeRNG); err != nil {
+		if err := lifecycle.SpawnFieldLoot(world, d.Name, pos.X, pos.Y, d.Count, rng); err != nil {
 			return err
 		}
 	}
@@ -48,7 +48,7 @@ func spawnFacilityBeing(world w.World, fac string, danger consts.Danger, pos con
 
 // populateStorageLoot は収納家具に、パレットが書いた戦利品表 tableID から件数ぶん引いて入れる。施設 fac の
 // 荒らされ率で空のまま残す。収納家具なのに表が無ければ error を返す。
-func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fac string, itemRNG, chargeRNG *rand.Rand) error {
+func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fac string, rng *rand.Rand) error {
 	propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
 	if err != nil {
 		return err
 	}
-	if itemRNG.IntN(100) < looted {
+	if rng.IntN(100) < looted {
 		return nil
 	}
 	itemTable, err := raw.GetItemTable(world.Resources.RawMaster, tableID)
@@ -85,14 +85,14 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
 			danger = d
 		}
 	}
-	n := lootDice.Roll(itemRNG)
+	n := lootDice.Roll(rng)
 	for range n {
-		draws, err := raw.DrawFromItemTable(world.Resources.RawMaster, itemTable, itemRNG, int(danger))
+		draws, err := raw.DrawFromItemTable(world.Resources.RawMaster, itemTable, rng, int(danger))
 		if err != nil {
 			return err
 		}
 		for _, d := range draws {
-			if err := lifecycle.SpawnStorageLoot(world, d.Name, d.Count, entity, chargeRNG); err != nil {
+			if err := lifecycle.SpawnStorageLoot(world, d.Name, d.Count, entity, rng); err != nil {
 				return err
 			}
 		}

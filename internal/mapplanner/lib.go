@@ -15,7 +15,6 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
 // PropsSpec はProps配置仕様を表す
@@ -57,8 +56,6 @@ type MetaPlan struct {
 	Corridors [][]gc.TileIdx
 	// 乱数生成器
 	RNG *rand.Rand
-	// ChargeRNG は見つかる物の残量を引く乱数。RNG と別の流れにし、物の定義を変えても配置の抽選をずらさない
-	ChargeRNG *rand.Rand
 	// 階層を構成するタイル群。長さはステージの大きさで決まる
 	// 通行可能かを判定するための情報を保持している必要がある
 	Tiles []rawschema.Tile
@@ -229,7 +226,6 @@ func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *Planne
 			Rooms:       []gc.Rect{},
 			Corridors:   [][]gc.TileIdx{},
 			RNG:         rand.New(rand.NewPCG(seed, seed+1)),
-			ChargeRNG:   rand.New(rand.NewPCG(seed^lifecycle.LootChargeChannel, 0)),
 			NextPortals: []consts.Coord[consts.Tile]{},
 			NPCs:        []NPCSpec{},
 			Items:       []ItemSpec{},

@@ -23,7 +23,6 @@ func newTestSpawnPlan(world w.World) *mapplanner.MetaPlan {
 		Level:     gc.Level{TileWidth: 10, TileHeight: 10},
 		RawMaster: &world.Resources.RawMaster,
 		RNG:       rand.New(rand.NewPCG(1, 2)),
-		ChargeRNG: rand.New(rand.NewPCG(3, 4)),
 	}
 }
 
