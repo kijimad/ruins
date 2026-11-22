@@ -1307,6 +1307,7 @@
   id = "laceration"
   name = "Laceration"
   painPerSeverity = 8
+  parts = ["torso", "head", "arm", "hand", "leg", "foot"]
   recoverPer = 2
   recovery = "recover_after_tend"
 

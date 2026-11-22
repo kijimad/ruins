@@ -416,7 +416,7 @@ type Condition struct {
 
 	PainPerSeverity ConditionAmountPerSeverity `json:"painPerSeverity"`
 
-	// Parts 起こりうる部位。省くと全部位
+	// Parts 起こりうる部位。省くと全身性の不調で、全身に付く
 	Parts *[]BodyPartId `json:"parts,omitempty"`
 
 	// RecoverPer 治療済みで1ターンに進行度を減らす基準量

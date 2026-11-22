@@ -181,7 +181,7 @@ import (
 	bloodDropPerSeverity?: #ConditionAmountPerSeverity
 	cause?:                #ConditionDeathCause
 
-	// 起こりうる部位。省くと全部位
+	// 起こりうる部位。省くと全身性の不調で、全身に付く
 	parts?: [...#BodyPartId]
 	if parts != _|_ {
 		parts_ref: [for x in parts {_bodyPartIDs[x]}] @rawgen(-)

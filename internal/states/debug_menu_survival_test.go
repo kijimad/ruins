@@ -96,7 +96,7 @@ func TestDebugTown_危険度に依らず敵もアイテムも置かない(t *tes
 	assert.Empty(t, plan.Items, "床のアイテムを置かない")
 }
 
-func TestDebugInflictConditions_部位を書いた不調はその部位に怪我は胴に病気と寒さは全身に置く(t *testing.T) {
+func TestDebugInflictConditions_部位を書いた不調は最初の部位にほかは全身に置く(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)

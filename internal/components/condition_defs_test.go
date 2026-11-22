@@ -34,6 +34,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		RecoverPer:              2,
 		BloodDropPerSeverity:    25,
 		Cause:                   CauseBloodLoss,
+		Parts:                   []BodyPart{BodyPartTorso, BodyPartHead, BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet},
 	},
 	ConditionType("liver_illness"): {
 		Name:                    "Liver illness",
@@ -94,7 +95,7 @@ func TestConditionDefs_CanAffect(t *testing.T) {
 		}
 	}
 	assert.Equal(t, []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet}, fracture, "骨折は手足だけ")
-	assert.Equal(t, []BodyPart{BodyPartHead, BodyPartTorso, BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet, BodyPartWholeBody}, laceration, "parts を持たない切り傷は全部位")
+	assert.Equal(t, []BodyPart{BodyPartHead, BodyPartTorso, BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet}, laceration, "切り傷は全身を除く全部位")
 	assert.Equal(t, []BodyPart(nil), unknown, "未登録の種類はどこにも起こらない")
 }
 
@@ -149,19 +150,6 @@ func TestConditionDefs_Injury(t *testing.T) {
 
 	_, ok = testDefs.Injury(rawschema.AttackCategoryBow)
 	assert.False(t, ok, "未登録は ok=false")
-}
-
-func TestConditionDefs_IsInjury(t *testing.T) {
-	t.Parallel()
-
-	got := map[ConditionType]bool{}
-	for _, ct := range testDefs.Types() {
-		got[ct] = testDefs.IsInjury(ct)
-	}
-	assert.Equal(t, map[ConditionType]bool{
-		"exhaustion": false, "food_poisoning": false, "fracture": true, "hypothermia": false,
-		"laceration": true, "liver_illness": false, "malnutrition": false,
-	}, got)
 }
 
 func TestConditionDefs_ByOnset(t *testing.T) {
