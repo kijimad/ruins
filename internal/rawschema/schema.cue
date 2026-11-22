@@ -463,16 +463,16 @@ import (
 	// 残量の上限。灯りはターン数、武器と道具は回数
 	max!: #ChargeAmount
 
-	// 満たせる燃料の種別。同じ種別の燃料ならどれでも満たせる。省くと使い切りで、尽きると無くなる
-	refillTag?: #RefillTag
+	// 受ける燃料の種別。同じ種別の燃料ならどれでも満たせる。省くと使い切りで、尽きると無くなる
+	acceptedFuel?: #FuelKind
 }
 
-// 燃料の種別。灯りと燃料をこの種別で引き合わせる
-#RefillTag: "oil" | "battery" @rawgen(prefix)
+// 燃料の種別。灯りが受ける種別と、燃料の種別をこれで引き合わせる
+#FuelKind: "oil" | "battery" @rawgen(prefix)
 
-// 燃料。この種別の残量を持つ灯りを上限まで満たす
+// 燃料。受ける種別が同じ灯りを上限まで満たす
 #Refill: {
-	refillTag!: #RefillTag
+	kind!: #FuelKind
 }
 
 // 残量の量
@@ -988,8 +988,8 @@ import (
 		melee!: _ @rawgen(-)
 	}
 
-	// 満たせるのは灯りだけ。満たす燃料が raw にあるかは #Raws の refillTags_ref で引く
-	if charge.refillTag != _|_ {
+	// 満たせるのは灯りだけ。受ける種別の燃料が raw にあるかは #Raws の acceptedFuel_ref で引く
+	if charge.acceptedFuel != _|_ {
 		lightSource!: _ @rawgen(-)
 	}
 
@@ -1490,8 +1490,8 @@ import (
 	} @rawgen(-)
 
 	// 灯りの燃料の種別は、同じ items 表の燃料の行が満たす種別を指す。#Item の中で引くと循環するので表の外で引く
-	refillTags_ref: {
-		if items != _|_ for x in items if x.charge.refillTag != _|_ {(x.id): _refillTags[x.charge.refillTag]}
+	acceptedFuel_ref: {
+		if items != _|_ for x in items if x.charge.acceptedFuel != _|_ {(x.id): _fuelKinds[x.charge.acceptedFuel]}
 	} @rawgen(-)
 
 	// 熟練の効果倍率の id はスキルをまたいで一意にする

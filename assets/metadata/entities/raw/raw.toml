@@ -8814,8 +8814,8 @@
   value = 60
   weight = "1500 g"
   [items.charge]
+    acceptedFuel = "oil"
     max = 1500
-    refillTag = "oil"
   [items.lightSource]
     radius = 5
     [items.lightSource.color]
@@ -8844,8 +8844,8 @@
   value = 80
   weight = "300 g"
   [items.charge]
+    acceptedFuel = "battery"
     max = 1000
-    refillTag = "battery"
   [items.lightSource]
     radius = 8
     [items.lightSource.color]
@@ -8874,7 +8874,7 @@
   value = 20
   weight = "500 g"
   [items.refill]
-    refillTag = "oil"
+    kind = "oil"
 
 [[items]]
   description = "A fresh battery. Refills a flashlight."
@@ -8886,7 +8886,7 @@
   value = 30
   weight = "50 g"
   [items.refill]
-    refillTag = "battery"
+    kind = "battery"
 
 [[items]]
   description = "A long-handled cleaning tool. Its reach makes it a surprisingly usable bludgeon."

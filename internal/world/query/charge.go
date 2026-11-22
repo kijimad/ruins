@@ -51,7 +51,7 @@ func ChargeRatio(world w.World, entity ecs.Entity) (float64, bool) {
 }
 
 // AcceptedFuelOf は item が受ける燃料の種別を返す。使い切りの物は ok が偽
-func AcceptedFuelOf(world w.World, item ecs.Entity) (rawschema.RefillTag, bool) {
+func AcceptedFuelOf(world w.World, item ecs.Entity) (rawschema.FuelKind, bool) {
 	if !world.Components.RawID.Has(item) {
 		return "", false
 	}
@@ -59,7 +59,7 @@ func AcceptedFuelOf(world w.World, item ecs.Entity) (rawschema.RefillTag, bool) 
 }
 
 // FuelKindOf は燃料の fuel の種別を返す。燃料でない物は ok が偽
-func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.RefillTag, bool) {
+func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.FuelKind, bool) {
 	if !world.Components.RawID.Has(fuel) {
 		return "", false
 	}

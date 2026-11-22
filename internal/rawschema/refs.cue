@@ -46,7 +46,7 @@ simpleSteps?:      _
 _itemIDs: {if items != _|_ for x in items {(x.id): true}}
 _bodyAttackIDs: {if bodyAttacks != _|_ for x in bodyAttacks {(x.id): true}}
 _meleeItemIDs: {if items != _|_ for x in items if x.melee != _|_ {(x.id): true}}
-_refillTags: {if items != _|_ for x in items if x.refill != _|_ {(x.refill.refillTag): true}}
+_fuelKinds: {if items != _|_ for x in items if x.refill != _|_ {(x.refill.kind): true}}
 _memberIDs: {if members != _|_ for x in members {(x.id): true}}
 _commandTableIDs: {if commandTables != _|_ for x in commandTables {(x.id): true}}
 _dropTableIDs: {if dropTables != _|_ for x in dropTables {(x.id): true}}

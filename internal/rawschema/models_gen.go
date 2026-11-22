@@ -325,11 +325,11 @@ type Chance = float64
 
 // Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる
 type Charge struct {
+	// AcceptedFuel 受ける燃料の種別。同じ種別の燃料ならどれでも満たせる。省くと使い切りで、尽きると無くなる
+	AcceptedFuel *FuelKind `json:"acceptedFuel,omitempty"`
+
 	// Max 残量の上限。灯りはターン数、武器と道具は回数
 	Max ChargeAmount `json:"max"`
-
-	// RefillTag 満たせる燃料の種別。同じ種別の燃料ならどれでも満たせる。省くと使い切りで、尽きると無くなる
-	RefillTag *RefillTag `json:"refillTag,omitempty"`
 }
 
 // ChargeAmount 残量の量
@@ -1261,6 +1261,32 @@ func FreshnessStageIdValues() []FreshnessStageId {
 
 // FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
 type FuelCapacityBonus = int
+
+// FuelKind 燃料の種別。灯りが受ける種別と、燃料の種別をこれで引き合わせる
+type FuelKind string
+
+// Defines values for FuelKind.
+const (
+	FuelKindBattery FuelKind = "battery"
+	FuelKindOil     FuelKind = "oil"
+)
+
+// Valid indicates whether the value is a known member of the FuelKind enum.
+func (e FuelKind) Valid() bool {
+	switch e {
+	case FuelKindBattery:
+		return true
+	case FuelKindOil:
+		return true
+	default:
+		return false
+	}
+}
+
+// FuelKindValues は FuelKind の値を、スキーマに書いた順に返す。
+func FuelKindValues() []FuelKind {
+	return []FuelKind{FuelKindOil, FuelKindBattery}
+}
 
 // GladeStep 小さな円形の床を撒く段
 type GladeStep struct {
@@ -2335,35 +2361,9 @@ type RectRoomStart struct {
 	Rooms RandInt `json:"rooms"`
 }
 
-// Refill 燃料。この種別の残量を持つ灯りを上限まで満たす
+// Refill 燃料。受ける種別が同じ灯りを上限まで満たす
 type Refill struct {
-	RefillTag RefillTag `json:"refillTag"`
-}
-
-// RefillTag 燃料の種別。灯りと燃料をこの種別で引き合わせる
-type RefillTag string
-
-// Defines values for RefillTag.
-const (
-	RefillTagBattery RefillTag = "battery"
-	RefillTagOil     RefillTag = "oil"
-)
-
-// Valid indicates whether the value is a known member of the RefillTag enum.
-func (e RefillTag) Valid() bool {
-	switch e {
-	case RefillTagBattery:
-		return true
-	case RefillTagOil:
-		return true
-	default:
-		return false
-	}
-}
-
-// RefillTagValues は RefillTag の値を、スキーマに書いた順に返す。
-func RefillTagValues() []RefillTag {
-	return []RefillTag{RefillTagOil, RefillTagBattery}
+	Kind FuelKind `json:"kind"`
 }
 
 // ReloadEffort リロードに必要な行動力
