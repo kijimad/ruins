@@ -1378,3 +1378,39 @@ func TestFindThrow(t *testing.T) {
 		})
 	}
 }
+
+func TestFindAcceptedFuel(t *testing.T) {
+	t.Parallel()
+	oil := rawschema.FuelKindId("oil")
+	raws := rawschema.Raws{Items: &[]rawschema.Item{
+		{Id: "lantern", Charge: &rawschema.Charge{Max: 1500, AcceptedFuel: &oil}},
+		{Id: "torch", Charge: &rawschema.Charge{Max: 600}},
+		{Id: "coat"},
+		{Id: "lamp_oil", Refill: &rawschema.Refill{Kind: oil}},
+	}}
+	tests := []struct {
+		name     string
+		id       string
+		wantTag  rawschema.FuelKindId
+		wantOK   bool
+		wantFuel rawschema.FuelKindId
+		isFuel   bool
+	}{
+		{name: "満たせる灯り", id: "lantern", wantTag: oil, wantOK: true},
+		{name: "使い切りの行", id: "torch"},
+		{name: "残量を持たない行", id: "coat"},
+		{name: "無い行", id: "missing"},
+		{name: "燃料の行", id: "lamp_oil", wantFuel: oil, isFuel: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			tag, ok := FindAcceptedFuel(raws, tt.id)
+			assert.Equal(t, tt.wantOK, ok)
+			assert.Equal(t, tt.wantTag, tag)
+			fuelTag, isFuel := FindFuelKind(raws, tt.id)
+			assert.Equal(t, tt.isFuel, isFuel)
+			assert.Equal(t, tt.wantFuel, fuelTag)
+		})
+	}
+}

@@ -372,3 +372,30 @@ func TestSameStack_残量(t *testing.T) {
 		})
 	}
 }
+
+func TestSameStack_スイッチ(t *testing.T) {
+	t.Parallel()
+
+	newLamp := func(world w.World, on bool) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.RawID.Add(e, &gc.RawID{ID: "hand_lantern"})
+		world.Components.Switch.Add(e, &gc.Switch{On: on})
+		return e
+	}
+
+	tests := []struct {
+		name string
+		a, b func(world w.World) ecs.Entity
+		want bool
+	}{
+		{name: "どちらもオフなら束ねる", a: func(world w.World) ecs.Entity { return newLamp(world, false) }, b: func(world w.World) ecs.Entity { return newLamp(world, false) }, want: true},
+		{name: "オンとオフは束ねない", a: func(world w.World) ecs.Entity { return newLamp(world, true) }, b: func(world w.World) ecs.Entity { return newLamp(world, false) }, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			assert.Equal(t, tt.want, SameStack(world, tt.a(world), tt.b(world)))
+		})
+	}
+}

@@ -462,6 +462,28 @@ import (
 #Charge: {
 	// 残量の上限。灯りはターン数、武器と道具は回数
 	max!: #ChargeAmount
+
+	// 受ける燃料の種別。省くと使い切りで、尽きると無くなる
+	acceptedFuel?: #FuelKindId
+	if acceptedFuel != _|_ {
+		acceptedFuel_ref: _fuelKindIDs[acceptedFuel] @rawgen(-)
+	}
+}
+
+// 燃料の種別。灯りが受ける種別と燃料の種別を、この表の id で引き合わせる
+#FuelKind: {
+	id!: #FuelKindId
+}
+
+// 燃料の種別の id
+#FuelKindId: string & strings.MinRunes(
+		1) & strings.MaxRunes(
+		50) & =~"^[a-z][a-z0-9_]*$"
+
+// 燃料。受ける種別が同じ灯りを上限まで満たす
+#Refill: {
+	kind!:    #FuelKindId
+	kind_ref: _fuelKindIDs[kind] @rawgen(-)
 }
 
 // 残量の量
@@ -814,6 +836,9 @@ import (
 // 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 #FireStarter: {}
 
+// スイッチ。持つ物は「使う」で点け消しでき、オフで生まれる
+#Switch: {}
+
 // 脱出の装置。使うと惑星を脱出してクリアになる
 #EscapeDevice: {}
 
@@ -970,15 +995,23 @@ import (
 		charge!: _ @rawgen(-)
 	}
 	if lightSource != _|_ {
-		// 灯りも殴れる物にし、手持ち欄に入る物を近接攻撃か射撃を持つ物にそろえる
 		melee!: _ @rawgen(-)
 	}
+
+	// 満たせるのは灯りだけ
+	if charge.acceptedFuel != _|_ {
+		lightSource!: _ @rawgen(-)
+	}
+
+	// この行が燃料であること
+	refill?: #Refill
 
 	// 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
 	material?: #Material
 
 	// 火種。所持していると隣接の燃焼物に着火できる
 	fireStarter?: #FireStarter
+	switch?:      #Switch
 
 	// 脱出の装置。使うとクリアになる
 	escapeDevice?: #EscapeDevice
@@ -1369,6 +1402,7 @@ import (
 	professions?: [...#Profession]
 	conditions?: [...#Condition]
 	bodyParts?: [...#BodyPart]
+	fuelKinds?: [...#FuelKind]
 	skills?: [...#Skill]
 	skillCategories?: [...#SkillCategory]
 	attackTypes?: [...#AttackType]
@@ -1409,6 +1443,7 @@ import (
 	// id は表ごとに一意にする。重複すると同じ id に別の行番号が入り、値が食い違う
 	bodyAttackIds_unique: {if bodyAttacks != _|_ for i, x in bodyAttacks {(x.id): i}} @rawgen(-)
 	facilityIds_unique: {if facilities != _|_ for i, x in facilities {(x.id): i}} @rawgen(-)
+	fuelKindIds_unique: {if fuelKinds != _|_ for i, x in fuelKinds {(x.id): i}} @rawgen(-)
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)

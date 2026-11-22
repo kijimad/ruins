@@ -141,5 +141,5 @@ item: 18,3 field_dressing x1
 item: 16,1 needle_tool x1
 item: 42,27 cured_sausage x1
 item: 23,16 green_herb x1
-item: 24,15 antidote x1
+item: 24,15 yellow_herb x1
 item: 17,7 leather_bandana x1

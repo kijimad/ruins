@@ -54,6 +54,9 @@ func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) men
 	if marker := query.FreshnessMarker(world, e); marker != "" {
 		label += " (" + marker + ")"
 	}
+	if marker := query.SwitchMarker(world, e); marker != "" {
+		label += " (" + marker + ")"
+	}
 	cells := append([]styled.Cell{itemIconCell(world, e), styled.TextCell(label)}, styled.TextCells(trailing...)...)
 	return menuframe.Row{Cells: cells}
 }

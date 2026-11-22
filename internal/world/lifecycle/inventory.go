@@ -47,7 +47,7 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 		players = append(players, playerQuery.Entity())
 	}
 	for _, playerEntity := range players {
-		ensureMarker(world, world.Components.WeightDirty, playerEntity, &gc.WeightDirty{})
+		EnsureMarker(world, world.Components.WeightDirty, playerEntity, &gc.WeightDirty{})
 	}
 
 	return nil
@@ -60,7 +60,7 @@ func removeFromStack(world w.World, entity ecs.Entity, n int) error {
 		return fmt.Errorf("%w: have=%d, remove=%d", errInsufficientItemCount, len(members), n)
 	}
 	for i := range n {
-		world.ECS.RemoveEntity(members[i])
+		RemoveItem(world, members[i])
 	}
 	return nil
 }

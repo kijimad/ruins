@@ -18,6 +18,7 @@ var Registry = []Def{
 	{Field: "Consumable"},         // 一度使うと消費される消耗品を表す
 	{Field: "Material"},           // 材質を保持する。可燃性と燃焼熱量の算出根拠。不燃の材質も持つ
 	{Field: "FireStarter"},        // 火種の道具のマーカー。所持で隣接の燃焼物に着火できる
+	{Field: "Switch"},             // 点け消しできる物の状態
 	{Field: "EscapeDevice"},       // 脱出の装置のマーカー。使うとクリアになる
 	{Field: "CubeCore"},           // キューブの核のマーカー。使うと隣に新しいキューブが組み上がる
 	{Field: "Perishable"},         // 腐敗する食料の生成時刻と保存期間を保持する

@@ -80,15 +80,15 @@ func TestConsumeCharge_プレイヤーの物が尽きるとログを出す(t *te
 		place func(world w.World, item, player ecs.Entity) error
 		want  i18n.Msgid
 	}{
-		{name: "手持ち欄の灯りは燃え尽きる", rawID: "torch", place: func(world w.World, item, player ecs.Entity) error {
+		{name: "手持ち欄の灯りは使い切ると消える", rawID: "torch", place: func(world w.World, item, player ecs.Entity) error {
 			lifecycle.MoveToEquip(world, item, player, gc.SlotHand2)
 			return nil
-		}, want: "%s burned out."},
-		{name: "バックパックの灯りは燃え尽きる", rawID: "torch", place: lifecycle.MoveToBackpack, want: "%s burned out."},
-		{name: "手持ち欄の武器は壊れる", rawID: "iron_sword", place: func(world w.World, item, player ecs.Entity) error {
+		}, want: "%s is used up."},
+		{name: "バックパックの灯りは使い切ると消える", rawID: "torch", place: lifecycle.MoveToBackpack, want: "%s is used up."},
+		{name: "手持ち欄の武器も同じ文で消える", rawID: "iron_sword", place: func(world w.World, item, player ecs.Entity) error {
 			lifecycle.MoveToEquip(world, item, player, gc.SlotHand1)
 			return nil
-		}, want: "%s broke."},
+		}, want: "%s is used up."},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -110,4 +110,71 @@ func TestConsumeCharge_プレイヤーの物が尽きるとログを出す(t *te
 			assert.Equal(t, query.T(world, tt.want, name), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
 		})
 	}
+}
+
+func TestConsumeCharge_満たせる灯りは尽きても残る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(lantern).Current = 1
+	world.Components.StatsChanged.Remove(player)
+
+	ConsumeCharge(world, lantern, 1)
+
+	require.True(t, world.ECS.Alive(lantern), "満たせる物は消えない")
+	assert.Equal(t, 0, world.Components.Charge.Get(lantern).Current)
+	assert.True(t, world.Components.StatsChanged.Has(player), "持ち主の灯りを写し直させる")
+	assert.Equal(t, query.T(world, "%s ran out.", "Hand Lantern"), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+}
+
+func TestRefillCharge(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name        string
+		current     int
+		wantErr     error
+		wantCharge  int
+		wantFuelHas bool
+	}{
+		{name: "減った灯りは燃料を1つ使って満タンに戻る", current: 0, wantCharge: 1500, wantFuelHas: false},
+		{name: "満タンなら燃料を使わない", current: 1500, wantErr: ErrChargeFull, wantCharge: 1500, wantFuelHas: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+			require.NoError(t, err)
+			lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+			require.NoError(t, err)
+			world.Components.Charge.Get(lantern).Current = tt.current
+			oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
+			require.NoError(t, err)
+
+			err = RefillCharge(world, lantern, oil)
+
+			require.ErrorIs(t, err, tt.wantErr)
+			assert.Equal(t, tt.wantCharge, world.Components.Charge.Get(lantern).Current)
+			assert.Equal(t, tt.wantFuelHas, world.ECS.Alive(oil))
+		})
+	}
+}
+
+func TestRefillCharge_種別の合わない燃料では満たさない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(lantern).Current = 0
+	battery, err := lifecycle.SpawnBackpackItem(world, "battery", 1)
+	require.NoError(t, err)
+
+	require.ErrorIs(t, RefillCharge(world, lantern, battery), ErrRefillMismatch)
+	assert.Equal(t, 0, world.Components.Charge.Get(lantern).Current)
+	assert.True(t, world.ECS.Alive(battery), "燃料は使わない")
 }

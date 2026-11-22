@@ -17,7 +17,7 @@ func AddCubeFuel(world w.World, cube ecs.Entity, fuel ecs.Entity) bool {
 		return false
 	}
 	tank.Current = min(tank.Max, tank.Current+query.HeatContent(world, fuel))
-	world.ECS.RemoveEntity(fuel)
+	RemoveItem(world, fuel)
 	return true
 }
 

@@ -386,6 +386,9 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	// 火種。所持していると隣接の燃焼物に着火できる道具
+	if item.Switch != nil {
+		entitySpec.Switch = &gc.Switch{}
+	}
 	if item.FireStarter != nil {
 		entitySpec.FireStarter = &gc.FireStarter{}
 	}
@@ -947,6 +950,24 @@ func FindTool(raws rawschema.Raws, name string) (*rawschema.Tool, bool) {
 		return nil, false
 	}
 	return item.Tool, true
+}
+
+// FindAcceptedFuel は name の灯りの行が受ける燃料の種別を返す。受けない行は ok が偽
+func FindAcceptedFuel(raws rawschema.Raws, name string) (rawschema.FuelKindId, bool) {
+	item, ok := FindByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
+	if !ok || item.Charge == nil || item.Charge.AcceptedFuel == nil {
+		return "", false
+	}
+	return *item.Charge.AcceptedFuel, true
+}
+
+// FindFuelKind は name の燃料の行の種別を返す。燃料でない行は ok が偽
+func FindFuelKind(raws rawschema.Raws, name string) (rawschema.FuelKindId, bool) {
+	item, ok := FindByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
+	if !ok || item.Refill == nil {
+		return "", false
+	}
+	return item.Refill.Kind, true
 }
 
 // GetProfession は指定されたIDの職業データを返す
