@@ -378,15 +378,15 @@ func TestCalculateThrowHitRate_爆ぜる物は100(t *testing.T) {
 func TestExplode_構えた道具は置物に効かせない(t *testing.T) {
 	t.Parallel()
 
-	t.Run("道具が必須の木も道具なしで削る", func(t *testing.T) {
+	t.Run("構えた合う道具があっても道具が必須の木は削れない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		require.NoError(t, lifecycle.UnequipAll(world, player))
-		torch, err := lifecycle.SpawnBackpackItem(world, "torch", 1)
+		axe, err := lifecycle.SpawnBackpackItem(world, "axe", 1)
 		require.NoError(t, err)
-		lifecycle.MoveToEquip(world, torch, player, gc.SlotHand1)
+		lifecycle.MoveToEquip(world, axe, player, gc.SlotHand1)
 		query.GetHandSelection(world).Slot = gc.SlotHand1
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
 		require.NoError(t, err)
@@ -396,7 +396,7 @@ func TestExplode_構えた道具は置物に効かせない(t *testing.T) {
 
 		require.NoError(t, explode(world, player, enemy, gc.ThrowAttack{Damage: 20, Accuracy: 75, Blast: &gc.Blast{Radius: 1}}, "Grenade"))
 
-		assert.Less(t, world.Components.HP.Get(tree).Current, treeHP)
+		assert.Equal(t, treeHP, world.Components.HP.Get(tree).Current)
 	})
 
 	t.Run("合う道具を構えていても道具のスキルは伸びない", func(t *testing.T) {

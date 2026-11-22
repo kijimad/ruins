@@ -130,7 +130,7 @@ func (tb *ThrowBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
 
 // explode は target のマスで爆ぜさせ、そこから半径のマスにいる者すべてに効かせる。命中の判定も会心もしない。
 // 怪我は抽選しない。範囲の全員に抽選すると強すぎるので、破片の傷は爆風のダメージに含める。
-// 手に構えた道具は爆風に関わらないので、置物へのダメージと廃材に効かせない。
+// 爆風は道具を使わない攻撃なので、道具が必須の置物は削れず、ほかの置物の廃材は道具なしで抽選する。
 // 投げた本人も範囲にいれば巻き込む。投擲のスキルは、本人と随伴するキューブ以外を傷つけたときに1回だけ伸ばす
 func explode(world w.World, actor, target ecs.Entity, attack gc.ThrowAttack, name i18n.Msgid) error {
 	center := world.Components.GridElement.Get(target).Coord

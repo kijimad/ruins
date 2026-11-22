@@ -38,32 +38,25 @@ func TestToolDamageMultiplier(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
-			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 			require.NoError(t, err)
-			require.NoError(t, lifecycle.UnequipAll(world, player))
 			weapon, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
 			require.NoError(t, err)
-			lifecycle.MoveToEquip(world, weapon, player, gc.SlotHand1)
-			query.GetHandSelection(world).Slot = gc.SlotHand1
 			target, err := lifecycle.SpawnProp(world, tt.prop, 10, 9)
 			require.NoError(t, err)
 
-			assert.Equal(t, tt.want, toolDamageMultiplier(world, player, target))
+			assert.Equal(t, tt.want, toolDamageMultiplier(world, weapon, target))
 		})
 	}
 }
 
-func TestWieldedTool_武器未選択なら道具なしを返す(t *testing.T) {
+func TestToolGrade_物を持たない攻撃は道具なしを返す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-	require.NoError(t, lifecycle.UnequipAll(world, player))
-	query.GetHandSelection(world).Slot = gc.SlotHand1
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, "tree_a")
 	require.True(t, ok)
 
-	grade, withTool := wieldedTool(world, player, def)
+	grade, withTool := toolGrade(world, gc.InvalidEntity, def)
 
 	assert.Equal(t, 0, grade)
 	assert.False(t, withTool)
@@ -77,7 +70,7 @@ func TestDropSalvage_分解定義が無ければ何もせず終わる(t *testing
 	target, err := lifecycle.SpawnProp(world, "carpet", 10, 9)
 	require.NoError(t, err)
 
-	err = dropSalvage(world, player, target, true)
+	err = dropSalvage(world, player, gc.InvalidEntity, target)
 
 	require.NoError(t, err)
 	assert.Empty(t, query.PickablesAt(world, consts.Coord[consts.Tile]{X: 10, Y: 9}), "分解定義が無いので産出を落とさない")
@@ -150,17 +143,14 @@ func TestSalvageRoll(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
-			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 			require.NoError(t, err)
-			require.NoError(t, lifecycle.UnequipAll(world, player))
 			weapon, err := lifecycle.SpawnBackpackItem(world, tt.weapon, 1)
 			require.NoError(t, err)
-			lifecycle.MoveToEquip(world, weapon, player, gc.SlotHand1)
-			query.GetHandSelection(world).Slot = gc.SlotHand1
 			def, ok := raw.FindDisassembly(world.Resources.RawMaster, tt.prop)
 			require.True(t, ok)
 
-			grade, full, withTool := salvageRoll(world, player, def)
+			grade, full, withTool := salvageRoll(world, weapon, def)
 
 			assert.Equal(t, tt.wantGrade, grade)
 			assert.Equal(t, tt.wantFull, full)
