@@ -458,9 +458,9 @@ import (
 	spread!: int & >=1
 }
 
-// アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる
+// アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、燃料は灯りへ移すと減り、0で尽きる
 #Charge: {
-	// 残量の上限。灯りはターン数、武器と道具は回数
+	// 残量の上限。灯りはターン数、武器と道具は回数、燃料は灯りへ移せるターン数
 	max!: #ChargeAmount
 
 	// 受ける燃料の種別。省くと使い切りで、尽きると無くなる
@@ -473,6 +473,9 @@ import (
 // 燃料の種別。灯りが受ける種別と燃料の種別を、この表の id で引き合わせる
 #FuelKind: {
 	id!: #FuelKindId
+
+	// 灯りから抜いたときに作る燃料。同じ種別の燃料を指すことは #Raws で確かめる
+	item!: #EntityID
 }
 
 // 燃料の種別の id
@@ -480,10 +483,13 @@ import (
 		1) & strings.MaxRunes(
 		50) & =~"^[a-z][a-z0-9_]*$"
 
-// 燃料。受ける種別が同じ灯りを上限まで満たす
+// 燃料。受ける種別が同じ灯りへ残量を移す
 #Refill: {
 	kind!:    #FuelKindId
 	kind_ref: _fuelKindIDs[kind] @rawgen(-)
+
+	// 残量が0になったときに置き換わる物。抜くときの入れ物にもなる
+	emptiesTo!: #EntityID
 }
 
 // 残量の量
@@ -1006,6 +1012,12 @@ import (
 	// この行が燃料であること
 	refill?: #Refill
 
+	// 燃料は残量を持ち、燃料を受けない。空文字は燃料の種別の id にならないので、受ける種別を書くと落ちる
+	if refill != _|_ {
+		charge!: _ @rawgen(-)
+		charge: {acceptedFuel?: ""} @rawgen(-)
+	}
+
 	// 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
 	material?: #Material
 
@@ -1493,6 +1505,24 @@ import (
 	itemGroupIds_unique: {
 		if itemGroups != _|_ for i, x in itemGroups {(x.id): "itemGroups.\(i)"}
 		if itemCollections != _|_ for i, x in itemCollections {(x.id): "itemCollections.\(i)"}
+	} @rawgen(-)
+
+	// 燃料の種別の表の item は、同じ種別の燃料を指す
+	fuelKindItems_ref: {
+		if fuelKinds != _|_ for x in fuelKinds {(x.id): _fuelItemKinds[x.item] & x.id}
+	} @rawgen(-)
+
+	// 燃料の空の物は同じ表の物を指す。#Refill の中で索引を引くと、索引が items 自身の評価を待って循環する
+	fuelEmptiesTo_ref: {
+		if items != _|_ for x in items if x.refill != _|_ {(x.id): _itemIDs[x.refill.emptiesTo]}
+	} @rawgen(-)
+
+	// 燃料の空の物は燃料でなく、燃料の間で重ならない
+	fuelEmptiesTo_unique: {
+		if items != _|_ for i, x in items if x.refill != _|_ {
+			(x.id):               "refill.\(i)"
+			(x.refill.emptiesTo): "emptiesTo.\(i)"
+		}
 	} @rawgen(-)
 
 	// タイルの生成の仕様は同じ表のタイルを指す。#TileSpawn の中で索引を引くと、索引が tiles 自身の評価を待って

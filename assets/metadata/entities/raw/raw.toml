@@ -4357,9 +4357,11 @@
 
 [[fuelKinds]]
   id = "oil"
+  item = "lamp_oil"
 
 [[fuelKinds]]
   id = "battery"
+  item = "battery"
 
 [[gladeSteps]]
   id = "forest_glades"
@@ -8866,7 +8868,7 @@
   [items.switch]
 
 [[items]]
-  description = "A can of lamp oil. Refills an oil lantern, and burns well on a fire."
+  description = "A can of lamp oil. Its oil can be poured into an oil lantern and drained back out, and it burns well on a fire."
   id = "lamp_oil"
   material = "OIL"
   name = "Lamp Oil"
@@ -8874,11 +8876,24 @@
   spriteSheetName = "field"
   value = 20
   weight = "500 g"
+  [items.charge]
+    max = 1500
   [items.refill]
+    emptiesTo = "empty_oil_can"
     kind = "oil"
 
 [[items]]
-  description = "A fresh battery. Refills a flashlight."
+  description = "An empty lamp oil can. An oil lantern's oil can be drained back into it."
+  id = "empty_oil_can"
+  material = "METAL"
+  name = "Empty Oil Can"
+  spriteKey = "dummy_coolant_vial"
+  spriteSheetName = "field"
+  value = 5
+  weight = "200 g"
+
+[[items]]
+  description = "A battery. Its charge can be moved into a flashlight and drawn back out."
   id = "battery"
   material = "METAL"
   name = "Battery"
@@ -8886,8 +8901,21 @@
   spriteSheetName = "field"
   value = 30
   weight = "50 g"
+  [items.charge]
+    max = 1000
   [items.refill]
+    emptiesTo = "empty_battery"
     kind = "battery"
+
+[[items]]
+  description = "A spent battery. A flashlight's charge can be drawn back into it."
+  id = "empty_battery"
+  material = "METAL"
+  name = "Empty Battery"
+  spriteKey = "dummy_scrap_battery"
+  spriteSheetName = "field"
+  value = 5
+  weight = "50 g"
 
 [[items]]
   description = "A long-handled cleaning tool. Its reach makes it a surprisingly usable bludgeon."

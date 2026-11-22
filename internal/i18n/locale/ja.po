@@ -6785,14 +6785,26 @@ msgstr "電池で光る懐中電灯。どの灯りよりも遠くまで照らす
 msgid "Lamp Oil"
 msgstr "灯油"
 
-msgid "A can of lamp oil. Refills an oil lantern, and burns well on a fire."
-msgstr "灯油の缶。油のランタンを満たし、火にくべてもよく燃える。"
+msgid "A can of lamp oil. Its oil can be poured into an oil lantern and drained back out, and it burns well on a fire."
+msgstr "灯油の缶。油のランタンへ注ぎ、また抜き取れる。火にくべてもよく燃える。"
+
+msgid "Empty Oil Can"
+msgstr "空の灯油缶"
+
+msgid "An empty lamp oil can. An oil lantern's oil can be drained back into it."
+msgstr "空になった灯油の缶。油のランタンの油を抜き取って入れられる。"
 
 msgid "Battery"
 msgstr "電池"
 
-msgid "A fresh battery. Refills a flashlight."
-msgstr "使える電池。懐中電灯を満たす。"
+msgid "A battery. Its charge can be moved into a flashlight and drawn back out."
+msgstr "電池。懐中電灯へ電気を移し、また抜き取れる。"
+
+msgid "Empty Battery"
+msgstr "使い切った電池"
+
+msgid "A spent battery. A flashlight's charge can be drawn back into it."
+msgstr "使い切った電池。懐中電灯の電気を抜き取って入れられる。"
 
 msgid "%s has no fuel."
 msgstr "%sは燃料が切れている"
