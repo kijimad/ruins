@@ -46,12 +46,6 @@ func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoTag) (ecs.Entity, 
 	return gc.InvalidEntity, false
 }
 
-// HoldsFireStarter は owner が火種の道具を所持しているかを返す。バックパックと装備の両方を見る
-func HoldsFireStarter(world w.World, owner ecs.Entity) bool {
-	_, ok := FireStarterOf(world, owner)
-	return ok
-}
-
 // FireStarterOf は owner が着火に使う火種を返す。残量を持たない物、バックパックの物、装備の物の順に選び、
 // 同じ順位なら残量の少ない物を選ぶ。照らしている装備の灯りを削らずに済むよう、照らしていない物から使う。
 // 減るのを1本に集め、ほかを新品のまま束ねてクラフトの材料にも使えるようにする

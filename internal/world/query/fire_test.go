@@ -47,36 +47,27 @@ func TestFuelBurnTurns_熱量を効率で割り引く(t *testing.T) {
 	assert.Equal(t, consts.Turn(20), query.FuelBurnTurns(world, fire, fuel))
 }
 
-func TestHoldsFireStarter_バックパックと装備の火種を見て他人の物は除く(t *testing.T) {
+func TestFireStarterOf_バックパックと装備の火種を見て他人の物は除く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	player := world.ECS.NewEntity()
-	assert.False(t, query.HoldsFireStarter(world, player), "初期状態では火種を持たない")
+	_, ok := query.FireStarterOf(world, player)
+	assert.False(t, ok, "初期状態では火種を持たない")
 
-	// 他人のバックパックにある火種は数えない
 	other := world.ECS.NewEntity()
 	othersStarter := world.ECS.NewEntity()
 	world.Components.FireStarter.Add(othersStarter, &gc.FireStarter{})
 	world.Components.LocationInBackpack.Add(othersStarter, &gc.LocationInBackpack{Owner: other})
-	assert.False(t, query.HoldsFireStarter(world, player), "他人の火種は数えない")
+	_, ok = query.FireStarterOf(world, player)
+	assert.False(t, ok, "他人の火種は数えない")
 
-	// バックパックに火種を入れると true
-	backpackStarter := world.ECS.NewEntity()
-	world.Components.FireStarter.Add(backpackStarter, &gc.FireStarter{})
-	world.Components.LocationInBackpack.Add(backpackStarter, &gc.LocationInBackpack{Owner: player})
-	assert.True(t, query.HoldsFireStarter(world, player), "バックパックの火種を見る")
-}
-
-func TestHoldsFireStarter_装備した火種も所持とみなす(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	player := world.ECS.NewEntity()
 	equippedStarter := world.ECS.NewEntity()
 	world.Components.FireStarter.Add(equippedStarter, &gc.FireStarter{})
 	world.Components.LocationEquipped.Add(equippedStarter, &gc.LocationEquipped{Owner: player})
-	assert.True(t, query.HoldsFireStarter(world, player), "装備した火種も所持とみなす")
+	got, ok := query.FireStarterOf(world, player)
+	require.True(t, ok)
+	assert.Equal(t, equippedStarter, got, "装備した火種も使う")
 }
 
 func TestFireStarterOf_照らしていない物から残量の少ない順に選ぶ(t *testing.T) {
