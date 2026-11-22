@@ -127,7 +127,7 @@
 				
 				<option value="file35">github.com/kijimaD/ruins/internal/balance/climate.go (100.0%)</option>
 				
-				<option value="file36">github.com/kijimaD/ruins/internal/balance/combat.go (87.5%)</option>
+				<option value="file36">github.com/kijimaD/ruins/internal/balance/combat.go (97.5%)</option>
 				
 				<option value="file37">github.com/kijimaD/ruins/internal/balance/economy.go (89.3%)</option>
 				
@@ -785,7 +785,7 @@
 				
 				<option value="file364">github.com/kijimaD/ruins/internal/world/lifecycle/remains.go (85.7%)</option>
 				
-				<option value="file365">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.8%)</option>
+				<option value="file365">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.2%)</option>
 				
 				<option value="file366">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (90.7%)</option>
 				
@@ -7410,7 +7410,7 @@ func LoadWeaponFromItem(master rawschema.Raws, itemID string) (WeaponStats, erro
                 <span class="cov8" title="1">return meleeWeapon(spec.Melee), nil
 </span>        }
 
-        <span class="cov0" title="0">return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", itemID)</span>
+        <span class="cov8" title="1">return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", itemID)</span>
 }
 
 // LoadWeaponFromBodyAttack はraw.Masterの体の攻撃からWeaponStatsを生成する
@@ -7443,11 +7443,11 @@ func LoadWeaponFromMember(master rawschema.Raws, memberID string) (WeaponStats, 
 
         <span class="cov8" title="1">ct, err := raw.GetCommandTable(master, *member.CommandTableId)
         if err != nil </span>{
-                <span class="cov0" title="0">return WeaponStats{}, err
+                <span class="cov8" title="1">return WeaponStats{}, err
 </span>        }
 
         <span class="cov8" title="1">if len(ct.Entries) == 0 </span>{
-                <span class="cov0" title="0">return WeaponStats{}, fmt.Errorf("command table %q has no entry", ct.Id)
+                <span class="cov8" title="1">return WeaponStats{}, fmt.Errorf("command table %q has no entry", ct.Id)
 </span>        }
 
         // 最も重みの高い攻撃を代表として使う
@@ -7460,7 +7460,7 @@ func LoadWeaponFromMember(master rawschema.Raws, memberID string) (WeaponStats, 
 
         <span class="cov8" title="1">melee, _, err := raw.CommandEntryMelee(master, bestEntry)
         if err != nil </span>{
-                <span class="cov0" title="0">return WeaponStats{}, fmt.Errorf("command table %q: %w", ct.Id, err)
+                <span class="cov8" title="1">return WeaponStats{}, fmt.Errorf("command table %q: %w", ct.Id, err)
 </span>        }
         <span class="cov8" title="1">return meleeWeapon(melee), nil</span>
 }
@@ -56927,7 +56927,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov8" title="1">return -1</span>
+        <span class="cov0" title="0">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
