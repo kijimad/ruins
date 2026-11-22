@@ -52,8 +52,8 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	fireSystem := &FireSystem{}
 	updaters[fireSystem.String()] = fireSystem
 
-	lightChargeSystem := &LightChargeSystem{}
-	updaters[lightChargeSystem.String()] = lightChargeSystem
+	whileOnChargeSystem := &WhileOnChargeSystem{}
+	updaters[whileOnChargeSystem.String()] = whileOnChargeSystem
 
 	visionSystem := NewVisionSystem()
 	updaters[visionSystem.String()] = visionSystem

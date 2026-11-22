@@ -94,7 +94,7 @@ func (tb *ThrowBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	// 威力 0 の物は、効果を持つまで攻撃として扱わない。ダメージの式は威力 0 でも能力値と出目で傷を負わせる
 	if attack.Damage > 0 {
 		hitModifier := calculateRangedHitModifier(actor, p.Target, attack, world)
-		if err := applyAttackDamage(actor, p.Target, world, attack, name, hitModifier, 0); err != nil {
+		if err := applyAttackDamage(actor, p.Target, world, gc.InvalidEntity, attack, name, hitModifier, 0); err != nil {
 			return err
 		}
 	} else {

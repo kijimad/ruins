@@ -97,3 +97,24 @@ func TestFindAmmoInInventory_該当が無ければゼロ値エンティティを
 	assert.False(t, found)
 	assert.Zero(t, got)
 }
+
+func TestFindStackInInventory_使いかけの物は選ばず新品を返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	owner := world.ECS.NewEntity()
+	stick := func(current int) {
+		e := world.ECS.NewEntity()
+		world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: owner})
+		world.Components.RawID.Add(e, &gc.RawID{ID: "wooden_stick"})
+		world.Components.Charge.Add(e, &gc.Charge{Max: 80, Current: current})
+	}
+	stick(40)
+	_, found := query.FindStackInInventory(world, "wooden_stick")
+	assert.False(t, found, "使いかけの物しか無ければ材料にならない")
+
+	stick(80)
+	got, found := query.FindStackInInventory(world, "wooden_stick")
+	assert.True(t, found)
+	assert.Equal(t, 80, world.Components.Charge.Get(got).Current, "新品を返す")
+}

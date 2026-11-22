@@ -230,7 +230,7 @@ func TestReloadBehavior_CalcEffortPerTurn(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
-		fire, _, err := getEquippedFire(player, world)
+		fire, _, _, err := getEquippedFire(player, world)
 		require.NoError(t, err)
 
 		ra := &ReloadBehavior{}
@@ -244,7 +244,7 @@ func TestReloadBehavior_CalcEffortPerTurn(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
-		fire, _, err := getEquippedFire(player, world)
+		fire, _, _, err := getEquippedFire(player, world)
 		require.NoError(t, err)
 
 		// Abilitiesを削除

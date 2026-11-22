@@ -65,7 +65,7 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 
 	// 遠距離武器が装備されているか。CanShootTarget が事前に絞るので、手持ち欄不正も
 	// 遠距離武器なしもここでは起こらない。発火したら不変条件違反なのでそのまま伝播させる
-	fire, _, err := getEquippedFire(actor, world)
+	fire, _, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	target := p.Target
 
 	// 装備武器を取得
-	fire, weaponName, err := getEquippedFire(actor, world)
+	fire, weaponName, weapon, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	hitModifier += fire.LoadedAccuracyBonus
 
 	// ダメージ適用（共通関数を使用）
-	if err := applyAttackDamage(actor, target, world, fire, weaponName, hitModifier, fire.LoadedDamageBonus); err != nil {
+	if err := applyAttackDamage(actor, target, world, weapon, fire, weaponName, hitModifier, fire.LoadedDamageBonus); err != nil {
 		return err
 	}
 
@@ -144,18 +144,18 @@ func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
 	return nil
 }
 
-// getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する
-func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, i18n.Msgid, error) {
+// getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名と武器の実体を取得する
+func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, i18n.Msgid, ecs.Entity, error) {
 	weapon, ok := query.SelectedHeld(world, actor)
 	if !ok {
-		return nil, "", ErrShootNoFireWeapon
+		return nil, "", gc.InvalidEntity, ErrShootNoFireWeapon
 	}
 
 	fire, name, err := query.GetFireFromWeapon(world, weapon)
 	if err != nil {
-		return nil, "", ErrShootNoFireWeapon
+		return nil, "", gc.InvalidEntity, ErrShootNoFireWeapon
 	}
-	return fire, name, nil
+	return fire, name, weapon, nil
 }
 
 // calculateRangedHitModifier は距離と遮蔽による命中率修正を計算する
@@ -220,7 +220,7 @@ func CanShootTarget(actor, target ecs.Entity, world w.World) bool {
 
 // CalculateShootHitRate は射撃の命中率を計算して返す。情報パネル表示用
 func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int {
-	fire, _, err := getEquippedFire(actor, world)
+	fire, _, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return 0
 	}

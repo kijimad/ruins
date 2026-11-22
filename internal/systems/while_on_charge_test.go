@@ -13,13 +13,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLightChargeSystem_床で点いた松明は燃え尽きて消える(t *testing.T) {
+func TestWhileOnChargeSystem_床で点いた松明は燃え尽きて消える(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	torch, err := lifecycle.SpawnFieldItem(world, "torch", 3, 4, 1)
 	require.NoError(t, err)
 	world.Components.Charge.Get(torch).Current = 2
-	sys := &LightChargeSystem{}
+	sys := &WhileOnChargeSystem{}
 
 	require.NoError(t, sys.Update(world))
 	assert.Equal(t, 1, world.Components.Charge.Get(torch).Current, "照らしている間は1ターンに1減る")
@@ -32,7 +32,7 @@ func TestLightChargeSystem_床で点いた松明は燃え尽きて消える(t *t
 	assert.True(t, query.GetVisionState(world).ConsumePendingUpdate(), "消えると視界を計算し直させる")
 }
 
-func TestLightChargeSystem_照らしていない灯りは減らない(t *testing.T) {
+func TestWhileOnChargeSystem_照らしていない灯りは減らない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -45,12 +45,12 @@ func TestLightChargeSystem_照らしていない灯りは減らない(t *testing
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.MoveToBackpack(world, carried, player))
 
-	require.NoError(t, (&LightChargeSystem{}).Update(world))
+	require.NoError(t, (&WhileOnChargeSystem{}).Update(world))
 	assert.Equal(t, 600, world.Components.Charge.Get(switchedOff).Current, "スイッチを切った床の灯りは減らない")
 	assert.Equal(t, 600, world.Components.Charge.Get(carried).Current, "背負った松明は減らない")
 }
 
-func TestLightChargeSystem_手持ち欄の灯りは2本とも燃え尽きる(t *testing.T) {
+func TestWhileOnChargeSystem_手持ち欄の灯りは2本とも燃え尽きる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -67,7 +67,7 @@ func TestLightChargeSystem_手持ち欄の灯りは2本とも燃え尽きる(t *
 	}
 	world.Components.StatsChanged.Remove(player)
 
-	require.NoError(t, (&LightChargeSystem{}).Update(world))
+	require.NoError(t, (&WhileOnChargeSystem{}).Update(world))
 	for _, torch := range torches {
 		assert.False(t, world.ECS.Alive(torch), "同じターンに2本とも燃え尽きる")
 	}
@@ -77,7 +77,7 @@ func TestLightChargeSystem_手持ち欄の灯りは2本とも燃え尽きる(t *
 	assert.Equal(t, query.T(world, "%s burned out.", "Torch"), entries[0].Text())
 }
 
-func TestLightChargeSystem_束で床に置いた松明はどれも減る(t *testing.T) {
+func TestWhileOnChargeSystem_束で床に置いた松明はどれも減る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -88,7 +88,7 @@ func TestLightChargeSystem_束で床に置いた松明はどれも減る(t *test
 	require.Len(t, torches, 3)
 
 	lifecycle.MoveStackToField(world, torch, consts.Coord[consts.Tile]{X: 6, Y: 5}, player)
-	require.NoError(t, (&LightChargeSystem{}).Update(world))
+	require.NoError(t, (&WhileOnChargeSystem{}).Update(world))
 
 	for _, e := range torches {
 		assert.Equal(t, 599, world.Components.Charge.Get(e).Current, "床に置いた束はどれも照らして減る")
