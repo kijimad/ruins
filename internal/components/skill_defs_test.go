@@ -12,12 +12,12 @@ import (
 // testSkillDefs は components のテストが使うスキルの定義の表。値は raw の行と同じにする
 var testSkillDefs = func() SkillDefs {
 	abilities := map[rawschema.AbilityId][]rawschema.SkillId{
-		rawschema.Str: {rawschema.SkillIdSword, rawschema.SkillIdSpear, rawschema.SkillIdFist, rawschema.SkillIdWeightBearing},
-		rawschema.Sen: {rawschema.SkillIdBow, rawschema.SkillIdHandgun, rawschema.SkillIdRifle, rawschema.SkillIdCannon, rawschema.SkillIdExploration},
-		rawschema.Dex: {rawschema.SkillIdCrafting, rawschema.SkillIdSmithing, rawschema.SkillIdNegotiation, rawschema.SkillIdMechanic},
-		rawschema.Agi: {rawschema.SkillIdSprinting, rawschema.SkillIdStealth, rawschema.SkillIdNightVision},
-		rawschema.Vit: {rawschema.SkillIdColdResist, rawschema.SkillIdHungerResist, rawschema.SkillIdHealing},
-		rawschema.Def: {rawschema.SkillIdHeavyArmor, rawschema.SkillIdFireResist, rawschema.SkillIdThunderResist, rawschema.SkillIdChillResist, rawschema.SkillIdPhotonResist},
+		rawschema.Str: {"sword", "spear", "fist", "weight_bearing"},
+		rawschema.Sen: {"bow", "handgun", "rifle", "cannon", "exploration"},
+		rawschema.Dex: {"crafting", "smithing", "negotiation", "mechanic"},
+		rawschema.Agi: {"sprinting", "stealth", "night_vision"},
+		rawschema.Vit: {"cold_resist", "hunger_resist", "healing"},
+		rawschema.Def: {"heavy_armor", "fire_resist", "thunder_resist", "chill_resist", "photon_resist"},
 	}
 	skills := map[rawschema.SkillId]SkillDef{}
 	for abl, ids := range abilities {
@@ -26,23 +26,23 @@ var testSkillDefs = func() SkillDefs {
 		}
 	}
 	proficiencies := map[rawschema.ProficiencyId]ProficiencyDef{
-		rawschema.ProficiencyIdFireResist:     {Skill: rawschema.SkillIdFireResist, PerLevel: -3},
-		rawschema.ProficiencyIdThunderResist:  {Skill: rawschema.SkillIdThunderResist, PerLevel: -3},
-		rawschema.ProficiencyIdChillResist:    {Skill: rawschema.SkillIdChillResist, PerLevel: -3},
-		rawschema.ProficiencyIdPhotonResist:   {Skill: rawschema.SkillIdPhotonResist, PerLevel: -3},
-		rawschema.ProficiencyIdColdProgress:   {Skill: rawschema.SkillIdColdResist, PerLevel: -3},
-		rawschema.ProficiencyIdHungerProgress: {Skill: rawschema.SkillIdHungerResist, PerLevel: -2},
-		rawschema.ProficiencyIdHealingEffect:  {Skill: rawschema.SkillIdHealing, PerLevel: 5},
-		rawschema.ProficiencyIdMaxWeight:      {Skill: rawschema.SkillIdWeightBearing, PerLevel: 4},
-		rawschema.ProficiencyIdExploration:    {Skill: rawschema.SkillIdExploration, PerLevel: 4},
-		rawschema.ProficiencyIdEnemyVision:    {Skill: rawschema.SkillIdStealth, PerLevel: -3},
-		rawschema.ProficiencyIdNightVision:    {Skill: rawschema.SkillIdNightVision, PerLevel: 5},
-		rawschema.ProficiencyIdMoveCost:       {Skill: rawschema.SkillIdSprinting, PerLevel: -2},
-		rawschema.ProficiencyIdCraftCost:      {Skill: rawschema.SkillIdCrafting, PerLevel: -3},
-		rawschema.ProficiencyIdSmithQuality:   {Skill: rawschema.SkillIdSmithing, PerLevel: 3},
-		rawschema.ProficiencyIdBuyPrice:       {Skill: rawschema.SkillIdNegotiation, PerLevel: -2},
-		rawschema.ProficiencyIdSellPrice:      {Skill: rawschema.SkillIdNegotiation, PerLevel: 2},
-		rawschema.ProficiencyIdHeavyArmor:     {Skill: rawschema.SkillIdHeavyArmor, PerLevel: -5},
+		rawschema.ProficiencyIdFireResist:     {Skill: "fire_resist", PerLevel: -3},
+		rawschema.ProficiencyIdThunderResist:  {Skill: "thunder_resist", PerLevel: -3},
+		rawschema.ProficiencyIdChillResist:    {Skill: "chill_resist", PerLevel: -3},
+		rawschema.ProficiencyIdPhotonResist:   {Skill: "photon_resist", PerLevel: -3},
+		rawschema.ProficiencyIdColdProgress:   {Skill: "cold_resist", PerLevel: -3},
+		rawschema.ProficiencyIdHungerProgress: {Skill: "hunger_resist", PerLevel: -2},
+		rawschema.ProficiencyIdHealingEffect:  {Skill: "healing", PerLevel: 5},
+		rawschema.ProficiencyIdMaxWeight:      {Skill: "weight_bearing", PerLevel: 4},
+		rawschema.ProficiencyIdExploration:    {Skill: "exploration", PerLevel: 4},
+		rawschema.ProficiencyIdEnemyVision:    {Skill: "stealth", PerLevel: -3},
+		rawschema.ProficiencyIdNightVision:    {Skill: "night_vision", PerLevel: 5},
+		rawschema.ProficiencyIdMoveCost:       {Skill: "sprinting", PerLevel: -2},
+		rawschema.ProficiencyIdCraftCost:      {Skill: "crafting", PerLevel: -3},
+		rawschema.ProficiencyIdSmithQuality:   {Skill: "smithing", PerLevel: 3},
+		rawschema.ProficiencyIdBuyPrice:       {Skill: "negotiation", PerLevel: -2},
+		rawschema.ProficiencyIdSellPrice:      {Skill: "negotiation", PerLevel: 2},
+		rawschema.ProficiencyIdHeavyArmor:     {Skill: "heavy_armor", PerLevel: -5},
 	}
 	weapons := []WeaponDef{
 		{AttackType: rawschema.AttackCategorySword, Name: "Sword", Range: rawschema.AttackRangeMelee},
@@ -65,7 +65,7 @@ var testSkillDefs = func() SkillDefs {
 		proficiencies[w.Damage] = ProficiencyDef{Skill: w.Skill, PerLevel: 5}
 		proficiencies[w.Accuracy] = ProficiencyDef{Skill: w.Skill, PerLevel: 3, BodyFunc: limb}
 	}
-	categories := []SkillCategory{{Name: "Melee", IDs: []rawschema.SkillId{rawschema.SkillIdSword, rawschema.SkillIdSpear, rawschema.SkillIdFist}}}
+	categories := []SkillCategory{{Name: "Melee", IDs: []rawschema.SkillId{"sword", "spear", "fist"}}}
 	resists := []ResistDef{
 		{Element: rawschema.ElementFIRE, Proficiency: rawschema.ProficiencyIdFireResist},
 		{Element: rawschema.ElementTHUNDER, Proficiency: rawschema.ProficiencyIdThunderResist},
@@ -78,15 +78,15 @@ var testSkillDefs = func() SkillDefs {
 func TestSkillDefs_Ability(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, rawschema.Str, testSkillDefs.Ability(rawschema.SkillIdSword))
-	assert.Equal(t, rawschema.Def, testSkillDefs.Ability(rawschema.SkillIdFireResist))
+	assert.Equal(t, rawschema.Str, testSkillDefs.Ability("sword"))
+	assert.Equal(t, rawschema.Def, testSkillDefs.Ability("fire_resist"))
 	assert.Panics(t, func() { testSkillDefs.Ability("undefined_skill") }, "未登録は panic する")
 }
 
 func TestSkillDefs_Name(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, i18n.Msgid("sword"), testSkillDefs.Name(rawschema.SkillIdSword))
+	assert.Equal(t, i18n.Msgid("sword"), testSkillDefs.Name("sword"))
 	assert.Equal(t, i18n.Msgid("undefined_skill"), testSkillDefs.Name("undefined_skill"), "未登録は id をそのまま返す")
 }
 
@@ -98,7 +98,7 @@ func TestSkillDefs_Weapon(t *testing.T) {
 	assert.Equal(t, WeaponDef{
 		AttackType: rawschema.AttackCategoryBow, Name: "Bow", Range: rawschema.AttackRangeRanged,
 		RangeParams: RangeParams{OptimalRange: 4, MaxRange: 10, PenaltyPerTile: 5},
-		Skill:       rawschema.SkillIdBow, Damage: rawschema.ProficiencyIdBowDamage, Accuracy: rawschema.ProficiencyIdBowAccuracy,
+		Skill:       "bow", Damage: rawschema.ProficiencyIdBowDamage, Accuracy: rawschema.ProficiencyIdBowAccuracy,
 	}, got)
 
 	_, ok = testSkillDefs.Weapon(rawschema.AttackCategory("unknown"))

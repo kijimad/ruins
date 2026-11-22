@@ -30,7 +30,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			Melee:      &rawschema.Melee{Accuracy: 100, Damage: 1, AttackCount: 1, AttackCategory: rawschema.AttackCategoryFist, Element: rawschema.ElementNONE, TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE},
 			Charge:     &rawschema.Charge{Max: 150},
 			Remedy:     &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"fracture"}, Potency: 1},
-			Book:       &rawschema.Book{TotalEffort: 1, Skill: &rawschema.SkillBook{TargetSkill: rawschema.SkillIdSword, MaxLevel: 1}},
+			Book:       &rawschema.Book{TotalEffort: 1, Skill: &rawschema.SkillBook{TargetSkill: "sword", MaxLevel: 1}},
 		}},
 		Members: &[]rawschema.Member{{
 			Id: "slime", Name: "Slime", SpriteSheetName: "field", SpriteKey: "slime",
@@ -89,17 +89,17 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Conditions: &[]rawschema.Condition{{Id: "fracture", Name: "Fracture", Description: "Fracture", Parts: &[]rawschema.BodyPartId{"arm"}}},
 		BodyParts:  &[]rawschema.BodyPart{{Id: "arm", Name: "Arm", HitWeight: 1}},
 		Skills: &[]rawschema.Skill{{
-			Id: rawschema.SkillIdSword, Name: "Sword", Summary: "Sword", GainedBy: "Sword", Effect: "Sword", Ability: rawschema.Str, Category: "combat",
+			Id: "sword", Name: "Sword", Summary: "Sword", GainedBy: "Sword", Effect: "Sword", Ability: rawschema.Str, Category: "combat",
 			Proficiencies: &[]rawschema.SkillProficiency{{Id: rawschema.ProficiencyIdSwordDamage}},
 		}},
 		SkillCategories: &[]rawschema.SkillCategory{{Id: "combat", Name: "Combat"}},
 		AttackTypes: &[]rawschema.AttackType{{
 			Id: rawschema.AttackCategorySword, Name: "Sword", Range: rawschema.AttackRangeMelee, Injury: "fracture",
-			Skill: rawschema.SkillIdSword, Damage: rawschema.ProficiencyIdSwordDamage, Accuracy: rawschema.ProficiencyIdSwordAccuracy,
+			Skill: "sword", Damage: rawschema.ProficiencyIdSwordDamage, Accuracy: rawschema.ProficiencyIdSwordAccuracy,
 		}},
 		Professions: &[]rawschema.Profession{{
 			Id: "soldier", Name: "Soldier", Description: "Soldier",
-			Skills: &[]rawschema.ProfessionSkill{{Id: rawschema.SkillIdSword}},
+			Skills: &[]rawschema.ProfessionSkill{{Id: "sword"}},
 			Items:  []rawschema.ProfessionItem{}, Equips: []rawschema.ProfessionEquip{},
 		}},
 		Dungeons: &[]rawschema.Dungeon{{
@@ -195,8 +195,10 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"レシピの素材", func(r *rawschema.Raws) { (*r.Recipes)[0].Inputs[0].Id = "none" }, "recipes.0.inputs.0.id_ref"},
 		{"攻撃種別の怪我", func(r *rawschema.Raws) { (*r.AttackTypes)[0].Injury = "bruise" }, "attackTypes.0.injury_ref"},
 		{"スキルのカテゴリ", func(r *rawschema.Raws) { (*r.Skills)[0].Category = "magic" }, "skills.0.category_ref"},
-		{"本のスキル", func(r *rawschema.Raws) { (*r.Items)[0].Book.Skill.TargetSkill = rawschema.SkillIdSpear }, "items.0.book.skill.targetSkill_ref"},
-		{"職業のスキル", func(r *rawschema.Raws) { (*(*r.Professions)[0].Skills)[0].Id = rawschema.SkillIdSpear }, "professions.0.skills.0.id_ref"},
+		{"本のスキル", func(r *rawschema.Raws) { (*r.Items)[0].Book.Skill.TargetSkill = "spear" }, "items.0.book.skill.targetSkill_ref"},
+		{"攻撃の種類のスキル", func(r *rawschema.Raws) { (*r.AttackTypes)[0].Skill = "spear" }, "attackTypes.0.skill_ref"},
+		{"道具の分類のスキル", func(r *rawschema.Raws) { (*r.ToolCategories)[0].Skill = new("spear") }, "toolCategories.0.skill_ref"},
+		{"職業のスキル", func(r *rawschema.Raws) { (*(*r.Professions)[0].Skills)[0].Id = "spear" }, "professions.0.skills.0.id_ref"},
 		{"ダンジョンの敵テーブル", func(r *rawschema.Raws) { (*r.Dungeons)[0].EnemyTable = "none" }, "dungeons.0.enemyTable_ref"},
 		{"ダンジョンのアイテムテーブル", func(r *rawschema.Raws) { (*r.Dungeons)[0].ItemTable = "none" }, "dungeons.0.itemTable_ref"},
 		{"ダンジョンの間取り", func(r *rawschema.Raws) { (*r.Dungeons)[0].Planners[0].Id = "none" }, "dungeons.0.planners.0.id_ref"},
@@ -250,7 +252,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"スキルのカテゴリ", func(r *rawschema.Raws) { *r.SkillCategories = append(*r.SkillCategories, (*r.SkillCategories)[0]) }, "skillCategoryIds_unique.combat"},
 		{"熟練の効果倍率がスキルをまたぐ", func(r *rawschema.Raws) {
 			s := (*r.Skills)[0]
-			s.Id = rawschema.SkillIdSpear
+			s.Id = "spear"
 			*r.Skills = append(*r.Skills, s)
 		}, "proficiencyIds_unique.sword_damage"},
 		{"会話", func(r *rawschema.Raws) { *r.Dialogues = append(*r.Dialogues, (*r.Dialogues)[0]) }, "dialogueIds_unique.greeting"},

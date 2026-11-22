@@ -47,28 +47,28 @@ func TestSkills_Get(t *testing.T) {
 	t.Run("まだ無いスキルは値0で作る", func(t *testing.T) {
 		t.Parallel()
 		skills := NewSkills()
-		assert.Equal(t, &Skill{Exp: IntPool{Max: LevelUpExp}}, skills.Get(rawschema.SkillIdSword))
-		assert.Equal(t, map[rawschema.SkillId]*Skill{rawschema.SkillIdSword: {Exp: IntPool{Max: LevelUpExp}}}, skills.Data)
+		assert.Equal(t, &Skill{Exp: IntPool{Max: LevelUpExp}}, skills.Get("sword"))
+		assert.Equal(t, map[rawschema.SkillId]*Skill{"sword": {Exp: IntPool{Max: LevelUpExp}}}, skills.Data)
 	})
 
 	t.Run("作ったスキルへの書き込みが残る", func(t *testing.T) {
 		t.Parallel()
 		skills := NewSkills()
-		skills.Get(rawschema.SkillIdBow).Value = 7
-		assert.Equal(t, 7, skills.Get(rawschema.SkillIdBow).Value)
+		skills.Get("bow").Value = 7
+		assert.Equal(t, 7, skills.Get("bow").Value)
 	})
 
 	t.Run("Level は無いスキルを0として読み、Data へ足さない", func(t *testing.T) {
 		t.Parallel()
 		skills := NewSkills()
-		assert.Equal(t, 0, skills.Level(rawschema.SkillIdSword))
+		assert.Equal(t, 0, skills.Level("sword"))
 		assert.Equal(t, map[rawschema.SkillId]*Skill{}, skills.Data)
 	})
 
 	t.Run("ゼロ値の Skills でも使える", func(t *testing.T) {
 		t.Parallel()
 		var skills Skills
-		assert.Equal(t, 0, skills.Get(rawschema.SkillIdFist).Value)
+		assert.Equal(t, 0, skills.Get("fist").Value)
 	})
 }
 

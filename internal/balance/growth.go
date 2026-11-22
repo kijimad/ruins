@@ -36,7 +36,7 @@ func SkillLevelAfterAttacks(abilityValue, attacks int) int {
 // 中立にしスキル寄与だけを見る。適用は ApplyInt の切り捨てなので、丸め前の Percent を渡せるこの形を単一出典にする。
 func SkillDamagePercent(defs gc.SkillDefs, skillLevel int) consts.Percent {
 	skills := gc.NewSkills()
-	skills.Get(rawschema.SkillIdFist).Value = skillLevel
+	skills.Get("fist").Value = skillLevel
 	return defs.ProficiencyValue(skills, &gc.Abilities{}, gc.HealthyBodyFuncs(), rawschema.ProficiencyIdFistDamage)
 }
 

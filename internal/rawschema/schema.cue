@@ -84,7 +84,8 @@ import (
 	injury_ref:      _conditionIDs[injury] @rawgen(-)
 
 	// 攻撃で上達するスキル
-	skill!: #SkillId
+	skill!:    #SkillId
+	skill_ref: _skillIDs[skill] @rawgen(-)
 
 	// ダメージを決める熟練の効果倍率。skill の行が持つ
 	damage!: #ProficiencyId
@@ -1683,8 +1684,8 @@ import (
 			1) & strings.MaxRunes(
 			50) & =~"^[a-z][a-z0-9_]*$"
 
-// スキルID
-#SkillId: "sword" | "spear" | "fist" | "weight_bearing" | "bow" | "handgun" | "rifle" | "cannon" | "exploration" | "crafting" | "smithing" | "negotiation" | "mechanic" | "sprinting" | "stealth" | "night_vision" | "cold_resist" | "hunger_resist" | "healing" | "heavy_armor" | "fire_resist" | "thunder_resist" | "chill_resist" | "photon_resist" | "throw" @rawgen(prefix)
+// スキルの表の id
+#SkillId: #TableId
 
 // スキルレベル
 #SkillLevel: int & >=0 & <=100
@@ -1838,6 +1839,9 @@ import (
 #ToolCategory: {
 	id!:    #ToolCategoryId
 	skill?: #SkillId
+	if skill != _|_ {
+		skill_ref: _skillIDs[skill] @rawgen(-)
+	}
 }
 
 // 道具の分類の id

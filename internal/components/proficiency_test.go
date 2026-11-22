@@ -38,7 +38,7 @@ func TestSkillDefsProficiencyValue_SkillEffects(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Get(rawschema.SkillIdSword).Value = 2
+	skills.Get("sword").Value = 2
 
 	// 刀剣Lv2: ダメージ倍率 = 100 + 2*5 = 110
 	assert.Equal(t, 110, int(testSkillDefs.ProficiencyValue(skills, nil, HealthyBodyFuncs(), rawschema.ProficiencyIdSwordDamage)))
@@ -52,7 +52,7 @@ func TestSkillDefsProficiencyValue_NegativeCoefficient(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Get(rawschema.SkillIdColdResist).Value = 3
+	skills.Get("cold_resist").Value = 3
 
 	// 耐寒Lv3: 低体温進行 = 100 + 3*(-3) = 91
 	assert.Equal(t, 91, int(testSkillDefs.ProficiencyValue(skills, nil, HealthyBodyFuncs(), rawschema.ProficiencyIdColdProgress)))
@@ -64,7 +64,7 @@ func TestSkillDefsProficiencyValue_WithAbilities(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Get(rawschema.SkillIdSword).Value = 2
+	skills.Get("sword").Value = 2
 
 	abils := &Abilities{
 		Strength: Ability{Total: 10},
@@ -80,7 +80,7 @@ func TestSkillDefsProficiencyValue_AbilityNegativeDirection(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Get(rawschema.SkillIdColdResist).Value = 1
+	skills.Get("cold_resist").Value = 1
 
 	abils := &Abilities{
 		Vitality: Ability{Total: 5},
@@ -94,7 +94,7 @@ func TestSkillDefsProficiencySources(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Get(rawschema.SkillIdSword).Value = 3
+	skills.Get("sword").Value = 3
 
 	abils := &Abilities{
 		Strength: Ability{Total: 8},
@@ -102,8 +102,8 @@ func TestSkillDefsProficiencySources(t *testing.T) {
 
 	sources := testSkillDefs.ProficiencySources(skills, abils, HealthyBodyFuncs(), rawschema.ProficiencyIdSwordDamage)
 	assert.Len(t, sources, 2, "スキルと能力値の2つのソースがある")
-	assert.Equal(t, ProficiencySource{Kind: SourceSkill, Skill: rawschema.SkillIdSword, Amount: 3, Value: 15}, sources[0]) // 3*5
-	assert.Equal(t, ProficiencySource{Kind: SourceAbility, Ability: rawschema.Str, Amount: 8, Value: 8}, sources[1])       // 8*1
+	assert.Equal(t, ProficiencySource{Kind: SourceSkill, Skill: "sword", Amount: 3, Value: 15}, sources[0])          // 3*5
+	assert.Equal(t, ProficiencySource{Kind: SourceAbility, Ability: rawschema.Str, Amount: 8, Value: 8}, sources[1]) // 8*1
 }
 
 func TestSkillDefsProficiencyValue_HealthPenalty(t *testing.T) {
@@ -138,7 +138,7 @@ func TestSkillDefsProficiencyValue_Negotiation(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Get(rawschema.SkillIdNegotiation).Value = 4
+	skills.Get("negotiation").Value = 4
 
 	// 交渉Lv4: 買値 = 100 + 4*(-2) = 92 (安く買える)
 	assert.Equal(t, 92, int(testSkillDefs.ProficiencyValue(skills, nil, HealthyBodyFuncs(), rawschema.ProficiencyIdBuyPrice)))
@@ -150,9 +150,9 @@ func TestSkillDefsProficiencyValue_MultipleSkills(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Get(rawschema.SkillIdSword).Value = 3
-	skills.Get(rawschema.SkillIdHandgun).Value = 5
-	skills.Get(rawschema.SkillIdCrafting).Value = 2
+	skills.Get("sword").Value = 3
+	skills.Get("handgun").Value = 5
+	skills.Get("crafting").Value = 2
 
 	abils := &Abilities{
 		Strength:  Ability{Total: 8},
@@ -174,7 +174,7 @@ func TestSkillDefsProficiencyValue_AllFactors(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Get(rawschema.SkillIdSprinting).Value = 4
+	skills.Get("sprinting").Value = 4
 
 	abils := &Abilities{
 		Agility: Ability{Total: 10},
@@ -203,7 +203,7 @@ func TestSkillDefsProficiencyValue_FireAbility(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Get(rawschema.SkillIdRifle).Value = 4
+	skills.Get("rifle").Value = 4
 
 	abils := &Abilities{
 		Sensation: Ability{Total: 12},
@@ -260,11 +260,11 @@ func TestSkillDefsProficiency_値は基準と内訳の和に一致する(t *test
 	t.Parallel()
 
 	richSkills := NewSkills()
-	richSkills.Get(rawschema.SkillIdSword).Value = 3
-	richSkills.Get(rawschema.SkillIdBow).Value = 2
-	richSkills.Get(rawschema.SkillIdColdResist).Value = 4
-	richSkills.Get(rawschema.SkillIdNegotiation).Value = 5
-	richSkills.Get(rawschema.SkillIdStealth).Value = 6
+	richSkills.Get("sword").Value = 3
+	richSkills.Get("bow").Value = 2
+	richSkills.Get("cold_resist").Value = 4
+	richSkills.Get("negotiation").Value = 5
+	richSkills.Get("stealth").Value = 6
 
 	abils := &Abilities{
 		Strength:  Ability{Total: 8},
@@ -309,10 +309,10 @@ func TestSkillDefsProficiencyValue_ElementResistAllTypes(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Get(rawschema.SkillIdFireResist).Value = 2
-	skills.Get(rawschema.SkillIdThunderResist).Value = 4
-	skills.Get(rawschema.SkillIdChillResist).Value = 6
-	skills.Get(rawschema.SkillIdPhotonResist).Value = 8
+	skills.Get("fire_resist").Value = 2
+	skills.Get("thunder_resist").Value = 4
+	skills.Get("chill_resist").Value = 6
+	skills.Get("photon_resist").Value = 8
 
 	// 各元素耐性: 100 + Lv*(-3)
 	assert.Equal(t, 94, int(testSkillDefs.ProficiencyValue(skills, nil, HealthyBodyFuncs(), rawschema.ProficiencyIdFireResist)))    // 100 + 2*(-3)

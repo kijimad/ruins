@@ -427,7 +427,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	if skill.GainExp(s, abils.ValueOf(ablID)) {
 		actorName := query.GetEntityName(actor, world)
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "%s's skill rose! (%s Lv%d)", actorName, string(skillID), s.Value)).
+			Markup(query.T(world, "%s's skill rose! (%s Lv%d)", actorName, skillID, s.Value)).
 			Log()
 	}
 }

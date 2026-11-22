@@ -8,7 +8,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	iw "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -134,9 +133,9 @@ func TestGrowWeaponSkill_投げると投擲のスキルが伸びる(t *testing.T
 	world.Components.Skills.Add(actor, skills)
 	world.Components.Abilities.Add(actor, &gc.Abilities{})
 
-	before := skills.Get(rawschema.SkillIdThrow).Exp.Current
+	before := skills.Get("throw").Exp.Current
 	growWeaponSkill(actor, world, gc.ThrowAttack{Damage: 6, Accuracy: 70})
-	assert.Greater(t, skills.Get(rawschema.SkillIdThrow).Exp.Current, before)
+	assert.Greater(t, skills.Get("throw").Exp.Current, before)
 }
 
 func TestThrowBehavior_DoTurn_積み重なった物は1つだけ減る(t *testing.T) {
@@ -167,12 +166,12 @@ func TestThrowBehavior_DoTurn_威力0の物は傷を負わせずスキルも伸�
 	smoke, err := lifecycle.SpawnBackpackItem(world, "smoke_bomb", 1)
 	require.NoError(t, err)
 	hp := world.Components.HP.Get(enemy).Current
-	exp := world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current
+	exp := world.Components.Skills.Get(player).Get("throw").Exp.Current
 
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(smoke, enemy), player, world))
 
 	assert.Equal(t, hp, world.Components.HP.Get(enemy).Current)
-	assert.Equal(t, exp, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current)
+	assert.Equal(t, exp, world.Components.Skills.Get(player).Get("throw").Exp.Current)
 	assert.False(t, world.ECS.Alive(smoke), "投げた物は無くなる")
 	assert.Equal(t, []string{"Ash threw Smoke Bomb."}, query.GetGameLog(world).GetRecent(1))
 }
@@ -315,11 +314,11 @@ func TestExplode(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
-		exp := world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current
+		exp := world.Components.Skills.Get(player).Get("throw").Exp.Current
 
 		attack := gc.ThrowAttack{Damage: 5, Blast: &gc.Blast{Radius: 1}}
 		require.NoError(t, explode(world, player, player, attack, "test"))
-		assert.Equal(t, exp, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current)
+		assert.Equal(t, exp, world.Components.Skills.Get(player).Get("throw").Exp.Current)
 	})
 	t.Run("キューブだけを傷つけてもスキルは伸びない", func(t *testing.T) {
 		t.Parallel()
@@ -328,11 +327,11 @@ func TestExplode(t *testing.T) {
 		require.NoError(t, err)
 		cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 13, Y: 10})
 		require.NoError(t, err)
-		exp := world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current
+		exp := world.Components.Skills.Get(player).Get("throw").Exp.Current
 
 		attack := gc.ThrowAttack{Damage: 5, Blast: &gc.Blast{Radius: 1}}
 		require.NoError(t, explode(world, player, cube, attack, "test"))
-		assert.Equal(t, exp, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current)
+		assert.Equal(t, exp, world.Components.Skills.Get(player).Get("throw").Exp.Current)
 	})
 	t.Run("爆風で倒れた者には不調を付けない", func(t *testing.T) {
 		t.Parallel()
@@ -355,11 +354,11 @@ func TestExplode(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
 		require.NoError(t, err)
-		exp := world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current
+		exp := world.Components.Skills.Get(player).Get("throw").Exp.Current
 
 		attack := gc.ThrowAttack{Damage: 5, Blast: &gc.Blast{Radius: 1}}
 		require.NoError(t, explode(world, player, enemy, attack, "test"))
-		assert.Greater(t, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current, exp)
+		assert.Greater(t, world.Components.Skills.Get(player).Get("throw").Exp.Current, exp)
 	})
 }
 

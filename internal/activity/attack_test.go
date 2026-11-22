@@ -46,7 +46,7 @@ func TestGetSkillMult_WithSkills(t *testing.T) {
 	entity := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
-	skills.Get(rawschema.SkillIdSword).Value = 3
+	skills.Get("sword").Value = 3
 	world.Components.Skills.Add(entity, skills)
 
 	melee := &gc.Melee{AttackCategory: rawschema.AttackCategorySword}
@@ -92,7 +92,7 @@ func TestElementMult(t *testing.T) {
 			target := world.ECS.NewEntity()
 			if tt.hasSkills {
 				skills := gc.NewSkills()
-				skills.Get(rawschema.SkillIdFireResist).Value = tt.fireResist
+				skills.Get("fire_resist").Value = tt.fireResist
 				world.Components.Skills.Add(target, skills)
 			}
 
@@ -137,9 +137,9 @@ func TestGrowWeaponSkill_GainsExp(t *testing.T) {
 
 	melee := &gc.Melee{AttackCategory: rawschema.AttackCategorySword}
 
-	before := skills.Get(rawschema.SkillIdSword).Exp.Current
+	before := skills.Get("sword").Exp.Current
 	growWeaponSkill(actor, world, melee)
-	after := skills.Get(rawschema.SkillIdSword).Exp.Current
+	after := skills.Get("sword").Exp.Current
 
 	assert.Greater(t, after, before, "経験値が増加する")
 }
@@ -152,7 +152,7 @@ func TestGrowWeaponSkill_LevelUpRecalculates(t *testing.T) {
 
 	skills := gc.NewSkills()
 	// スキルアップ直前まで経験値を溜める
-	skills.Get(rawschema.SkillIdSword).Exp.Current = 95
+	skills.Get("sword").Exp.Current = 95
 	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{
@@ -164,7 +164,7 @@ func TestGrowWeaponSkill_LevelUpRecalculates(t *testing.T) {
 
 	growWeaponSkill(actor, world, melee)
 
-	assert.Equal(t, 1, skills.Get(rawschema.SkillIdSword).Value, "スキルアップしている")
+	assert.Equal(t, 1, skills.Get("sword").Value, "スキルアップしている")
 }
 
 func TestGrowWeaponSkill_NoAbilitiesComponent(t *testing.T) {
@@ -181,7 +181,7 @@ func TestGrowWeaponSkill_NoAbilitiesComponent(t *testing.T) {
 	growWeaponSkill(actor, world, melee)
 
 	// 経験値は増えていない（Abilitiesがないので早期リターン）
-	assert.Equal(t, 0, skills.Get(rawschema.SkillIdSword).Exp.Current)
+	assert.Equal(t, 0, skills.Get("sword").Exp.Current)
 }
 
 func TestGrowWeaponSkill_Fire(t *testing.T) {
@@ -203,10 +203,10 @@ func TestGrowWeaponSkill_Fire(t *testing.T) {
 	growWeaponSkill(actor, world, fire)
 
 	// 小銃スキルに経験値が入る
-	assert.Positive(t, skills.Get(rawschema.SkillIdRifle).Exp.Current, "小銃スキルに経験値が入る")
+	assert.Positive(t, skills.Get("rifle").Exp.Current, "小銃スキルに経験値が入る")
 	// 他のスキルには影響しない
-	assert.Equal(t, 0, skills.Get(rawschema.SkillIdSword).Exp.Current, "刀剣スキルは変わらない")
-	assert.Equal(t, 0, skills.Get(rawschema.SkillIdHandgun).Exp.Current, "拳銃スキルは変わらない")
+	assert.Equal(t, 0, skills.Get("sword").Exp.Current, "刀剣スキルは変わらない")
+	assert.Equal(t, 0, skills.Get("handgun").Exp.Current, "拳銃スキルは変わらない")
 }
 
 func TestGrowWeaponSkill_敵は成長しない(t *testing.T) {
@@ -224,7 +224,7 @@ func TestGrowWeaponSkill_敵は成長しない(t *testing.T) {
 	growWeaponSkill(actor, world, &gc.Fire{AttackCategory: rawschema.AttackCategoryRifle})
 
 	// 敵は Skills を持っても戦闘中に成長しない。スキル成長は味方側の進行要素
-	assert.Equal(t, 0, skills.Get(rawschema.SkillIdRifle).Exp.Current, "敵はスキル成長しない")
+	assert.Equal(t, 0, skills.Get("rifle").Exp.Current, "敵はスキル成長しない")
 }
 
 func TestGrowWeaponSkill_OnlyAffectsMatchingSkill(t *testing.T) {
@@ -245,9 +245,9 @@ func TestGrowWeaponSkill_OnlyAffectsMatchingSkill(t *testing.T) {
 
 	growWeaponSkill(actor, world, melee)
 
-	assert.Positive(t, skills.Get(rawschema.SkillIdSpear).Exp.Current, "長物スキルに経験値が入る")
-	assert.Equal(t, 0, skills.Get(rawschema.SkillIdSword).Exp.Current, "刀剣スキルは変わらない")
-	assert.Equal(t, 0, skills.Get(rawschema.SkillIdFist).Exp.Current, "格闘スキルは変わらない")
+	assert.Positive(t, skills.Get("spear").Exp.Current, "長物スキルに経験値が入る")
+	assert.Equal(t, 0, skills.Get("sword").Exp.Current, "刀剣スキルは変わらない")
+	assert.Equal(t, 0, skills.Get("fist").Exp.Current, "格闘スキルは変わらない")
 }
 
 func TestGrowWeaponSkill_MaxLevelStopsGrowth(t *testing.T) {
@@ -257,8 +257,8 @@ func TestGrowWeaponSkill_MaxLevelStopsGrowth(t *testing.T) {
 	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
-	skills.Get(rawschema.SkillIdSword).Value = 100 // 最大レベル
-	skills.Get(rawschema.SkillIdSword).Exp.Current = 99
+	skills.Get("sword").Value = 100 // 最大レベル
+	skills.Get("sword").Exp.Current = 99
 	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{
@@ -270,8 +270,8 @@ func TestGrowWeaponSkill_MaxLevelStopsGrowth(t *testing.T) {
 
 	growWeaponSkill(actor, world, melee)
 
-	assert.Equal(t, 100, skills.Get(rawschema.SkillIdSword).Value, "最大レベルを超えない")
-	assert.Equal(t, 99, skills.Get(rawschema.SkillIdSword).Exp.Current, "経験値が変わらない")
+	assert.Equal(t, 100, skills.Get("sword").Value, "最大レベルを超えない")
+	assert.Equal(t, 99, skills.Get("sword").Exp.Current, "経験値が変わらない")
 }
 
 func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
@@ -281,7 +281,7 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 	actor := world.ECS.NewEntity()
 
 	skills := gc.NewSkills()
-	skills.Get(rawschema.SkillIdSword).Exp.Current = 95
+	skills.Get("sword").Exp.Current = 95
 	world.Components.Skills.Add(actor, skills)
 
 	abils := &gc.Abilities{
@@ -300,7 +300,7 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 
 	growWeaponSkill(actor, world, melee)
 
-	assert.Equal(t, 1, skills.Get(rawschema.SkillIdSword).Value, "スキルアップしている")
+	assert.Equal(t, 1, skills.Get("sword").Value, "スキルアップしている")
 
 	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-10-6/2=87、歩行=100*87/100=87。
 	// 意識は master 乗数として歩行へ掛かる
@@ -707,7 +707,7 @@ func TestApplyHit_属性の耐性で減ったらログに出す(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 			require.NoError(t, err)
-			world.Components.Skills.Get(player).Get(rawschema.SkillIdFireResist).Value = 5
+			world.Components.Skills.Get(player).Get("fire_resist").Value = 5
 			attacker := world.ECS.NewEntity()
 			world.Components.Abilities.Add(attacker, &gc.Abilities{Strength: gc.Ability{Total: 10}})
 			melee := &gc.Melee{Damage: 10, Element: tt.element, AttackCategory: rawschema.AttackCategoryFist}

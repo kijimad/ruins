@@ -21,7 +21,6 @@ var (
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
 	errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
 	errMapGlyphMissing               = errors.New("map glyph is missing")
-	errDuplicateID                   = errors.New("duplicate id")
 	errPlayerMemberMissing           = errors.New("no member is marked as the player")
 	errPlayerMemberDuplicate         = errors.New("more than one member is marked as the player")
 	errDisassemblyToolRequiredNoTool = errors.New("disassembly requires a tool but has no tool category")
@@ -34,7 +33,6 @@ var (
 	errWeaponProficiencyOwner        = errors.New("weapon proficiency is owned by another skill")
 	errSpellTurnsReversed            = errors.New("weather spell turns min exceeds max")
 	errNeedStageNoZero               = errors.New("need stages have no stage from zero")
-	errEnumRowMissing                = errors.New("enum value has no raw row")
 	errTableMissing                  = errors.New("table required by code is missing")
 	errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
 	errBareHandsMissing              = errors.New("bare hands body attack is missing")
@@ -366,21 +364,14 @@ func validateCodeRows(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateSkillCodeRows はスキーマの enum のスキルそれぞれに raw の行がちょうど1つあり、
-// 攻撃の種類のダメージと命中の効果倍率を、その攻撃の種類のスキルの行が持つことを検証する
+// validateSkillCodeRows は攻撃の種類のダメージと命中の効果倍率を、その攻撃の種類のスキルの行が持つことを検証する
 func validateSkillCodeRows(raws rawschema.Raws) error {
 	skills := PtrSlice(raws.Skills)
-	skillIDs := make([]string, 0, len(skills))
 	owners := make(map[rawschema.ProficiencyId]rawschema.SkillId)
 	for i := range skills {
-		id := skills[i].Id
-		skillIDs = append(skillIDs, string(id))
 		for _, p := range PtrSlice(skills[i].Proficiencies) {
-			owners[p.Id] = id
+			owners[p.Id] = skills[i].Id
 		}
-	}
-	if err := validateEnumRows("SkillId", enumStrings(rawschema.SkillIdValues()), skillIDs); err != nil {
-		return err
 	}
 	attackTypes := PtrSlice(raws.AttackTypes)
 	for i := range attackTypes {
@@ -399,32 +390,6 @@ func rowIDs[R any, ID ~string](rows []R, id func(R) ID) []string {
 	out := make([]string, 0, len(rows))
 	for _, r := range rows {
 		out = append(out, string(id(r)))
-	}
-	return out
-}
-
-// validateEnumRows は enum の値 values それぞれを ids がちょうど1回ずつ持つことを検証する
-func validateEnumRows(name string, values, ids []string) error {
-	seen := make(map[string]struct{}, len(ids))
-	for _, id := range ids {
-		if _, ok := seen[id]; ok {
-			return fmt.Errorf("%s %q: %w", name, id, errDuplicateID)
-		}
-		seen[id] = struct{}{}
-	}
-	for _, v := range values {
-		if _, ok := seen[v]; !ok {
-			return fmt.Errorf("%s %q: %w", name, v, errEnumRowMissing)
-		}
-	}
-	return nil
-}
-
-// enumStrings は enum の値を文字列にして返す
-func enumStrings[T ~string](values []T) []string {
-	out := make([]string, len(values))
-	for i, v := range values {
-		out[i] = string(v)
 	}
 	return out
 }

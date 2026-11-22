@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -101,7 +100,7 @@ func TestCraft_クラフト倍率で実消費量が減る(t *testing.T) {
 
 	// クラフトLv10: CraftCost = 100 + 10*(-3) = 70 以下。器用が高いとさらに下がる。
 	// 木の棒2本の実消費量 = max(2*70/100, 1) = 1 で、1本残してクラフトできる
-	world.Components.Skills.Get(player).Get(rawschema.SkillIdCrafting).Value = 10
+	world.Components.Skills.Get(player).Get("crafting").Value = 10
 
 	result, err := Craft(world, "wooden_sword")
 	require.NoError(t, err, "実消費量が減りクラフトは成功する")

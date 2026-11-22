@@ -338,7 +338,7 @@ TargetSkill = "unknown_skill"
 
 	var ce *rawcheck.Error
 	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
-	assert.Equal(t, []string{"items.0.book.skill.targetSkill"}, ce.Paths())
+	assert.Equal(t, []string{"items.0.book.skill.targetSkill_ref"}, ce.Paths())
 }
 
 func TestNewItemSpec_不正な重量はエラー(t *testing.T) {
