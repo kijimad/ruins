@@ -464,15 +464,26 @@ import (
 	max!: #ChargeAmount
 
 	// 受ける燃料の種別。同じ種別の燃料ならどれでも満たせる。省くと使い切りで、尽きると無くなる
-	acceptedFuel?: #FuelKind
+	acceptedFuel?: #FuelKindId
+	if acceptedFuel != _|_ {
+		acceptedFuel_ref: _fuelKindIDs[acceptedFuel] @rawgen(-)
+	}
 }
 
-// 燃料の種別。灯りが受ける種別と、燃料の種別をこれで引き合わせる
-#FuelKind: "oil" | "battery" @rawgen(prefix)
+// 燃料の種別。灯りが受ける種別と燃料の種別を、この表の id で引き合わせる
+#FuelKind: {
+	id!: #FuelKindId
+}
+
+// 燃料の種別の id
+#FuelKindId: string & strings.MinRunes(
+		1) & strings.MaxRunes(
+		50) & =~"^[a-z][a-z0-9_]*$"
 
 // 燃料。受ける種別が同じ灯りを上限まで満たす
 #Refill: {
-	kind!: #FuelKind
+	kind!:    #FuelKindId
+	kind_ref: _fuelKindIDs[kind] @rawgen(-)
 }
 
 // 残量の量
@@ -988,7 +999,7 @@ import (
 		melee!: _ @rawgen(-)
 	}
 
-	// 満たせるのは灯りだけ。受ける種別の燃料が raw にあるかは #Raws の acceptedFuel_ref で引く
+	// 満たせるのは灯りだけ
 	if charge.acceptedFuel != _|_ {
 		lightSource!: _ @rawgen(-)
 	}
@@ -1392,6 +1403,7 @@ import (
 	professions?: [...#Profession]
 	conditions?: [...#Condition]
 	bodyParts?: [...#BodyPart]
+	fuelKinds?: [...#FuelKind]
 	skills?: [...#Skill]
 	skillCategories?: [...#SkillCategory]
 	attackTypes?: [...#AttackType]
@@ -1432,6 +1444,7 @@ import (
 	// id は表ごとに一意にする。重複すると同じ id に別の行番号が入り、値が食い違う
 	bodyAttackIds_unique: {if bodyAttacks != _|_ for i, x in bodyAttacks {(x.id): i}} @rawgen(-)
 	facilityIds_unique: {if facilities != _|_ for i, x in facilities {(x.id): i}} @rawgen(-)
+	fuelKindIds_unique: {if fuelKinds != _|_ for i, x in fuelKinds {(x.id): i}} @rawgen(-)
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)
@@ -1487,11 +1500,6 @@ import (
 	// 循環し、実在するタイルも見つからない。表の外で引く
 	tileSpawns_ref: {
 		if tiles != _|_ for x in tiles if x.spawn.tile != _|_ {(x.id): _tileIDs[x.spawn.tile]}
-	} @rawgen(-)
-
-	// 灯りの燃料の種別は、同じ items 表の燃料の行が満たす種別を指す。#Item の中で引くと循環するので表の外で引く
-	acceptedFuel_ref: {
-		if items != _|_ for x in items if x.charge.acceptedFuel != _|_ {(x.id): _fuelKinds[x.charge.acceptedFuel]}
 	} @rawgen(-)
 
 	// 熟練の効果倍率の id はスキルをまたいで一意にする

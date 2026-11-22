@@ -4355,6 +4355,12 @@
   name = "Rotten"
   nutritionPercent = 30
 
+[[fuelKinds]]
+  id = "oil"
+
+[[fuelKinds]]
+  id = "battery"
+
 [[gladeSteps]]
   id = "forest_glades"
   [gladeSteps.spots]

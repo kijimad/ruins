@@ -326,7 +326,7 @@ type Chance = float64
 // Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる
 type Charge struct {
 	// AcceptedFuel 受ける燃料の種別。同じ種別の燃料ならどれでも満たせる。省くと使い切りで、尽きると無くなる
-	AcceptedFuel *FuelKind `json:"acceptedFuel,omitempty"`
+	AcceptedFuel *FuelKindId `json:"acceptedFuel,omitempty"`
 
 	// Max 残量の上限。灯りはターン数、武器と道具は回数
 	Max ChargeAmount `json:"max"`
@@ -1262,31 +1262,13 @@ func FreshnessStageIdValues() []FreshnessStageId {
 // FuelCapacityBonus キューブモジュールの燃料容量ボーナス。装着するとキューブの燃料ポイントの上限がこの量だけ増える
 type FuelCapacityBonus = int
 
-// FuelKind 燃料の種別。灯りが受ける種別と、燃料の種別をこれで引き合わせる
-type FuelKind string
-
-// Defines values for FuelKind.
-const (
-	FuelKindBattery FuelKind = "battery"
-	FuelKindOil     FuelKind = "oil"
-)
-
-// Valid indicates whether the value is a known member of the FuelKind enum.
-func (e FuelKind) Valid() bool {
-	switch e {
-	case FuelKindBattery:
-		return true
-	case FuelKindOil:
-		return true
-	default:
-		return false
-	}
+// FuelKind 燃料の種別。灯りが受ける種別と燃料の種別を、この表の id で引き合わせる
+type FuelKind struct {
+	Id FuelKindId `json:"id"`
 }
 
-// FuelKindValues は FuelKind の値を、スキーマに書いた順に返す。
-func FuelKindValues() []FuelKind {
-	return []FuelKind{FuelKindOil, FuelKindBattery}
-}
+// FuelKindId 燃料の種別の id
+type FuelKindId = string
 
 // GladeStep 小さな円形の床を撒く段
 type GladeStep struct {
@@ -2224,6 +2206,8 @@ type Raws struct {
 
 	FreshnessStages *[]FreshnessStage `json:"freshnessStages,omitempty"`
 
+	FuelKinds *[]FuelKind `json:"fuelKinds,omitempty"`
+
 	GladeSteps *[]GladeStep `json:"gladeSteps,omitempty"`
 
 	HungerStages *[]HungerStage `json:"hungerStages,omitempty"`
@@ -2363,7 +2347,7 @@ type RectRoomStart struct {
 
 // Refill 燃料。受ける種別が同じ灯りを上限まで満たす
 type Refill struct {
-	Kind FuelKind `json:"kind"`
+	Kind FuelKindId `json:"kind"`
 }
 
 // ReloadEffort リロードに必要な行動力

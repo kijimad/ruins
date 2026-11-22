@@ -51,7 +51,7 @@ func ChargeRatio(world w.World, entity ecs.Entity) (float64, bool) {
 }
 
 // AcceptedFuelOf は item が受ける燃料の種別を返す。使い切りの物は ok が偽
-func AcceptedFuelOf(world w.World, item ecs.Entity) (rawschema.FuelKind, bool) {
+func AcceptedFuelOf(world w.World, item ecs.Entity) (rawschema.FuelKindId, bool) {
 	if !world.Components.RawID.Has(item) {
 		return "", false
 	}
@@ -59,7 +59,7 @@ func AcceptedFuelOf(world w.World, item ecs.Entity) (rawschema.FuelKind, bool) {
 }
 
 // FuelKindOf は燃料の fuel の種別を返す。燃料でない物は ok が偽
-func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.FuelKind, bool) {
+func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.FuelKindId, bool) {
 	if !world.Components.RawID.Has(fuel) {
 		return "", false
 	}
@@ -67,7 +67,7 @@ func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.FuelKind, bool) {
 }
 
 // FuelKindMatches は fuel が燃料で、その種別が want かを返す。灯りが受ける種別との一致を、一覧の絞り込みと補充の両方がこれで判定する
-func FuelKindMatches(world w.World, want rawschema.FuelKind, fuel ecs.Entity) bool {
+func FuelKindMatches(world w.World, want rawschema.FuelKindId, fuel ecs.Entity) bool {
 	got, ok := FuelKindOf(world, fuel)
 	return ok && got == want
 }

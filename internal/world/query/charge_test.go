@@ -111,10 +111,10 @@ func TestFuelKindMatches(t *testing.T) {
 	noRaw := world.ECS.NewEntity()
 	_, ok := AcceptedFuelOf(world, noRaw)
 	assert.False(t, ok, "raw の行を持たない物は受ける種別を持たない")
-	assert.False(t, FuelKindMatches(world, rawschema.FuelKindOil, noRaw), "raw の行を持たない物は燃料でない")
+	assert.False(t, FuelKindMatches(world, rawschema.FuelKindId("oil"), noRaw), "raw の行を持たない物は燃料でない")
 
 	oil := world.ECS.NewEntity()
 	world.Components.RawID.Add(oil, &gc.RawID{ID: "lamp_oil"})
-	assert.True(t, FuelKindMatches(world, rawschema.FuelKindOil, oil))
-	assert.False(t, FuelKindMatches(world, rawschema.FuelKindBattery, oil))
+	assert.True(t, FuelKindMatches(world, rawschema.FuelKindId("oil"), oil))
+	assert.False(t, FuelKindMatches(world, rawschema.FuelKindId("battery"), oil))
 }

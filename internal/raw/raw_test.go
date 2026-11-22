@@ -1381,7 +1381,7 @@ func TestFindThrow(t *testing.T) {
 
 func TestFindAcceptedFuel(t *testing.T) {
 	t.Parallel()
-	oil := rawschema.FuelKindOil
+	oil := rawschema.FuelKindId("oil")
 	raws := rawschema.Raws{Items: &[]rawschema.Item{
 		{Id: "lantern", Charge: &rawschema.Charge{Max: 1500, AcceptedFuel: &oil}},
 		{Id: "torch", Charge: &rawschema.Charge{Max: 600}},
@@ -1391,9 +1391,9 @@ func TestFindAcceptedFuel(t *testing.T) {
 	tests := []struct {
 		name     string
 		id       string
-		wantTag  rawschema.FuelKind
+		wantTag  rawschema.FuelKindId
 		wantOK   bool
-		wantFuel rawschema.FuelKind
+		wantFuel rawschema.FuelKindId
 		isFuel   bool
 	}{
 		{name: "満たせる灯り", id: "lantern", wantTag: oil, wantOK: true},

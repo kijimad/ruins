@@ -135,7 +135,7 @@ func TestValidate_武器と道具のアイテムは残量を持つ(t *testing.T)
 func TestValidate_満たせる燃料の種別(t *testing.T) {
 	t.Parallel()
 	melee := rawschema.Melee{Accuracy: 100, Damage: 1, AttackCount: 1, AttackCategory: rawschema.AttackCategoryFist, Element: rawschema.ElementNONE, TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE}
-	oil := rawschema.FuelKindOil
+	oil := rawschema.FuelKindId("oil")
 	lamp := func() rawschema.Item {
 		return rawschema.Item{
 			Id: "lamp", Name: "Lamp", Description: "Lamp", SpriteSheetName: "field", SpriteKey: "lamp",
@@ -146,13 +146,14 @@ func TestValidate_満たせる燃料の種別(t *testing.T) {
 	}
 	fuel := rawschema.Item{Id: "oil", Name: "Oil", Description: "Oil", SpriteSheetName: "field", SpriteKey: "oil", Refill: &rawschema.Refill{Kind: oil}}
 	tests := []struct {
-		name  string
-		items []rawschema.Item
-		want  []string
+		name      string
+		fuelKinds []rawschema.FuelKind
+		items     []rawschema.Item
+		want      []string
 	}{
-		{name: "同じ種別の燃料があれば通る", items: []rawschema.Item{lamp(), fuel}, want: nil},
-		{name: "満たす燃料が無い種別は落ちる", items: []rawschema.Item{lamp()}, want: []string{"acceptedFuel_ref.lamp"}},
-		{name: "灯りでない行の種別は落ちる", items: func() []rawschema.Item {
+		{name: "種別の表にある種別なら通る", fuelKinds: []rawschema.FuelKind{{Id: oil}}, items: []rawschema.Item{lamp(), fuel}, want: nil},
+		{name: "表に無い種別は灯りも燃料も落ちる", items: []rawschema.Item{lamp(), fuel}, want: []string{"items.1.charge.acceptedFuel_ref", "items.2.refill.kind_ref"}},
+		{name: "灯りでない行の種別は落ちる", fuelKinds: []rawschema.FuelKind{{Id: oil}}, items: func() []rawschema.Item {
 			stick := rawschema.Item{Id: "stick", Name: "Stick", Description: "Stick", SpriteSheetName: "field", SpriteKey: "stick", Melee: &melee, Charge: &rawschema.Charge{Max: 80, AcceptedFuel: &oil}}
 			return []rawschema.Item{stick, fuel}
 		}(), want: []string{"items.1.lightSource"}},
@@ -162,6 +163,9 @@ func TestValidate_満たせる燃料の種別(t *testing.T) {
 			t.Parallel()
 			raws := makeRefRaws(func(r *rawschema.Raws) {
 				*r.Items = append(*r.Items, tt.items...)
+				if tt.fuelKinds != nil {
+					r.FuelKinds = &tt.fuelKinds
+				}
 			})
 			err := rawcheck.Validate(raws)
 			if tt.want == nil {

@@ -954,7 +954,7 @@ func FindTool(raws rawschema.Raws, name string) (*rawschema.Tool, bool) {
 
 // FindAcceptedFuel は name の灯りの行が受ける燃料の種別を返す。燃料の行の FindFuelKind と同じ種別なら満たせる。
 // 使い切りの行や残量を持たない行は ok が偽
-func FindAcceptedFuel(raws rawschema.Raws, name string) (rawschema.FuelKind, bool) {
+func FindAcceptedFuel(raws rawschema.Raws, name string) (rawschema.FuelKindId, bool) {
 	item, ok := FindByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
 	if !ok || item.Charge == nil || item.Charge.AcceptedFuel == nil {
 		return "", false
@@ -963,7 +963,7 @@ func FindAcceptedFuel(raws rawschema.Raws, name string) (rawschema.FuelKind, boo
 }
 
 // FindFuelKind は name の燃料の行の種別を返す。灯りの行の FindAcceptedFuel と同じ種別の灯りを満たす。燃料でない行は ok が偽
-func FindFuelKind(raws rawschema.Raws, name string) (rawschema.FuelKind, bool) {
+func FindFuelKind(raws rawschema.Raws, name string) (rawschema.FuelKindId, bool) {
 	item, ok := FindByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
 	if !ok || item.Refill == nil {
 		return "", false
