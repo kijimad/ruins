@@ -8,7 +8,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -46,11 +45,11 @@ func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数
 	world := testutil.InitTestWorld(t)
 
 	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
-	// 熱量は保持せず材質×重量から導く。WOOD は 200/kg なので heat*5000 mg で狙った熱量になる
+	// 熱量は保持せず材質×重量から導く。wood は 200/kg なので heat*5000 mg で狙った熱量になる
 	addFieldFuel := func(name string, heat int) ecs.Entity {
 		e := world.ECS.NewEntity()
 		world.Components.Name.Add(e, &gc.Name{Name: i18n.Msgid(name)})
-		world.Components.Material.Add(e, &gc.Material{Kind: rawschema.WOOD})
+		world.Components.Material.Add(e, &gc.Material{Kind: "wood"})
 		world.Components.Weight.Add(e, &gc.Weight{Milligram: consts.Milligram(heat * 5000)})
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: tile})
 		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
@@ -96,7 +95,7 @@ func TestExecuteInteraction_Ignite_退避中ステージの燃焼物は消費し
 	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
 	addFieldFuel := func() ecs.Entity {
 		e := world.ECS.NewEntity()
-		world.Components.Material.Add(e, &gc.Material{Kind: rawschema.WOOD})
+		world.Components.Material.Add(e, &gc.Material{Kind: "wood"})
 		world.Components.Weight.Add(e, &gc.Weight{Milligram: consts.Milligram(50000)})
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: tile})
 		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
@@ -128,7 +127,7 @@ func TestExecuteInteraction_Ignite_続けて着火しても使いかけの火種
 	require.NoError(t, err)
 	ignite := func() {
 		fuel := world.ECS.NewEntity()
-		world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
+		world.Components.Material.Add(fuel, &gc.Material{Kind: "wood"})
 		world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.Milligram(50000)})
 		world.Components.GridElement.Add(fuel, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 		world.Components.LocationOnField.Add(fuel, &gc.LocationOnField{})
@@ -168,7 +167,7 @@ func TestExecuteInteraction_Ignite_火種の残量を減らし尽きれば燃え
 			require.True(t, ok, "初期装備の松明を火種に使う")
 			world.Components.Charge.Get(torch).Current = tt.charge
 			fuel := world.ECS.NewEntity()
-			world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
+			world.Components.Material.Add(fuel, &gc.Material{Kind: "wood"})
 			world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.Milligram(50000)})
 			world.Components.GridElement.Add(fuel, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
 			world.Components.LocationOnField.Add(fuel, &gc.LocationOnField{})
@@ -189,7 +188,7 @@ func TestExecuteInteraction_Ignite_火種が無ければ火を立てない(t *te
 	world := testutil.InitTestWorld(t)
 	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
 	fuel := world.ECS.NewEntity()
-	world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
+	world.Components.Material.Add(fuel, &gc.Material{Kind: "wood"})
 	world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.Milligram(50000)})
 	world.Components.GridElement.Add(fuel, &gc.GridElement{Coord: tile})
 	world.Components.LocationOnField.Add(fuel, &gc.LocationOnField{})

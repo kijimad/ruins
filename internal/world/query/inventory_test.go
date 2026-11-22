@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -69,9 +68,9 @@ func TestFindAmmoInInventory_口径タグが一致するバックパック内弾
 	owner := world.ECS.NewEntity()
 	ammo := world.ECS.NewEntity()
 	world.Components.LocationInBackpack.Add(ammo, &gc.LocationInBackpack{Owner: owner})
-	world.Components.Ammo.Add(ammo, &gc.Ammo{AmmoTag: rawschema.AmmoTagN9mm})
+	world.Components.Ammo.Add(ammo, &gc.Ammo{AmmoTag: "9mm"})
 
-	got, found := query.FindAmmoInInventory(world, rawschema.AmmoTagN9mm)
+	got, found := query.FindAmmoInInventory(world, "9mm")
 	assert.True(t, found)
 	assert.Equal(t, ammo, got)
 }
@@ -83,9 +82,9 @@ func TestFindAmmoInInventory_口径タグが一致しなければ見つからな
 	owner := world.ECS.NewEntity()
 	ammo := world.ECS.NewEntity()
 	world.Components.LocationInBackpack.Add(ammo, &gc.LocationInBackpack{Owner: owner})
-	world.Components.Ammo.Add(ammo, &gc.Ammo{AmmoTag: rawschema.AmmoTagN9mm})
+	world.Components.Ammo.Add(ammo, &gc.Ammo{AmmoTag: "9mm"})
 
-	_, found := query.FindAmmoInInventory(world, rawschema.AmmoTagRifle)
+	_, found := query.FindAmmoInInventory(world, "rifle")
 	assert.False(t, found)
 }
 
@@ -93,7 +92,7 @@ func TestFindAmmoInInventory_該当が無ければゼロ値エンティティを
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	got, found := query.FindAmmoInInventory(world, rawschema.AmmoTagShell)
+	got, found := query.FindAmmoInInventory(world, "shell")
 	assert.False(t, found)
 	assert.Zero(t, got)
 }

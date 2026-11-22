@@ -613,7 +613,7 @@ func TestConsumeBehavior_applyHealing(t *testing.T) {
 		world.Components.HP.Add(actor, &gc.HP{Current: 10, Max: 100})
 		// 回復Lv20: 回復効果 = 100 + 20*5 = 200
 		skills := gc.NewSkills()
-		skills.Get(rawschema.SkillIdHealing).Value = 20
+		skills.Get("healing").Value = 20
 		world.Components.Skills.Add(actor, skills)
 
 		item := world.ECS.NewEntity()

@@ -202,7 +202,7 @@ func parseMelee(m *rawschema.Melee) *gc.Melee {
 
 // parseFire はrawschema.Fireからgc.Fireを生成する
 func parseFire(f *rawschema.Fire) *gc.Fire {
-	var ammoTag rawschema.AmmoTag
+	var ammoTag rawschema.AmmoKindId
 	if f.AmmoTag != nil {
 		ammoTag = *f.AmmoTag
 	}
@@ -281,7 +281,6 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 
 	if item.Consumable != nil {
 		entitySpec.Consumable = &gc.Consumable{
-			UsableScene: item.Consumable.UsableScene,
 			TargetType: gc.TargetType{
 				TargetGroup: item.Consumable.TargetGroup,
 				TargetNum:   item.Consumable.TargetNum,
@@ -311,7 +310,7 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if item.Ammo != nil {
-		var ammoAmmoTag rawschema.AmmoTag
+		var ammoAmmoTag rawschema.AmmoKindId
 		if item.Ammo.AmmoTag != nil {
 			ammoAmmoTag = *item.Ammo.AmmoTag
 		}
@@ -1220,7 +1219,7 @@ func NewSkillDefs(raws rawschema.Raws) (gc.SkillDefs, error) {
 		}
 		proficiencies[row.Accuracy] = accuracy
 	}
-	toolSkills := make(map[rawschema.ToolCategory]rawschema.SkillId)
+	toolSkills := make(map[rawschema.ToolCategoryId]rawschema.SkillId)
 	for _, row := range PtrSlice(raws.ToolCategories) {
 		if row.Skill != nil {
 			toolSkills[row.Id] = *row.Skill
@@ -1263,7 +1262,7 @@ var (
 
 // NewTileEnvDefs は raw の shelterEffects、waterEffects、foliageEffects から、囲われの受け方と、水と植生がタイルの気温に足す補正の表を組み立てる
 func NewTileEnvDefs(raws rawschema.Raws) gc.TileEnvDefs {
-	defs := gc.TileEnvDefs{Shelters: map[rawschema.Shelter]gc.ShelterDef{}, Water: map[rawschema.WaterExposure]int{}, Foliage: map[rawschema.Foliage]int{}}
+	defs := gc.TileEnvDefs{Shelters: map[rawschema.Shelter]gc.ShelterDef{}, Water: map[rawschema.WaterExposure]int{}, Foliage: map[rawschema.FoliageId]int{}}
 	for _, row := range PtrSlice(raws.ShelterEffects) {
 		defs.Shelters[row.Id] = gc.ShelterDef{Name: i18n.Msgid(row.Name), AnchorTemp: row.AnchorTemp, InfluencePercent: row.InfluencePercent, Covered: row.Covered, DaylightPercent: row.DaylightPercent}
 	}
@@ -1276,7 +1275,7 @@ func NewTileEnvDefs(raws rawschema.Raws) gc.TileEnvDefs {
 	return defs
 }
 
-// NewWeatherDefs は raw の weathers から天候の定義の表を組み立てる。id と季節は enum なのでスキーマ検証で尽くされる
+// NewWeatherDefs は raw の weathers から天候の定義の表を組み立てる。id と季節が列挙の値をそろえて持つことは、実データのテスト enum_rows_test.go で確かめる
 func NewWeatherDefs(raws rawschema.Raws) gc.WeatherDefs {
 	var kinds [gc.NumWeatherKind]gc.WeatherDef
 	for _, row := range PtrSlice(raws.Weathers) {
@@ -1295,7 +1294,7 @@ func NewWeatherDefs(raws rawschema.Raws) gc.WeatherDefs {
 	return gc.WeatherDefs{Kinds: kinds}
 }
 
-// NewCalendarDefs は raw の timesOfDay と seasons から時間帯と季節の表を組み立てる。id は enum なので検証で尽くされる
+// NewCalendarDefs は raw の timesOfDay と seasons から時間帯と季節の表を組み立てる。id が列挙の値をそろえて持つことは、実データのテスト enum_rows_test.go で確かめる
 func NewCalendarDefs(raws rawschema.Raws) gc.CalendarDefs {
 	var defs gc.CalendarDefs
 	for _, row := range PtrSlice(raws.TimesOfDay) {

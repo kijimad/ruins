@@ -20,7 +20,6 @@ var (
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
 	errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
 	errMapGlyphMissing               = errors.New("map glyph is missing")
-	errDuplicateID                   = errors.New("duplicate id")
 	errPlayerMemberMissing           = errors.New("no member is marked as the player")
 	errPlayerMemberDuplicate         = errors.New("more than one member is marked as the player")
 	errDisassemblyToolRequiredNoTool = errors.New("disassembly requires a tool but has no tool category")
@@ -31,11 +30,9 @@ var (
 	errInjuryWithoutParts            = errors.New("injury condition has no parts")
 	errConditionNoHitPart            = errors.New("condition has no body part that can be hit")
 	errAttackRangeParams             = errors.New("only ranged attack types must have all range params")
-	errResistNone                    = errors.New("no proficiency can resist the none element")
 	errWeaponProficiencyOwner        = errors.New("weapon proficiency is owned by another skill")
 	errSpellTurnsReversed            = errors.New("weather spell turns min exceeds max")
 	errNeedStageNoZero               = errors.New("need stages have no stage from zero")
-	errEnumRowMissing                = errors.New("enum value has no raw row")
 	errTableMissing                  = errors.New("table required by code is missing")
 	errGroundNotEarth                = errors.New("scatter zone ground is not an earth tile")
 	errBareHandsMissing              = errors.New("bare hands body attack is missing")
@@ -54,7 +51,6 @@ func validateRules(raws rawschema.Raws) error {
 		validateConditions,
 		validateRemedies,
 		validateWeathers,
-		validateTileEffects,
 		validateGrounds,
 		validateNeedStages,
 		validateFlatShapes,
@@ -116,8 +112,8 @@ func validateDistrictLayers(d *rawschema.District) error {
 }
 
 // DistrictZones は区域 d が割り振る地区を、層の順に重複なく返す
-func DistrictZones(d rawschema.District) []rawschema.Zone {
-	var out []rawschema.Zone
+func DistrictZones(d rawschema.District) []rawschema.ZoneId {
+	var out []rawschema.ZoneId
 	for _, l := range d.Layers {
 		for _, z := range l.Zones {
 			if !slices.Contains(out, z) {
@@ -268,13 +264,7 @@ func validateMapGlyphReferences(raws rawschema.Raws) error {
 			}
 		}
 	}
-	var chunks []string
-	for _, g := range glyphs {
-		if g.Chunk != nil {
-			chunks = append(chunks, string(*g.Chunk))
-		}
-	}
-	return validateEnumRows("GlyphChunk", enumStrings(rawschema.GlyphChunkValues()), chunks)
+	return nil
 }
 
 // validateConditions は部位の行が Go の部位にあり、不調の部位が全身を含まず、怪我の抽選の対象が空にならないことを検証する
@@ -350,19 +340,7 @@ func validateCodeRows(raws rawschema.Raws) error {
 		}
 	}
 
-	var onsets []string
-	conditions := PtrSlice(raws.Conditions)
-	for i := range conditions {
-		if onset := conditions[i].Onset; onset != nil {
-			onsets = append(onsets, string(*onset))
-		}
-	}
-	if err := validateEnumRows("ConditionOnset", enumStrings(rawschema.ConditionOnsetValues()), onsets); err != nil {
-		return err
-	}
-
 	attackTypes := PtrSlice(raws.AttackTypes)
-	attackTypeIDs := make([]string, 0, len(attackTypes))
 	for i := range attackTypes {
 		a := &attackTypes[i]
 		hasAll := a.OptimalRange != nil && a.MaxRange != nil && a.PenaltyPerTile != nil
@@ -370,10 +348,6 @@ func validateCodeRows(raws rawschema.Raws) error {
 		if a.Range == rawschema.AttackRangeRanged && !hasAll || a.Range != rawschema.AttackRangeRanged && hasAny {
 			return fmt.Errorf("attack type %q: %w", a.Id, errAttackRangeParams)
 		}
-		attackTypeIDs = append(attackTypeIDs, string(a.Id))
-	}
-	if err := validateEnumRows("AttackCategory", enumStrings(rawschema.AttackCategoryValues()), attackTypeIDs); err != nil {
-		return err
 	}
 	if err := validateSkillCodeRows(raws); err != nil {
 		return err
@@ -381,34 +355,10 @@ func validateCodeRows(raws rawschema.Raws) error {
 	if _, err := FindBodyAttack(raws, BareHands); err != nil {
 		return fmt.Errorf("%w: %w", errBareHandsMissing, err)
 	}
-	enumRows := []struct {
-		schema string
-		values []string
-		ids    []string
-	}{
-		{"FreshnessStageId", enumStrings(rawschema.FreshnessStageIdValues()), rowIDs(PtrSlice(raws.FreshnessStages), func(r rawschema.FreshnessStage) rawschema.FreshnessStageId { return r.Id })},
-		{"Material", enumStrings(rawschema.MaterialValues()), rowIDs(PtrSlice(raws.Materials), func(r rawschema.MaterialDef) rawschema.Material { return r.Id })},
-		{"ToolCategory", enumStrings(rawschema.ToolCategoryValues()), rowIDs(PtrSlice(raws.ToolCategories), func(r rawschema.ToolCategoryDef) rawschema.ToolCategory { return r.Id })},
-		{"TimeOfDayId", enumStrings(rawschema.TimeOfDayIdValues()), rowIDs(PtrSlice(raws.TimesOfDay), func(r rawschema.TimeOfDay) rawschema.TimeOfDayId { return r.Id })},
-		{"SeasonId", enumStrings(rawschema.SeasonIdValues()), rowIDs(PtrSlice(raws.Seasons), func(r rawschema.Season) rawschema.SeasonId { return r.Id })},
-		{"PointFeatureKind", enumStrings(rawschema.PointFeatureKindValues()), rowIDs(PtrSlice(raws.PointFeatures), func(r rawschema.PointFeature) rawschema.PointFeatureKind { return r.Id })},
-	}
-	for _, e := range enumRows {
-		if err := validateEnumRows(e.schema, e.values, e.ids); err != nil {
-			return err
-		}
-	}
-
 	required := []struct {
 		name    string
 		present bool
 	}{
-		{"weathers", len(PtrSlice(raws.Weathers)) > 0},
-		{"shelterEffects", len(PtrSlice(raws.ShelterEffects)) > 0},
-		{"waterEffects", len(PtrSlice(raws.WaterEffects)) > 0},
-		{"foliageEffects", len(PtrSlice(raws.FoliageEffects)) > 0},
-		{"hungerStages", len(PtrSlice(raws.HungerStages)) > 0},
-		{"fatigueStages", len(PtrSlice(raws.FatigueStages)) > 0},
 		{"dungeons", len(PtrSlice(raws.Dungeons)) > 0},
 		{"settlements", len(PtrSlice(raws.Settlements)) > 0},
 	}
@@ -420,29 +370,14 @@ func validateCodeRows(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateSkillCodeRows はスキーマの enum のスキルと熟練の効果倍率それぞれに raw の行がちょうど1つあり、
-// 攻撃の種類のダメージと命中の効果倍率を、その攻撃の種類のスキルの行が持つことを検証する
+// validateSkillCodeRows は攻撃の種類のダメージと命中の効果倍率を、その攻撃の種類のスキルの行が持つことを検証する
 func validateSkillCodeRows(raws rawschema.Raws) error {
 	skills := PtrSlice(raws.Skills)
-	skillIDs := make([]string, 0, len(skills))
-	var proficiencyIDs []string
 	owners := make(map[rawschema.ProficiencyId]rawschema.SkillId)
 	for i := range skills {
-		id := skills[i].Id
-		skillIDs = append(skillIDs, string(id))
 		for _, p := range PtrSlice(skills[i].Proficiencies) {
-			proficiencyIDs = append(proficiencyIDs, string(p.Id))
-			owners[p.Id] = id
+			owners[p.Id] = skills[i].Id
 		}
-	}
-	if err := validateEnumRows("SkillId", enumStrings(rawschema.SkillIdValues()), skillIDs); err != nil {
-		return err
-	}
-	if err := validateEnumRows("ProficiencyId", enumStrings(rawschema.ProficiencyIdValues()), proficiencyIDs); err != nil {
-		return err
-	}
-	if err := validateResists(skills); err != nil {
-		return err
 	}
 	attackTypes := PtrSlice(raws.AttackTypes)
 	for i := range attackTypes {
@@ -456,25 +391,7 @@ func validateSkillCodeRows(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateResists は無属性を除く攻撃属性それぞれを、ちょうど1つの熟練の効果倍率が軽減することを検証する
-func validateResists(skills []rawschema.Skill) error {
-	// 無属性は軽減の対象外なので、enum の網羅の検証では持っているものとして数える
-	elements := []string{string(rawschema.ElementNONE)}
-	for i := range skills {
-		for _, p := range PtrSlice(skills[i].Proficiencies) {
-			if p.Resists == nil {
-				continue
-			}
-			if *p.Resists == rawschema.ElementNONE {
-				return fmt.Errorf("proficiency %q: %w", p.Id, errResistNone)
-			}
-			elements = append(elements, string(*p.Resists))
-		}
-	}
-	return validateEnumRows("Element", enumStrings(rawschema.ElementValues()), elements)
-}
-
-// rowIDs は行それぞれの enum の id を文字列にして返す
+// rowIDs は行それぞれの id を文字列にして返す
 func rowIDs[R any, ID ~string](rows []R, id func(R) ID) []string {
 	out := make([]string, 0, len(rows))
 	for _, r := range rows {
@@ -483,47 +400,14 @@ func rowIDs[R any, ID ~string](rows []R, id func(R) ID) []string {
 	return out
 }
 
-// validateEnumRows は enum の値 values それぞれを ids がちょうど1回ずつ持つことを検証する
-func validateEnumRows(name string, values, ids []string) error {
-	seen := make(map[string]struct{}, len(ids))
-	for _, id := range ids {
-		if _, ok := seen[id]; ok {
-			return fmt.Errorf("%s %q: %w", name, id, errDuplicateID)
-		}
-		seen[id] = struct{}{}
-	}
-	for _, v := range values {
-		if _, ok := seen[v]; !ok {
-			return fmt.Errorf("%s %q: %w", name, v, errEnumRowMissing)
-		}
-	}
-	return nil
-}
-
-// enumStrings は enum の値を文字列にして返す
-func enumStrings[T ~string](values []T) []string {
-	out := make([]string, len(values))
-	for i, v := range values {
-		out[i] = string(v)
-	}
-	return out
-}
-
-// validateWeathers は天候の行が enum の全値を1回ずつ持ち、各行が季節の全値の重みを持ち、スペルの下限が上限以下であることを検証する
+// validateWeathers は天候の行のスペルの下限が上限以下であることを検証する
 func validateWeathers(raws rawschema.Raws) error {
-	weathers := PtrSlice(raws.Weathers)
-	if len(weathers) == 0 {
-		return nil
-	}
-	for _, w := range weathers {
-		if err := validateEnumRows("SeasonId", enumStrings(rawschema.SeasonIdValues()), rowIDs(w.Seasons, func(sw rawschema.WeatherSeasonWeight) rawschema.SeasonId { return sw.Id })); err != nil {
-			return fmt.Errorf("weather %q: %w", w.Id, err)
-		}
+	for _, w := range PtrSlice(raws.Weathers) {
 		if w.SpellTurnsMin > w.SpellTurnsMax {
 			return fmt.Errorf("weather %q: %w", w.Id, errSpellTurnsReversed)
 		}
 	}
-	return validateEnumRows("WeatherId", enumStrings(rawschema.WeatherIdValues()), rowIDs(weathers, func(w rawschema.Weather) rawschema.WeatherId { return w.Id }))
+	return nil
 }
 
 // validateGrounds は区分とダンジョンの下地が土の地面のタイルを指すことを検証する。
@@ -550,41 +434,15 @@ func validateGrounds(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateTileEffects は囲われ、水、植生の行が、それぞれ enum の全値を1回ずつ持つことを検証する
-func validateTileEffects(raws rawschema.Raws) error {
-	if shelters := PtrSlice(raws.ShelterEffects); len(shelters) > 0 {
-		if err := validateEnumRows("Shelter", enumStrings(rawschema.ShelterValues()), rowIDs(shelters, func(s rawschema.ShelterEffect) rawschema.Shelter { return s.Id })); err != nil {
-			return err
-		}
-	}
-	if water := PtrSlice(raws.WaterEffects); len(water) > 0 {
-		if err := validateEnumRows("WaterExposure", enumStrings(rawschema.WaterExposureValues()), rowIDs(water, func(w rawschema.WaterEffect) rawschema.WaterExposure { return w.Id })); err != nil {
-			return err
-		}
-	}
-	if foliage := PtrSlice(raws.FoliageEffects); len(foliage) > 0 {
-		if err := validateEnumRows("Foliage", enumStrings(rawschema.FoliageValues()), rowIDs(foliage, func(f rawschema.FoliageEffect) rawschema.Foliage { return f.Id })); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// validateNeedStages は空腹と疲労の段階が enum の全値を1回ずつ持ち、空腹と疲労と鮮度の段階が0から始まる段階を持つことを検証する。
+// validateNeedStages は空腹と疲労と鮮度の段階が0から始まる段階を持つことを検証する。
 // 0の段階が無いと、どの段階にも当たらない割合や劣化量が生まれる
 func validateNeedStages(raws rawschema.Raws) error {
 	if hunger := PtrSlice(raws.HungerStages); len(hunger) > 0 {
-		if err := validateEnumRows("HungerStageId", enumStrings(rawschema.HungerStageIdValues()), rowIDs(hunger, func(h rawschema.HungerStage) rawschema.HungerStageId { return h.Id })); err != nil {
-			return err
-		}
 		if !slices.ContainsFunc(hunger, func(h rawschema.HungerStage) bool { return h.From == 0 }) {
 			return fmt.Errorf("hunger: %w", errNeedStageNoZero)
 		}
 	}
 	if fatigue := PtrSlice(raws.FatigueStages); len(fatigue) > 0 {
-		if err := validateEnumRows("FatigueStageId", enumStrings(rawschema.FatigueStageIdValues()), rowIDs(fatigue, func(f rawschema.FatigueStage) rawschema.FatigueStageId { return f.Id })); err != nil {
-			return err
-		}
 		if !slices.ContainsFunc(fatigue, func(f rawschema.FatigueStage) bool { return f.From == 0 }) {
 			return fmt.Errorf("fatigue: %w", errNeedStageNoZero)
 		}

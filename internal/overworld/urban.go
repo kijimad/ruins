@@ -45,7 +45,7 @@ type facilityWeight struct {
 }
 
 // zoneCatalog は地区ごとの施設抽選重み。
-type zoneCatalog map[rawschema.Zone][]facilityWeight
+type zoneCatalog map[rawschema.ZoneId][]facilityWeight
 
 // zoneCatalogFrom は facilities 行から地区ごとの施設抽選重みを導出する。
 func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
@@ -66,7 +66,7 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 const zoneChoiceShift = 32
 
 // zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ
-func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.Zone {
+func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.ZoneId {
 	zones := r.kind.Layers[r.layerAt(l)].Zones
 	return zones[(r.seed>>zoneChoiceShift)%uint64(len(zones))]
 }
@@ -120,7 +120,7 @@ func rowsLayer(layers []rawschema.DistrictLayer, ly, ch consts.Chunk) int {
 }
 
 // rollFacilityInZone は地区の重み表から、規模 span と危険度 danger の足切りを通った施設 id を重みで抽選する。exclude の施設は引かない
-func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.Zone, span consts.Chunk, danger consts.Danger, exclude string) string {
+func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.ZoneId, span consts.Chunk, danger consts.Danger, exclude string) string {
 	zc := cat[z]
 	i, ok := consts.Pick(rng, zc, func(f facilityWeight) float64 {
 		if span < f.minSpan || danger < f.minDanger || f.kind == exclude {

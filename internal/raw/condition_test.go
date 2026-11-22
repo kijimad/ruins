@@ -10,97 +10,41 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// makeDefRaws は validateCodeRows を通る raws を作り、mutate で崩す
-// enumRowsOf は enum の値 ids それぞれに1行ずつ作る
-func enumRowsOf[R any](ids []string, row func(string) R) []R {
-	out := make([]R, 0, len(ids))
-	for _, id := range ids {
-		out = append(out, row(id))
-	}
-	return out
-}
-
+// makeDefRaws は validateCodeRows と validateConditions を通る最小の raws を作り、mutate で崩す
 func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	bodyParts := make([]rawschema.BodyPart, 0, gc.BodyPartCount)
 	for bp := range gc.BodyPartCount {
 		bodyParts = append(bodyParts, rawschema.BodyPart{Id: bp.ID(), Name: bp.ID(), HitWeight: 1})
 	}
-	onset := func(o rawschema.ConditionOnset) *rawschema.ConditionOnset { return &o }
-	conditions := []rawschema.Condition{
-		{Id: "hypothermia", Name: "Hypothermia", Description: "Hypothermia", Onset: onset(rawschema.Cold)},
-		{Id: "fracture", Name: "Fracture", Description: "Fracture", Parts: &[]rawschema.BodyPartId{"arm"}},
-		{Id: "food_poisoning", Name: "Food poisoning", Description: "Food poisoning", Onset: onset(rawschema.RottenFood)},
-		{Id: "exhaustion", Name: "Exhaustion", Description: "Exhaustion", Onset: onset(rawschema.Fatigue)},
-		{Id: "malnutrition", Name: "Malnutrition", Description: "Malnutrition", Onset: onset(rawschema.Hunger)},
-	}
-	attackIDs := enumStrings(rawschema.AttackCategoryValues())
-	attackTypes := make([]rawschema.AttackType, 0, len(attackIDs))
-	for _, id := range attackIDs {
-		attackTypes = append(attackTypes, rawschema.AttackType{
-			Id:       rawschema.AttackCategory(id),
-			Name:     id,
+	attackType := func(id rawschema.AttackCategory) rawschema.AttackType {
+		return rawschema.AttackType{
+			Id:       id,
+			Name:     string(id),
 			Range:    rawschema.AttackRangeMelee,
-			Injury:   string(gc.ConditionType("fracture")),
-			Skill:    rawschema.SkillId(id),
+			Injury:   "fracture",
+			Skill:    string(id),
 			Damage:   rawschema.ProficiencyId(id + "_damage"),
 			Accuracy: rawschema.ProficiencyId(id + "_accuracy"),
-		})
-	}
-	skillIDs := enumStrings(rawschema.SkillIdValues())
-	skills := make([]rawschema.Skill, 0, len(skillIDs))
-	for _, id := range skillIDs {
-		skills = append(skills, rawschema.Skill{Id: rawschema.SkillId(id), Name: id, Ability: rawschema.Str, Category: "general", Proficiencies: &[]rawschema.SkillProficiency{}})
-	}
-	resists := map[string]rawschema.Element{
-		"fire_resist": rawschema.ElementFIRE, "thunder_resist": rawschema.ElementTHUNDER,
-		"chill_resist": rawschema.ElementCHILL, "photon_resist": rawschema.ElementPHOTON,
-	}
-	for _, key := range enumStrings(rawschema.ProficiencyIdValues()) {
-		owner := 0
-		for i := range attackTypes {
-			if rawschema.ProficiencyId(key) == attackTypes[i].Damage || rawschema.ProficiencyId(key) == attackTypes[i].Accuracy {
-				owner = slices.Index(skillIDs, string(attackTypes[i].Skill))
-			}
 		}
-		proficiency := rawschema.SkillProficiency{Id: rawschema.ProficiencyId(key), PerLevel: 1}
-		if e, ok := resists[key]; ok {
-			proficiency.Resists = &e
-		}
-		*skills[owner].Proficiencies = append(*skills[owner].Proficiencies, proficiency)
 	}
-	freshness := enumRowsOf(enumStrings(rawschema.FreshnessStageIdValues()), func(id string) rawschema.FreshnessStage {
-		return rawschema.FreshnessStage{Id: rawschema.FreshnessStageId(id)}
-	})
-	materials := enumRowsOf(enumStrings(rawschema.MaterialValues()), func(id string) rawschema.MaterialDef { return rawschema.MaterialDef{Id: rawschema.Material(id)} })
-	tools := enumRowsOf(enumStrings(rawschema.ToolCategoryValues()), func(id string) rawschema.ToolCategoryDef {
-		return rawschema.ToolCategoryDef{Id: rawschema.ToolCategory(id)}
-	})
-	timesOfDay := enumRowsOf(enumStrings(rawschema.TimeOfDayIdValues()), func(id string) rawschema.TimeOfDay { return rawschema.TimeOfDay{Id: rawschema.TimeOfDayId(id)} })
-	seasons := enumRowsOf(enumStrings(rawschema.SeasonIdValues()), func(id string) rawschema.Season { return rawschema.Season{Id: rawschema.SeasonId(id)} })
-	pointFeatures := enumRowsOf(enumStrings(rawschema.PointFeatureKindValues()), func(id string) rawschema.PointFeature {
-		return rawschema.PointFeature{Id: rawschema.PointFeatureKind(id), Spacing: 3, Separation: 1}
-	})
+	skill := func(id rawschema.SkillId) rawschema.Skill {
+		return rawschema.Skill{Id: id, Name: id, Ability: rawschema.Str, Category: "general", Proficiencies: &[]rawschema.SkillProficiency{
+			{Id: rawschema.ProficiencyId(id + "_damage"), PerLevel: 1},
+			{Id: rawschema.ProficiencyId(id + "_accuracy"), PerLevel: 1},
+		}}
+	}
 	raws := rawschema.Raws{
-		BodyAttacks:     &[]rawschema.BodyAttack{{Id: BareHands, Name: "Bare hands"}},
-		Dungeons:        &[]rawschema.Dungeon{{Id: "dead_forest"}},
-		Settlements:     &[]rawschema.Settlement{{Id: "village", Weight: 1}},
-		TimesOfDay:      &timesOfDay,
-		Seasons:         &seasons,
-		PointFeatures:   &pointFeatures,
-		FreshnessStages: &freshness,
-		Materials:       &materials,
-		ToolCategories:  &tools,
-		BodyParts:       &bodyParts,
-		Conditions:      &conditions,
-		AttackTypes:     &attackTypes,
-		Skills:          &skills,
-		Weathers:        &[]rawschema.Weather{{Id: rawschema.Clear}},
-		Members:         &[]rawschema.Member{{Id: "ash", Player: new(true)}},
-		ShelterEffects:  &[]rawschema.ShelterEffect{{Id: rawschema.Outdoor}, {Id: rawschema.Partial}, {Id: rawschema.Indoor}},
-		WaterEffects:    &[]rawschema.WaterEffect{{Id: rawschema.Nearby}, {Id: rawschema.Submerged}},
-		FoliageEffects:  &[]rawschema.FoliageEffect{{Id: rawschema.FoliageGrass}, {Id: rawschema.FoliageForest}},
-		HungerStages:    &[]rawschema.HungerStage{{Id: rawschema.HungerStageIdStarving}},
-		FatigueStages:   &[]rawschema.FatigueStage{{Id: rawschema.FatigueStageIdRested}},
+		BodyAttacks: &[]rawschema.BodyAttack{{Id: BareHands, Name: "Bare hands"}},
+		Dungeons:    &[]rawschema.Dungeon{{Id: "dead_forest"}},
+		Settlements: &[]rawschema.Settlement{{Id: "village", Weight: 1}},
+		BodyParts:   &bodyParts,
+		Conditions: &[]rawschema.Condition{
+			{Id: "hypothermia", Name: "Hypothermia", Description: "Hypothermia"},
+			{Id: "fracture", Name: "Fracture", Description: "Fracture", Parts: &[]rawschema.BodyPartId{"arm"}},
+		},
+		AttackTypes: &[]rawschema.AttackType{attackType(rawschema.AttackCategorySword), attackType(rawschema.AttackCategorySpear)},
+		Skills:      &[]rawschema.Skill{skill("sword"), skill("spear")},
+		Members:     &[]rawschema.Member{{Id: "ash", Player: new(true)}},
 	}
 	mutate(&raws)
 	return raws
@@ -211,20 +155,6 @@ func TestValidateCodeRows(t *testing.T) {
 			wantErr: errBodyPartRowMissing,
 		},
 		{
-			name: "仕組みを持つ不調が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.Conditions = (*r.Conditions)[1:]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "同じ仕組みを2つの不調が持つ",
-			mutate: func(r *rawschema.Raws) {
-				(*r.Conditions)[1].Onset = (*r.Conditions)[0].Onset
-			},
-			wantErr: errDuplicateID,
-		},
-		{
 			name: "近接の攻撃種別が射程を持つ",
 			mutate: func(r *rawschema.Raws) {
 				(*r.AttackTypes)[0].MaxRange = new(5)
@@ -239,105 +169,14 @@ func TestValidateCodeRows(t *testing.T) {
 			wantErr: errAttackRangeParams,
 		},
 		{
-			name: "攻撃種別の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.AttackTypes = (*r.AttackTypes)[1:]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "スキルの行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.Skills = (*r.Skills)[:len(*r.Skills)-1]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "熟練の効果倍率の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*(*r.Skills)[0].Proficiencies = (*(*r.Skills)[0].Proficiencies)[1:]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "攻撃属性を軽減する倍率が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				for i := range *r.Skills {
-					for j := range *(*r.Skills)[i].Proficiencies {
-						p := &(*(*r.Skills)[i].Proficiencies)[j]
-						if p.Id == rawschema.ProficiencyIdChillResist {
-							p.Resists = nil
-						}
-					}
-				}
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "無属性を軽減する倍率",
-			mutate: func(r *rawschema.Raws) {
-				none := rawschema.ElementNONE
-				for i := range *r.Skills {
-					for j := range *(*r.Skills)[i].Proficiencies {
-						p := &(*(*r.Skills)[i].Proficiencies)[j]
-						if p.Id == rawschema.ProficiencyIdChillResist {
-							p.Resists = &none
-						}
-					}
-				}
-			},
-			wantErr: errResistNone,
-		},
-		{
 			name: "武器の効果倍率を別のスキルが持つ",
 			mutate: func(r *rawschema.Raws) {
-				sword := slices.Index(enumStrings(rawschema.SkillIdValues()), string(rawschema.SkillIdSword))
-				spear := slices.Index(enumStrings(rawschema.SkillIdValues()), string(rawschema.SkillIdSpear))
-				(*r.Skills)[sword].Proficiencies, (*r.Skills)[spear].Proficiencies = (*r.Skills)[spear].Proficiencies, (*r.Skills)[sword].Proficiencies
+				skills := *r.Skills
+				sword := slices.IndexFunc(skills, func(s rawschema.Skill) bool { return s.Id == "sword" })
+				spear := slices.IndexFunc(skills, func(s rawschema.Skill) bool { return s.Id == "spear" })
+				skills[sword].Proficiencies, skills[spear].Proficiencies = skills[spear].Proficiencies, skills[sword].Proficiencies
 			},
 			wantErr: errWeaponProficiencyOwner,
-		},
-		{
-			name: "鮮度の段階の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.FreshnessStages = (*r.FreshnessStages)[1:]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "材質の行が重複する",
-			mutate: func(r *rawschema.Raws) {
-				*r.Materials = append(*r.Materials, rawschema.MaterialDef{Id: rawschema.WOOD})
-			},
-			wantErr: errDuplicateID,
-		},
-		{
-			name: "道具の分類の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				r.ToolCategories = nil
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "時間帯の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.TimesOfDay = (*r.TimesOfDay)[:len(*r.TimesOfDay)-1]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "季節の行が重複する",
-			mutate: func(r *rawschema.Raws) {
-				*r.Seasons = append(*r.Seasons, rawschema.Season{Id: rawschema.Winter})
-			},
-			wantErr: errDuplicateID,
-		},
-		{
-			name: "地物の種類に行が無い",
-			mutate: func(r *rawschema.Raws) {
-				*r.PointFeatures = (*r.PointFeatures)[1:]
-			},
-			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "集落が無い",
@@ -354,25 +193,11 @@ func TestValidateCodeRows(t *testing.T) {
 			wantErr: errTableMissing,
 		},
 		{
-			name: "天候の表が空",
-			mutate: func(r *rawschema.Raws) {
-				r.Weathers = &[]rawschema.Weather{}
-			},
-			wantErr: errTableMissing,
-		},
-		{
 			name: "素手の体の攻撃が無い",
 			mutate: func(r *rawschema.Raws) {
 				r.BodyAttacks = nil
 			},
 			wantErr: errBareHandsMissing,
-		},
-		{
-			name: "疲労の段階が無い",
-			mutate: func(r *rawschema.Raws) {
-				r.FatigueStages = nil
-			},
-			wantErr: errTableMissing,
 		},
 	}
 	for _, tt := range tests {
@@ -396,7 +221,7 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 	defs, err := NewSkillDefs(raws)
 	require.NoError(t, err)
 
-	sword, ok := defs.Skills[rawschema.SkillIdSword]
+	sword, ok := defs.Skills["sword"]
 	require.True(t, ok)
 	assert.Equal(t, gc.SkillDef{
 		Name:     "Swordsmanship",
@@ -407,18 +232,18 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 	}, sword)
 
 	assert.Equal(t, []gc.SkillCategory{
-		{Name: "Melee", IDs: []rawschema.SkillId{rawschema.SkillIdSword, rawschema.SkillIdSpear, rawschema.SkillIdFist}},
-		{Name: "Ranged", IDs: []rawschema.SkillId{rawschema.SkillIdBow, rawschema.SkillIdHandgun, rawschema.SkillIdRifle, rawschema.SkillIdCannon, rawschema.SkillIdThrow}},
-		{Name: "Craft", IDs: []rawschema.SkillId{rawschema.SkillIdCrafting, rawschema.SkillIdSmithing, rawschema.SkillIdNegotiation, rawschema.SkillIdMechanic}},
-		{Name: "Mobility", IDs: []rawschema.SkillId{rawschema.SkillIdSprinting, rawschema.SkillIdStealth, rawschema.SkillIdNightVision, rawschema.SkillIdWeightBearing}},
-		{Name: "Survival", IDs: []rawschema.SkillId{rawschema.SkillIdColdResist, rawschema.SkillIdHungerResist, rawschema.SkillIdHealing, rawschema.SkillIdExploration}},
-		{Name: "Defense", IDs: []rawschema.SkillId{rawschema.SkillIdHeavyArmor, rawschema.SkillIdFireResist, rawschema.SkillIdThunderResist, rawschema.SkillIdChillResist, rawschema.SkillIdPhotonResist}},
+		{Name: "Melee", IDs: []rawschema.SkillId{"sword", "spear", "fist"}},
+		{Name: "Ranged", IDs: []rawschema.SkillId{"bow", "handgun", "rifle", "cannon", "throw"}},
+		{Name: "Craft", IDs: []rawschema.SkillId{"crafting", "smithing", "negotiation", "mechanic"}},
+		{Name: "Mobility", IDs: []rawschema.SkillId{"sprinting", "stealth", "night_vision", "weight_bearing"}},
+		{Name: "Survival", IDs: []rawschema.SkillId{"cold_resist", "hunger_resist", "healing", "exploration"}},
+		{Name: "Defense", IDs: []rawschema.SkillId{"heavy_armor", "fire_resist", "thunder_resist", "chill_resist", "photon_resist"}},
 	}, defs.Categories)
 
 	weapons := map[string][3]string{}
 	accuracyLimbs := map[string]gc.BodyFuncKind{}
 	for _, w := range defs.Weapons {
-		weapons[string(w.AttackType)] = [3]string{string(w.Skill), string(w.Damage), string(w.Accuracy)}
+		weapons[string(w.AttackType)] = [3]string{w.Skill, string(w.Damage), string(w.Accuracy)}
 		accuracyLimbs[string(w.AttackType)] = defs.Proficiencies[w.Accuracy].BodyFunc
 	}
 	assert.Equal(t, map[string][3]string{
@@ -444,12 +269,12 @@ func TestNewSkillDefs_実データ(t *testing.T) {
 	}, defs.Resists)
 
 	skills := gc.NewSkills()
-	for _, id := range enumStrings(rawschema.SkillIdValues()) {
-		skills.Get(rawschema.SkillId(id)).Value = 10
+	for _, s := range PtrSlice(raws.Skills) {
+		skills.Get(s.Id).Value = 10
 	}
 	got := map[rawschema.ProficiencyId]int{}
-	for _, key := range enumStrings(rawschema.ProficiencyIdValues()) {
-		got[rawschema.ProficiencyId(key)] = int(defs.ProficiencyValue(skills, nil, gc.HealthyBodyFuncs(), rawschema.ProficiencyId(key)))
+	for _, key := range rawschema.ProficiencyIdValues() {
+		got[key] = int(defs.ProficiencyValue(skills, nil, gc.HealthyBodyFuncs(), key))
 	}
 	assert.Equal(t, map[rawschema.ProficiencyId]int{
 		rawschema.ProficiencyIdFireResist: 70, rawschema.ProficiencyIdThunderResist: 70, rawschema.ProficiencyIdChillResist: 70, rawschema.ProficiencyIdPhotonResist: 70,
@@ -528,10 +353,10 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 }
 
 // mapKeys は文字列のキーを持つ map のキーを返す
-func mapKeys[K ~string, V any](m map[K]V) []string {
-	out := make([]string, 0, len(m))
+func mapKeys[K comparable, V any](m map[K]V) []K {
+	out := make([]K, 0, len(m))
 	for k := range m {
-		out = append(out, string(k))
+		out = append(out, k)
 	}
 	return out
 }
@@ -539,10 +364,10 @@ func mapKeys[K ~string, V any](m map[K]V) []string {
 func TestOrdinalEnumMaps_スキーマのenumの全値を持つ(t *testing.T) {
 	t.Parallel()
 
-	assert.ElementsMatch(t, enumStrings(rawschema.WeatherIdValues()), mapKeys(weatherKinds))
-	assert.ElementsMatch(t, enumStrings(rawschema.SeasonIdValues()), mapKeys(seasons))
-	assert.ElementsMatch(t, enumStrings(rawschema.TimeOfDayIdValues()), mapKeys(timesOfDay))
-	assert.ElementsMatch(t, enumStrings(rawschema.ConditionSeverityValues()), mapKeys(severities))
+	assert.ElementsMatch(t, rawschema.WeatherIdValues(), mapKeys(weatherKinds))
+	assert.ElementsMatch(t, rawschema.SeasonIdValues(), mapKeys(seasons))
+	assert.ElementsMatch(t, rawschema.TimeOfDayIdValues(), mapKeys(timesOfDay))
+	assert.ElementsMatch(t, rawschema.ConditionSeverityValues(), mapKeys(severities))
 }
 
 func TestConditionDeathCauseValues_不調の死因はどれも死因の定数に当たる(t *testing.T) {

@@ -28,7 +28,7 @@ func newTestProfession() rawschema.Profession {
 			Defense:   15,
 		},
 		Skills: &[]rawschema.ProfessionSkill{
-			{Id: rawschema.SkillIdSword, Value: 5},
+			{Id: "sword", Value: 5},
 		},
 		Items: []rawschema.ProfessionItem{
 			{Name: "wooden_stick", Count: 3},
@@ -64,7 +64,7 @@ func TestApplyProfession(t *testing.T) {
 		assert.Equal(t, 15, abils.Defense.Base, "防御力が反映されるべき")
 
 		skills := world.Components.Skills.Get(player)
-		assert.Equal(t, 5, skills.Get(rawschema.SkillIdSword).Value, "職業のスキル初期値が反映されるべき")
+		assert.Equal(t, 5, skills.Get("sword").Value, "職業のスキル初期値が反映されるべき")
 
 		item, ok := query.FindStackInInventory(world, "wooden_stick")
 		require.True(t, ok, "初期アイテムがバックパックに生成されるべき")

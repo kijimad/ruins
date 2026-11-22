@@ -32,7 +32,7 @@ func TestEnvironmentPlanner_PlanMeta_囲われはタイルの行の値を使う(
 func TestEnvironmentPlanner_PlanMeta_植生と雪の解けやすさはタイルの行の値を使う(t *testing.T) {
 	t.Parallel()
 
-	forest := rawschema.FoliageForest
+	forest := "forest"
 	mp := &MetaPlan{
 		Level: newTestLevel(2, 1),
 		Tiles: []rawschema.Tile{
@@ -43,7 +43,7 @@ func TestEnvironmentPlanner_PlanMeta_植生と雪の解けやすさはタイル�
 	require.NoError(t, EnvironmentPlanner{}.PlanMeta(mp))
 
 	assert.Equal(t, []gc.TileEnvironment{
-		{Shelter: rawschema.Outdoor, Foliage: rawschema.FoliageForest},
+		{Shelter: rawschema.Outdoor, Foliage: "forest"},
 		{Shelter: rawschema.Outdoor, SnowMeltPercent: 60},
 	}, mp.Environments)
 }
@@ -111,7 +111,7 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 func TestEnvironmentPlanner_PlanMeta_植生はタイルの行の値を使う(t *testing.T) {
 	t.Parallel()
 
-	grass := rawschema.FoliageGrass
+	grass := "grass"
 	mp := &MetaPlan{
 		Level: newTestLevel(2, 1),
 		Tiles: []rawschema.Tile{
@@ -121,7 +121,7 @@ func TestEnvironmentPlanner_PlanMeta_植生はタイルの行の値を使う(t *
 	}
 	require.NoError(t, EnvironmentPlanner{}.PlanMeta(mp))
 
-	assert.Equal(t, []rawschema.Foliage{rawschema.FoliageGrass, ""}, []rawschema.Foliage{mp.Environments[0].Foliage, mp.Environments[1].Foliage})
+	assert.Equal(t, []rawschema.FoliageId{"grass", ""}, []rawschema.FoliageId{mp.Environments[0].Foliage, mp.Environments[1].Foliage})
 }
 
 func newTestLevel(width, height int) gc.Level {

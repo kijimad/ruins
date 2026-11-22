@@ -31,7 +31,6 @@ ProvidesNutrition = 10
 [Items.Consumable]
 TargetGroup = "ALLY"
 TargetNum = "SINGLE"
-UsableScene = "ANY"
 
 [Items.ProvidesHealing]
 Amount = 0
@@ -105,7 +104,7 @@ DamageBonus = -2
 	require.NoError(t, err)
 
 	require.NotNil(t, spec.Ammo)
-	assert.Equal(t, rawschema.AmmoTagN9mm, spec.Ammo.AmmoTag)
+	assert.Equal(t, "9mm", spec.Ammo.AmmoTag)
 	assert.Equal(t, -2, spec.Ammo.DamageBonus)
 	assert.Equal(t, 5, spec.Ammo.AccuracyBonus)
 }
@@ -339,7 +338,7 @@ TargetSkill = "unknown_skill"
 
 	var ce *rawcheck.Error
 	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
-	assert.Equal(t, []string{"items.0.book.skill.targetSkill"}, ce.Paths())
+	assert.Equal(t, []string{"items.0.book.skill.targetSkill_ref"}, ce.Paths())
 }
 
 func TestNewItemSpec_不正な重量はエラー(t *testing.T) {
@@ -485,7 +484,6 @@ InsulationHeat = 0
 [Items.Consumable]
 TargetGroup = "ALLY"
 TargetNum = "SINGLE"
-UsableScene = "ANY"
 
 [[Recipes]]
 Name = "改造拳銃"

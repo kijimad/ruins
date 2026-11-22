@@ -30,7 +30,7 @@ func SpecDisassemblyYield(world w.World, spec gc.EntitySpec) (id string, count i
 }
 
 // disassemblyYield は装着する設備を除き、材質と重さから戻る素材を導く
-func disassemblyYield(world w.World, id string, material rawschema.Material, weight consts.Milligram, deployable bool) (string, int, bool) {
+func disassemblyYield(world w.World, id string, material rawschema.MaterialId, weight consts.Milligram, deployable bool) (string, int, bool) {
 	if deployable {
 		return "", 0, false
 	}

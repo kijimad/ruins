@@ -78,7 +78,7 @@ func TestParseFire(t *testing.T) {
 			TargetNum:      "SINGLE",
 			MagazineSize:   10,
 			ReloadEffort:   50,
-			AmmoTag:        new(rawschema.AmmoTag("9mm")),
+			AmmoTag:        new("9mm"),
 		}
 		result := parseFire(f)
 		assert.Equal(t, 70, result.Accuracy)
@@ -87,7 +87,7 @@ func TestParseFire(t *testing.T) {
 		assert.Equal(t, rawschema.AttackCategoryRifle, result.AttackCategory)
 		assert.Equal(t, 10, result.MagazineSize)
 		assert.Equal(t, 50, result.ReloadEffort)
-		assert.Equal(t, rawschema.AmmoTagN9mm, result.AmmoTag)
+		assert.Equal(t, "9mm", result.AmmoTag)
 	})
 
 	t.Run("AmmoTagがnilでも変換できる", func(t *testing.T) {
@@ -144,7 +144,7 @@ func TestNewBookFromAPI(t *testing.T) {
 		result, err := newBookFromAPI(b)
 		require.NoError(t, err)
 		assert.Equal(t, 100, result.Effort.Max)
-		assert.Equal(t, rawschema.SkillIdSword, result.Skill.TargetSkill)
+		assert.Equal(t, "sword", result.Skill.TargetSkill)
 		assert.Equal(t, 5, result.Skill.MaxLevel)
 		assert.Equal(t, 2, result.Skill.RequiredLevel)
 	})

@@ -236,7 +236,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	world.Components.Book.Add(e, &gc.Book{
 		Effort: gc.IntPool{Current: 30, Max: 100},
 		Skill: &gc.SkillBookEffect{
-			TargetSkill:   rawschema.SkillIdSword,
+			TargetSkill:   "sword",
 			RequiredLevel: 2,
 			MaxLevel:      5,
 		},
@@ -245,7 +245,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		"Book", "Skill", query.SkillName(world, rawschema.SkillIdSword),
+		"Book", "Skill", query.SkillName(world, "sword"),
 		"Lv", "2 " + consts.IconArrowRight + " 5", "Progress", "30%",
 	}, labels)
 }
@@ -381,7 +381,7 @@ func TestUpdateSpec_材質があり重量がなければ燃料行を表示しな
 	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
-	world.Components.Material.Add(e, &gc.Material{Kind: rawschema.WOOD})
+	world.Components.Material.Add(e, &gc.Material{Kind: "wood"})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
@@ -393,13 +393,13 @@ func TestUpdateSpec_可燃性の材質と重量があれば燃料行を表示す
 	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
-	world.Components.Material.Add(e, &gc.Material{Kind: rawschema.WOOD})
+	world.Components.Material.Add(e, &gc.Material{Kind: "wood"})
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: 1_000_000}) // 1kg
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
-		"Basic", "Material", query.T(world, "Wood"), "Fuel", world.Resources.MaterialDefs.HeatOf(rawschema.WOOD, 1_000_000).String(),
+		"Basic", "Material", query.T(world, "Wood"), "Fuel", world.Resources.MaterialDefs.HeatOf("wood", 1_000_000).String(),
 		"Weight", consts.Milligram(1_000_000).String(),
 	}, labels)
 }
@@ -409,7 +409,7 @@ func TestUpdateSpec_不燃の材質は重量があっても燃料行を表示し
 	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
-	world.Components.Material.Add(e, &gc.Material{Kind: rawschema.GLASS})
+	world.Components.Material.Add(e, &gc.Material{Kind: "glass"})
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: 1_000_000})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
@@ -424,7 +424,7 @@ func TestUpdateSpecFromSpec_材質はあるが重量がなければ燃料行を�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	spec := gc.EntitySpec{Material: &gc.Material{Kind: rawschema.COAL}}
+	spec := gc.EntitySpec{Material: &gc.Material{Kind: "coal"}}
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
@@ -436,14 +436,14 @@ func TestUpdateSpecFromSpec_可燃性の材質と重量があれば燃料行を�
 	world := testutil.InitTestWorld(t)
 
 	spec := gc.EntitySpec{
-		Material: &gc.Material{Kind: rawschema.COAL},
+		Material: &gc.Material{Kind: "coal"},
 		Weight:   &gc.Weight{Milligram: 1_000_000},
 	}
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
 	assert.Equal(t, []string{
-		"Basic", "Material", query.T(world, "Coal"), "Fuel", world.Resources.MaterialDefs.HeatOf(rawschema.COAL, 1_000_000).String(),
+		"Basic", "Material", query.T(world, "Coal"), "Fuel", world.Resources.MaterialDefs.HeatOf("coal", 1_000_000).String(),
 		"Weight", consts.Milligram(1_000_000).String(),
 	}, labels)
 }
@@ -454,7 +454,7 @@ func TestUpdateSpec_分解できるアイテムは戻る素材と個数の行を
 
 	e := world.ECS.NewEntity()
 	world.Components.RawID.Add(e, &gc.RawID{ID: "hammer"})
-	world.Components.Material.Add(e, &gc.Material{Kind: rawschema.METAL})
+	world.Components.Material.Add(e, &gc.Material{Kind: "metal"})
 	world.Components.Weight.Add(e, &gc.Weight{Milligram: 4_000_000})
 
 	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
@@ -472,7 +472,7 @@ func TestUpdateSpecFromSpec_分解できるアイテムは戻る素材と個数�
 
 	spec := gc.EntitySpec{
 		RawID:    &gc.RawID{ID: "hammer"},
-		Material: &gc.Material{Kind: rawschema.METAL},
+		Material: &gc.Material{Kind: "metal"},
 		Weight:   &gc.Weight{Milligram: 4_000_000},
 	}
 

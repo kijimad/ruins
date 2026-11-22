@@ -38,9 +38,9 @@ func TestRoadPath_塀に囲まれた区域は南北の門を通る(t *testing.T)
 			Sizes: []rawschema.DistrictSize{{W: 3, H: 4, Weight: 1}},
 		}},
 		Facilities: &[]rawschema.Facility{
-			{Id: "gate", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusGate, Weight: 1, MinSpan: 1}}},
-			{Id: "inner", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusInner, Weight: 1, MinSpan: 1}}},
-			{Id: "back", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusQuarantine, Weight: 1, MinSpan: 1}}},
+			{Id: "gate", Zones: []rawschema.FacilityZone{{Zone: "campus_gate", Weight: 1, MinSpan: 1}}},
+			{Id: "inner", Zones: []rawschema.FacilityZone{{Zone: "campus_inner", Weight: 1, MinSpan: 1}}},
+			{Id: "back", Zones: []rawschema.FacilityZone{{Zone: "campus_quarantine", Weight: 1, MinSpan: 1}}},
 		},
 	}
 	const cols consts.Chunk = 3
@@ -74,9 +74,9 @@ func TestRoadPath_塀の無い区域は横切ってまっすぐ通る(t *testing
 			Sizes: []rawschema.DistrictSize{{W: 3, H: 4, Weight: 1}},
 		}},
 		Facilities: &[]rawschema.Facility{
-			{Id: "gate", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusGate, Weight: 1, MinSpan: 1}}},
-			{Id: "inner", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusInner, Weight: 1, MinSpan: 1}}},
-			{Id: "back", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusQuarantine, Weight: 1, MinSpan: 1}}},
+			{Id: "gate", Zones: []rawschema.FacilityZone{{Zone: "campus_gate", Weight: 1, MinSpan: 1}}},
+			{Id: "inner", Zones: []rawschema.FacilityZone{{Zone: "campus_inner", Weight: 1, MinSpan: 1}}},
+			{Id: "back", Zones: []rawschema.FacilityZone{{Zone: "campus_quarantine", Weight: 1, MinSpan: 1}}},
 		},
 	}
 	const cols consts.Chunk = 3

@@ -105,7 +105,7 @@ func TestValidate_武器と道具のアイテムは残量を持つ(t *testing.T)
 	t.Parallel()
 	melee := rawschema.Melee{Accuracy: 100, Damage: 1, AttackCount: 1, AttackCategory: rawschema.AttackCategoryFist, Element: rawschema.ElementNONE, TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE}
 	fire := rawschema.Fire{Accuracy: 100, Damage: 1, AttackCount: 1, AttackCategory: rawschema.AttackCategoryHandgun, Element: rawschema.ElementNONE, TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE, Cost: 100, MagazineSize: 1, ReloadEffort: 1}
-	tool := rawschema.Tool{Categories: []rawschema.ToolCategory{rawschema.Mining}, Grade: 1}
+	tool := rawschema.Tool{Categories: []rawschema.ToolCategoryId{"mining"}, Grade: 1}
 	tests := []struct {
 		name string
 		item func(it *rawschema.Item)
@@ -217,4 +217,14 @@ func TestValidate_タイルのidに下地を残す地形の予約語を使わな
 	var ce *rawcheck.Error
 	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
 	assert.Equal(t, []string{"tiles.2.id"}, ce.Paths())
+}
+
+func TestValidate_無属性を軽減する熟練度は位置で返す(t *testing.T) {
+	t.Parallel()
+	raws, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	(*(*raws.Skills)[0].Proficiencies)[0].Resists = new(rawschema.ElementNONE)
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"skills.0.proficiencies.0.resists"}, ce.Paths())
 }

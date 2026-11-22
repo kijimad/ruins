@@ -10,7 +10,7 @@ import (
 type TileEnvironment struct {
 	Shelter         rawschema.Shelter
 	Water           rawschema.WaterExposure // ゼロ値は水の影響なし
-	Foliage         rawschema.Foliage       // ゼロ値は植生なし
+	Foliage         rawschema.FoliageId     // ゼロ値は植生なし
 	SnowMeltPercent int                     // 積もる雪を減らす割合。ゼロ値は減らさない
 }
 
@@ -27,7 +27,7 @@ type ShelterDef struct {
 type TileEnvDefs struct {
 	Shelters map[rawschema.Shelter]ShelterDef
 	Water    map[rawschema.WaterExposure]int
-	Foliage  map[rawschema.Foliage]int
+	Foliage  map[rawschema.FoliageId]int
 }
 
 // ShelteredWorldTemp は囲われに応じて受け方を変えた世界温度を返す。表に無い囲われは世界温度をそのまま受ける

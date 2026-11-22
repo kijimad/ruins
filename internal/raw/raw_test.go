@@ -1116,13 +1116,13 @@ func TestNewItemSpec_材質と重さから燃料を導く(t *testing.T) {
 name = "wood log"
 id = "wood_log"
 weight = "3 kg"
-material = "WOOD"
+material = "wood"
 
 [[Items]]
 name = "iron bar"
 id = "iron_bar"
 weight = "2 kg"
-material = "METAL"
+material = "metal"
 
 [[Items]]
 name = "no material"
@@ -1137,12 +1137,12 @@ weight = "1 kg"
 	wood, err := NewItemSpec(raws, "wood_log")
 	require.NoError(t, err)
 	require.NotNil(t, wood.Material, "材質を明示したアイテムは Material を持つ")
-	assert.Equal(t, rawschema.WOOD, wood.Material.Kind)
+	assert.Equal(t, "wood", wood.Material.Kind)
 
 	iron, err := NewItemSpec(raws, "iron_bar")
 	require.NoError(t, err)
 	require.NotNil(t, iron.Material, "不燃の材質も Material は付く")
-	assert.Equal(t, rawschema.METAL, iron.Material.Kind)
+	assert.Equal(t, "metal", iron.Material.Kind)
 
 	none, err := NewItemSpec(raws, "no_mat")
 	require.NoError(t, err)
@@ -1265,10 +1265,10 @@ func TestTileEnvironmentOf(t *testing.T) {
 	t.Run("FoliageとSnowMeltPercentを指定すると反映する", func(t *testing.T) {
 		t.Parallel()
 		indoor := rawschema.Indoor
-		foliage := rawschema.FoliageForest
+		foliage := "forest"
 		snowMelt := 50
 		got := TileEnvironmentOf(rawschema.Tile{Shelter: &indoor, Foliage: &foliage, SnowMeltPercent: &snowMelt})
-		assert.Equal(t, gc.TileEnvironment{Shelter: rawschema.Indoor, Foliage: rawschema.FoliageForest, SnowMeltPercent: 50}, got)
+		assert.Equal(t, gc.TileEnvironment{Shelter: rawschema.Indoor, Foliage: "forest", SnowMeltPercent: 50}, got)
 	})
 }
 

@@ -36,9 +36,9 @@ type SkillDefs struct {
 	Skills        map[rawschema.SkillId]SkillDef
 	Categories    []SkillCategory // 表示順
 	Proficiencies map[rawschema.ProficiencyId]ProficiencyDef
-	Weapons       []WeaponDef                                  // 表示順
-	Resists       []ResistDef                                  // 表示順
-	ToolSkills    map[rawschema.ToolCategory]rawschema.SkillId // 合う道具で壊したとき伸びるスキル。伸ばさない分類は持たない
+	Weapons       []WeaponDef                                    // 表示順
+	Resists       []ResistDef                                    // 表示順
+	ToolSkills    map[rawschema.ToolCategoryId]rawschema.SkillId // 合う道具で壊したとき伸びるスキル。伸ばさない分類は持たない
 }
 
 // ResistDef は攻撃属性と、そのダメージを軽減する熟練の効果倍率。raw の熟練の効果倍率の行の resists から組み立てる

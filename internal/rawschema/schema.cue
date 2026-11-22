@@ -39,13 +39,21 @@ import (
 
 // 弾薬設定
 #Ammo: {
-	ammoTag?:       #AmmoTag
+	ammoTag?: #AmmoKindId
+	if ammoTag != _|_ {
+		ammoTag_ref: _ammoKindIDs[ammoTag] @rawgen(-)
+	}
 	damageBonus!:   #DamageBonus
 	accuracyBonus!: #AccuracyBonus
 }
 
-// 弾薬タグ
-#AmmoTag: "9mm" | "rifle" | "shell" | "energy_cell" @rawgen(prefix)
+// 弾の口径の表。銃が撃てる口径と弾の口径を、この表の id で引き合わせる。口径を足すときは raw にこの表の行を1つ足す
+#AmmoKind: {
+	id!: #AmmoKindId
+}
+
+// 弾の口径の id
+#AmmoKindId: #TableId
 
 // 防具の防御力
 #ArmorDefense: int & >=0 & <=999
@@ -76,7 +84,8 @@ import (
 	injury_ref:      _conditionIDs[injury] @rawgen(-)
 
 	// 攻撃で上達するスキル
-	skill!: #SkillId
+	skill!:    #SkillId
+	skill_ref: _skillIDs[skill] @rawgen(-)
 
 	// ダメージを決める熟練の効果倍率。skill の行が持つ
 	damage!: #ProficiencyId
@@ -112,9 +121,7 @@ import (
 }
 
 // 部位の id
-#BodyPartId: string & strings.MinRunes(
-		1) & strings.MaxRunes(
-		50) & =~"^[a-z][a-z0-9_]*$"
+#BodyPartId: #TableId
 
 // 本の設定
 #Book: {
@@ -213,7 +220,6 @@ import (
 
 // 消費可能アイテムの設定
 #Consumable: {
-	usableScene!: #UsableScene
 	targetGroup!: #TargetGroup
 	targetNum!:   #TargetNum
 }
@@ -263,7 +269,10 @@ import (
 
 // 分解定義。これを持つ prop は殴って壊すと産出を落とす。toolCategory の道具を構えて壊すと多く得る
 #Disassembly: {
-	toolCategory?: #ToolCategory
+	toolCategory?: #ToolCategoryId
+	if toolCategory != _|_ {
+		toolCategory_ref: _toolCategoryIDs[toolCategory] @rawgen(-)
+	}
 	toolRequired?: #DisassemblyToolRequired
 	yields!: [...#DisassemblyYield]
 	bonus?: [...#DisassemblyBonus]
@@ -410,7 +419,8 @@ import (
 // 地区の層。候補の地区から区域の seed で1つ選ぶ
 #DistrictLayer: {
 	// 候補の地区
-	zones!: [...#Zone] & [_, ...]
+	zones!: [...#ZoneId] & [_, ...]
+	zones_ref: [for x in zones {_zoneIDs[x]}] @rawgen(-)
 	// rows の並べ方で、この層が占める行の数
 	rows?: int & >=1
 }
@@ -476,9 +486,7 @@ import (
 }
 
 // 燃料の種別の id
-#FuelKindId: string & strings.MinRunes(
-		1) & strings.MaxRunes(
-		50) & =~"^[a-z][a-z0-9_]*$"
+#FuelKindId: #TableId
 
 // 燃料。受ける種別が同じ灯りとの間で残量を移す。残量0でも残り、抜くときの入れ物になる
 #Refill: {
@@ -761,7 +769,8 @@ import (
 // 施設が出現する地区と抽選重み。市街地の一辺が minSpan 以上のときだけ抽選対象になる
 #FacilityZone: {
 	// 施設が建つ地区
-	zone!: #Zone
+	zone!:    #ZoneId
+	zone_ref: _zoneIDs[zone] @rawgen(-)
 	// 地区の中での抽選の重み
 	weight!: int32 & >=1
 	// 区域の長い方の辺がこのチャンク数以上のときだけ抽選する
@@ -804,7 +813,10 @@ import (
 	targetNum!:      #TargetNum
 	magazineSize!:   #MagazineSize
 	reloadEffort!:   #ReloadEffort
-	ammoTag?:        #AmmoTag
+	ammoTag?:        #AmmoKindId
+	if ammoTag != _|_ {
+		ammoTag_ref: _ammoKindIDs[ammoTag] @rawgen(-)
+	}
 }
 
 // 投げたときの値。投げ向きの物だけが書き、ほかの物は重さから導く
@@ -846,14 +858,14 @@ import (
 // キューブの核。使うと隣に新しいキューブが組み上がる
 #CubeCore: {}
 
-// タイルの植生
-#Foliage: "grass" | "forest" @rawgen(prefix)
-
-// 植生がタイルの気温に足す補正
-#FoliageEffect: {
-	id!:           #Foliage
+// タイルの植生の表。raw の foliageEffects の行で、植生がタイルの気温に足す補正を持つ。植生を足すときは raw にこの表の行を1つ足す
+#Foliage: {
+	id!:           #FoliageId
 	tempModifier!: #TileTempModifier
 }
+
+// 植生の id
+#FoliageId: #TableId
 
 // 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合
 #FreshnessStage: {
@@ -1014,7 +1026,7 @@ import (
 	}
 
 	// 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
-	material?: #Material
+	material?: #MaterialId
 
 	// 火種。所持していると隣接の燃焼物に着火できる
 	fireStarter?: #FireStarter
@@ -1145,22 +1157,22 @@ import (
 	chunk?: #GlyphChunk
 }
 
-// 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-// 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
-#Material: "WOOD" | "PAPER" | "CLOTH" | "LEATHER" | "PLANT" | "FOOD" | "BONE" | "OIL" | "COAL" | "PLASTIC" | "METAL" | "STONE" | "GLASS" | "CRYSTAL" | "CERAMIC" | "LIQUID"
-
-// 素材必要数
-#MaterialAmount: int & >=1 & <=99
-
-// 材質の表示名と燃焼の熱量
-#MaterialDef: {
-	id!:        #Material
+// 材質の表。表示名と燃焼の熱量を持つ。燃料熱量は材質のkgあたり熱量へ重量を掛けて導き、
+// 不燃の材質は係数0で燃料にならない。材質を足すときは raw にこの表の行を1つ足す
+#Material: {
+	id!:        #MaterialId
 	name!:      #EntityName
 	heatPerKg!: #HeatPerKg
 
 	// 分解で戻る素材。無い材質のアイテムは分解できない
 	disassembly?: #MaterialDisassembly
 }
+
+// 材質の id
+#MaterialId: #TableId
+
+// 素材必要数
+#MaterialAmount: int & >=1 & <=99
 
 // 材質のアイテムを分解したときに戻る素材
 #MaterialDisassembly: {
@@ -1277,9 +1289,7 @@ import (
 }
 
 // 職業ID
-#ProfessionId: string & strings.MinRunes(
-		1) & strings.MaxRunes(
-		50) & =~"^[a-z][a-z0-9_]*$"
+#ProfessionId: #TableId
 
 // 職業初期所持アイテム
 #ProfessionItem: {
@@ -1416,12 +1426,14 @@ import (
 	weathers?: [...#Weather]
 	shelterEffects?: [...#ShelterEffect]
 	waterEffects?: [...#WaterEffect]
-	foliageEffects?: [...#FoliageEffect]
+	foliageEffects?: [...#Foliage]
 	hungerStages?: [...#HungerStage]
 	fatigueStages?: [...#FatigueStage]
 	freshnessStages?: [...#FreshnessStage]
-	materials?: [...#MaterialDef]
-	toolCategories?: [...#ToolCategoryDef]
+	materials?: [...#Material]
+	toolCategories?: [...#ToolCategory]
+	ammoKinds?: [...#AmmoKind]
+	zones?: [...#Zone]
 	timesOfDay?: [...#TimeOfDay]
 	seasons?: [...#Season]
 	dungeons?: [...#Dungeon]
@@ -1451,6 +1463,11 @@ import (
 	bodyAttackIds_unique: {if bodyAttacks != _|_ for i, x in bodyAttacks {(x.id): i}} @rawgen(-)
 	facilityIds_unique: {if facilities != _|_ for i, x in facilities {(x.id): i}} @rawgen(-)
 	fuelKindIds_unique: {if fuelKinds != _|_ for i, x in fuelKinds {(x.id): i}} @rawgen(-)
+	toolCategoryIds_unique: {if toolCategories != _|_ for i, x in toolCategories {(x.id): i}} @rawgen(-)
+	ammoKindIds_unique: {if ammoKinds != _|_ for i, x in ammoKinds {(x.id): i}} @rawgen(-)
+	zoneIds_unique: {if zones != _|_ for i, x in zones {(x.id): i}} @rawgen(-)
+	materialIds_unique: {if materials != _|_ for i, x in materials {(x.id): i}} @rawgen(-)
+	foliageEffectIds_unique: {if foliageEffects != _|_ for i, x in foliageEffects {(x.id): i}} @rawgen(-)
 	districtIds_unique: {if districts != _|_ for i, x in districts {(x.id): i}} @rawgen(-)
 	landmarkIds_unique: {if landmarks != _|_ for i, x in landmarks {(x.id): i}} @rawgen(-)
 	remainsIds_unique: {if remains != _|_ for i, x in remains {(x.id): i}} @rawgen(-)
@@ -1506,6 +1523,12 @@ import (
 	// 循環し、実在するタイルも見つからない。表の外で引く
 	tileSpawns_ref: {
 		if tiles != _|_ for x in tiles if x.spawn.tile != _|_ {(x.id): _tileIDs[x.spawn.tile]}
+	} @rawgen(-)
+
+	// アイテムの材質は材質の表を指し、材質の分解はアイテムを指す。アイテムの中で材質の索引を引くと、2つの索引が
+	// 互いの評価を待って循環し、実在するアイテムも見つからない。表の外で引く
+	itemMaterials_ref: {
+		if items != _|_ for x in items if x.material != _|_ {(x.id): _materialIDs[x.material]}
 	} @rawgen(-)
 
 	// 熟練の効果倍率の id はスキルをまたいで一意にする
@@ -1660,12 +1683,10 @@ import (
 }
 
 // スキルのカテゴリの id
-#SkillCategoryId: string & strings.MinRunes(
-			1) & strings.MaxRunes(
-			50) & =~"^[a-z][a-z0-9_]*$"
+#SkillCategoryId: #TableId
 
-// スキルID
-#SkillId: "sword" | "spear" | "fist" | "weight_bearing" | "bow" | "handgun" | "rifle" | "cannon" | "exploration" | "crafting" | "smithing" | "negotiation" | "mechanic" | "sprinting" | "stealth" | "night_vision" | "cold_resist" | "hunger_resist" | "healing" | "heavy_armor" | "fire_resist" | "thunder_resist" | "chill_resist" | "photon_resist" | "throw" @rawgen(prefix)
+// スキルの表の id
+#SkillId: #TableId
 
 // スキルレベル
 #SkillLevel: int & >=0 & <=100
@@ -1676,7 +1697,7 @@ import (
 	perLevel!: #ProficiencyPerLevel
 
 	// この倍率が受けるダメージを軽減する攻撃属性。無属性を除く属性それぞれをちょうど1つの倍率が持つ
-	resists?: #Element
+	resists?: #Element & !="NONE"
 }
 
 // 天候のスペルの基準長。ターン
@@ -1756,7 +1777,10 @@ import (
 	water?: bool
 
 	// 植生。省くと植生なし
-	foliage?: #Foliage
+	foliage?: #FoliageId
+	if foliage != _|_ {
+		foliage_ref: _foliageIDs[foliage] @rawgen(-)
+	}
 
 	// マップの計画からこのタイルを生成するときの仕様。省くと計画に置けない
 	spawn?: #TileSpawn
@@ -1802,26 +1826,30 @@ import (
 // 時間帯による世界温度への加算。℃
 #TimeOfDayTempModifier: int & >=-50 & <=50
 
+// 表の id の共通の書式
+#TableId: string & strings.MinRunes(1) & strings.MaxRunes(50) & =~"^[a-z0-9][a-z0-9_]*$"
+
 // 道具の性質。道具の分類とグレードを持つ
 #Tool: {
-	categories!: [...#ToolCategory]
+	categories!: [...#ToolCategoryId]
+	categories_ref: [for x in categories {_toolCategoryIDs[x]}] @rawgen(-)
 	grade!: #ToolGrade
 }
 
-// 道具の分類
-#ToolCategory: "prying" | "precision" | "cutting" | "chopping" | "mining"
-
-// 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
-#ToolCategoryDef: {
-	id!:    #ToolCategory
+// 道具の分類の表。合う道具で壊したときに伸ばすスキルを持ち、省くと伸びない。分類を足すときは raw にこの表の行を1つ足す
+#ToolCategory: {
+	id!:    #ToolCategoryId
 	skill?: #SkillId
+	if skill != _|_ {
+		skill_ref: _skillIDs[skill] @rawgen(-)
+	}
 }
+
+// 道具の分類の id
+#ToolCategoryId: #TableId
 
 // 道具のグレード。高いほど速く壊し多く得る
 #ToolGrade: int & >=1 & <=3
-
-// 使用可能シーン
-#UsableScene: "BATTLE" | "FIELD" | "ANY"
 
 // AI視界距離（タイル単位）
 #ViewDistance: int & >=1 & <=100
@@ -1885,5 +1913,10 @@ import (
 // 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg"
 #Weight: string & =~"^[0-9]+(\\.[0-9]+)? (mg|g|kg)$"
 
-// 区域の地区。区域の層が候補として持ち、施設は建つ地区として持つ
-#Zone: "downtown" | "residential" | "industrial" | "campus_gate" | "campus_inner" | "campus_quarantine" | "military_gate" | "military_inner" | "military_armory" | "plant_outer" | "plant_core" | "farm_yard" | "farm_field"
+// 区域の地区の表。区域の層が候補として持ち、施設は建つ地区として持つ。地区を足すときは raw にこの表の行を1つ足す
+#Zone: {
+	id!: #ZoneId
+}
+
+// 区域の地区の id
+#ZoneId: #TableId

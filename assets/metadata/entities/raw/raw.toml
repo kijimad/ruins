@@ -1,3 +1,15 @@
+[[ammoKinds]]
+  id = "9mm"
+
+[[ammoKinds]]
+  id = "rifle"
+
+[[ammoKinds]]
+  id = "shell"
+
+[[ammoKinds]]
+  id = "energy_cell"
+
 [[attackTypes]]
   accuracy = "sword_accuracy"
   damage = "sword_damage"
@@ -8790,7 +8802,7 @@
 [[items]]
   description = "A lit torch. Serves as light, weapon, and a way to set fuel alight."
   id = "torch"
-  material = "WOOD"
+  material = "wood"
   name = "Torch"
   spriteKey = "torch"
   spriteSheetName = "field"
@@ -8819,7 +8831,7 @@
 [[items]]
   description = "An oil lantern with a carry handle. Burns long and can be refilled with lamp oil. Heavy enough to swing."
   id = "hand_lantern"
-  material = "METAL"
+  material = "metal"
   name = "Hand Lantern"
   spriteKey = "dummy_floor_lamp"
   spriteSheetName = "field"
@@ -8849,7 +8861,7 @@
 [[items]]
   description = "A battery-powered flashlight. Reaches the farthest of any light, but batteries are scarce."
   id = "flashlight"
-  material = "METAL"
+  material = "metal"
   name = "Flashlight"
   spriteKey = "magnelight"
   spriteSheetName = "field"
@@ -8879,7 +8891,7 @@
 [[items]]
   description = "A can of lamp oil. Its oil can be poured into an oil lantern and drained back out, and it burns well on a fire."
   id = "lamp_oil"
-  material = "OIL"
+  material = "oil"
   name = "Lamp Oil"
   spriteKey = "dummy_coolant_vial"
   spriteSheetName = "field"
@@ -8893,7 +8905,7 @@
 [[items]]
   description = "A battery. Its charge can be moved into a flashlight and drawn back out."
   id = "battery"
-  material = "METAL"
+  material = "metal"
   name = "Battery"
   spriteKey = "dummy_scrap_battery"
   spriteSheetName = "field"
@@ -8907,7 +8919,7 @@
 [[items]]
   description = "A long-handled cleaning tool. Its reach makes it a surprisingly usable bludgeon."
   id = "broom"
-  material = "WOOD"
+  material = "wood"
   name = "Broom"
   spriteKey = "broom"
   spriteSheetName = "field"
@@ -8928,7 +8940,7 @@
 [[items]]
   description = "A blunt weapon imbued with ice magic. Cold surges with each strike."
   id = "ice_mace"
-  material = "METAL"
+  material = "metal"
   name = "Ice Mace"
   spriteKey = "ice_mace"
   spriteSheetName = "field"
@@ -8949,7 +8961,7 @@
 [[items]]
   description = "A knife with snap-off blades to keep its edge sharp. Light and easy to handle."
   id = "utility_knife"
-  material = "METAL"
+  material = "metal"
   name = "Utility Knife"
   spriteKey = "cutter_knife"
   spriteSheetName = "field"
@@ -8970,7 +8982,7 @@
 [[items]]
   description = "A two-handed greatsword. Heavy, but each blow strikes hard."
   id = "claymore"
-  material = "METAL"
+  material = "metal"
   name = "Claymore"
   spriteKey = "claymore"
   spriteSheetName = "field"
@@ -8991,7 +9003,7 @@
 [[items]]
   description = "A large digging tool with a pointed tip. Swung down, it doubles as a weapon."
   id = "shovel"
-  material = "METAL"
+  material = "metal"
   name = "Shovel"
   spriteKey = "shovel"
   spriteSheetName = "field"
@@ -9012,7 +9024,7 @@
 [[items]]
   description = "A tool for mining ore. It can serve as a weapon too, more or less."
   id = "pickaxe"
-  material = "METAL"
+  material = "metal"
   name = "Pickaxe"
   spriteKey = "pickaxe"
   spriteSheetName = "field"
@@ -9036,7 +9048,7 @@
 [[items]]
   description = "A screwdriver. Delivers precise thrusts."
   id = "screwdriver"
-  material = "METAL"
+  material = "metal"
   name = "Screwdriver"
   spriteKey = "driver"
   spriteSheetName = "field"
@@ -9057,7 +9069,7 @@
 [[items]]
   description = "Two sticks joined by a chain. It excels at swift, rapid strikes."
   id = "nunchaku"
-  material = "WOOD"
+  material = "wood"
   name = "Nunchaku"
   spriteKey = "nunchaku"
   spriteSheetName = "field"
@@ -9078,7 +9090,7 @@
 [[items]]
   description = "A long-hafted axe-spear. It combines reach with power."
   id = "halberd"
-  material = "METAL"
+  material = "metal"
   name = "Halberd"
   spriteKey = "halberd"
   spriteSheetName = "field"
@@ -9102,7 +9114,7 @@
 [[items]]
   description = "A heavy iron hammer. Its blows are devastating, but slow to swing."
   id = "hammer"
-  material = "METAL"
+  material = "metal"
   name = "Hammer"
   spriteKey = "hammer"
   spriteSheetName = "field"
@@ -9126,7 +9138,7 @@
 [[items]]
   description = "A massive battle axe. It boasts tremendous destructive power, but is hard to wield."
   id = "battle_axe"
-  material = "METAL"
+  material = "metal"
   name = "Battle Axe"
   spriteKey = "battle_axe"
   spriteSheetName = "field"
@@ -9150,7 +9162,7 @@
 [[items]]
   description = "A dining fork. As a stabbing weapon, it has the bare minimum of function."
   id = "fork"
-  material = "METAL"
+  material = "metal"
   name = "Fork"
   spriteKey = "forks"
   spriteSheetName = "field"
@@ -9171,7 +9183,7 @@
 [[items]]
   description = "A massive hammer. Built for construction, but powerful as a weapon too."
   id = "block_hammer"
-  material = "METAL"
+  material = "metal"
   name = "Block Hammer"
   spriteKey = "block_hammer"
   spriteSheetName = "field"
@@ -9195,7 +9207,7 @@
 [[items]]
   description = "A kind of pliers. An all-purpose tool that grips, bends, and cuts."
   id = "pliers"
-  material = "METAL"
+  material = "metal"
   name = "Pliers"
   spriteKey = "pliers"
   spriteSheetName = "field"
@@ -9216,7 +9228,7 @@
 [[items]]
   description = "A sturdy wrench. It also makes an excellent bludgeon."
   id = "monkey_wrench"
-  material = "METAL"
+  material = "metal"
   name = "Monkey Wrench"
   spriteKey = "monkey_wrench"
   spriteSheetName = "field"
@@ -9240,7 +9252,7 @@
 [[items]]
   description = "A spear split into three prongs. It works for both thrusting and sweeping."
   id = "trident"
-  material = "METAL"
+  material = "metal"
   name = "Trident"
   spriteKey = "trident"
   spriteSheetName = "field"
@@ -9261,7 +9273,7 @@
 [[items]]
   description = "A farming tool with a large blade on a long shaft, able to sweep a wide area."
   id = "scythe"
-  material = "METAL"
+  material = "metal"
   name = "Scythe"
   spriteKey = "greap"
   spriteSheetName = "field"
@@ -9282,7 +9294,7 @@
 [[items]]
   description = "A holy sword forged from heavenly metal."
   id = "angel_sword"
-  material = "METAL"
+  material = "metal"
   name = "Angel Sword"
   spriteKey = "angel_sword"
   spriteSheetName = "field"
@@ -9303,7 +9315,7 @@
 [[items]]
   description = "An axe with wide, destructive swings."
   id = "axe"
-  material = "METAL"
+  material = "metal"
   name = "Axe"
   spriteKey = "axe"
   spriteSheetName = "field"
@@ -9327,7 +9339,7 @@
 [[items]]
   description = "A brightly shining mace that crushes foes with the power of light."
   id = "bright_mace"
-  material = "METAL"
+  material = "metal"
   name = "Bright Mace"
   spriteKey = "light_mace"
   spriteSheetName = "field"
@@ -9348,7 +9360,7 @@
 [[items]]
   description = "A smooth stick, light and easy to hold."
   id = "wooden_stick"
-  material = "WOOD"
+  material = "wood"
   name = "Wooden Stick"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -9369,7 +9381,7 @@
 [[items]]
   description = "A bladeless wooden katana, a familiar travel souvenir."
   id = "wooden_sword"
-  material = "WOOD"
+  material = "wood"
   name = "Wooden Sword"
   spriteKey = "wooden_sword"
   spriteSheetName = "field"
@@ -9390,7 +9402,7 @@
 [[items]]
   description = "A foreign sword with a wavy blade, slipping past defenses with an unusual arc."
   id = "warped_blade"
-  material = "METAL"
+  material = "metal"
   name = "Warped Blade"
   spriteKey = "curved_blade"
   spriteSheetName = "field"
@@ -9411,7 +9423,7 @@
 [[items]]
   description = "A sword carved from crystal, its clear blade holding a strange hardness."
   id = "crystal_sword"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Crystal Sword"
   spriteKey = "crystal_sword"
   spriteSheetName = "field"
@@ -9432,7 +9444,7 @@
 [[items]]
   description = "A spear formed from ice crystals."
   id = "ice_spear"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Ice Spear"
   spriteKey = "crystal_mace"
   spriteSheetName = "field"
@@ -9453,7 +9465,7 @@
 [[items]]
   description = "A pressurized canister for putting out fires, it works as a blunt weapon when swung."
   id = "fire_extinguisher"
-  material = "METAL"
+  material = "metal"
   name = "Fire Extinguisher"
   spriteKey = "fire_extinguisher"
   spriteSheetName = "field"
@@ -9474,7 +9486,7 @@
 [[items]]
   description = "A purple-gleaming katana forged by a master smith, it delivers sharp slashes."
   id = "purple_katana"
-  material = "METAL"
+  material = "metal"
   name = "Purple Katana"
   spriteKey = "purple_katana"
   spriteSheetName = "field"
@@ -9495,7 +9507,7 @@
 [[items]]
   description = "A magic blunt weapon glowing purple, it delivers strikes laced with magic."
   id = "purple_mace"
-  material = "METAL"
+  material = "metal"
   name = "Purple Mace"
   spriteKey = "purple_mace"
   spriteSheetName = "field"
@@ -9516,7 +9528,7 @@
 [[items]]
   description = "A slim, light rapier that excels at swift thrusts."
   id = "slender_rapier"
-  material = "METAL"
+  material = "metal"
   name = "Slender Rapier"
   spriteKey = "thin_rapier"
   spriteSheetName = "field"
@@ -9537,7 +9549,7 @@
 [[items]]
   description = "A green screwdriver with a sharpened tip, it doubles as a thrusting weapon."
   id = "green_screwdriver"
-  material = "METAL"
+  material = "metal"
   name = "Green Screwdriver"
   spriteKey = "driver_green"
   spriteSheetName = "field"
@@ -9558,7 +9570,7 @@
 [[items]]
   description = "A magic sword that shines green, light and easy to swing."
   id = "green_sword"
-  material = "METAL"
+  material = "metal"
   name = "Green Sword"
   spriteKey = "green_sword"
   spriteSheetName = "field"
@@ -9579,7 +9591,7 @@
 [[items]]
   description = "A sewing set of needle and thread, it can be used as a thrusting weapon."
   id = "sewing_kit"
-  material = "METAL"
+  material = "metal"
   name = "Sewing Kit"
   spriteKey = "hand_sew"
   spriteSheetName = "field"
@@ -9600,7 +9612,7 @@
 [[items]]
   description = "A single-edged scimitar weighted at the tip, its downward swing is devastating."
   id = "heavy_scimitar"
-  material = "METAL"
+  material = "metal"
   name = "Heavy Scimitar"
   spriteKey = "heavy_scimitar"
   spriteSheetName = "field"
@@ -9621,7 +9633,7 @@
 [[items]]
   description = "A bat studded with rusty nails scavenged from the ruins, crude but effective."
   id = "nail_bat"
-  material = "WOOD"
+  material = "wood"
   name = "Nail Bat"
   spriteKey = "nail_bat"
   spriteSheetName = "field"
@@ -9642,7 +9654,7 @@
 [[items]]
   description = "A sharp tool used for sewing, a flimsy weapon but a fair early choice."
   id = "needle_tool"
-  material = "METAL"
+  material = "metal"
   name = "Needle Tool"
   spriteKey = "needle_tool"
   spriteSheetName = "field"
@@ -9663,7 +9675,7 @@
 [[items]]
   description = "A knife made of iron."
   id = "iron_knife"
-  material = "METAL"
+  material = "metal"
   name = "Iron Knife"
   spriteKey = "cutter_knife"
   spriteSheetName = "field"
@@ -9684,7 +9696,7 @@
 [[items]]
   description = "A battle-ready sword forged by a smith, combining a keen edge with durability."
   id = "iron_sword"
-  material = "METAL"
+  material = "metal"
   name = "Iron Sword"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -9705,7 +9717,7 @@
 [[items]]
   description = "A curved single-edged sword. Well suited to slashing strikes."
   id = "iron_scimitar"
-  material = "METAL"
+  material = "metal"
   name = "Iron Scimitar"
   spriteKey = "iron_scimitar"
   spriteSheetName = "field"
@@ -9726,7 +9738,7 @@
 [[items]]
   description = "A straight sword forged from iron. Well balanced and easy to handle."
   id = "iron_straight_sword"
-  material = "METAL"
+  material = "metal"
   name = "Iron Straight Sword"
   spriteKey = "iron_straight_sword"
   spriteSheetName = "field"
@@ -9747,7 +9759,7 @@
 [[items]]
   description = "A tool for cutting metal. It has a sharp blade."
   id = "iron_cutter"
-  material = "METAL"
+  material = "metal"
   name = "Iron Cutter"
   spriteKey = "iron_cutter"
   spriteSheetName = "field"
@@ -9771,7 +9783,7 @@
 [[items]]
   description = "A sword of cast iron. Heavy but sturdy and long-lasting."
   id = "cast_iron_sword"
-  material = "METAL"
+  material = "metal"
   name = "Cast Iron Sword"
   spriteKey = "iron_sword"
   spriteSheetName = "field"
@@ -9792,7 +9804,7 @@
 [[items]]
   description = "A powered screwdriver. Its high-speed spinning tip is a real threat."
   id = "electric_screwdriver"
-  material = "METAL"
+  material = "metal"
   name = "Electric Screwdriver"
   spriteKey = "electric_driver"
   spriteSheetName = "field"
@@ -9816,7 +9828,7 @@
 [[items]]
   description = "A battle axe made of glowing blue metal. It carries a chill of frost."
   id = "blue_battle_axe"
-  material = "METAL"
+  material = "metal"
   name = "Blue Battle Axe"
   spriteKey = "blue_battle_axe"
   spriteSheetName = "field"
@@ -9840,7 +9852,7 @@
 [[items]]
   description = "A battle axe made of black metal. It radiates an ominous aura."
   id = "black_battle_axe"
-  material = "METAL"
+  material = "metal"
   name = "Black Battle Axe"
   spriteKey = "black_battle_axe"
   spriteSheetName = "field"
@@ -9864,7 +9876,7 @@
 [[items]]
   description = "A katana dyed jet black. It carries an eerie presence."
   id = "black_katana"
-  material = "METAL"
+  material = "metal"
   name = "Black Katana"
   spriteKey = "black_katana"
   spriteSheetName = "field"
@@ -9885,7 +9897,7 @@
 [[items]]
   description = "A vehicle-mounted cannon that handles with ease."
   id = "50mm_cannon"
-  material = "METAL"
+  material = "metal"
   name = "50mm Cannon"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -9918,7 +9930,7 @@
 [[items]]
   description = "A vehicle-mounted air-cooled machine gun."
   id = "m1919_heavy_machine_gun"
-  material = "METAL"
+  material = "metal"
   name = "M1919 Heavy Machine Gun"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -9951,7 +9963,7 @@
 [[items]]
   description = "An anti-tank rocket launcher that fires a shaped-charge round."
   id = "m72_law"
-  material = "METAL"
+  material = "metal"
   name = "M72 LAW"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -9984,7 +9996,7 @@
 [[items]]
   description = "An automatic pistol built largely from resin materials."
   id = "handgun"
-  material = "PLASTIC"
+  material = "plastic"
   name = "Automatic Pistol"
   spriteKey = "handgun"
   spriteSheetName = "field"
@@ -10017,7 +10029,7 @@
 [[items]]
   description = "A pistol that fires beams of light."
   id = "ray_gun"
-  material = "METAL"
+  material = "metal"
   name = "Ray Gun"
   spriteKey = "laser_gun"
   spriteSheetName = "field"
@@ -10050,7 +10062,7 @@
 [[items]]
   description = "A launched grenade that projects a cryogenic substance."
   id = "freeze_grenade"
-  material = "METAL"
+  material = "metal"
   name = "Freeze Grenade"
   spriteKey = "blue_flask"
   spriteSheetName = "field"
@@ -10083,7 +10095,7 @@
 [[items]]
   description = "A highly concentrated, strongly acidic liquid."
   id = "dissolving_fluid"
-  material = "LIQUID"
+  material = "liquid"
   name = "Dissolving Fluid"
   spriteKey = "bottle_formalin"
   spriteSheetName = "field"
@@ -10116,7 +10128,7 @@
 [[items]]
   description = "A cannon that launches shots in rapid succession."
   id = "rapid_fire_cannon"
-  material = "METAL"
+  material = "metal"
   name = "Rapid-Fire Cannon"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -10149,7 +10161,7 @@
 [[items]]
   description = "A grenade launcher that fires discharging matter."
   id = "shock_grenade"
-  material = "METAL"
+  material = "metal"
   name = "Shock Grenade"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -10182,7 +10194,7 @@
 [[items]]
   description = "A spinning weapon thrown in an arc, it returns to the thrower."
   id = "boomerang"
-  material = "WOOD"
+  material = "wood"
   name = "Boomerang"
   spriteKey = "boomerang"
   spriteSheetName = "field"
@@ -10205,7 +10217,7 @@
 [[items]]
   description = "A small throwing blade with high accuracy, thrown several at a time in quick succession."
   id = "shuriken"
-  material = "METAL"
+  material = "metal"
   name = "Shuriken"
   spriteKey = "shuriken"
   spriteSheetName = "field"
@@ -10228,7 +10240,7 @@
 [[items]]
   description = "A staff made of crystal that amplifies and releases magic."
   id = "crystal_staff"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Crystal Staff"
   spriteKey = "crystal_staff"
   spriteSheetName = "field"
@@ -10251,7 +10263,7 @@
 [[items]]
   description = "A bow favored by hunters, it strikes silently from afar."
   id = "hunter_bow"
-  material = "WOOD"
+  material = "wood"
   name = "Hunter's Bow"
   spriteKey = "hunter_bow"
   spriteSheetName = "field"
@@ -10274,7 +10286,7 @@
 [[items]]
   description = "An iron crossbow, more powerful than a bow but slow to reload."
   id = "iron_crossbow"
-  material = "METAL"
+  material = "metal"
   name = "Iron Crossbow"
   spriteKey = "iron_crossbow"
   spriteSheetName = "field"
@@ -10297,7 +10309,7 @@
 [[items]]
   description = "A ring-shaped weapon hurled with a spin."
   id = "iron_chakram"
-  material = "METAL"
+  material = "metal"
   name = "Iron Chakram"
   spriteKey = "iron_chakram"
   spriteSheetName = "field"
@@ -10320,7 +10332,7 @@
 [[items]]
   description = "Strange shoes with sharply pointed tips."
   id = "pointy_shoes"
-  material = "LEATHER"
+  material = "leather"
   name = "Pointy Shoes"
   spriteKey = "pointed_shoes"
   spriteSheetName = "field"
@@ -10338,7 +10350,7 @@
 [[items]]
   description = "A gauntlet of brown leather."
   id = "gauntlet_brown"
-  material = "LEATHER"
+  material = "leather"
   name = "Brown Gauntlet"
   spriteKey = "gauntlet_brown"
   spriteSheetName = "field"
@@ -10353,7 +10365,7 @@
 [[items]]
   description = "A golden gauntlet."
   id = "gauntlet_gold"
-  material = "METAL"
+  material = "metal"
   name = "Gold Gauntlet"
   spriteKey = "gauntlet_gold"
   spriteSheetName = "field"
@@ -10371,7 +10383,7 @@
 [[items]]
   description = "A heavy gauntlet made of iron."
   id = "gauntlet_iron"
-  material = "METAL"
+  material = "metal"
   name = "Iron Gauntlet"
   spriteKey = "gauntlet_iron"
   spriteSheetName = "field"
@@ -10388,7 +10400,7 @@
 [[items]]
   description = "A gauntlet of blue metal."
   id = "gauntlet_blue"
-  material = "METAL"
+  material = "metal"
   name = "Blue Gauntlet"
   spriteKey = "gauntlet_blue"
   spriteSheetName = "field"
@@ -10405,7 +10417,7 @@
 [[items]]
   description = "A gauntlet imbued with magic."
   id = "gauntlet_magic"
-  material = "METAL"
+  material = "metal"
   name = "Magic Gauntlet"
   spriteKey = "gauntlet_magic"
   spriteSheetName = "field"
@@ -10423,7 +10435,7 @@
 [[items]]
   description = "A fine coat worn by a ship's captain, dignified and sturdy."
   id = "captain_coat"
-  material = "CLOTH"
+  material = "cloth"
   name = "Captain's Coat"
   spriteKey = "captain_coat"
   spriteSheetName = "field"
@@ -10444,7 +10456,7 @@
 [[items]]
   description = "A white hat worn by cooks, it offers no real protection."
   id = "chef_hat"
-  material = "CLOTH"
+  material = "cloth"
   name = "Chef's Hat"
   spriteKey = "chef_hat"
   spriteSheetName = "field"
@@ -10465,7 +10477,7 @@
 [[items]]
   description = "Light, easy-walking footwear well suited to long journeys."
   id = "sandals"
-  material = "LEATHER"
+  material = "leather"
   name = "Sandals"
   spriteKey = "sandals"
   spriteSheetName = "field"
@@ -10486,7 +10498,7 @@
 [[items]]
   description = "A crisp, clean sailor uniform that keeps you free to move."
   id = "sailor_uniform"
-  material = "CLOTH"
+  material = "cloth"
   name = "Sailor Uniform"
   spriteKey = "sailor_outfit"
   spriteSheetName = "field"
@@ -10507,7 +10519,7 @@
 [[items]]
   description = "A ring set with a glittering diamond."
   id = "diamond_ring"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Diamond Ring"
   spriteKey = "ring_diamond"
   spriteSheetName = "field"
@@ -10525,7 +10537,7 @@
 [[items]]
   description = "A sturdy checkered shirt."
   id = "check_shirt"
-  material = "CLOTH"
+  material = "cloth"
   name = "Check Shirt"
   spriteKey = "check_shirt"
   spriteSheetName = "field"
@@ -10540,7 +10552,7 @@
 [[items]]
   description = "A vest fitted with many pockets for tools."
   id = "tool_vest"
-  material = "CLOTH"
+  material = "cloth"
   name = "Tool Vest"
   spriteKey = "tool_vest"
   spriteSheetName = "field"
@@ -10557,7 +10569,7 @@
 [[items]]
   description = "Clothes made of tough denim fabric, ideal for everyday wear."
   id = "denim_clothes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Denim Clothes"
   spriteKey = "denim_outfit"
   spriteSheetName = "field"
@@ -10578,7 +10590,7 @@
 [[items]]
   description = "A heart-shaped ring."
   id = "heart_ring"
-  material = "METAL"
+  material = "metal"
   name = "Heart Ring"
   spriteKey = "ring_heart"
   spriteSheetName = "field"
@@ -10595,7 +10607,7 @@
 [[items]]
   description = "A brown fur jacket that is extremely warm."
   id = "fur_jacket"
-  material = "LEATHER"
+  material = "leather"
   name = "Fur Jacket"
   spriteKey = "fur_jacket_brown"
   spriteSheetName = "field"
@@ -10612,7 +10624,7 @@
 [[items]]
   description = "A warm hat lined with fur."
   id = "fur_hat"
-  material = "LEATHER"
+  material = "leather"
   name = "Fur Hat"
   spriteKey = "fur_hat"
   spriteSheetName = "field"
@@ -10627,7 +10639,7 @@
 [[items]]
   description = "A flashy outfit worn at host clubs."
   id = "host_clothes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Host Clothes"
   spriteKey = "host_outfit"
   spriteSheetName = "field"
@@ -10648,7 +10660,7 @@
 [[items]]
   description = "A big messenger bag."
   id = "messenger_bag_large"
-  material = "CLOTH"
+  material = "cloth"
   name = "Large Messenger Bag"
   spriteKey = "messenger_bag_large"
   spriteSheetName = "field"
@@ -10665,7 +10677,7 @@
 [[items]]
   description = "A messenger bag worn at the waist."
   id = "messenger_bag_waist"
-  material = "CLOTH"
+  material = "cloth"
   name = "Waist Messenger Bag"
   spriteKey = "messenger_bag_waist"
   spriteSheetName = "field"
@@ -10682,7 +10694,7 @@
 [[items]]
   description = "A long coat made of leather."
   id = "leather_coat"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Coat"
   spriteKey = "leather_coat"
   spriteSheetName = "field"
@@ -10699,7 +10711,7 @@
 [[items]]
   description = "A leather vest that is easy to move in."
   id = "leather_vest"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Vest"
   spriteKey = "leather_vest"
   spriteSheetName = "field"
@@ -10716,7 +10728,7 @@
 [[items]]
   description = "A bracer made of leather."
   id = "leather_hand"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Hand"
   spriteKey = "leather_hand"
   spriteSheetName = "field"
@@ -10731,7 +10743,7 @@
 [[items]]
   description = "A leather bandana wound around the arm."
   id = "leather_bandana"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Bandana"
   spriteKey = "leather_bandana"
   spriteSheetName = "field"
@@ -10746,7 +10758,7 @@
 [[items]]
   description = "A sturdy belt made of leather."
   id = "leather_belt"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Belt"
   spriteKey = "leather_belt"
   spriteSheetName = "field"
@@ -10761,7 +10773,7 @@
 [[items]]
   description = "Long boots that cover up to the knees."
   id = "leather_long_boots"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Long Boots"
   spriteKey = "leather_long_boots"
   spriteSheetName = "field"
@@ -10778,7 +10790,7 @@
 [[items]]
   description = "Gloves made of leather."
   id = "leather_gloves"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Gloves"
   spriteKey = "leather_gloves"
   spriteSheetName = "field"
@@ -10795,7 +10807,7 @@
 [[items]]
   description = "Clothes tailored from leather."
   id = "leather_clothes"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Clothes"
   spriteKey = "leather_outfit"
   spriteSheetName = "field"
@@ -10810,7 +10822,7 @@
 [[items]]
   description = "Fine armor woven tightly from iron links."
   id = "fine_chainmail"
-  material = "METAL"
+  material = "metal"
   name = "Fine Chainmail"
   spriteKey = "chainmail_armor"
   spriteSheetName = "field"
@@ -10828,7 +10840,7 @@
 [[items]]
   description = "First-rate armor worn by elite knights."
   id = "superior_knight_armor"
-  material = "METAL"
+  material = "metal"
   name = "Superior Knight Armor"
   spriteKey = "senior_knight_armor"
   spriteSheetName = "field"
@@ -10846,7 +10858,7 @@
 [[items]]
   description = "Clothes of a warrior who survived the end times, battered but functional."
   id = "apocalypse_clothes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Apocalypse Clothes"
   spriteKey = "apocalypse_outfit"
   spriteSheetName = "field"
@@ -10867,7 +10879,7 @@
 [[items]]
   description = "An industrial hat with excellent shock absorption."
   id = "work_helmet"
-  material = "PLASTIC"
+  material = "plastic"
   name = "Work Helmet"
   spriteKey = "construction_helmet"
   spriteSheetName = "field"
@@ -10888,7 +10900,7 @@
 [[items]]
   description = "Sturdy clothes suited for travel."
   id = "adventurer_clothes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Adventurer's Clothes"
   spriteKey = "adventurer_outfit"
   spriteSheetName = "field"
@@ -10905,7 +10917,7 @@
 [[items]]
   description = "A cluster of stones that holds a mysterious power."
   id = "strength_stone"
-  material = "STONE"
+  material = "stone"
   name = "Strength Stone"
   spriteKey = "power_stones"
   spriteSheetName = "field"
@@ -10926,7 +10938,7 @@
 [[items]]
   description = "Historic armor worn by crusader soldiers, heavy but tough."
   id = "crusader_clothes"
-  material = "METAL"
+  material = "metal"
   name = "Crusader Clothes"
   spriteKey = "crusader_outfit"
   spriteSheetName = "field"
@@ -10947,7 +10959,7 @@
 [[items]]
   description = "Sturdy leather boots with thick soles."
   id = "thick_sole_leather_boots"
-  material = "LEATHER"
+  material = "leather"
   name = "Thick-Sole Leather Boots"
   spriteKey = "leather_boots_2"
   spriteSheetName = "field"
@@ -10962,7 +10974,7 @@
 [[items]]
   description = "A rusted knight's helm."
   id = "old_knight_helmet"
-  material = "METAL"
+  material = "metal"
   name = "Old Knight Helm"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -10983,7 +10995,7 @@
 [[items]]
   description = "A robe once worn by an ancient sorcerer."
   id = "ancient_robe"
-  material = "CLOTH"
+  material = "cloth"
   name = "Ancient Robe"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11004,7 +11016,7 @@
 [[items]]
   description = "Practical attire favored by merchants."
   id = "merchant_clothes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Merchant's Clothes"
   spriteKey = "merchant_outfit"
   spriteSheetName = "field"
@@ -11021,7 +11033,7 @@
 [[items]]
   description = "A shield engraved with a castle crest."
   id = "crest_shield"
-  material = "METAL"
+  material = "metal"
   name = "Crest Shield"
   spriteKey = "castle_crest_shield"
   spriteSheetName = "field"
@@ -11039,7 +11051,7 @@
 [[items]]
   description = "A wide, sturdy belt."
   id = "thick_belt"
-  material = "LEATHER"
+  material = "leather"
   name = "Thick Belt"
   spriteKey = "thick_belt"
   spriteSheetName = "field"
@@ -11054,7 +11066,7 @@
 [[items]]
   description = "A thick gold ring."
   id = "thick_gold_ring"
-  material = "METAL"
+  material = "metal"
   name = "Thick Gold Ring"
   spriteKey = "ring_thick_gold"
   spriteSheetName = "field"
@@ -11072,7 +11084,7 @@
 [[items]]
   description = "A thick silver ring."
   id = "thick_silver_ring"
-  material = "METAL"
+  material = "metal"
   name = "Thick Silver Ring"
   spriteKey = "ring_thick_silver"
   spriteSheetName = "field"
@@ -11090,7 +11102,7 @@
 [[items]]
   description = "A thick copper ring."
   id = "thick_copper_ring"
-  material = "METAL"
+  material = "metal"
   name = "Thick Copper Ring"
   spriteKey = "ring_thick_copper"
   spriteSheetName = "field"
@@ -11107,7 +11119,7 @@
 [[items]]
   description = "Armor engraved with the crest of the sun."
   id = "sun_armor"
-  material = "METAL"
+  material = "metal"
   name = "Sun Armor"
   spriteKey = "sun_armor"
   spriteSheetName = "field"
@@ -11125,7 +11137,7 @@
 [[items]]
   description = "A jeweled crown that displays a queen's dignity, and it is extremely valuable."
   id = "queen_crown"
-  material = "METAL"
+  material = "metal"
   name = "Queen's Crown"
   spriteKey = "queen_crown"
   spriteSheetName = "field"
@@ -11146,7 +11158,7 @@
 [[items]]
   description = "A crown forged from an unknown metal."
   id = "cosmic_crown"
-  material = "METAL"
+  material = "metal"
   name = "Cosmic Crown"
   spriteKey = "crown"
   spriteSheetName = "field"
@@ -11164,7 +11176,7 @@
 [[items]]
   description = "A shield made of red cosmic alloy."
   id = "cosmic_shield_red"
-  material = "METAL"
+  material = "metal"
   name = "Red Cosmic Shield"
   spriteKey = "space_shield_red"
   spriteSheetName = "field"
@@ -11181,7 +11193,7 @@
 [[items]]
   description = "A shield made of blue cosmic alloy."
   id = "cosmic_shield_blue"
-  material = "METAL"
+  material = "metal"
   name = "Blue Cosmic Shield"
   spriteKey = "space_shield_blue"
   spriteSheetName = "field"
@@ -11198,7 +11210,7 @@
 [[items]]
   description = "Armor designed for activity in outer space."
   id = "cosmic_armor"
-  material = "METAL"
+  material = "metal"
   name = "Cosmic Armor"
   spriteKey = "space_armor"
   spriteSheetName = "field"
@@ -11215,7 +11227,7 @@
 [[items]]
   description = "Green boots made for activity in space."
   id = "cosmic_boots_green"
-  material = "METAL"
+  material = "metal"
   name = "Green Cosmic Boots"
   spriteKey = "space_boots_green"
   spriteSheetName = "field"
@@ -11232,7 +11244,7 @@
 [[items]]
   description = "Red boots made for activity in space."
   id = "cosmic_boots_red"
-  material = "METAL"
+  material = "metal"
   name = "Red Cosmic Boots"
   spriteKey = "space_boots_red"
   spriteSheetName = "field"
@@ -11249,7 +11261,7 @@
 [[items]]
   description = "Blue boots made for activity in space."
   id = "cosmic_boots_blue"
-  material = "METAL"
+  material = "metal"
   name = "Blue Cosmic Boots"
   spriteKey = "space_boots_blue"
   spriteSheetName = "field"
@@ -11266,7 +11278,7 @@
 [[items]]
   description = "An elegant ring set with a gem."
   id = "jewel_ring"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Jewel Ring"
   spriteKey = "jeweled_ring"
   spriteSheetName = "field"
@@ -11284,7 +11296,7 @@
 [[items]]
   description = "A belt decorated with gems."
   id = "jewel_belt"
-  material = "LEATHER"
+  material = "leather"
   name = "Jewel Belt"
   spriteKey = "jewel_belt"
   spriteSheetName = "field"
@@ -11301,7 +11313,7 @@
 [[items]]
   description = "The finest golden armor studded with gems."
   id = "jewel_gold_armor"
-  material = "METAL"
+  material = "metal"
   name = "Jeweled Gold Armor"
   spriteKey = "golden_armor_jewel"
   spriteSheetName = "field"
@@ -11320,7 +11332,7 @@
 [[items]]
   description = "A helm once worn by a battle-hardened general."
   id = "general_helmet"
-  material = "METAL"
+  material = "metal"
   name = "General's Helm"
   spriteKey = "general"
   spriteSheetName = "field"
@@ -11339,7 +11351,7 @@
 [[items]]
   description = "An everyday shirt. Offers little protection."
   id = "cloth_shirt"
-  material = "CLOTH"
+  material = "cloth"
   name = "Cloth Shirt"
   spriteKey = "waiter_outfit"
   spriteSheetName = "field"
@@ -11354,7 +11366,7 @@
 [[items]]
   description = "A perfectly ordinary pair of pants."
   id = "cloth_pants"
-  material = "CLOTH"
+  material = "cloth"
   name = "Cloth Pants"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11369,7 +11381,7 @@
 [[items]]
   description = "A common cloth hat."
   id = "cloth_hat"
-  material = "CLOTH"
+  material = "cloth"
   name = "Cloth Hat"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11384,7 +11396,7 @@
 [[items]]
   description = "Thin cloth gloves."
   id = "cloth_gloves"
-  material = "CLOTH"
+  material = "cloth"
   name = "Cloth Gloves"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11399,7 +11411,7 @@
 [[items]]
   description = "A sleeve cover made of thin cloth."
   id = "cloth_armband"
-  material = "CLOTH"
+  material = "cloth"
   name = "Cloth Armband"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11414,7 +11426,7 @@
 [[items]]
   description = "Thin-soled cloth shoes."
   id = "cloth_shoes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Cloth Shoes"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11429,7 +11441,7 @@
 [[items]]
   description = "A sand-guard hat fitted with a hanging veil."
   id = "veiled_hat"
-  material = "CLOTH"
+  material = "cloth"
   name = "Veiled Hat"
   spriteKey = "curtain_hat"
   spriteSheetName = "field"
@@ -11446,7 +11458,7 @@
 [[items]]
   description = "An improved mechanical arm that delivers greater output."
   id = "reinforced_mechanical_arm"
-  material = "METAL"
+  material = "metal"
   name = "Reinforced Mechanical Arm"
   spriteKey = "asm_arm_yellow"
   spriteSheetName = "field"
@@ -11467,7 +11479,7 @@
 [[items]]
   description = "A special cloak that melts into the darkness."
   id = "shadow_cloak"
-  material = "CLOTH"
+  material = "cloth"
   name = "Shadow Cloak"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11488,7 +11500,7 @@
 [[items]]
   description = "A hood favored by assassins."
   id = "shadow_hood"
-  material = "CLOTH"
+  material = "cloth"
   name = "Shadow Hood"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11509,7 +11521,7 @@
 [[items]]
   description = "Refined clothing worn by the manager of a luxury hotel."
   id = "manager_clothes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Manager's Attire"
   spriteKey = "manager_outfit"
   spriteSheetName = "field"
@@ -11530,7 +11542,7 @@
 [[items]]
   description = "A leather bag used by travelers."
   id = "travel_bag"
-  material = "LEATHER"
+  material = "leather"
   name = "Travel Bag"
   spriteKey = "travel_bag_leather"
   spriteSheetName = "field"
@@ -11545,7 +11557,7 @@
 [[items]]
   description = "Versatile clothing for travelers, with many pockets for storage."
   id = "traveler_clothes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Traveler's Clothes"
   spriteKey = "traveler_outfit"
   spriteSheetName = "field"
@@ -11566,7 +11578,7 @@
 [[items]]
   description = "An ornament that holds the power of the stars. Wearing it stirs a mysterious strength."
   id = "star_accessory"
-  material = "METAL"
+  material = "metal"
   name = "Star Accessory"
   spriteKey = "star_acc"
   spriteSheetName = "field"
@@ -11587,7 +11599,7 @@
 [[items]]
   description = "A ring made from meteoric metal."
   id = "star_iron_ring"
-  material = "METAL"
+  material = "metal"
   name = "Star Iron Ring"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11608,7 +11620,7 @@
 [[items]]
   description = "A mystical armor that radiates moonlight."
   id = "moon_armor"
-  material = "METAL"
+  material = "metal"
   name = "Moon Armor"
   spriteKey = "moon_armor"
   spriteSheetName = "field"
@@ -11626,7 +11638,7 @@
 [[items]]
   description = "A light shield made of wood."
   id = "wooden_shield"
-  material = "WOOD"
+  material = "wood"
   name = "Wooden Shield"
   spriteKey = "wooden_shield"
   spriteSheetName = "field"
@@ -11641,7 +11653,7 @@
 [[items]]
   description = "A simple ring woven from wooden cord."
   id = "wood_cord_ring"
-  material = "WOOD"
+  material = "wood"
   name = "Wood Cord Ring"
   spriteKey = "ring_wood_cord"
   spriteSheetName = "field"
@@ -11658,7 +11670,7 @@
 [[items]]
   description = "A ring shaped like an owl."
   id = "owl_ring"
-  material = "METAL"
+  material = "metal"
   name = "Owl Ring"
   spriteKey = "ring_owl"
   spriteSheetName = "field"
@@ -11675,7 +11687,7 @@
 [[items]]
   description = "A ring shaped like a plant."
   id = "plant_ring"
-  material = "METAL"
+  material = "metal"
   name = "Plant Ring"
   spriteKey = "ring_plant"
   spriteSheetName = "field"
@@ -11693,7 +11705,7 @@
 [[items]]
   description = "A tiny machine in the form of a ring."
   id = "machine_ring"
-  material = "METAL"
+  material = "metal"
   name = "Machine Ring"
   spriteKey = "power_ring"
   spriteSheetName = "field"
@@ -11714,7 +11726,7 @@
 [[items]]
   description = "A mechanical arm that boosts strength when worn."
   id = "mechanical_arm"
-  material = "METAL"
+  material = "metal"
   name = "Mechanical Arm"
   spriteKey = "asm_arm"
   spriteSheetName = "field"
@@ -11735,7 +11747,7 @@
 [[items]]
   description = "A warm coat lined with fur, made for the bitter cold."
   id = "fur_coat"
-  material = "LEATHER"
+  material = "leather"
   name = "Fur Coat"
   spriteKey = "fur_coat"
   spriteSheetName = "field"
@@ -11756,7 +11768,7 @@
 [[items]]
   description = "Polka dot boots that come in handy around water."
   id = "polka_dot_boots"
-  material = "PLASTIC"
+  material = "plastic"
   name = "Polka Dot Boots"
   spriteKey = "rain_boots_polka"
   spriteSheetName = "field"
@@ -11771,7 +11783,7 @@
 [[items]]
   description = "A ring imbued with flame."
   id = "flame_ring"
-  material = "METAL"
+  material = "metal"
   name = "Flame Ring"
   spriteKey = "ring_fire"
   spriteSheetName = "field"
@@ -11788,7 +11800,7 @@
 [[items]]
   description = "A ring fitted with a sharp claw."
   id = "claw_ring"
-  material = "METAL"
+  material = "metal"
   name = "Claw Ring"
   spriteKey = "ring_claw"
   spriteSheetName = "field"
@@ -11806,7 +11818,7 @@
 [[items]]
   description = "A cloak stained with the blood of beasts."
   id = "hunter_cloak"
-  material = "CLOTH"
+  material = "cloth"
   name = "Hunter Cloak"
   spriteKey = "hunter_outfit"
   spriteSheetName = "field"
@@ -11827,7 +11839,7 @@
 [[items]]
   description = "A traditional hat worn for hunting beasts."
   id = "hunter_hat"
-  material = "CLOTH"
+  material = "cloth"
   name = "Hunter Hat"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11848,7 +11860,7 @@
 [[items]]
   description = "Leggings designed for freedom of movement."
   id = "hunter_leggings"
-  material = "CLOTH"
+  material = "cloth"
   name = "Hunter Leggings"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -11869,7 +11881,7 @@
 [[items]]
   description = "A shield carved with the head of a wolf."
   id = "wolf_head_shield"
-  material = "METAL"
+  material = "metal"
   name = "Wolf Head Shield"
   spriteKey = "wolf_head_shield"
   spriteSheetName = "field"
@@ -11887,7 +11899,7 @@
 [[items]]
   description = "A shield bearing the crest of a lion."
   id = "lion_shield"
-  material = "METAL"
+  material = "metal"
   name = "Lion Shield"
   spriteKey = "lion_shield"
   spriteSheetName = "field"
@@ -11905,7 +11917,7 @@
 [[items]]
   description = "A golden crown that displays a king's dignity, extremely valuable as an ornament."
   id = "crown"
-  material = "METAL"
+  material = "metal"
   name = "Crown"
   spriteKey = "king_crown"
   spriteSheetName = "field"
@@ -11926,7 +11938,7 @@
 [[items]]
   description = "A shield bearing the royal family's crest."
   id = "royal_crest_shield"
-  material = "METAL"
+  material = "metal"
   name = "Royal Crest Shield"
   spriteKey = "royal_crest_shield"
   spriteSheetName = "field"
@@ -11945,7 +11957,7 @@
 [[items]]
   description = "Sturdy boots built for traversing mountains."
   id = "mountaineering_boots"
-  material = "LEATHER"
+  material = "leather"
   name = "Mountaineering Boots"
   spriteKey = "climbing_boots"
   spriteSheetName = "field"
@@ -11962,7 +11974,7 @@
 [[items]]
   description = "Clean white leggings, light and easy to move in."
   id = "white_leggings"
-  material = "CLOTH"
+  material = "cloth"
   name = "White Leggings"
   spriteKey = "white_legs"
   spriteSheetName = "field"
@@ -11983,7 +11995,7 @@
 [[items]]
   description = "A ring lined with small beads."
   id = "grain_ring"
-  material = "METAL"
+  material = "metal"
   name = "Grain Ring"
   spriteKey = "ring_grain"
   spriteSheetName = "field"
@@ -12000,7 +12012,7 @@
 [[items]]
   description = "A ring set with a purple stone."
   id = "purple_stone_ring"
-  material = "STONE"
+  material = "stone"
   name = "Purple Stone Ring"
   spriteKey = "ring_purple_stone"
   spriteSheetName = "field"
@@ -12018,7 +12030,7 @@
 [[items]]
   description = "An evening coat, fine attire worn in high society."
   id = "gentlemans_clothes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Gentleman's Clothes"
   spriteKey = "gentleman_outfit"
   spriteSheetName = "field"
@@ -12039,7 +12051,7 @@
 [[items]]
   description = "A ring of pale green."
   id = "green_ring"
-  material = "METAL"
+  material = "metal"
   name = "Green Ring"
   spriteKey = "ring_green"
   spriteSheetName = "field"
@@ -12057,7 +12069,7 @@
 [[items]]
   description = "Plain but sturdy green garments."
   id = "green_clothes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Green Clothes"
   spriteKey = "green_outfit"
   spriteSheetName = "field"
@@ -12078,7 +12090,7 @@
 [[items]]
   description = "Green clothes for adventurers, balancing durability and freedom of movement."
   id = "green_adventurer_clothes"
-  material = "CLOTH"
+  material = "cloth"
   name = "Green Adventurer's Clothes"
   spriteKey = "green_adventurer_outfit"
   spriteSheetName = "field"
@@ -12099,7 +12111,7 @@
 [[items]]
   description = "A shield set with a green gem."
   id = "green_gem_shield"
-  material = "METAL"
+  material = "metal"
   name = "Green Gem Shield"
   spriteKey = "green_jewel_shield"
   spriteSheetName = "field"
@@ -12117,7 +12129,7 @@
 [[items]]
   description = "A ring set with a green stone."
   id = "green_stone_ring"
-  material = "STONE"
+  material = "stone"
   name = "Green Stone Ring"
   spriteKey = "ring_green_stone"
   spriteSheetName = "field"
@@ -12135,7 +12147,7 @@
 [[items]]
   description = "Sturdy green boots."
   id = "green_boots"
-  material = "LEATHER"
+  material = "leather"
   name = "Green Boots"
   spriteKey = "rain_boots_green"
   spriteSheetName = "field"
@@ -12150,7 +12162,7 @@
 [[items]]
   description = "A handmade shirt carefully sewn together."
   id = "stitched_shirt"
-  material = "CLOTH"
+  material = "cloth"
   name = "Stitched Shirt"
   spriteKey = "sewn_shirt"
   spriteSheetName = "field"
@@ -12165,7 +12177,7 @@
 [[items]]
   description = "Armor engraved with the crest of a winged horse."
   id = "pegasus_barding"
-  material = "METAL"
+  material = "metal"
   name = "Pegasus Barding"
   spriteKey = "winged_horse_armor"
   spriteSheetName = "field"
@@ -12184,7 +12196,7 @@
 [[items]]
   description = "A crown imbued with holy power."
   id = "cleric_crown"
-  material = "METAL"
+  material = "metal"
   name = "Cleric Crown"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -12205,7 +12217,7 @@
 [[items]]
   description = "A robe worn by clerics."
   id = "cleric_robe"
-  material = "CLOTH"
+  material = "cloth"
   name = "Cleric Robe"
   spriteKey = "priest_outfit"
   spriteSheetName = "field"
@@ -12223,7 +12235,7 @@
 [[items]]
   description = "Armor blessed with holy power."
   id = "paladin_armor"
-  material = "METAL"
+  material = "metal"
   name = "Paladin Armor"
   spriteKey = "armor_item"
   spriteSheetName = "field"
@@ -12244,7 +12256,7 @@
 [[items]]
   description = "A ring that shines in seven colors."
   id = "rainbow_ring"
-  material = "METAL"
+  material = "metal"
   name = "Rainbow Ring"
   spriteKey = "ring_rainbow"
   spriteSheetName = "field"
@@ -12265,7 +12277,7 @@
 [[items]]
   description = "A ring shaped like a snake."
   id = "snake_ring"
-  material = "METAL"
+  material = "metal"
   name = "Snake Ring"
   spriteKey = "ring_snake"
   spriteSheetName = "field"
@@ -12283,7 +12295,7 @@
 [[items]]
   description = "A strange ring shaped like an octopus."
   id = "octopus_ring"
-  material = "METAL"
+  material = "metal"
   name = "Octopus Ring"
   spriteKey = "ring_octopus"
   spriteSheetName = "field"
@@ -12300,7 +12312,7 @@
 [[items]]
   description = "A ring made of bloodstone."
   id = "blood_ring"
-  material = "STONE"
+  material = "stone"
   name = "Blood Ring"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -12321,7 +12333,7 @@
 [[items]]
   description = "Heavy armor with a traditional design, weighing you down."
   id = "western_armor"
-  material = "METAL"
+  material = "metal"
   name = "Western Armor"
   spriteKey = "iron_armor"
   spriteSheetName = "field"
@@ -12342,7 +12354,7 @@
 [[items]]
   description = "A vivid red cloak that fills you with strength when worn."
   id = "red_cloak"
-  material = "CLOTH"
+  material = "cloth"
   name = "Red Cloak"
   spriteKey = "red_cloak"
   spriteSheetName = "field"
@@ -12363,7 +12375,7 @@
 [[items]]
   description = "A shield set with a red gem."
   id = "red_gem_shield"
-  material = "METAL"
+  material = "metal"
   name = "Red Gem Shield"
   spriteKey = "red_jewel_shield"
   spriteSheetName = "field"
@@ -12381,7 +12393,7 @@
 [[items]]
   description = "A ring set with a red stone."
   id = "red_stone_ring"
-  material = "STONE"
+  material = "stone"
   name = "Red Stone Ring"
   spriteKey = "ring_red_stone"
   spriteSheetName = "field"
@@ -12399,7 +12411,7 @@
 [[items]]
   description = "Sturdy boots for military use."
   id = "military_boots"
-  material = "LEATHER"
+  material = "leather"
   name = "Military Boots"
   spriteKey = "military_boots"
   spriteSheetName = "field"
@@ -12416,7 +12428,7 @@
 [[items]]
   description = "Clothing worn by trainees, made for lightness and mobility."
   id = "training_gi"
-  material = "CLOTH"
+  material = "cloth"
   name = "Training Gi"
   spriteKey = "gi"
   spriteSheetName = "field"
@@ -12437,7 +12449,7 @@
 [[items]]
   description = "A lavish helm adorned with gold."
   id = "golden_helmet"
-  material = "METAL"
+  material = "metal"
   name = "Golden Helm"
   spriteKey = "gold_helm"
   spriteSheetName = "field"
@@ -12455,7 +12467,7 @@
 [[items]]
   description = "A ring made of gold."
   id = "gold_ring"
-  material = "METAL"
+  material = "metal"
   name = "Gold Ring"
   spriteKey = "ring_gold"
   spriteSheetName = "field"
@@ -12473,7 +12485,7 @@
 [[items]]
   description = "A ring woven from gold cord."
   id = "gold_cord_ring"
-  material = "METAL"
+  material = "metal"
   name = "Gold Cord Ring"
   spriteKey = "ring_gold_cord"
   spriteSheetName = "field"
@@ -12491,7 +12503,7 @@
 [[items]]
   description = "Heavy boots reinforced with iron."
   id = "iron_boots"
-  material = "METAL"
+  material = "metal"
   name = "Iron Boots"
   spriteKey = "armor_legs"
   spriteSheetName = "field"
@@ -12512,7 +12524,7 @@
 [[items]]
   description = "An iron fist weapon studded with spikes."
   id = "iron_spiked_knuckles"
-  material = "METAL"
+  material = "metal"
   name = "Iron Spiked Knuckles"
   spriteKey = "iron_spike_fist"
   spriteSheetName = "field"
@@ -12530,7 +12542,7 @@
 [[items]]
   description = "A hand guard fitted with sharp iron claws."
   id = "iron_claw"
-  material = "METAL"
+  material = "metal"
   name = "Iron Claw"
   spriteKey = "iron_claw"
   spriteSheetName = "field"
@@ -12549,7 +12561,7 @@
 [[items]]
   description = "A rugged, unadorned crown forged from iron."
   id = "iron_crown"
-  material = "METAL"
+  material = "metal"
   name = "Iron Crown"
   spriteKey = "crown_iron"
   spriteSheetName = "field"
@@ -12567,7 +12579,7 @@
 [[items]]
   description = "A sturdy shield made of iron."
   id = "iron_shield"
-  material = "METAL"
+  material = "metal"
   name = "Iron Shield"
   spriteKey = "iron_shield"
   spriteSheetName = "field"
@@ -12584,7 +12596,7 @@
 [[items]]
   description = "A metal gauntlet that limits finger movement but is rugged."
   id = "iron_gauntlet"
-  material = "METAL"
+  material = "metal"
   name = "Iron Kote"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -12605,7 +12617,7 @@
 [[items]]
   description = "A simple breastplate made of iron."
   id = "iron_breastplate"
-  material = "METAL"
+  material = "metal"
   name = "Iron Breastplate"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -12626,7 +12638,7 @@
 [[items]]
   description = "Heavy leg armor reinforced with iron plates."
   id = "iron_leg_armor"
-  material = "METAL"
+  material = "metal"
   name = "Iron Leg Armor"
   spriteKey = "iron_legs"
   spriteSheetName = "field"
@@ -12647,7 +12659,7 @@
 [[items]]
   description = "Sturdy greaves made of iron."
   id = "iron_greaves"
-  material = "METAL"
+  material = "metal"
   name = "Iron Greaves"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -12668,7 +12680,7 @@
 [[items]]
   description = "An iron vambrace that is heavy but offers strong defense."
   id = "iron_vambrace"
-  material = "METAL"
+  material = "metal"
   name = "Iron Vambrace"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -12689,7 +12701,7 @@
 [[items]]
   description = "Gloves with iron plates sewn into them."
   id = "iron_gloves"
-  material = "METAL"
+  material = "metal"
   name = "Iron Gloves"
   spriteKey = "iron_gloves"
   spriteSheetName = "field"
@@ -12706,7 +12718,7 @@
 [[items]]
   description = "A ring made of silver."
   id = "silver_ring"
-  material = "METAL"
+  material = "metal"
   name = "Silver Ring"
   spriteKey = "ring_silver"
   spriteSheetName = "field"
@@ -12724,7 +12736,7 @@
 [[items]]
   description = "A ring woven from silver cord."
   id = "silver_cord_ring"
-  material = "METAL"
+  material = "metal"
   name = "Silver Cord Ring"
   spriteKey = "ring_silver_cord"
   spriteSheetName = "field"
@@ -12742,7 +12754,7 @@
 [[items]]
   description = "Beautiful armor made of silver."
   id = "silver_armor"
-  material = "METAL"
+  material = "metal"
   name = "Silver Armor"
   spriteKey = "silver_armor"
   spriteSheetName = "field"
@@ -12760,7 +12772,7 @@
 [[items]]
   description = "A plain ring made of copper."
   id = "copper_ring"
-  material = "METAL"
+  material = "metal"
   name = "Copper Ring"
   spriteKey = "ring_copper"
   spriteSheetName = "field"
@@ -12777,7 +12789,7 @@
 [[items]]
   description = "A pendant shaped like an anchor."
   id = "anchor_pendant"
-  material = "METAL"
+  material = "metal"
   name = "Anchor Pendant"
   spriteKey = "pendant_anchor"
   spriteSheetName = "field"
@@ -12795,7 +12807,7 @@
 [[items]]
   description = "Armor woven from interlocking chains, balancing mobility and defense."
   id = "chainmail"
-  material = "METAL"
+  material = "metal"
   name = "Chainmail"
   spriteKey = "chainmail"
   spriteSheetName = "field"
@@ -12816,7 +12828,7 @@
 [[items]]
   description = "Jet-black armor holding the power of darkness."
   id = "dark_armor"
-  material = "METAL"
+  material = "metal"
   name = "Dark Armor"
   spriteKey = "dark_armor"
   spriteSheetName = "field"
@@ -12834,7 +12846,7 @@
 [[items]]
   description = "Fur-lined boots for warmth."
   id = "winter_boots"
-  material = "LEATHER"
+  material = "leather"
   name = "Winter Boots"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -12855,7 +12867,7 @@
 [[items]]
   description = "Thick winter gloves with excellent heat retention."
   id = "winter_gloves"
-  material = "CLOTH"
+  material = "cloth"
   name = "Winter Gloves"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -12876,7 +12888,7 @@
 [[items]]
   description = "Gaiters with excellent heat retention, prized in cold regions."
   id = "winter_gaiters"
-  material = "CLOTH"
+  material = "cloth"
   name = "Winter Gaiters"
   spriteKey = "warm_legs"
   spriteSheetName = "field"
@@ -12897,7 +12909,7 @@
 [[items]]
   description = "A shield crackling with electric current."
   id = "electric_shield"
-  material = "METAL"
+  material = "metal"
   name = "Electric Shield"
   spriteKey = "electric_shield"
   spriteSheetName = "field"
@@ -12915,7 +12927,7 @@
 [[items]]
   description = "A crown set with a shining blue gem."
   id = "blue_crown"
-  material = "METAL"
+  material = "metal"
   name = "Blue Crown"
   spriteKey = "crown_blue"
   spriteSheetName = "field"
@@ -12933,7 +12945,7 @@
 [[items]]
   description = "A ring set with a blue stone."
   id = "blue_stone_ring"
-  material = "STONE"
+  material = "stone"
   name = "Blue Stone Ring"
   spriteKey = "ring_blue_stone"
   spriteSheetName = "field"
@@ -12951,7 +12963,7 @@
 [[items]]
   description = "A ring traced with a blue line."
   id = "blue_line_ring"
-  material = "METAL"
+  material = "metal"
   name = "Blue Line Ring"
   spriteKey = "ring_blue_line"
   spriteSheetName = "field"
@@ -12968,7 +12980,7 @@
 [[items]]
   description = "Waterproof blue boots."
   id = "blue_boots"
-  material = "PLASTIC"
+  material = "plastic"
   name = "Blue Boots"
   spriteKey = "rain_boots_blue"
   spriteSheetName = "field"
@@ -12983,7 +12995,7 @@
 [[items]]
   description = "A long leather duster coat."
   id = "leather_duster_coat"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Duster Coat"
   spriteKey = "leather_duster"
   spriteSheetName = "field"
@@ -13000,7 +13012,7 @@
 [[items]]
   description = "A full-body leather jumpsuit."
   id = "leather_jumpsuit"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Jumpsuit"
   spriteKey = "leather_coverall"
   spriteSheetName = "field"
@@ -13015,7 +13027,7 @@
 [[items]]
   description = "A simple breastplate wrapped with leather cords."
   id = "leather_bandage"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Bandage"
   spriteKey = "leather_bandage"
   spriteSheetName = "field"
@@ -13030,7 +13042,7 @@
 [[items]]
   description = "Boots shaped from well-tanned leather."
   id = "leather_boots"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Boots"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -13051,7 +13063,7 @@
 [[items]]
   description = "A large leather cloak that covers the back."
   id = "leather_cloak"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Cloak"
   spriteKey = "leather_cloak"
   spriteSheetName = "field"
@@ -13068,7 +13080,7 @@
 [[items]]
   description = "Leather gloves useful for both work and combat."
   id = "hide_gloves"
-  material = "LEATHER"
+  material = "leather"
   name = "Hide Gloves"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -13089,7 +13101,7 @@
 [[items]]
   description = "A leather quiver for holding arrows."
   id = "leather_quiver"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Quiver"
   spriteKey = "leather_quiver"
   spriteSheetName = "field"
@@ -13106,7 +13118,7 @@
 [[items]]
   description = "Gaiters made of thick leather, a well-balanced piece of armor."
   id = "leather_gaiters"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Gaiters"
   spriteKey = "leather_legs"
   spriteSheetName = "field"
@@ -13127,7 +13139,7 @@
 [[items]]
   description = "A leather bracer designed for freedom of movement."
   id = "leather_bracer"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Bracer"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -13148,7 +13160,7 @@
 [[items]]
   description = "Simple leather boots."
   id = "leather_footwear"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Footwear"
   spriteKey = "leather_boots"
   spriteSheetName = "field"
@@ -13163,7 +13175,7 @@
 [[items]]
   description = "Well-worn leather shoes."
   id = "leather_shoes"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Shoes"
   spriteKey = "leather_shoes"
   spriteSheetName = "field"
@@ -13178,7 +13190,7 @@
 [[items]]
   description = "A shield bearing the crest of a knightly order."
   id = "knight_shield"
-  material = "METAL"
+  material = "metal"
   name = "Knight Shield"
   spriteKey = "knight_shield"
   spriteSheetName = "field"
@@ -13196,7 +13208,7 @@
 [[items]]
   description = "Heavy leg armor worn by knights, with the defense of steel."
   id = "knight_greaves"
-  material = "METAL"
+  material = "metal"
   name = "Knight Greaves"
   spriteKey = "knight_legs"
   spriteSheetName = "field"
@@ -13217,7 +13229,7 @@
 [[items]]
   description = "Leg armor for heavily armored knights."
   id = "knight_leg_armor"
-  material = "METAL"
+  material = "metal"
   name = "Knight Leg Armor"
   spriteKey = "armor_legs"
   spriteSheetName = "field"
@@ -13238,7 +13250,7 @@
 [[items]]
   description = "The standard armor issued to a knightly order."
   id = "knight_armor"
-  material = "METAL"
+  material = "metal"
   name = "Knight Armor"
   spriteKey = "knight_armor"
   spriteSheetName = "field"
@@ -13256,7 +13268,7 @@
 [[items]]
   description = "Iron-soled boots worn by knights."
   id = "knight_boots"
-  material = "METAL"
+  material = "metal"
   name = "Knight Boots"
   spriteKey = "knight_boots"
   spriteSheetName = "field"
@@ -13274,7 +13286,7 @@
 [[items]]
   description = "A ring made of bone."
   id = "bone_ring"
-  material = "BONE"
+  material = "bone"
   name = "Bone Ring"
   spriteKey = "ring_bone"
   spriteSheetName = "field"
@@ -13291,7 +13303,7 @@
 [[items]]
   description = "An eerie ring shaped like a skeleton."
   id = "skeleton_ring"
-  material = "METAL"
+  material = "metal"
   name = "Skeleton Ring"
   spriteKey = "ring_skeleton"
   spriteSheetName = "field"
@@ -13309,7 +13321,7 @@
 [[items]]
   description = "A shield imbued with magic."
   id = "demon_shield"
-  material = "METAL"
+  material = "metal"
   name = "Demon Shield"
   spriteKey = "magic_shield"
   spriteSheetName = "field"
@@ -13326,7 +13338,7 @@
 [[items]]
   description = "A lavish shield made of gold."
   id = "golden_shield"
-  material = "METAL"
+  material = "metal"
   name = "Golden Shield"
   spriteKey = "golden_shield"
   spriteSheetName = "field"
@@ -13344,7 +13356,7 @@
 [[items]]
   description = "Leg armor adorned with gold craftsmanship, first-rate in both looks and defense."
   id = "golden_leg_armor"
-  material = "METAL"
+  material = "metal"
   name = "Golden Leg Armor"
   spriteKey = "gold_legs"
   spriteSheetName = "field"
@@ -13365,7 +13377,7 @@
 [[items]]
   description = "A small bell that shines golden, warding off evil."
   id = "golden_bell"
-  material = "METAL"
+  material = "metal"
   name = "Golden Bell"
   spriteKey = "golden_bell"
   spriteSheetName = "field"
@@ -13386,7 +13398,7 @@
 [[items]]
   description = "Lavish armor cast from pure gold."
   id = "golden_armor"
-  material = "METAL"
+  material = "metal"
   name = "Golden Armor"
   spriteKey = "golden_armor"
   spriteSheetName = "field"
@@ -13404,7 +13416,7 @@
 [[items]]
   description = "Boots adorned with gold."
   id = "golden_boots"
-  material = "METAL"
+  material = "metal"
   name = "Golden Boots"
   spriteKey = "golden_boots"
   spriteSheetName = "field"
@@ -13422,7 +13434,7 @@
 [[items]]
   description = "Heavy armor shining like gold, boasting top-class defense."
   id = "yellow_armor"
-  material = "METAL"
+  material = "metal"
   name = "Yellow Armor"
   spriteKey = "gold_armor"
   spriteSheetName = "field"
@@ -13443,7 +13455,7 @@
 [[items]]
   description = "Pitch-black gaiters made of special material that blends into the darkness."
   id = "black_gaiters"
-  material = "CLOTH"
+  material = "cloth"
   name = "Black Gaiters"
   spriteKey = "black_legs"
   spriteSheetName = "field"
@@ -13464,7 +13476,7 @@
 [[items]]
   description = "A black martial arts gi, a functional garment favored by fighters."
   id = "black_dogi"
-  material = "CLOTH"
+  material = "cloth"
   name = "Black Gi"
   spriteKey = "black_gi"
   spriteSheetName = "field"
@@ -13485,7 +13497,7 @@
 [[items]]
   description = "Special cosmic armor painted black."
   id = "black_space_armor"
-  material = "METAL"
+  material = "metal"
   name = "Black Cosmic Armor"
   spriteKey = "space_armor_black"
   spriteSheetName = "field"
@@ -13503,7 +13515,7 @@
 [[items]]
   description = "A pitch-black ring, imbued with the power of darkness."
   id = "black_ring"
-  material = "METAL"
+  material = "metal"
   name = "Black Ring"
   spriteKey = "black_ring"
   spriteSheetName = "field"
@@ -13521,7 +13533,7 @@
 [[items]]
   description = "A crown wrapped in darkness."
   id = "black_crown"
-  material = "METAL"
+  material = "metal"
   name = "Black Crown"
   spriteKey = "crown_black"
   spriteSheetName = "field"
@@ -13539,7 +13551,7 @@
 [[items]]
   description = "A jacket made of black cloth."
   id = "black_jacket"
-  material = "CLOTH"
+  material = "cloth"
   name = "Black Jacket"
   spriteKey = "cloth_jacket_black"
   spriteSheetName = "field"
@@ -13556,7 +13568,7 @@
 [[items]]
   description = "Boots made of black leather."
   id = "black_boots"
-  material = "LEATHER"
+  material = "leather"
   name = "Black Boots"
   spriteKey = "black_boots"
   spriteSheetName = "field"
@@ -13571,7 +13583,7 @@
 [[items]]
   description = "A sinister helm shaped like a dragon."
   id = "dragon_helmet"
-  material = "METAL"
+  material = "metal"
   name = "Dragon Helm"
   spriteKey = "dragon_helm"
   spriteSheetName = "field"
@@ -13589,7 +13601,7 @@
 [[items]]
   description = "A ring shaped like a dragon."
   id = "dragon_ring"
-  material = "METAL"
+  material = "metal"
   name = "Dragon Ring"
   spriteKey = "ring_dragon"
   spriteSheetName = "field"
@@ -13607,7 +13619,7 @@
 [[items]]
   description = "A cold, sweet dessert that melts in hot places."
   id = "ice_cream"
-  material = "FOOD"
+  material = "food"
   name = "Ice Cream"
   providesNutrition = 75
   spriteKey = "ice_cream"
@@ -13618,12 +13630,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A nutritious nut that provides high energy in small amounts."
   id = "almond"
-  material = "FOOD"
+  material = "food"
   name = "Almond"
   providesNutrition = 75
   spriteKey = "almonds"
@@ -13634,12 +13645,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A soft, sweet pumpkin that is delicious grilled or stewed."
   id = "pumpkin"
-  material = "FOOD"
+  material = "food"
   name = "Pumpkin"
   providesNutrition = 105
   spriteKey = "pumpkin"
@@ -13650,12 +13660,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Bread whose garlic aroma whets the appetite."
   id = "garlic_bread"
-  material = "FOOD"
+  material = "food"
   name = "Garlic Bread"
   providesNutrition = 75
   spriteKey = "garlic_bread"
@@ -13666,12 +13675,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A crisp baked treat that satisfies hunger just a little."
   id = "cookie"
-  material = "FOOD"
+  material = "food"
   name = "Cookie"
   providesNutrition = 45
   spriteKey = "cookie"
@@ -13682,12 +13690,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A buttery, fragrant pastry with high nutritional value."
   id = "croissant"
-  material = "FOOD"
+  material = "food"
   name = "Croissant"
   providesNutrition = 105
   spriteKey = "croissant"
@@ -13698,12 +13705,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A carbonated drink with a refreshing kick."
   id = "cola"
-  material = "LIQUID"
+  material = "liquid"
   name = "Cola"
   providesNutrition = 75
   spriteKey = "bottled_cola"
@@ -13714,12 +13720,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A quick meal of fillings between bread, well balanced in nutrition."
   id = "sandwich"
-  material = "FOOD"
+  material = "food"
   name = "Sandwich"
   providesNutrition = 105
   spriteKey = "bread"
@@ -13730,12 +13735,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A large green fruit, rich in water and filling."
   id = "watermelon"
-  material = "FOOD"
+  material = "food"
   name = "Watermelon"
   providesNutrition = 90
   spriteKey = "water_melon"
@@ -13746,12 +13750,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A smooth, cold drink that soothes a weary body."
   id = "smoothie"
-  material = "LIQUID"
+  material = "liquid"
   name = "Smoothie"
   providesNutrition = 60
   spriteKey = "smoothie"
@@ -13762,12 +13765,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A juicy link sausage."
   id = "sausage"
-  material = "FOOD"
+  material = "food"
   name = "Sausage"
   providesNutrition = 90
   spriteKey = "sausage"
@@ -13778,12 +13780,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Tender, richly marbled beef tongue."
   id = "beef_tongue"
-  material = "FOOD"
+  material = "food"
   name = "Beef Tongue"
   providesNutrition = 114
   spriteKey = "tongue"
@@ -13794,12 +13795,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A small red fruit that staves off hunger just a little."
   id = "cherry"
-  material = "FOOD"
+  material = "food"
   name = "Cherry"
   providesNutrition = 30
   spriteKey = "cherry"
@@ -13810,12 +13810,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fried treat dusted with sugar."
   id = "churros"
-  material = "FOOD"
+  material = "food"
   name = "Churros"
   providesNutrition = 45
   spriteKey = "churrocky"
@@ -13826,12 +13825,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A sweet, delicious treat that sinks into a tired body."
   id = "chocolate"
-  material = "FOOD"
+  material = "food"
   name = "Chocolate"
   providesNutrition = 60
   spriteKey = "candy"
@@ -13842,12 +13840,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Aged cheese, full of nutrition."
   id = "cheese"
-  material = "FOOD"
+  material = "food"
   name = "Cheese"
   providesNutrition = 120
   spriteKey = "food_item"
@@ -13858,12 +13855,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A ripe red vegetable that can be eaten raw."
   id = "tomato"
-  material = "FOOD"
+  material = "food"
   name = "Tomato"
   providesNutrition = 45
   spriteKey = "tomato"
@@ -13874,12 +13870,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A sweet fried treat that fills you up."
   id = "donut"
-  material = "FOOD"
+  material = "food"
   name = "Donut"
   providesNutrition = 75
   spriteKey = "donut"
@@ -13890,12 +13885,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A soft, chewy flatbread."
   id = "naan"
-  material = "FOOD"
+  material = "food"
   name = "Naan"
   providesNutrition = 66
   spriteKey = "naan"
@@ -13906,12 +13900,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Meat and bread together, thoroughly satisfying."
   id = "hamburger"
-  material = "FOOD"
+  material = "food"
   name = "Hamburger"
   providesNutrition = 135
   spriteKey = "hamburger"
@@ -13922,12 +13915,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A French bread known for its hard crust."
   id = "baguette"
-  material = "FOOD"
+  material = "food"
   name = "Baguette"
   providesNutrition = 84
   spriteKey = "baguette"
@@ -13938,12 +13930,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A sweet fruit that is easy to eat on the go."
   id = "banana"
-  material = "FOOD"
+  material = "food"
   name = "Banana"
   providesNutrition = 60
   spriteKey = "banana"
@@ -13954,12 +13945,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Freshly baked bread that fills an empty stomach."
   id = "bread"
-  material = "FOOD"
+  material = "food"
   name = "Bread"
   providesNutrition = 90
   spriteKey = "food_item"
@@ -13970,12 +13960,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fluffy baked treat whose sweet aroma whets the appetite."
   id = "pancake"
-  material = "FOOD"
+  material = "food"
   name = "Pancake"
   providesNutrition = 90
   spriteKey = "potato"
@@ -13986,12 +13975,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A hard biscuit that keeps well as a preserved food."
   id = "biscuit"
-  material = "FOOD"
+  material = "food"
   name = "Biscuit"
   providesNutrition = 90
   spriteKey = "biscuit"
@@ -14002,12 +13990,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Dried beef that lasts a long time."
   id = "beef_jerky"
-  material = "FOOD"
+  material = "food"
   name = "Beef Jerky"
   providesNutrition = 105
   spriteKey = "beef_jerky"
@@ -14018,12 +14005,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Thinly stretched dough topped with ingredients and baked."
   id = "pizza"
-  material = "FOOD"
+  material = "food"
   name = "Pizza"
   providesNutrition = 120
   spriteKey = "pizza"
@@ -14034,12 +14020,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A boiled green vegetable with very high nutritional value."
   id = "broccoli"
-  material = "FOOD"
+  material = "food"
   name = "Broccoli"
   providesNutrition = 60
   spriteKey = "broccoli"
@@ -14050,12 +14035,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A chewy ring-shaped bread."
   id = "bagel"
-  material = "FOOD"
+  material = "food"
   name = "Bagel"
   providesNutrition = 66
   spriteKey = "bagel"
@@ -14066,12 +14050,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A bagel loaded with sesame seeds."
   id = "bagel_sesame"
-  material = "FOOD"
+  material = "food"
   name = "Sesame Bagel"
   providesNutrition = 75
   spriteKey = "sesame_bagel"
@@ -14082,12 +14065,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A light snack with a popping texture that is hard to stop eating."
   id = "popcorn"
-  material = "FOOD"
+  material = "food"
   name = "Popcorn"
   providesNutrition = 45
   spriteKey = "pop_corn"
@@ -14098,12 +14080,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Finely ground raw meat."
   id = "minced_meat"
-  material = "FOOD"
+  material = "food"
   name = "Minced Meat"
   providesNutrition = 90
   spriteKey = "minced_meat"
@@ -14114,12 +14095,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A warm meal of noodles in rich broth that heats you to the core."
   id = "ramen"
-  material = "FOOD"
+  material = "food"
   name = "Ramen"
   providesNutrition = 150
   spriteKey = "ramen"
@@ -14130,12 +14110,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A round-cut hunk of meat."
   id = "round_meat"
-  material = "FOOD"
+  material = "food"
   name = "Round Meat"
   providesNutrition = 135
   spriteKey = "round_meat"
@@ -14146,12 +14125,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Preserved meat with high nutritional value."
   id = "jerky"
-  material = "FOOD"
+  material = "food"
   name = "Jerky"
   providesNutrition = 150
   spriteKey = "food_item"
@@ -14162,12 +14140,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Fragrant bread with a slit cut into the top."
   id = "sliced_bread"
-  material = "FOOD"
+  material = "food"
   name = "Scored Bread"
   providesNutrition = 60
   spriteKey = "scored_bread"
@@ -14178,12 +14155,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A splint. Set a broken bone so it can heal."
   id = "splint"
-  material = "WOOD"
+  material = "wood"
   name = "Splint"
   spriteKey = "healing_potion"
   spriteSheetName = "field"
@@ -14192,7 +14168,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.remedy]
     potency = 100
     treats = ["fracture"]
@@ -14200,7 +14175,7 @@
 [[items]]
   description = "A bandage. Close an open wound so it stops bleeding."
   id = "bandage"
-  material = "CLOTH"
+  material = "cloth"
   name = "Bandage"
   spriteKey = "healing_potion"
   spriteSheetName = "field"
@@ -14209,7 +14184,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.remedy]
     potency = 100
     treats = ["laceration"]
@@ -14217,7 +14191,7 @@
 [[items]]
   description = "Restores about half of your HP."
   id = "healing_potion"
-  material = "LIQUID"
+  material = "liquid"
   name = "Healing Potion"
   spriteKey = "healing_potion"
   spriteSheetName = "field"
@@ -14226,7 +14200,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 0
     ratio = 0.5
@@ -14235,7 +14208,7 @@
 [[items]]
   description = "Meat preserved by drying in the sun."
   id = "dried_meat"
-  material = "FOOD"
+  material = "food"
   name = "Dried Meat"
   providesNutrition = 120
   spriteKey = "dried_meat"
@@ -14246,12 +14219,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Thinly sliced meat."
   id = "flat_meat"
-  material = "FOOD"
+  material = "food"
   name = "Flat Meat"
   providesNutrition = 105
   spriteKey = "flat_meat"
@@ -14262,12 +14234,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A hand-thrown bomb that deals damage with its blast and shrapnel."
   id = "grenade"
-  material = "METAL"
+  material = "metal"
   name = "Grenade"
   spriteKey = "grenade"
   spriteSheetName = "field"
@@ -14282,7 +14253,7 @@
 [[items]]
   description = "A toothbrush and toothpaste, using it restores a bit of vigor."
   id = "toothbrush_set"
-  material = "PLASTIC"
+  material = "plastic"
   name = "Toothbrush Set"
   spriteKey = "toothwash_set"
   spriteSheetName = "field"
@@ -14291,7 +14262,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 15
     ratio = 0
@@ -14300,7 +14270,7 @@
 [[items]]
   description = "A thrown bomb coated in poison, a hit spreads venom."
   id = "poison_grenade"
-  material = "METAL"
+  material = "metal"
   name = "Venom Grenade"
   spriteKey = "poison_grenade"
   spriteSheetName = "field"
@@ -14316,7 +14286,7 @@
 [[items]]
   description = "Fresh shrimp, high in protein and delicious."
   id = "shrimp"
-  material = "FOOD"
+  material = "food"
   name = "Shrimp"
   providesNutrition = 120
   spriteKey = "shrimp"
@@ -14327,12 +14297,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Bread with a beautiful swirling pattern."
   id = "swirl_bread"
-  material = "FOOD"
+  material = "food"
   name = "Swirl Bread"
   providesNutrition = 66
   spriteKey = "spiral_bread"
@@ -14343,12 +14312,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A thrown bomb that unleashes fire, dealing flame damage over a wide area."
   id = "flame_grenade"
-  material = "METAL"
+  material = "metal"
   name = "Flame Grenade"
   spriteKey = "fire_grenade"
   spriteSheetName = "field"
@@ -14364,7 +14332,7 @@
 [[items]]
   description = "A hand-thrown bomb that creates a screen of vision-blocking smoke."
   id = "smoke_bomb"
-  material = "METAL"
+  material = "metal"
   name = "Smoke Bomb"
   spriteKey = "type4_grenade"
   spriteSheetName = "field"
@@ -14373,7 +14341,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "ALL"
-    usableScene = "BATTLE"
   [items.throw]
     accuracy = 75
     damage = 0
@@ -14381,7 +14348,7 @@
 [[items]]
   description = "Quality beef, grilling it makes a supreme feast."
   id = "beef"
-  material = "FOOD"
+  material = "food"
   name = "Beef"
   providesNutrition = 165
   spriteKey = "beef"
@@ -14392,12 +14359,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Salt-cured and aged pork."
   id = "prosciutto"
-  material = "FOOD"
+  material = "food"
   name = "Prosciutto"
   providesNutrition = 105
   spriteKey = "prosciutto"
@@ -14408,12 +14374,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Fresh raw meat, delicious once cooked."
   id = "raw_meat"
-  material = "FOOD"
+  material = "food"
   name = "Raw Meat"
   providesNutrition = 120
   spriteKey = "raw_meat"
@@ -14424,12 +14389,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fragrant plant with calming and stimulating effects, pressing it to a wound restores a little health."
   id = "green_herb"
-  material = "PLANT"
+  material = "plant"
   name = "Green Herb"
   spriteKey = "green_herb"
   spriteSheetName = "field"
@@ -14438,7 +14402,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 30
     ratio = 0
@@ -14447,7 +14410,7 @@
 [[items]]
   description = "A ball of rolled minced meat."
   id = "meatball"
-  material = "FOOD"
+  material = "food"
   name = "Meatball"
   providesNutrition = 84
   spriteKey = "meatball"
@@ -14458,12 +14421,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Meat stuffed into a casing and smoked."
   id = "cured_sausage"
-  material = "FOOD"
+  material = "food"
   name = "Cured Sausage"
   providesNutrition = 90
   spriteKey = "stuffed_sausage"
@@ -14474,12 +14436,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fatty cut of belly meat."
   id = "belly_meat"
-  material = "FOOD"
+  material = "food"
   name = "Belly Meat"
   providesNutrition = 150
   spriteKey = "belly_meat"
@@ -14490,12 +14451,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A pig's head, prized as a delicacy."
   id = "pig_head"
-  material = "FOOD"
+  material = "food"
   name = "Pig Head"
   providesNutrition = 180
   spriteKey = "pig_head"
@@ -14506,12 +14466,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A thrown grenade that dazzles the eyes with a burst of blinding light."
   id = "flashbang"
-  material = "METAL"
+  material = "metal"
   name = "Flashbang"
   spriteKey = "flash_grenade"
   spriteSheetName = "field"
@@ -14520,7 +14479,6 @@
   [items.consumable]
     targetGroup = "ENEMY"
     targetNum = "ALL"
-    usableScene = "BATTLE"
   [items.throw]
     accuracy = 75
     damage = 0
@@ -14531,7 +14489,7 @@
 [[items]]
   description = "A soft, fluffy loaf of white bread."
   id = "bread_loaf"
-  material = "FOOD"
+  material = "food"
   name = "Loaf of Bread"
   providesNutrition = 54
   spriteKey = "white_bread"
@@ -14542,12 +14500,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Bread baked from dark grain."
   id = "black_bread"
-  material = "FOOD"
+  material = "food"
   name = "Black Bread"
   providesNutrition = 66
   spriteKey = "dark_bread"
@@ -14558,12 +14515,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A large cut of meat on the bone, hearty and filling."
   id = "meat_on_bone"
-  material = "FOOD"
+  material = "food"
   name = "Meat on the Bone"
   providesNutrition = 165
   spriteKey = "bone_in_meat"
@@ -14574,12 +14530,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Tender chicken that works in many dishes."
   id = "chicken_meat"
-  material = "FOOD"
+  material = "food"
   name = "Chicken Meat"
   providesNutrition = 105
   spriteKey = "chicken"
@@ -14590,12 +14545,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A plant that bolsters vitality, brewed into a drink to mend wounds."
   id = "yellow_herb"
-  material = "PLANT"
+  material = "plant"
   name = "Yellow Herb"
   spriteKey = "heal_item"
   spriteSheetName = "field"
@@ -14604,7 +14558,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 40
     ratio = 0
@@ -14613,7 +14566,7 @@
 [[items]]
   description = "A 9mm round with a hardened core that pierces armor."
   id = "9mm_ap"
-  material = "METAL"
+  material = "metal"
   name = "9mm AP"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -14627,7 +14580,7 @@
 [[items]]
   description = "Standard 9mm caliber ammunition."
   id = "9mm_fmj"
-  material = "METAL"
+  material = "metal"
   name = "9mm FMJ"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -14641,7 +14594,7 @@
 [[items]]
   description = "A 9mm round with a soft tip that deals heavy damage to living targets."
   id = "9mm_hp"
-  material = "METAL"
+  material = "metal"
   name = "9mm HP"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -14655,7 +14608,7 @@
 [[items]]
   description = "A compact energy battery."
   id = "energy_cell"
-  material = "METAL"
+  material = "metal"
   name = "Energy Cell"
   spriteKey = "blue_cube"
   spriteSheetName = "field"
@@ -14669,7 +14622,7 @@
 [[items]]
   description = "A special round charged with electric energy."
   id = "tesla_coil_orb"
-  material = "METAL"
+  material = "metal"
   name = "Tesla Coil Orb"
   spriteKey = "tesla_coil_ball"
   spriteSheetName = "field"
@@ -14683,7 +14636,7 @@
 [[items]]
   description = "A general-purpose rifle round."
   id = "rifle_round"
-  material = "METAL"
+  material = "metal"
   name = "Rifle Round"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -14697,7 +14650,7 @@
 [[items]]
   description = "A gray small-caliber round."
   id = "small_caliber_round_gray"
-  material = "METAL"
+  material = "metal"
   name = "Gray Small-Caliber Round"
   spriteKey = "small_caliber_gray"
   spriteSheetName = "field"
@@ -14711,7 +14664,7 @@
 [[items]]
   description = "A yellow small-caliber round with standard performance."
   id = "small_caliber_round_yellow"
-  material = "METAL"
+  material = "metal"
   name = "Yellow Small-Caliber Round"
   spriteKey = "small_caliber_yellow"
   spriteSheetName = "field"
@@ -14725,7 +14678,7 @@
 [[items]]
   description = "A high-powered round packed with extra propellant."
   id = "heavy_round"
-  material = "METAL"
+  material = "metal"
   name = "Heavy Round"
   spriteKey = "heavy_load_round"
   spriteSheetName = "field"
@@ -14739,7 +14692,7 @@
 [[items]]
   description = "A crude arrow whittled from wood."
   id = "wooden_arrow"
-  material = "WOOD"
+  material = "wood"
   name = "Wooden Arrow"
   spriteKey = "wood_arrow"
   spriteSheetName = "field"
@@ -14752,7 +14705,7 @@
 [[items]]
   description = "An arrow imbued with the magic of water."
   id = "water_arrow"
-  material = "WOOD"
+  material = "wood"
   name = "Water Arrow"
   spriteKey = "water_arrow"
   spriteSheetName = "field"
@@ -14765,7 +14718,7 @@
 [[items]]
   description = "An arrow imbued with the magic of ice that freezes wherever it strikes."
   id = "ice_arrow"
-  material = "WOOD"
+  material = "wood"
   name = "Ice Arrow"
   spriteKey = "ice_arrow"
   spriteSheetName = "field"
@@ -14778,7 +14731,7 @@
 [[items]]
   description = "An arrow wreathed in flame that spreads fire on impact."
   id = "fire_arrow"
-  material = "WOOD"
+  material = "wood"
   name = "Fire Arrow"
   spriteKey = "fire_arrow"
   spriteSheetName = "field"
@@ -14791,7 +14744,7 @@
 [[items]]
   description = "A large-caliber cannon shell."
   id = "cannon_shell"
-  material = "METAL"
+  material = "metal"
   name = "Cannon Shell"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -14805,7 +14758,7 @@
 [[items]]
   description = "An arrow blessed with holy power, especially effective against creatures of darkness."
   id = "holy_arrow"
-  material = "WOOD"
+  material = "wood"
   name = "Holy Arrow"
   spriteKey = "holy_arrow"
   spriteSheetName = "field"
@@ -14818,7 +14771,7 @@
 [[items]]
   description = "A standard arrow tipped with an iron head."
   id = "iron_arrow"
-  material = "METAL"
+  material = "metal"
   name = "Iron Arrow"
   spriteKey = "iron_arrow"
   spriteSheetName = "field"
@@ -14831,7 +14784,7 @@
 [[items]]
   description = "A magazine collecting reports of UFO sightings."
   id = "ufo_book"
-  material = "PAPER"
+  material = "paper"
   name = "UFO Magazine"
   spriteKey = "ufo_book"
   spriteSheetName = "field"
@@ -14847,7 +14800,7 @@
 [[items]]
   description = "A book explaining grape cultivation and varieties."
   id = "grape_book"
-  material = "PAPER"
+  material = "paper"
   name = "Grape Book"
   spriteKey = "grape_book"
   spriteSheetName = "field"
@@ -14863,7 +14816,7 @@
 [[items]]
   description = "A book full of ice cream recipes."
   id = "ice_book"
-  material = "PAPER"
+  material = "paper"
   name = "Ice Cream Book"
   spriteKey = "ice_cream_book"
   spriteSheetName = "field"
@@ -14879,7 +14832,7 @@
 [[items]]
   description = "An introductory guide to the fundamentals of art."
   id = "art_book"
-  material = "PAPER"
+  material = "paper"
   name = "Art Book"
   spriteKey = "art_book"
   spriteSheetName = "field"
@@ -14895,7 +14848,7 @@
 [[items]]
   description = "A book explaining the techniques of modern art."
   id = "art_book_2"
-  material = "PAPER"
+  material = "paper"
   name = "Art Book II"
   spriteKey = "art_book_2"
   spriteSheetName = "field"
@@ -14911,7 +14864,7 @@
 [[items]]
   description = "A photo collection chronicling visits to ruins."
   id = "its_ruins"
-  material = "PAPER"
+  material = "paper"
   name = "It's Ruins"
   spriteKey = "its_ruins"
   spriteSheetName = "field"
@@ -14927,7 +14880,7 @@
 [[items]]
   description = "A maintenance manual for off-road vehicles."
   id = "offroad_car_book"
-  material = "PAPER"
+  material = "paper"
   name = "Off-Road Car Book"
   spriteKey = "offroad_car_book"
   spriteSheetName = "field"
@@ -14943,7 +14896,7 @@
 [[items]]
   description = "A magazine for automobile enthusiasts."
   id = "car_life"
-  material = "PAPER"
+  material = "paper"
   name = "Car Life"
   spriteKey = "car_life"
   spriteSheetName = "field"
@@ -14959,7 +14912,7 @@
 [[items]]
   description = "A book chronicling the history of arcades."
   id = "arcade_book"
-  material = "PAPER"
+  material = "paper"
   name = "Arcade Book"
   spriteKey = "arcade_book"
   spriteSheetName = "field"
@@ -14975,7 +14928,7 @@
 [[items]]
   description = "A collection of game strategy know-how."
   id = "gamers_book"
-  material = "PAPER"
+  material = "paper"
   name = "Gamers' Book"
   spriteKey = "gamers_book"
   spriteSheetName = "field"
@@ -14991,7 +14944,7 @@
 [[items]]
   description = "A book explaining how to brew coffee."
   id = "coffee_book"
-  material = "PAPER"
+  material = "paper"
   name = "Coffee Book"
   spriteKey = "coffee_book"
   spriteSheetName = "field"
@@ -15007,7 +14960,7 @@
 [[items]]
   description = "A sci-fi novel depicting the future of cyborg technology."
   id = "cyborg_days"
-  material = "PAPER"
+  material = "paper"
   name = "Cyborg Days"
   spriteKey = "cyborg_days"
   spriteSheetName = "field"
@@ -15023,7 +14976,7 @@
 [[items]]
   description = "A book discussing environmental conservation."
   id = "zaeko"
-  material = "PAPER"
+  material = "paper"
   name = "Zaeko"
   spriteKey = "the_eco"
   spriteSheetName = "field"
@@ -15039,7 +14992,7 @@
 [[items]]
   description = "A magazine that explains science clearly across every field."
   id = "the_science"
-  material = "PAPER"
+  material = "paper"
   name = "The Science"
   spriteKey = "the_science"
   spriteSheetName = "field"
@@ -15055,7 +15008,7 @@
 [[items]]
   description = "A book on the history and recipes of hamburgers."
   id = "hamburger_book"
-  material = "PAPER"
+  material = "paper"
   name = "Hamburger Book"
   spriteKey = "hamburger_book"
   spriteSheetName = "field"
@@ -15071,7 +15024,7 @@
 [[items]]
   description = "A collection of pie recipes."
   id = "pie_cookbook"
-  material = "PAPER"
+  material = "paper"
   name = "Pie Cookbook"
   spriteKey = "pie_recipe_book"
   spriteSheetName = "field"
@@ -15087,7 +15040,7 @@
 [[items]]
   description = "An archaeology book delving into the mysteries of the pyramids."
   id = "pyramid_book"
-  material = "PAPER"
+  material = "paper"
   name = "Pyramid Book"
   spriteKey = "pyramid_book"
   spriteSheetName = "field"
@@ -15103,7 +15056,7 @@
 [[items]]
   description = "A magazine with detailed coverage of operating automatic firearms. An easy read."
   id = "machinegun_magazine_vol43"
-  material = "PAPER"
+  material = "paper"
   name = "Machine Gun Magazine Vol. 43"
   spriteKey = "old_book"
   spriteSheetName = "field"
@@ -15119,7 +15072,7 @@
 [[items]]
   description = "A magazine compiling the latest news about space."
   id = "universe_news"
-  material = "PAPER"
+  material = "paper"
   name = "Universe News"
   spriteKey = "universe_news"
   spriteSheetName = "field"
@@ -15135,7 +15088,7 @@
 [[items]]
   description = "The 49th issue of a specialist robotics engineering journal."
   id = "robotics_49"
-  material = "PAPER"
+  material = "paper"
   name = "Robotics 49"
   spriteKey = "robotics_49"
   spriteSheetName = "field"
@@ -15151,7 +15104,7 @@
 [[items]]
   description = "An illustrated guide introducing all kinds of vehicles."
   id = "vehicle_book"
-  material = "PAPER"
+  material = "paper"
   name = "Vehicle Guide"
   spriteKey = "vehicle_book"
   spriteSheetName = "field"
@@ -15167,7 +15120,7 @@
 [[items]]
   description = "A manual for learning the basics of swordsmanship."
   id = "sword_book"
-  material = "PAPER"
+  material = "paper"
   name = "Book of Swords"
   spriteKey = "sword_book"
   spriteSheetName = "field"
@@ -15183,7 +15136,7 @@
 [[items]]
   description = "A book about the study of animal behavior."
   id = "animal_feelings"
-  material = "PAPER"
+  material = "paper"
   name = "Animal Feelings"
   spriteKey = "animal_feelings"
   spriteSheetName = "field"
@@ -15199,7 +15152,7 @@
 [[items]]
   description = "An introductory book covering the fundamentals of gardening."
   id = "gardening_guide"
-  material = "PAPER"
+  material = "paper"
   name = "Gardening Guide"
   spriteKey = "gardening_guide"
   spriteSheetName = "field"
@@ -15215,7 +15168,7 @@
 [[items]]
   description = "An astronomy book explaining the sun and stars."
   id = "sun_book"
-  material = "PAPER"
+  material = "paper"
   name = "Sun Book"
   spriteKey = "sun_book"
   spriteSheetName = "field"
@@ -15231,7 +15184,7 @@
 [[items]]
   description = "A diary left behind by someone."
   id = "diary_book"
-  material = "PAPER"
+  material = "paper"
   name = "Diary"
   spriteKey = "diary"
   spriteSheetName = "field"
@@ -15247,7 +15200,7 @@
 [[items]]
   description = "An observation guide to constellations and stars."
   id = "star_book"
-  material = "PAPER"
+  material = "paper"
   name = "Star Book"
   spriteKey = "star_book"
   spriteSheetName = "field"
@@ -15263,7 +15216,7 @@
 [[items]]
   description = "A book covering the science and myths of the moon."
   id = "moon_book"
-  material = "PAPER"
+  material = "paper"
   name = "Moon Book"
   spriteKey = "moon_book"
   spriteSheetName = "field"
@@ -15279,7 +15232,7 @@
 [[items]]
   description = "A photo collection of moonlit landscapes."
   id = "moonlit_night_book"
-  material = "PAPER"
+  material = "paper"
   name = "Moonlit Night Book"
   spriteKey = "moonlit_night_book"
   spriteSheetName = "field"
@@ -15295,7 +15248,7 @@
 [[items]]
   description = "An illustrated guide explaining the ecology of plants."
   id = "plant_book"
-  material = "PAPER"
+  material = "paper"
   name = "Plant Book"
   spriteKey = "plant_book"
   spriteSheetName = "field"
@@ -15311,7 +15264,7 @@
 [[items]]
   description = "A book outlining the major events of world history."
   id = "history_guide"
-  material = "PAPER"
+  material = "paper"
   name = "History Guide"
   spriteKey = "history_guide"
   spriteSheetName = "field"
@@ -15327,7 +15280,7 @@
 [[items]]
   description = "A book explaining the science of ice and snow."
   id = "frost_book"
-  material = "PAPER"
+  material = "paper"
   name = "Frost Book"
   spriteKey = "ice_book"
   spriteSheetName = "field"
@@ -15343,7 +15296,7 @@
 [[items]]
   description = "A book introducing the strange creatures of the deep sea."
   id = "abyss_entertainment_book"
-  material = "PAPER"
+  material = "paper"
   name = "Abyss Digest"
   spriteKey = "abyss_entertainment_book"
   spriteSheetName = "field"
@@ -15359,7 +15312,7 @@
 [[items]]
   description = "A guide to volcanic activity and geology."
   id = "volcano_book"
-  material = "PAPER"
+  material = "paper"
   name = "Volcano Book"
   spriteKey = "volcano_book"
   spriteSheetName = "field"
@@ -15375,7 +15328,7 @@
 [[items]]
   description = "A book collecting the legends of the gray moon."
   id = "ash_moon_book"
-  material = "PAPER"
+  material = "paper"
   name = "Ash Moon Book"
   spriteKey = "ash_moon_book"
   spriteSheetName = "field"
@@ -15391,7 +15344,7 @@
 [[items]]
   description = "A book on the uses of ash and minerals."
   id = "ash_book"
-  material = "PAPER"
+  material = "paper"
   name = "Ash Book"
   spriteKey = "ash_book"
   spriteSheetName = "field"
@@ -15407,7 +15360,7 @@
 [[items]]
   description = "A collector's guide to white minerals."
   id = "white_mania_book"
-  material = "PAPER"
+  material = "paper"
   name = "White Mania Book"
   spriteKey = "white_mania_book"
   spriteSheetName = "field"
@@ -15423,7 +15376,7 @@
 [[items]]
   description = "A manual on the history of shields and the art of defense."
   id = "shield_book"
-  material = "PAPER"
+  material = "paper"
   name = "Shield Book"
   spriteKey = "shield_book"
   spriteSheetName = "field"
@@ -15439,7 +15392,7 @@
 [[items]]
   description = "A collection of biographies of little-known great figures."
   id = "unknown_face"
-  material = "PAPER"
+  material = "paper"
   name = "Unknown Faces"
   spriteKey = "unknown_faces"
   spriteSheetName = "field"
@@ -15455,7 +15408,7 @@
 [[items]]
   description = "A book of poetry in a beautiful purple binding."
   id = "purple_book"
-  material = "PAPER"
+  material = "paper"
   name = "Purple Book"
   spriteKey = "purple_book"
   spriteSheetName = "field"
@@ -15471,7 +15424,7 @@
 [[items]]
   description = "An introduction to cell biology."
   id = "cell_book"
-  material = "PAPER"
+  material = "paper"
   name = "Cell Biology Book"
   spriteKey = "cell_book"
   spriteSheetName = "field"
@@ -15487,7 +15440,7 @@
 [[items]]
   description = "A natural history essay on the color green."
   id = "green_book"
-  material = "PAPER"
+  material = "paper"
   name = "Green Book"
   spriteKey = "green_book"
   spriteSheetName = "field"
@@ -15503,7 +15456,7 @@
 [[items]]
   description = "A scripture bound in brown leather."
   id = "scripture_brown"
-  material = "PAPER"
+  material = "paper"
   name = "Scripture, Brown"
   spriteKey = "bible_brown"
   spriteSheetName = "field"
@@ -15519,7 +15472,7 @@
 [[items]]
   description = "A scripture bound in black leather."
   id = "scripture_black"
-  material = "PAPER"
+  material = "paper"
   name = "Scripture, Black"
   spriteKey = "bible_black"
   spriteSheetName = "field"
@@ -15535,7 +15488,7 @@
 [[items]]
   description = "A textbook covering the fundamentals of automation technology."
   id = "automation_engineering_book"
-  material = "PAPER"
+  material = "paper"
   name = "Automation Engineering Book"
   spriteKey = "automation_book"
   spriteSheetName = "field"
@@ -15551,7 +15504,7 @@
 [[items]]
   description = "A guide to ship construction and navigation."
   id = "ship_book"
-  material = "PAPER"
+  material = "paper"
   name = "Ship Book"
   spriteKey = "ship_book"
   spriteSheetName = "field"
@@ -15567,7 +15520,7 @@
 [[items]]
   description = "A book on the culture and history of tea."
   id = "brown_book"
-  material = "PAPER"
+  material = "paper"
   name = "Brown Book"
   spriteKey = "brown_book"
   spriteSheetName = "field"
@@ -15583,7 +15536,7 @@
 [[items]]
   description = "A thin, light pamphlet, its contents unknown."
   id = "thin_book"
-  material = "PAPER"
+  material = "paper"
   name = "Thin Book"
   spriteKey = "thin_book"
   spriteSheetName = "field"
@@ -15599,7 +15552,7 @@
 [[items]]
   description = "A thick, heavy academic tome with plenty to read."
   id = "hefty_book"
-  material = "PAPER"
+  material = "paper"
   name = "Hefty Book"
   spriteKey = "heavy_book"
   spriteSheetName = "field"
@@ -15615,7 +15568,7 @@
 [[items]]
   description = "A hobby magazine for mineral collectors."
   id = "mineral_life"
-  material = "PAPER"
+  material = "paper"
   name = "Mineral Life"
   spriteKey = "mineral_life"
   spriteSheetName = "field"
@@ -15631,7 +15584,7 @@
 [[items]]
   description = "A military marksmanship manual, systematic and thorough."
   id = "army_shooting_manual"
-  material = "PAPER"
+  material = "paper"
   name = "Army Shooting Manual"
   spriteKey = "old_book"
   spriteSheetName = "field"
@@ -15647,7 +15600,7 @@
 [[items]]
   description = "A technical book explaining how electronic devices work."
   id = "electronics_book"
-  material = "PAPER"
+  material = "paper"
   name = "Electronics Book"
   spriteKey = "electronics_book"
   spriteSheetName = "field"
@@ -15663,7 +15616,7 @@
 [[items]]
   description = "An old volume with a blue cover."
   id = "blue_book"
-  material = "PAPER"
+  material = "paper"
   name = "Blue Book"
   spriteKey = "blue_book"
   spriteSheetName = "field"
@@ -15679,7 +15632,7 @@
 [[items]]
   description = "A guide to aircraft design and aerodynamics."
   id = "airplane_book"
-  material = "PAPER"
+  material = "paper"
   name = "Airplane Book"
   spriteKey = "airplane_book"
   spriteSheetName = "field"
@@ -15695,7 +15648,7 @@
 [[items]]
   description = "A book on survival techniques in extreme environments."
   id = "peak_survival_life"
-  material = "PAPER"
+  material = "paper"
   name = "Peak Survival Life"
   spriteKey = "old_book"
   spriteSheetName = "field"
@@ -15711,7 +15664,7 @@
 [[items]]
   description = "A guide to weaving the basics of magic into daily life."
   id = "sorcery_life"
-  material = "PAPER"
+  material = "paper"
   name = "Sorcery Life"
   spriteKey = "magic_life"
   spriteSheetName = "field"
@@ -15727,7 +15680,7 @@
 [[items]]
   description = "A precise scale, needed to weigh out alchemy materials."
   id = "scale"
-  material = "METAL"
+  material = "metal"
   name = "Scale"
   spriteKey = "weight_measure"
   spriteSheetName = "field"
@@ -15737,7 +15690,7 @@
 [[items]]
   description = "Sweet honey. Spread on a wound, it speeds healing."
   id = "honey"
-  material = "FOOD"
+  material = "food"
   name = "Honey"
   providesNutrition = 75
   spriteKey = "honey"
@@ -15747,7 +15700,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.remedy]
     potency = 100
     treats = ["laceration"]
@@ -15755,7 +15707,7 @@
 [[items]]
   description = "A metal vessel for boiling water."
   id = "kettle"
-  material = "METAL"
+  material = "metal"
   name = "Kettle"
   spriteKey = "kettle"
   spriteSheetName = "field"
@@ -15765,7 +15717,7 @@
 [[items]]
   description = "A fossil shaped like seaweed, a rare specimen."
   id = "seaweed_fossil"
-  material = "STONE"
+  material = "stone"
   name = "Seaweed Fossil"
   spriteKey = "seaweed_fossil"
   spriteSheetName = "field"
@@ -15775,7 +15727,7 @@
 [[items]]
   description = "A power core containing a trace of radioactive material."
   id = "atomic_core"
-  material = "METAL"
+  material = "metal"
   name = "Atomic Core"
   spriteKey = "atomic_core"
   spriteSheetName = "field"
@@ -15785,7 +15737,7 @@
 [[items]]
   description = "A light metal material that is easy to work."
   id = "aluminum"
-  material = "METAL"
+  material = "metal"
   name = "Aluminum"
   spriteKey = "aluminum"
   spriteSheetName = "field"
@@ -15795,7 +15747,7 @@
 [[items]]
   description = "A rare gem shining deep green."
   id = "emerald"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Emerald"
   spriteKey = "emerald"
   spriteSheetName = "field"
@@ -15805,7 +15757,7 @@
 [[items]]
   description = "An omega-shaped metal part of unknown use."
   id = "omega"
-  material = "METAL"
+  material = "metal"
   name = "Omega"
   spriteKey = "omega"
   spriteSheetName = "field"
@@ -15815,7 +15767,7 @@
 [[items]]
   description = "A vial holding liquid extracted from mushrooms."
   id = "mushroom_extract"
-  material = "LIQUID"
+  material = "liquid"
   name = "Mushroom Extract"
   spriteKey = "bottle_mushroom"
   spriteSheetName = "field"
@@ -15825,7 +15777,7 @@
 [[items]]
   description = "A bundle of cables, useful for electrical work."
   id = "cable_bundle"
-  material = "METAL"
+  material = "metal"
   name = "Cable Bundle"
   spriteKey = "stacked_cable"
   spriteSheetName = "field"
@@ -15835,7 +15787,7 @@
 [[items]]
   description = "A handheld device that points the way, an aid to exploration."
   id = "compass"
-  material = "METAL"
+  material = "metal"
   name = "Compass"
   spriteKey = "compass"
   spriteSheetName = "field"
@@ -15845,7 +15797,7 @@
 [[items]]
   description = "A tangled bundle of cables usable as material."
   id = "cord_bundle"
-  material = "METAL"
+  material = "metal"
   name = "Cord Bundle"
   spriteKey = "cable_bundle"
   spriteSheetName = "field"
@@ -15855,7 +15807,7 @@
 [[items]]
   description = "Fragrant coffee beans. Roasted, they become a drink."
   id = "coffee_beans"
-  material = "FOOD"
+  material = "food"
   name = "Coffee Beans"
   spriteKey = "coffee_bean"
   spriteSheetName = "field"
@@ -15865,7 +15817,7 @@
 [[items]]
   description = "A clean towel usable as material."
   id = "towel"
-  material = "CLOTH"
+  material = "cloth"
   name = "Towel"
   spriteKey = "towel_hunger"
   spriteSheetName = "field"
@@ -15874,7 +15826,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.remedy]
     potency = 50
     treats = ["laceration"]
@@ -15882,7 +15833,7 @@
 [[items]]
   description = "A small device that charges batteries."
   id = "charger"
-  material = "METAL"
+  material = "metal"
   name = "Charger"
   spriteKey = "charger"
   spriteSheetName = "field"
@@ -15892,7 +15843,7 @@
 [[items]]
   description = "A pot for brewing tea."
   id = "teapot"
-  material = "CERAMIC"
+  material = "ceramic"
   name = "Teapot"
   spriteKey = "teapot"
   spriteSheetName = "field"
@@ -15902,7 +15853,7 @@
 [[items]]
   description = "A battered stuffed bear that someone seems to have cherished."
   id = "teddy_bear"
-  material = "CLOTH"
+  material = "cloth"
   name = "Teddy Bear"
   spriteKey = "teddy_bear"
   spriteSheetName = "field"
@@ -15912,7 +15863,7 @@
 [[items]]
   description = "Often found in the ruins, useful for trade."
   id = "toilet_paper"
-  material = "PAPER"
+  material = "paper"
   name = "Toilet Paper"
   spriteKey = "toilet_paper"
   spriteSheetName = "field"
@@ -15922,7 +15873,7 @@
 [[items]]
   description = "A clear, golden gem."
   id = "topaz"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Topaz"
   spriteKey = "topaz"
   spriteSheetName = "field"
@@ -15932,7 +15883,7 @@
 [[items]]
   description = "A small electric appliance for toasting bread."
   id = "toaster"
-  material = "METAL"
+  material = "metal"
   name = "Toaster"
   spriteKey = "toaster"
   spriteSheetName = "field"
@@ -15942,7 +15893,7 @@
 [[items]]
   description = "A small charm shaped like a red heart."
   id = "heart_charm"
-  material = "METAL"
+  material = "metal"
   name = "Heart Charm"
   spriteKey = "heart"
   spriteSheetName = "field"
@@ -15952,7 +15903,7 @@
 [[items]]
   description = "A portable umbrella for shade from the sun."
   id = "parasol"
-  material = "CLOTH"
+  material = "cloth"
   name = "Parasol"
   spriteKey = "parasol"
   spriteSheetName = "field"
@@ -15962,7 +15913,7 @@
 [[items]]
   description = "A magnetic body made of ferrite."
   id = "ferrite_core"
-  material = "METAL"
+  material = "metal"
   name = "Ferrite Core"
   spriteKey = "ferrite_core"
   spriteSheetName = "field"
@@ -15972,7 +15923,7 @@
 [[items]]
   description = "A stone that glows faintly with magnetism, used for lighting and power."
   id = "magnelite"
-  material = "STONE"
+  material = "stone"
   name = "Magnelite"
   spriteKey = "magnelight"
   spriteSheetName = "field"
@@ -15982,7 +15933,7 @@
 [[items]]
   description = "A treadle-powered machine used for sewing."
   id = "sewing_machine"
-  material = "METAL"
+  material = "metal"
   name = "Sewing Machine"
   spriteKey = "sewing_machine"
   spriteSheetName = "field"
@@ -15992,7 +15943,7 @@
 [[items]]
   description = "A ring-shaped energy cell."
   id = "ring_cell"
-  material = "METAL"
+  material = "metal"
   name = "Ring Cell"
   spriteKey = "ring_cell"
   spriteSheetName = "field"
@@ -16002,7 +15953,7 @@
 [[items]]
   description = "A red-glowing mineral, worked into costly ornaments."
   id = "raw_ruby"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Raw Ruby"
   spriteKey = "red_gem"
   spriteSheetName = "field"
@@ -16012,7 +15963,7 @@
 [[items]]
   description = "An old phonograph record with music on it."
   id = "record"
-  material = "PLASTIC"
+  material = "plastic"
   name = "Record"
   spriteKey = "record"
   spriteSheetName = "field"
@@ -16022,7 +15973,7 @@
 [[items]]
   description = "A tool for cutting red-insulated wire."
   id = "wire_cutter"
-  material = "METAL"
+  material = "metal"
   name = "Wire Cutter"
   spriteKey = "red_wire_cutter"
   spriteSheetName = "field"
@@ -16032,7 +15983,7 @@
 [[items]]
   description = "A mysterious staff that shines in three colors and wields several elements."
   id = "tricolor_staff"
-  material = "WOOD"
+  material = "wood"
   name = "Tricolor Staff"
   spriteKey = "tri_color_rod"
   spriteSheetName = "field"
@@ -16042,7 +15993,7 @@
 [[items]]
   description = "A small, swappable energy cell."
   id = "replaceable_cell"
-  material = "METAL"
+  material = "metal"
   name = "Replaceable Cell"
   spriteKey = "swap_cell"
   spriteSheetName = "field"
@@ -16052,7 +16003,7 @@
 [[items]]
   description = "A faded photograph, a keepsake of someone's memories."
   id = "photo"
-  material = "PAPER"
+  material = "paper"
   name = "Photo"
   spriteKey = "photo"
   spriteSheetName = "field"
@@ -16062,7 +16013,7 @@
 [[items]]
   description = "A heat-resistant glass vessel for experiments, used for chemical reactions."
   id = "chemical_container"
-  material = "GLASS"
+  material = "glass"
   name = "Chemical Container"
   spriteKey = "chemical_vessel"
   spriteSheetName = "field"
@@ -16072,7 +16023,7 @@
 [[items]]
   description = "An aged globe that depicts the world as it once was."
   id = "old_globe"
-  material = "METAL"
+  material = "metal"
   name = "Old Globe"
   spriteKey = "old_earth"
   spriteSheetName = "field"
@@ -16082,7 +16033,7 @@
 [[items]]
   description = "A rusted brass gear crafted with exquisite skill."
   id = "old_gear"
-  material = "METAL"
+  material = "metal"
   name = "Old Gear"
   spriteKey = "gear_iron"
   spriteSheetName = "field"
@@ -16092,7 +16043,7 @@
 [[items]]
   description = "A deployment module. Installed on a cube, it widens the deployed space all around. The new size takes effect the next time you deploy."
   id = "cube_range_module"
-  material = "METAL"
+  material = "metal"
   name = "Range Module"
   spriteKey = "gear_iron"
   spriteSheetName = "field"
@@ -16105,7 +16056,7 @@
 [[items]]
   description = "A fuel module. Installed on a cube, it enlarges the fuel tank."
   id = "cube_fuel_module"
-  material = "METAL"
+  material = "metal"
   name = "Fuel Module"
   spriteKey = "gear_iron"
   spriteSheetName = "field"
@@ -16118,7 +16069,7 @@
 [[items]]
   description = "A storage crate. Deploy it into your cube's space to hold cargo."
   id = "deployable_storage"
-  material = "WOOD"
+  material = "wood"
   name = "Storage Crate"
   spriteKey = "wooden_crate"
   spriteSheetName = "field"
@@ -16131,7 +16082,7 @@
 [[items]]
   description = "A camp bed. Deploy it into your cube's space to sleep well."
   id = "deployable_bed"
-  material = "CLOTH"
+  material = "cloth"
   name = "Camp Bed"
   spriteKey = "bed"
   spriteSheetName = "field"
@@ -16144,7 +16095,7 @@
 [[items]]
   description = "A workbench. Deploy it into your cube's space as a crafting station."
   id = "deployable_workbench"
-  material = "METAL"
+  material = "metal"
   name = "Workbench"
   spriteKey = "work_desk"
   spriteSheetName = "field"
@@ -16155,7 +16106,7 @@
 [[items]]
   description = "A finely decorated ceramic pot, prized as an antique."
   id = "ancient_pot"
-  material = "CERAMIC"
+  material = "ceramic"
   name = "Ancient Pot"
   spriteKey = "vase"
   spriteSheetName = "field"
@@ -16165,7 +16116,7 @@
 [[items]]
   description = "An animal bone aged over long years, oddly hard yet light."
   id = "ancient_bone"
-  material = "BONE"
+  material = "bone"
   name = "Ancient Bone"
   spriteKey = "fossil_chunk"
   spriteSheetName = "field"
@@ -16175,7 +16126,7 @@
 [[items]]
   description = "Currency of a lost civilization."
   id = "ancient_gold_coin"
-  material = "METAL"
+  material = "metal"
   name = "Ancient Gold Coin"
   spriteKey = "gold_ore"
   spriteSheetName = "field"
@@ -16185,7 +16136,7 @@
 [[items]]
   description = "A precision instrument that measures the orbits of celestial bodies."
   id = "orrery"
-  material = "METAL"
+  material = "metal"
   name = "Orrery"
   spriteKey = "orbit_gauge"
   spriteSheetName = "field"
@@ -16195,7 +16146,7 @@
 [[items]]
   description = "A large rainbow-hued crystal radiating powerful magic."
   id = "great_rainbow_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Great Rainbow Crystal"
   spriteKey = "rainbow_large_crystal"
   spriteSheetName = "field"
@@ -16205,7 +16156,7 @@
 [[items]]
   description = "A beautiful feather shining pure white."
   id = "angel_feather"
-  material = "BONE"
+  material = "bone"
   name = "Angel Feather"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -16215,7 +16166,7 @@
 [[items]]
   description = "An angular ore of cosmic origin."
   id = "cosmic_cornerstone"
-  material = "STONE"
+  material = "stone"
   name = "Cosmic Cornerstone"
   spriteKey = "cosmic_cornerstone"
   spriteSheetName = "field"
@@ -16225,7 +16176,7 @@
 [[items]]
   description = "A sturdy glass vessel used for various experiments."
   id = "experiment_container"
-  material = "GLASS"
+  material = "glass"
   name = "Experiment Container"
   spriteKey = "test_vessel"
   spriteSheetName = "field"
@@ -16235,7 +16186,7 @@
 [[items]]
   description = "A pointed stone that can serve as a weapon when thrown."
   id = "sharp_stone"
-  material = "STONE"
+  material = "stone"
   name = "Sharp Stone"
   spriteKey = "sharp_stone"
   spriteSheetName = "field"
@@ -16248,7 +16199,7 @@
 [[items]]
   description = "Dried grass, usable as fuel or livestock feed."
   id = "hay"
-  material = "PLANT"
+  material = "plant"
   name = "Hay"
   spriteKey = "hay"
   spriteSheetName = "field"
@@ -16258,7 +16209,7 @@
 [[items]]
   description = "A strange heart that still beats."
   id = "heart"
-  material = "FOOD"
+  material = "food"
   name = "Heart"
   spriteKey = "organ_heart"
   spriteSheetName = "field"
@@ -16268,7 +16219,7 @@
 [[items]]
   description = "A small model tank, exquisitely crafted."
   id = "tank_model"
-  material = "METAL"
+  material = "metal"
   name = "Tank Model"
   spriteKey = "light_tank"
   spriteSheetName = "field"
@@ -16278,7 +16229,7 @@
 [[items]]
   description = "A folding fan that stirs a cool breeze when waved."
   id = "folding_fan"
-  material = "PAPER"
+  material = "paper"
   name = "Folding Fan"
   spriteKey = "folding_fan"
   spriteSheetName = "field"
@@ -16288,7 +16239,7 @@
 [[items]]
   description = "An artwork made by folding paper, small yet finely crafted."
   id = "origami"
-  material = "PAPER"
+  material = "paper"
   name = "Origami"
   spriteKey = "origami"
   spriteSheetName = "field"
@@ -16298,7 +16249,7 @@
 [[items]]
   description = "A rare crystal that grew at an angle."
   id = "slanted_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Slanted Crystal"
   spriteKey = "diagonal_crystal"
   spriteSheetName = "field"
@@ -16308,7 +16259,7 @@
 [[items]]
   description = "A stone that glows a vivid green."
   id = "bright_green_stone"
-  material = "STONE"
+  material = "stone"
   name = "Bright Green Stone"
   spriteKey = "bright_green_stone"
   spriteSheetName = "field"
@@ -16318,7 +16269,7 @@
 [[items]]
   description = "A mysterious ore fallen from the night sky."
   id = "star_fragment"
-  material = "STONE"
+  material = "stone"
   name = "Star Fragment"
   spriteKey = "rainbow_chunk"
   spriteSheetName = "field"
@@ -16328,7 +16279,7 @@
 [[items]]
   description = "A crystal holding the glimmer of the stars, prized as an ornament."
   id = "star_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Star Crystal"
   spriteKey = "star_crystal"
   spriteSheetName = "field"
@@ -16338,7 +16289,7 @@
 [[items]]
   description = "A special metal taken from meteorites, far harder than ordinary iron."
   id = "star_iron"
-  material = "METAL"
+  material = "metal"
   name = "Star Iron"
   spriteKey = "cosmic_stone"
   spriteSheetName = "field"
@@ -16348,7 +16299,7 @@
 [[items]]
   description = "A stack of lumber that can be used as building material."
   id = "lumber_pile"
-  material = "WOOD"
+  material = "wood"
   name = "Lumber Pile"
   spriteKey = "stacked_woods"
   spriteSheetName = "field"
@@ -16358,7 +16309,7 @@
 [[items]]
   description = "A soft pillow, essential for a comfortable sleep."
   id = "pillow"
-  material = "CLOTH"
+  material = "cloth"
   name = "Pillow"
   spriteKey = "pillow"
   spriteSheetName = "field"
@@ -16368,7 +16319,7 @@
 [[items]]
   description = "A pigment for coloring cloth and leather, available in many hues."
   id = "dye"
-  material = "LIQUID"
+  material = "liquid"
   name = "Dye"
   spriteKey = "dye"
   spriteSheetName = "field"
@@ -16378,7 +16329,7 @@
 [[items]]
   description = "Hardened resin with a texture much like amber."
   id = "resin_stone"
-  material = "PLASTIC"
+  material = "plastic"
   name = "Resin Stone"
   spriteKey = "resin_stone"
   spriteSheetName = "field"
@@ -16388,7 +16339,7 @@
 [[items]]
   description = "A finely made craftwork shaped from resin."
   id = "resin_craft"
-  material = "PLASTIC"
+  material = "plastic"
   name = "Resin Craft"
   spriteKey = "resin_craft"
   spriteSheetName = "field"
@@ -16398,7 +16349,7 @@
 [[items]]
   description = "A rare ore that glows orange."
   id = "orange_ore"
-  material = "STONE"
+  material = "stone"
   name = "Orange Ore"
   spriteKey = "orange_ore"
   spriteSheetName = "field"
@@ -16408,7 +16359,7 @@
 [[items]]
   description = "The central part at the heart of a machine."
   id = "equipment_core"
-  material = "METAL"
+  material = "metal"
   name = "Equipment Core"
   spriteKey = "equipment_core"
   spriteSheetName = "field"
@@ -16418,7 +16369,7 @@
 [[items]]
   description = "Powder ground from clear crystal, faintly giving off light."
   id = "crystal_powder"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Crystal Powder"
   spriteKey = "purple_powder"
   spriteSheetName = "field"
@@ -16428,7 +16379,7 @@
 [[items]]
   description = "A tool for measuring level, needed for precise construction."
   id = "spirit_level"
-  material = "METAL"
+  material = "metal"
   name = "Spirit Level"
   spriteKey = "spirit_level"
   spriteSheetName = "field"
@@ -16438,7 +16389,7 @@
 [[items]]
   description = "A cold blue stone that nearly freezes your hand at a touch."
   id = "ice_stone"
-  material = "STONE"
+  material = "stone"
   name = "Ice Stone"
   spriteKey = "ice_ston"
   spriteSheetName = "field"
@@ -16448,7 +16399,7 @@
 [[items]]
   description = "A strange stone with a faint buoyancy."
   id = "floating_stone"
-  material = "STONE"
+  material = "stone"
   name = "Floating Stone"
   spriteKey = "floating_stone"
   spriteSheetName = "field"
@@ -16458,7 +16409,7 @@
 [[items]]
   description = "A cubic crystal raised from the seabed."
   id = "sea_cube"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Sea Cube"
   spriteKey = "marine_cube"
   spriteSheetName = "field"
@@ -16468,7 +16419,7 @@
 [[items]]
   description = "An ore marked with a spiral pattern."
   id = "swirl_stone"
-  material = "STONE"
+  material = "stone"
   name = "Swirl Stone"
   spriteKey = "spiral_stone"
   spriteSheetName = "field"
@@ -16478,7 +16429,7 @@
 [[items]]
   description = "The ash left after something burned away."
   id = "ashes"
-  material = "STONE"
+  material = "stone"
   name = "Ashes"
   spriteKey = "ashes"
   spriteSheetName = "field"
@@ -16488,7 +16439,7 @@
 [[items]]
   description = "Fur skinned from a beast, tough and water-resistant."
   id = "beast_fur"
-  material = "LEATHER"
+  material = "leather"
   name = "Beast Fur"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -16498,7 +16449,7 @@
 [[items]]
   description = "A gem of fossilized ancient sap, with a tiny insect trapped inside."
   id = "amber"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Amber"
   spriteKey = "ammonite_fossil"
   spriteSheetName = "field"
@@ -16508,7 +16459,7 @@
 [[items]]
   description = "A stack of plates, fragile so handle with care."
   id = "pile_of_plates"
-  material = "CERAMIC"
+  material = "ceramic"
   name = "Pile of Plates"
   spriteKey = "stacked_dishs"
   spriteSheetName = "field"
@@ -16518,7 +16469,7 @@
 [[items]]
   description = "A common stone, of little worth but a weapon when thrown."
   id = "stone"
-  material = "STONE"
+  material = "stone"
   name = "Stone"
   spriteKey = "stone"
   spriteSheetName = "field"
@@ -16531,7 +16482,7 @@
 [[items]]
   description = "A stone fixture used to hold something in place."
   id = "stone_pedestal"
-  material = "STONE"
+  material = "stone"
   name = "Stone Pedestal"
   spriteKey = "stone_holder"
   spriteSheetName = "field"
@@ -16541,7 +16492,7 @@
 [[items]]
   description = "A stone slab carved with ancient script."
   id = "stone_tablet"
-  material = "STONE"
+  material = "stone"
   name = "Stone Tablet"
   spriteKey = "stone_tablet"
   spriteSheetName = "field"
@@ -16551,7 +16502,7 @@
 [[items]]
   description = "Black glossy coal, usable as fuel."
   id = "coal"
-  material = "COAL"
+  material = "coal"
   name = "Coal"
   spriteKey = "coal"
   spriteSheetName = "field"
@@ -16561,7 +16512,7 @@
 [[items]]
   description = "A jar packed with fine sand, a material for clocks."
   id = "jar_of_sand"
-  material = "STONE"
+  material = "stone"
   name = "Jar of Sand"
   spriteKey = "bottle_sand"
   spriteSheetName = "field"
@@ -16571,7 +16522,7 @@
 [[items]]
   description = "An energy core of plant origin."
   id = "seed_core"
-  material = "PLANT"
+  material = "plant"
   name = "Seed Core"
   spriteKey = "seed_core"
   spriteSheetName = "field"
@@ -16581,7 +16532,7 @@
 [[items]]
   description = "The skull of a huge dragon, highly prized as a decoration."
   id = "dragon_skull"
-  material = "BONE"
+  material = "bone"
   name = "Dragon Skull"
   spriteKey = "dragon_head"
   spriteSheetName = "field"
@@ -16591,7 +16542,7 @@
 [[items]]
   description = "An unpolished raw stone of brown crystal."
   id = "rough_brown_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Rough Brown Crystal"
   spriteKey = "rough_brown_crystal"
   spriteSheetName = "field"
@@ -16601,7 +16552,7 @@
 [[items]]
   description = "Moist clay, used as raw material for pottery."
   id = "clay"
-  material = "CERAMIC"
+  material = "ceramic"
   name = "Clay"
   spriteKey = "clay"
   spriteSheetName = "field"
@@ -16611,7 +16562,7 @@
 [[items]]
   description = "A clear, beautiful crystal that amplifies magic."
   id = "pure_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Pure Crystal"
   spriteKey = "crystal"
   spriteSheetName = "field"
@@ -16621,7 +16572,7 @@
 [[items]]
   description = "A gem shining in a noble purple hue."
   id = "purple_gem"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Purple Gem"
   spriteKey = "purple_gem"
   spriteSheetName = "field"
@@ -16631,7 +16582,7 @@
 [[items]]
   description = "An energy core glowing purple."
   id = "purple_core"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Purple Core"
   spriteKey = "purple_core"
   spriteSheetName = "field"
@@ -16641,7 +16592,7 @@
 [[items]]
   description = "A star-shaped ore shining purple."
   id = "purple_star"
-  material = "STONE"
+  material = "stone"
   name = "Purple Star"
   spriteKey = "purple_star"
   spriteSheetName = "field"
@@ -16651,7 +16602,7 @@
 [[items]]
   description = "A beautiful purple crystal."
   id = "amethyst"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Amethyst"
   spriteKey = "amethyst_stone"
   spriteSheetName = "field"
@@ -16661,7 +16612,7 @@
 [[items]]
   description = "A deep purple ore said to be a source of magic."
   id = "purple_stone"
-  material = "STONE"
+  material = "stone"
   name = "Purple Stone"
   spriteKey = "purple"
   spriteSheetName = "field"
@@ -16671,7 +16622,7 @@
 [[items]]
   description = "A small stone of pale green color."
   id = "green_stone"
-  material = "STONE"
+  material = "stone"
   name = "Green Stone"
   spriteKey = "green_stone"
   spriteSheetName = "field"
@@ -16681,7 +16632,7 @@
 [[items]]
   description = "A green crystal formed in a lattice shape."
   id = "green_lattice"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Green Lattice"
   spriteKey = "green_lattice"
   spriteSheetName = "field"
@@ -16691,7 +16642,7 @@
 [[items]]
   description = "A crystal green like a forest."
   id = "green_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Green Crystal"
   spriteKey = "green_crystal"
   spriteSheetName = "field"
@@ -16701,7 +16652,7 @@
 [[items]]
   description = "A raw stone containing green crystal."
   id = "green_crystal_stone"
-  material = "STONE"
+  material = "stone"
   name = "Green Crystal Stone"
   spriteKey = "green_crystal_stone"
   spriteSheetName = "field"
@@ -16711,7 +16662,7 @@
 [[items]]
   description = "A soft bird feather, used as a crafting material."
   id = "feather"
-  material = "BONE"
+  material = "bone"
   name = "Feather"
   spriteKey = "feather"
   spriteSheetName = "field"
@@ -16721,7 +16672,7 @@
 [[items]]
   description = "A sealed jar filled with mushroom spores."
   id = "jar_of_spores"
-  material = "PLANT"
+  material = "plant"
   name = "Jar of Spores"
   spriteKey = "bottle_spore"
   spriteSheetName = "field"
@@ -16731,7 +16682,7 @@
 [[items]]
   description = "Clear and beautiful amber, well suited for ornaments."
   id = "fine_amber"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Fine Amber"
   spriteKey = "fine_amber"
   spriteSheetName = "field"
@@ -16741,7 +16692,7 @@
 [[items]]
   description = "An old stone covered in moss, imbued with magic."
   id = "mossy_stone"
-  material = "STONE"
+  material = "stone"
   name = "Mossy Stone"
   spriteKey = "moss_stone"
   spriteSheetName = "field"
@@ -16751,7 +16702,7 @@
 [[items]]
   description = "A smoky brown crystal, also known as smoky quartz."
   id = "brown_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Brown Crystal"
   spriteKey = "brown_crystal"
   spriteSheetName = "field"
@@ -16761,7 +16712,7 @@
 [[items]]
   description = "A rusted brown gear. It still looks usable."
   id = "brown_gear"
-  material = "METAL"
+  material = "metal"
   name = "Brown Gear"
   spriteKey = "gear_brown"
   spriteSheetName = "field"
@@ -16771,7 +16722,7 @@
 [[items]]
   description = "A medicine bottle filled with a brown liquid."
   id = "brown_medicine_bottle"
-  material = "LIQUID"
+  material = "liquid"
   name = "Brown Medicine Bottle"
   spriteKey = "bottle_brown"
   spriteSheetName = "field"
@@ -16781,7 +16732,7 @@
 [[items]]
   description = "A bottle of purified, perfectly clean water."
   id = "distilled_water"
-  material = "LIQUID"
+  material = "liquid"
   name = "Distilled Water"
   spriteKey = "faucet_bottle"
   spriteSheetName = "field"
@@ -16791,7 +16742,7 @@
 [[items]]
   description = "A mysterious stone of deep indigo."
   id = "azure_stone"
-  material = "STONE"
+  material = "stone"
   name = "Azure Stone"
   spriteKey = "blue_stone"
   spriteSheetName = "field"
@@ -16801,7 +16752,7 @@
 [[items]]
   description = "A jet-black stone that harbors the energy of nothingness."
   id = "void_stone"
-  material = "STONE"
+  material = "stone"
   name = "Void Stone"
   spriteKey = "void_stone"
   spriteSheetName = "field"
@@ -16811,7 +16762,7 @@
 [[items]]
   description = "A beautiful crystal that shines in seven colors."
   id = "rainbow_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Rainbow Crystal"
   spriteKey = "rainbow_crystal"
   spriteSheetName = "field"
@@ -16821,7 +16772,7 @@
 [[items]]
   description = "A mysterious stone that shifts to rainbow hues with the angle of light."
   id = "rainbow_stone"
-  material = "STONE"
+  material = "stone"
   name = "Rainbow Stone"
   spriteKey = "rainbow_stone"
   spriteSheetName = "field"
@@ -16831,7 +16782,7 @@
 [[items]]
   description = "A dangerous jar of snake venom. It can be applied to a weapon."
   id = "jar_of_snake_venom"
-  material = "LIQUID"
+  material = "liquid"
   name = "Jar of Snake Venom"
   spriteKey = "bottle_snake"
   spriteSheetName = "field"
@@ -16841,7 +16792,7 @@
 [[items]]
   description = "A stone marked with snakelike patterns, believed to have an antidote effect."
   id = "serpentine_stone"
-  material = "STONE"
+  material = "stone"
   name = "Serpentine Stone"
   spriteKey = "snake_stone"
   spriteSheetName = "field"
@@ -16851,7 +16802,7 @@
 [[items]]
   description = "A vial sealing someone's blood. It feels ominous."
   id = "vial_of_blood"
-  material = "LIQUID"
+  material = "liquid"
   name = "Vial of Blood"
   spriteKey = "bottle_blood"
   spriteSheetName = "field"
@@ -16861,7 +16812,7 @@
 [[items]]
   description = "A gem of especially beautiful brilliance, traded at high prices."
   id = "bloodstained_ruby"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Blood Ruby"
   spriteKey = "red_crystal_stone"
   spriteSheetName = "field"
@@ -16871,7 +16822,7 @@
 [[items]]
   description = "A crimson-stained liquid. It seems to be someone's blood."
   id = "blood"
-  material = "LIQUID"
+  material = "liquid"
   name = "Blood"
   spriteKey = "blood"
   spriteSheetName = "field"
@@ -16881,7 +16832,7 @@
 [[items]]
   description = "An ore dyed deep crimson. It is warm to the touch."
   id = "blood_red_stone"
-  material = "STONE"
+  material = "stone"
   name = "Bloodstone"
   spriteKey = "crimson_crystal"
   spriteSheetName = "field"
@@ -16891,7 +16842,7 @@
 [[items]]
   description = "A withering houseplant. A little green still remains."
   id = "houseplant"
-  material = "PLANT"
+  material = "plant"
   name = "Houseplant"
   spriteKey = "houseplants"
   spriteSheetName = "field"
@@ -16901,7 +16852,7 @@
 [[items]]
   description = "A glass tube for experiments, handy for handling small amounts of liquid."
   id = "test_tube"
-  material = "GLASS"
+  material = "glass"
   name = "Test Tube"
   spriteKey = "test_tube"
   spriteSheetName = "field"
@@ -16911,7 +16862,7 @@
 [[items]]
   description = "A small bottle holding extract drawn from beans."
   id = "bean_extract"
-  material = "LIQUID"
+  material = "liquid"
   name = "Bean Extract"
   spriteKey = "bottle_bean"
   spriteSheetName = "field"
@@ -16921,7 +16872,7 @@
 [[items]]
   description = "A stone of a blood-like red hue, warm to the touch."
   id = "red_stone"
-  material = "STONE"
+  material = "stone"
   name = "Red Stone"
   spriteKey = "red_stone"
   spriteSheetName = "field"
@@ -16931,7 +16882,7 @@
 [[items]]
   description = "A gear set with a red stone, driven by magic."
   id = "red_stone_gear"
-  material = "METAL"
+  material = "metal"
   name = "Red Stone Gear"
   spriteKey = "gear_redstone"
   spriteSheetName = "field"
@@ -16941,7 +16892,7 @@
 [[items]]
   description = "A mineral found in volcanic rock, dark green in color."
   id = "brilliant_stone"
-  material = "STONE"
+  material = "stone"
   name = "Brilliant Stone"
   spriteKey = "pyroxene"
   spriteSheetName = "field"
@@ -16951,7 +16902,7 @@
 [[items]]
   description = "A precise gear made of pure gold, exceedingly valuable."
   id = "gold_gear"
-  material = "METAL"
+  material = "metal"
   name = "Gold Gear"
   spriteKey = "gear_gold"
   spriteSheetName = "field"
@@ -16961,7 +16912,7 @@
 [[items]]
   description = "A metal easy to work, forming the core of industry."
   id = "iron"
-  material = "METAL"
+  material = "metal"
   name = "Iron"
   spriteKey = "iron_content"
   spriteSheetName = "field"
@@ -16971,7 +16922,7 @@
 [[items]]
   description = "A lump of metal rich in iron."
   id = "scrap_iron"
-  material = "METAL"
+  material = "metal"
   name = "Scrap Iron"
   spriteKey = "scrap_metal"
   spriteSheetName = "field"
@@ -16981,7 +16932,7 @@
 [[items]]
   description = "Raw iron ore that becomes iron once smelted."
   id = "iron_ore"
-  material = "STONE"
+  material = "stone"
   name = "Iron Ore"
   spriteKey = "iron_ore"
   spriteSheetName = "field"
@@ -16991,7 +16942,7 @@
 [[items]]
   description = "A faintly glowing sliver of silver, said to ward off the unclean."
   id = "silver_shard"
-  material = "METAL"
+  material = "metal"
   name = "Silver Shard"
   spriteKey = "round_pebble"
   spriteSheetName = "field"
@@ -17001,7 +16952,7 @@
 [[items]]
   description = "A piece of old chain that once held something bound."
   id = "rusted_chain"
-  material = "METAL"
+  material = "metal"
   name = "Rusted Chain"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -17011,7 +16962,7 @@
 [[items]]
   description = "A rare ore mined from a fallen meteorite."
   id = "meteoric_iron"
-  material = "METAL"
+  material = "metal"
   name = "Meteoric Iron"
   spriteKey = "meteorite"
   spriteSheetName = "field"
@@ -17021,7 +16972,7 @@
 [[items]]
   description = "A stone born of a lightning strike, faintly charged with electricity."
   id = "lightning_stone"
-  material = "STONE"
+  material = "stone"
   name = "Lightning Stone"
   spriteKey = "yellow_crystal_stone"
   spriteSheetName = "field"
@@ -17031,7 +16982,7 @@
 [[items]]
   description = "A copper-colored wire with excellent conductivity."
   id = "electric_wire"
-  material = "METAL"
+  material = "metal"
   name = "Electric Wire"
   spriteKey = "wire"
   spriteSheetName = "field"
@@ -17041,7 +16992,7 @@
 [[items]]
   description = "A strange substance like crystallized mist, cold to the touch."
   id = "mist_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Mist Crystal"
   spriteKey = "soul_stone"
   spriteSheetName = "field"
@@ -17051,7 +17002,7 @@
 [[items]]
   description = "A clear blue crystal that radiates a chill."
   id = "blue_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Blue Crystal"
   spriteKey = "blue_crystal"
   spriteSheetName = "field"
@@ -17061,7 +17012,7 @@
 [[items]]
   description = "A raw stone embedded with blue crystal."
   id = "blue_crystal_stone"
-  material = "STONE"
+  material = "stone"
   name = "Blue Crystal Stone"
   spriteKey = "blue_crystal_stone"
   spriteSheetName = "field"
@@ -17071,7 +17022,7 @@
 [[items]]
   description = "An eerie gear fashioned from bone."
   id = "skeleton_gear"
-  material = "BONE"
+  material = "bone"
   name = "Skeleton Gear"
   spriteKey = "gear_skull"
   spriteSheetName = "field"
@@ -17081,7 +17032,7 @@
 [[items]]
   description = "A springy yellow sphere. Its use is unknown."
   id = "yellow_orb"
-  material = "PLASTIC"
+  material = "plastic"
   name = "Yellow Orb"
   spriteKey = "yellow_ball"
   spriteSheetName = "field"
@@ -17091,7 +17042,7 @@
 [[items]]
   description = "An electrical wire with yellow insulation."
   id = "yellow_wire"
-  material = "METAL"
+  material = "metal"
   name = "Yellow Wire"
   spriteKey = "yellow_wire"
   spriteSheetName = "field"
@@ -17101,7 +17052,7 @@
 [[items]]
   description = "A blackly glowing power core with high output."
   id = "black_core_stone"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Black Core Stone"
   spriteKey = "black_core_stone"
   spriteSheetName = "field"
@@ -17111,7 +17062,7 @@
 [[items]]
   description = "Volcanic glass with a jet-black sheen, well suited to making sharp blades."
   id = "obsidian"
-  material = "GLASS"
+  material = "glass"
   name = "Obsidian"
   spriteKey = "obsidian"
   spriteSheetName = "field"
@@ -17121,7 +17072,7 @@
 [[items]]
   description = "A jet-black pearl from the deep sea, exceedingly rare."
   id = "black_pearl"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Black Pearl"
   spriteKey = "black_crystal"
   spriteSheetName = "field"
@@ -17131,7 +17082,7 @@
 [[items]]
   description = "A dangerous powder used as the raw material for explosives."
   id = "black_powder"
-  material = "COAL"
+  material = "coal"
   name = "Black Powder"
   spriteKey = "black_powder"
   spriteSheetName = "field"
@@ -17141,7 +17092,7 @@
 [[items]]
   description = "\"Third Shelter is full. Head to the school in the west.\" The ink has bled, and the date is no longer legible."
   id = "shelter_poster"
-  material = "PAPER"
+  material = "paper"
   name = "Shelter Notice"
   spriteKey = "old_book"
   spriteSheetName = "field"
@@ -17151,7 +17102,7 @@
 [[items]]
   description = "Graffiti peeled from a wall. \"Water at the southern supply point. Don't move at night.\" Written in a child's hand."
   id = "scribbled_note"
-  material = "PAPER"
+  material = "paper"
   name = "Scribbled Note"
   spriteKey = "photo"
   spriteSheetName = "field"
@@ -17161,7 +17112,7 @@
 [[items]]
   description = "A faded receipt. Two cup noodles, four bottles of water, packing tape. Dated three days before the disaster."
   id = "handwritten_receipt"
-  material = "PAPER"
+  material = "paper"
   name = "Handwritten Receipt"
   spriteKey = "old_book"
   spriteSheetName = "field"
@@ -17171,7 +17122,7 @@
 [[items]]
   description = "\"No one came again today. Five days of supplies left.\" The rest is torn away and unreadable."
   id = "diary_scrap"
-  material = "PAPER"
+  material = "paper"
   name = "Diary Scrap"
   spriteKey = "diary"
   spriteSheetName = "field"
@@ -17181,7 +17132,7 @@
 [[items]]
   description = "\"Heading north ahead of you. If you survive, meet at Grandma's house. —Dad.\" Four pushpin marks remain."
   id = "message_to_family"
-  material = "PAPER"
+  material = "paper"
   name = "Message to Family"
   spriteKey = "photo"
   spriteSheetName = "field"
@@ -17191,7 +17142,7 @@
 [[items]]
   description = "\"Demolition workers urgently wanted, daily pay negotiable.\" The phone number is blacked out."
   id = "job_posting"
-  material = "PAPER"
+  material = "paper"
   name = "Job Posting"
   spriteKey = "old_book"
   spriteSheetName = "field"
@@ -17201,7 +17152,7 @@
 [[items]]
   description = "\"Road closed ahead due to collapse. —City.\" It was tied to a rusted barricade."
   id = "roadblock_notice"
-  material = "PAPER"
+  material = "paper"
   name = "Roadblock Notice"
   spriteKey = "old_book"
   spriteSheetName = "field"
@@ -17211,7 +17162,7 @@
 [[items]]
   description = "A note in the corner. \"Don't trust him. Hide your supplies yourself.\" Pressed hard into the page."
   id = "someones_scrawl"
-  material = "PAPER"
+  material = "paper"
   name = "Someone's Scrawl"
   spriteKey = "diary"
   spriteSheetName = "field"
@@ -17221,7 +17172,7 @@
 [[items]]
   description = "A heavy chopping blade. Crude but its weight bites deep."
   id = "cleaver"
-  material = "METAL"
+  material = "metal"
   name = "Cleaver"
   spriteKey = "field_item"
   spriteSheetName = "field"
@@ -17245,7 +17196,7 @@
 [[items]]
   description = "A baked treat in a brown cup, topped with a swirl of dark brown cream."
   id = "cupcake"
-  material = "FOOD"
+  material = "food"
   name = "Cupcake"
   providesNutrition = 60
   spriteKey = "cake"
@@ -17256,12 +17207,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A white-feathered chicken with a red comb and yellow beak, good for cooking."
   id = "chicken"
-  material = "FOOD"
+  material = "food"
   name = "Chicken"
   providesNutrition = 90
   spriteKey = "chiken"
@@ -17272,12 +17222,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A long ear of grain ripened to golden yellow."
   id = "corn"
-  material = "FOOD"
+  material = "food"
   name = "Corn"
   providesNutrition = 45
   spriteKey = "corn"
@@ -17288,12 +17237,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A cup of black tea on a white saucer, filled with amber liquid."
   id = "black_tea"
-  material = "LIQUID"
+  material = "liquid"
   name = "Black Tea"
   providesNutrition = 30
   spriteKey = "cup_tea"
@@ -17304,12 +17252,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Chicken fried to a golden brown, its crisp batter dimpled all over."
   id = "fried_chicken"
-  material = "FOOD"
+  material = "food"
   name = "Fried Chicken"
   providesNutrition = 90
   spriteKey = "fried_chiken"
@@ -17320,12 +17267,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fizzy drink in a purple can labeled with white lettering."
   id = "grape_soda"
-  material = "LIQUID"
+  material = "liquid"
   name = "Grape Soda"
   providesNutrition = 45
   spriteKey = "grape_soda"
@@ -17336,12 +17282,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fizzy drink in a green bottle."
   id = "green_soda"
-  material = "LIQUID"
+  material = "liquid"
   name = "Green Soda"
   providesNutrition = 45
   spriteKey = "green_soda"
@@ -17352,12 +17297,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A blue tropical drink served in a glass with a straw."
   id = "hawaiian_soda"
-  material = "LIQUID"
+  material = "liquid"
   name = "Hawaiian Soda"
   providesNutrition = 45
   spriteKey = "hawai_soda"
@@ -17368,12 +17312,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A fizzy drink in yellow packaging."
   id = "lemon_soda"
-  material = "LIQUID"
+  material = "liquid"
   name = "Lemon Soda"
   providesNutrition = 45
   spriteKey = "lemon_soda"
@@ -17384,12 +17327,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Bright green mint leaves."
   id = "mint"
-  material = "FOOD"
+  material = "food"
   name = "Mint"
   providesNutrition = 15
   spriteKey = "mint"
@@ -17400,12 +17342,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A long red chili with a pointed tip."
   id = "chili_pepper"
-  material = "FOOD"
+  material = "food"
   name = "Chili Pepper"
   providesNutrition = 15
   spriteKey = "pepper"
@@ -17416,12 +17357,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A salmon fillet, its orange flesh streaked with white lines of fat."
   id = "salmon"
-  material = "FOOD"
+  material = "food"
   name = "Salmon"
   providesNutrition = 75
   spriteKey = "salmon"
@@ -17432,12 +17372,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Sushi wrapped in seaweed, with two pieces set side by side."
   id = "sushi_roll"
-  material = "FOOD"
+  material = "food"
   name = "Sushi Roll"
   providesNutrition = 75
   spriteKey = "role"
@@ -17448,12 +17387,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A gray external hard disk with a small indicator light glowing on the front."
   id = "hard_disk"
-  material = "METAL"
+  material = "metal"
   name = "Hard Disk"
   spriteKey = "hdd"
   spriteSheetName = "field"
@@ -17463,7 +17401,7 @@
 [[items]]
   description = "A purple handheld device with a small screen and buttons on the front."
   id = "mobile_device"
-  material = "METAL"
+  material = "metal"
   name = "Mobile Device"
   spriteKey = "violet_card"
   spriteSheetName = "field"
@@ -17473,7 +17411,7 @@
 [[items]]
   description = "A glowing blue octahedral crystal whose sharp faces reflect the light."
   id = "octahedron_crystal"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Octahedral Crystal"
   spriteKey = "octahedron"
   spriteSheetName = "field"
@@ -17483,7 +17421,7 @@
 [[items]]
   description = "A sphere that glows with rainbow light across its surface."
   id = "rainbow_orb"
-  material = "CRYSTAL"
+  material = "crystal"
   name = "Rainbow Orb"
   spriteKey = "rainbow_ball"
   spriteSheetName = "field"
@@ -17493,7 +17431,7 @@
 [[items]]
   description = "A statue shaped as an angel with its white wings spread wide."
   id = "angel_statue"
-  material = "STONE"
+  material = "stone"
   name = "Angel Statue"
   spriteKey = "angel"
   spriteSheetName = "field"
@@ -17612,7 +17550,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A spear humming with charge."
@@ -17758,7 +17695,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 0
     ratio = 0.3
@@ -17924,7 +17860,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A rusted gear worth a little when sold."
@@ -17938,7 +17873,7 @@
 [[items]]
   description = "A stun baton that discharges a stored jolt on contact."
   id = "pulse_baton"
-  material = "METAL"
+  material = "metal"
   name = "Pulse Baton"
   spriteKey = "dummy_pulse_baton"
   spriteSheetName = "field"
@@ -17959,7 +17894,7 @@
 [[items]]
   description = "A crude blade cut from furnace slag, heavy and unbalanced."
   id = "slag_cleaver"
-  material = "METAL"
+  material = "metal"
   name = "Slag Cleaver"
   spriteKey = "dummy_slag_cleaver"
   spriteSheetName = "field"
@@ -17983,7 +17918,7 @@
 [[items]]
   description = "A fuel-soaked lash that ignites as it whips out."
   id = "ember_lash"
-  material = "LEATHER"
+  material = "leather"
   name = "Ember Lash"
   spriteKey = "dummy_ember_lash"
   spriteSheetName = "field"
@@ -18004,7 +17939,7 @@
 [[items]]
   description = "A dense plate of mixed-metal alloy, prized by smiths."
   id = "alloy_plate"
-  material = "METAL"
+  material = "metal"
   name = "Alloy Plate"
   spriteKey = "dummy_alloy_plate"
   spriteSheetName = "field"
@@ -18014,7 +17949,7 @@
 [[items]]
   description = "A ground optical lens, clear and precisely curved."
   id = "optic_lens"
-  material = "GLASS"
+  material = "glass"
   name = "Optic Lens"
   spriteKey = "dummy_optic_lens"
   spriteSheetName = "field"
@@ -18024,7 +17959,7 @@
 [[items]]
   description = "A sealed vial of coolant fluid drained from old machinery."
   id = "coolant_vial"
-  material = "LIQUID"
+  material = "liquid"
   name = "Coolant Vial"
   spriteKey = "dummy_coolant_vial"
   spriteSheetName = "field"
@@ -18034,7 +17969,7 @@
 [[items]]
   description = "A quick bandage that stops bleeding and restores some HP."
   id = "field_dressing"
-  material = "CLOTH"
+  material = "cloth"
   name = "Field Dressing"
   spriteKey = "dummy_field_dressing"
   spriteSheetName = "field"
@@ -18043,7 +17978,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 0
     ratio = 0.25
@@ -18052,7 +17986,7 @@
 [[items]]
   description = "A full trauma kit that patches serious wounds."
   id = "trauma_kit"
-  material = "CLOTH"
+  material = "cloth"
   name = "Trauma Kit"
   spriteKey = "dummy_trauma_kit"
   spriteSheetName = "field"
@@ -18061,7 +17995,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.providesHealing]
     amount = 0
     ratio = 0.7
@@ -18070,7 +18003,7 @@
 [[items]]
   description = "A dense pressed bar of survival rations."
   id = "ration_bar"
-  material = "FOOD"
+  material = "food"
   name = "Ration Bar"
   providesNutrition = 90
   spriteKey = "dummy_ration_bar"
@@ -18081,12 +18014,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "A layered fiber vest that blunts impacts."
   id = "kevlar_vest"
-  material = "CLOTH"
+  material = "cloth"
   name = "Kevlar Vest"
   spriteKey = "dummy_kevlar_vest"
   spriteSheetName = "field"
@@ -18103,7 +18035,7 @@
 [[items]]
   description = "A visored helmet built to take hits."
   id = "riot_helmet"
-  material = "PLASTIC"
+  material = "plastic"
   name = "Riot Helmet"
   spriteKey = "dummy_riot_helmet"
   spriteSheetName = "field"
@@ -18120,7 +18052,7 @@
 [[items]]
   description = "Smoke-cured fish that keeps without refrigeration."
   id = "smoked_fish"
-  material = "FOOD"
+  material = "food"
   name = "Smoked Fish"
   providesNutrition = 100
   spriteKey = "dummy_smoked_fish"
@@ -18131,12 +18063,11 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
 
 [[items]]
   description = "Split wood for burning."
   id = "firewood"
-  material = "WOOD"
+  material = "wood"
   name = "Firewood"
   spriteKey = "heavy_wood"
   spriteSheetName = "field"
@@ -18146,7 +18077,7 @@
 [[items]]
   description = "A dry branch snapped off a shrub. It catches fire easily."
   id = "branch"
-  material = "WOOD"
+  material = "wood"
   name = "Branch"
   spriteKey = "branch"
   spriteSheetName = "field"
@@ -18156,7 +18087,7 @@
 [[items]]
   description = "A damaged core of an escape device. A signal amplifier, power cells and electric wire might fix it."
   id = "broken_escape_core"
-  material = "METAL"
+  material = "metal"
   name = "Broken Escape Core"
   spriteKey = "equipment_core"
   spriteSheetName = "field"
@@ -18166,7 +18097,7 @@
 [[items]]
   description = "A classified signal amplifier. It looks like it could repair an escape device."
   id = "signal_amplifier"
-  material = "METAL"
+  material = "metal"
   name = "Signal Amplifier"
   spriteKey = "hdd"
   spriteSheetName = "field"
@@ -18176,7 +18107,7 @@
 [[items]]
   description = "A high-capacity power cell. It could power an escape device."
   id = "power_cell"
-  material = "METAL"
+  material = "metal"
   name = "Power Cell"
   spriteKey = "swap_cell"
   spriteSheetName = "field"
@@ -18186,7 +18117,7 @@
 [[items]]
   description = "A repaired escape device. Use it to leave this planet."
   id = "escape_core"
-  material = "METAL"
+  material = "metal"
   name = "Escape Core"
   spriteKey = "atomic_core"
   spriteSheetName = "field"
@@ -18195,13 +18126,12 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.escapeDevice]
 
 [[items]]
   description = "The heart of a cargo cube. Use it to assemble a new cube beside you."
   id = "cube_core"
-  material = "METAL"
+  material = "metal"
   name = "Cube Core"
   spriteKey = "cube_float_0"
   spriteSheetName = "field"
@@ -18210,13 +18140,12 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "FIELD"
   [items.cubeCore]
 
 [[items]]
   description = "A scrap of cloth torn from old clothes. Useful as material."
   id = "rag"
-  material = "CLOTH"
+  material = "cloth"
   name = "Rag"
   spriteKey = "towel_hunger"
   spriteSheetName = "field"
@@ -18225,7 +18154,6 @@
   [items.consumable]
     targetGroup = "ALLY"
     targetNum = "SINGLE"
-    usableScene = "ANY"
   [items.remedy]
     potency = 50
     treats = ["laceration"]
@@ -18233,7 +18161,7 @@
 [[items]]
   description = "A scrap of leather cut from old leather goods. Useful as material."
   id = "leather_scrap"
-  material = "LEATHER"
+  material = "leather"
   name = "Leather Scrap"
   spriteKey = "leather_belt"
   spriteSheetName = "field"
@@ -18688,7 +18616,7 @@
 
 [[materials]]
   heatPerKg = 200
-  id = "WOOD"
+  id = "wood"
   name = "Wood"
   [materials.disassembly]
     item = "branch"
@@ -18696,12 +18624,12 @@
 
 [[materials]]
   heatPerKg = 300
-  id = "PAPER"
+  id = "paper"
   name = "Paper"
 
 [[materials]]
   heatPerKg = 160
-  id = "CLOTH"
+  id = "cloth"
   name = "Cloth"
   [materials.disassembly]
     item = "rag"
@@ -18709,7 +18637,7 @@
 
 [[materials]]
   heatPerKg = 120
-  id = "LEATHER"
+  id = "leather"
   name = "Leather"
   [materials.disassembly]
     item = "leather_scrap"
@@ -18717,17 +18645,17 @@
 
 [[materials]]
   heatPerKg = 120
-  id = "PLANT"
+  id = "plant"
   name = "Plant fiber"
 
 [[materials]]
   heatPerKg = 60
-  id = "FOOD"
+  id = "food"
   name = "Food"
 
 [[materials]]
   heatPerKg = 40
-  id = "BONE"
+  id = "bone"
   name = "Bone"
   [materials.disassembly]
     item = "ancient_bone"
@@ -18735,22 +18663,22 @@
 
 [[materials]]
   heatPerKg = 1000
-  id = "OIL"
+  id = "oil"
   name = "Oil"
 
 [[materials]]
   heatPerKg = 800
-  id = "COAL"
+  id = "coal"
   name = "Coal"
 
 [[materials]]
   heatPerKg = 240
-  id = "PLASTIC"
+  id = "plastic"
   name = "Plastic"
 
 [[materials]]
   heatPerKg = 0
-  id = "METAL"
+  id = "metal"
   name = "Metal"
   [materials.disassembly]
     item = "scrap_iron"
@@ -18758,7 +18686,7 @@
 
 [[materials]]
   heatPerKg = 0
-  id = "STONE"
+  id = "stone"
   name = "Stone"
   [materials.disassembly]
     item = "stone"
@@ -18766,12 +18694,12 @@
 
 [[materials]]
   heatPerKg = 0
-  id = "GLASS"
+  id = "glass"
   name = "Glass"
 
 [[materials]]
   heatPerKg = 0
-  id = "CRYSTAL"
+  id = "crystal"
   name = "Crystal"
   [materials.disassembly]
     item = "crystal_powder"
@@ -18779,12 +18707,12 @@
 
 [[materials]]
   heatPerKg = 0
-  id = "CERAMIC"
+  id = "ceramic"
   name = "Ceramic"
 
 [[materials]]
   heatPerKg = 0
-  id = "LIQUID"
+  id = "liquid"
   name = "Liquid"
 
 [[members]]
@@ -25527,3 +25455,42 @@
 [[widenSteps]]
   chance = 0.3
   id = "cave_widen"
+
+[[zones]]
+  id = "downtown"
+
+[[zones]]
+  id = "residential"
+
+[[zones]]
+  id = "industrial"
+
+[[zones]]
+  id = "campus_gate"
+
+[[zones]]
+  id = "campus_inner"
+
+[[zones]]
+  id = "campus_quarantine"
+
+[[zones]]
+  id = "military_gate"
+
+[[zones]]
+  id = "military_inner"
+
+[[zones]]
+  id = "military_armory"
+
+[[zones]]
+  id = "plant_outer"
+
+[[zones]]
+  id = "plant_core"
+
+[[zones]]
+  id = "farm_yard"
+
+[[zones]]
+  id = "farm_field"

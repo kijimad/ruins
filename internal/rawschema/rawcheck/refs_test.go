@@ -18,15 +18,19 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		return rawschema.Tile{Id: id, Name: id, Description: id, SpriteRender: render(id), Spawn: spawn}
 	}
 	raws := rawschema.Raws{
-		Materials: &[]rawschema.MaterialDef{{Id: rawschema.METAL, Name: "Metal", Disassembly: &rawschema.MaterialDisassembly{Item: "iron", PerWeight: "1 kg"}}},
-		Recipes:   &[]rawschema.Recipe{{Id: "iron", Name: "Iron", Inputs: []rawschema.RecipeInput{{Id: "iron", Amount: 1}}}},
+		ToolCategories: &[]rawschema.ToolCategory{{Id: "mining"}},
+		AmmoKinds:      &[]rawschema.AmmoKind{{Id: "9mm"}},
+		Zones:          &[]rawschema.Zone{{Id: "residential"}, {Id: "downtown"}},
+		FoliageEffects: &[]rawschema.Foliage{{Id: "grass", TempModifier: -1}},
+		Materials:      &[]rawschema.Material{{Id: "metal", Name: "Metal", Disassembly: &rawschema.MaterialDisassembly{Item: "iron", PerWeight: "1 kg"}}},
+		Recipes:        &[]rawschema.Recipe{{Id: "iron", Name: "Iron", Inputs: []rawschema.RecipeInput{{Id: "iron", Amount: 1}}}},
 		Items: &[]rawschema.Item{{
 			Id: "iron", Name: "Iron", Description: "Iron", SpriteSheetName: "field", SpriteKey: "iron",
-			Consumable: &rawschema.Consumable{UsableScene: rawschema.ANY, TargetGroup: rawschema.TargetGroupALLY, TargetNum: rawschema.SINGLE},
+			Consumable: &rawschema.Consumable{TargetGroup: rawschema.TargetGroupALLY, TargetNum: rawschema.SINGLE},
 			Melee:      &rawschema.Melee{Accuracy: 100, Damage: 1, AttackCount: 1, AttackCategory: rawschema.AttackCategoryFist, Element: rawschema.ElementNONE, TargetGroup: rawschema.TargetGroupENEMY, TargetNum: rawschema.SINGLE},
 			Charge:     &rawschema.Charge{Max: 150},
 			Remedy:     &rawschema.Remedy{Treats: []rawschema.ConditionTypeName{"fracture"}, Potency: 1},
-			Book:       &rawschema.Book{TotalEffort: 1, Skill: &rawschema.SkillBook{TargetSkill: rawschema.SkillIdSword, MaxLevel: 1}},
+			Book:       &rawschema.Book{TotalEffort: 1, Skill: &rawschema.SkillBook{TargetSkill: "sword", MaxLevel: 1}},
 		}},
 		Members: &[]rawschema.Member{{
 			Id: "slime", Name: "Slime", SpriteSheetName: "field", SpriteKey: "slime",
@@ -47,10 +51,10 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		EnemyTables:     &[]rawschema.EnemyTable{{Id: "wild", Name: "Wild", Entries: []rawschema.EnemyTableEntry{{Id: "slime", Weight: 1, Pack: "1d1"}}}},
 		Facilities: &[]rawschema.Facility{{
 			Id: "house", EnemyTable: "wild",
-			Zones: []rawschema.FacilityZone{{Zone: rawschema.Residential, Weight: 1}},
+			Zones: []rawschema.FacilityZone{{Zone: "residential", Weight: 1}},
 		}},
 		Districts: &[]rawschema.District{{
-			Id: "town", Name: "Town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{{Zones: []rawschema.Zone{rawschema.Residential}}, {Zones: []rawschema.Zone{rawschema.Downtown}}}, Landmark: new(rawschema.EntityID("house")),
+			Id: "town", Name: "Town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{{Zones: []rawschema.ZoneId{"residential"}}, {Zones: []rawschema.ZoneId{"downtown"}}}, Landmark: new(rawschema.EntityID("house")),
 			Street: "floor", Verge: new(rawschema.EntityID("floor")), StreetEnemies: "1d2",
 			Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}},
 		}},
@@ -85,17 +89,17 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Conditions: &[]rawschema.Condition{{Id: "fracture", Name: "Fracture", Description: "Fracture", Parts: &[]rawschema.BodyPartId{"arm"}}},
 		BodyParts:  &[]rawschema.BodyPart{{Id: "arm", Name: "Arm", HitWeight: 1}},
 		Skills: &[]rawschema.Skill{{
-			Id: rawschema.SkillIdSword, Name: "Sword", Summary: "Sword", GainedBy: "Sword", Effect: "Sword", Ability: rawschema.Str, Category: "combat",
+			Id: "sword", Name: "Sword", Summary: "Sword", GainedBy: "Sword", Effect: "Sword", Ability: rawschema.Str, Category: "combat",
 			Proficiencies: &[]rawschema.SkillProficiency{{Id: rawschema.ProficiencyIdSwordDamage}},
 		}},
 		SkillCategories: &[]rawschema.SkillCategory{{Id: "combat", Name: "Combat"}},
 		AttackTypes: &[]rawschema.AttackType{{
 			Id: rawschema.AttackCategorySword, Name: "Sword", Range: rawschema.AttackRangeMelee, Injury: "fracture",
-			Skill: rawschema.SkillIdSword, Damage: rawschema.ProficiencyIdSwordDamage, Accuracy: rawschema.ProficiencyIdSwordAccuracy,
+			Skill: "sword", Damage: rawschema.ProficiencyIdSwordDamage, Accuracy: rawschema.ProficiencyIdSwordAccuracy,
 		}},
 		Professions: &[]rawschema.Profession{{
 			Id: "soldier", Name: "Soldier", Description: "Soldier",
-			Skills: &[]rawschema.ProfessionSkill{{Id: rawschema.SkillIdSword}},
+			Skills: &[]rawschema.ProfessionSkill{{Id: "sword"}},
 			Items:  []rawschema.ProfessionItem{}, Equips: []rawschema.ProfessionEquip{},
 		}},
 		Dungeons: &[]rawschema.Dungeon{{
@@ -149,6 +153,17 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"コマンドテーブルの体の攻撃と武器の両方", func(r *rawschema.Raws) { (*r.CommandTables)[0].Entries[0].Item = new("iron") }, "commandTables.0.entries.0.itemAbsent"},
 		{"コマンドテーブルの体の攻撃も武器も無い", func(r *rawschema.Raws) { (*r.CommandTables)[0].Entries[0].BodyAttack = nil }, "commandTables.0.entries.0.item"},
 		{"ドロップテーブルの素材", func(r *rawschema.Raws) { (*r.DropTables)[0].Entries[0].Id = "none" }, "dropTables.0.entries.0.id_ref"},
+		{"道具の分類", func(r *rawschema.Raws) {
+			(*r.Items)[0].Tool = &rawschema.Tool{Categories: []rawschema.ToolCategoryId{"none"}, Grade: 1}
+		}, "items.0.tool.categories_ref.0"},
+		{"施設の地区", func(r *rawschema.Raws) { (*r.Facilities)[0].Zones[0].Zone = "none" }, "facilities.0.zones.0.zone_ref"},
+		{"区域の層の地区", func(r *rawschema.Raws) { (*r.Districts)[0].Layers[1].Zones[0] = "none" }, "districts.0.layers.1.zones_ref.0"},
+		{"アイテムの材質", func(r *rawschema.Raws) { (*r.Items)[0].Material = new("none") }, "itemMaterials_ref.iron"},
+		{"タイルの植生", func(r *rawschema.Raws) { (*r.Tiles)[1].Foliage = new("none") }, "tiles.1.foliage_ref"},
+		{"分解の道具の分類", func(r *rawschema.Raws) { (*r.Props)[0].Disassembly.ToolCategory = new("none") }, "props.0.disassembly.toolCategory_ref"},
+		{"弾の口径", func(r *rawschema.Raws) {
+			(*r.Items)[0].Ammo = &rawschema.Ammo{AmmoTag: new("none"), DamageBonus: 1, AccuracyBonus: 1}
+		}, "items.0.ammo.ammoTag_ref"},
 		{"施設の敵テーブル", func(r *rawschema.Raws) { (*r.Facilities)[0].EnemyTable = "none" }, "facilities.0.enemyTable_ref"},
 		{"ランドマークの施設", func(r *rawschema.Raws) { (*r.Landmarks)[0].Id = "none" }, "landmarks.0.id_ref"},
 		{"区域の塀の家具", func(r *rawschema.Raws) { (*r.Districts)[0].Fence = new(rawschema.EntityID("none")) }, "districts.0.fence_ref"},
@@ -184,8 +199,10 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 			(*r.Items)[0].Throw = &rawschema.Throw{Damage: 1, Accuracy: 50, Blast: &rawschema.Blast{Radius: 1, Condition: &injury}}
 		}, "items.0.throw.blast.condition_notInjury"},
 		{"スキルのカテゴリ", func(r *rawschema.Raws) { (*r.Skills)[0].Category = "magic" }, "skills.0.category_ref"},
-		{"本のスキル", func(r *rawschema.Raws) { (*r.Items)[0].Book.Skill.TargetSkill = rawschema.SkillIdSpear }, "items.0.book.skill.targetSkill_ref"},
-		{"職業のスキル", func(r *rawschema.Raws) { (*(*r.Professions)[0].Skills)[0].Id = rawschema.SkillIdSpear }, "professions.0.skills.0.id_ref"},
+		{"本のスキル", func(r *rawschema.Raws) { (*r.Items)[0].Book.Skill.TargetSkill = "spear" }, "items.0.book.skill.targetSkill_ref"},
+		{"攻撃の種類のスキル", func(r *rawschema.Raws) { (*r.AttackTypes)[0].Skill = "spear" }, "attackTypes.0.skill_ref"},
+		{"道具の分類のスキル", func(r *rawschema.Raws) { (*r.ToolCategories)[0].Skill = new("spear") }, "toolCategories.0.skill_ref"},
+		{"職業のスキル", func(r *rawschema.Raws) { (*(*r.Professions)[0].Skills)[0].Id = "spear" }, "professions.0.skills.0.id_ref"},
 		{"ダンジョンの敵テーブル", func(r *rawschema.Raws) { (*r.Dungeons)[0].EnemyTable = "none" }, "dungeons.0.enemyTable_ref"},
 		{"ダンジョンのアイテムテーブル", func(r *rawschema.Raws) { (*r.Dungeons)[0].ItemTable = "none" }, "dungeons.0.itemTable_ref"},
 		{"ダンジョンの間取り", func(r *rawschema.Raws) { (*r.Dungeons)[0].Planners[0].Id = "none" }, "dungeons.0.planners.0.id_ref"},
@@ -222,6 +239,11 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"地面の飾り", func(r *rawschema.Raws) { *r.Decors = append(*r.Decors, (*r.Decors)[0]) }, "decorIds_unique.moss"},
 		{"散布ゾーン", func(r *rawschema.Raws) { *r.ScatterZones = append(*r.ScatterZones, (*r.ScatterZones)[0]) }, "scatterZoneIds_unique.meadow"},
 		{"地図記号", func(r *rawschema.Raws) { *r.MapGlyphs = append(*r.MapGlyphs, (*r.MapGlyphs)[0]) }, "mapGlyphIds_unique.house"},
+		{"地区", func(r *rawschema.Raws) { *r.Zones = append(*r.Zones, (*r.Zones)[0]) }, "zoneIds_unique.residential"},
+		{"材質", func(r *rawschema.Raws) { *r.Materials = append(*r.Materials, (*r.Materials)[0]) }, "materialIds_unique.metal"},
+		{"植生", func(r *rawschema.Raws) { *r.FoliageEffects = append(*r.FoliageEffects, (*r.FoliageEffects)[0]) }, "foliageEffectIds_unique.grass"},
+		{"道具の分類", func(r *rawschema.Raws) { *r.ToolCategories = append(*r.ToolCategories, (*r.ToolCategories)[0]) }, "toolCategoryIds_unique.mining"},
+		{"弾の口径", func(r *rawschema.Raws) { *r.AmmoKinds = append(*r.AmmoKinds, (*r.AmmoKinds)[0]) }, `ammoKindIds_unique."9mm"`},
 		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.village"},
 		{"部位", func(r *rawschema.Raws) { *r.BodyParts = append(*r.BodyParts, (*r.BodyParts)[0]) }, "bodyPartIds_unique.arm"},
 		{"不調", func(r *rawschema.Raws) { *r.Conditions = append(*r.Conditions, (*r.Conditions)[0]) }, "conditionIds_unique.fracture"},
@@ -234,7 +256,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"スキルのカテゴリ", func(r *rawschema.Raws) { *r.SkillCategories = append(*r.SkillCategories, (*r.SkillCategories)[0]) }, "skillCategoryIds_unique.combat"},
 		{"熟練の効果倍率がスキルをまたぐ", func(r *rawschema.Raws) {
 			s := (*r.Skills)[0]
-			s.Id = rawschema.SkillIdSpear
+			s.Id = "spear"
 			*r.Skills = append(*r.Skills, s)
 		}, "proficiencyIds_unique.sword_damage"},
 		{"会話", func(r *rawschema.Raws) { *r.Dialogues = append(*r.Dialogues, (*r.Dialogues)[0]) }, "dialogueIds_unique.greeting"},

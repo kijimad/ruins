@@ -19,14 +19,14 @@ func TestMaterialDefs_HeatOf_材質のkgあたり熱量へ重量を掛ける(t *
 
 	tests := []struct {
 		name     string
-		material rawschema.Material
+		material rawschema.MaterialId
 		weight   consts.Milligram
 		expected consts.Heat
 	}{
-		{"WOOD 3kg で 600", rawschema.WOOD, 3 * consts.MilligramPerKg, 600},
-		{"COAL 1kg で 800", rawschema.COAL, consts.MilligramPerKg, 800},
-		{"不燃の金属は0", rawschema.METAL, consts.MilligramPerKg, 0},
-		{"軽すぎると切り捨てで0", rawschema.BONE, consts.MilligramPerGram, 0},
+		{"wood 3kg で 600", "wood", 3 * consts.MilligramPerKg, 600},
+		{"COAL 1kg で 800", "coal", consts.MilligramPerKg, 800},
+		{"不燃の金属は0", "metal", consts.MilligramPerKg, 0},
+		{"軽すぎると切り捨てで0", "bone", consts.MilligramPerGram, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -43,7 +43,7 @@ func TestIsCombustible(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
-		world.Components.Material.Add(e, &gc.Material{Kind: rawschema.WOOD})
+		world.Components.Material.Add(e, &gc.Material{Kind: "wood"})
 		world.Components.Weight.Add(e, &gc.Weight{Milligram: consts.MilligramPerKg})
 
 		assert.True(t, query.IsCombustible(world, e))
@@ -53,7 +53,7 @@ func TestIsCombustible(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
-		world.Components.Material.Add(e, &gc.Material{Kind: rawschema.METAL})
+		world.Components.Material.Add(e, &gc.Material{Kind: "metal"})
 		world.Components.Weight.Add(e, &gc.Weight{Milligram: consts.MilligramPerKg})
 
 		assert.False(t, query.IsCombustible(world, e))

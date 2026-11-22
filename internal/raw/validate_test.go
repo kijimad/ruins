@@ -12,13 +12,13 @@ import (
 // ringsLayers と rowsLayers は、今の町と研究所の敷地と同じ層
 var (
 	ringsLayers = []rawschema.DistrictLayer{
-		{Zones: []rawschema.Zone{rawschema.Residential, rawschema.Industrial}},
-		{Zones: []rawschema.Zone{rawschema.Downtown}},
+		{Zones: []rawschema.ZoneId{"residential", "industrial"}},
+		{Zones: []rawschema.ZoneId{"downtown"}},
 	}
 	rowsLayers = []rawschema.DistrictLayer{
-		{Zones: []rawschema.Zone{rawschema.CampusGate}, Rows: new(1)},
-		{Zones: []rawschema.Zone{rawschema.CampusInner}},
-		{Zones: []rawschema.Zone{rawschema.CampusQuarantine}, Rows: new(1)},
+		{Zones: []rawschema.ZoneId{"campus_gate"}, Rows: new(1)},
+		{Zones: []rawschema.ZoneId{"campus_inner"}},
+		{Zones: []rawschema.ZoneId{"campus_quarantine"}, Rows: new(1)},
 	}
 )
 
@@ -163,10 +163,14 @@ func TestSchema_制約の違反を位置で返す(t *testing.T) {
 		},
 		{
 			name: "道具が近接の値を持たない",
-			raws: makeItemRaws(func(i *rawschema.Item) {
-				i.Melee = nil
-				i.Tool = &rawschema.Tool{Categories: []rawschema.ToolCategory{"chopping"}, Grade: 1}
-			}),
+			raws: func() rawschema.Raws {
+				r := makeItemRaws(func(i *rawschema.Item) {
+					i.Melee = nil
+					i.Tool = &rawschema.Tool{Categories: []rawschema.ToolCategoryId{"chopping"}, Grade: 1}
+				})
+				r.ToolCategories = &[]rawschema.ToolCategory{{Id: "chopping"}}
+				return r
+			}(),
 			wantPath: "items.0.melee",
 		},
 		{
@@ -234,7 +238,7 @@ func TestValidateDisassemblies(t *testing.T) {
 	}{
 		{
 			name: "道具の分類と HP を持てば通る",
-			prop: rawschema.Prop{Name: "棚", Hp: new(rawschema.HitPoints(10)), Disassembly: &rawschema.Disassembly{ToolCategory: new(rawschema.Prying)}},
+			prop: rawschema.Prop{Name: "棚", Hp: new(rawschema.HitPoints(10)), Disassembly: &rawschema.Disassembly{ToolCategory: new("prying")}},
 		},
 		{
 			name:    "道具が必須なのに道具の分類が無いとエラー",
@@ -330,9 +334,9 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 	t.Parallel()
 
 	baseZones := []rawschema.FacilityZone{
-		{Zone: rawschema.Residential, Weight: 10, MinSpan: 2},
-		{Zone: rawschema.Downtown, Weight: 10, MinSpan: 2},
-		{Zone: rawschema.Industrial, Weight: 10, MinSpan: 2},
+		{Zone: "residential", Weight: 10, MinSpan: 2},
+		{Zone: "downtown", Weight: 10, MinSpan: 2},
+		{Zone: "industrial", Weight: 10, MinSpan: 2},
 	}
 
 	towns := &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 3, H: 3, Weight: 1}, {W: 2, H: 2, Weight: 1}}}}
@@ -348,8 +352,8 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 		require.NoError(t, validateZoneBaseFacilities(rawschema.Raws{}))
 	})
 
-	for _, missing := range []rawschema.Zone{rawschema.Downtown, rawschema.Residential, rawschema.Industrial} {
-		t.Run("地区 "+string(missing)+" だけ基本施設が無いとエラー", func(t *testing.T) {
+	for _, missing := range []rawschema.ZoneId{"downtown", "residential", "industrial"} {
+		t.Run("地区 "+missing+" だけ基本施設が無いとエラー", func(t *testing.T) {
 			t.Parallel()
 			zones := make([]rawschema.FacilityZone, 0, len(baseZones))
 			for _, z := range baseZones {
@@ -367,7 +371,7 @@ func TestValidateZoneBaseFacilities(t *testing.T) {
 		t.Parallel()
 		zones := make([]rawschema.FacilityZone, 0, len(baseZones))
 		for _, z := range baseZones {
-			if z.Zone == rawschema.Downtown {
+			if z.Zone == "downtown" {
 				z.MinDanger = new(2)
 			}
 			zones = append(zones, z)
@@ -382,13 +386,13 @@ func TestValidateZoneBaseFacilities_研究所の敷地は門と中ほどと奥�
 
 	campus := &[]rawschema.District{{Id: "lab_campus", Spacing: 30, Separation: 4, Pattern: rawschema.DistrictPatternRows, Layers: rowsLayers, Fence: new(rawschema.EntityID("fence")), Sizes: []rawschema.DistrictSize{{W: 7, H: 6, Weight: 1}}}}
 	zones := []rawschema.FacilityZone{
-		{Zone: rawschema.CampusGate, Weight: 1, MinSpan: 1},
-		{Zone: rawschema.CampusInner, Weight: 1, MinSpan: 1},
+		{Zone: "campus_gate", Weight: 1, MinSpan: 1},
+		{Zone: "campus_inner", Weight: 1, MinSpan: 1},
 	}
 	raws := rawschema.Raws{Districts: campus, Facilities: &[]rawschema.Facility{{Id: "lab", Zones: zones}}}
 	require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility, "閉鎖区画の施設が無い")
 
-	raws.Facilities = &[]rawschema.Facility{{Id: "lab", Zones: zones}, {Id: "lab_quarantine", Zones: []rawschema.FacilityZone{{Zone: rawschema.CampusQuarantine, Weight: 1, MinSpan: 1}}}}
+	raws.Facilities = &[]rawschema.Facility{{Id: "lab", Zones: zones}, {Id: "lab_quarantine", Zones: []rawschema.FacilityZone{{Zone: "campus_quarantine", Weight: 1, MinSpan: 1}}}}
 	require.NoError(t, validateZoneBaseFacilities(raws))
 	landmark := rawschema.EntityID("lab_quarantine")
 	(*raws.Districts)[0].Landmark = &landmark
@@ -414,7 +418,7 @@ func TestValidateDistricts(t *testing.T) {
 func TestValidateDistrictLayers(t *testing.T) {
 	t.Parallel()
 
-	zone := []rawschema.Zone{rawschema.Downtown}
+	zone := []rawschema.ZoneId{"downtown"}
 	tests := []struct {
 		name    string
 		pattern rawschema.DistrictPattern
@@ -489,7 +493,7 @@ func TestValidateRules_各検証の失敗を伝播する(t *testing.T) {
 	}{
 		{
 			name:    "地区の基本施設が無い",
-			raws:    rawschema.Raws{Districts: &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}}}, Facilities: &[]rawschema.Facility{{Id: "f1", Zones: []rawschema.FacilityZone{{Zone: rawschema.Downtown, Weight: 1, MinSpan: 3}}}}},
+			raws:    rawschema.Raws{Districts: &[]rawschema.District{{Id: "town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: ringsLayers, Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}}}}, Facilities: &[]rawschema.Facility{{Id: "f1", Zones: []rawschema.FacilityZone{{Zone: "downtown", Weight: 1, MinSpan: 3}}}}},
 			wantErr: errZoneNoBaseFacility,
 		},
 		{
@@ -520,14 +524,14 @@ func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くと
 	t.Parallel()
 
 	landmark := rawschema.EntityID("armory")
-	layers := []rawschema.DistrictLayer{{Zones: []rawschema.Zone{rawschema.MilitaryArmory}}}
-	raws := func(zone rawschema.Zone, minDanger *int) rawschema.Raws {
+	layers := []rawschema.DistrictLayer{{Zones: []rawschema.ZoneId{"military_armory"}}}
+	raws := func(zone rawschema.ZoneId, minDanger *int) rawschema.Raws {
 		return rawschema.Raws{
 			Districts:  &[]rawschema.District{{Id: "base", Landmark: &landmark, Layers: layers}},
 			Facilities: &[]rawschema.Facility{{Id: "armory", Zones: []rawschema.FacilityZone{{Zone: zone, Weight: 1, MinSpan: 1, MinDanger: minDanger}}}},
 		}
 	}
-	require.NoError(t, validateLandmarkMinDanger(raws(rawschema.MilitaryArmory, nil)))
-	require.ErrorIs(t, validateLandmarkMinDanger(raws(rawschema.MilitaryArmory, new(3))), errLandmarkMinDanger)
-	require.NoError(t, validateLandmarkMinDanger(raws(rawschema.Downtown, new(3))), "区域が割り振らない地区の行は抽選を通るので深さの下限を書ける")
+	require.NoError(t, validateLandmarkMinDanger(raws("military_armory", nil)))
+	require.ErrorIs(t, validateLandmarkMinDanger(raws("military_armory", new(3))), errLandmarkMinDanger)
+	require.NoError(t, validateLandmarkMinDanger(raws("downtown", new(3))), "区域が割り振らない地区の行は抽選を通るので深さの下限を書ける")
 }

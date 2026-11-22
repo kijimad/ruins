@@ -72,13 +72,13 @@ func tableItemIDs(raws rawschema.Raws, table string) []string {
 }
 
 // toolCategoriesOf は表 table から出うるアイテムの道具の分類を返す
-func toolCategoriesOf(raws rawschema.Raws, table string) []rawschema.ToolCategory {
+func toolCategoriesOf(raws rawschema.Raws, table string) []rawschema.ToolCategoryId {
 	all := PtrSlice(raws.Items)
 	items := map[string]*rawschema.Item{}
 	for i := range all {
 		items[all[i].Id] = &all[i]
 	}
-	var cats []rawschema.ToolCategory
+	var cats []rawschema.ToolCategoryId
 	for _, id := range tableItemIDs(raws, table) {
 		if it, ok := items[id]; ok && it.Tool != nil {
 			cats = append(cats, it.Tool.Categories...)
@@ -94,11 +94,11 @@ func TestItemTables_施設の表が序盤の道具を出しうる(t *testing.T) 
 
 	tests := []struct {
 		table string
-		want  []rawschema.ToolCategory
+		want  []rawschema.ToolCategoryId
 	}{
-		{"house_kitchen", []rawschema.ToolCategory{rawschema.Chopping}},
-		{"house_closet", []rawschema.ToolCategory{rawschema.Chopping, rawschema.Mining, rawschema.Prying}},
-		{"depot_storage", []rawschema.ToolCategory{rawschema.Chopping, rawschema.Mining, rawschema.Prying}},
+		{"house_kitchen", []rawschema.ToolCategoryId{"chopping"}},
+		{"house_closet", []rawschema.ToolCategoryId{"chopping", "mining", "prying"}},
+		{"depot_storage", []rawschema.ToolCategoryId{"chopping", "mining", "prying"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.table, func(t *testing.T) {

@@ -199,7 +199,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.Name.Add(potion, &gc.Name{Name: "回復薬"})
 	world.Components.LocationInBackpack.Add(potion, &gc.LocationInBackpack{Owner: player})
 	world.Components.Consumable.Add(potion, &gc.Consumable{
-		UsableScene: rawschema.ANY,
 		TargetType: gc.TargetType{
 			TargetGroup: rawschema.TargetGroupALLY,
 			TargetNum:   rawschema.SINGLE,

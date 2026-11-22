@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -81,7 +80,7 @@ func TestGainSkillExp_Skillsコンポーネントが無ければ何もしない(
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
 
-	gainSkillExp(actor, world, rawschema.SkillIdMechanic)
+	gainSkillExp(actor, world, "mechanic")
 
 	assert.Empty(t, query.GetGameLog(world).GetRecentEntries(10), "Skillsが無ければスキルアップのログを出さない")
 }
@@ -91,13 +90,13 @@ func TestGainSkillExp_スキルが上がるとStatsChangedを付ける(t *testin
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current = gc.LevelUpExp - 1
+	world.Components.Skills.Get(player).Get("mechanic").Exp.Current = gc.LevelUpExp - 1
 	world.Components.StatsChanged.Remove(player)
 
-	gainSkillExp(player, world, rawschema.SkillIdMechanic)
+	gainSkillExp(player, world, "mechanic")
 
 	assert.True(t, world.Components.StatsChanged.Has(player))
-	assert.Equal(t, 1, world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Value)
+	assert.Equal(t, 1, world.Components.Skills.Get(player).Get("mechanic").Value)
 }
 
 func TestGainSkillExp_既にStatsChangedが付いていれば二重に付けない(t *testing.T) {
@@ -105,13 +104,13 @@ func TestGainSkillExp_既にStatsChangedが付いていれば二重に付けな�
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current = gc.LevelUpExp - 1
+	world.Components.Skills.Get(player).Get("mechanic").Exp.Current = gc.LevelUpExp - 1
 	require.True(t, world.Components.StatsChanged.Has(player), "spawn時に既にStatsChangedが付いている前提")
 
-	assert.NotPanics(t, func() { gainSkillExp(player, world, rawschema.SkillIdMechanic) })
+	assert.NotPanics(t, func() { gainSkillExp(player, world, "mechanic") })
 
 	require.True(t, world.Components.StatsChanged.Has(player))
-	assert.Equal(t, 1, world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Value, "スキルアップ自体は起こる")
+	assert.Equal(t, 1, world.Components.Skills.Get(player).Get("mechanic").Value, "スキルアップ自体は起こる")
 }
 
 func TestSkillValueOf_Skillsコンポーネントが無ければ0(t *testing.T) {
@@ -119,7 +118,7 @@ func TestSkillValueOf_Skillsコンポーネントが無ければ0(t *testing.T) 
 	world := testutil.InitTestWorld(t)
 	actor := world.ECS.NewEntity()
 
-	assert.Equal(t, 0, skillValueOf(actor, world, rawschema.SkillIdMechanic))
+	assert.Equal(t, 0, skillValueOf(actor, world, "mechanic"))
 }
 
 func TestSalvageRoll(t *testing.T) {
@@ -188,7 +187,7 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 			require.NoError(t, err)
 			attack, name, weapon, err := getAttackParams(player, world)
 			require.NoError(t, err)
-			expBefore := world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current
+			expBefore := world.Components.Skills.Get(player).Get("mechanic").Exp.Current
 
 			// 命中率の補正を大きく取り、壊れるまで必ず命中させる
 			for range 20 {
@@ -206,7 +205,7 @@ func TestApplyAttackDamage_壊すと産出を落とす(t *testing.T) {
 					assert.Equal(t, tt.wantDrop, query.GetEntityID(d, world))
 				}
 			}
-			expAfter := world.Components.Skills.Get(player).Get(rawschema.SkillIdMechanic).Exp.Current
+			expAfter := world.Components.Skills.Get(player).Get("mechanic").Exp.Current
 			assert.Equal(t, tt.wantMechanics, expAfter > expBefore)
 		})
 	}

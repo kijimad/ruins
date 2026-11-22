@@ -80,42 +80,18 @@ type AmbientColor struct {
 type Ammo struct {
 	AccuracyBonus AccuracyBonus `json:"accuracyBonus"`
 
-	AmmoTag *AmmoTag `json:"ammoTag,omitempty"`
+	AmmoTag *AmmoKindId `json:"ammoTag,omitempty"`
 
 	DamageBonus DamageBonus `json:"damageBonus"`
 }
 
-// AmmoTag 弾薬タグ
-type AmmoTag string
-
-// Defines values for AmmoTag.
-const (
-	AmmoTagEnergyCell AmmoTag = "energy_cell"
-	AmmoTagN9mm       AmmoTag = "9mm"
-	AmmoTagRifle      AmmoTag = "rifle"
-	AmmoTagShell      AmmoTag = "shell"
-)
-
-// Valid indicates whether the value is a known member of the AmmoTag enum.
-func (e AmmoTag) Valid() bool {
-	switch e {
-	case AmmoTagEnergyCell:
-		return true
-	case AmmoTagN9mm:
-		return true
-	case AmmoTagRifle:
-		return true
-	case AmmoTagShell:
-		return true
-	default:
-		return false
-	}
+// AmmoKind 弾の口径の表。銃が撃てる口径と弾の口径を、この表の id で引き合わせる。口径を足すときは raw にこの表の行を1つ足す
+type AmmoKind struct {
+	Id AmmoKindId `json:"id"`
 }
 
-// AmmoTagValues は AmmoTag の値を、スキーマに書いた順に返す。
-func AmmoTagValues() []AmmoTag {
-	return []AmmoTag{AmmoTagN9mm, AmmoTagRifle, AmmoTagShell, AmmoTagEnergyCell}
-}
+// AmmoKindId 弾の口径の id
+type AmmoKindId = TableId
 
 // ArmorDefense 防具の防御力
 type ArmorDefense = int
@@ -300,7 +276,7 @@ type BodyPart struct {
 }
 
 // BodyPartId 部位の id
-type BodyPartId = string
+type BodyPartId = TableId
 
 // Book 本の設定
 type Book struct {
@@ -533,8 +509,6 @@ type Consumable struct {
 	TargetGroup TargetGroup `json:"targetGroup"`
 
 	TargetNum TargetNum `json:"targetNum"`
-
-	UsableScene UsableScene `json:"usableScene"`
 }
 
 // CorridorStep 部屋どうしを直線の廊下で結ぶ段
@@ -613,7 +587,7 @@ type Dice = string
 type Disassembly struct {
 	Bonus *[]DisassemblyBonus `json:"bonus,omitempty"`
 
-	ToolCategory *ToolCategory `json:"toolCategory,omitempty"`
+	ToolCategory *ToolCategoryId `json:"toolCategory,omitempty"`
 
 	ToolRequired *DisassemblyToolRequired `json:"toolRequired,omitempty"`
 
@@ -696,7 +670,7 @@ type DistrictLayer struct {
 	Rows *int `json:"rows,omitempty"`
 
 	// Zones 候補の地区
-	Zones []Zone `json:"zones"`
+	Zones []ZoneId `json:"zones"`
 }
 
 // DistrictPattern 地区の並べ方。rings は層を2つ持ち、1つ目を外側、2つ目を中心にする。
@@ -1069,7 +1043,7 @@ type FacilityZone struct {
 	Weight int32 `json:"weight"`
 
 	// Zone 施設が建つ地区
-	Zone Zone `json:"zone"`
+	Zone ZoneId `json:"zone"`
 }
 
 // FactionMemberType 派閥タイプ
@@ -1149,7 +1123,7 @@ func FatigueStageIdValues() []FatigueStageId {
 type Fire struct {
 	Accuracy Accuracy `json:"accuracy"`
 
-	AmmoTag *AmmoTag `json:"ammoTag,omitempty"`
+	AmmoTag *AmmoKindId `json:"ammoTag,omitempty"`
 
 	AttackCategory AttackCategory `json:"attackCategory"`
 
@@ -1173,38 +1147,15 @@ type Fire struct {
 // FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 type FireStarter = map[string]interface{}
 
-// Foliage タイルの植生
-type Foliage string
-
-// Defines values for Foliage.
-const (
-	FoliageForest Foliage = "forest"
-	FoliageGrass  Foliage = "grass"
-)
-
-// Valid indicates whether the value is a known member of the Foliage enum.
-func (e Foliage) Valid() bool {
-	switch e {
-	case FoliageForest:
-		return true
-	case FoliageGrass:
-		return true
-	default:
-		return false
-	}
-}
-
-// FoliageValues は Foliage の値を、スキーマに書いた順に返す。
-func FoliageValues() []Foliage {
-	return []Foliage{FoliageGrass, FoliageForest}
-}
-
-// FoliageEffect 植生がタイルの気温に足す補正
-type FoliageEffect struct {
-	Id Foliage `json:"id"`
+// Foliage タイルの植生の表。raw の foliageEffects の行で、植生がタイルの気温に足す補正を持つ。植生を足すときは raw にこの表の行を1つ足す
+type Foliage struct {
+	Id FoliageId `json:"id"`
 
 	TempModifier TileTempModifier `json:"tempModifier"`
 }
+
+// FoliageId 植生の id
+type FoliageId = TableId
 
 // FreshnessStage 鮮度の段階の境目と表示名と、食べたとき得る栄養の割合
 type FreshnessStage struct {
@@ -1268,7 +1219,7 @@ type FuelKind struct {
 }
 
 // FuelKindId 燃料の種別の id
-type FuelKindId = string
+type FuelKindId = TableId
 
 // GladeStep 小さな円形の床を撒く段
 type GladeStep struct {
@@ -1467,7 +1418,7 @@ type Item struct {
 	LightSource *LightSource `json:"lightSource,omitempty"`
 
 	// Material 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
-	Material *Material `json:"material,omitempty"`
+	Material *MaterialId `json:"material,omitempty"`
 
 	Melee *Melee `json:"melee,omitempty"`
 
@@ -1637,89 +1588,21 @@ type MapGlyph struct {
 	Order int32 `json:"order"`
 }
 
-// Material 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
-// 不燃の材質は係数0で燃料にならない。係数は materials の行が持つ
-type Material string
-
-// Defines values for Material.
-const (
-	BONE    Material = "BONE"
-	CERAMIC Material = "CERAMIC"
-	CLOTH   Material = "CLOTH"
-	COAL    Material = "COAL"
-	CRYSTAL Material = "CRYSTAL"
-	FOOD    Material = "FOOD"
-	GLASS   Material = "GLASS"
-	LEATHER Material = "LEATHER"
-	LIQUID  Material = "LIQUID"
-	METAL   Material = "METAL"
-	OIL     Material = "OIL"
-	PAPER   Material = "PAPER"
-	PLANT   Material = "PLANT"
-	PLASTIC Material = "PLASTIC"
-	STONE   Material = "STONE"
-	WOOD    Material = "WOOD"
-)
-
-// Valid indicates whether the value is a known member of the Material enum.
-func (e Material) Valid() bool {
-	switch e {
-	case BONE:
-		return true
-	case CERAMIC:
-		return true
-	case CLOTH:
-		return true
-	case COAL:
-		return true
-	case CRYSTAL:
-		return true
-	case FOOD:
-		return true
-	case GLASS:
-		return true
-	case LEATHER:
-		return true
-	case LIQUID:
-		return true
-	case METAL:
-		return true
-	case OIL:
-		return true
-	case PAPER:
-		return true
-	case PLANT:
-		return true
-	case PLASTIC:
-		return true
-	case STONE:
-		return true
-	case WOOD:
-		return true
-	default:
-		return false
-	}
-}
-
-// MaterialValues は Material の値を、スキーマに書いた順に返す。
-func MaterialValues() []Material {
-	return []Material{WOOD, PAPER, CLOTH, LEATHER, PLANT, FOOD, BONE, OIL, COAL, PLASTIC, METAL, STONE, GLASS, CRYSTAL, CERAMIC, LIQUID}
-}
-
-// MaterialAmount 素材必要数
-type MaterialAmount = int
-
-// MaterialDef 材質の表示名と燃焼の熱量
-type MaterialDef struct {
+// Material 材質の表。表示名と燃焼の熱量を持つ。燃料熱量は材質のkgあたり熱量へ重量を掛けて導き、
+// 不燃の材質は係数0で燃料にならない。材質を足すときは raw にこの表の行を1つ足す
+type Material struct {
 	// Disassembly 分解で戻る素材。無い材質のアイテムは分解できない
 	Disassembly *MaterialDisassembly `json:"disassembly,omitempty"`
 
 	HeatPerKg HeatPerKg `json:"heatPerKg"`
 
-	Id Material `json:"id"`
+	Id MaterialId `json:"id"`
 
 	Name EntityName `json:"name"`
 }
+
+// MaterialAmount 素材必要数
+type MaterialAmount = int
 
 // MaterialDisassembly 材質のアイテムを分解したときに戻る素材
 type MaterialDisassembly struct {
@@ -1728,6 +1611,9 @@ type MaterialDisassembly struct {
 	// PerWeight 素材1個に要るアイテムの重さ
 	PerWeight Weight `json:"perWeight"`
 }
+
+// MaterialId 材質の id
+type MaterialId = TableId
 
 // Melee 近接攻撃設定
 type Melee struct {
@@ -1933,7 +1819,7 @@ type ProfessionEquip struct {
 }
 
 // ProfessionId 職業ID
-type ProfessionId = string
+type ProfessionId = TableId
 
 // ProfessionItem 職業初期所持アイテム
 type ProfessionItem struct {
@@ -2162,6 +2048,8 @@ type RangeTiles = int
 
 // Raws ローデータ全体。TOMLファイルのルート構造を定義する
 type Raws struct {
+	AmmoKinds *[]AmmoKind `json:"ammoKinds,omitempty"`
+
 	AttackTypes *[]AttackType `json:"attackTypes,omitempty"`
 
 	AutomataSteps *[]AutomataStep `json:"automataSteps,omitempty"`
@@ -2202,7 +2090,7 @@ type Raws struct {
 
 	FatigueStages *[]FatigueStage `json:"fatigueStages,omitempty"`
 
-	FoliageEffects *[]FoliageEffect `json:"foliageEffects,omitempty"`
+	FoliageEffects *[]Foliage `json:"foliageEffects,omitempty"`
 
 	FreshnessStages *[]FreshnessStage `json:"freshnessStages,omitempty"`
 
@@ -2226,7 +2114,7 @@ type Raws struct {
 
 	MapGlyphs *[]MapGlyph `json:"mapGlyphs,omitempty"`
 
-	Materials *[]MaterialDef `json:"materials,omitempty"`
+	Materials *[]Material `json:"materials,omitempty"`
 
 	Members *[]Member `json:"members,omitempty"`
 
@@ -2274,7 +2162,7 @@ type Raws struct {
 
 	TimesOfDay *[]TimeOfDay `json:"timesOfDay,omitempty"`
 
-	ToolCategories *[]ToolCategoryDef `json:"toolCategories,omitempty"`
+	ToolCategories *[]ToolCategory `json:"toolCategories,omitempty"`
 
 	TrailSteps *[]TrailStep `json:"trailSteps,omitempty"`
 
@@ -2285,6 +2173,8 @@ type Raws struct {
 	Weathers *[]Weather `json:"weathers,omitempty"`
 
 	WidenSteps *[]WidenStep `json:"widenSteps,omitempty"`
+
+	Zones *[]Zone `json:"zones,omitempty"`
 }
 
 // ReadingEffort 読了に必要な総読書量
@@ -2669,102 +2559,10 @@ type SkillCategory struct {
 }
 
 // SkillCategoryId スキルのカテゴリの id
-type SkillCategoryId = string
+type SkillCategoryId = TableId
 
-// SkillId スキルID
-type SkillId string
-
-// Defines values for SkillId.
-const (
-	SkillIdBow           SkillId = "bow"
-	SkillIdCannon        SkillId = "cannon"
-	SkillIdChillResist   SkillId = "chill_resist"
-	SkillIdColdResist    SkillId = "cold_resist"
-	SkillIdCrafting      SkillId = "crafting"
-	SkillIdExploration   SkillId = "exploration"
-	SkillIdFireResist    SkillId = "fire_resist"
-	SkillIdFist          SkillId = "fist"
-	SkillIdHandgun       SkillId = "handgun"
-	SkillIdHealing       SkillId = "healing"
-	SkillIdHeavyArmor    SkillId = "heavy_armor"
-	SkillIdHungerResist  SkillId = "hunger_resist"
-	SkillIdMechanic      SkillId = "mechanic"
-	SkillIdNegotiation   SkillId = "negotiation"
-	SkillIdNightVision   SkillId = "night_vision"
-	SkillIdPhotonResist  SkillId = "photon_resist"
-	SkillIdRifle         SkillId = "rifle"
-	SkillIdSmithing      SkillId = "smithing"
-	SkillIdSpear         SkillId = "spear"
-	SkillIdSprinting     SkillId = "sprinting"
-	SkillIdStealth       SkillId = "stealth"
-	SkillIdSword         SkillId = "sword"
-	SkillIdThrow         SkillId = "throw"
-	SkillIdThunderResist SkillId = "thunder_resist"
-	SkillIdWeightBearing SkillId = "weight_bearing"
-)
-
-// Valid indicates whether the value is a known member of the SkillId enum.
-func (e SkillId) Valid() bool {
-	switch e {
-	case SkillIdBow:
-		return true
-	case SkillIdCannon:
-		return true
-	case SkillIdChillResist:
-		return true
-	case SkillIdColdResist:
-		return true
-	case SkillIdCrafting:
-		return true
-	case SkillIdExploration:
-		return true
-	case SkillIdFireResist:
-		return true
-	case SkillIdFist:
-		return true
-	case SkillIdHandgun:
-		return true
-	case SkillIdHealing:
-		return true
-	case SkillIdHeavyArmor:
-		return true
-	case SkillIdHungerResist:
-		return true
-	case SkillIdMechanic:
-		return true
-	case SkillIdNegotiation:
-		return true
-	case SkillIdNightVision:
-		return true
-	case SkillIdPhotonResist:
-		return true
-	case SkillIdRifle:
-		return true
-	case SkillIdSmithing:
-		return true
-	case SkillIdSpear:
-		return true
-	case SkillIdSprinting:
-		return true
-	case SkillIdStealth:
-		return true
-	case SkillIdSword:
-		return true
-	case SkillIdThrow:
-		return true
-	case SkillIdThunderResist:
-		return true
-	case SkillIdWeightBearing:
-		return true
-	default:
-		return false
-	}
-}
-
-// SkillIdValues は SkillId の値を、スキーマに書いた順に返す。
-func SkillIdValues() []SkillId {
-	return []SkillId{SkillIdSword, SkillIdSpear, SkillIdFist, SkillIdWeightBearing, SkillIdBow, SkillIdHandgun, SkillIdRifle, SkillIdCannon, SkillIdExploration, SkillIdCrafting, SkillIdSmithing, SkillIdNegotiation, SkillIdMechanic, SkillIdSprinting, SkillIdStealth, SkillIdNightVision, SkillIdColdResist, SkillIdHungerResist, SkillIdHealing, SkillIdHeavyArmor, SkillIdFireResist, SkillIdThunderResist, SkillIdChillResist, SkillIdPhotonResist, SkillIdThrow}
-}
+// SkillId スキルの表の id
+type SkillId = TableId
 
 // SkillLevel スキルレベル
 type SkillLevel = int
@@ -2912,6 +2710,9 @@ type Strength = int
 // Switch スイッチ。持つ物は「使う」で点け消しでき、オフで生まれる
 type Switch = map[string]interface{}
 
+// TableId 表の id の共通の書式
+type TableId = string
+
 // TargetGroup ターゲットグループ
 type TargetGroup string
 
@@ -3000,7 +2801,7 @@ type Tile struct {
 	Earth *bool `json:"earth,omitempty"`
 
 	// Foliage 植生。省くと植生なし
-	Foliage *Foliage `json:"foliage,omitempty"`
+	Foliage *FoliageId `json:"foliage,omitempty"`
 
 	// Id ground は施設のパレットで下地を残す地形の予約語なので、タイルの id に使わない
 	Id EntityID `json:"id"`
@@ -3091,52 +2892,20 @@ type TimeOfDayTempModifier = int
 
 // Tool 道具の性質。道具の分類とグレードを持つ
 type Tool struct {
-	Categories []ToolCategory `json:"categories"`
+	Categories []ToolCategoryId `json:"categories"`
 
 	Grade ToolGrade `json:"grade"`
 }
 
-// ToolCategory 道具の分類
-type ToolCategory string
-
-// Defines values for ToolCategory.
-const (
-	Chopping  ToolCategory = "chopping"
-	Cutting   ToolCategory = "cutting"
-	Mining    ToolCategory = "mining"
-	Precision ToolCategory = "precision"
-	Prying    ToolCategory = "prying"
-)
-
-// Valid indicates whether the value is a known member of the ToolCategory enum.
-func (e ToolCategory) Valid() bool {
-	switch e {
-	case Chopping:
-		return true
-	case Cutting:
-		return true
-	case Mining:
-		return true
-	case Precision:
-		return true
-	case Prying:
-		return true
-	default:
-		return false
-	}
-}
-
-// ToolCategoryValues は ToolCategory の値を、スキーマに書いた順に返す。
-func ToolCategoryValues() []ToolCategory {
-	return []ToolCategory{Prying, Precision, Cutting, Chopping, Mining}
-}
-
-// ToolCategoryDef 道具の分類と、合う道具で壊したとき伸びるスキル。スキルを省くと伸びない
-type ToolCategoryDef struct {
-	Id ToolCategory `json:"id"`
+// ToolCategory 道具の分類の表。合う道具で壊したときに伸ばすスキルを持ち、省くと伸びない。分類を足すときは raw にこの表の行を1つ足す
+type ToolCategory struct {
+	Id ToolCategoryId `json:"id"`
 
 	Skill *SkillId `json:"skill,omitempty"`
 }
+
+// ToolCategoryId 道具の分類の id
+type ToolCategoryId = TableId
 
 // ToolGrade 道具のグレード。高いほど速く壊し多く得る
 type ToolGrade = int
@@ -3157,35 +2926,6 @@ type TreeStep struct {
 
 	// LargeTreeChance 木の周りにも木を足す確率
 	LargeTreeChance Chance `json:"largeTreeChance"`
-}
-
-// UsableScene 使用可能シーン
-type UsableScene string
-
-// Defines values for UsableScene.
-const (
-	ANY    UsableScene = "ANY"
-	BATTLE UsableScene = "BATTLE"
-	FIELD  UsableScene = "FIELD"
-)
-
-// Valid indicates whether the value is a known member of the UsableScene enum.
-func (e UsableScene) Valid() bool {
-	switch e {
-	case ANY:
-		return true
-	case BATTLE:
-		return true
-	case FIELD:
-		return true
-	default:
-		return false
-	}
-}
-
-// UsableSceneValues は UsableScene の値を、スキーマに書いた順に返す。
-func UsableSceneValues() []UsableScene {
-	return []UsableScene{BATTLE, FIELD, ANY}
 }
 
 // ViewDistance AI視界距離（タイル単位）
@@ -3327,61 +3067,10 @@ type WidenStep struct {
 	Id EntityID `json:"id"`
 }
 
-// Zone 区域の地区。区域の層が候補として持ち、施設は建つ地区として持つ
-type Zone string
-
-// Defines values for Zone.
-const (
-	CampusGate       Zone = "campus_gate"
-	CampusInner      Zone = "campus_inner"
-	CampusQuarantine Zone = "campus_quarantine"
-	Downtown         Zone = "downtown"
-	FarmField        Zone = "farm_field"
-	FarmYard         Zone = "farm_yard"
-	Industrial       Zone = "industrial"
-	MilitaryArmory   Zone = "military_armory"
-	MilitaryGate     Zone = "military_gate"
-	MilitaryInner    Zone = "military_inner"
-	PlantCore        Zone = "plant_core"
-	PlantOuter       Zone = "plant_outer"
-	Residential      Zone = "residential"
-)
-
-// Valid indicates whether the value is a known member of the Zone enum.
-func (e Zone) Valid() bool {
-	switch e {
-	case CampusGate:
-		return true
-	case CampusInner:
-		return true
-	case CampusQuarantine:
-		return true
-	case Downtown:
-		return true
-	case FarmField:
-		return true
-	case FarmYard:
-		return true
-	case Industrial:
-		return true
-	case MilitaryArmory:
-		return true
-	case MilitaryGate:
-		return true
-	case MilitaryInner:
-		return true
-	case PlantCore:
-		return true
-	case PlantOuter:
-		return true
-	case Residential:
-		return true
-	default:
-		return false
-	}
+// Zone 区域の地区の表。区域の層が候補として持ち、施設は建つ地区として持つ。地区を足すときは raw にこの表の行を1つ足す
+type Zone struct {
+	Id ZoneId `json:"id"`
 }
 
-// ZoneValues は Zone の値を、スキーマに書いた順に返す。
-func ZoneValues() []Zone {
-	return []Zone{Downtown, Residential, Industrial, CampusGate, CampusInner, CampusQuarantine, MilitaryGate, MilitaryInner, MilitaryArmory, PlantOuter, PlantCore, FarmYard, FarmField}
-}
+// ZoneId 区域の地区の id
+type ZoneId = TableId
