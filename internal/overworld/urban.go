@@ -7,6 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
@@ -234,6 +235,8 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Di
 		return err
 	}
 	fac := lot.facility
+	// 塀は棚と同じく並びに沿って向きを決めるので、置くマスを先に集める
+	fences := map[consts.Coord[consts.Tile]]bool{}
 	for _, p := range fence {
 		pos := consts.Coord[consts.Tile]{X: g.offsetX + p.X, Y: g.offsetY + p.Y}
 		occupied[pos] = true
@@ -241,8 +244,20 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Di
 		if isWall(p.X, p.Y) || slices.ContainsFunc(query.GetEntitiesAt(world, pos.X, pos.Y), world.Components.Prop.Has) {
 			continue
 		}
-		if _, err := lifecycle.SpawnProp(world, fenceProp, pos.X, pos.Y); err != nil {
+		fences[p] = true
+	}
+	poses := mapplanner.RowPoses(fences, fences, func(c consts.Coord[consts.Tile]) bool { return isWall(c.X, c.Y) })
+	for _, p := range fence {
+		if !fences[p] {
+			continue
+		}
+		pos := consts.Coord[consts.Tile]{X: g.offsetX + p.X, Y: g.offsetY + p.Y}
+		ent, err := lifecycle.SpawnProp(world, fenceProp, pos.X, pos.Y)
+		if err != nil {
 			return fmt.Errorf("failed to place district fence at %d,%d: %w", pos.X, pos.Y, err)
+		}
+		if pose, ok := poses[p]; ok {
+			world.Components.Pose.Add(ent, &pose)
 		}
 	}
 	return spawnUrbanEnemies(world, g, rng, enemies, fac, danger, isWall, occupied)
