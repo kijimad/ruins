@@ -34,11 +34,14 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		}}
 	}
 	raws := rawschema.Raws{
-		BodyAttacks:    &[]rawschema.BodyAttack{{Id: BareHands, Name: "Bare hands"}},
-		Dungeons:       &[]rawschema.Dungeon{{Id: "dead_forest"}},
-		Settlements:    &[]rawschema.Settlement{{Id: "village", Weight: 1}},
-		BodyParts:      &bodyParts,
-		Conditions:     &[]rawschema.Condition{{Id: "fracture", Name: "Fracture", Description: "Fracture"}},
+		BodyAttacks: &[]rawschema.BodyAttack{{Id: BareHands, Name: "Bare hands"}},
+		Dungeons:    &[]rawschema.Dungeon{{Id: "dead_forest"}},
+		Settlements: &[]rawschema.Settlement{{Id: "village", Weight: 1}},
+		BodyParts:   &bodyParts,
+		Conditions: &[]rawschema.Condition{
+			{Id: "hypothermia", Name: "Hypothermia", Description: "Hypothermia"},
+			{Id: "fracture", Name: "Fracture", Description: "Fracture", Parts: &[]rawschema.BodyPartId{"arm"}},
+		},
 		AttackTypes:    &[]rawschema.AttackType{attackType(rawschema.AttackCategorySword), attackType(rawschema.AttackCategorySpear)},
 		Skills:         &[]rawschema.Skill{skill("sword"), skill("spear")},
 		Members:        &[]rawschema.Member{{Id: "ash", Player: new(true)}},
@@ -89,13 +92,21 @@ func TestValidateConditions(t *testing.T) {
 			wantErr: errConditionNoHitPart,
 		},
 		{
-			name: "全部位の不調でも命中する部位が無い",
+			name: "怪我が部位を持たない",
+			mutate: func(r *rawschema.Raws) {
+				(*r.Conditions)[1].Parts = nil
+			},
+			wantErr: errInjuryWithoutParts,
+		},
+		{
+			name: "部位を持たない全身性の不調は命中の重みによらず通る",
 			mutate: func(r *rawschema.Raws) {
 				for i := range *r.BodyParts {
 					(*r.BodyParts)[i].HitWeight = 0
 				}
+				(*r.Conditions)[1].Parts = &[]rawschema.BodyPartId{"arm"}
+				(*r.BodyParts)[gc.BodyPartArms].HitWeight = 1
 			},
-			wantErr: errConditionNoHitPart,
 		},
 	}
 	for _, tt := range tests {
@@ -303,6 +314,7 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 			Name: "Laceration", Description: "An open wound. It will not heal until treated.",
 			PainPerSeverity: 8, BodyFuncDropPerSeverity: 8, Recovery: rawschema.RecoverAfterTend, RecoverPer: 2,
 			BloodDropPerSeverity: 25, Cause: gc.CauseBloodLoss,
+			Parts: []gc.BodyPart{gc.BodyPartTorso, gc.BodyPartHead, gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet},
 		}},
 		{gc.ConditionType("liver_illness"), gc.ConditionDef{
 			Name: "Liver illness", Description: "It worsens while untreated and drains HP when severe.",

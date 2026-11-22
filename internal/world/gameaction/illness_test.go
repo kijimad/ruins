@@ -20,8 +20,8 @@ func TestContractIllness(t *testing.T) {
 
 	contracted := ContractIllness(world, player, gc.ConditionType("liver_illness"))
 	assert.True(t, contracted, "発症する")
-	cond := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartTorso].GetCondition(gc.ConditionType("liver_illness"))
-	require.NotNil(t, cond, "胴に病気が付く")
+	cond := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("liver_illness"))
+	require.NotNil(t, cond, "全身に病気が付く")
 	assert.True(t, cond.IsActive(), "発症済みで即座に効く")
 	assert.True(t, world.Components.StatsChanged.Has(player), "StatsChanged を立てる")
 
@@ -37,14 +37,28 @@ func TestContractIllness_発症が終わって残った病気はかかり直す(
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 	require.True(t, ContractIllness(world, player, gc.ConditionType("venom")))
-	part := &world.Components.HealthStatus.Get(player).Parts[gc.BodyPartTorso]
+	part := &world.Components.HealthStatus.Get(player).Parts[gc.BodyPartWholeBody]
 	part.GetCondition(gc.ConditionType("venom")).Timer = 10
 
 	assert.True(t, ContractIllness(world, player, gc.ConditionType("venom")))
-	cond := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartTorso].GetCondition(gc.ConditionType("venom"))
+	cond := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("venom"))
 	require.NotNil(t, cond)
 	assert.Equal(t, gc.HealthCondition{Type: "venom", Timer: illnessOnsetTimer, Severity: gc.TimerToSeverity(illnessOnsetTimer)}, *cond)
-	assert.Len(t, world.Components.HealthStatus.Get(player).Parts[gc.BodyPartTorso].Conditions, 1)
+	assert.Len(t, world.Components.HealthStatus.Get(player).Parts[gc.BodyPartWholeBody].Conditions, 1)
+}
+
+func TestContractIllness_部位を書いた不調はその部位に付ける(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	require.True(t, ContractIllness(world, player, gc.ConditionType("daze")))
+
+	hs := world.Components.HealthStatus.Get(player)
+	assert.NotNil(t, hs.Parts[gc.BodyPartHead].GetCondition(gc.ConditionType("daze")))
+	assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("daze")))
 }
 
 func TestContractIllness_HealthStatusなしは何もしない(t *testing.T) {

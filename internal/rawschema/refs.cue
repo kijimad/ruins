@@ -19,6 +19,7 @@ props?:            _
 remains?:          _
 decors?:           _
 conditions?:       _
+attackTypes?:      _
 bodyParts?:        _
 fuelKinds?:        _
 toolCategories?:   _
@@ -80,6 +81,9 @@ _propIDs: {if props != _|_ for x in props {(x.id): true}}
 _remainsIDs: {if remains != _|_ for x in remains {(x.id): true}}
 _decorIDs: {if decors != _|_ for x in decors {(x.id): true}}
 _conditionIDs: {if conditions != _|_ for x in conditions {(x.id): true}}
+
+// 攻撃種別が命中で負わせる怪我
+_injuryIDs: {if attackTypes != _|_ for x in attackTypes {(x.injury): true}}
 _bodyPartIDs: {if bodyParts != _|_ for x in bodyParts {(x.id): true}}
 _skillIDs: {if skills != _|_ for x in skills {(x.id): true}}
 _skillCategoryIDs: {if skillCategories != _|_ for x in skillCategories {(x.id): true}}

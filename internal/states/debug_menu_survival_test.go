@@ -95,3 +95,30 @@ func TestDebugTown_危険度に依らず敵もアイテムも置かない(t *tes
 	assert.ElementsMatch(t, []string{"merchant", "old_soldier"}, names, "絵の住人だけで敵は湧かない")
 	assert.Empty(t, plan.Items, "床のアイテムを置かない")
 }
+
+func TestDebugInflictConditions_部位を書いた不調は最初の部位にほかは全身に置く(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+
+	require.NoError(t, debugInflictConditions(world))
+
+	got := map[gc.ConditionType]gc.BodyPart{}
+	hs := world.Components.HealthStatus.Get(player)
+	for i := range hs.Parts {
+		for _, c := range hs.Parts[i].Conditions {
+			got[c.Type] = gc.BodyPart(i)
+		}
+	}
+	assert.Equal(t, map[gc.ConditionType]gc.BodyPart{
+		"fracture":       gc.BodyPartArms,
+		"laceration":     gc.BodyPartTorso,
+		"hypothermia":    gc.BodyPartWholeBody,
+		"food_poisoning": gc.BodyPartWholeBody,
+		"liver_illness":  gc.BodyPartWholeBody,
+		"venom":          gc.BodyPartWholeBody,
+		"daze":           gc.BodyPartHead,
+	}, got)
+}

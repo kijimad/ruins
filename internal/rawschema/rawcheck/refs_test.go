@@ -194,6 +194,10 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"レシピの産物", func(r *rawschema.Raws) { (*r.Recipes)[0].Id = "none" }, "recipes.0.id_ref"},
 		{"レシピの素材", func(r *rawschema.Raws) { (*r.Recipes)[0].Inputs[0].Id = "none" }, "recipes.0.inputs.0.id_ref"},
 		{"攻撃種別の怪我", func(r *rawschema.Raws) { (*r.AttackTypes)[0].Injury = "bruise" }, "attackTypes.0.injury_ref"},
+		{"爆風に怪我を付ける", func(r *rawschema.Raws) {
+			injury := (*r.AttackTypes)[0].Injury
+			(*r.Items)[0].Throw = &rawschema.Throw{Damage: 1, Accuracy: 50, Blast: &rawschema.Blast{Radius: 1, Condition: &injury}}
+		}, "items.0.throw.blast.condition_notInjury"},
 		{"スキルのカテゴリ", func(r *rawschema.Raws) { (*r.Skills)[0].Category = "magic" }, "skills.0.category_ref"},
 		{"本のスキル", func(r *rawschema.Raws) { (*r.Items)[0].Book.Skill.TargetSkill = "spear" }, "items.0.book.skill.targetSkill_ref"},
 		{"攻撃の種類のスキル", func(r *rawschema.Raws) { (*r.AttackTypes)[0].Skill = "spear" }, "attackTypes.0.skill_ref"},

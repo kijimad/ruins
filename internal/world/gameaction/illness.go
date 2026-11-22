@@ -11,15 +11,20 @@ import (
 // illnessOnsetTimer は発症したての病気の初期進行度。発症する 25 以上にして浅く始め、早期発見を効かせる
 const illnessOnsetTimer = 30
 
-// ContractIllness は病気を1つ発症させる。病気は全身性なので胴に付ける。同じ病気が発症中なら重ねない。
-// 治りかけで発症していない同じ病気が残っていれば、発症したての進行度に戻す。
+// ContractIllness は病気などの不調を1つ発症させる。部位を書いた不調はその最初の部位に、ほかは全身性なので全身に付ける。
+// 同じ不調が発症中なら重ねない。
+// 治りかけで発症していない同じ不調が残っていれば、発症したての進行度に戻す。
 // HealthStatus を持たない対象には何もしない。発症したら true を返し、身体機能の再計算を促す。
 // 発症したての浅い進行度で始まり、以降の進行は不調ごとの回復モードに従う
 func ContractIllness(world w.World, entity ecs.Entity, ct gc.ConditionType) bool {
 	if !world.Components.HealthStatus.Has(entity) {
 		return false
 	}
-	part := &world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartTorso]
+	at := gc.BodyPartWholeBody
+	if def, ok := world.Resources.ConditionDefs.Def(ct); ok && len(def.Parts) > 0 {
+		at = def.Parts[0]
+	}
+	part := &world.Components.HealthStatus.Get(entity).Parts[at]
 	if existing := part.GetCondition(ct); existing != nil && existing.IsActive() {
 		return false
 	}

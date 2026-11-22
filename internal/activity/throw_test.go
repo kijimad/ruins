@@ -280,7 +280,7 @@ func TestThrowBehavior_DoTurn_毒の爆風は毒を付け重ねない(t *testing
 	venom := gc.ConditionType("venom")
 
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(first, enemy), player, world))
-	cond := world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom)
+	cond := world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartWholeBody].GetCondition(venom)
 	require.NotNil(t, cond)
 	timer := cond.Timer
 	assert.Equal(t, "Fireball contracted Venom.", query.GetGameLog(world).GetRecent(1)[0])
@@ -288,7 +288,7 @@ func TestThrowBehavior_DoTurn_毒の爆風は毒を付け重ねない(t *testing
 	second, err := lifecycle.SpawnBackpackItem(world, "poison_grenade", 1)
 	require.NoError(t, err)
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(second, enemy), player, world))
-	assert.InDelta(t, timer, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom).Timer, 0, "2発目で進行度は延びない")
+	assert.InDelta(t, timer, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartWholeBody].GetCondition(venom).Timer, 0, "2発目で進行度は延びない")
 }
 
 func TestExplode(t *testing.T) {
@@ -307,7 +307,7 @@ func TestExplode(t *testing.T) {
 		attack := gc.ThrowAttack{Blast: &gc.Blast{Radius: 1, Condition: venom}}
 		require.NoError(t, explode(world, player, enemy, attack, "test"))
 		assert.Equal(t, hp, world.Components.HP.Get(enemy).Current)
-		assert.NotNil(t, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom))
+		assert.NotNil(t, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartWholeBody].GetCondition(venom))
 	})
 	t.Run("自分だけを傷つけてもスキルは伸びない", func(t *testing.T) {
 		t.Parallel()
@@ -345,7 +345,7 @@ func TestExplode(t *testing.T) {
 		attack := gc.ThrowAttack{Damage: 10, Blast: &gc.Blast{Radius: 1, Condition: venom}}
 		require.NoError(t, explode(world, player, enemy, attack, "test"))
 		require.True(t, world.Components.Dead.Has(enemy))
-		assert.Nil(t, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartTorso].GetCondition(venom))
+		assert.Nil(t, world.Components.HealthStatus.Get(enemy).Parts[gc.BodyPartWholeBody].GetCondition(venom))
 	})
 	t.Run("ほかの者を傷つけるとスキルが伸びる", func(t *testing.T) {
 		t.Parallel()
@@ -424,4 +424,52 @@ func TestExplode_構えた道具は置物に効かせない(t *testing.T) {
 		require.True(t, world.Components.Dead.Has(crate))
 		assert.Equal(t, before, *world.Components.Skills.Get(player).Get(skillID))
 	})
+}
+
+func TestExplode_閃光弾は範囲の者の目をくらませる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 14, Y: 10}, "fireball")
+	require.NoError(t, err)
+	flashbang, err := lifecycle.SpawnBackpackItem(world, "flashbang", 1)
+	require.NoError(t, err)
+	attack, ok := query.ThrowAttackOf(world, flashbang)
+	require.True(t, ok)
+	hp := world.Components.HP.Get(enemy).Current
+	speed := query.CalculateSpeed(world, enemy)
+	before := query.EffectiveBodyFuncs(world, enemy)
+
+	require.NoError(t, explode(world, player, enemy, attack, "Flashbang"))
+
+	funcs := query.EffectiveBodyFuncs(world, enemy)
+	assert.Equal(t, hp, world.Components.HP.Get(enemy).Current, "閃光弾は傷つけない")
+	assert.Equal(t, before.Consciousness, funcs.Consciousness)
+	assert.Equal(t, before.Moving, funcs.Moving)
+	assert.Equal(t, before.Sight*60/100, funcs.Sight, "発症したての目くらみは軽度で、頭の視覚を 40 下げる")
+	assert.Equal(t, speed, query.CalculateSpeed(world, enemy), "頭の不調は速さを変えない")
+}
+
+func TestExplode_閃光弾は半径2までの者の目を本人も含めてくらませる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	target, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
+	require.NoError(t, err)
+	far, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 15, Y: 10}, "fireball")
+	require.NoError(t, err)
+	flashbang, err := lifecycle.SpawnBackpackItem(world, "flashbang", 1)
+	require.NoError(t, err)
+	attack, ok := query.ThrowAttackOf(world, flashbang)
+	require.True(t, ok)
+
+	require.NoError(t, explode(world, player, target, attack, "Flashbang"))
+
+	daze := gc.ConditionType("daze")
+	dazed := func(e ecs.Entity) bool {
+		return world.Components.HealthStatus.Get(e).Parts[gc.BodyPartHead].GetCondition(daze) != nil
+	}
+	assert.Equal(t, []bool{true, true, false}, []bool{dazed(player), dazed(target), dazed(far)})
 }
