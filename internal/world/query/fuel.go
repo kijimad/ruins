@@ -15,7 +15,7 @@ func HeatContent(world w.World, entity ecs.Entity) consts.Heat {
 	kind := world.Components.Material.Get(entity).Kind
 	weight := world.Components.Weight.Get(entity).Milligram
 	heat := world.Resources.MaterialDefs.HeatOf(kind, weight)
-	if _, fuel := FuelKindOf(world, entity); !fuel || !world.Components.Charge.Has(entity) || heat <= 0 {
+	if _, fuel := FuelKindOf(world, entity); !fuel || heat <= 0 {
 		return heat
 	}
 	// 丸めで0になると燃やせる物から外れるので、残量があれば1は残す

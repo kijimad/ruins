@@ -255,3 +255,26 @@ func TestLightDrainSink_抜く先が満タンになって無くなれば閉じ�
 	assert.Equal(t, 1125, world.Components.Charge.Get(lantern).Current, "灯りには抜ききれない分が残る")
 	assert.True(t, sink.done(world))
 }
+
+func TestLightRefillChoices_満たすと抜くはそれぞれの画面へ進む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(lantern).Current = 600
+	oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(oil).Current = 700
+	_, choices := lightRefillChoices(world, lantern)
+
+	types := make([]es.TransType, 0, len(choices))
+	for _, c := range choices {
+		tr, err := c.Run(world)
+		require.NoError(t, err)
+		types = append(types, tr.Type)
+	}
+
+	assert.Equal(t, []es.TransType{es.TransPush, es.TransPush, es.TransPop}, types)
+}

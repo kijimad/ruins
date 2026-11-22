@@ -383,7 +383,7 @@ const lootChargeSteps = 4
 // 上限が小さくても残量0の物は作らない
 func randomizeLootCharge(world w.World, items []ecs.Entity, rng *rand.Rand) {
 	for _, item := range items {
-		if _, ok := query.ChargeKindOf(world, item); !ok || !world.Components.Charge.Has(item) {
+		if _, ok := query.ChargeKindOf(world, item); !ok {
 			continue
 		}
 		charge := world.Components.Charge.Get(item)

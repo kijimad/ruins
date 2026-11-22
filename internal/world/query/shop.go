@@ -46,7 +46,7 @@ func GetItemValue(world w.World, entity ecs.Entity) int {
 		return 0
 	}
 	value := world.Components.Value.Get(entity).Value
-	if _, fuel := FuelKindOf(world, entity); fuel && world.Components.Charge.Has(entity) {
+	if _, fuel := FuelKindOf(world, entity); fuel {
 		charge := world.Components.Charge.Get(entity)
 		return value * charge.Current / charge.Max
 	}
