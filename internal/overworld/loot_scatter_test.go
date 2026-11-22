@@ -18,7 +18,7 @@ func TestNewLootChargeRNG_同じ種のほかの流れと一致しない(t *testi
 		}
 		return out
 	}
-	charge := draws(lifecycle.NewLootChargeRNG(seed, 0x4))
+	charge := draws(lifecycle.NewLootChargeRNG(seed, 0))
 	for _, other := range []*rand.Rand{
 		rand.New(rand.NewPCG(seed, 0x4)),
 		rand.New(rand.NewPCG(seed, 0x5)),
