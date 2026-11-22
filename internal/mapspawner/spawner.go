@@ -3,7 +3,6 @@ package mapspawner
 import (
 	"errors"
 	"fmt"
-	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -50,15 +49,13 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
 	if err := spawnNPCs(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
-	// 物の種類に依らず1回だけ引き、物の定義を変えても後の抽選をずらさない
-	chargeRNG := rand.New(rand.NewPCG(metaPlan.RNG.Uint64()^lifecycle.LootChargeChannel, 0))
-	if err := spawnItems(world, metaPlan, offsetX, offsetY, chargeRNG); err != nil {
+	if err := spawnItems(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
 	if err := spawnDecors(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
-	if err := spawnProps(world, metaPlan, offsetX, offsetY, chargeRNG); err != nil {
+	if err := spawnProps(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
 	if err := spawnDoors(world, metaPlan, offsetX, offsetY); err != nil {
@@ -140,13 +137,13 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 }
 
 // spawnItems はアイテムを生成する
-func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile, chargeRNG *rand.Rand) error {
+func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	for _, item := range metaPlan.Items {
 		tileX, tileY := item.X+offsetX, item.Y+offsetY
 		if item.Count <= 0 {
 			return fmt.Errorf("%w (%d, %d): count=%d", errInvalidItemCount, item.X, item.Y, item.Count)
 		}
-		if err := lifecycle.SpawnFieldLoot(world, item.Name, tileX, tileY, item.Count, chargeRNG); err != nil {
+		if err := lifecycle.SpawnFieldLoot(world, item.Name, tileX, tileY, item.Count, metaPlan.ChargeRNG); err != nil {
 			return fmt.Errorf("failed to spawn item (%d, %d): %w", item.X, item.Y, err)
 		}
 	}
@@ -164,7 +161,7 @@ func spawnDecors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY 
 }
 
 // spawnProps はPropsを生成する
-func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile, chargeRNG *rand.Rand) error {
+func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY consts.Tile) error {
 	poses, err := planPoses(metaPlan)
 	if err != nil {
 		return err
@@ -197,7 +194,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 
 		// Storage propにルートアイテムを格納する
 		if propRaw.Storage != nil && propRaw.Storage.LootTableId != nil && *propRaw.Storage.LootTableId != "" {
-			if err := populateStorageLoot(world, metaPlan, propEntity, propRaw, chargeRNG); err != nil {
+			if err := populateStorageLoot(world, metaPlan, propEntity, propRaw); err != nil {
 				return fmt.Errorf("failed to spawn container item (%d, %d): %w", prop.X, prop.Y, err)
 			}
 		}
@@ -272,7 +269,7 @@ func detectPropDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorO
 }
 
 // populateStorageLoot は収納propにルートテーブルからアイテムを格納する
-func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEntity ecs.Entity, propRaw rawschema.Prop, chargeRNG *rand.Rand) error {
+func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEntity ecs.Entity, propRaw rawschema.Prop) error {
 	tableName := *propRaw.Storage.LootTableId
 	itemTable, err := raw.GetItemTable(*metaPlan.RawMaster, tableName)
 	if err != nil {
@@ -299,7 +296,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 			return fmt.Errorf("%w: %w", errDrawLoot, err)
 		}
 		for _, d := range draws {
-			if err := lifecycle.SpawnStorageLoot(world, d.Name, d.Count, storageEntity, chargeRNG); err != nil {
+			if err := lifecycle.SpawnStorageLoot(world, d.Name, d.Count, storageEntity, metaPlan.ChargeRNG); err != nil {
 				return fmt.Errorf("failed to spawn item '%s': %w", d.Name, err)
 			}
 		}
