@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryMed">77.9&nbsp;%</td>
-            <td class="headerCovTableEntry">244</td>
-            <td class="headerCovTableEntry">190</td>
+            <td class="headerCovTableEntry">272</td>
+            <td class="headerCovTableEntry">212</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:22:26</td>
+            <td class="headerValue">2026-11-22 16:37:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -361,73 +361,129 @@
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L300"><span class="lineNum">     300</span>              : }</span>
 <span id="L301"><span class="lineNum">     301</span>              : </span>
-<span id="L302"><span class="lineNum">     302</span>              : // SpawnStorageItem は収納内にアイテムを count 個生成する。戻り値はスタック代表としての1個。</span>
-<span id="L303"><span class="lineNum">     303</span>              : func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {</span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :         if count &lt;= 0 {</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                 return gc.InvalidEntity, fmt.Errorf(&quot;%w: %d&quot;, errNonPositiveCount, count)</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :         last := gc.InvalidEntity</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :         for range count {</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 item, err := spawnItemBase(world, itemName)</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                         return gc.InvalidEntity, err</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                 if err := MoveToStorage(world, item, storage); err != nil {</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                         return item, fmt.Errorf(&quot;failed to move to storage: %w&quot;, err)</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 last = item</span></span>
-<span id="L317"><span class="lineNum">     317</span>              :         }</span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         return last, nil</span></span>
-<span id="L319"><span class="lineNum">     319</span>              : }</span>
-<span id="L320"><span class="lineNum">     320</span>              : </span>
-<span id="L321"><span class="lineNum">     321</span>              : // SpawnFieldItem はフィールド上に同じ位置へアイテムを count 個生成する。戻り値はスタック代表としての1個。</span>
-<span id="L322"><span class="lineNum">     322</span>              : func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {</span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :         if count &lt;= 0 {</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 return gc.InvalidEntity, fmt.Errorf(&quot;%w: %d&quot;, errNonPositiveCount, count)</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         last := gc.InvalidEntity</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         for range count {</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :                 item, err := spawnItemBase(world, itemName)</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                         return gc.InvalidEntity, err</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :                 MoveToField(world, item, nil)</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                 world.Components.GridElement.Add(item, &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                 last = item</span></span>
-<span id="L335"><span class="lineNum">     335</span>              :         }</span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         return last, nil</span></span>
-<span id="L337"><span class="lineNum">     337</span>              : }</span>
-<span id="L338"><span class="lineNum">     338</span>              : </span>
-<span id="L339"><span class="lineNum">     339</span>              : // SpawnVisualEffect はエンティティの位置にエフェクト専用エンティティを生成する</span>
-<span id="L340"><span class="lineNum">     340</span>              : func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World) {</span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :         if !world.Components.GridElement.Has(target) {</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L344"><span class="lineNum">     344</span>              : </span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(target)</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         effectEntity := world.ECS.NewEntity()</span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         world.Components.GridElement.Add(effectEntity, &amp;gc.GridElement{Coord: gridElement.Coord})</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :         world.Components.VisualEffects.Add(effectEntity, &amp;gc.VisualEffects{</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 Effects: []gc.VisualEffect{effect},</span></span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L352"><span class="lineNum">     352</span>              : }</span>
-<span id="L353"><span class="lineNum">     353</span>              : </span>
-<span id="L354"><span class="lineNum">     354</span>              : // SpawnSplashText は画面中央にテキストをスプラッシュ表示するエフェクト専用エンティティを生成する。</span>
-<span id="L355"><span class="lineNum">     355</span>              : // 場面の節目を大書きで知らせる演出に使う。face はフォント未ロードの環境では nil のまま作り、</span>
-<span id="L356"><span class="lineNum">     356</span>              : // 描画しない環境でも生成できるようにする</span>
-<span id="L357"><span class="lineNum">     357</span>              : func SpawnSplashText(world w.World, textStr string) {</span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :         screenW, screenH := world.Resources.GetScreenDimensions()</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :         var face text.Face</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :         if tr := world.Resources.UIResources.Text; tr != nil {</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                 face = tr.SplashFontFace</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :         effect := gc.NewSplashTextEffect(textStr, face, screenW, screenH)</span></span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :         effectEntity := world.ECS.NewEntity()</span></span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :         world.Components.VisualEffects.Add(effectEntity, &amp;gc.VisualEffects{</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                 Effects: []gc.VisualEffect{effect},</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L368"><span class="lineNum">     368</span>              : }</span>
+<span id="L302"><span class="lineNum">     302</span>              : // SpawnStorageItem は収納内にアイテムを count 個生成する。戻り値はスタック代表としての1個。残量は満タンで生まれる。</span>
+<span id="L303"><span class="lineNum">     303</span>              : // 地図に置く見つかる物は SpawnStorageLoot で作る</span>
+<span id="L304"><span class="lineNum">     304</span>              : func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {</span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         items, err := spawnStorageItems(world, itemName, count, storage)</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                 return gc.InvalidEntity, err</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :         return items[len(items)-1], nil</span></span>
+<span id="L310"><span class="lineNum">     310</span>              : }</span>
+<span id="L311"><span class="lineNum">     311</span>              : </span>
+<span id="L312"><span class="lineNum">     312</span>              : // SpawnStorageLoot は見つかる物として収納内にアイテムを count 個生成する。燃料と燃料を受ける灯りは rng でランダムな残量にする</span>
+<span id="L313"><span class="lineNum">     313</span>              : func SpawnStorageLoot(world w.World, itemName string, count int, storage ecs.Entity, rng *rand.Rand) error {</span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :         items, err := spawnStorageItems(world, itemName, count, storage)</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         randomizeLootCharge(world, items, rng)</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L320"><span class="lineNum">     320</span>              : }</span>
+<span id="L321"><span class="lineNum">     321</span>              : </span>
+<span id="L322"><span class="lineNum">     322</span>              : // spawnStorageItems は収納内にアイテムを count 個生成し、作った物をすべて返す</span>
+<span id="L323"><span class="lineNum">     323</span>              : func spawnStorageItems(world w.World, itemName string, count int, storage ecs.Entity) ([]ecs.Entity, error) {</span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :         if count &lt;= 0 {</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;%w: %d&quot;, errNonPositiveCount, count)</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         items := make([]ecs.Entity, 0, count)</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         for range count {</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 item, err := spawnItemBase(world, itemName)</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                         return nil, err</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                 if err := MoveToStorage(world, item, storage); err != nil {</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;failed to move to storage: %w&quot;, err)</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                 items = append(items, item)</span></span>
+<span id="L337"><span class="lineNum">     337</span>              :         }</span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         return items, nil</span></span>
+<span id="L339"><span class="lineNum">     339</span>              : }</span>
+<span id="L340"><span class="lineNum">     340</span>              : </span>
+<span id="L341"><span class="lineNum">     341</span>              : // SpawnFieldItem はフィールド上に同じ位置へアイテムを count 個生成する。戻り値はスタック代表としての1個。残量は満タンで生まれる。</span>
+<span id="L342"><span class="lineNum">     342</span>              : // 地図に置く見つかる物は SpawnFieldLoot で作る</span>
+<span id="L343"><span class="lineNum">     343</span>              : func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {</span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         items, err := spawnFieldItems(world, itemName, x, y, count)</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :                 return gc.InvalidEntity, err</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         return items[len(items)-1], nil</span></span>
+<span id="L349"><span class="lineNum">     349</span>              : }</span>
+<span id="L350"><span class="lineNum">     350</span>              : </span>
+<span id="L351"><span class="lineNum">     351</span>              : // SpawnFieldLoot は見つかる物としてフィールド上に同じ位置へアイテムを count 個生成する。燃料と燃料を受ける灯りは rng でランダムな残量にする</span>
+<span id="L352"><span class="lineNum">     352</span>              : func SpawnFieldLoot(world w.World, itemName string, x consts.Tile, y consts.Tile, count int, rng *rand.Rand) error {</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 :         items, err := spawnFieldItems(world, itemName, x, y, count)</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :         randomizeLootCharge(world, items, rng)</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L359"><span class="lineNum">     359</span>              : }</span>
+<span id="L360"><span class="lineNum">     360</span>              : </span>
+<span id="L361"><span class="lineNum">     361</span>              : // spawnFieldItems はフィールド上に同じ位置へアイテムを count 個生成し、作った物をすべて返す</span>
+<span id="L362"><span class="lineNum">     362</span>              : func spawnFieldItems(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) ([]ecs.Entity, error) {</span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         if count &lt;= 0 {</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;%w: %d&quot;, errNonPositiveCount, count)</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         items := make([]ecs.Entity, 0, count)</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         for range count {</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :                 item, err := spawnItemBase(world, itemName)</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :                         return nil, err</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :                 MoveToField(world, item, nil)</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :                 world.Components.GridElement.Add(item, &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :                 items = append(items, item)</span></span>
+<span id="L375"><span class="lineNum">     375</span>              :         }</span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 :         return items, nil</span></span>
+<span id="L377"><span class="lineNum">     377</span>              : }</span>
+<span id="L378"><span class="lineNum">     378</span>              : </span>
+<span id="L379"><span class="lineNum">     379</span>              : // lootChargeSteps は見つかる物の残量の段階の数。1個ずつ一様に引くと残量ごとに別の束になり、拾った物がほぼ1個ずつ並ぶ</span>
+<span id="L380"><span class="lineNum">     380</span>              : const lootChargeSteps = 4</span>
+<span id="L381"><span class="lineNum">     381</span>              : </span>
+<span id="L382"><span class="lineNum">     382</span>              : // randomizeLootCharge は items のうち残量を移し合う燃料と灯りの残量を、上限の 1/4 刻みの段階から1個ずつ引く。</span>
+<span id="L383"><span class="lineNum">     383</span>              : // 上限が小さくても残量0の物は作らない</span>
+<span id="L384"><span class="lineNum">     384</span>              : func randomizeLootCharge(world w.World, items []ecs.Entity, rng *rand.Rand) {</span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :         for _, item := range items {</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :                 if _, ok := query.ChargeKindOf(world, item); !ok {</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L388"><span class="lineNum">     388</span>              :                 }</span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :                 charge := world.Components.Charge.Get(item)</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :                 step := rng.IntN(lootChargeSteps) + 1</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :                 charge.Current = max(1, charge.Max*step/lootChargeSteps)</span></span>
+<span id="L392"><span class="lineNum">     392</span>              :         }</span>
+<span id="L393"><span class="lineNum">     393</span>              : }</span>
+<span id="L394"><span class="lineNum">     394</span>              : </span>
+<span id="L395"><span class="lineNum">     395</span>              : // SpawnVisualEffect はエンティティの位置にエフェクト専用エンティティを生成する</span>
+<span id="L396"><span class="lineNum">     396</span>              : func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World) {</span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :         if !world.Components.GridElement.Has(target) {</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L400"><span class="lineNum">     400</span>              : </span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(target)</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :         effectEntity := world.ECS.NewEntity()</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :         world.Components.GridElement.Add(effectEntity, &amp;gc.GridElement{Coord: gridElement.Coord})</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :         world.Components.VisualEffects.Add(effectEntity, &amp;gc.VisualEffects{</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :                 Effects: []gc.VisualEffect{effect},</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L408"><span class="lineNum">     408</span>              : }</span>
+<span id="L409"><span class="lineNum">     409</span>              : </span>
+<span id="L410"><span class="lineNum">     410</span>              : // SpawnSplashText は画面中央にテキストをスプラッシュ表示するエフェクト専用エンティティを生成する。</span>
+<span id="L411"><span class="lineNum">     411</span>              : // 場面の節目を大書きで知らせる演出に使う。face はフォント未ロードの環境では nil のまま作り、</span>
+<span id="L412"><span class="lineNum">     412</span>              : // 描画しない環境でも生成できるようにする</span>
+<span id="L413"><span class="lineNum">     413</span>              : func SpawnSplashText(world w.World, textStr string) {</span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :         screenW, screenH := world.Resources.GetScreenDimensions()</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :         var face text.Face</span></span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :         if tr := world.Resources.UIResources.Text; tr != nil {</span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :                 face = tr.SplashFontFace</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :         effect := gc.NewSplashTextEffect(textStr, face, screenW, screenH)</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         effectEntity := world.ECS.NewEntity()</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :         world.Components.VisualEffects.Add(effectEntity, &amp;gc.VisualEffects{</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                 Effects: []gc.VisualEffect{effect},</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L424"><span class="lineNum">     424</span>              : }</span>
         </pre>
               </td>
             </tr>

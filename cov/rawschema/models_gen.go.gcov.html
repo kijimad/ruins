@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:22:26</td>
+            <td class="headerValue">2026-11-22 16:37:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -385,12 +385,12 @@
 <span id="L323"><span class="lineNum">     323</span>              : // Chance 確率</span>
 <span id="L324"><span class="lineNum">     324</span>              : type Chance = float64</span>
 <span id="L325"><span class="lineNum">     325</span>              : </span>
-<span id="L326"><span class="lineNum">     326</span>              : // Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる</span>
+<span id="L326"><span class="lineNum">     326</span>              : // Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、燃料は灯りへ移すと減り、0で尽きる</span>
 <span id="L327"><span class="lineNum">     327</span>              : type Charge struct {</span>
 <span id="L328"><span class="lineNum">     328</span>              :         // AcceptedFuel 受ける燃料の種別。省くと使い切りで、尽きると無くなる</span>
 <span id="L329"><span class="lineNum">     329</span>              :         AcceptedFuel *FuelKindId `json:&quot;acceptedFuel,omitempty&quot;`</span>
 <span id="L330"><span class="lineNum">     330</span>              : </span>
-<span id="L331"><span class="lineNum">     331</span>              :         // Max 残量の上限。灯りはターン数、武器と道具は回数</span>
+<span id="L331"><span class="lineNum">     331</span>              :         // Max 残量の上限。灯りはターン数、武器と道具は回数、燃料は灯りへ移せるターン数</span>
 <span id="L332"><span class="lineNum">     332</span>              :         Max ChargeAmount `json:&quot;max&quot;`</span>
 <span id="L333"><span class="lineNum">     333</span>              : }</span>
 <span id="L334"><span class="lineNum">     334</span>              : </span>
@@ -2407,7 +2407,7 @@
 <span id="L2345"><span class="lineNum">    2345</span>              :         Rooms RandInt `json:&quot;rooms&quot;`</span>
 <span id="L2346"><span class="lineNum">    2346</span>              : }</span>
 <span id="L2347"><span class="lineNum">    2347</span>              : </span>
-<span id="L2348"><span class="lineNum">    2348</span>              : // Refill 燃料。受ける種別が同じ灯りを上限まで満たす</span>
+<span id="L2348"><span class="lineNum">    2348</span>              : // Refill 燃料。受ける種別が同じ灯りとの間で残量を移す。残量0でも残り、抜くときの入れ物になる</span>
 <span id="L2349"><span class="lineNum">    2349</span>              : type Refill struct {</span>
 <span id="L2350"><span class="lineNum">    2350</span>              :         Kind FuelKindId `json:&quot;kind&quot;`</span>
 <span id="L2351"><span class="lineNum">    2351</span>              : }</span>
