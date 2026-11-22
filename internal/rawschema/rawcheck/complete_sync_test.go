@@ -40,6 +40,22 @@ func TestComplete_必須のキーが列挙の値と一致する(t *testing.T) {
 		{"mapGlyphChunks_complete", valueStrings(rawschema.GlyphChunkValues())},
 		{"resists_complete", elements},
 	}
+
+	// #Complete に検査を足してこの表に行を足し忘れると突き合わされないので、欄の集合も突き合わせる。
+	// 天気の行ごとの季節は seasons_complete と同じ #SeasonKeys を使うので表に持たない
+	paths := make([]string, 0, 1+len(tests))
+	paths = append(paths, "weatherSeasons_complete")
+	for _, tt := range tests {
+		paths = append(paths, tt.path)
+	}
+	fields, err := v.LookupPath(cue.ParsePath(completePath)).Fields()
+	require.NoError(t, err)
+	var declared []string
+	for fields.Next() {
+		declared = append(declared, fields.Selector().Unquoted())
+	}
+	assert.ElementsMatch(t, paths, declared)
+
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
 			t.Parallel()

@@ -392,7 +392,7 @@ func validateSkillCodeRows(raws rawschema.Raws) error {
 	return nil
 }
 
-// rowIDs は行それぞれの enum の id を文字列にして返す
+// rowIDs は行それぞれの id を文字列にして返す
 func rowIDs[R any, ID ~string](rows []R, id func(R) ID) []string {
 	out := make([]string, 0, len(rows))
 	for _, r := range rows {
