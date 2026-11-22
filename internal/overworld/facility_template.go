@@ -119,7 +119,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 	occupied := make(map[consts.Coord[consts.Tile]]bool)
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
 	beingRNG := rand.New(rand.NewPCG(seed, 0x5))
-	chargeRNG := lifecycle.NewLootChargeRNG(seed, 0)
+	chargeRNG := rand.New(rand.NewPCG(seed^lifecycle.LootChargeChannel, 0))
 	for y, row := range cells {
 		for x, cell := range row {
 			pos := consts.Coord[consts.Tile]{X: g.offsetX + ox + consts.Tile(x), Y: g.offsetY + oy + consts.Tile(y)}

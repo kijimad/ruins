@@ -376,15 +376,10 @@ func spawnFieldItems(world w.World, itemName string, x consts.Tile, y consts.Til
 	return items, nil
 }
 
-// lootChargeChannel は見つかる物の残量の乱数を、物の選択と配置の乱数から切り離すハッシュチャネル
-const lootChargeChannel uint64 = 0x6c6f6f745f636867 // "loot_chg"
-
-// NewLootChargeRNG は種 seed から、見つかる物の残量を引く乱数を作る。配置の乱数は後の抽選にも使われるので、
-// そこから引くと後の配置がずれる。第2引数に定数を足すと同じ種で同じ定数を使う別の処理と同じ乱数列になるので、
-// 種のほうにチャネルを混ぜる
-func NewLootChargeRNG(seed, salt uint64) *rand.Rand {
-	return rand.New(rand.NewPCG(seed^lootChargeChannel, salt))
-}
+// LootChargeChannel は見つかる物の残量の乱数を、物の選択と配置の乱数から切り離すハッシュチャネル。種に XOR して流れを作る。
+// 配置の乱数は後の抽選にも使われるので、そこから引くと後の配置がずれる。第2引数の定数で分けると、同じ種で同じ定数を使う
+// 別の処理と同じ乱数列になり、計画の乱数のように第2引数が種で変わる流れとは重ならないことを保証できない
+const LootChargeChannel uint64 = 0x6c6f6f745f636867 // "loot_chg"
 
 // lootChargeSteps は見つかる物の残量の段階の数。1個ずつ一様に引くと残量ごとに別の束になり、拾った物がほぼ1個ずつ並ぶ
 const lootChargeSteps = 4

@@ -50,7 +50,7 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
 	if err := spawnNPCs(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
-	chargeRNG := lifecycle.NewLootChargeRNG(metaPlan.Seed, 0)
+	chargeRNG := rand.New(rand.NewPCG(metaPlan.Seed^lifecycle.LootChargeChannel, 0))
 	if err := spawnItems(world, metaPlan, offsetX, offsetY, chargeRNG); err != nil {
 		return gc.Level{}, err
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewLootChargeRNG_同じ種のほかの流れと一致しない(t *testing.T) {
+func TestLootChargeChannel_同じ種のほかの流れと一致しない(t *testing.T) {
 	t.Parallel()
 	const seed uint64 = 12345
 	draws := func(r *rand.Rand) []uint64 {
@@ -18,7 +18,7 @@ func TestNewLootChargeRNG_同じ種のほかの流れと一致しない(t *testi
 		}
 		return out
 	}
-	charge := draws(lifecycle.NewLootChargeRNG(seed, 0))
+	charge := draws(rand.New(rand.NewPCG(seed^lifecycle.LootChargeChannel, 0)))
 	for _, other := range []*rand.Rand{
 		rand.New(rand.NewPCG(seed, 0x4)),
 		rand.New(rand.NewPCG(seed, 0x5)),
