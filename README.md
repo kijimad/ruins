@@ -113,7 +113,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 | status | Document | Progress | tags |
 |---|---|---|---|
 | in-progress | [灯りと武器と道具に残量を持たせて有限にする](docs/design/261119224218.md) | 18/26 | item, gamedesign |
-| draft | [道具の分類と弾の口径を raw の表で定義し、両側から id で引く](docs/design/261122182942.md) | 0/5 (1 skipped) | refactor, item |
+| draft | [道具の分類と弾の口径を raw の表で定義し、列挙と表の一致を CUE で確かめる](docs/design/261122182942.md) | 0/6 (1 skipped) | refactor, item |
 
 
 ## References
