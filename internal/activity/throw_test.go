@@ -426,3 +426,27 @@ func TestExplode_構えた道具は置物に効かせない(t *testing.T) {
 		assert.Equal(t, before, *world.Components.Skills.Get(player).Get(skillID))
 	})
 }
+
+func TestExplode_閃光弾は範囲の者の体を鈍らせる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 14, Y: 10}, "fireball")
+	require.NoError(t, err)
+	flashbang, err := lifecycle.SpawnBackpackItem(world, "flashbang", 1)
+	require.NoError(t, err)
+	attack, ok := query.ThrowAttackOf(world, flashbang)
+	require.True(t, ok)
+	hp := world.Components.HP.Get(enemy).Current
+	speed := query.CalculateSpeed(world, enemy)
+
+	require.NoError(t, explode(world, player, enemy, attack, "Flashbang"))
+
+	funcs := query.EffectiveBodyFuncs(world, enemy)
+	assert.Equal(t, hp, world.Components.HP.Get(enemy).Current, "閃光弾は傷つけない")
+	assert.Equal(t, consts.Percent(60), funcs.Consciousness)
+	assert.Equal(t, consts.Percent(60), funcs.Moving)
+	assert.Equal(t, consts.Percent(60), funcs.Sight)
+	assert.Less(t, query.CalculateSpeed(world, enemy), speed)
+}

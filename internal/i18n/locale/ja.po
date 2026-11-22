@@ -1644,6 +1644,12 @@ msgstr "%s は %s に巻き込まれ、%s のダメージを受けた。"
 msgid "%s contracted %s."
 msgstr "%s は %s にかかった。"
 
+msgid "Daze"
+msgstr "目くらみ"
+
+msgid "Dazed by a blinding flash and a deafening bang. It wears off in a few turns."
+msgstr "まぶしい光と大きな音で頭がくらんでいる。数ターンで治まる。"
+
 msgid "Venom"
 msgstr "毒"
 

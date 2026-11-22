@@ -1349,6 +1349,15 @@
   painPerSeverity = 0
 
 [[conditions]]
+  bodyFuncDropPerSeverity = 40
+  description = "Dazed by a blinding flash and a deafening bang. It wears off in a few turns."
+  id = "daze"
+  name = "Daze"
+  painPerSeverity = 0
+  recoverPer = 2
+  recovery = "recover_over_time"
+
+[[conditions]]
   bodyFuncDropPerSeverity = 10
   description = "Venom is spreading through the body. It clears on its own over time."
   id = "venom"
@@ -14509,6 +14518,9 @@
   [items.throw]
     accuracy = 75
     damage = 0
+    [items.throw.blast]
+      condition = "daze"
+      radius = 2
 
 [[items]]
   description = "A soft, fluffy loaf of white bread."
