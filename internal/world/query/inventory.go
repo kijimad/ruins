@@ -46,8 +46,8 @@ func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoTag) (ecs.Entity, 
 	return gc.InvalidEntity, false
 }
 
-// FireStarterOf は owner が着火に使う火種を返す。残量を持たない物、バックパックの物、装備の物の順に選び、
-// 同じ順位なら残量の少ない物を選ぶ。照らしている装備の灯りを削らずに済むよう、照らしていない物から使う。
+// FireStarterOf は owner が着火に使う火種を返す。残量を持たない物、バックパックの物、オフの装備の物、オンの装備の物の順に選び、
+// 同じ順位なら残量の少ない物を選ぶ。照らしている装備の灯りを削らずに済むよう、オフの物から使う。
 // 減るのを1本に集め、ほかを新品のまま束ねてクラフトの材料にも使えるようにする
 func FireStarterOf(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
 	best := gc.InvalidEntity
@@ -69,8 +69,14 @@ func FireStarterOf(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
 	}
 	equipped := ecs.NewFilter2[gc.LocationEquipped, gc.FireStarter](world.ECS).Query()
 	for equipped.Next() {
-		if world.Components.LocationEquipped.Get(equipped.Entity()).Owner == owner {
-			consider(equipped.Entity(), 2)
+		e := equipped.Entity()
+		if world.Components.LocationEquipped.Get(e).Owner != owner {
+			continue
+		}
+		if IsOn(world, owner, e) {
+			consider(e, 3)
+		} else {
+			consider(e, 2)
 		}
 	}
 	return best, best != gc.InvalidEntity

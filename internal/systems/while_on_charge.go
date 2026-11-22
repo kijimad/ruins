@@ -21,7 +21,7 @@ func (sys *WhileOnChargeSystem) Update(world w.World) error {
 	// プレイヤーがいなくても床の物は減らす
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
-		player = ecs.Entity{}
+		player = gc.InvalidEntity
 	}
 	var on []ecs.Entity
 	q := query.ActiveFilter1[gc.Charge](world).Query()

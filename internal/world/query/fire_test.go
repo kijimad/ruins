@@ -102,3 +102,23 @@ func TestFireStarterOf_照らしていない物から残量の少ない順に選
 	got, _ = query.FireStarterOf(world, player)
 	assert.Equal(t, endless, got, "残量を持たない物を最初に使う")
 }
+
+func TestFireStarterOf_装備の物はオフの物を先に使う(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	torch := func(charge int, enabled bool, slot gc.EquipmentSlotNumber) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.FireStarter.Add(e, &gc.FireStarter{})
+		world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: charge})
+		world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: enabled})
+		world.Components.LocationEquipped.Add(e, &gc.LocationEquipped{Owner: player, EquipmentSlot: slot})
+		return e
+	}
+	torch(100, true, gc.SlotHand1)
+	off := torch(500, false, gc.SlotHand2)
+
+	got, ok := query.FireStarterOf(world, player)
+	require.True(t, ok)
+	assert.Equal(t, off, got, "照らしている方が残量が少なくても、オフの方を使う")
+}

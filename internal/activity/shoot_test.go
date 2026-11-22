@@ -226,6 +226,20 @@ func TestShootBehavior_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 	})
 
+	t.Run("最後の1発で銃が壊れても撃ち終える", func(t *testing.T) {
+		t.Parallel()
+		world, player, enemy, weaponEntity := setupShootingWorld(t)
+		world.Components.Charge.Get(weaponEntity).Current = 1
+
+		sa := &ShootBehavior{}
+		comp := NewActivity(gc.BehaviorShoot, 0)
+		comp.Params = &gc.ShootParams{Target: enemy}
+
+		require.NoError(t, sa.DoTurn(comp, player, world))
+		assert.False(t, world.ECS.Alive(weaponEntity), "残量が尽きた銃は消える")
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+	})
+
 	t.Run("ターゲット未設定でエラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
