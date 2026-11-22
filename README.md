@@ -112,8 +112,8 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
+| in-progress | [燃料に残量を持たせ、灯りとの間で移す](docs/design/261122193721.md) | 12/13 | item, gamedesign |
 | draft | [ゲームのコードが名指ししない列挙を raw の表で定義し、列挙と表の一致を CUE で確かめる](docs/design/261122182942.md) | 0/16 | refactor, item |
-| draft | [燃料に残量を持たせ、灯りとの間で移す](docs/design/261122193721.md) | 0/13 | item, gamedesign |
 
 
 ## References
