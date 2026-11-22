@@ -28,16 +28,16 @@ const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // "loot_itm"
 func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], g chunkGeom, cat scatterCatalog, accept func(consts.Coord[consts.Tile]) bool, occupied map[gc.GridElement]bool) error {
 	groupID := cat.LootGroup
 
-	// タイル選択の seed とアイテム抽選の rng を別チャネルにする。同一 seed だと「どこに置くか」と「何を置くか」が
+	// タイル選択の seed とアイテム抽選の itemRNG を別チャネルにする。同一 seed だと「どこに置くか」と「何を置くか」が
 	// 相関しうるので、アイテム側は専用チャネルを XOR して無相関にする
 	selSeed := consts.Mix2D(runSeed^outdoorLootSalt, c.X, c.Y)
-	rng := rand.New(rand.NewPCG(selSeed^outdoorLootItemChannel, outdoorLootSalt))
+	itemRNG := rand.New(rand.NewPCG(selSeed^outdoorLootItemChannel, outdoorLootSalt))
 	chargeRNG := rand.New(rand.NewPCG(selSeed^lifecycle.LootChargeChannel, outdoorLootSalt))
 	// 置くタイル数は散布ゾーンの密度から面積で導く。反復乱数でなく密度で決めるので純関数のまま
 	count := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.LootDensity))
 
 	for _, rel := range scatterTiles(g.chunkW, g.chunkH, accept, selSeed, count) {
-		draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)
+		draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, itemRNG)
 		if err != nil {
 			return err
 		}
