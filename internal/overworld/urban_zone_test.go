@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -323,35 +322,4 @@ func TestStreetTilesOf_植え込みを省くと植え込みを置かない(t *te
 
 	assert.Equal(t, streetTiles{street: "road"}, streetTilesOf(&rawschema.District{Street: "road"}))
 	assert.Equal(t, streetTiles{street: "road", verge: "grass_green"}, streetTilesOf(&rawschema.District{Street: "road", Verge: new(rawschema.EntityID("grass_green"))}))
-}
-
-func TestDistrictFence_塀は並びに沿って向く(t *testing.T) {
-	t.Parallel()
-
-	const w, h consts.Tile = 6, 5
-	r := districtRegion{w: 3, h: 2}
-	fences := map[consts.Coord[consts.Tile]]bool{}
-	for _, p := range districtFence(r, consts.Coord[consts.Chunk]{X: 0, Y: 0}, w, h, 1, 1) {
-		fences[p] = true
-	}
-	poses := mapplanner.RowPoses(fences, fences, func(consts.Coord[consts.Tile]) bool { return false })
-
-	rows := make([][]byte, h)
-	for y := range rows {
-		rows[y] = []byte("......")
-	}
-	for c, pose := range poses {
-		switch pose.Facing {
-		case consts.North, consts.South:
-			rows[c.Y][c.X] = '-'
-		case consts.East, consts.West:
-			rows[c.Y][c.X] = '|'
-		}
-	}
-	got := make([]string, h)
-	for y := range rows {
-		got[y] = string(rows[y])
-	}
-	// 東西に並ぶ北の端は板が東西に、南北に並ぶ西の端は板が南北に沿う
-	assert.Equal(t, []string{"------", "|.....", "|.....", "|.....", "|....."}, got)
 }

@@ -264,7 +264,7 @@ func TestCollectBillboards_寝かせる形のpropは地面に寝かせる(t *tes
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil, nil)
 
 	require.Len(t, quads, 1)
 	assert.Equal(t, [4]render3d.Vec{
@@ -292,7 +292,7 @@ func TestCollectBillboards_視界の外では跡を描かず床の模様は描�
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, remembered, nil, nil, nil)
+	quads := sys.collectBillboards(world, nil, projector, remembered, nil, nil, nil, nil)
 
 	require.Len(t, quads, 1, "記憶しているマスには床の模様だけを描く")
 	assert.Equal(t, rawschema.SpriteDepthDecal.Rank(), quads[0].depth)
@@ -448,7 +448,7 @@ func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
 	require.NoError(t, lifecycle.OpenDoor(world, door))
 	sys := &Render3DSystem{}
 
-	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil))
+	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil, nil))
 }
 
 func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T) {
@@ -523,7 +523,7 @@ func TestCollectBillboards_同じマスのテーブルとアイテムはアイ�
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil, nil)
 	sortQuadsByDepth(quads, projector.Depth)
 
 	require.Len(t, quads, 2)
@@ -550,9 +550,37 @@ func TestCollectBillboards_同じマスのアイテムとプレイヤーはプ�
 	require.NoError(t, err)
 	sys := &Render3DSystem{}
 
-	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil)
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil, nil)
 	sortQuadsByDepth(quads, projector.Depth)
 
 	require.Len(t, quads, 2)
 	assert.Equal(t, []int{rawschema.SpriteDepthItem.Rank(), rawschema.SpriteDepthPlayer.Rank()}, []int{quads[0].depth, quads[1].depth}, "後に描くプレイヤーが手前に出る")
+}
+
+func TestLinkedSpans(t *testing.T) {
+	t.Parallel()
+
+	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	tests := []struct {
+		name      string
+		neighbors []consts.Cardinal
+		want      []linkedSpan
+	}{
+		{name: "隣が無ければ東西に渡す", want: []linkedSpan{{from: 0, to: 1}}},
+		{name: "東西の並びは東西に渡す", neighbors: []consts.Cardinal{consts.East, consts.West}, want: []linkedSpan{{from: 0, to: 1}}},
+		{name: "並びの端も端から端まで渡す", neighbors: []consts.Cardinal{consts.East}, want: []linkedSpan{{from: 0, to: 1}}},
+		{name: "南北の並びは南北に渡す", neighbors: []consts.Cardinal{consts.North}, want: []linkedSpan{{northSouth: true, from: 0, to: 1}}},
+		{name: "角は隣のある2方向へだけ伸ばす", neighbors: []consts.Cardinal{consts.East, consts.South}, want: []linkedSpan{{from: 0.5, to: 1}, {northSouth: true, from: 0.5, to: 1}}},
+		{name: "T字は隣のある3方向へ伸ばす", neighbors: []consts.Cardinal{consts.East, consts.West, consts.North}, want: []linkedSpan{{from: 0, to: 0.5}, {from: 0.5, to: 1}, {northSouth: true, from: 0, to: 0.5}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			linked := map[consts.Coord[consts.Tile]]bool{c: true}
+			for _, d := range tt.neighbors {
+				linked[c.Add(d.Delta())] = true
+			}
+			assert.Equal(t, tt.want, linkedSpans(c, linked))
+		})
+	}
 }
