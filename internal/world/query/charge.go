@@ -30,6 +30,14 @@ func ChargeTriggerOf(world w.World, item ecs.Entity) ChargeTrigger {
 	return ChargeTriggerOnUse
 }
 
+// IsOn は、オンの間に減る item がいまオンかを返す。灯りは照らしているかで決まる
+func IsOn(world w.World, player, item ecs.Entity) bool {
+	if world.Components.LightSource.Has(item) {
+		return LightLit(world, player, item)
+	}
+	return false
+}
+
 // ChargeRatio は残量の上限に対する割合を 0 から 1 で返す。残量を持たなければ ok は偽。上限は raw で1以上に決まる
 func ChargeRatio(world w.World, entity ecs.Entity) (float64, bool) {
 	if !world.Components.Charge.Has(entity) {

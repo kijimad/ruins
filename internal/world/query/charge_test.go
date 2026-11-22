@@ -70,3 +70,36 @@ func TestChargeTriggerOf(t *testing.T) {
 		assert.Equal(t, ChargeTriggerNone, ChargeTriggerOf(testutil.InitTestWorld(t), gc.InvalidEntity))
 	})
 }
+
+func TestIsOn(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name  string
+		build func(world w.World, e ecs.Entity)
+		want  bool
+	}{
+		{name: "床で点いた灯りはオン", build: func(world w.World, e ecs.Entity) {
+			world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: 600})
+			world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: true})
+			world.Components.GridElement.Add(e, &gc.GridElement{})
+		}, want: true},
+		{name: "バックパックの灯りはオフ", build: func(world w.World, e ecs.Entity) {
+			world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: 600})
+			world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: true})
+			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{})
+		}, want: false},
+		{name: "光源を持たない物はオフ", build: func(world w.World, e ecs.Entity) {
+			world.Components.Charge.Add(e, &gc.Charge{Max: 150, Current: 150})
+			world.Components.GridElement.Add(e, &gc.GridElement{})
+		}, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			e := world.ECS.NewEntity()
+			tt.build(world, e)
+			assert.Equal(t, tt.want, IsOn(world, gc.InvalidEntity, e))
+		})
+	}
+}
