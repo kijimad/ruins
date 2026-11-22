@@ -3945,12 +3945,6 @@ msgstr "毒グレネード"
 msgid "A thrown bomb coated in poison, a hit spreads venom."
 msgstr "毒を塗った投擲弾。当たると毒が回る"
 
-msgid "Antidote"
-msgstr "毒消し"
-
-msgid "A herb that cures poison and status ailments."
-msgstr "毒や状態異常を治す薬草"
-
 msgid "Shrimp"
 msgstr "海老"
 

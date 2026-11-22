@@ -45,7 +45,7 @@ func TestProfessionItems(t *testing.T) {
 		{professionID: "sniper", itemCount: 3},
 		{professionID: "mechanic", itemCount: 2},
 		{professionID: "hunter", itemCount: 3},
-		{professionID: "medic", itemCount: 5},
+		{professionID: "medic", itemCount: 4},
 	}
 
 	for _, tt := range tests {

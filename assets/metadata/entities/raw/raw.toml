@@ -5675,11 +5675,6 @@
     weight = 1.5
 
   [[itemGroups.entries]]
-    id = "antidote"
-    pack = "1d1"
-    weight = 1.5
-
-  [[itemGroups.entries]]
     id = "toothbrush_set"
     pack = "1d1"
     weight = 1.0
@@ -14304,20 +14299,6 @@
       radius = 1
 
 [[items]]
-  description = "A herb that cures poison and status ailments."
-  id = "antidote"
-  material = "PLANT"
-  name = "Antidote"
-  spriteKey = "green_herb"
-  spriteSheetName = "field"
-  value = 80
-  weight = "80 g"
-  [items.consumable]
-    targetGroup = "ALLY"
-    targetNum = "SINGLE"
-    usableScene = "ANY"
-
-[[items]]
   description = "Fresh shrimp, high in protein and delicious."
   id = "shrimp"
   material = "FOOD"
@@ -20649,10 +20630,6 @@
     name = "healing_potion"
 
   [[professions.items]]
-    count = 1
-    name = "antidote"
-
-  [[professions.items]]
     count = 3
     name = "green_herb"
 
@@ -23088,14 +23065,6 @@
   [[recipes.inputs]]
     amount = 1
     id = "iron"
-
-[[recipes]]
-  id = "antidote"
-  name = "毒消し"
-
-  [[recipes.inputs]]
-    amount = 1
-    id = "green_herb"
 
 [[recipes]]
   id = "smoke_bomb"
