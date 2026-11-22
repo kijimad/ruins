@@ -11,8 +11,8 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・
-// 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。
+// 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。raw の landmarks から
+// 出現重みで決定的に選び、探索の単調さを崩す。
 
 // landmarkKindAt は当選チャンクに置くランドマークの施設の id を出現重みで抽選する。
 func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
