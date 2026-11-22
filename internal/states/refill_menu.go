@@ -40,15 +40,42 @@ type RefillProps struct {
 	Tabs []refillTab
 }
 
-// refillTab は補充メニューの1タブ。sinkOf は灯りを選んだときに開く給油メニューのくべ先を作る。
-// amount は灯りの側で移せる量の上限で、0なら lightReason を、持ち物に sinkOf が受ける物が無ければ noneReason を理由に出す
+// refillTab は補充メニューの1タブの表示。props は前の値と DeepEqual で比べて描き直すかを決めるので、値だけを持つ
 type refillTab struct {
-	Label       string
-	Rows        []refillRow
-	sinkOf      func(world w.World, light ecs.Entity) FuelSink
-	amount      func(charge gc.Charge) int
+	Label string
+	Rows  []refillRow
+}
+
+// refillTabSpec は補充メニューの1タブの振る舞い。タブの番号で引く。sinkOf は灯りを選んだときに開く給油メニューのくべ先を作り、
+// amount は灯りの側で移せる量の上限を返す
+type refillTabSpec struct {
+	sinkOf func(world w.World, light ecs.Entity) FuelSink
+	amount func(charge gc.Charge) int
+	text   func(world w.World) refillTabText
+}
+
+// refillTabText はタブの見出しと選べない理由の文。灯りの側で移せる量が0なら lightReason、持ち物に受ける物が無ければ noneReason
+type refillTabText struct {
+	label       string
 	lightReason string
 	noneReason  string
+}
+
+var refillTabSpecs = []refillTabSpec{
+	{
+		sinkOf: LightFuelSink,
+		amount: func(c gc.Charge) int { return c.Max - c.Current },
+		text: func(world w.World) refillTabText {
+			return refillTabText{label: query.T(world, "Fill"), lightReason: query.T(world, "Charge full"), noneReason: query.T(world, "No fuel")}
+		},
+	},
+	{
+		sinkOf: LightDrainSink,
+		amount: func(c gc.Charge) int { return c.Current },
+		text: func(world w.World) refillTabText {
+			return refillTabText{label: query.T(world, "Drain"), lightReason: query.T(world, "No charge"), noneReason: query.T(world, "No container")}
+		},
+	},
 }
 
 // refillRow は補充メニューの1行。Disabled なら Value に選べない理由を、選べるなら移せる量を入れる。
@@ -90,11 +117,11 @@ func (st *RefillMenuState) DoAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionOpenItemDetail:
 		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
-		tab, row, ok := st.selected()
+		tabIndex, row, ok := st.selected()
 		if !ok || row.Disabled {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
-		sink := tab.sinkOf(world, row.Entity)
+		sink := refillTabSpecs[tabIndex].sinkOf(world, row.Entity)
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) {
 			return NewFeedFuelMenuState(sink)
 		}}}, nil
@@ -106,38 +133,26 @@ func (st *RefillMenuState) DoAction(world w.World, action inputmapper.ActionID) 
 
 // Fetch は世界から表示 props を構築する
 func (st *RefillMenuState) Fetch(world w.World) (RefillProps, error) {
-	tabs := []refillTab{
-		{
-			Label:       query.T(world, "Fill"),
-			sinkOf:      LightFuelSink,
-			amount:      func(c gc.Charge) int { return c.Max - c.Current },
-			lightReason: query.T(world, "Charge full"),
-			noneReason:  query.T(world, "No fuel"),
-		},
-		{
-			Label:       query.T(world, "Drain"),
-			sinkOf:      LightDrainSink,
-			amount:      func(c gc.Charge) int { return c.Current },
-			lightReason: query.T(world, "No charge"),
-			noneReason:  query.T(world, "No container"),
-		},
-	}
-	for _, light := range refillableItems(world) {
-		for i := range tabs {
-			tabs[i].Rows = append(tabs[i].Rows, tabs[i].row(world, light))
+	lights := refillableItems(world)
+	tabs := make([]refillTab, len(refillTabSpecs))
+	for i, spec := range refillTabSpecs {
+		text := spec.text(world)
+		tabs[i].Label = text.label
+		for _, light := range lights {
+			tabs[i].Rows = append(tabs[i].Rows, spec.row(world, light, text))
 		}
 	}
 	return RefillProps{Tabs: tabs}, nil
 }
 
 // row は灯りの light の1行を組む。選べなければ理由を出し、選べるなら移せる量の上限を出す
-func (tab refillTab) row(world w.World, light ecs.Entity) refillRow {
-	amount := tab.amount(*world.Components.Charge.Get(light))
+func (spec refillTabSpec) row(world w.World, light ecs.Entity, text refillTabText) refillRow {
+	amount := spec.amount(*world.Components.Charge.Get(light))
 	switch {
 	case amount <= 0:
-		return refillRow{Entity: light, Value: tab.lightReason, Disabled: true}
-	case !carriesAccepted(world, tab.sinkOf(world, light)):
-		return refillRow{Entity: light, Value: tab.noneReason, Disabled: true}
+		return refillRow{Entity: light, Value: text.lightReason, Disabled: true}
+	case !carriesAccepted(world, spec.sinkOf(world, light)):
+		return refillRow{Entity: light, Value: text.noneReason, Disabled: true}
 	}
 	return refillRow{Entity: light, Value: consts.Turn(amount).String()}
 }
@@ -175,18 +190,18 @@ func (st *RefillMenuState) ViewUI(world w.World, props RefillProps, cursor menul
 	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// selected は現在カーソルが当たっているタブと行を返す
-func (st *RefillMenuState) selected() (refillTab, refillRow, bool) {
+// selected は現在カーソルが当たっているタブの番号と行を返す
+func (st *RefillMenuState) selected() (int, refillRow, bool) {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()
 	if cursor.TabIndex >= len(props.Tabs) {
-		return refillTab{}, refillRow{}, false
+		return 0, refillRow{}, false
 	}
-	tab := props.Tabs[cursor.TabIndex]
-	if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(tab.Rows) {
-		return refillTab{}, refillRow{}, false
+	rows := props.Tabs[cursor.TabIndex].Rows
+	if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(rows) {
+		return 0, refillRow{}, false
 	}
-	return tab, tab.Rows[cursor.ItemIndex], true
+	return cursor.TabIndex, rows[cursor.ItemIndex], true
 }
 
 // selectedEntity は現在カーソルが当たっている灯りを返す

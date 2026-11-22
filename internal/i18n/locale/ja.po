@@ -6774,7 +6774,7 @@ msgid "Charge full"
 msgstr "満タン"
 
 msgid "No charge"
-msgstr "空"
+msgstr "残量が無い"
 
 msgid "No fuel"
 msgstr "燃料が無い"

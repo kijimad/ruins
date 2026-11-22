@@ -289,3 +289,47 @@ func TestRefillMenuState_選べる灯りを選ぶと給油メニューへ進み�
 		})
 	}
 }
+
+func TestRefillMenuState_同じ世界から作ったpropsは等しい(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	st := &RefillMenuState{}
+
+	first, err := st.Fetch(world)
+	require.NoError(t, err)
+	second, err := st.Fetch(world)
+	require.NoError(t, err)
+
+	assert.Equal(t, first, second, "props が関数を持つと毎フレーム変わったと判定され、描き直しが止まらない")
+}
+
+func TestRefillMenuState_上の灯りが選べなければ下の灯りにカーソルが止まり選ぶと進む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t, testutil.WithUI())
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	// 名前の順で Flashlight が上、Hand Lantern が下に並ぶ。満タンの懐中電灯は満たせない
+	_, err = lifecycle.SpawnBackpackItem(world, "flashlight", 1)
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Components.Charge.Get(lantern).Current = 600
+	_, err = lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
+	require.NoError(t, err)
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return "", false }
+	st := &RefillMenuState{}
+	require.NoError(t, st.OnStart(world))
+	_, err = st.Update(world)
+	require.NoError(t, err)
+
+	got, ok := st.selectedEntity()
+	require.True(t, ok)
+	assert.Equal(t, lantern, got)
+	tr, err := st.DoAction(world, inputmapper.ActionMenuSelect)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPush, tr.Type)
+}

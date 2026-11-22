@@ -429,8 +429,8 @@ var goldenCases = []struct {
 		},
 		steps: []replayStep{{shot: true}},
 	},
-	// RefillMenu は補充メニューの満たすタブと抜くタブを固定する。減ったランタンは両方で選べ、満タンの懐中電灯は
-	// 満たすタブで満タン、抜くタブで電池が無く入れ物が無いという理由の行になる
+	// RefillMenu は補充メニューの満たすタブと抜くタブを固定する。減ったランタンは両方で選べる。満タンの懐中電灯は、
+	// 満たすタブでは満タンという理由で、抜くタブでは抜いて入れる電池を持たないので入れ物が無いという理由で選べない
 	{
 		name: "RefillMenu",
 		build: func(world w.World) ([]es.State[w.World], error) {
