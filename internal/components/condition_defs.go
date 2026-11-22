@@ -21,7 +21,7 @@ type ConditionDef struct {
 	RecoverPer              int                      // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
 	BloodDropPerSeverity    int                      // 重症度1段あたりに下げる血液量。外傷は出血、重い全身性は循環低下
 	Cause                   DeathCause               // 血液量が尽きて倒したときの死因
-	Parts                   []BodyPart               // 起こりうる部位。空なら全部位
+	Parts                   []BodyPart               // 起こりうる部位。怪我は空なら全部位、怪我でない不調は空なら全身性
 	Onset                   rawschema.ConditionOnset // 不調を起こす仕組み。攻撃で負う怪我ときっかけの無い不調は空
 }
 
@@ -88,14 +88,18 @@ func (d ConditionDefs) Injury(at rawschema.AttackCategory) (ConditionType, bool)
 	return ct, ok
 }
 
-// IsInjury は不調がいずれかの攻撃種別で負う怪我かを返す
-func (d ConditionDefs) IsInjury(ct ConditionType) bool {
+// DefaultPart は部位を指定せずに不調を付けるときの部位を返す。部位を書いた不調は最初の部位、
+// 部位を限らない怪我は胴、ほかは全身性なので全身にする
+func (d ConditionDefs) DefaultPart(ct ConditionType) BodyPart {
+	if def, ok := d.Def(ct); ok && len(def.Parts) > 0 {
+		return def.Parts[0]
+	}
 	for _, injury := range d.injuries {
 		if injury == ct {
-			return true
+			return BodyPartTorso
 		}
 	}
-	return false
+	return BodyPartWholeBody
 }
 
 // ByOnset は仕組み o が起こす不調を返す。仕組みごとに不調があることは読み込み時に確かめるので、無ければ panic する
