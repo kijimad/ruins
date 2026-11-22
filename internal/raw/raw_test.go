@@ -1379,7 +1379,7 @@ func TestFindThrow(t *testing.T) {
 	}
 }
 
-func TestFindRefillTag(t *testing.T) {
+func TestFindAcceptedFuel(t *testing.T) {
 	t.Parallel()
 	oil := rawschema.RefillTagOil
 	raws := rawschema.Raws{Items: &[]rawschema.Item{
@@ -1405,10 +1405,10 @@ func TestFindRefillTag(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			tag, ok := FindRefillTag(raws, tt.id)
+			tag, ok := FindAcceptedFuel(raws, tt.id)
 			assert.Equal(t, tt.wantOK, ok)
 			assert.Equal(t, tt.wantTag, tag)
-			fuelTag, isFuel := FindRefill(raws, tt.id)
+			fuelTag, isFuel := FindFuelKind(raws, tt.id)
 			assert.Equal(t, tt.isFuel, isFuel)
 			assert.Equal(t, tt.wantFuel, fuelTag)
 		})

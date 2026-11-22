@@ -21,7 +21,7 @@ func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
 	}
 	owner, carried := query.Carrier(world, item)
 	byPlayer := carried && world.Components.Player.Has(owner)
-	if _, refillable := query.RefillTagOf(world, item); refillable {
+	if _, refillable := query.AcceptedFuelOf(world, item); refillable {
 		if byPlayer {
 			logItem(world, item, "%s ran out.")
 		}
@@ -60,8 +60,8 @@ var (
 // 満タンなら ErrChargeFull を返し、どちらも燃料を使わない。
 // 尽きていた灯りが照らし直すので、持ち主の灯りと視界を計算し直させる
 func RefillCharge(world w.World, item, fuel ecs.Entity) error {
-	want, refillable := query.RefillTagOf(world, item)
-	got, isFuel := query.RefillOf(world, fuel)
+	want, refillable := query.AcceptedFuelOf(world, item)
+	got, isFuel := query.FuelKindOf(world, fuel)
 	if !refillable || !isFuel || got != want {
 		return ErrRefillMismatch
 	}

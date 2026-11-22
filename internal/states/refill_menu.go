@@ -46,7 +46,7 @@ func refillableItems(world w.World) []ecs.Entity {
 		if !query.CarriedBy(world, e, player) {
 			continue
 		}
-		if _, ok := query.RefillTagOf(world, e); !ok {
+		if _, ok := query.AcceptedFuelOf(world, e); !ok {
 			continue
 		}
 		if c := world.Components.Charge.Get(e); c.Current < c.Max {

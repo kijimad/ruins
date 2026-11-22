@@ -84,13 +84,13 @@ func CubeFuelSink(cube ecs.Entity) FuelSink {
 // LightFuelSink は満たせる灯りをくべ先にする。灯りと同じ種別の燃料を1つ使い、残量を上限まで戻す。
 // 増える量は満たせる量で表す。1つで満タンになるので、満たしたらメニューを閉じる
 func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
-	want, refillable := query.RefillTagOf(world, light)
+	want, refillable := query.AcceptedFuelOf(world, light)
 	return FuelSink{
 		title: func(world w.World) string {
 			return query.T(world, "Refill %s", query.GetEntityName(light, world))
 		},
 		accepts: func(world w.World, fuel ecs.Entity) bool {
-			got, ok := query.RefillOf(world, fuel)
+			got, ok := query.FuelKindOf(world, fuel)
 			return refillable && ok && got == want
 		},
 		gain: func(world w.World, _ ecs.Entity) string {

@@ -50,18 +50,18 @@ func ChargeRatio(world w.World, entity ecs.Entity) (float64, bool) {
 	return max(0, min(1, float64(charge.Current)/float64(charge.Max))), true
 }
 
-// RefillTagOf は item が満たせる燃料の種別を返す。使い切りの物は ok が偽
-func RefillTagOf(world w.World, item ecs.Entity) (rawschema.RefillTag, bool) {
+// AcceptedFuelOf は item が受ける燃料の種別を返す。使い切りの物は ok が偽
+func AcceptedFuelOf(world w.World, item ecs.Entity) (rawschema.RefillTag, bool) {
 	if !world.Components.RawID.Has(item) {
 		return "", false
 	}
-	return raw.FindRefillTag(world.Resources.RawMaster, world.Components.RawID.Get(item).ID)
+	return raw.FindAcceptedFuel(world.Resources.RawMaster, world.Components.RawID.Get(item).ID)
 }
 
-// RefillOf は燃料の fuel が満たす種別を返す。燃料でない物は ok が偽
-func RefillOf(world w.World, fuel ecs.Entity) (rawschema.RefillTag, bool) {
+// FuelKindOf は燃料の fuel の種別を返す。燃料でない物は ok が偽
+func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.RefillTag, bool) {
 	if !world.Components.RawID.Has(fuel) {
 		return "", false
 	}
-	return raw.FindRefill(world.Resources.RawMaster, world.Components.RawID.Get(fuel).ID)
+	return raw.FindFuelKind(world.Resources.RawMaster, world.Components.RawID.Get(fuel).ID)
 }
