@@ -1,6 +1,7 @@
 package rawcheck_test
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/raw"
@@ -52,6 +53,28 @@ func TestValidateComplete_揃っていないと位置で返す(t *testing.T) {
 				"#Complete.seasons_complete.summer",
 				"#Complete.seasons_complete.winter",
 			},
+		},
+		{
+			name: "技能をまたいで集める熟練度が欠ける",
+			mutate: func(r *rawschema.Raws) {
+				for i := range *r.Skills {
+					p := (*r.Skills)[i].Proficiencies
+					if p == nil {
+						continue
+					}
+					*p = slices.DeleteFunc(*p, func(x rawschema.SkillProficiency) bool { return x.Id == rawschema.ProficiencyIdNightVision })
+				}
+			},
+			want: []string{"#Complete.proficiencies_complete.night_vision"},
+		},
+		{
+			name: "地図の記号のチャンクが欠ける",
+			mutate: func(r *rawschema.Raws) {
+				for i := range *r.MapGlyphs {
+					(*r.MapGlyphs)[i].Chunk = nil
+				}
+			},
+			want: []string{"#Complete.mapGlyphChunks_complete.wasteland"},
 		},
 		{
 			name: "天気の行の季節が欠ける",

@@ -114,11 +114,11 @@ func Validate(raws rawschema.Raws) error {
 		return err
 	}
 	// 値全体を検証すると #Complete の中の値の衝突も報告されるので、#Complete の違反を除く
-	return toError(v.Validate(cue.Concrete(true)), func(path string) bool { return !strings.HasPrefix(path, completePath) })
+	return toError(v.Validate(cue.Concrete(true)), func(path string) bool { return path != completePath && !strings.HasPrefix(path, completePath+".") })
 }
 
 // ValidateComplete は Validate の検査に加えて、列挙の値ごとに行や欄の値が揃っていることを #Complete で検証する。
-// 実データに使う。違反があれば *Error を返す。
+// 違反があれば *Error を返す。ゲームの本体は起動のときに検証しないので、埋め込みの実データを CI のテストで通して守る。
 func ValidateComplete(raws rawschema.Raws) error {
 	v, err := unify(raws)
 	if err != nil {

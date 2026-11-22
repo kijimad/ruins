@@ -58,7 +58,6 @@ shelterEffects?:   _
 waterEffects?:     _
 hungerStages?:     _
 fatigueStages?:    _
-attackTypes?:      _
 mapGlyphs?:        _
 
 _itemIDs: {if items != _|_ for x in items {(x.id): true}}

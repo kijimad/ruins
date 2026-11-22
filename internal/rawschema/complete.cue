@@ -2,7 +2,7 @@ package rawschema
 
 // 実データが揃っていることの検査。列挙の値ごとに行や欄の値をちょうど1つ持つ。欠けた値は必須のキーで、
 // 列挙に無い値は閉じた struct で、重なった値は添字の衝突で落ちる。部分の fixture には求めないので #Raws から分け、
-// rawcheck.ValidateComplete だけが検証する。値を列挙に足したら、ここの必須のキーにも足す
+// rawcheck.ValidateComplete だけが検証する。値を列挙に足したら、ここの必須のキーにも足す。足し忘れは rawcheck のテストが落とす
 #Complete: {
 	freshnessStages_complete: close({
 		fresh!:  _
@@ -19,12 +19,7 @@ package rawschema
 		midnight!: _
 	}) & {if timesOfDay != _|_ for i, x in timesOfDay {(x.id): i}}
 
-	seasons_complete: close({
-		spring!: _
-		summer!: _
-		autumn!: _
-		winter!: _
-	}) & {if seasons != _|_ for i, x in seasons {(x.id): i}}
+	seasons_complete: #SeasonKeys & {if seasons != _|_ for i, x in seasons {(x.id): i}}
 
 	pointFeatures_complete: close({
 		settlement!: _
@@ -43,12 +38,7 @@ package rawschema
 	// 天気の行の添字で束ねる。天気の id で束ねると、天気が重なったときに季節の報告が混ざる
 	weatherSeasons_complete: {
 		if weathers != _|_ for i, w in weathers {
-			"\(i)": close({
-				spring!: _
-				summer!: _
-				autumn!: _
-				winter!: _
-			}) & {for j, x in w.seasons {(x.id): j}}
+			"\(i)": #SeasonKeys & {for j, x in w.seasons {(x.id): j}}
 		}
 	}
 
@@ -146,4 +136,12 @@ package rawschema
 	}) & {
 		if skills != _|_ for i, s in skills if s.proficiencies != _|_ for j, x in s.proficiencies if x.resists != _|_ {(x.resists): "skills.\(i).proficiencies.\(j)"}
 	}
+} @rawgen(-)
+
+// 季節の必須のキー。季節の表と天気の行ごとの季節の2つの検査が使う
+#SeasonKeys: {
+	spring!: _
+	summer!: _
+	autumn!: _
+	winter!: _
 } @rawgen(-)

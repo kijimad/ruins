@@ -11,7 +11,7 @@ raw のデータの形・値の制約・行の間の参照は `internal/rawschem
 
 - `schema.cue`: 型と制約。定義 `#X` が Go の型になる。
 - `refs.cue`: 参照を引く id の索引。隠しフィールドに置く。
-- `complete.cue`: 実データが揃っていることの検査 `#Complete`。列挙のまま残す物の値ごとに、行や欄の値をちょうど1つ持つことを確かめる。`@rawgen(-)` で Go の型にせず、`rawcheck.ValidateComplete` だけが検証する。列挙に値を足したら、ここの必須のキーにも足す。
+- `complete.cue`: 実データが揃っていることの検査 `#Complete`。列挙のまま残す物の値ごとに、行や欄の値をちょうど1つ持つことを確かめる。`@rawgen(-)` で Go の型にせず、`rawcheck.ValidateComplete` だけが検証する。列挙に値を足したら、ここの必須のキーにも足す。必須のキーと列挙の値の一致は `rawcheck` の `TestComplete_必須のキーが列挙の値と一致する` が確かめるので、新しい検査を足したらその表にも行を足す。
 - `root.cue`: 検証するデータの最上位を `#Raws` に結ぶ。
 - `gen/`: CUE から `models_gen.go` を書き出す生成器。ルートの `gen.go` の `go generate` から呼ぶ。raw の型だけを作り直すときはルートで `go generate -run rawschema .` を走らせる。
 - `rawcheck/`: CUE で raw を検証する。テストからだけ使い、ゲームのバイナリには CUE を入れない。
