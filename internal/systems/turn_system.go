@@ -240,7 +240,7 @@ func runTurnEndSystems(world w.World) error {
 		&HealthRegenSystem{},
 		&ConditionSystem{},
 		&FireSystem{},
-		&LightChargeSystem{},
+		&WhileOnChargeSystem{},
 		&DeadCleanupSystem{},
 		&DebugInvincibleSystem{},
 		&AreaEntrySystem{},

@@ -5,9 +5,12 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -69,19 +72,42 @@ func TestConsumeCharge_減っていく途中はログを出さない(t *testing.
 	assert.Equal(t, logs, query.GetGameLog(world).Count(), "減ってもログは出さない")
 }
 
-func TestConsumeCharge_尽きると燃え尽きたとログを出す(t *testing.T) {
+func TestConsumeCharge_プレイヤーの物が尽きるとログを出す(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-	torch, err := lifecycle.SpawnFieldItem(world, "torch", 3, 4, 1)
-	require.NoError(t, err)
-	lifecycle.MoveToEquip(world, torch, player, gc.SlotHand2)
-	world.Components.Charge.Get(torch).Current = 1
-	logs := query.GetGameLog(world).Count()
+	tests := []struct {
+		name  string
+		rawID string
+		place func(world w.World, item, player ecs.Entity) error
+		want  i18n.Msgid
+	}{
+		{name: "手持ち欄の灯りは燃え尽きる", rawID: "torch", place: func(world w.World, item, player ecs.Entity) error {
+			lifecycle.MoveToEquip(world, item, player, gc.SlotHand2)
+			return nil
+		}, want: "%s burned out."},
+		{name: "バックパックの灯りは燃え尽きる", rawID: "torch", place: lifecycle.MoveToBackpack, want: "%s burned out."},
+		{name: "手持ち欄の武器は壊れる", rawID: "iron_sword", place: func(world w.World, item, player ecs.Entity) error {
+			lifecycle.MoveToEquip(world, item, player, gc.SlotHand1)
+			return nil
+		}, want: "%s broke."},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+			require.NoError(t, err)
+			item, err := lifecycle.SpawnFieldItem(world, tt.rawID, 3, 4, 1)
+			require.NoError(t, err)
+			require.NoError(t, tt.place(world, item, player))
+			world.Components.Charge.Get(item).Current = 1
+			name := query.GetEntityName(item, world)
+			logs := query.GetGameLog(world).Count()
 
-	ConsumeCharge(world, torch, 1)
+			ConsumeCharge(world, item, 1)
 
-	require.Equal(t, logs+1, query.GetGameLog(world).Count())
-	assert.Equal(t, query.T(world, "%s burned out.", "Torch"), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+			assert.False(t, world.ECS.Alive(item))
+			require.Equal(t, logs+1, query.GetGameLog(world).Count())
+			assert.Equal(t, query.T(world, tt.want, name), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+		})
+	}
 }

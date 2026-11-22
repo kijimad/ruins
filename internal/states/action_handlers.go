@@ -93,7 +93,7 @@ func appendFeedFuelActions(world w.World, playerGrid *gc.GridElement, actions []
 // 足元は自分が燃えるため対象にしない。同じタイルに複数の燃料があっても着火は1タイル1回にまとめる。
 // 着火の可否は火種の所持だけで判定する。火種を消費するかは別の関心で、ここでは扱わない。
 func appendIgniteActions(world w.World, player ecs.Entity, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
-	if !query.HoldsFireStarter(world, player) {
+	if _, ok := query.FireStarterOf(world, player); !ok {
 		return actions
 	}
 	// タイルごとに代表の燃料を1つ選ぶ。map の走査順に依存しないよう出現順を別に記録する

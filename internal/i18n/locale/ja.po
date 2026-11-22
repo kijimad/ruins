@@ -479,6 +479,9 @@ msgstr "%sを構えた"
 msgid "%s burned out."
 msgstr "%sが燃え尽きた"
 
+msgid "%s broke."
+msgstr "%sが壊れた"
+
 msgid "Command"
 msgstr "命令"
 

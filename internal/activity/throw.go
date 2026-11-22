@@ -100,7 +100,7 @@ func (tb *ThrowBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 		}
 	case attack.Damage > 0:
 		hitModifier := calculateRangedHitModifier(actor, p.Target, attack, world)
-		if err := applyAttackDamage(actor, p.Target, world, attack, name, hitModifier, 0); err != nil {
+		if err := applyAttackDamage(actor, p.Target, world, gc.InvalidEntity, attack, name, hitModifier, 0); err != nil {
 			return err
 		}
 	default:

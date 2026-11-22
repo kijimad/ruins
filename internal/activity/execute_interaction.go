@@ -8,10 +8,14 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
+
+// igniteChargeCost は着火で火種の残量が減る量
+const igniteChargeCost = 30
 
 var (
 	// errDoorInteractionNoDoor は扉の相互作用の対象がDoorを持たないときに返す
@@ -52,7 +56,7 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 	case gc.InteractionOpenCubeMenu:
 		return executePortal(world, gc.OpenCubeMenuEvent(target), "cube menu state change request error", "opened cube menu")
 	case gc.InteractionIgnite:
-		return executeIgnite(target, world)
+		return executeIgnite(actor, target, world)
 	case gc.InteractionFeedFuel:
 		return executeFeedFuel(target, world)
 	case gc.InteractionSwap:
@@ -119,10 +123,14 @@ func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRes
 // executeIgnite は隣接タイルの燃焼物に火をつける。target はそのタイルにある燃料の代表。
 // タイルへ炎だけを立て、タイル上の燃焼物をすべて残ターン数へ畳み込んで燃やし始める。
 // 石組などの構造物は伴わず、地面で燃える火そのものを生む。
-// 足元でなく隣接タイルに火が立つのは、足元だと自分が燃えるため。火種の所持は呼び出し側が判定済み。
-func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
+// 足元でなく隣接タイルに火が立つのは、足元だと自分が燃えるため。使った火種が残量を持てば減らす。
+func executeIgnite(actor, target ecs.Entity, world w.World) (*ActionResult, error) {
 	if !world.Components.GridElement.Has(target) {
 		return nil, fmt.Errorf("ignite target has no position")
+	}
+	starter, ok := query.FireStarterOf(world, actor)
+	if !ok {
+		return nil, fmt.Errorf("no fire starter to ignite with")
 	}
 	coord := world.Components.GridElement.Get(target).Coord
 
@@ -148,6 +156,9 @@ func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 
 	// 火は光源を持つ。灯りを即反映するため視界の再計算を要求する
 	query.GetVisionState(world).RequestUpdate()
+	if world.Components.Charge.Has(starter) {
+		gameaction.ConsumeCharge(world, starter, igniteChargeCost)
+	}
 
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorIgnite, Message: "lit a fire"}, nil
 }

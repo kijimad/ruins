@@ -10,18 +10,27 @@ import (
 )
 
 // FindStackInInventory は RawID でバックパック内のスタックアイテムを1つ返す。
-// 個数照会や消費の起点に使う。鮮度による束の分割は合流側の query.SameStack が担うため、
-// ここは鮮度を見ず RawID だけで引く。腐敗食は鮮度違いの別束が複数ありうる点に注意する。
+// クラフトの個数照会や消費の起点に使う。残量を持つ物は新品だけを選び、使いかけの物は材料にしない。
+// 鮮度による束の分割は合流側の query.SameStack が担うため、ここは鮮度を見ない。腐敗食は鮮度違いの別束が複数ありうる点に注意する。
 func FindStackInInventory(world w.World, id string) (ecs.Entity, bool) {
 	q := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 	for q.Next() {
 		entity := q.Entity()
-		if world.Components.RawID.Get(entity).ID == id {
+		if world.Components.RawID.Get(entity).ID == id && !partlyUsed(world, entity) {
 			q.Close()
 			return entity, true
 		}
 	}
 	return gc.InvalidEntity, false
+}
+
+// partlyUsed は entity が残量を持ち、上限まで残っていないかを返す
+func partlyUsed(world w.World, entity ecs.Entity) bool {
+	if !world.Components.Charge.Has(entity) {
+		return false
+	}
+	charge := world.Components.Charge.Get(entity)
+	return charge.Current < charge.Max
 }
 
 // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する
@@ -37,24 +46,40 @@ func FindAmmoInInventory(world w.World, ammoTag rawschema.AmmoTag) (ecs.Entity, 
 	return gc.InvalidEntity, false
 }
 
-// HoldsFireStarter は owner が火種の道具を所持しているかを返す。
-// バックパックと装備の両方を見る。着火の可否を所持の有無だけで判定する。消費はこの関数の関心ではない
-func HoldsFireStarter(world w.World, owner ecs.Entity) bool {
+// FireStarterOf は owner が着火に使う火種を返す。残量を持たない物、バックパックの物、オフの装備の物、オンの装備の物の順に選び、
+// 同じ順位なら残量の少ない物を選ぶ。照らしている装備の灯りを削らずに済むよう、オフの物から使う。
+// 減るのを1本に集め、ほかを新品のまま束ねてクラフトの材料にも使えるようにする
+func FireStarterOf(world w.World, owner ecs.Entity) (ecs.Entity, bool) {
+	best := gc.InvalidEntity
+	bestRank, bestCharge := 0, 0
+	consider := func(e ecs.Entity, rank int) {
+		charge := chargeKey(world, e)
+		if charge < 0 {
+			rank = 0
+		}
+		if best == gc.InvalidEntity || rank < bestRank || (rank == bestRank && charge < bestCharge) {
+			best, bestRank, bestCharge = e, rank, charge
+		}
+	}
 	backpack := ecs.NewFilter2[gc.LocationInBackpack, gc.FireStarter](world.ECS).Query()
 	for backpack.Next() {
 		if world.Components.LocationInBackpack.Get(backpack.Entity()).Owner == owner {
-			backpack.Close()
-			return true
+			consider(backpack.Entity(), 1)
 		}
 	}
 	equipped := ecs.NewFilter2[gc.LocationEquipped, gc.FireStarter](world.ECS).Query()
 	for equipped.Next() {
-		if world.Components.LocationEquipped.Get(equipped.Entity()).Owner == owner {
-			equipped.Close()
-			return true
+		e := equipped.Entity()
+		if world.Components.LocationEquipped.Get(e).Owner != owner {
+			continue
+		}
+		if IsOn(world, owner, e) {
+			consider(e, 3)
+		} else {
+			consider(e, 2)
 		}
 	}
-	return false
+	return best, best != gc.InvalidEntity
 }
 
 // GetEntityCount は entity が属するスタックの個数を返す。個数は保存せず、同じ所有者かつ

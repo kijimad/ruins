@@ -8,7 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEstimateBurnTurns_残量がそのままターン数になる(t *testing.T) {
@@ -45,34 +47,78 @@ func TestFuelBurnTurns_熱量を効率で割り引く(t *testing.T) {
 	assert.Equal(t, consts.Turn(20), query.FuelBurnTurns(world, fire, fuel))
 }
 
-func TestHoldsFireStarter_バックパックと装備の火種を見て他人の物は除く(t *testing.T) {
+func TestFireStarterOf_バックパックと装備の火種を見て他人の物は除く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	player := world.ECS.NewEntity()
-	assert.False(t, query.HoldsFireStarter(world, player), "初期状態では火種を持たない")
+	_, ok := query.FireStarterOf(world, player)
+	assert.False(t, ok, "初期状態では火種を持たない")
 
-	// 他人のバックパックにある火種は数えない
 	other := world.ECS.NewEntity()
 	othersStarter := world.ECS.NewEntity()
 	world.Components.FireStarter.Add(othersStarter, &gc.FireStarter{})
 	world.Components.LocationInBackpack.Add(othersStarter, &gc.LocationInBackpack{Owner: other})
-	assert.False(t, query.HoldsFireStarter(world, player), "他人の火種は数えない")
+	_, ok = query.FireStarterOf(world, player)
+	assert.False(t, ok, "他人の火種は数えない")
 
-	// バックパックに火種を入れると true
-	backpackStarter := world.ECS.NewEntity()
-	world.Components.FireStarter.Add(backpackStarter, &gc.FireStarter{})
-	world.Components.LocationInBackpack.Add(backpackStarter, &gc.LocationInBackpack{Owner: player})
-	assert.True(t, query.HoldsFireStarter(world, player), "バックパックの火種を見る")
-}
-
-func TestHoldsFireStarter_装備した火種も所持とみなす(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	player := world.ECS.NewEntity()
 	equippedStarter := world.ECS.NewEntity()
 	world.Components.FireStarter.Add(equippedStarter, &gc.FireStarter{})
 	world.Components.LocationEquipped.Add(equippedStarter, &gc.LocationEquipped{Owner: player})
-	assert.True(t, query.HoldsFireStarter(world, player), "装備した火種も所持とみなす")
+	got, ok := query.FireStarterOf(world, player)
+	require.True(t, ok)
+	assert.Equal(t, equippedStarter, got, "装備した火種も使う")
+}
+
+func TestFireStarterOf_照らしていない物から残量の少ない順に選ぶ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	starter := func(charge int, equipped bool) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.FireStarter.Add(e, &gc.FireStarter{})
+		if charge > 0 {
+			world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: charge})
+		}
+		if equipped {
+			world.Components.LocationEquipped.Add(e, &gc.LocationEquipped{Owner: player})
+		} else {
+			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: player})
+		}
+		return e
+	}
+
+	equipped := starter(100, true)
+	got, ok := query.FireStarterOf(world, player)
+	require.True(t, ok)
+	assert.Equal(t, equipped, got, "装備の物しか無ければそれを使う")
+
+	starter(600, false)
+	low := starter(400, false)
+	got, _ = query.FireStarterOf(world, player)
+	assert.Equal(t, low, got, "バックパックの物を装備の物より先に、残量の少ない物から使う")
+
+	endless := starter(0, true)
+	got, _ = query.FireStarterOf(world, player)
+	assert.Equal(t, endless, got, "残量を持たない物を最初に使う")
+}
+
+func TestFireStarterOf_装備の物はオフの物を先に使う(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player := world.ECS.NewEntity()
+	torch := func(charge int, enabled bool, slot gc.EquipmentSlotNumber) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.FireStarter.Add(e, &gc.FireStarter{})
+		world.Components.Charge.Add(e, &gc.Charge{Max: 600, Current: charge})
+		world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: enabled})
+		world.Components.LocationEquipped.Add(e, &gc.LocationEquipped{Owner: player, EquipmentSlot: slot})
+		return e
+	}
+	torch(100, true, gc.SlotHand1)
+	off := torch(500, false, gc.SlotHand2)
+
+	got, ok := query.FireStarterOf(world, player)
+	require.True(t, ok)
+	assert.Equal(t, off, got, "照らしている方が残量が少なくても、オフの方を使う")
 }

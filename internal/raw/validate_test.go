@@ -210,6 +210,7 @@ func makeItemRaws(modify func(*rawschema.Item)) rawschema.Raws {
 			TargetGroup:    "ENEMY",
 			TargetNum:      "SINGLE",
 		},
+		Charge: &rawschema.Charge{Max: 150},
 	}
 	modify(&item)
 	return rawschema.Raws{Items: &[]rawschema.Item{item}}

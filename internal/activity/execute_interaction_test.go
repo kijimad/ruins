@@ -60,8 +60,10 @@ func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数
 	first := addFieldFuel("a_wood", 10)
 	second := addFieldFuel("b_wood", 10)
 
-	// actor は executeIgnite では使わないが、相互作用の入口が要求するので渡す
 	actor := world.ECS.NewEntity()
+	starter := world.ECS.NewEntity()
+	world.Components.FireStarter.Add(starter, &gc.FireStarter{})
+	world.Components.LocationInBackpack.Add(starter, &gc.LocationInBackpack{Owner: actor})
 	res, err := ExecuteInteraction(actor, first, gc.InteractionIgnite, world)
 	require.NoError(t, err)
 	require.True(t, res.Success)
@@ -104,12 +106,101 @@ func TestExecuteInteraction_Ignite_退避中ステージの燃焼物は消費し
 	suspended := addFieldFuel()
 	world.Components.Suspended.Add(suspended, &gc.Suspended{})
 
-	res, err := ExecuteInteraction(world.ECS.NewEntity(), active, gc.InteractionIgnite, world)
+	actor := world.ECS.NewEntity()
+	starter := world.ECS.NewEntity()
+	world.Components.FireStarter.Add(starter, &gc.FireStarter{})
+	world.Components.LocationInBackpack.Add(starter, &gc.LocationInBackpack{Owner: actor})
+	res, err := ExecuteInteraction(actor, active, gc.InteractionIgnite, world)
 	require.NoError(t, err)
 	require.True(t, res.Success)
 
 	assert.False(t, world.ECS.Alive(active), "現ステージの燃料は消費される")
 	assert.True(t, world.ECS.Alive(suspended), "退避中ステージの燃料は残る")
+}
+
+func TestExecuteInteraction_Ignite_続けて着火しても使いかけの火種は1本に集まる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+	_, err = lifecycle.SpawnBackpackItem(world, "torch", 2)
+	require.NoError(t, err)
+	ignite := func() {
+		fuel := world.ECS.NewEntity()
+		world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
+		world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.Milligram(50000)})
+		world.Components.GridElement.Add(fuel, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
+		world.Components.LocationOnField.Add(fuel, &gc.LocationOnField{})
+		_, err := ExecuteInteraction(player, fuel, gc.InteractionIgnite, world)
+		require.NoError(t, err)
+	}
+
+	ignite()
+	ignite()
+
+	var charges []int
+	q := ecs.NewFilter2[gc.LocationInBackpack, gc.FireStarter](world.ECS).Query()
+	for q.Next() {
+		charges = append(charges, world.Components.Charge.Get(q.Entity()).Current)
+	}
+	assert.ElementsMatch(t, []int{540, 600, 600}, charges, "減るのは1本だけで、ほかは新品のまま")
+}
+
+func TestExecuteInteraction_Ignite_火種の残量を減らし尽きれば燃え尽きる(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		charge    int
+		wantAlive bool
+		want      int
+	}{
+		{name: "残量が足りれば30減る", charge: 600, wantAlive: true, want: 570},
+		{name: "30以下なら燃え尽きる", charge: 30, wantAlive: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+			require.NoError(t, err)
+			torch, ok := query.FireStarterOf(world, player)
+			require.True(t, ok, "初期装備の松明を火種に使う")
+			world.Components.Charge.Get(torch).Current = tt.charge
+			fuel := world.ECS.NewEntity()
+			world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
+			world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.Milligram(50000)})
+			world.Components.GridElement.Add(fuel, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
+			world.Components.LocationOnField.Add(fuel, &gc.LocationOnField{})
+
+			_, err = ExecuteInteraction(player, fuel, gc.InteractionIgnite, world)
+			require.NoError(t, err)
+
+			require.Equal(t, tt.wantAlive, world.ECS.Alive(torch))
+			if tt.wantAlive {
+				assert.Equal(t, tt.want, world.Components.Charge.Get(torch).Current)
+			}
+		})
+	}
+}
+
+func TestExecuteInteraction_Ignite_火種が無ければ火を立てない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
+	fuel := world.ECS.NewEntity()
+	world.Components.Material.Add(fuel, &gc.Material{Kind: rawschema.WOOD})
+	world.Components.Weight.Add(fuel, &gc.Weight{Milligram: consts.Milligram(50000)})
+	world.Components.GridElement.Add(fuel, &gc.GridElement{Coord: tile})
+	world.Components.LocationOnField.Add(fuel, &gc.LocationOnField{})
+
+	_, err := ExecuteInteraction(world.ECS.NewEntity(), fuel, gc.InteractionIgnite, world)
+
+	require.Error(t, err)
+	assert.True(t, world.ECS.Alive(fuel), "燃料は残る")
+	fires := ecs.NewFilter1[gc.Burning](world.ECS).Query()
+	assert.Zero(t, fires.Count(), "火は立たない")
+	fires.Close()
 }
 
 // TestExecuteInteraction_UnknownKind は未知の種類が無効なConfigとして弾かれることを確認。

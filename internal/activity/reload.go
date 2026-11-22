@@ -44,7 +44,7 @@ func (rb *ReloadBehavior) Name() gc.BehaviorName {
 // 遠距離武器が無ければ工数0で組み、遠距離武器なしの判定は Validate に委ねる
 func NewReloadActivity(actor ecs.Entity, world w.World) *gc.Activity {
 	effort := 0
-	if fire, _, err := getEquippedFire(actor, world); err == nil {
+	if fire, _, _, err := getEquippedFire(actor, world); err == nil {
 		effort = fire.ReloadEffort
 	}
 	return NewActivity(gc.BehaviorReload, effort)
@@ -57,7 +57,7 @@ func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
 		return &UserError{Msg: query.T(world, "cannot reload because enemies are nearby")}
 	}
 
-	fire, _, err := getEquippedFire(actor, world)
+	fire, _, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		if errors.Is(err, ErrShootNoFireWeapon) {
 			return &UserError{Msg: query.T(world, "no ranged weapon equipped")}
@@ -93,7 +93,7 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return nil
 	}
 
-	fire, _, err := getEquippedFire(actor, world)
+	fire, _, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
 	}
