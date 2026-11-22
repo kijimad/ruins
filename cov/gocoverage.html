@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (89.1%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.0%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.6%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (81.4%)</option>
 				
@@ -87,7 +87,7 @@
 				
 				<option value="file15">github.com/kijimaD/ruins/internal/activity/rest.go (96.0%)</option>
 				
-				<option value="file16">github.com/kijimaD/ruins/internal/activity/salvage.go (96.4%)</option>
+				<option value="file16">github.com/kijimaD/ruins/internal/activity/salvage.go (96.2%)</option>
 				
 				<option value="file17">github.com/kijimaD/ruins/internal/activity/search.go (86.3%)</option>
 				
@@ -101,7 +101,7 @@
 				
 				<option value="file22">github.com/kijimaD/ruins/internal/activity/talk.go (89.1%)</option>
 				
-				<option value="file23">github.com/kijimaD/ruins/internal/activity/throw.go (66.7%)</option>
+				<option value="file23">github.com/kijimaD/ruins/internal/activity/throw.go (74.7%)</option>
 				
 				<option value="file24">github.com/kijimaD/ruins/internal/activity/use_effect.go (91.7%)</option>
 				
@@ -191,7 +191,7 @@
 				
 				<option value="file67">github.com/kijimaD/ruins/internal/components/calendar_defs.go (100.0%)</option>
 				
-				<option value="file68">github.com/kijimaD/ruins/internal/components/components.go (80.6%)</option>
+				<option value="file68">github.com/kijimaD/ruins/internal/components/components.go (84.2%)</option>
 				
 				<option value="file69">github.com/kijimaD/ruins/internal/components/components_gen.go (100.0%)</option>
 				
@@ -255,7 +255,7 @@
 				
 				<option value="file99">github.com/kijimaD/ruins/internal/components/visual_effect.go (92.9%)</option>
 				
-				<option value="file100">github.com/kijimaD/ruins/internal/components/visual_effect_types.go (100.0%)</option>
+				<option value="file100">github.com/kijimaD/ruins/internal/components/visual_effect_types.go (96.6%)</option>
 				
 				<option value="file101">github.com/kijimaD/ruins/internal/config/config.go (100.0%)</option>
 				
@@ -483,7 +483,7 @@
 				
 				<option value="file213">github.com/kijimaD/ruins/internal/raw/item_group.go (93.3%)</option>
 				
-				<option value="file214">github.com/kijimaD/ruins/internal/raw/raw.go (96.3%)</option>
+				<option value="file214">github.com/kijimaD/ruins/internal/raw/raw.go (97.2%)</option>
 				
 				<option value="file215">github.com/kijimaD/ruins/internal/raw/validate.go (98.1%)</option>
 				
@@ -1717,8 +1717,8 @@ func elementMult(target ecs.Entity, element rawschema.Element, world w.World) co
         <span class="cov8" title="1">return query.ProficiencyValue(world, target, key)</span>
 }
 
-// applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
-// 射撃と投げるからも使う。weapon は攻撃に使った武器の実体で、残量を持てば当たっても外れても最後に減らす。
+// applyAttackDamage は命中を判定し、当たれば applyHit で与える。外れたらログと見た目の効果を出す。
+// 近接・射撃・投げるが使う。weapon は攻撃に使った武器の実体で、残量を持てば当たっても外れても最後に減らす。
 // 武器の実体を持たない攻撃は gc.InvalidEntity を渡す
 func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entity, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) error {
         <span class="cov8" title="1">if attack == nil </span>{
@@ -1726,7 +1726,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entit
 </span>        }
         // 減らす量は殴る前の対象で決め、武器は最後に減らす。先に消すと、壊したときの産出が武器の道具の値を読めない
         <span class="cov8" title="1">if query.ChargeTriggerOf(world, weapon) == query.ChargeTriggerOnUse </span>{
-                <span class="cov8" title="1">defer gameaction.ConsumeCharge(world, weapon, attackChargeCost(world, actor, target))
+                <span class="cov8" title="1">defer gameaction.ConsumeCharge(world, weapon, attackChargeCost(world, weapon, target))
 </span>        }
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
@@ -1735,40 +1735,66 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entit
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
+        <span class="cov8" title="1">_, err := applyHit(actor, target, world, attack, attackMethodName, hitOptions{
+                critical:  criticalHit,
+                injury:    true,
+                growSkill: true,
+                weapon:    weapon,
+                damageMod: damageModifier,
+        })
+        return err</span>
+}
 
-        <span class="cov8" title="1">damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)
+// hitOptions は命中したあとの処理のうち、呼ぶ側が決める部分
+type hitOptions struct {
+        critical  bool       // 会心
+        injury    bool       // 怪我を抽選する
+        growSkill bool       // 傷つけたら武器スキルを伸ばす
+        weapon    ecs.Entity // 攻撃に使った物。置物への道具の倍率・廃材の抽選・道具スキルの伸びを決める。持たない攻撃は gc.InvalidEntity
+        damageMod int        // ダメージに足す値。射撃の装填のボーナスなど
+}
+
+// applyHit は命中した攻撃を target に与え、与えたダメージを返す。ログ・見た目の効果・ダメージ・置物の廃材・
+// 被弾した者の行動の中断をまとめて行う。命中の判定をしない爆風もこれを使う
+func applyHit(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, opts hitOptions) (int, error) {
+        <span class="cov8" title="1">mult := elementMult(target, attack.GetElement(), world)
+</span>        // 道具の倍率は最低保証の後に掛け、道具が必須なのに無いときは確実に0にする
+        <span class="cov8" title="1">damage := max(calculateDamage(actor, target, world, attack, opts.critical, opts.damageMod, mult), 0) *
+                toolDamageMultiplier(world, opts.weapon, target)
 </span>
-        <span class="cov8" title="1">logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
+        <span class="cov8" title="1">logAttackResult(actor, target, world, true, opts.critical, damage, attackMethodName)
+        logElementAffinity(actor, target, world, attack.GetElement(), mult)
 </span>        // 削れない相手を殴り続けて安全に稼げないよう、ダメージ0では武器スキルを伸ばさない
-        <span class="cov8" title="1">if damage &gt; 0 </span>{
+        <span class="cov8" title="1">if opts.growSkill &amp;&amp; damage &gt; 0 </span>{
                 <span class="cov8" title="1">growWeaponSkill(actor, world, attack)
 </span>        }
-        <span class="cov8" title="1">lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
+        <span class="cov8" title="1">lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage, attack.GetElement(), mult), world)
         gameaction.ApplyDamage(world, target, damage, actor)
         if world.Components.Prop.Has(target) &amp;&amp; world.Components.Dead.Has(target) </span>{
-                <span class="cov8" title="1">if err := dropSalvage(world, actor, target); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                <span class="cov8" title="1">if err := dropSalvage(world, actor, opts.weapon, target); err != nil </span>{
+                        <span class="cov0" title="0">return damage, err
 </span>                }
         }
-        // HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
-        <span class="cov8" title="1">applyInjury(actor, target, world, attack)
-</span>
+        <span class="cov8" title="1">if opts.injury </span>{
+                <span class="cov8" title="1">applyInjury(actor, target, world, attack)
+</span>        }
+
         // 被ダメージで中断可能なアクティビティをキャンセルする
         <span class="cov8" title="1">if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span>{
                 <span class="cov8" title="1">CancelActivity(target, "took an attack", world)
 </span>        }
 
-        <span class="cov8" title="1">return nil</span>
+        <span class="cov8" title="1">return damage, nil</span>
 }
 
-// attackChargeCost は actor が構えた物で target を攻撃したときに減る残量を返す。置物は分類の合う道具で殴れば1、
+// attackChargeCost は weapon で target を攻撃したときに減る残量を返す。置物は分類の合う道具で殴れば1、
 // ほかは本来の用途以外として倍にする。敵などへの攻撃は、道具を兼ねる物でも1
-func attackChargeCost(world w.World, actor, target ecs.Entity) int {
+func attackChargeCost(world w.World, weapon, target ecs.Entity) int {
         <span class="cov8" title="1">if !world.Components.Prop.Has(target) </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
         <span class="cov8" title="1">if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world)); ok </span>{
-                <span class="cov8" title="1">if _, fit := wieldedTool(world, actor, def); fit </span>{
+                <span class="cov8" title="1">if _, fit := toolGrade(world, weapon, def); fit </span>{
                         <span class="cov8" title="1">return 1
 </span>                }
         }
@@ -1815,8 +1841,9 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
         <span class="cov8" title="1">return attack.GetAccuracy() - formula.BaseHitRate
 </span>}
 
-// calculateDamage は ECS から攻撃側と対象の値を集め、formula.Damage で1回の命中のダメージを求める
-func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
+// calculateDamage は ECS から攻撃側と対象の値を集め、formula.Damage で1回の命中のダメージを求める。
+// 属性の倍率 elemMult は、表示にも使うので呼ぶ側が1度だけ求めて渡す
+func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int, elemMult consts.Percent) int {
         <span class="cov8" title="1">if !world.Components.Abilities.Has(attacker) </span>{
                 <span class="cov0" title="0">return 0
 </span>        }
@@ -1832,7 +1859,6 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
                 <span class="cov8" title="1">defense = world.Components.Abilities.Get(target).Defense.Total
 </span>        }
 
-        // 道具の倍率は最低保証の後に掛け、道具が必須なのに無いときは確実に0にする
         <span class="cov8" title="1">return formula.Damage(formula.DamageInput{
                 Ability:      ability,
                 Die:          world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1,
@@ -1840,9 +1866,9 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
                 Modifier:     damageModifier,
                 SkillMult:    int(getSkillMult(attacker, attack, world, true)),
                 Critical:     critical,
-                ElementMult:  int(elementMult(target, attack.GetElement(), world)),
+                ElementMult:  int(elemMult),
                 Defense:      defense,
-        }) * toolDamageMultiplier(world, attacker, target)</span>
+        })</span>
 }
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
@@ -1877,6 +1903,20 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 </span>        }
 }
 
+// logElementAffinity は属性の倍率で攻撃が減ったか増えたかをログに出す。味方が関わる攻撃だけを出す
+func logElementAffinity(attacker, target ecs.Entity, world w.World, element rawschema.Element, mult consts.Percent) {
+        <span class="cov8" title="1">if mult == consts.PercentBase || (!query.IsAlly(world, attacker) &amp;&amp; !query.IsAlly(world, target)) </span>{
+                <span class="cov8" title="1">return
+</span>        }
+        <span class="cov8" title="1">targetMarkup := query.NameMarkup(target, query.GetEntityName(target, world), world)
+        elementName := query.T(world, gc.ElementName(element))
+        text := query.T(world, "%s resisted the %s.", targetMarkup, elementName)
+        if mult &gt; consts.PercentBase </span>{
+                <span class="cov0" title="0">text = query.T(world, "%s is weak to %s.", targetMarkup, elementName)
+</span>        }
+        <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).Markup(text).Log()</span>
+}
+
 // logAttackResult は攻撃結果をログに出力する
 func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName i18n.Msgid) {
         <span class="cov8" title="1">attackerRelevant := query.IsAlly(world, attacker)
@@ -1898,6 +1938,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 <span class="cov8" title="1">methodName = query.T(world, attackMethodName)
 </span>        }
         <span class="cov8" title="1">switch </span>{
+        case hit &amp;&amp; attacker == target &amp;&amp; withMethod:
+                <span class="cov8" title="1">logger.Markup(query.T(world, "%s was caught in %s and took %s damage.", targetMarkup, methodName, damageStr))</span>
         case !hit:
                 <span class="cov8" title="1">if withMethod </span>{
                         <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
@@ -1914,7 +1956,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 <span class="cov8" title="1">if withMethod </span>{
                         <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s and dealt %s damage.", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s and dealt %s damage.", attackerMarkup, targetMarkup, damageStr))
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s attacked %s and dealt %s damage.", attackerMarkup, targetMarkup, damageStr))
 </span>                }
         }
         <span class="cov8" title="1">logger.Log()</span>
@@ -4101,16 +4143,12 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
-// wieldedTool は actor が選んだ手持ち欄の物が分解定義 def に合う道具ならそのグレードを返す
-func wieldedTool(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (int, bool) {
-        <span class="cov8" title="1">if def.ToolCategory == nil || !world.Components.Player.Has(actor) </span>{
+// toolGrade は weapon が分解定義 def に合う道具ならそのグレードを返す。gc.InvalidEntity は道具なしとする
+func toolGrade(world w.World, weapon ecs.Entity, def *rawschema.Disassembly) (int, bool) {
+        <span class="cov8" title="1">if def.ToolCategory == nil || weapon == gc.InvalidEntity </span>{
                 <span class="cov8" title="1">return 0, false
 </span>        }
-        <span class="cov8" title="1">held, ok := query.SelectedHeld(world, actor)
-        if !ok </span>{
-                <span class="cov8" title="1">return 0, false
-</span>        }
-        <span class="cov8" title="1">tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(held, world))
+        <span class="cov8" title="1">tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))
         if !ok </span>{
                 <span class="cov8" title="1">return 0, false
 </span>        }
@@ -4120,8 +4158,8 @@ func wieldedTool(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (i
         <span class="cov8" title="1">return 0, false</span>
 }
 
-// toolDamageMultiplier は prop を殴るときの道具のダメージ倍率を返す。合う道具で 1+グレード、道具が必須で無ければ0、他は1
-func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
+// toolDamageMultiplier は weapon で prop を攻撃するときの道具のダメージ倍率を返す。合う道具で 1+グレード、道具が必須で無ければ0、他は1
+func toolDamageMultiplier(world w.World, weapon, target ecs.Entity) int {
         <span class="cov8" title="1">if !world.Components.Prop.Has(target) </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
@@ -4129,7 +4167,7 @@ func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
         if !ok </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov8" title="1">grade, ok := wieldedTool(world, actor, def)
+        <span class="cov8" title="1">grade, ok := toolGrade(world, weapon, def)
         switch </span>{
         case ok:
                 <span class="cov8" title="1">return 1 + grade</span>
@@ -4139,19 +4177,19 @@ func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
         <span class="cov8" title="1">return 1</span>
 }
 
-// salvageRoll は壊したときの抽選を決める。合う道具を構えているか、道具の分類が無い定義なら全枠を出す
-func salvageRoll(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (grade int, full, withTool bool) {
-        <span class="cov8" title="1">grade, withTool = wieldedTool(world, actor, def)
+// salvageRoll は weapon で壊したときの抽選を決める。合う道具で壊したか、道具の分類が無い定義なら全枠を出す
+func salvageRoll(world w.World, weapon ecs.Entity, def *rawschema.Disassembly) (grade int, full, withTool bool) {
+        <span class="cov8" title="1">grade, withTool = toolGrade(world, weapon, def)
         return grade, withTool || def.ToolCategory == nil, withTool
 </span>}
 
-// dropSalvage は actor が壊した prop の産出を足元へ落とす
-func dropSalvage(world w.World, actor, target ecs.Entity) error {
+// dropSalvage は actor が weapon で壊した prop の産出を足元へ落とす
+func dropSalvage(world w.World, actor, weapon, target ecs.Entity) error {
         <span class="cov8" title="1">def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
         if !ok || !world.Components.GridElement.Has(target) </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
-        <span class="cov8" title="1">grade, full, withTool := salvageRoll(world, actor, def)
+        <span class="cov8" title="1">grade, full, withTool := salvageRoll(world, weapon, def)
         var skillID rawschema.SkillId
         hasSkill := false
         if withTool </span>{
@@ -5029,9 +5067,11 @@ import (
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/gamelog"
+        "github.com/kijimaD/ruins/internal/geometry"
         "github.com/kijimaD/ruins/internal/i18n"
         "github.com/kijimaD/ruins/internal/rawschema"
         w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/world/gameaction"
         "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
@@ -5114,15 +5154,20 @@ func (tb *ThrowBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
                 <span class="cov8" title="1">name = world.Components.Name.Get(p.Item).Name
 </span>        }
 
-        // 威力 0 の物は、効果を持つまで攻撃として扱わない。ダメージの式は威力 0 でも能力値と出目で傷を負わせる
-        <span class="cov8" title="1">if attack.Damage &gt; 0 </span>{
+        <span class="cov8" title="1">switch </span>{
+        case attack.Blast != nil:
+                <span class="cov8" title="1">if err := explode(world, actor, p.Target, attack, name); err != nil </span>{
+                        <span class="cov0" title="0">return err
+</span>                }
+        case attack.Damage &gt; 0:
                 <span class="cov8" title="1">hitModifier := calculateRangedHitModifier(actor, p.Target, attack, world)
                 if err := applyAttackDamage(actor, p.Target, world, gc.InvalidEntity, attack, name, hitModifier, 0); err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
-        } else {
-                <span class="cov8" title="1">logThrow(world, actor, p.Item)
-</span>        }
+        default:
+                // 威力 0 の物は、効果を持つまで攻撃として扱わない。ダメージの式は威力 0 でも能力値と出目で傷を負わせる
+                <span class="cov8" title="1">logThrow(world, actor, p.Item)</span>
+        }
         // 投げた物は、当たっても外れても無くなる
         <span class="cov8" title="1">if err := lifecycle.ChangeItemCount(world, p.Item, -1); err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to consume thrown item: %w", err)
@@ -5143,6 +5188,62 @@ func (tb *ThrowBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
         <span class="cov0" title="0">log.Debug("throw canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 </span>}
+
+// explode は target のマスで爆ぜさせ、そこから半径のマスにいる者すべてに効かせる。命中の判定も会心もしない。
+// 怪我は抽選しない。範囲の全員に抽選すると強すぎるので、破片の傷は爆風のダメージに含める。
+// 爆風は道具を使わない攻撃なので、道具が必須の置物は削れず、ほかの置物の廃材は道具なしで抽選する。
+// 投げた本人も範囲にいれば巻き込む。投擲のスキルは、本人と随伴するキューブ以外を傷つけたときに1回だけ伸ばす
+func explode(world w.World, actor, target ecs.Entity, attack gc.ThrowAttack, name i18n.Msgid) error {
+        <span class="cov8" title="1">center := world.Components.GridElement.Get(target).Coord
+        hurtOther := false
+        for _, victim := range blastVictims(world, center, attack.Blast.Radius) </span>{
+                <span class="cov8" title="1">if world.Components.Dead.Has(victim) </span>{
+                        <span class="cov0" title="0">continue</span>
+                }
+                <span class="cov8" title="1">if attack.Damage &gt; 0 </span>{
+                        <span class="cov8" title="1">damage, err := applyHit(actor, victim, world, attack, name, hitOptions{weapon: gc.InvalidEntity})
+                        if err != nil </span>{
+                                <span class="cov0" title="0">return err
+</span>                        }
+                        <span class="cov8" title="1">if damage &gt; 0 &amp;&amp; victim != actor &amp;&amp; !world.Components.Cube.Has(victim) </span>{
+                                <span class="cov8" title="1">hurtOther = true
+</span>                        }
+                }
+                // 爆風で倒れた者には不調を付けない
+                <span class="cov8" title="1">if attack.Blast.Condition != "" &amp;&amp; !world.Components.Dead.Has(victim) </span>{
+                        <span class="cov8" title="1">infect(world, victim, attack.Blast.Condition)
+</span>                }
+        }
+        // 自分の爆風で倒れた本人のスキルは伸ばさない
+        <span class="cov8" title="1">if hurtOther &amp;&amp; !world.Components.Dead.Has(actor) </span>{
+                <span class="cov8" title="1">growWeaponSkill(actor, world, attack)
+</span>        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// blastVictims は center から縦横斜めに radius マス以内にいる、HP を持ち死んでいない者を集める。壁は爆風を遮らない
+func blastVictims(world w.World, center consts.Coord[consts.Tile], radius int) []ecs.Entity {
+        <span class="cov8" title="1">var victims []ecs.Entity
+        q := query.ActiveFilter2[gc.GridElement, gc.HP](world).Without(ecs.C[gc.Dead]()).Query()
+        for q.Next() </span>{
+                <span class="cov8" title="1">grid, _ := q.Get()
+                if geometry.ChebyshevDistance(grid.Coord, center) &lt;= radius </span>{
+                        <span class="cov8" title="1">victims = append(victims, q.Entity())
+</span>                }
+        }
+        <span class="cov8" title="1">return victims</span>
+}
+
+// infect は victim に不調を付け、プレイヤー以外がかかったらログに出す。プレイヤーには ContractIllness がログを出す
+func infect(world w.World, victim ecs.Entity, ct gc.ConditionType) {
+        <span class="cov8" title="1">if !gameaction.ContractIllness(world, victim, ct) || world.Components.Player.Has(victim) </span>{
+                <span class="cov8" title="1">return
+</span>        }
+        <span class="cov8" title="1">victimMarkup := query.NameMarkup(victim, query.GetEntityName(victim, world), world)
+        gamelog.New(query.GetGameLog(world)).
+                Markup(query.T(world, "%s contracted %s.", victimMarkup, query.ConditionName(world, ct))).
+                Log()</span>
+}
 
 // logThrow は攻撃にならない物を投げたことをログに出す。プレイヤーが投げたときだけ出す
 func logThrow(world w.World, actor, item ecs.Entity) {
@@ -5178,10 +5279,14 @@ func CanThrowTarget(actor, item, target ecs.Entity, world w.World) bool {
         <span class="cov0" title="0">return (&amp;ThrowBehavior{}).Validate(NewThrowActivity(item, target), actor, world) == nil
 </span>}
 
-// CalculateThrowHitRate は投げの値 attack で target を狙ったときの命中率を返す。情報パネル表示用
+// CalculateThrowHitRate は投げの値 attack で target を狙ったときの命中率を返す。情報パネル表示用。
+// 爆ぜる物は命中の判定をせず必ず狙ったマスで爆ぜるので 100 を返す
 func CalculateThrowHitRate(actor, target ecs.Entity, attack gc.ThrowAttack, world w.World) int {
-        <span class="cov0" title="0">return calculateHitRate(actor, target, world, attack, calculateRangedHitModifier(actor, target, attack, world))
-</span>}
+        <span class="cov8" title="1">if attack.Blast != nil </span>{
+                <span class="cov8" title="1">return 100
+</span>        }
+        <span class="cov0" title="0">return calculateHitRate(actor, target, world, attack, calculateRangedHitModifier(actor, target, attack, world))</span>
+}
 </pre>
 		
 		<pre class="file" id="file24" style="display: none">package activity
@@ -10849,6 +10954,14 @@ func (m *Melee) GetTargetType() TargetType { <span class="cov8" title="1">return
 type ThrowAttack struct {
         Damage   int
         Accuracy int
+        Blast    *Blast // 爆ぜる物だけが持つ
+}
+
+// Blast は爆風の値。爆ぜたマスから Radius マスまでの者すべてに効く
+type Blast struct {
+        Radius    int
+        Element   rawschema.Element
+        Condition ConditionType // 空なら不調を付けない
 }
 
 // GetAccuracy はAttackerの実装
@@ -10860,8 +10973,13 @@ func (t ThrowAttack) GetDamage() int { <span class="cov0" title="0">return t.Dam
 // GetAttackCount はAttackerの実装。投げるのは1回
 func (t ThrowAttack) GetAttackCount() int { <span class="cov0" title="0">return 1 }</span>
 
-// GetElement はAttackerの実装。投げる攻撃は属性を持たない
-func (t ThrowAttack) GetElement() rawschema.Element { <span class="cov0" title="0">return rawschema.ElementNONE }</span>
+// GetElement はAttackerの実装。爆風の属性を返し、爆風が無ければ無属性
+func (t ThrowAttack) GetElement() rawschema.Element {
+        <span class="cov8" title="1">if t.Blast == nil || t.Blast.Element == "" </span>{
+                <span class="cov8" title="1">return rawschema.ElementNONE
+</span>        }
+        <span class="cov8" title="1">return t.Blast.Element</span>
+}
 
 // GetAttackCategory はAttackerの実装
 func (t ThrowAttack) GetAttackCategory() rawschema.AttackCategory {
@@ -14414,6 +14532,7 @@ import (
 
         "github.com/hajimehoshi/ebiten/v2/text/v2"
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // SplashTextEffect はダンジョン開始時などに画面中央にスプラッシュ表示するエフェクト。
@@ -14473,8 +14592,16 @@ func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *
 </span>        }
 }
 
-// NewDamageEffect はダメージ数値表示エフェクトを作成する
-func NewDamageEffect(damage int) *DamageTextEffect {
+// NewDamageEffect はダメージ数値表示エフェクトを作成する。数字は攻撃の属性の色で出し、
+// 属性の倍率 elementMult で減ったら RESIST、増えたら WEAK を添える
+func NewDamageEffect(damage int, element rawschema.Element, elementMult consts.Percent) *DamageTextEffect {
+        <span class="cov8" title="1">text := fmt.Sprintf("%d", damage)
+        switch </span>{
+        case elementMult &lt; consts.PercentBase:
+                <span class="cov8" title="1">text += " RESIST"</span>
+        case elementMult &gt; consts.PercentBase:
+                <span class="cov8" title="1">text += " WEAK"</span>
+        }
         <span class="cov8" title="1">totalMs := 800.0
         return &amp;DamageTextEffect{
                 FadeAnimation: FadeAnimation{
@@ -14487,12 +14614,39 @@ func NewDamageEffect(damage int) *DamageTextEffect {
                 },
                 TextProperties: TextProperties{
                         Offset: consts.Coord[float64]{X: 0, Y: -8},
-                        Text:   fmt.Sprintf("%d", damage),
-                        Color:  color.RGBA{255, 80, 80, 255},
+                        Text:   text,
+                        Color:  elementDamageColor(element),
                 },
                 VelocityY: -0.5,
 </span>        }
 }
+
+// elementDamageColor は属性ごとのダメージの数字の色を返す。無属性は赤
+func elementDamageColor(element rawschema.Element) color.RGBA {
+        <span class="cov8" title="1">switch element </span>{
+        case rawschema.ElementNONE:
+                <span class="cov8" title="1">return noElementDamageColor</span>
+        case rawschema.ElementFIRE:
+                <span class="cov8" title="1">return color.RGBA{255, 150, 40, 255}</span>
+        case rawschema.ElementTHUNDER:
+                <span class="cov8" title="1">return color.RGBA{255, 230, 60, 255}</span>
+        case rawschema.ElementCHILL:
+                <span class="cov8" title="1">return color.RGBA{120, 210, 255, 255}</span>
+        case rawschema.ElementPHOTON:
+                <span class="cov8" title="1">return color.RGBA{255, 255, 230, 255}</span>
+        }
+        <span class="cov0" title="0">return noElementDamageColor</span>
+}
+
+// noElementDamageColor は無属性のダメージの数字の色
+var noElementDamageColor = color.RGBA{255, 80, 80, 255}
+
+// NewConditionDamageEffect は失血や低体温など不調で削れた HP の数字を、攻撃のダメージと見分けられる紫で浮かべる
+func NewConditionDamageEffect(damage int) *DamageTextEffect {
+        <span class="cov8" title="1">effect := NewDamageEffect(damage, rawschema.ElementNONE, consts.PercentBase)
+        effect.Color = color.RGBA{190, 110, 255, 255}
+        return effect
+</span>}
 
 // NewMissEffect はミス表示エフェクトを作成する
 func NewMissEffect() *DamageTextEffect {
@@ -30076,14 +30230,21 @@ func FindDisassembly(raws rawschema.Raws, name string) (*rawschema.Disassembly, 
 
 // FindThrow は指定された名前のアイテムが行に投げの欄を持てば、その投げの値を返す
 func FindThrow(raws rawschema.Raws, name string) (gc.ThrowAttack, bool) {
-        <span class="cov0" title="0">item, ok := FindByKey(raws.Items, func(i rawschema.Item) string </span>{ <span class="cov0" title="0">return i.Id }</span>, name)
-        <span class="cov0" title="0">if !ok || item.Throw == nil </span>{
-                <span class="cov0" title="0">return gc.ThrowAttack{}, false
+        <span class="cov8" title="1">item, ok := FindByKey(raws.Items, func(i rawschema.Item) string </span>{ <span class="cov8" title="1">return i.Id }</span>, name)
+        <span class="cov8" title="1">if !ok || item.Throw == nil </span>{
+                <span class="cov8" title="1">return gc.ThrowAttack{}, false
 </span>        }
-        <span class="cov0" title="0">return gc.ThrowAttack{
-                Damage:   item.Throw.Damage,
-                Accuracy: item.Throw.Accuracy,
-        }, true</span>
+        <span class="cov8" title="1">attack := gc.ThrowAttack{Damage: item.Throw.Damage, Accuracy: item.Throw.Accuracy}
+        if b := item.Throw.Blast; b != nil </span>{
+                <span class="cov8" title="1">attack.Blast = &amp;gc.Blast{Radius: b.Radius, Element: rawschema.ElementNONE}
+                if b.Element != nil </span>{
+                        <span class="cov8" title="1">attack.Blast.Element = *b.Element
+</span>                }
+                <span class="cov8" title="1">if b.Condition != nil </span>{
+                        <span class="cov8" title="1">attack.Blast.Condition = gc.ConditionType(*b.Condition)
+</span>                }
+        }
+        <span class="cov8" title="1">return attack, true</span>
 }
 
 // FindTool は指定された名前のアイテムの道具の性質を返す
@@ -30245,8 +30406,9 @@ func NewConditionDefs(raws rawschema.Raws) (gc.ConditionDefs, error) {
 
         <span class="cov8" title="1">conditions := PtrSlice(raws.Conditions)
         conds := make(map[gc.ConditionType]gc.ConditionDef, len(conditions))
-        for _, row := range conditions </span>{
-                <span class="cov8" title="1">def := gc.ConditionDef{
+        for i := range conditions </span>{
+                <span class="cov8" title="1">row := &amp;conditions[i]
+                def := gc.ConditionDef{
                         Name:                    i18n.Msgid(row.Name),
                         Description:             i18n.Msgid(row.Description),
                         PainPerSeverity:         row.PainPerSeverity,
@@ -30700,8 +30862,10 @@ func validateDisassemblies(raws rawschema.Raws) error {
 // validateRemedies は、治療する物が治す不調が治療で回復に向かう種類で、治療の質を掛けた1ターンの回復量が1以上あることを検証する
 func validateRemedies(raws rawschema.Raws) error {
         <span class="cov8" title="1">recoverPer := map[rawschema.ConditionTypeName]int{}
-        for _, c := range PtrSlice(raws.Conditions) </span>{
-                <span class="cov8" title="1">if c.Recovery == nil || *c.Recovery != rawschema.RecoverAfterTend </span>{
+        conditions := PtrSlice(raws.Conditions)
+        for i := range conditions </span>{
+                <span class="cov8" title="1">c := &amp;conditions[i]
+                if c.Recovery == nil || *c.Recovery != rawschema.RecoverAfterTend </span>{
                         <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">recoverPer[c.Id] = 0
@@ -30782,8 +30946,10 @@ func validateConditions(raws rawschema.Raws) error {
 </span>                }
                 <span class="cov8" title="1">hitWeights[b.Id] = b.HitWeight</span>
         }
-        <span class="cov8" title="1">for _, c := range PtrSlice(raws.Conditions) </span>{
-                <span class="cov8" title="1">if err := validateConditionParts(c, hitWeights); err != nil </span>{
+        <span class="cov8" title="1">conditions := PtrSlice(raws.Conditions)
+        for i := range conditions </span>{
+                <span class="cov8" title="1">c := &amp;conditions[i]
+                if err := validateConditionParts(c, hitWeights); err != nil </span>{
                         <span class="cov8" title="1">return err
 </span>                }
         }
@@ -30792,7 +30958,7 @@ func validateConditions(raws rawschema.Raws) error {
 
 // validateConditionParts は不調の起こりうる部位が全身を含まず、命中の重みが正の部位を1つ以上持つことを検証する。
 // parts を省いた不調は全部位が対象になる
-func validateConditionParts(c rawschema.Condition, hitWeights map[string]float64) error {
+func validateConditionParts(c *rawschema.Condition, hitWeights map[string]float64) error {
         <span class="cov8" title="1">parts := PtrSlice(c.Parts)
         if slices.Contains(parts, gc.BodyPartWholeBody.ID()) </span>{
                 <span class="cov8" title="1">return fmt.Errorf("condition %q: %w", c.Id, errConditionPartWholeBody)
@@ -30837,9 +31003,10 @@ func validateCodeRows(raws rawschema.Raws) error {
         }
 
         <span class="cov8" title="1">var onsets []string
-        for _, c := range PtrSlice(raws.Conditions) </span>{
-                <span class="cov8" title="1">if c.Onset != nil </span>{
-                        <span class="cov8" title="1">onsets = append(onsets, string(*c.Onset))
+        conditions := PtrSlice(raws.Conditions)
+        for i := range conditions </span>{
+                <span class="cov8" title="1">if onset := conditions[i].Onset; onset != nil </span>{
+                        <span class="cov8" title="1">onsets = append(onsets, string(*onset))
 </span>                }
         }
         <span class="cov8" title="1">if err := validateEnumRows("ConditionOnset", enumStrings(rawschema.ConditionOnsetValues()), onsets); err != nil </span>{
@@ -31371,6 +31538,20 @@ type BigRoomStep struct {
 
         PlatformRadius RandInt `json:"platformRadius"`
 }
+
+// Blast 爆風。爆ぜたマスから radius マスまでの者すべてに効く
+type Blast struct {
+        // Condition 爆風に入った者に付ける不調
+        Condition *ConditionTypeName `json:"condition,omitempty"`
+
+        // Element 爆風の属性。省くと無属性
+        Element *Element `json:"element,omitempty"`
+
+        Radius BlastRadius `json:"radius"`
+}
+
+// BlastRadius 爆風の半径。マス数
+type BlastRadius = int
 
 // BlocksPassage 通行を妨げるかどうか
 type BlocksPassage = bool
@@ -34050,6 +34231,9 @@ type TemplateStart struct {
 // Throw 投げたときの値。投げ向きの物だけが書き、ほかの物は重さから導く
 type Throw struct {
         Accuracy Accuracy `json:"accuracy"`
+
+        // Blast 爆ぜる物の爆風。持つ物は命中の判定をせず、狙ったマスで爆ぜる
+        Blast *Blast `json:"blast,omitempty"`
 
         Damage BaseDamage `json:"damage"`
 }
@@ -55780,11 +55964,16 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
         }
 }
 
-// ApplyConditionDamage は低体温や病気など発生源のない不調から target の HP を削る。
-// 死因ラベルを受け取り、プレイヤーが倒れたら RunStats へ記録する。
+// ApplyConditionDamage は低体温や病気など発生源のない不調から target の HP を削り、削った量を浮かべる。
+// プレイヤーも敵も同じ経路を通る。死因ラベルを受け取り、プレイヤーが倒れたら RunStats へ記録する。
 // 攻撃者がいないので AI の敵対反応は起こさない。
 func ApplyConditionDamage(world w.World, target ecs.Entity, damage int, cause gc.DeathCause) {
+        // 倒れた者は削らず、数字も浮かべない。プレイヤーは倒れても消えずに残るので、次のターンも不調の削りが来る
+        <span class="cov8" title="1">if world.Components.Dead.Has(target) </span>{
+                <span class="cov8" title="1">return
+</span>        }
         <span class="cov8" title="1">died := dealHP(world, target, damage)
+        lifecycle.SpawnVisualEffect(target, gc.NewConditionDamageEffect(damage), world)
 </span>
         <span class="cov8" title="1">if died </span>{
                 <span class="cov8" title="1">if isPlayerEntity(target, world) </span>{
@@ -55866,7 +56055,8 @@ import (
 // illnessOnsetTimer は発症したての病気の初期進行度。発症する 25 以上にして浅く始め、早期発見を効かせる
 const illnessOnsetTimer = 30
 
-// ContractIllness は病気を1つ発症させる。病気は全身性なので胴に付ける。既に同じ病気があれば重ねない。
+// ContractIllness は病気を1つ発症させる。病気は全身性なので胴に付ける。同じ病気が発症中なら重ねない。
+// 治りかけで発症していない同じ病気が残っていれば、発症したての進行度に戻す。
 // HealthStatus を持たない対象には何もしない。発症したら true を返し、身体機能の再計算を促す。
 // 発症したての浅い進行度で始まり、以降の進行は不調ごとの回復モードに従う
 func ContractIllness(world w.World, entity ecs.Entity, ct gc.ConditionType) bool {
@@ -55874,7 +56064,7 @@ func ContractIllness(world w.World, entity ecs.Entity, ct gc.ConditionType) bool
                 <span class="cov8" title="1">return false
 </span>        }
         <span class="cov8" title="1">part := &amp;world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartTorso]
-        if part.GetCondition(ct) != nil </span>{
+        if existing := part.GetCondition(ct); existing != nil &amp;&amp; existing.IsActive() </span>{
                 <span class="cov8" title="1">return false
 </span>        }
         <span class="cov8" title="1">part.SetCondition(gc.HealthCondition{

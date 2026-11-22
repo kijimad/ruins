@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 02:52:23</td>
+            <td class="headerValue">2026-11-22 07:14:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,33 +73,34 @@
 <span id="L11"><span class="lineNum">      11</span>              : // illnessOnsetTimer は発症したての病気の初期進行度。発症する 25 以上にして浅く始め、早期発見を効かせる</span>
 <span id="L12"><span class="lineNum">      12</span>              : const illnessOnsetTimer = 30</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
-<span id="L14"><span class="lineNum">      14</span>              : // ContractIllness は病気を1つ発症させる。病気は全身性なので胴に付ける。既に同じ病気があれば重ねない。</span>
-<span id="L15"><span class="lineNum">      15</span>              : // HealthStatus を持たない対象には何もしない。発症したら true を返し、身体機能の再計算を促す。</span>
-<span id="L16"><span class="lineNum">      16</span>              : // 発症したての浅い進行度で始まり、以降の進行は不調ごとの回復モードに従う</span>
-<span id="L17"><span class="lineNum">      17</span>              : func ContractIllness(world w.World, entity ecs.Entity, ct gc.ConditionType) bool {</span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(entity) {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         part := &amp;world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartTorso]</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         if part.GetCondition(ct) != nil {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         part.SetCondition(gc.HealthCondition{</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 Type:     ct,</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 Timer:    illnessOnsetTimer,</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 Severity: gc.TimerToSeverity(illnessOnsetTimer),</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         if !world.Components.StatsChanged.Has(entity) {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                 world.Components.StatsChanged.Add(entity, &amp;gc.StatsChanged{})</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if world.Components.Player.Has(entity) {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 name := query.ConditionName(world, ct)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         Markup(query.T(world, &quot;You contracted %s.&quot;, name)).</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                         Log()</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return true</span></span>
-<span id="L40"><span class="lineNum">      40</span>              : }</span>
+<span id="L14"><span class="lineNum">      14</span>              : // ContractIllness は病気を1つ発症させる。病気は全身性なので胴に付ける。同じ病気が発症中なら重ねない。</span>
+<span id="L15"><span class="lineNum">      15</span>              : // 治りかけで発症していない同じ病気が残っていれば、発症したての進行度に戻す。</span>
+<span id="L16"><span class="lineNum">      16</span>              : // HealthStatus を持たない対象には何もしない。発症したら true を返し、身体機能の再計算を促す。</span>
+<span id="L17"><span class="lineNum">      17</span>              : // 発症したての浅い進行度で始まり、以降の進行は不調ごとの回復モードに従う</span>
+<span id="L18"><span class="lineNum">      18</span>              : func ContractIllness(world w.World, entity ecs.Entity, ct gc.ConditionType) bool {</span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         if !world.Components.HealthStatus.Has(entity) {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         part := &amp;world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartTorso]</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         if existing := part.GetCondition(ct); existing != nil &amp;&amp; existing.IsActive() {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         part.SetCondition(gc.HealthCondition{</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 Type:     ct,</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 Timer:    illnessOnsetTimer,</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 Severity: gc.TimerToSeverity(illnessOnsetTimer),</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         if !world.Components.StatsChanged.Has(entity) {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 world.Components.StatsChanged.Add(entity, &amp;gc.StatsChanged{})</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         if world.Components.Player.Has(entity) {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 name := query.ConditionName(world, ct)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                         Markup(query.T(world, &quot;You contracted %s.&quot;, name)).</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                         Log()</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return true</span></span>
+<span id="L41"><span class="lineNum">      41</span>              : }</span>
         </pre>
               </td>
             </tr>
