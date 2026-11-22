@@ -604,25 +604,34 @@ func TestCollectBillboards_柵は描けるマスの隣とだけつなぐ(t *test
 		require.NoError(t, err)
 	}
 	sys := &Render3DSystem{}
-	spans := func(known func(consts.Coord[consts.Tile]) bool) [][4]render3d.Vec {
+	// 中央のマスの板だけを見る。隣の柵の板は中央のマスの外から始まる
+	inCenter := func(q r3quad) bool {
+		return q.p[0].X >= 25 && q.p[0].X <= 25.5 && q.p[0].Z >= 25 && q.p[0].Z <= 25.5
+	}
+	centerQuads := func(known func(consts.Coord[consts.Tile]) bool) []r3quad {
 		vis := func(g *gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, known(g.Coord), true }
-		var got [][4]render3d.Vec
+		var got []r3quad
 		for _, q := range sys.collectBillboards(world, nil, projector, vis, nil, nil, nil, linkedAt(world)) {
-			if q.p[0].X >= 25 && q.p[0].X <= 25.5 && q.p[0].Z >= 25 && q.p[0].Z <= 25.5 {
-				got = append(got, q.p)
+			if inCenter(q) {
+				got = append(got, q)
 			}
 		}
 		return got
 	}
 
-	all := func(consts.Coord[consts.Tile]) bool { return true }
-	assert.Equal(t, [][4]render3d.Vec{
-		{render3d.At(25.5, 1, 25.5), render3d.At(26, 1, 25.5), render3d.At(26, 0, 25.5), render3d.At(25.5, 0, 25.5)},
-		{render3d.At(25.5, 1, 25.5), render3d.At(25.5, 1, 26), render3d.At(25.5, 0, 26), render3d.At(25.5, 0, 25.5)},
-	}, spans(all), "角は東と南へ半分ずつ伸ばす")
+	corner := centerQuads(func(consts.Coord[consts.Tile]) bool { return true })
+	require.Len(t, corner, 2, "角は東と南へ半分ずつ伸ばす")
+	assert.Equal(t, [4]render3d.Vec{render3d.At(25.5, 1, 25.5), render3d.At(26, 1, 25.5), render3d.At(26, 0, 25.5), render3d.At(25.5, 0, 25.5)}, corner[0].p)
+	assert.Equal(t, [4]render3d.Vec{render3d.At(25.5, 1, 25.5), render3d.At(25.5, 1, 26), render3d.At(25.5, 0, 26), render3d.At(25.5, 0, 25.5)}, corner[1].p)
+	full := corner[0].uv[1][0] - corner[0].uv[0][0]
+	for _, q := range corner {
+		assert.InDelta(t, full, q.uv[1][0]-q.uv[0][0], 1e-9, "半分の板には絵も半分を切り出す")
+		assert.Equal(t, rawschema.SpriteDepthTaller.Rank(), q.depth)
+	}
 
-	southUnseen := func(c consts.Coord[consts.Tile]) bool { return c != south }
-	assert.Equal(t, [][4]render3d.Vec{
-		{render3d.At(25, 1, 25.5), render3d.At(26, 1, 25.5), render3d.At(26, 0, 25.5), render3d.At(25, 0, 25.5)},
-	}, spans(southUnseen), "見ていない南の柵とはつながず、東西に渡す")
+	southUnseen := centerQuads(func(c consts.Coord[consts.Tile]) bool { return c != south })
+	require.Len(t, southUnseen, 1, "見ていない南の柵とはつながず、東西に渡す")
+	assert.Equal(t, [4]render3d.Vec{render3d.At(25, 1, 25.5), render3d.At(26, 1, 25.5), render3d.At(26, 0, 25.5), render3d.At(25, 0, 25.5)}, southUnseen[0].p)
+	assert.InDelta(t, 2*full, southUnseen[0].uv[1][0]-southUnseen[0].uv[0][0], 1e-9, "端から端までの板には絵を丸ごと貼る")
+	assert.InDelta(t, corner[0].uv[1][0], southUnseen[0].uv[1][0], 1e-9, "東の半分の板は絵の右半分を貼る")
 }

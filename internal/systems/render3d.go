@@ -457,8 +457,11 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			// 壁と同じく動かない仕切りなので、記憶エリアにも描く。まだ見ていないマスの柵の在りかを板の伸び方で明かさないよう、
 			// 描けるマスの隣だけをつなぐ
 			known := func(n consts.Coord[consts.Tile]) bool {
+				if !linked[n] {
+					return false
+				}
 				_, ok, _ := visTint(&gc.GridElement{Coord: n})
-				return linked[n] && ok
+				return ok
 			}
 			for _, s := range linkedSpans(g.Coord, known) {
 				sys.addLinkedSpan(&quads, g.Coord, s, atlas, ux, uy, uw, uh, tint)
