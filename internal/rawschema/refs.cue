@@ -49,16 +49,6 @@ treeSteps?:        _
 trailSteps?:       _
 gladeSteps?:       _
 simpleSteps?:      _
-freshnessStages?:  _
-timesOfDay?:       _
-seasons?:          _
-pointFeatures?:    _
-weathers?:         _
-shelterEffects?:   _
-waterEffects?:     _
-hungerStages?:     _
-fatigueStages?:    _
-mapGlyphs?:        _
 
 _itemIDs: {if items != _|_ for x in items {(x.id): true}}
 _bodyAttackIDs: {if bodyAttacks != _|_ for x in bodyAttacks {(x.id): true}}

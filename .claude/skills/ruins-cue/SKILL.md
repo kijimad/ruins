@@ -11,7 +11,6 @@ raw のデータの形・値の制約・行の間の参照は `internal/rawschem
 
 - `schema.cue`: 型と制約。定義 `#X` が Go の型になる。
 - `refs.cue`: 参照を引く id の索引。隠しフィールドに置く。
-- `complete.cue`: 実データが揃っていることの検査 `#Complete`。列挙のまま残す物の値ごとに、行や欄の値をちょうど1つ持つことを確かめる。`@rawgen(-)` で Go の型にせず、`rawcheck.ValidateComplete` だけが検証する。列挙に値を足したら、ここの必須のキーにも足す。必須のキーと列挙の値の一致は `rawcheck` の `TestComplete_必須のキーが列挙の値と一致する` が確かめるので、新しい検査を足したらその表にも行を足す。
 - `root.cue`: 検証するデータの最上位を `#Raws` に結ぶ。
 - `gen/`: CUE から `models_gen.go` を書き出す生成器。ルートの `gen.go` の `go generate` から呼ぶ。raw の型だけを作り直すときはルートで `go generate -run rawschema .` を走らせる。
 - `rawcheck/`: CUE で raw を検証する。テストからだけ使い、ゲームのバイナリには CUE を入れない。
@@ -28,7 +27,7 @@ raw のデータの形・値の制約・行の間の参照は `internal/rawschem
 - スカラーは名前付きの定義にし、型の土台を必ず明示する。`#EntryWeight: number & >=0` のように書く。`>=0` だけでは Go の型が決まらない。
 - 整数は既定で `int` にし Go の `int` に写す。幅を固定したいときだけ `@rawgen(type=int32)` を付ける。ドメインを Go の `int` で計算するなら `int` のままにし、キャストを生まない。
 - 値の集合を列挙にするか表にするかは、ゲームの振る舞いのコードが値を名指しするかで決める。
-  - 名指しするなら列挙にする。値を raw から消すと定数が消え、Go がコンパイルで落ちる。囲い `#Shelter` は気温の計算が `rawschema.Outdoor` を名指しするので列挙。値ごとの行の一致は `complete.cue` で確かめる。
+  - 名指しするなら列挙にする。値を raw から消すと定数が消え、Go がコンパイルで落ちる。囲い `#Shelter` は気温の計算が `rawschema.Outdoor` を名指しするので列挙。値ごとの行の一致は `internal/raw/enum_rows_test.go` が、生成された `XxxValues()` と実データを突き合わせて確かめる。列挙に値を足すと検査も追従するので、値は列挙の1か所にだけ書く。
   - 名指ししないなら表にする。値を足すのが raw の行1つで済む。表の型 `#X` と id の型 `#XId: #TableId` に分け、参照する欄から索引で引く。id の書式は表ごとに変えず `#TableId` 1つにそろえる。口径の `9mm` のために先頭の数字も許している。植生 `#Foliage` はタイルの気温の補正を引く鍵でしかないので表。
   - 開発用の道具 `internal/balance` やテストでの名指しは数えない。文字列の id で書く。生成される定数を使わなくても、Go が自前の型の定数で同じ値を名指しするなら名指しに数える。`#ConditionDeathCause` は `gc.DeathCause` の定数で名指しされるので列挙。
 - 列挙は値の選言で書く。`"a" | "b"` は Go の `type X string` と定数と `Valid()` と `XValues()` になる。
@@ -58,4 +57,3 @@ raw のデータの形・値の制約・行の間の参照は `internal/rawschem
 - 違反は `*rawcheck.Error` で返る。`errors.As` で取り出し、`Paths()` で違反したパスを `assert.Equal` で固定する。文言では判定しない。
 - 正と負の両方向をテストする。実データが通ることと、1か所壊したデータがそのパスで落ちることを確かめる。
 - 参照と重複の規則を足したら `rawcheck/refs_test.go` の表に行を足す。
-- 部分の fixture は `rawcheck.Validate` で、実データは `rawcheck.ValidateComplete` で検証する。`Validate` は `#Complete` を見ないので、表の一部だけの fixture も通る。

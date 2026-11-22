@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestValidateComplete_実データが通る(t *testing.T) {
+func TestValidate_実データが通る(t *testing.T) {
 	t.Parallel()
 	raws, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
-	require.NoError(t, rawcheck.ValidateComplete(raws))
+	require.NoError(t, rawcheck.Validate(raws))
 }
 
 func TestValidate_違反を位置で返す(t *testing.T) {
@@ -200,4 +200,14 @@ func TestValidate_タイルのidに下地を残す地形の予約語を使わな
 	var ce *rawcheck.Error
 	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
 	assert.Equal(t, []string{"tiles.2.id"}, ce.Paths())
+}
+
+func TestValidate_無属性を軽減する熟練度は位置で返す(t *testing.T) {
+	t.Parallel()
+	raws, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	(*(*raws.Skills)[0].Proficiencies)[0].Resists = new(rawschema.ElementNONE)
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"skills.0.proficiencies.0.resists"}, ce.Paths())
 }
