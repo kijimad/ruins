@@ -57,25 +57,24 @@ func AcceptedFuelOf(world w.World, item ecs.Entity) (rawschema.FuelKindId, bool)
 	return raw.FindAcceptedFuel(world.Resources.RawMaster, world.Components.RawID.Get(item).ID)
 }
 
-// RefillOf は燃料の fuel の燃料の欄を返す。燃料でない物は ok が偽
-func RefillOf(world w.World, fuel ecs.Entity) (rawschema.Refill, bool) {
+// FuelKindOf は燃料の fuel の種別を返す。燃料でない物は ok が偽
+func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.FuelKindId, bool) {
 	if !world.Components.RawID.Has(fuel) {
-		return rawschema.Refill{}, false
+		return "", false
 	}
-	return raw.FindRefill(world.Resources.RawMaster, world.Components.RawID.Get(fuel).ID)
+	return raw.FindFuelKind(world.Resources.RawMaster, world.Components.RawID.Get(fuel).ID)
 }
 
 // FuelKindMatches は fuel が燃料で、その種別が want かを返す
 func FuelKindMatches(world w.World, want rawschema.FuelKindId, fuel ecs.Entity) bool {
-	refill, ok := RefillOf(world, fuel)
-	return ok && refill.Kind == want
+	got, ok := FuelKindOf(world, fuel)
+	return ok && got == want
 }
 
-// ChargeRandomOnLoot は item が見つかったときにランダムな残量で生まれるかを返す。残量を移し合う燃料と、燃料を受ける灯りが当たる
-func ChargeRandomOnLoot(world w.World, item ecs.Entity) bool {
-	if _, ok := RefillOf(world, item); ok {
-		return true
+// ChargeKindOf は item が残量を移し合う燃料の種別を返す。灯りは受ける種別、燃料は自分の種別を返し、どちらでもなければ ok が偽
+func ChargeKindOf(world w.World, item ecs.Entity) (rawschema.FuelKindId, bool) {
+	if kind, ok := AcceptedFuelOf(world, item); ok {
+		return kind, true
 	}
-	_, ok := AcceptedFuelOf(world, item)
-	return ok
+	return FuelKindOf(world, item)
 }

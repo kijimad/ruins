@@ -148,50 +148,32 @@ func TestValidate_満たせる燃料の種別(t *testing.T) {
 		return rawschema.Item{
 			Id: "oil", Name: "Oil", Description: "Oil", SpriteSheetName: "field", SpriteKey: "oil",
 			Charge: &rawschema.Charge{Max: 1500},
-			Refill: &rawschema.Refill{Kind: oil, EmptiesTo: "can"},
+			Refill: &rawschema.Refill{Kind: oil},
 		}
 	}
-	can := rawschema.Item{Id: "can", Name: "Can", Description: "Can", SpriteSheetName: "field", SpriteKey: "can"}
-	kinds := []rawschema.FuelKind{{Id: oil, Item: "oil"}}
+	kinds := []rawschema.FuelKind{{Id: oil}}
 	tests := []struct {
 		name      string
 		fuelKinds []rawschema.FuelKind
 		items     func() []rawschema.Item
 		want      []string
 	}{
-		{name: "種別の表にある種別なら通る", fuelKinds: kinds, items: func() []rawschema.Item { return []rawschema.Item{lamp(), fuel(), can} }, want: nil},
-		{name: "表に無い種別は灯りも燃料も落ちる", items: func() []rawschema.Item { return []rawschema.Item{lamp(), fuel(), can} }, want: []string{"items.1.charge.acceptedFuel_ref", "items.2.refill.kind_ref"}},
+		{name: "種別の表にある種別なら通る", fuelKinds: kinds, items: func() []rawschema.Item { return []rawschema.Item{lamp(), fuel()} }, want: nil},
+		{name: "表に無い種別は灯りも燃料も落ちる", items: func() []rawschema.Item { return []rawschema.Item{lamp(), fuel()} }, want: []string{"items.1.charge.acceptedFuel_ref", "items.2.refill.kind_ref"}},
 		{name: "灯りでない行の種別は落ちる", fuelKinds: kinds, items: func() []rawschema.Item {
 			stick := rawschema.Item{Id: "stick", Name: "Stick", Description: "Stick", SpriteSheetName: "field", SpriteKey: "stick", Melee: &melee, Charge: &rawschema.Charge{Max: 80, AcceptedFuel: &oil}}
-			return []rawschema.Item{stick, fuel(), can}
+			return []rawschema.Item{stick, fuel()}
 		}, want: []string{"items.1.lightSource"}},
 		{name: "燃料は残量を持つ", fuelKinds: kinds, items: func() []rawschema.Item {
 			f := fuel()
 			f.Charge = nil
-			return []rawschema.Item{f, can}
+			return []rawschema.Item{f}
 		}, want: []string{"items.1.charge.max"}},
 		{name: "燃料は燃料を受けない", fuelKinds: kinds, items: func() []rawschema.Item {
 			f := fuel()
 			f.Charge.AcceptedFuel = &oil
-			return []rawschema.Item{f, can}
-		}, want: []string{"items.1.charge.acceptedFuel"}},
-		{name: "種別の表の物は同じ種別の燃料を指す", fuelKinds: []rawschema.FuelKind{{Id: oil, Item: "can"}}, items: func() []rawschema.Item { return []rawschema.Item{fuel(), can} }, want: []string{"fuelKindItems_ref.oil"}},
-		{name: "空の物は表にある物を指す", fuelKinds: kinds, items: func() []rawschema.Item { return []rawschema.Item{fuel()} }, want: []string{"fuelEmptiesTo_ref.oil"}},
-		{name: "空の物は燃料でない", fuelKinds: kinds, items: func() []rawschema.Item {
-			f := fuel()
-			f.Refill.EmptiesTo = "oil"
 			return []rawschema.Item{f}
-		}, want: []string{"fuelEmptiesTo_unique.oil"}},
-		{name: "空の物は残量を持たない", fuelKinds: kinds, items: func() []rawschema.Item {
-			charged := can
-			charged.Charge = &rawschema.Charge{Max: 10}
-			return []rawschema.Item{fuel(), charged}
-		}, want: []string{"fuelEmptiesTo_noCharge.can"}},
-		{name: "空の物は燃料の間で重ならない", fuelKinds: kinds, items: func() []rawschema.Item {
-			f2 := fuel()
-			f2.Id = "oil2"
-			return []rawschema.Item{fuel(), f2, can}
-		}, want: []string{"fuelEmptiesTo_unique.can"}},
+		}, want: []string{"items.1.charge.acceptedFuel"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

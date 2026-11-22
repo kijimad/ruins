@@ -1265,9 +1265,6 @@ type FuelCapacityBonus = int
 // FuelKind 燃料の種別。灯りが受ける種別と燃料の種別を、この表の id で引き合わせる
 type FuelKind struct {
 	Id FuelKindId `json:"id"`
-
-	// Item 灯りから抜いたときに作る燃料
-	Item EntityID `json:"item"`
 }
 
 // FuelKindId 燃料の種別の id
@@ -2348,11 +2345,8 @@ type RectRoomStart struct {
 	Rooms RandInt `json:"rooms"`
 }
 
-// Refill 燃料。受ける種別が同じ灯りへ残量を移す
+// Refill 燃料。受ける種別が同じ灯りとの間で残量を移す。残量0でも残り、抜くときの入れ物になる
 type Refill struct {
-	// EmptiesTo 残量が0になったときに置き換わる物。抜くときの入れ物にもなる
-	EmptiesTo EntityID `json:"emptiesTo"`
-
 	Kind FuelKindId `json:"kind"`
 }
 

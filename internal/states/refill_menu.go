@@ -4,9 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -39,29 +37,21 @@ func refillChoices(world w.World) (string, []Choice) {
 // lightRefillChoices は灯りの light を満たすか抜くかの選択肢を返す。使えない方は選べない行にする
 func lightRefillChoices(world w.World, light ecs.Entity) (string, []Choice) {
 	charge := world.Components.Charge.Get(light)
-	_, _, drainErr := gameaction.DrainContainer(world, light)
+	fill := LightFuelSink(world, light)
+	drain := LightDrainSink(world, light)
 	choices := []Choice{
 		{
 			Label:    query.T(world, "Fill"),
-			Disabled: charge.Current >= charge.Max || !carriesFuelFor(world, light),
+			Disabled: charge.Current >= charge.Max || !carriesAccepted(world, fill),
 			Run: pushChoice(func() (es.State[w.World], error) {
-				return NewFeedFuelMenuState(LightFuelSink(world, light))
+				return NewFeedFuelMenuState(fill)
 			}),
 		},
 		{
 			Label:    query.T(world, "Drain"),
-			Disabled: charge.Current <= 0 || drainErr != nil,
-			Run: popAfter(func(world w.World) error {
-				fuel, _, err := gameaction.DrainCharge(world, light)
-				if err != nil {
-					return err
-				}
-				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "Drained %s into %s.",
-						gamelog.Tag("item", query.GetEntityName(light, world)),
-						gamelog.Tag("item", query.GetEntityName(fuel, world)))).
-					Log()
-				return nil
+			Disabled: charge.Current <= 0 || !carriesAccepted(world, drain),
+			Run: pushChoice(func() (es.State[w.World], error) {
+				return NewFeedFuelMenuState(drain)
 			}),
 		},
 		{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
@@ -71,13 +61,12 @@ func lightRefillChoices(world w.World, light ecs.Entity) (string, []Choice) {
 	return query.GetEntityName(light, world), choices
 }
 
-// carriesFuelFor はプレイヤーが灯りの light に合う燃料を持っているかを返す
-func carriesFuelFor(world w.World, light ecs.Entity) bool {
+// carriesAccepted はプレイヤーの持ち物に sink が受ける物があるかを返す
+func carriesAccepted(world w.World, sink FuelSink) bool {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return false
 	}
-	sink := LightFuelSink(world, light)
 	for _, stack := range query.BackpackStacks(world, player) {
 		if sink.accepts(world, stack.Rep) {
 			return true

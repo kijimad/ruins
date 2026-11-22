@@ -81,7 +81,7 @@ func TestHeatContent_燃料の行の物は残量の割合を掛ける(t *testing
 		{name: "半分の灯油は半分の熱", rawID: "lamp_oil", current: 750, want: 250},
 		{name: "残量1の灯油も燃やせる物のまま", rawID: "lamp_oil", current: 1, want: 1},
 		{name: "燃料でない松明は残量で変わらない", rawID: "torch", current: 1, want: 100},
-		{name: "空の缶は燃えない", rawID: "empty_oil_can"},
+		{name: "残量0の灯油は燃えない", rawID: "lamp_oil", current: 0, want: 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -379,11 +379,11 @@ func spawnFieldItems(world w.World, itemName string, x consts.Tile, y consts.Til
 // lootChargeSteps は見つかる物の残量の段階の数。1個ずつ一様に引くと残量ごとに別の束になり、拾った物がほぼ1個ずつ並ぶ
 const lootChargeSteps = 4
 
-// randomizeLootCharge は items のうち見つかったときにランダムな残量で生まれる物の残量を、上限の 1/4 刻みの段階から1個ずつ引く。
+// randomizeLootCharge は items のうち残量を移し合う燃料と灯りの残量を、上限の 1/4 刻みの段階から1個ずつ引く。
 // 上限が小さくても残量0の物は作らない
 func randomizeLootCharge(world w.World, items []ecs.Entity, rng *rand.Rand) {
 	for _, item := range items {
-		if !world.Components.Charge.Has(item) || !query.ChargeRandomOnLoot(world, item) {
+		if _, ok := query.ChargeKindOf(world, item); !ok || !world.Components.Charge.Has(item) {
 			continue
 		}
 		charge := world.Components.Charge.Get(item)

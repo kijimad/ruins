@@ -9,19 +9,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// FindInBackpack は owner のバックパックから RawID が id の物を1つ返す
-func FindInBackpack(world w.World, owner ecs.Entity, id string) (ecs.Entity, bool) {
-	q := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()
-	for q.Next() {
-		entity := q.Entity()
-		if world.Components.LocationInBackpack.Get(entity).Owner == owner && world.Components.RawID.Get(entity).ID == id {
-			q.Close()
-			return entity, true
-		}
-	}
-	return gc.InvalidEntity, false
-}
-
 // FindStackInInventory は RawID でバックパック内のスタックアイテムを1つ返す。
 // クラフトの個数照会や消費の起点に使う。残量を持つ物は新品だけを選び、使いかけの物は材料にしない。
 // 鮮度による束の分割は合流側の query.SameStack が担うため、ここは鮮度を見ない。腐敗食は鮮度違いの別束が複数ありうる点に注意する。

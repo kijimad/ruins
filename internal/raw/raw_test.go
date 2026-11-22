@@ -1386,21 +1386,21 @@ func TestFindAcceptedFuel(t *testing.T) {
 		{Id: "lantern", Charge: &rawschema.Charge{Max: 1500, AcceptedFuel: &oil}},
 		{Id: "torch", Charge: &rawschema.Charge{Max: 600}},
 		{Id: "coat"},
-		{Id: "lamp_oil", Refill: &rawschema.Refill{Kind: oil, EmptiesTo: "empty_oil_can"}},
+		{Id: "lamp_oil", Refill: &rawschema.Refill{Kind: oil}},
 	}}
 	tests := []struct {
 		name     string
 		id       string
 		wantTag  rawschema.FuelKindId
 		wantOK   bool
-		wantFuel rawschema.Refill
+		wantFuel rawschema.FuelKindId
 		isFuel   bool
 	}{
 		{name: "満たせる灯り", id: "lantern", wantTag: oil, wantOK: true},
 		{name: "使い切りの行", id: "torch"},
 		{name: "残量を持たない行", id: "coat"},
 		{name: "無い行", id: "missing"},
-		{name: "燃料の行", id: "lamp_oil", wantFuel: rawschema.Refill{Kind: oil, EmptiesTo: "empty_oil_can"}, isFuel: true},
+		{name: "燃料の行", id: "lamp_oil", wantFuel: oil, isFuel: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1408,19 +1408,9 @@ func TestFindAcceptedFuel(t *testing.T) {
 			tag, ok := FindAcceptedFuel(raws, tt.id)
 			assert.Equal(t, tt.wantOK, ok)
 			assert.Equal(t, tt.wantTag, tag)
-			refill, isFuel := FindRefill(raws, tt.id)
+			fuelTag, isFuel := FindFuelKind(raws, tt.id)
 			assert.Equal(t, tt.isFuel, isFuel)
-			assert.Equal(t, tt.wantFuel, refill)
+			assert.Equal(t, tt.wantFuel, fuelTag)
 		})
 	}
-}
-
-func TestFindFuelItem(t *testing.T) {
-	t.Parallel()
-	raws := rawschema.Raws{FuelKinds: &[]rawschema.FuelKind{{Id: "oil", Item: "lamp_oil"}}}
-	item, ok := FindFuelItem(raws, "oil")
-	assert.True(t, ok)
-	assert.Equal(t, "lamp_oil", item)
-	_, ok = FindFuelItem(raws, "battery")
-	assert.False(t, ok, "表に無い種別")
 }

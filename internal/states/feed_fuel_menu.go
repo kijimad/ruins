@@ -90,7 +90,7 @@ func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 			return query.T(world, "Refill %s", query.GetEntityName(light, world))
 		},
 		accepts: func(world w.World, fuel ecs.Entity) bool {
-			return refillable && query.FuelKindMatches(world, want, fuel)
+			return refillable && query.FuelKindMatches(world, want, fuel) && world.Components.Charge.Get(fuel).Current > 0
 		},
 		gain: func(world w.World, fuel ecs.Entity) string {
 			charge := world.Components.Charge.Get(light)
@@ -109,6 +109,41 @@ func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 		done: func(world w.World) bool {
 			charge := world.Components.Charge.Get(light)
 			return charge.Current >= charge.Max
+		},
+	}
+}
+
+// LightDrainSink は灯りの残量を抜いて入れる、同じ種別の満タンでない燃料を並べる。灯りが0になったらメニューを閉じる
+func LightDrainSink(world w.World, light ecs.Entity) FuelSink {
+	want, refillable := query.AcceptedFuelOf(world, light)
+	return FuelSink{
+		title: func(world w.World) string {
+			return query.T(world, "Drain %s", query.GetEntityName(light, world))
+		},
+		accepts: func(world w.World, container ecs.Entity) bool {
+			if !refillable || !query.FuelKindMatches(world, want, container) {
+				return false
+			}
+			charge := world.Components.Charge.Get(container)
+			return charge.Current < charge.Max
+		},
+		gain: func(world w.World, container ecs.Entity) string {
+			charge := world.Components.Charge.Get(container)
+			return consts.Turn(min(charge.Max-charge.Current, world.Components.Charge.Get(light).Current)).String()
+		},
+		feed: func(world w.World, container ecs.Entity) error {
+			if _, err := gameaction.TransferCharge(world, light, container); err != nil {
+				return err
+			}
+			gamelog.New(query.GetGameLog(world)).
+				Markup(query.T(world, "Drained %s into %s.",
+					gamelog.Tag("item", query.GetEntityName(light, world)),
+					gamelog.Tag("item", query.GetEntityName(container, world)))).
+				Log()
+			return nil
+		},
+		done: func(world w.World) bool {
+			return world.Components.Charge.Get(light).Current <= 0
 		},
 	}
 }

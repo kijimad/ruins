@@ -7,9 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestFindStackInInventory_名前が一致するバックパック内アイテムを返す(t *testing.T) {
@@ -119,33 +117,4 @@ func TestFindStackInInventory_使いかけの物は選ばず新品を返す(t *t
 	got, found := query.FindStackInInventory(world, "wooden_stick")
 	assert.True(t, found)
 	assert.Equal(t, 80, world.Components.Charge.Get(got).Current, "新品を返す")
-}
-
-func TestFindInBackpack_持ち主のバックパックの物だけを返す(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	owner := world.ECS.NewEntity()
-	other := world.ECS.NewEntity()
-	place := func(id string, add func(e ecs.Entity)) ecs.Entity {
-		e := world.ECS.NewEntity()
-		world.Components.RawID.Add(e, &gc.RawID{ID: id})
-		add(e)
-		return e
-	}
-	place("empty_battery", func(e ecs.Entity) {
-		world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: other})
-	})
-	place("empty_battery", func(e ecs.Entity) {
-		world.Components.LocationEquipped.Add(e, &gc.LocationEquipped{Owner: owner, EquipmentSlot: gc.SlotHand1})
-	})
-	mine := place("empty_battery", func(e ecs.Entity) {
-		world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: owner})
-	})
-
-	got, ok := query.FindInBackpack(world, owner, "empty_battery")
-	require.True(t, ok)
-	assert.Equal(t, mine, got, "ほかの者の物と装備中の物は返さない")
-
-	_, ok = query.FindInBackpack(world, owner, "battery")
-	assert.False(t, ok, "持っていない物")
 }

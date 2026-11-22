@@ -961,22 +961,13 @@ func FindAcceptedFuel(raws rawschema.Raws, name string) (rawschema.FuelKindId, b
 	return *item.Charge.AcceptedFuel, true
 }
 
-// FindRefill は name の燃料の行の燃料の欄を返す。燃料でない行は ok が偽
-func FindRefill(raws rawschema.Raws, name string) (rawschema.Refill, bool) {
+// FindFuelKind は name の燃料の行の種別を返す。燃料でない行は ok が偽
+func FindFuelKind(raws rawschema.Raws, name string) (rawschema.FuelKindId, bool) {
 	item, ok := FindByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
 	if !ok || item.Refill == nil {
-		return rawschema.Refill{}, false
-	}
-	return *item.Refill, true
-}
-
-// FindFuelItem は燃料の種別 kind の、灯りから抜いたときに作る燃料の行の id を返す。表に無い種別は ok が偽
-func FindFuelItem(raws rawschema.Raws, kind rawschema.FuelKindId) (string, bool) {
-	row, ok := FindByKey(raws.FuelKinds, func(k rawschema.FuelKind) string { return k.Id }, kind)
-	if !ok {
 		return "", false
 	}
-	return row.Item, true
+	return item.Refill.Kind, true
 }
 
 // GetProfession は指定されたIDの職業データを返す

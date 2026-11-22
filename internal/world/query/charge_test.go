@@ -119,16 +119,18 @@ func TestFuelKindMatches(t *testing.T) {
 	assert.False(t, FuelKindMatches(world, rawschema.FuelKindId("battery"), oil))
 }
 
-func TestChargeRandomOnLoot(t *testing.T) {
+func TestChargeKindOf(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		rawID string
-		want  bool
+		rawID  string
+		want   rawschema.FuelKindId
+		wantOK bool
 	}{
-		{rawID: "battery", want: true},
-		{rawID: "flashlight", want: true},
-		{rawID: "torch", want: false},
-		{rawID: "empty_battery", want: false},
+		{rawID: "battery", want: "battery", wantOK: true},
+		{rawID: "flashlight", want: "battery", wantOK: true},
+		{rawID: "lamp_oil", want: "oil", wantOK: true},
+		{rawID: "torch"},
+		{rawID: "iron_sword"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.rawID, func(t *testing.T) {
@@ -137,7 +139,9 @@ func TestChargeRandomOnLoot(t *testing.T) {
 			item := world.ECS.NewEntity()
 			world.Components.RawID.Add(item, &gc.RawID{ID: tt.rawID})
 
-			assert.Equal(t, tt.want, ChargeRandomOnLoot(world, item))
+			got, ok := ChargeKindOf(world, item)
+			assert.Equal(t, tt.wantOK, ok)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
