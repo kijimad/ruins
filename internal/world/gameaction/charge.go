@@ -33,11 +33,7 @@ func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
 		return
 	}
 	if byPlayer {
-		if world.Components.LightSource.Has(item) {
-			logItem(world, item, "%s burned out.")
-		} else {
-			logItem(world, item, "%s broke.")
-		}
+		logItem(world, item, "%s is used up.")
 	}
 	lifecycle.RemoveItem(world, item)
 	query.GetVisionState(world).RequestUpdate()

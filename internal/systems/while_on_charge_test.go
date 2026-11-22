@@ -78,7 +78,7 @@ func TestWhileOnChargeSystem_手持ち欄の灯りは2本とも燃え尽きる(t
 	assert.True(t, world.Components.StatsChanged.Has(player), "装備の灯りを写し直させる")
 	entries := query.GetGameLog(world).GetRecentEntries(1)
 	require.Len(t, entries, 1)
-	assert.Equal(t, query.T(world, "%s burned out.", "Torch"), entries[0].Text())
+	assert.Equal(t, query.T(world, "%s is used up.", "Torch"), entries[0].Text())
 }
 
 func TestWhileOnChargeSystem_束で床に置いた松明はどれも減る(t *testing.T) {

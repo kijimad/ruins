@@ -80,15 +80,15 @@ func TestConsumeCharge_プレイヤーの物が尽きるとログを出す(t *te
 		place func(world w.World, item, player ecs.Entity) error
 		want  i18n.Msgid
 	}{
-		{name: "手持ち欄の灯りは燃え尽きる", rawID: "torch", place: func(world w.World, item, player ecs.Entity) error {
+		{name: "手持ち欄の灯りは使い切ると消える", rawID: "torch", place: func(world w.World, item, player ecs.Entity) error {
 			lifecycle.MoveToEquip(world, item, player, gc.SlotHand2)
 			return nil
-		}, want: "%s burned out."},
-		{name: "バックパックの灯りは燃え尽きる", rawID: "torch", place: lifecycle.MoveToBackpack, want: "%s burned out."},
-		{name: "手持ち欄の武器は壊れる", rawID: "iron_sword", place: func(world w.World, item, player ecs.Entity) error {
+		}, want: "%s is used up."},
+		{name: "バックパックの灯りは使い切ると消える", rawID: "torch", place: lifecycle.MoveToBackpack, want: "%s is used up."},
+		{name: "手持ち欄の武器も同じ文で消える", rawID: "iron_sword", place: func(world w.World, item, player ecs.Entity) error {
 			lifecycle.MoveToEquip(world, item, player, gc.SlotHand1)
 			return nil
-		}, want: "%s broke."},
+		}, want: "%s is used up."},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

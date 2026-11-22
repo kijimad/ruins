@@ -791,7 +791,7 @@ func TestApplyAttackDamage_武器の残量が尽きると壊れて素手に戻�
 	require.NoError(t, applyAttackDamage(player, enemy, world, weapon, attack, name, 0, 0))
 
 	assert.False(t, world.ECS.Alive(sword))
-	assert.Equal(t, query.T(world, "%s broke.", "Iron Sword"), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
+	assert.Equal(t, query.T(world, "%s is used up.", "Iron Sword"), query.GetGameLog(world).GetRecentEntries(1)[0].Text())
 	_, _, weapon, err = getAttackParams(player, world)
 	require.NoError(t, err)
 	assert.Equal(t, gc.InvalidEntity, weapon, "壊れた後は素手で攻撃する")

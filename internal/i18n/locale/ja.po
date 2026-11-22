@@ -476,11 +476,8 @@ msgstr "外す"
 msgid "Readied %s."
 msgstr "%sを構えた"
 
-msgid "%s burned out."
-msgstr "%sが燃え尽きた"
-
-msgid "%s broke."
-msgstr "%sが壊れた"
+msgid "%s is used up."
+msgstr "%sを使い切った"
 
 msgid "Command"
 msgstr "命令"
