@@ -115,7 +115,7 @@ func elementDamageColor(element rawschema.Element) color.RGBA {
 // noElementDamageColor は無属性のダメージの数字の色
 var noElementDamageColor = color.RGBA{255, 80, 80, 255}
 
-// NewConditionDamageEffect は毒や失血など不調で削れた HP の数字を、攻撃のダメージと見分けられる紫で浮かべる
+// NewConditionDamageEffect は失血や低体温など不調で削れた HP の数字を、攻撃のダメージと見分けられる紫で浮かべる
 func NewConditionDamageEffect(damage int) *DamageTextEffect {
 	effect := NewDamageEffect(damage, rawschema.ElementNONE, consts.PercentBase)
 	effect.Color = color.RGBA{190, 110, 255, 255}
