@@ -28,7 +28,7 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	onset := func(o rawschema.ConditionOnset) *rawschema.ConditionOnset { return &o }
 	conditions := []rawschema.Condition{
 		{Id: "hypothermia", Name: "Hypothermia", Description: "Hypothermia", Onset: onset(rawschema.Cold)},
-		{Id: "fracture", Name: "Fracture", Description: "Fracture"},
+		{Id: "fracture", Name: "Fracture", Description: "Fracture", Parts: &[]rawschema.BodyPartId{"arm"}},
 		{Id: "food_poisoning", Name: "Food poisoning", Description: "Food poisoning", Onset: onset(rawschema.RottenFood)},
 		{Id: "exhaustion", Name: "Exhaustion", Description: "Exhaustion", Onset: onset(rawschema.Fatigue)},
 		{Id: "malnutrition", Name: "Malnutrition", Description: "Malnutrition", Onset: onset(rawschema.Hunger)},
@@ -147,13 +147,21 @@ func TestValidateConditions(t *testing.T) {
 			wantErr: errConditionNoHitPart,
 		},
 		{
-			name: "全部位の不調でも命中する部位が無い",
+			name: "怪我が部位を持たない",
+			mutate: func(r *rawschema.Raws) {
+				(*r.Conditions)[1].Parts = nil
+			},
+			wantErr: errInjuryWithoutParts,
+		},
+		{
+			name: "部位を持たない全身性の不調は命中の重みによらず通る",
 			mutate: func(r *rawschema.Raws) {
 				for i := range *r.BodyParts {
 					(*r.BodyParts)[i].HitWeight = 0
 				}
+				(*r.Conditions)[1].Parts = &[]rawschema.BodyPartId{"arm"}
+				(*r.BodyParts)[gc.BodyPartArms].HitWeight = 1
 			},
-			wantErr: errConditionNoHitPart,
 		},
 	}
 	for _, tt := range tests {
@@ -480,6 +488,7 @@ func TestNewConditionDefs_実データ(t *testing.T) {
 			Name: "Laceration", Description: "An open wound. It will not heal until treated.",
 			PainPerSeverity: 8, BodyFuncDropPerSeverity: 8, Recovery: rawschema.RecoverAfterTend, RecoverPer: 2,
 			BloodDropPerSeverity: 25, Cause: gc.CauseBloodLoss,
+			Parts: []gc.BodyPart{gc.BodyPartTorso, gc.BodyPartHead, gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet},
 		}},
 		{gc.ConditionType("liver_illness"), gc.ConditionDef{
 			Name: "Liver illness", Description: "It worsens while untreated and drains HP when severe.",

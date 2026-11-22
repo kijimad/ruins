@@ -34,6 +34,7 @@ var testDefs = NewConditionDefs(map[ConditionType]ConditionDef{
 		RecoverPer:              2,
 		BloodDropPerSeverity:    25,
 		Cause:                   CauseBloodLoss,
+		Parts:                   []BodyPart{BodyPartTorso, BodyPartHead, BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet},
 	},
 	ConditionType("liver_illness"): {
 		Name:                    "Liver illness",
@@ -94,7 +95,7 @@ func TestConditionDefs_CanAffect(t *testing.T) {
 		}
 	}
 	assert.Equal(t, []BodyPart{BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet}, fracture, "骨折は手足だけ")
-	assert.Equal(t, []BodyPart{BodyPartHead, BodyPartTorso, BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet, BodyPartWholeBody}, laceration, "parts を持たない切り傷は全部位")
+	assert.Equal(t, []BodyPart{BodyPartHead, BodyPartTorso, BodyPartArms, BodyPartHands, BodyPartLegs, BodyPartFeet}, laceration, "切り傷は全身を除く全部位")
 	assert.Equal(t, []BodyPart(nil), unknown, "未登録の種類はどこにも起こらない")
 }
 

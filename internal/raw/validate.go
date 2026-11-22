@@ -3,7 +3,6 @@ package raw
 import (
 	"errors"
 	"fmt"
-	"maps"
 	"slices"
 	"unicode/utf8"
 
@@ -29,6 +28,7 @@ var (
 	errBodyPartRowMissing            = errors.New("body part has no raw row")
 	errBodyPartUnknown               = errors.New("body part is not defined in code")
 	errConditionPartWholeBody        = errors.New("condition parts include whole body")
+	errInjuryWithoutParts            = errors.New("injury condition has no parts")
 	errConditionNoHitPart            = errors.New("condition has no body part that can be hit")
 	errAttackRangeParams             = errors.New("only ranged attack types must have all range params")
 	errResistNone                    = errors.New("no proficiency can resist the none element")
@@ -287,9 +287,17 @@ func validateConditions(raws rawschema.Raws) error {
 		}
 		hitWeights[b.Id] = b.HitWeight
 	}
+	injuries := map[rawschema.ConditionTypeName]bool{}
+	attackTypes := PtrSlice(raws.AttackTypes)
+	for i := range attackTypes {
+		injuries[attackTypes[i].Injury] = true
+	}
 	conditions := PtrSlice(raws.Conditions)
 	for i := range conditions {
 		c := &conditions[i]
+		if injuries[c.Id] && len(PtrSlice(c.Parts)) == 0 {
+			return fmt.Errorf("condition %q: %w", c.Id, errInjuryWithoutParts)
+		}
 		if err := validateConditionParts(c, hitWeights); err != nil {
 			return err
 		}
@@ -298,17 +306,16 @@ func validateConditions(raws rawschema.Raws) error {
 }
 
 // validateConditionParts は不調の起こりうる部位が全身を含まず、命中の重みが正の部位を1つ以上持つことを検証する。
-// parts を省いた不調は全部位が対象になる
+// parts を省いた不調は全身性なので検証しない
 func validateConditionParts(c *rawschema.Condition, hitWeights map[string]float64) error {
 	parts := PtrSlice(c.Parts)
+	if len(parts) == 0 {
+		return nil
+	}
 	if slices.Contains(parts, gc.BodyPartWholeBody.ID()) {
 		return fmt.Errorf("condition %q: %w", c.Id, errConditionPartWholeBody)
 	}
-	candidates := parts
-	if len(parts) == 0 {
-		candidates = slices.Collect(maps.Keys(hitWeights))
-	}
-	for _, id := range candidates {
+	for _, id := range parts {
 		if hitWeights[id] > 0 {
 			return nil
 		}

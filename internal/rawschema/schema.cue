@@ -181,7 +181,7 @@ import (
 	bloodDropPerSeverity?: #ConditionAmountPerSeverity
 	cause?:                #ConditionDeathCause
 
-	// 起こりうる部位。省くと全部位
+	// 起こりうる部位。省くと全身性の不調で、全身に付く
 	parts?: [...#BodyPartId]
 	if parts != _|_ {
 		parts_ref: [for x in parts {_bodyPartIDs[x]}] @rawgen(-)
@@ -823,10 +823,11 @@ import (
 	// 爆風の属性。省くと無属性
 	element?: #Element
 
-	// 爆風に入った者に付ける不調
+	// 爆風に入った者に付ける不調。怪我は攻撃で部位に負うものなので付けない
 	condition?: #ConditionTypeName
 	if condition != _|_ {
-		condition_ref: _conditionIDs[condition] @rawgen(-)
+		condition_ref:       _conditionIDs[condition]              @rawgen(-)
+		condition_notInjury: true & (_injuryIDs[condition] == _|_) @rawgen(-)
 	}
 }
 

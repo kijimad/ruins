@@ -1644,6 +1644,12 @@ msgstr "%s は %s に巻き込まれ、%s のダメージを受けた。"
 msgid "%s contracted %s."
 msgstr "%s は %s にかかった。"
 
+msgid "Daze"
+msgstr "目くらみ"
+
+msgid "Eyes dazzled by a blinding flash. It wears off in a few turns."
+msgstr "まぶしい光で目がくらんでいる。数ターンで治まる。"
+
 msgid "Venom"
 msgstr "毒"
 
@@ -4020,8 +4026,8 @@ msgstr "豚の頭。珍味として価値がある"
 msgid "Flashbang"
 msgstr "閃光弾"
 
-msgid "A thrown grenade that stuns with a burst of blinding light and sound."
-msgstr "強烈な光と音でショック状態にする手投げ弾"
+msgid "A thrown grenade that dazzles the eyes with a burst of blinding light."
+msgstr "強烈な光で目をくらませる手投げ弾"
 
 msgid "Loaf of Bread"
 msgstr "食パン"

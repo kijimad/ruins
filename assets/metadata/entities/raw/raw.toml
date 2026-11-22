@@ -1307,6 +1307,7 @@
   id = "laceration"
   name = "Laceration"
   painPerSeverity = 8
+  parts = ["torso", "head", "arm", "hand", "leg", "foot"]
   recoverPer = 2
   recovery = "recover_after_tend"
 
@@ -1347,6 +1348,16 @@
   name = "Malnutrition"
   onset = "hunger"
   painPerSeverity = 0
+
+[[conditions]]
+  bodyFuncDropPerSeverity = 40
+  description = "Eyes dazzled by a blinding flash. It wears off in a few turns."
+  id = "daze"
+  name = "Daze"
+  painPerSeverity = 0
+  parts = ["head"]
+  recoverPer = 2
+  recovery = "recover_over_time"
 
 [[conditions]]
   bodyFuncDropPerSeverity = 10
@@ -14494,7 +14505,7 @@
     usableScene = "ANY"
 
 [[items]]
-  description = "A thrown grenade that stuns with a burst of blinding light and sound."
+  description = "A thrown grenade that dazzles the eyes with a burst of blinding light."
   id = "flashbang"
   material = "METAL"
   name = "Flashbang"
@@ -14509,6 +14520,9 @@
   [items.throw]
     accuracy = 75
     damage = 0
+    [items.throw.blast]
+      condition = "daze"
+      radius = 2
 
 [[items]]
   description = "A soft, fluffy loaf of white bread."

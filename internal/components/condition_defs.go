@@ -21,7 +21,7 @@ type ConditionDef struct {
 	RecoverPer              int                      // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
 	BloodDropPerSeverity    int                      // 重症度1段あたりに下げる血液量。外傷は出血、重い全身性は循環低下
 	Cause                   DeathCause               // 血液量が尽きて倒したときの死因
-	Parts                   []BodyPart               // 起こりうる部位。空なら全部位
+	Parts                   []BodyPart               // 起こりうる部位。空なら全身性で、全身に付く
 	Onset                   rawschema.ConditionOnset // 不調を起こす仕組み。攻撃で負う怪我ときっかけの無い不調は空
 }
 
@@ -69,7 +69,10 @@ func (d ConditionDefs) CanAffect(ct ConditionType, part BodyPart) bool {
 	if !ok {
 		return false
 	}
-	return len(def.Parts) == 0 || slices.Contains(def.Parts, part)
+	if len(def.Parts) == 0 {
+		return part == BodyPartWholeBody
+	}
+	return slices.Contains(def.Parts, part)
 }
 
 // PartName は部位の表示名 msgid を返す

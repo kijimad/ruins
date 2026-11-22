@@ -176,12 +176,12 @@ func debugInflictConditions(world w.World) error {
 		if defs.IsDerived(ct) {
 			continue
 		}
-		part, timer := gc.BodyPartTorso, 60.0
+		part, timer := gc.BodyPartWholeBody, 60.0
 		if def, _ := defs.Def(ct); len(def.Parts) > 0 {
 			part = def.Parts[0]
 		}
 		if ct == cold {
-			part, timer = gc.BodyPartWholeBody, 90
+			timer = 90
 		}
 		hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})
 	}
