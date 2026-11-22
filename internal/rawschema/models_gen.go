@@ -323,12 +323,12 @@ type BuildingStart struct {
 // Chance 確率
 type Chance = float64
 
-// Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる
+// Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、燃料は灯りへ移すと減り、0で尽きる
 type Charge struct {
 	// AcceptedFuel 受ける燃料の種別。省くと使い切りで、尽きると無くなる
 	AcceptedFuel *FuelKindId `json:"acceptedFuel,omitempty"`
 
-	// Max 残量の上限。灯りはターン数、武器と道具は回数
+	// Max 残量の上限。灯りはターン数、武器と道具は回数、燃料は灯りへ移せるターン数
 	Max ChargeAmount `json:"max"`
 }
 
@@ -2345,7 +2345,7 @@ type RectRoomStart struct {
 	Rooms RandInt `json:"rooms"`
 }
 
-// Refill 燃料。受ける種別が同じ灯りを上限まで満たす
+// Refill 燃料。受ける種別が同じ灯りとの間で残量を移す。残量0でも残り、抜くときの入れ物になる
 type Refill struct {
 	Kind FuelKindId `json:"kind"`
 }

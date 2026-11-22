@@ -160,3 +160,31 @@ func TestGetItemValue(t *testing.T) {
 		assert.Equal(t, 0, GetItemValue(world, entity))
 	})
 }
+
+func TestGetItemValue_燃料は残量の割合を掛ける(t *testing.T) {
+	t.Parallel()
+	// 電池は価値 30、残量の上限 1000
+	tests := []struct {
+		name    string
+		rawID   string
+		current int
+		want    int
+	}{
+		{name: "満タンの電池", rawID: "battery", current: 1000, want: 30},
+		{name: "半分の電池", rawID: "battery", current: 500, want: 15},
+		{name: "空の電池は価値0", rawID: "battery", current: 0, want: 0},
+		{name: "燃料でない灯りは残量で変わらない", rawID: "flashlight", current: 0, want: 30},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			item := world.ECS.NewEntity()
+			world.Components.RawID.Add(item, &gc.RawID{ID: tt.rawID})
+			world.Components.Value.Add(item, &gc.Value{Value: 30})
+			world.Components.Charge.Add(item, &gc.Charge{Current: tt.current, Max: 1000})
+
+			assert.Equal(t, tt.want, GetItemValue(world, item))
+		})
+	}
+}

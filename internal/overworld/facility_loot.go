@@ -22,7 +22,7 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
 		if d.Name == "" {
 			continue
 		}
-		if _, err := lifecycle.SpawnFieldItem(world, d.Name, pos.X, pos.Y, d.Count); err != nil {
+		if err := lifecycle.SpawnFieldLoot(world, d.Name, pos.X, pos.Y, d.Count, rng); err != nil {
 			return err
 		}
 	}
@@ -92,7 +92,7 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
 			return err
 		}
 		for _, d := range draws {
-			if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, entity); err != nil {
+			if err := lifecycle.SpawnStorageLoot(world, d.Name, d.Count, entity, rng); err != nil {
 				return err
 			}
 		}

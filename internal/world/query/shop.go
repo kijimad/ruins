@@ -40,10 +40,15 @@ func SellPrice(world w.World, player ecs.Entity, entity ecs.Entity) consts.Curre
 	return consts.Currency(ProficiencyValue(world, player, rawschema.ProficiencyIdSellPrice).ApplyInt(int(price)))
 }
 
-// GetItemValue はアイテムの基本価値を取得する
+// GetItemValue はアイテムの基本価値を取得する。燃料の行の物は残量の割合を掛け、空の燃料は価値0になる
 func GetItemValue(world w.World, entity ecs.Entity) int {
 	if !world.Components.Value.Has(entity) {
 		return 0
 	}
-	return world.Components.Value.Get(entity).Value
+	value := world.Components.Value.Get(entity).Value
+	if _, fuel := FuelKindOf(world, entity); fuel {
+		charge := world.Components.Charge.Get(entity)
+		return value * charge.Current / charge.Max
+	}
+	return value
 }
