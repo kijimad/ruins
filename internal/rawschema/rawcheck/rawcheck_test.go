@@ -182,6 +182,11 @@ func TestValidate_満たせる燃料の種別(t *testing.T) {
 			f.Refill.EmptiesTo = "oil"
 			return []rawschema.Item{f}
 		}, want: []string{"fuelEmptiesTo_unique.oil"}},
+		{name: "空の物は残量を持たない", fuelKinds: kinds, items: func() []rawschema.Item {
+			charged := can
+			charged.Charge = &rawschema.Charge{Max: 10}
+			return []rawschema.Item{fuel(), charged}
+		}, want: []string{"fuelEmptiesTo_noCharge.can"}},
 		{name: "空の物は燃料の間で重ならない", fuelKinds: kinds, items: func() []rawschema.Item {
 			f2 := fuel()
 			f2.Id = "oil2"

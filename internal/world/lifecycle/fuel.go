@@ -10,10 +10,10 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// errNoReplaceLocation は持ち物にも収納にも床にもない物を置き換えようとしたときに返す
-var errNoReplaceLocation = errors.New("cannot replace item: entity has no backpack, storage or field location")
+// errNoReplaceLocation は持ち物にも装備にも収納にも床にもない物を置き換えようとしたときに返す
+var errNoReplaceLocation = errors.New("cannot replace item: entity has no backpack, equipped, storage or field location")
 
-// ReplaceItem は item を、同じ置き場所の rawID の物1個に置き換え、新しい物を返す。持ち物・収納・床のどこでも置き場所を保つ
+// ReplaceItem は item を、同じ置き場所の rawID の物1個に置き換え、新しい物を返す。持ち物・装備・収納・床のどこでも置き場所を保つ
 func ReplaceItem(world w.World, item ecs.Entity, rawID string) (ecs.Entity, error) {
 	next, err := spawnItemBase(world, rawID)
 	if err != nil {
@@ -22,6 +22,9 @@ func ReplaceItem(world w.World, item ecs.Entity, rawID string) (ecs.Entity, erro
 	switch {
 	case world.Components.LocationInBackpack.Has(item):
 		err = MoveToBackpack(world, next, world.Components.LocationInBackpack.Get(item).Owner)
+	case world.Components.LocationEquipped.Has(item):
+		loc := world.Components.LocationEquipped.Get(item)
+		MoveToEquip(world, next, loc.Owner, loc.EquipmentSlot)
 	case world.Components.LocationInStorage.Has(item):
 		err = MoveToStorage(world, next, world.Components.LocationInStorage.Get(item).Owner)
 	case world.Components.LocationOnField.Has(item):
@@ -43,7 +46,7 @@ func ReplaceItem(world w.World, item ecs.Entity, rawID string) (ecs.Entity, erro
 	return next, nil
 }
 
-// EmptyFuel は燃料の item を、同じ置き場所の空の物に置き換える。持ち物にも収納にも床にもない燃料は、空の物を作らずに消す。
+// EmptyFuel は燃料の item を、同じ置き場所の空の物に置き換える。持ち物にも装備にも収納にも床にもない燃料は、空の物を作らずに消す。
 // 燃料でない物には何もせず偽を返す
 func EmptyFuel(world w.World, item ecs.Entity) bool {
 	refill, ok := query.RefillOf(world, item)

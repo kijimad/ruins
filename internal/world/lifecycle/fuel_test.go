@@ -30,6 +30,16 @@ func TestEmptyFuel_置き場所を保って空の物に置き換える(t *testin
 			require.NoError(t, err)
 			assert.Equal(t, player, world.Components.LocationInBackpack.Get(empty).Owner)
 		}},
+		{name: "装備", spawn: func(world w.World, owner ecs.Entity) (ecs.Entity, error) {
+			oil, err := lifecycle.SpawnFieldItem(world, "lamp_oil", 3, 4, 1)
+			if err == nil {
+				lifecycle.MoveToEquip(world, oil, owner, gc.SlotHand1)
+			}
+			return oil, err
+		}, check: func(t *testing.T, world w.World, owner, empty ecs.Entity) {
+			t.Helper()
+			assert.Equal(t, gc.LocationEquipped{Owner: owner, EquipmentSlot: gc.SlotHand1}, *world.Components.LocationEquipped.Get(empty))
+		}},
 		{name: "収納", spawn: func(world w.World, owner ecs.Entity) (ecs.Entity, error) {
 			return lifecycle.SpawnStorageItem(world, "lamp_oil", 1, owner)
 		}, check: func(t *testing.T, world w.World, owner, empty ecs.Entity) {
@@ -209,10 +219,9 @@ func TestSpawnStorageLoot_同じ乱数なら同じ残量になる(t *testing.T) 
 func TestEmptyFuel_置き場所の無い燃料は空の物を作らずに消す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	owner := world.ECS.NewEntity()
 	oil, err := lifecycle.SpawnFieldItem(world, "lamp_oil", 3, 4, 1)
 	require.NoError(t, err)
-	lifecycle.MoveToEquip(world, oil, owner, gc.SlotHand1)
+	world.Components.LocationOnField.Remove(oil)
 
 	require.True(t, lifecycle.EmptyFuel(world, oil))
 

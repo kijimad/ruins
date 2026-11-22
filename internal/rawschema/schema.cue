@@ -1517,6 +1517,14 @@ import (
 		if items != _|_ for x in items if x.refill != _|_ {(x.id): _itemIDs[x.refill.emptiesTo]}
 	} @rawgen(-)
 
+	// 燃料の空の物は残量を持たない。持つと使うたびに減る物に分類され、ゲージが出る
+	fuelEmptiesTo_noCharge: {
+		if items != _|_ {
+			for x in items if x.refill != _|_ {(x.refill.emptiesTo): "empty"}
+			for x in items if x.charge != _|_ && x.refill == _|_ {(x.id): "charged"}
+		}
+	} @rawgen(-)
+
 	// 燃料の空の物は燃料でなく、燃料の間で重ならない
 	fuelEmptiesTo_unique: {
 		if items != _|_ for i, x in items if x.refill != _|_ {
