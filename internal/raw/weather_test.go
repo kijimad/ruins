@@ -58,39 +58,11 @@ func TestValidateWeathersAndNeedStages(t *testing.T) {
 			mutate: func(*rawschema.Raws) {},
 		},
 		{
-			name: "天候の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.Weathers = (*r.Weathers)[1:]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "天候の季節の重みが欠ける",
-			mutate: func(r *rawschema.Raws) {
-				(*r.Weathers)[0].Seasons = (*r.Weathers)[0].Seasons[1:]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "天候の季節の重みが重複する",
-			mutate: func(r *rawschema.Raws) {
-				(*r.Weathers)[0].Seasons = append((*r.Weathers)[0].Seasons, rawschema.WeatherSeasonWeight{Id: rawschema.Winter, Weight: 1})
-			},
-			wantErr: errDuplicateID,
-		},
-		{
 			name: "スペルの下限が上限を超える",
 			mutate: func(r *rawschema.Raws) {
 				(*r.Weathers)[0].SpellTurnsMin = 300
 			},
 			wantErr: errSpellTurnsReversed,
-		},
-		{
-			name: "空腹の段階が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.HungerStages = (*r.HungerStages)[1:]
-			},
-			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "疲労の段階に割合0が無い",
@@ -256,16 +228,6 @@ func TestValidateTileEffects(t *testing.T) {
 		wantErr error
 	}{
 		{name: "全値の行があれば通る", mutate: func(*rawschema.Raws) {}},
-		{
-			name:    "囲われの行が欠ける",
-			mutate:  func(r *rawschema.Raws) { *r.ShelterEffects = (*r.ShelterEffects)[:2] },
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name:    "水の影響の行が欠ける",
-			mutate:  func(r *rawschema.Raws) { *r.WaterEffects = (*r.WaterEffects)[:1] },
-			wantErr: errEnumRowMissing,
-		},
 		{
 			name: "植生の行が重複する",
 			mutate: func(r *rawschema.Raws) {

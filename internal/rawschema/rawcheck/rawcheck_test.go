@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestValidate_実データが通る(t *testing.T) {
+func TestValidateComplete_実データが通る(t *testing.T) {
 	t.Parallel()
 	raws, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
-	require.NoError(t, rawcheck.Validate(raws))
+	require.NoError(t, rawcheck.ValidateComplete(raws))
 }
 
 func TestValidate_違反を位置で返す(t *testing.T) {

@@ -107,38 +107,61 @@ func newChecker() (*checker, error) {
 	return &checker{ctx: ctx, schema: schema}, nil
 }
 
-// Validate は raws を CUE のスキーマで検証する。違反があれば *Error を返す。
+// Validate は raws を CUE のスキーマで検証する。型と参照だけを見るので、表の一部だけのデータも通る。違反があれば *Error を返す。
 func Validate(raws rawschema.Raws) error {
-	c, err := loadChecker()
+	v, err := unify(raws)
 	if err != nil {
 		return err
+	}
+	// 値全体を検証すると #Complete の中の値の衝突も報告されるので、#Complete の違反を除く
+	return toError(v.Validate(cue.Concrete(true)), func(path string) bool { return !strings.HasPrefix(path, completePath) })
+}
+
+// ValidateComplete は Validate の検査に加えて、列挙の値ごとに行や欄の値が揃っていることを #Complete で検証する。
+// 実データに使う。違反があれば *Error を返す。
+func ValidateComplete(raws rawschema.Raws) error {
+	v, err := unify(raws)
+	if err != nil {
+		return err
+	}
+	errs := errors.Join(v.Validate(cue.Concrete(true)), v.LookupPath(cue.ParsePath(completePath)).Validate(cue.Concrete(true)))
+	return toError(errs, func(string) bool { return true })
+}
+
+const completePath = "#Complete"
+
+// unify は raws をパッケージの最上位に重ねる。索引が最上位の表を引くので、#Complete もこの値から引く
+func unify(raws rawschema.Raws) (cue.Value, error) {
+	c, err := loadChecker()
+	if err != nil {
+		return cue.Value{}, err
 	}
 	b, err := json.Marshal(raws)
 	if err != nil {
-		return err
+		return cue.Value{}, err
 	}
 	expr, err := cuejson.Extract("raws.json", b)
 	if err != nil {
-		return err
+		return cue.Value{}, err
 	}
-	v := c.schema.Unify(c.ctx.BuildExpr(expr))
-	if err := v.Validate(cue.Concrete(true)); err != nil {
-		return toError(err)
-	}
-	return nil
+	return c.schema.Unify(c.ctx.BuildExpr(expr)), nil
 }
 
-func toError(err error) error {
+// toError は err の違反のうち、位置が keep を満たすものを *Error にする。残る違反が無ければ nil を返す
+func toError(err error, keep func(path string) bool) error {
 	var out Error
 	seen := map[Violation]bool{}
 	for _, e := range cueerrors.Errors(err) {
 		format, args := e.Msg()
 		v := Violation{Path: strings.Join(e.Path(), "."), Message: fmt.Sprintf(format, args...)}
-		if seen[v] {
+		if seen[v] || !keep(v.Path) {
 			continue
 		}
 		seen[v] = true
 		out.Violations = append(out.Violations, v)
+	}
+	if len(out.Violations) == 0 {
+		return nil
 	}
 	slices.SortFunc(out.Violations, func(a, b Violation) int {
 		return cmp.Or(cmp.Compare(a.Path, b.Path), cmp.Compare(a.Message, b.Message))

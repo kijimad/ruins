@@ -1669,7 +1669,7 @@ import (
 	perLevel!: #ProficiencyPerLevel
 
 	// この倍率が受けるダメージを軽減する攻撃属性。無属性を除く属性それぞれをちょうど1つの倍率が持つ
-	resists?: #Element
+	resists?: #Element & !="NONE"
 }
 
 // 天候のスペルの基準長。ターン

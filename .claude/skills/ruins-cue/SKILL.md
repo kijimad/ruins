@@ -11,6 +11,7 @@ raw のデータの形・値の制約・行の間の参照は `internal/rawschem
 
 - `schema.cue`: 型と制約。定義 `#X` が Go の型になる。
 - `refs.cue`: 参照を引く id の索引。隠しフィールドに置く。
+- `complete.cue`: 実データが揃っていることの検査 `#Complete`。列挙のまま残す物の値ごとに、行や欄の値をちょうど1つ持つことを確かめる。`@rawgen(-)` で Go の型にせず、`rawcheck.ValidateComplete` だけが検証する。列挙に値を足したら、ここの必須のキーにも足す。
 - `root.cue`: 検証するデータの最上位を `#Raws` に結ぶ。
 - `gen/`: CUE から `models_gen.go` を書き出す生成器。ルートの `gen.go` の `go generate` から呼ぶ。raw の型だけを作り直すときはルートで `go generate -run rawschema .` を走らせる。
 - `rawcheck/`: CUE で raw を検証する。テストからだけ使い、ゲームのバイナリには CUE を入れない。
@@ -53,3 +54,4 @@ raw のデータの形・値の制約・行の間の参照は `internal/rawschem
 - 違反は `*rawcheck.Error` で返る。`errors.As` で取り出し、`Paths()` で違反したパスを `assert.Equal` で固定する。文言では判定しない。
 - 正と負の両方向をテストする。実データが通ることと、1か所壊したデータがそのパスで落ちることを確かめる。
 - 参照と重複の規則を足したら `rawcheck/refs_test.go` の表に行を足す。
+- 部分の fixture は `rawcheck.Validate` で、実データは `rawcheck.ValidateComplete` で検証する。`Validate` は `#Complete` を見ないので、表の一部だけの fixture も通る。

@@ -73,6 +73,9 @@ func run(dir string) error {
 			if !ok {
 				continue
 			}
+			if _, skip := rawgenAttrs(fd)["-"]; skip {
+				continue
+			}
 			if name, ok := labelName(fd.Label); ok && strings.HasPrefix(name, "#") {
 				decls = append(decls, fd)
 			}

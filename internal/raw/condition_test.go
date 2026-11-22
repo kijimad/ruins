@@ -203,20 +203,6 @@ func TestValidateCodeRows(t *testing.T) {
 			wantErr: errBodyPartRowMissing,
 		},
 		{
-			name: "仕組みを持つ不調が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.Conditions = (*r.Conditions)[1:]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "同じ仕組みを2つの不調が持つ",
-			mutate: func(r *rawschema.Raws) {
-				(*r.Conditions)[1].Onset = (*r.Conditions)[0].Onset
-			},
-			wantErr: errDuplicateID,
-		},
-		{
 			name: "近接の攻撃種別が射程を持つ",
 			mutate: func(r *rawschema.Raws) {
 				(*r.AttackTypes)[0].MaxRange = new(5)
@@ -231,54 +217,11 @@ func TestValidateCodeRows(t *testing.T) {
 			wantErr: errAttackRangeParams,
 		},
 		{
-			name: "攻撃種別の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.AttackTypes = (*r.AttackTypes)[1:]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
 			name: "スキルの行が欠ける",
 			mutate: func(r *rawschema.Raws) {
 				*r.Skills = (*r.Skills)[:len(*r.Skills)-1]
 			},
 			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "熟練の効果倍率の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*(*r.Skills)[0].Proficiencies = (*(*r.Skills)[0].Proficiencies)[1:]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "攻撃属性を軽減する倍率が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				for i := range *r.Skills {
-					for j := range *(*r.Skills)[i].Proficiencies {
-						p := &(*(*r.Skills)[i].Proficiencies)[j]
-						if p.Id == rawschema.ProficiencyIdChillResist {
-							p.Resists = nil
-						}
-					}
-				}
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "無属性を軽減する倍率",
-			mutate: func(r *rawschema.Raws) {
-				none := rawschema.ElementNONE
-				for i := range *r.Skills {
-					for j := range *(*r.Skills)[i].Proficiencies {
-						p := &(*(*r.Skills)[i].Proficiencies)[j]
-						if p.Id == rawschema.ProficiencyIdChillResist {
-							p.Resists = &none
-						}
-					}
-				}
-			},
-			wantErr: errResistNone,
 		},
 		{
 			name: "武器の効果倍率を別のスキルが持つ",
@@ -288,13 +231,6 @@ func TestValidateCodeRows(t *testing.T) {
 				(*r.Skills)[sword].Proficiencies, (*r.Skills)[spear].Proficiencies = (*r.Skills)[spear].Proficiencies, (*r.Skills)[sword].Proficiencies
 			},
 			wantErr: errWeaponProficiencyOwner,
-		},
-		{
-			name: "鮮度の段階の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.FreshnessStages = (*r.FreshnessStages)[1:]
-			},
-			wantErr: errEnumRowMissing,
 		},
 		{
 			name: "材質の行が重複する",
@@ -307,27 +243,6 @@ func TestValidateCodeRows(t *testing.T) {
 			name: "道具の分類の行が欠ける",
 			mutate: func(r *rawschema.Raws) {
 				r.ToolCategories = nil
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "時間帯の行が欠ける",
-			mutate: func(r *rawschema.Raws) {
-				*r.TimesOfDay = (*r.TimesOfDay)[:len(*r.TimesOfDay)-1]
-			},
-			wantErr: errEnumRowMissing,
-		},
-		{
-			name: "季節の行が重複する",
-			mutate: func(r *rawschema.Raws) {
-				*r.Seasons = append(*r.Seasons, rawschema.Season{Id: rawschema.Winter})
-			},
-			wantErr: errDuplicateID,
-		},
-		{
-			name: "地物の種類に行が無い",
-			mutate: func(r *rawschema.Raws) {
-				*r.PointFeatures = (*r.PointFeatures)[1:]
 			},
 			wantErr: errEnumRowMissing,
 		},
@@ -346,25 +261,11 @@ func TestValidateCodeRows(t *testing.T) {
 			wantErr: errTableMissing,
 		},
 		{
-			name: "天候の表が空",
-			mutate: func(r *rawschema.Raws) {
-				r.Weathers = &[]rawschema.Weather{}
-			},
-			wantErr: errTableMissing,
-		},
-		{
 			name: "素手の体の攻撃が無い",
 			mutate: func(r *rawschema.Raws) {
 				r.BodyAttacks = nil
 			},
 			wantErr: errBareHandsMissing,
-		},
-		{
-			name: "疲労の段階が無い",
-			mutate: func(r *rawschema.Raws) {
-				r.FatigueStages = nil
-			},
-			wantErr: errTableMissing,
 		},
 	}
 	for _, tt := range tests {
