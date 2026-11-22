@@ -35,7 +35,7 @@ func StackKeyOf(world w.World, entity ecs.Entity) (StackKey, bool) {
 	}
 	key.Equip = equipFingerprint(world, entity)
 	key.Charge = chargeKey(world, entity)
-	key.SwitchOn = world.Components.Switch.Has(entity) && world.Components.Switch.Get(entity).On
+	key.SwitchOn = IsSwitchedOn(world, entity)
 	return key, true
 }
 

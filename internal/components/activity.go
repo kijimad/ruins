@@ -152,7 +152,7 @@ type ThrowParams struct {
 
 func (*ThrowParams) isActivityParams() {}
 
-// ConsumeParams は物を食べる・使う行動のパラメータ。
+// ConsumeParams は物を食べる・使う行動のパラメータ。点け消しも持ち物の「使う」から入るので、同じ形で物を指す。
 type ConsumeParams struct {
 	Target ecs.Entity // 使用するアイテムのエンティティ
 }

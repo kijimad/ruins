@@ -210,7 +210,7 @@ func clearLocation(world w.World, entity ecs.Entity) {
 		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 		// バックパックの灯りも持ち主を照らすので、出ていけば写し直させる
 		if world.Components.LightSource.Has(entity) {
-			ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+			MarkStatsChanged(world, owner)
 		}
 	}
 	if world.Components.LocationEquipped.Has(entity) {

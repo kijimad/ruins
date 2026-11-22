@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -94,7 +95,7 @@ func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 		},
 		gain: func(world w.World, _ ecs.Entity) string {
 			charge := world.Components.Charge.Get(light)
-			return fmt.Sprintf("+%d", charge.Max-charge.Current)
+			return consts.Turn(charge.Max - charge.Current).String()
 		},
 		feed: func(world w.World, fuel ecs.Entity) error {
 			err := gameaction.RefillCharge(world, light, fuel)

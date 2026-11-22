@@ -12,7 +12,7 @@ func LightLit(world w.World, player, light ecs.Entity) bool {
 	if !world.Components.LightSource.Has(light) || !world.Components.LightSource.Get(light).Enabled {
 		return false
 	}
-	if world.Components.Switch.Has(light) && !world.Components.Switch.Get(light).On {
+	if world.Components.Switch.Has(light) && !IsSwitchedOn(world, light) {
 		return false
 	}
 	if world.Components.Charge.Has(light) && world.Components.Charge.Get(light).Current <= 0 {

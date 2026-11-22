@@ -10,8 +10,13 @@ func SwitchMarker(world w.World, entity ecs.Entity) string {
 	if !world.Components.Switch.Has(entity) {
 		return ""
 	}
-	if world.Components.Switch.Get(entity).On {
+	if IsSwitchedOn(world, entity) {
 		return T(world, "Switched on")
 	}
 	return T(world, "Switched off")
+}
+
+// IsSwitchedOn は entity がスイッチを持ち、オンかを返す
+func IsSwitchedOn(world w.World, entity ecs.Entity) bool {
+	return world.Components.Switch.Has(entity) && world.Components.Switch.Get(entity).On
 }
