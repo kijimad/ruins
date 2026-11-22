@@ -76,8 +76,8 @@ func drawPlayerMarker(cv uicore.Canvas, cx, cy, cell float64, facing gc.Orient) 
 	left := [2]float64{-cell * playerMarkerHalf, 0}
 	right := [2]float64{cell * playerMarkerHalf, 0}
 
-	sin, cos := math.Sin(facing.Yaw()), math.Cos(facing.Yaw())
-	// 標準の回転行列。y 下向きの画面座標では正の角度が時計回りになり、Orient の増加(北→東→南)と一致する
+	// 3D のカメラは Orient が増えるほど北→西→南と反時計回りに向くので、画面では -Yaw 回す
+	sin, cos := math.Sin(-facing.Yaw()), math.Cos(-facing.Yaw())
 	rot := func(v [2]float64) [2]float32 {
 		return [2]float32{float32(cx + v[0]*cos - v[1]*sin), float32(cy + v[0]*sin + v[1]*cos)}
 	}

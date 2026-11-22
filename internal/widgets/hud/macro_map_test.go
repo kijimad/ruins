@@ -1,6 +1,8 @@
 package hud
 
 import (
+	"fmt"
+	"math"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -110,36 +112,29 @@ func TestMacroMap_Draw_現在地は三角ポインタで描く(t *testing.T) {
 	assert.Empty(t, cv.strokeRects, "四角枠の現在地マーカーは描かない")
 }
 
-func TestDrawMapGrid_現在地ポインタは向きへtipを向ける(t *testing.T) {
+func TestDrawMapGrid_現在地ポインタは画面の上へ進む方角を指す(t *testing.T) {
 	t.Parallel()
 
-	// PlayerCell(0,0)・cell=20 なので中央は (10,10)。tip はローカル (0,-0.42*cell) を向きだけ回した位置
+	// PlayerCell(0,0)・cell=20 なので中央は (10,10)
 	const cell = 20
 	cx, cy, fwd := 10.0, 10.0, playerMarkerTip*float64(cell)
-	cases := []struct {
-		name               string
-		facing             gc.Orient
-		wantTipX, wantTipY float64
-	}{
-		{"北", 0, cx, cy - fwd},
-		{"東", 2, cx + fwd, cy},
-		{"南", 4, cx, cy + fwd},
-		{"西", 6, cx - fwd, cy},
-	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
+	for o := range gc.CameraOrientCount {
+		facing := gc.Orient(o)
+		t.Run(fmt.Sprintf("Orient%d", o), func(t *testing.T) {
 			t.Parallel()
 			cv := &fakeCanvas{}
 			view := overworld.MacroView{
 				Cells:      [][]overworld.MacroCell{{{Glyph: '.', Discovered: true}}},
 				PlayerCell: &consts.Coord[consts.Chunk]{X: 0, Y: 0},
 			}
-			DrawMapGrid(cv, view, MapGridStyle{CellPx: cell, MinGlyphPx: 999, PlayerFacing: tc.facing})
+			DrawMapGrid(cv, view, MapGridStyle{CellPx: cell, MinGlyphPx: 999, PlayerFacing: facing})
 
+			delta := gc.RotateScreenDir(gc.DirectionUp, facing.Yaw()).GetDelta()
+			norm := math.Hypot(float64(delta.X), float64(delta.Y))
 			require.Len(t, cv.triangles, 2, "前方と後方の2枚を描く")
-			tip := cv.triangles[0][0] // 前方の三角(金)の頂点0が前方の針先
-			assert.InDelta(t, tc.wantTipX, float64(tip[0]), 1e-4)
-			assert.InDelta(t, tc.wantTipY, float64(tip[1]), 1e-4)
+			tip := cv.triangles[0][0]
+			assert.InDelta(t, cx+fwd*float64(delta.X)/norm, float64(tip[0]), 1e-4)
+			assert.InDelta(t, cy+fwd*float64(delta.Y)/norm, float64(tip[1]), 1e-4)
 		})
 	}
 }
