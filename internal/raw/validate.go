@@ -203,7 +203,9 @@ func validateDisassemblies(raws rawschema.Raws) error {
 // validateRemedies は、治療する物が治す不調が治療で回復に向かう種類で、治療の質を掛けた1ターンの回復量が1以上あることを検証する
 func validateRemedies(raws rawschema.Raws) error {
 	recoverPer := map[rawschema.ConditionTypeName]int{}
-	for _, c := range PtrSlice(raws.Conditions) {
+	conditions := PtrSlice(raws.Conditions)
+	for i := range conditions {
+		c := &conditions[i]
 		if c.Recovery == nil || *c.Recovery != rawschema.RecoverAfterTend {
 			continue
 		}
@@ -285,7 +287,9 @@ func validateConditions(raws rawschema.Raws) error {
 		}
 		hitWeights[b.Id] = b.HitWeight
 	}
-	for _, c := range PtrSlice(raws.Conditions) {
+	conditions := PtrSlice(raws.Conditions)
+	for i := range conditions {
+		c := &conditions[i]
 		if err := validateConditionParts(c, hitWeights); err != nil {
 			return err
 		}
@@ -295,7 +299,7 @@ func validateConditions(raws rawschema.Raws) error {
 
 // validateConditionParts は不調の起こりうる部位が全身を含まず、命中の重みが正の部位を1つ以上持つことを検証する。
 // parts を省いた不調は全部位が対象になる
-func validateConditionParts(c rawschema.Condition, hitWeights map[string]float64) error {
+func validateConditionParts(c *rawschema.Condition, hitWeights map[string]float64) error {
 	parts := PtrSlice(c.Parts)
 	if slices.Contains(parts, gc.BodyPartWholeBody.ID()) {
 		return fmt.Errorf("condition %q: %w", c.Id, errConditionPartWholeBody)
@@ -340,9 +344,10 @@ func validateCodeRows(raws rawschema.Raws) error {
 	}
 
 	var onsets []string
-	for _, c := range PtrSlice(raws.Conditions) {
-		if c.Onset != nil {
-			onsets = append(onsets, string(*c.Onset))
+	conditions := PtrSlice(raws.Conditions)
+	for i := range conditions {
+		if onset := conditions[i].Onset; onset != nil {
+			onsets = append(onsets, string(*onset))
 		}
 	}
 	if err := validateEnumRows("ConditionOnset", enumStrings(rawschema.ConditionOnsetValues()), onsets); err != nil {

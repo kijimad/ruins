@@ -30,6 +30,23 @@ func TestContractIllness(t *testing.T) {
 	assert.False(t, again, "二重発症しない")
 }
 
+func TestContractIllness_発症が終わって残った病気はかかり直す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	require.True(t, ContractIllness(world, player, gc.ConditionType("venom")))
+	part := &world.Components.HealthStatus.Get(player).Parts[gc.BodyPartTorso]
+	part.GetCondition(gc.ConditionType("venom")).Timer = 10
+
+	assert.True(t, ContractIllness(world, player, gc.ConditionType("venom")))
+	cond := world.Components.HealthStatus.Get(player).Parts[gc.BodyPartTorso].GetCondition(gc.ConditionType("venom"))
+	require.NotNil(t, cond)
+	assert.Equal(t, gc.HealthCondition{Type: "venom", Timer: illnessOnsetTimer, Severity: gc.TimerToSeverity(illnessOnsetTimer)}, *cond)
+	assert.Len(t, world.Components.HealthStatus.Get(player).Parts[gc.BodyPartTorso].Conditions, 1)
+}
+
 func TestContractIllness_HealthStatusなしは何もしない(t *testing.T) {
 	t.Parallel()
 

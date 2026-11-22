@@ -800,7 +800,27 @@ import (
 #Throw: {
 	damage!:   #BaseDamage
 	accuracy!: #Accuracy
+
+	// 爆ぜる物の爆風。持つ物は命中の判定をせず、狙ったマスで爆ぜる
+	blast?: #Blast
 }
+
+// 爆風。爆ぜたマスから radius マスまでの者すべてに効く
+#Blast: {
+	radius!: #BlastRadius
+
+	// 爆風の属性。省くと無属性
+	element?: #Element
+
+	// 爆風に入った者に付ける不調
+	condition?: #ConditionTypeName
+	if condition != _|_ {
+		condition_ref: _conditionIDs[condition] @rawgen(-)
+	}
+}
+
+// 爆風の半径。マス数
+#BlastRadius: int & >=1 & <=3
 
 // 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 #FireStarter: {}
@@ -995,6 +1015,11 @@ import (
 	// 食べる・使うの効果を持つ物は、食べたり使ったりすると無くなる消費物にする
 	for f in [providesNutrition, providesHealing, remedy, escapeDevice, cubeCore] if f != _|_ {
 		consumable!: _ @rawgen(-)
+	}
+
+	// 道具は手に構えて殴ったときに効くので、近接の値を持たせる
+	if tool != _|_ {
+		melee!: _ @rawgen(-)
 	}
 }
 

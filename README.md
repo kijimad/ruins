@@ -112,7 +112,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
-| draft | [手榴弾を爆ぜさせ、毒と炎を効かせる](docs/design/261121222847.md) | 0/7 (1 skipped) | gamedesign, item, combat |
+| | No open documents | | |
 
 
 ## References

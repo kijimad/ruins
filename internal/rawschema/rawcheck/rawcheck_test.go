@@ -112,7 +112,7 @@ func TestValidate_武器と道具のアイテムは残量を持つ(t *testing.T)
 	}{
 		{name: "近接攻撃", item: func(it *rawschema.Item) { it.Melee = &melee }},
 		{name: "射撃", item: func(it *rawschema.Item) { it.Fire = &fire }},
-		{name: "道具", item: func(it *rawschema.Item) { it.Tool = &tool }},
+		{name: "道具", item: func(it *rawschema.Item) { it.Melee = &melee; it.Tool = &tool }},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

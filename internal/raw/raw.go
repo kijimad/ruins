@@ -930,10 +930,17 @@ func FindThrow(raws rawschema.Raws, name string) (gc.ThrowAttack, bool) {
 	if !ok || item.Throw == nil {
 		return gc.ThrowAttack{}, false
 	}
-	return gc.ThrowAttack{
-		Damage:   item.Throw.Damage,
-		Accuracy: item.Throw.Accuracy,
-	}, true
+	attack := gc.ThrowAttack{Damage: item.Throw.Damage, Accuracy: item.Throw.Accuracy}
+	if b := item.Throw.Blast; b != nil {
+		attack.Blast = &gc.Blast{Radius: b.Radius, Element: rawschema.ElementNONE}
+		if b.Element != nil {
+			attack.Blast.Element = *b.Element
+		}
+		if b.Condition != nil {
+			attack.Blast.Condition = gc.ConditionType(*b.Condition)
+		}
+	}
+	return attack, true
 }
 
 // FindTool は指定された名前のアイテムの道具の性質を返す
@@ -1113,7 +1120,8 @@ func NewConditionDefs(raws rawschema.Raws) (gc.ConditionDefs, error) {
 
 	conditions := PtrSlice(raws.Conditions)
 	conds := make(map[gc.ConditionType]gc.ConditionDef, len(conditions))
-	for _, row := range conditions {
+	for i := range conditions {
+		row := &conditions[i]
 		def := gc.ConditionDef{
 			Name:                    i18n.Msgid(row.Name),
 			Description:             i18n.Msgid(row.Description),

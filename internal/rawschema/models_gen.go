@@ -260,6 +260,20 @@ type BigRoomStep struct {
 	PlatformRadius RandInt `json:"platformRadius"`
 }
 
+// Blast 爆風。爆ぜたマスから radius マスまでの者すべてに効く
+type Blast struct {
+	// Condition 爆風に入った者に付ける不調
+	Condition *ConditionTypeName `json:"condition,omitempty"`
+
+	// Element 爆風の属性。省くと無属性
+	Element *Element `json:"element,omitempty"`
+
+	Radius BlastRadius `json:"radius"`
+}
+
+// BlastRadius 爆風の半径。マス数
+type BlastRadius = int
+
 // BlocksPassage 通行を妨げるかどうか
 type BlocksPassage = bool
 
@@ -2980,6 +2994,9 @@ type TemplateStart struct {
 // Throw 投げたときの値。投げ向きの物だけが書き、ほかの物は重さから導く
 type Throw struct {
 	Accuracy Accuracy `json:"accuracy"`
+
+	// Blast 爆ぜる物の爆風。持つ物は命中の判定をせず、狙ったマスで爆ぜる
+	Blast *Blast `json:"blast,omitempty"`
 
 	Damage BaseDamage `json:"damage"`
 }

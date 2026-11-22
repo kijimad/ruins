@@ -1344,3 +1344,37 @@ func TestGetRemains_無い跡の行はエラー(t *testing.T) {
 	_, err = GetRemains(raws, "no_such_remains")
 	assert.ErrorIs(t, err, KeyNotFoundError{Key: "no_such_remains", Collection: "Remains"})
 }
+
+func TestFindThrow(t *testing.T) {
+	t.Parallel()
+	fire := rawschema.ElementFIRE
+	venom := rawschema.ConditionTypeName("venom")
+	raws := rawschema.Raws{Items: &[]rawschema.Item{
+		{Id: "stone", Throw: &rawschema.Throw{Damage: 6, Accuracy: 70}},
+		{Id: "grenade", Throw: &rawschema.Throw{Damage: 20, Accuracy: 75, Blast: &rawschema.Blast{Radius: 1}}},
+		{Id: "flame", Throw: &rawschema.Throw{Damage: 25, Accuracy: 75, Blast: &rawschema.Blast{Radius: 2, Element: &fire}}},
+		{Id: "poison", Throw: &rawschema.Throw{Damage: 10, Accuracy: 75, Blast: &rawschema.Blast{Radius: 1, Condition: &venom}}},
+		{Id: "bread"},
+	}}
+	tests := []struct {
+		name   string
+		id     string
+		want   gc.ThrowAttack
+		wantOK bool
+	}{
+		{name: "爆風の無い物は値だけ写す", id: "stone", want: gc.ThrowAttack{Damage: 6, Accuracy: 70}, wantOK: true},
+		{name: "属性を省いた爆風は無属性", id: "grenade", want: gc.ThrowAttack{Damage: 20, Accuracy: 75, Blast: &gc.Blast{Radius: 1, Element: rawschema.ElementNONE}}, wantOK: true},
+		{name: "爆風の属性を写す", id: "flame", want: gc.ThrowAttack{Damage: 25, Accuracy: 75, Blast: &gc.Blast{Radius: 2, Element: rawschema.ElementFIRE}}, wantOK: true},
+		{name: "爆風の不調を写す", id: "poison", want: gc.ThrowAttack{Damage: 10, Accuracy: 75, Blast: &gc.Blast{Radius: 1, Element: rawschema.ElementNONE, Condition: "venom"}}, wantOK: true},
+		{name: "投げの欄が無い物は無し", id: "bread", want: gc.ThrowAttack{}, wantOK: false},
+		{name: "無い物は無し", id: "missing", want: gc.ThrowAttack{}, wantOK: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, ok := FindThrow(raws, tt.id)
+			assert.Equal(t, tt.wantOK, ok)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}

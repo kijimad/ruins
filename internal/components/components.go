@@ -271,6 +271,14 @@ func (m *Melee) GetTargetType() TargetType { return m.TargetType }
 type ThrowAttack struct {
 	Damage   int
 	Accuracy int
+	Blast    *Blast // 爆ぜる物だけが持つ
+}
+
+// Blast は爆風の値。爆ぜたマスから Radius マスまでの者すべてに効く
+type Blast struct {
+	Radius    int
+	Element   rawschema.Element
+	Condition ConditionType // 空なら不調を付けない
 }
 
 // GetAccuracy はAttackerの実装
@@ -282,8 +290,13 @@ func (t ThrowAttack) GetDamage() int { return t.Damage }
 // GetAttackCount はAttackerの実装。投げるのは1回
 func (t ThrowAttack) GetAttackCount() int { return 1 }
 
-// GetElement はAttackerの実装。投げる攻撃は属性を持たない
-func (t ThrowAttack) GetElement() rawschema.Element { return rawschema.ElementNONE }
+// GetElement はAttackerの実装。爆風の属性を返し、爆風が無ければ無属性
+func (t ThrowAttack) GetElement() rawschema.Element {
+	if t.Blast == nil || t.Blast.Element == "" {
+		return rawschema.ElementNONE
+	}
+	return t.Blast.Element
+}
 
 // GetAttackCategory はAttackerの実装
 func (t ThrowAttack) GetAttackCategory() rawschema.AttackCategory {

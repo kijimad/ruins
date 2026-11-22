@@ -6,9 +6,11 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -91,13 +93,18 @@ func (tb *ThrowBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 		name = world.Components.Name.Get(p.Item).Name
 	}
 
-	// 威力 0 の物は、効果を持つまで攻撃として扱わない。ダメージの式は威力 0 でも能力値と出目で傷を負わせる
-	if attack.Damage > 0 {
+	switch {
+	case attack.Blast != nil:
+		if err := explode(world, actor, p.Target, attack, name); err != nil {
+			return err
+		}
+	case attack.Damage > 0:
 		hitModifier := calculateRangedHitModifier(actor, p.Target, attack, world)
 		if err := applyAttackDamage(actor, p.Target, world, gc.InvalidEntity, attack, name, hitModifier, 0); err != nil {
 			return err
 		}
-	} else {
+	default:
+		// 威力 0 の物は、効果を持つまで攻撃として扱わない。ダメージの式は威力 0 でも能力値と出目で傷を負わせる
 		logThrow(world, actor, p.Item)
 	}
 	// 投げた物は、当たっても外れても無くなる
@@ -119,6 +126,62 @@ func (tb *ThrowBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) err
 func (tb *ThrowBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("throw canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
+}
+
+// explode は target のマスで爆ぜさせ、そこから半径のマスにいる者すべてに効かせる。命中の判定も会心もしない。
+// 怪我は抽選しない。範囲の全員に抽選すると強すぎるので、破片の傷は爆風のダメージに含める。
+// 爆風は道具を使わない攻撃なので、道具が必須の置物は削れず、ほかの置物の廃材は道具なしで抽選する。
+// 投げた本人も範囲にいれば巻き込む。投擲のスキルは、本人と随伴するキューブ以外を傷つけたときに1回だけ伸ばす
+func explode(world w.World, actor, target ecs.Entity, attack gc.ThrowAttack, name i18n.Msgid) error {
+	center := world.Components.GridElement.Get(target).Coord
+	hurtOther := false
+	for _, victim := range blastVictims(world, center, attack.Blast.Radius) {
+		if world.Components.Dead.Has(victim) {
+			continue
+		}
+		if attack.Damage > 0 {
+			damage, err := applyHit(actor, victim, world, attack, name, hitOptions{weapon: gc.InvalidEntity})
+			if err != nil {
+				return err
+			}
+			if damage > 0 && victim != actor && !world.Components.Cube.Has(victim) {
+				hurtOther = true
+			}
+		}
+		// 爆風で倒れた者には不調を付けない
+		if attack.Blast.Condition != "" && !world.Components.Dead.Has(victim) {
+			infect(world, victim, attack.Blast.Condition)
+		}
+	}
+	// 自分の爆風で倒れた本人のスキルは伸ばさない
+	if hurtOther && !world.Components.Dead.Has(actor) {
+		growWeaponSkill(actor, world, attack)
+	}
+	return nil
+}
+
+// blastVictims は center から縦横斜めに radius マス以内にいる、HP を持ち死んでいない者を集める。壁は爆風を遮らない
+func blastVictims(world w.World, center consts.Coord[consts.Tile], radius int) []ecs.Entity {
+	var victims []ecs.Entity
+	q := query.ActiveFilter2[gc.GridElement, gc.HP](world).Without(ecs.C[gc.Dead]()).Query()
+	for q.Next() {
+		grid, _ := q.Get()
+		if geometry.ChebyshevDistance(grid.Coord, center) <= radius {
+			victims = append(victims, q.Entity())
+		}
+	}
+	return victims
+}
+
+// infect は victim に不調を付け、プレイヤー以外がかかったらログに出す。プレイヤーには ContractIllness がログを出す
+func infect(world w.World, victim ecs.Entity, ct gc.ConditionType) {
+	if !gameaction.ContractIllness(world, victim, ct) || world.Components.Player.Has(victim) {
+		return
+	}
+	victimMarkup := query.NameMarkup(victim, query.GetEntityName(victim, world), world)
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "%s contracted %s.", victimMarkup, query.ConditionName(world, ct))).
+		Log()
 }
 
 // logThrow は攻撃にならない物を投げたことをログに出す。プレイヤーが投げたときだけ出す
@@ -155,7 +218,11 @@ func CanThrowTarget(actor, item, target ecs.Entity, world w.World) bool {
 	return (&ThrowBehavior{}).Validate(NewThrowActivity(item, target), actor, world) == nil
 }
 
-// CalculateThrowHitRate は投げの値 attack で target を狙ったときの命中率を返す。情報パネル表示用
+// CalculateThrowHitRate は投げの値 attack で target を狙ったときの命中率を返す。情報パネル表示用。
+// 爆ぜる物は命中の判定をせず必ず狙ったマスで爆ぜるので 100 を返す
 func CalculateThrowHitRate(actor, target ecs.Entity, attack gc.ThrowAttack, world w.World) int {
+	if attack.Blast != nil {
+		return 100
+	}
 	return calculateHitRate(actor, target, world, attack, calculateRangedHitModifier(actor, target, attack, world))
 }
