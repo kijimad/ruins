@@ -56,6 +56,8 @@ type MetaPlan struct {
 	Corridors [][]gc.TileIdx
 	// 乱数生成器
 	RNG *rand.Rand
+	// Seed は RNG を作った種。計画の乱数から引くと後の抽選がずれる値を、別の流れから引くのに使う
+	Seed uint64
 	// 階層を構成するタイル群。長さはステージの大きさで決まる
 	// 通行可能かを判定するための情報を保持している必要がある
 	Tiles []rawschema.Tile
@@ -226,6 +228,7 @@ func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *Planne
 			Rooms:       []gc.Rect{},
 			Corridors:   [][]gc.TileIdx{},
 			RNG:         rand.New(rand.NewPCG(seed, seed+1)),
+			Seed:        seed,
 			NextPortals: []consts.Coord[consts.Tile]{},
 			NPCs:        []NPCSpec{},
 			Items:       []ItemSpec{},

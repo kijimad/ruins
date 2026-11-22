@@ -112,7 +112,7 @@ func TestSpawnItems_個数0以下はエラー(t *testing.T) {
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "wooden_sword", Count: 0},
 	}
 
-	err := spawnItems(world, plan, 0, 0)
+	err := spawnItems(world, plan, 0, 0, rand.New(rand.NewPCG(2, 0)))
 	require.ErrorIs(t, err, errInvalidItemCount)
 }
 
@@ -125,7 +125,7 @@ func TestSpawnItems_未知のアイテム名はエラー(t *testing.T) {
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "存在しないアイテム", Count: 1},
 	}
 
-	err := spawnItems(world, plan, 0, 0)
+	err := spawnItems(world, plan, 0, 0, rand.New(rand.NewPCG(2, 0)))
 	var notFound raw.KeyNotFoundError
 	require.ErrorAs(t, err, &notFound)
 	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないアイテム", Collection: "Items"}, notFound)
@@ -140,7 +140,7 @@ func TestSpawnItems_有効なアイテムを生成する(t *testing.T) {
 		{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}, Name: "wooden_sword", Count: 1},
 	}
 
-	err := spawnItems(world, plan, 10, 20)
+	err := spawnItems(world, plan, 10, 20, rand.New(rand.NewPCG(2, 0)))
 	require.NoError(t, err)
 
 	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
@@ -167,7 +167,7 @@ func TestPopulateStorageLoot_未知のルートテーブルはエラー(t *testi
 	}
 	storageEntity := world.ECS.NewEntity()
 
-	err := populateStorageLoot(world, plan, storageEntity, propRaw)
+	err := populateStorageLoot(world, plan, storageEntity, propRaw, rand.New(rand.NewPCG(2, 0)))
 	var notFound raw.KeyNotFoundError
 	require.ErrorAs(t, err, &notFound)
 	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないテーブル", Collection: "ItemTables"}, notFound)
@@ -215,7 +215,7 @@ func TestPopulateStorageLoot_LootCount表記が不正ならエラー(t *testing.
 	}
 	storageEntity := world.ECS.NewEntity()
 
-	err := populateStorageLoot(world, plan, storageEntity, propRaw)
+	err := populateStorageLoot(world, plan, storageEntity, propRaw, rand.New(rand.NewPCG(2, 0)))
 	require.ErrorIs(t, err, errInvalidLootCount)
 }
 
@@ -234,7 +234,7 @@ func TestPopulateStorageLoot_危険度が最小値未満ならエラー(t *testi
 	}
 	storageEntity := world.ECS.NewEntity()
 
-	err := populateStorageLoot(world, plan, storageEntity, propRaw)
+	err := populateStorageLoot(world, plan, storageEntity, propRaw, rand.New(rand.NewPCG(2, 0)))
 	require.ErrorIs(t, err, errDrawLoot)
 }
 
@@ -253,7 +253,7 @@ func TestPopulateStorageLoot_危険度がテーブル範囲外ならアイテム
 	}
 	storageEntity := world.ECS.NewEntity()
 
-	err := populateStorageLoot(world, plan, storageEntity, propRaw)
+	err := populateStorageLoot(world, plan, storageEntity, propRaw, rand.New(rand.NewPCG(2, 0)))
 	require.NoError(t, err, "候補が無い場合はエラーにせず何も収納しない")
 
 	query := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
@@ -279,7 +279,7 @@ func TestPopulateStorageLoot_アイテム生成に失敗したらエラー(t *te
 	}
 	storageEntity := world.ECS.NewEntity()
 
-	err := populateStorageLoot(world, plan, storageEntity, propRaw)
+	err := populateStorageLoot(world, plan, storageEntity, propRaw, rand.New(rand.NewPCG(2, 0)))
 	var notFound raw.KeyNotFoundError
 	require.ErrorAs(t, err, &notFound)
 	assert.Equal(t, raw.KeyNotFoundError{Key: "nonexistent_item", Collection: "Items"}, notFound)
@@ -299,7 +299,7 @@ func TestPopulateStorageLoot_ルートテーブルからアイテムを収納す
 
 	storageEntity := world.ECS.NewEntity()
 
-	err = populateStorageLoot(world, plan, storageEntity, propRaw)
+	err = populateStorageLoot(world, plan, storageEntity, propRaw, rand.New(rand.NewPCG(2, 0)))
 	require.NoError(t, err)
 
 	query := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()

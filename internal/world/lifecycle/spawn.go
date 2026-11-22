@@ -301,39 +301,93 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 
 // SpawnStorageItem は収納内にアイテムを count 個生成する。戻り値はスタック代表としての1個。
 func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {
-	if count <= 0 {
-		return gc.InvalidEntity, fmt.Errorf("%w: %d", errNonPositiveCount, count)
+	items, err := spawnStorageItems(world, itemName, count, storage)
+	if err != nil {
+		return gc.InvalidEntity, err
 	}
-	last := gc.InvalidEntity
+	return items[len(items)-1], nil
+}
+
+// SpawnStorageLoot は見つかる物として収納内にアイテムを count 個生成する。燃料と燃料を受ける灯りは rng でランダムな残量にする
+func SpawnStorageLoot(world w.World, itemName string, count int, storage ecs.Entity, rng *rand.Rand) error {
+	items, err := spawnStorageItems(world, itemName, count, storage)
+	if err != nil {
+		return err
+	}
+	randomizeLootCharge(world, items, rng)
+	return nil
+}
+
+// spawnStorageItems は収納内にアイテムを count 個生成し、作った物をすべて返す
+func spawnStorageItems(world w.World, itemName string, count int, storage ecs.Entity) ([]ecs.Entity, error) {
+	if count <= 0 {
+		return nil, fmt.Errorf("%w: %d", errNonPositiveCount, count)
+	}
+	items := make([]ecs.Entity, 0, count)
 	for range count {
 		item, err := spawnItemBase(world, itemName)
 		if err != nil {
-			return gc.InvalidEntity, err
+			return nil, err
 		}
 		if err := MoveToStorage(world, item, storage); err != nil {
-			return item, fmt.Errorf("failed to move to storage: %w", err)
+			return nil, fmt.Errorf("failed to move to storage: %w", err)
 		}
-		last = item
+		items = append(items, item)
 	}
-	return last, nil
+	return items, nil
 }
 
 // SpawnFieldItem はフィールド上に同じ位置へアイテムを count 個生成する。戻り値はスタック代表としての1個。
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {
-	if count <= 0 {
-		return gc.InvalidEntity, fmt.Errorf("%w: %d", errNonPositiveCount, count)
+	items, err := spawnFieldItems(world, itemName, x, y, count)
+	if err != nil {
+		return gc.InvalidEntity, err
 	}
-	last := gc.InvalidEntity
+	return items[len(items)-1], nil
+}
+
+// SpawnFieldLoot は見つかる物としてフィールド上に同じ位置へアイテムを count 個生成する。燃料と燃料を受ける灯りは rng でランダムな残量にする
+func SpawnFieldLoot(world w.World, itemName string, x consts.Tile, y consts.Tile, count int, rng *rand.Rand) error {
+	items, err := spawnFieldItems(world, itemName, x, y, count)
+	if err != nil {
+		return err
+	}
+	randomizeLootCharge(world, items, rng)
+	return nil
+}
+
+// spawnFieldItems はフィールド上に同じ位置へアイテムを count 個生成し、作った物をすべて返す
+func spawnFieldItems(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) ([]ecs.Entity, error) {
+	if count <= 0 {
+		return nil, fmt.Errorf("%w: %d", errNonPositiveCount, count)
+	}
+	items := make([]ecs.Entity, 0, count)
 	for range count {
 		item, err := spawnItemBase(world, itemName)
 		if err != nil {
-			return gc.InvalidEntity, err
+			return nil, err
 		}
 		MoveToField(world, item, nil)
 		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
-		last = item
+		items = append(items, item)
 	}
-	return last, nil
+	return items, nil
+}
+
+// lootChargeSteps は見つかる物の残量の段階の数。1個ずつ一様に引くと残量ごとに別の束になり、拾った物がほぼ1個ずつ並ぶ
+const lootChargeSteps = 4
+
+// randomizeLootCharge は items のうち見つかったときにランダムな残量で生まれる物の残量を、上限の 1/4 刻みの段階から1個ずつ引く。
+// 上限が小さくても残量0の物は作らない
+func randomizeLootCharge(world w.World, items []ecs.Entity, rng *rand.Rand) {
+	for _, item := range items {
+		if !world.Components.Charge.Has(item) || !query.ChargeRandomOnLoot(world, item) {
+			continue
+		}
+		charge := world.Components.Charge.Get(item)
+		step := rng.IntN(lootChargeSteps) + 1
+		charge.Current = max(1, charge.Max*step/lootChargeSteps)
+	}
 }
 
 // SpawnVisualEffect はエンティティの位置にエフェクト専用エンティティを生成する

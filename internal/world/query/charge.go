@@ -70,3 +70,12 @@ func FuelKindMatches(world w.World, want rawschema.FuelKindId, fuel ecs.Entity) 
 	refill, ok := RefillOf(world, fuel)
 	return ok && refill.Kind == want
 }
+
+// ChargeRandomOnLoot は item が見つかったときにランダムな残量で生まれるかを返す。残量を移し合う燃料と、燃料を受ける灯りが当たる
+func ChargeRandomOnLoot(world w.World, item ecs.Entity) bool {
+	if _, ok := RefillOf(world, item); ok {
+		return true
+	}
+	_, ok := AcceptedFuelOf(world, item)
+	return ok
+}

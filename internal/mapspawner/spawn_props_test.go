@@ -44,7 +44,7 @@ func TestSpawnProps_未知のprops名はエラー(t *testing.T) {
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "存在しないprops"},
 	}
 
-	err := spawnProps(world, plan, 0, 0)
+	err := spawnProps(world, plan, 0, 0, rand.New(rand.NewPCG(2, 0)))
 	var notFound raw.KeyNotFoundError
 	require.ErrorAs(t, err, &notFound)
 	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないprops", Collection: "Props"}, notFound)
@@ -81,7 +81,7 @@ func TestSpawnProps_有効なpropsをオフセット込みで生成する(t *tes
 		{Coord: consts.Coord[consts.Tile]{X: 2, Y: 3}, Name: "alarm_clock"},
 	}
 
-	err := spawnProps(world, plan, 10, 20)
+	err := spawnProps(world, plan, 10, 20, rand.New(rand.NewPCG(2, 0)))
 	require.NoError(t, err)
 
 	query := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
@@ -104,7 +104,7 @@ func TestSpawnProps_扉は向きを設定して閉じた状態で生成される
 		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "door"},
 	}
 
-	err := spawnProps(world, plan, 0, 0)
+	err := spawnProps(world, plan, 0, 0, rand.New(rand.NewPCG(2, 0)))
 	require.NoError(t, err)
 
 	query := ecs.NewFilter1[gc.Door](world.ECS).Query()
@@ -131,7 +131,7 @@ func TestSpawnProps_収納propはルートテーブルからアイテムを収�
 		{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}, Name: "wooden_crate"},
 	}
 
-	err := spawnProps(world, plan, 0, 0)
+	err := spawnProps(world, plan, 0, 0, rand.New(rand.NewPCG(2, 0)))
 	require.NoError(t, err)
 
 	query := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
@@ -159,7 +159,7 @@ func TestSpawnProps_棚の向きを地図を作るときに決めて付ける(t 
 			{Coord: consts.Coord[consts.Tile]{X: 2, Y: 1}, Name: "book_shelf_2"},
 		},
 	}
-	require.NoError(t, spawnProps(world, plan, 0, 0))
+	require.NoError(t, spawnProps(world, plan, 0, 0, rand.New(rand.NewPCG(2, 0))))
 
 	var shelves []ecs.Entity
 	q := ecs.NewFilter1[gc.Pose](world.ECS).Query()

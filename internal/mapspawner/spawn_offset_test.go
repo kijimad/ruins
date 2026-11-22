@@ -137,3 +137,29 @@ func TestSpawnAt_Props生成エラーを伝播する(t *testing.T) {
 	assert.Equal(t, raw.KeyNotFoundError{Key: "存在しないprops", Collection: "Props"}, notFound)
 	assert.Equal(t, gc.Level{}, level, "エラー時はゼロ値のLevelを返す")
 }
+
+func TestSpawn_同じ種なら見つかる物の残量も同じになる(t *testing.T) {
+	t.Parallel()
+	charges := func(seed uint64) []int {
+		world := testutil.InitTestWorld(t)
+		plan, err := mapplanner.Plan(world, 20, 20, seed, mapplanner.LayoutPlannerType("small_room"))
+		require.NoError(t, err)
+		plan.Items = append(plan.Items, mapplanner.ItemSpec{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "battery", Count: 8})
+
+		_, err = Spawn(world, plan)
+		require.NoError(t, err)
+
+		var got []int
+		q := ecs.NewFilter2[gc.Charge, gc.RawID](world.ECS).Query()
+		for q.Next() {
+			if world.Components.RawID.Get(q.Entity()).ID == "battery" {
+				got = append(got, world.Components.Charge.Get(q.Entity()).Current)
+			}
+		}
+		return got
+	}
+
+	first, second := charges(3), charges(3)
+	assert.Len(t, first, 8)
+	assert.Equal(t, first, second)
+}

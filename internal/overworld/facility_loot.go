@@ -12,8 +12,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// spawnFieldLoot は item group から1山を引き、pos の床へ置く。地上なので深度は扱わない
-func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile], rng *rand.Rand) error {
+// spawnFieldLoot は item group から1山を引き、pos の床へ置く。地上なので深度は扱わない。残量は chargeRNG から引く
+func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile], rng, chargeRNG *rand.Rand) error {
 	draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)
 	if err != nil {
 		return err
@@ -22,7 +22,7 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
 		if d.Name == "" {
 			continue
 		}
-		if _, err := lifecycle.SpawnFieldItem(world, d.Name, pos.X, pos.Y, d.Count); err != nil {
+		if err := lifecycle.SpawnFieldLoot(world, d.Name, pos.X, pos.Y, d.Count, chargeRNG); err != nil {
 			return err
 		}
 	}
@@ -47,8 +47,8 @@ func spawnFacilityBeing(world w.World, fac string, danger consts.Danger, pos con
 }
 
 // populateStorageLoot は収納家具に、パレットが書いた戦利品表 tableID から件数ぶん引いて入れる。施設 fac の
-// 荒らされ率で空のまま残す。収納家具なのに表が無ければ error を返す。
-func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fac string, rng *rand.Rand) error {
+// 荒らされ率で空のまま残す。収納家具なのに表が無ければ error を返す。残量は chargeRNG から引く
+func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fac string, rng, chargeRNG *rand.Rand) error {
 	propRaw, err := raw.GetProp(world.Resources.RawMaster, propName)
 	if err != nil {
 		return err
@@ -92,7 +92,7 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName, tableID, fa
 			return err
 		}
 		for _, d := range draws {
-			if _, err := lifecycle.SpawnStorageItem(world, d.Name, d.Count, entity); err != nil {
+			if err := lifecycle.SpawnStorageLoot(world, d.Name, d.Count, entity, chargeRNG); err != nil {
 				return err
 			}
 		}

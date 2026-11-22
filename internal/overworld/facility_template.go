@@ -119,6 +119,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 	occupied := make(map[consts.Coord[consts.Tile]]bool)
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
 	beingRNG := rand.New(rand.NewPCG(seed, 0x5))
+	chargeRNG := lootChargeRNG(seed, 0x4)
 	for y, row := range cells {
 		for x, cell := range row {
 			pos := consts.Coord[consts.Tile]{X: g.offsetX + ox + consts.Tile(x), Y: g.offsetY + oy + consts.Tile(y)}
@@ -149,7 +150,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 			if left && right {
 				orientation = gc.DoorOrientationVertical
 			}
-			if err := spawnFacilityCell(world, cell, pos, orientation, poses[consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}], fac, danger, lootRNG, beingRNG); err != nil {
+			if err := spawnFacilityCell(world, cell, pos, orientation, poses[consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}], fac, danger, lootRNG, chargeRNG, beingRNG); err != nil {
 				return nil, nil, err
 			}
 		}
@@ -192,7 +193,7 @@ func spawnFacilityTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos c
 }
 
 // spawnFacilityCell はマスの扉、家具と収納の中身、地面の飾り、床の戦利品、敵を pos へ置く。扉の向きは呼び出し側が壁から決める
-func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation, pose *gc.Pose, fac string, danger consts.Danger, lootRNG, beingRNG *rand.Rand) error {
+func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation, pose *gc.Pose, fac string, danger consts.Danger, lootRNG, chargeRNG, beingRNG *rand.Rand) error {
 	switch {
 	case cell.Prop == "door":
 		if _, err := lifecycle.SpawnDoor(world, pos, orientation); err != nil {
@@ -206,7 +207,7 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 		if pose != nil {
 			world.Components.Pose.Add(ent, pose)
 		}
-		if err := populateStorageLoot(world, ent, cell.Prop, cell.LootTable, fac, lootRNG); err != nil {
+		if err := populateStorageLoot(world, ent, cell.Prop, cell.LootTable, fac, lootRNG, chargeRNG); err != nil {
 			return fmt.Errorf("failed to populate storage loot (%s): %w", cell.Prop, err)
 		}
 	}
@@ -216,7 +217,7 @@ func spawnFacilityCell(world w.World, cell maptemplate.MapCell, pos consts.Coord
 		}
 	}
 	for range cell.ItemCount {
-		if err := spawnFieldLoot(world, cell.ItemGroup, pos, lootRNG); err != nil {
+		if err := spawnFieldLoot(world, cell.ItemGroup, pos, lootRNG, chargeRNG); err != nil {
 			return fmt.Errorf("failed to place field loot (%s at %d,%d): %w", cell.ItemGroup, pos.X, pos.Y, err)
 		}
 	}

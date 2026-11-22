@@ -1266,7 +1266,7 @@ type FuelCapacityBonus = int
 type FuelKind struct {
 	Id FuelKindId `json:"id"`
 
-	// Item 灯りから抜いたときに作る燃料
+	// Item 灯りから抜いたときに作る燃料。同じ種別の燃料を指すことは #Raws で確かめる
 	Item EntityID `json:"item"`
 }
 
