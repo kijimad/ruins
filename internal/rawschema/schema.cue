@@ -462,6 +462,17 @@ import (
 #Charge: {
 	// 残量の上限。灯りはターン数、武器と道具は回数
 	max!: #ChargeAmount
+
+	// 満たせる燃料の種別。同じ種別の燃料ならどれでも満たせる。省くと使い切りで、尽きると無くなる
+	refillTag?: #RefillTag
+}
+
+// 燃料の種別。灯りと燃料をこの種別で引き合わせる
+#RefillTag: "oil" | "battery" @rawgen(prefix)
+
+// 燃料。この種別の残量を持つ灯りを上限まで満たす
+#Refill: {
+	refillTag!: #RefillTag
 }
 
 // 残量の量
@@ -953,9 +964,17 @@ import (
 		charge!: _ @rawgen(-)
 	}
 	if lightSource != _|_ {
-		// 灯りも殴れる物にし、手持ち欄に入る物を近接攻撃か射撃を持つ物にそろえる
+		// 灯りは持っていれば照らし、手に持って殴ることもできる
 		melee!: _ @rawgen(-)
 	}
+
+	// 満たせるのは灯りだけ。満たす燃料が raw にあるかは #Raws の refillTags_ref で引く
+	if charge.refillTag != _|_ {
+		lightSource!: _ @rawgen(-)
+	}
+
+	// この行が燃料であること
+	refill?: #Refill
 
 	// 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
 	material?: #Material
@@ -1443,6 +1462,11 @@ import (
 	// 循環し、実在するタイルも見つからない。表の外で引く
 	tileSpawns_ref: {
 		if tiles != _|_ for x in tiles if x.spawn.tile != _|_ {(x.id): _tileIDs[x.spawn.tile]}
+	} @rawgen(-)
+
+	// 灯りの燃料の種別は、同じ items 表の燃料の行が満たす種別を指す。#Item の中で引くと循環するので表の外で引く
+	refillTags_ref: {
+		if items != _|_ for x in items if x.charge.refillTag != _|_ {(x.id): _refillTags[x.charge.refillTag]}
 	} @rawgen(-)
 
 	// 熟練の効果倍率の id はスキルをまたいで一意にする

@@ -2,6 +2,8 @@ package query
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -45,4 +47,20 @@ func ChargeRatio(world w.World, entity ecs.Entity) (float64, bool) {
 	}
 	charge := world.Components.Charge.Get(entity)
 	return max(0, min(1, float64(charge.Current)/float64(charge.Max))), true
+}
+
+// RefillTagOf は item が満たせる燃料の種別を返す。使い切りの物は ok が偽
+func RefillTagOf(world w.World, item ecs.Entity) (rawschema.RefillTag, bool) {
+	if !world.Components.RawID.Has(item) {
+		return "", false
+	}
+	return raw.FindRefillTag(world.Resources.RawMaster, world.Components.RawID.Get(item).ID)
+}
+
+// RefillOf は燃料の fuel が満たす種別を返す。燃料でない物は ok が偽
+func RefillOf(world w.World, fuel ecs.Entity) (rawschema.RefillTag, bool) {
+	if !world.Components.RawID.Has(fuel) {
+		return "", false
+	}
+	return raw.FindRefill(world.Resources.RawMaster, world.Components.RawID.Get(fuel).ID)
 }

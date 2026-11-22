@@ -31,6 +31,7 @@ func dungeonMenuChoices(world w.World) (string, []Choice) {
 		{Label: query.T(world, "Inventory"), Run: pushChoice(NewItemActionState(verbExamine))},
 		{Label: query.T(world, "Character"), Run: pushChoice(NewCharacterState)},
 		{Label: query.T(world, "Crafting"), Run: pushChoice(NewCraftMenuState)},
+		{Label: query.T(world, "Refill"), Run: pushChoice(NewRefillMenuState)},
 		{Label: query.T(world, "Statistics"), Run: pushChoice(NewRunStatsState)},
 	}
 	if world.Resources.Config.SaveLoadEnabled {

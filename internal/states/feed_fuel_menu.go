@@ -1,6 +1,7 @@
 package states
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -15,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -29,11 +31,13 @@ type FeedFuelMenuState struct {
 	screen *menuloop.Screen[FeedFuelProps]
 }
 
-// FuelSink は給油メニューのくべ先。見出し、1つくべると増える量の表示、くべる処理を持つ。
+// FuelSink は給油メニューのくべ先。見出し、くべられる燃料の判定、1つくべると増える量の表示、くべる処理を持つ。
+// 一覧に出す燃料と、選んだときにくべる燃料は同じ accepts で決める
 type FuelSink struct {
-	title func(world w.World) string
-	gain  func(world w.World, fuel ecs.Entity) string
-	feed  func(world w.World, fuel ecs.Entity)
+	title   func(world w.World) string
+	accepts func(world w.World, fuel ecs.Entity) bool
+	gain    func(world w.World, fuel ecs.Entity) string
+	feed    func(world w.World, fuel ecs.Entity) error
 }
 
 // FireFuelSink は火をくべ先にする。増える量は燃焼ターン数で表す。
@@ -43,10 +47,14 @@ func FireFuelSink(fire ecs.Entity) FuelSink {
 		title: func(world w.World) string {
 			return query.T(world, "Burning, %s left", query.EstimateBurnTurns(world, fire).String())
 		},
+		accepts: query.IsCombustible,
 		gain: func(world w.World, fuel ecs.Entity) string {
 			return query.FuelBurnTurns(world, fire, fuel).String()
 		},
-		feed: func(world w.World, fuel ecs.Entity) { lifecycle.AddFuel(world, fire, fuel) },
+		feed: func(world w.World, fuel ecs.Entity) error {
+			lifecycle.AddFuel(world, fire, fuel)
+			return nil
+		},
 	}
 }
 
@@ -56,15 +64,49 @@ func CubeFuelSink(cube ecs.Entity) FuelSink {
 		title: func(world w.World) string {
 			return query.T(world, "Fuel %s", fuelTankText(*world.Components.FuelTank.Get(cube)))
 		},
+		accepts: query.IsCombustible,
 		gain: func(world w.World, fuel ecs.Entity) string {
 			return query.HeatContent(world, fuel).String()
 		},
-		feed: func(world w.World, fuel ecs.Entity) {
+		feed: func(world w.World, fuel ecs.Entity) error {
 			if !lifecycle.AddCubeFuel(world, cube, fuel) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "The fuel tank is full.")).
 					Log()
 			}
+			return nil
+		},
+	}
+}
+
+// LightFuelSink は満たせる灯りをくべ先にする。灯りと同じ種別の燃料を1つ使い、残量を上限まで戻す。
+// 増える量は満たせる量で表す
+func LightFuelSink(light ecs.Entity) FuelSink {
+	return FuelSink{
+		title: func(world w.World) string {
+			return query.T(world, "Refill %s", query.GetEntityName(light, world))
+		},
+		accepts: func(world w.World, fuel ecs.Entity) bool {
+			want, ok := query.RefillTagOf(world, light)
+			if !ok {
+				return false
+			}
+			got, ok := query.RefillOf(world, fuel)
+			return ok && got == want
+		},
+		gain: func(world w.World, _ ecs.Entity) string {
+			charge := world.Components.Charge.Get(light)
+			return fmt.Sprintf("+%d", charge.Max-charge.Current)
+		},
+		feed: func(world w.World, fuel ecs.Entity) error {
+			err := gameaction.RefillCharge(world, light, fuel)
+			if errors.Is(err, gameaction.ErrChargeFull) {
+				gamelog.New(query.GetGameLog(world)).
+					Markup(query.T(world, "It is already full.")).
+					Log()
+				return nil
+			}
+			return err
 		},
 	}
 }
@@ -117,8 +159,10 @@ func (st *FeedFuelMenuState) DoAction(world w.World, action inputmapper.ActionID
 		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
 		// 走査時の代表は消費されるので、次フレームの Fetch が新しい代表で一覧を組み直す
-		if entity, ok := st.selectedEntity(); ok && world.ECS.Alive(entity) && query.IsCombustible(world, entity) {
-			st.sink.feed(world, entity)
+		if entity, ok := st.selectedEntity(); ok && world.ECS.Alive(entity) && st.sink.accepts(world, entity) {
+			if err := st.sink.feed(world, entity); err != nil {
+				return es.Transition[w.World]{}, err
+			}
 		}
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("feedFuelMenu: unsupported action: %s", action)
@@ -135,7 +179,7 @@ func (st *FeedFuelMenuState) Fetch(world w.World) (FeedFuelProps, error) {
 	}
 	var rows []feedFuelRow
 	for _, stack := range query.BackpackStacks(world, player) {
-		if !query.IsCombustible(world, stack.Rep) {
+		if !st.sink.accepts(world, stack.Rep) {
 			continue
 		}
 		rows = append(rows, feedFuelRow{

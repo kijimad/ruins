@@ -945,6 +945,24 @@ func FindTool(raws rawschema.Raws, name string) (*rawschema.Tool, bool) {
 	return item.Tool, true
 }
 
+// FindRefillTag は name の行が満たせる燃料の種別を返す。使い切りの行や残量を持たない行は ok が偽
+func FindRefillTag(raws rawschema.Raws, name string) (rawschema.RefillTag, bool) {
+	item, ok := FindByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
+	if !ok || item.Charge == nil || item.Charge.RefillTag == nil {
+		return "", false
+	}
+	return *item.Charge.RefillTag, true
+}
+
+// FindRefill は name の燃料の行が満たす種別を返す。燃料でない行は ok が偽
+func FindRefill(raws rawschema.Raws, name string) (rawschema.RefillTag, bool) {
+	item, ok := FindByKey(raws.Items, func(i rawschema.Item) string { return i.Id }, name)
+	if !ok || item.Refill == nil {
+		return "", false
+	}
+	return item.Refill.RefillTag, true
+}
+
 // GetProfession は指定されたIDの職業データを返す
 func GetProfession(raws rawschema.Raws, id string) (rawschema.Profession, error) {
 	prof, ok := FindByKey(raws.Professions, func(p rawschema.Profession) string { return p.Id }, id)
