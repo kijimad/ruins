@@ -140,7 +140,7 @@ func explode(world w.World, actor, target ecs.Entity, attack gc.ThrowAttack, nam
 			continue
 		}
 		if attack.Damage > 0 {
-			damage, err := applyHit(actor, victim, world, attack, name, hitOptions{})
+			damage, err := applyHit(actor, victim, world, attack, name, hitOptions{weapon: gc.InvalidEntity})
 			if err != nil {
 				return err
 			}
