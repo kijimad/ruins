@@ -15,16 +15,12 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// wieldedTool は actor が選んだ手持ち欄の物が分解定義 def に合う道具ならそのグレードを返す
-func wieldedTool(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (int, bool) {
-	if def.ToolCategory == nil || !world.Components.Player.Has(actor) {
+// toolGrade は weapon が分解定義 def に合う道具ならそのグレードを返す。gc.InvalidEntity は道具なしとする
+func toolGrade(world w.World, weapon ecs.Entity, def *rawschema.Disassembly) (int, bool) {
+	if def.ToolCategory == nil || weapon == gc.InvalidEntity {
 		return 0, false
 	}
-	held, ok := query.SelectedHeld(world, actor)
-	if !ok {
-		return 0, false
-	}
-	tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(held, world))
+	tool, ok := raw.FindTool(world.Resources.RawMaster, query.GetEntityID(weapon, world))
 	if !ok {
 		return 0, false
 	}
@@ -34,8 +30,8 @@ func wieldedTool(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (i
 	return 0, false
 }
 
-// toolDamageMultiplier は prop を殴るときの道具のダメージ倍率を返す。合う道具で 1+グレード、道具が必須で無ければ0、他は1
-func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
+// toolDamageMultiplier は weapon で prop を攻撃するときの道具のダメージ倍率を返す。合う道具で 1+グレード、道具が必須で無ければ0、他は1
+func toolDamageMultiplier(world w.World, weapon, target ecs.Entity) int {
 	if !world.Components.Prop.Has(target) {
 		return 1
 	}
@@ -43,7 +39,7 @@ func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
 	if !ok {
 		return 1
 	}
-	grade, ok := wieldedTool(world, actor, def)
+	grade, ok := toolGrade(world, weapon, def)
 	switch {
 	case ok:
 		return 1 + grade
@@ -53,19 +49,19 @@ func toolDamageMultiplier(world w.World, actor, target ecs.Entity) int {
 	return 1
 }
 
-// salvageRoll は壊したときの抽選を決める。合う道具を構えているか、道具の分類が無い定義なら全枠を出す
-func salvageRoll(world w.World, actor ecs.Entity, def *rawschema.Disassembly) (grade int, full, withTool bool) {
-	grade, withTool = wieldedTool(world, actor, def)
+// salvageRoll は weapon で壊したときの抽選を決める。合う道具で壊したか、道具の分類が無い定義なら全枠を出す
+func salvageRoll(world w.World, weapon ecs.Entity, def *rawschema.Disassembly) (grade int, full, withTool bool) {
+	grade, withTool = toolGrade(world, weapon, def)
 	return grade, withTool || def.ToolCategory == nil, withTool
 }
 
-// dropSalvage は actor が壊した prop の産出を足元へ落とす
-func dropSalvage(world w.World, actor, target ecs.Entity) error {
+// dropSalvage は actor が weapon で壊した prop の産出を足元へ落とす
+func dropSalvage(world w.World, actor, weapon, target ecs.Entity) error {
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
 	if !ok || !world.Components.GridElement.Has(target) {
 		return nil
 	}
-	grade, full, withTool := salvageRoll(world, actor, def)
+	grade, full, withTool := salvageRoll(world, weapon, def)
 	var skillID rawschema.SkillId
 	hasSkill := false
 	if withTool {

@@ -246,8 +246,8 @@ func elementMult(target ecs.Entity, element rawschema.Element, world w.World) co
 	return query.ProficiencyValue(world, target, key)
 }
 
-// applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
-// 射撃と投げるからも使う。weapon は攻撃に使った武器の実体で、残量を持てば当たっても外れても最後に減らす。
+// applyAttackDamage は命中を判定し、当たれば applyHit で与える。外れたらログと見た目の効果を出す。
+// 近接・射撃・投げるが使う。weapon は攻撃に使った武器の実体で、残量を持てば当たっても外れても最後に減らす。
 // 武器の実体を持たない攻撃は gc.InvalidEntity を渡す
 func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entity, attack gc.Attacker, attackMethodName i18n.Msgid, hitRateModifier int, damageModifier int) error {
 	if attack == nil {
@@ -255,7 +255,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entit
 	}
 	// 減らす量は殴る前の対象で決め、武器は最後に減らす。先に消すと、壊したときの産出が武器の道具の値を読めない
 	if query.ChargeTriggerOf(world, weapon) == query.ChargeTriggerOnUse {
-		defer gameaction.ConsumeCharge(world, weapon, attackChargeCost(world, actor, target))
+		defer gameaction.ConsumeCharge(world, weapon, attackChargeCost(world, weapon, target))
 	}
 
 	hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
@@ -264,40 +264,66 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entit
 		lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
 		return nil
 	}
+	_, err := applyHit(actor, target, world, attack, attackMethodName, hitOptions{
+		critical:  criticalHit,
+		injury:    true,
+		growSkill: true,
+		weapon:    weapon,
+		damageMod: damageModifier,
+	})
+	return err
+}
 
-	damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)
+// hitOptions は命中したあとの処理のうち、呼ぶ側が決める部分
+type hitOptions struct {
+	critical  bool       // 会心
+	injury    bool       // 怪我を抽選する
+	growSkill bool       // 傷つけたら武器スキルを伸ばす
+	weapon    ecs.Entity // 攻撃に使った物。置物への道具の倍率・廃材の抽選・道具スキルの伸びを決める。持たない攻撃は gc.InvalidEntity
+	damageMod int        // ダメージに足す値。射撃の装填のボーナスなど
+}
 
-	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
+// applyHit は命中した攻撃を target に与え、与えたダメージを返す。ログ・見た目の効果・ダメージ・置物の廃材・
+// 被弾した者の行動の中断をまとめて行う。命中の判定をしない爆風もこれを使う
+func applyHit(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName i18n.Msgid, opts hitOptions) (int, error) {
+	mult := elementMult(target, attack.GetElement(), world)
+	// 道具の倍率は最低保証の後に掛け、道具が必須なのに無いときは確実に0にする
+	damage := max(calculateDamage(actor, target, world, attack, opts.critical, opts.damageMod, mult), 0) *
+		toolDamageMultiplier(world, opts.weapon, target)
+
+	logAttackResult(actor, target, world, true, opts.critical, damage, attackMethodName)
+	logElementAffinity(actor, target, world, attack.GetElement(), mult)
 	// 削れない相手を殴り続けて安全に稼げないよう、ダメージ0では武器スキルを伸ばさない
-	if damage > 0 {
+	if opts.growSkill && damage > 0 {
 		growWeaponSkill(actor, world, attack)
 	}
-	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
+	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage, attack.GetElement(), mult), world)
 	gameaction.ApplyDamage(world, target, damage, actor)
 	if world.Components.Prop.Has(target) && world.Components.Dead.Has(target) {
-		if err := dropSalvage(world, actor, target); err != nil {
-			return err
+		if err := dropSalvage(world, actor, opts.weapon, target); err != nil {
+			return damage, err
 		}
 	}
-	// HP を削った後、HealthStatus を持つ対象へ確率で怪我を付ける
-	applyInjury(actor, target, world, attack)
+	if opts.injury {
+		applyInjury(actor, target, world, attack)
+	}
 
 	// 被ダメージで中断可能なアクティビティをキャンセルする
 	if comp := query.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
 		CancelActivity(target, "took an attack", world)
 	}
 
-	return nil
+	return damage, nil
 }
 
-// attackChargeCost は actor が構えた物で target を攻撃したときに減る残量を返す。置物は分類の合う道具で殴れば1、
+// attackChargeCost は weapon で target を攻撃したときに減る残量を返す。置物は分類の合う道具で殴れば1、
 // ほかは本来の用途以外として倍にする。敵などへの攻撃は、道具を兼ねる物でも1
-func attackChargeCost(world w.World, actor, target ecs.Entity) int {
+func attackChargeCost(world w.World, weapon, target ecs.Entity) int {
 	if !world.Components.Prop.Has(target) {
 		return 1
 	}
 	if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world)); ok {
-		if _, fit := wieldedTool(world, actor, def); fit {
+		if _, fit := toolGrade(world, weapon, def); fit {
 			return 1
 		}
 	}
@@ -344,8 +370,9 @@ func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 	return attack.GetAccuracy() - formula.BaseHitRate
 }
 
-// calculateDamage は ECS から攻撃側と対象の値を集め、formula.Damage で1回の命中のダメージを求める
-func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
+// calculateDamage は ECS から攻撃側と対象の値を集め、formula.Damage で1回の命中のダメージを求める。
+// 属性の倍率 elemMult は、表示にも使うので呼ぶ側が1度だけ求めて渡す
+func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int, elemMult consts.Percent) int {
 	if !world.Components.Abilities.Has(attacker) {
 		return 0
 	}
@@ -361,7 +388,6 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		defense = world.Components.Abilities.Get(target).Defense.Total
 	}
 
-	// 道具の倍率は最低保証の後に掛け、道具が必須なのに無いときは確実に0にする
 	return formula.Damage(formula.DamageInput{
 		Ability:      ability,
 		Die:          world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1,
@@ -369,9 +395,9 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		Modifier:     damageModifier,
 		SkillMult:    int(getSkillMult(attacker, attack, world, true)),
 		Critical:     critical,
-		ElementMult:  int(elementMult(target, attack.GetElement(), world)),
+		ElementMult:  int(elemMult),
 		Defense:      defense,
-	}) * toolDamageMultiplier(world, attacker, target)
+	})
 }
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
@@ -406,6 +432,20 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	}
 }
 
+// logElementAffinity は属性の倍率で攻撃が減ったか増えたかをログに出す。味方が関わる攻撃だけを出す
+func logElementAffinity(attacker, target ecs.Entity, world w.World, element rawschema.Element, mult consts.Percent) {
+	if mult == consts.PercentBase || (!query.IsAlly(world, attacker) && !query.IsAlly(world, target)) {
+		return
+	}
+	targetMarkup := query.NameMarkup(target, query.GetEntityName(target, world), world)
+	elementName := query.T(world, gc.ElementName(element))
+	text := query.T(world, "%s resisted the %s.", targetMarkup, elementName)
+	if mult > consts.PercentBase {
+		text = query.T(world, "%s is weak to %s.", targetMarkup, elementName)
+	}
+	gamelog.New(query.GetGameLog(world)).Markup(text).Log()
+}
+
 // logAttackResult は攻撃結果をログに出力する
 func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName i18n.Msgid) {
 	attackerRelevant := query.IsAlly(world, attacker)
@@ -427,6 +467,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 		methodName = query.T(world, attackMethodName)
 	}
 	switch {
+	case hit && attacker == target && withMethod:
+		logger.Markup(query.T(world, "%s was caught in %s and took %s damage.", targetMarkup, methodName, damageStr))
 	case !hit:
 		if withMethod {
 			logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))

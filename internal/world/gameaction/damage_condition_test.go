@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -43,6 +44,30 @@ func TestApplyConditionDamage(t *testing.T) {
 
 		assert.Equal(t, 0, world.Components.HP.Get(entity).Current)
 		assert.True(t, world.Components.Dead.Has(entity))
+	})
+
+	t.Run("倒れた者は削らず数字も浮かべない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		entity, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "bat")
+		require.NoError(t, err)
+		world.Components.HP.Get(entity).Current = 10
+		countEffects := func() int {
+			n := 0
+			q := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+			for q.Next() {
+				n++
+			}
+			return n
+		}
+
+		ApplyConditionDamage(world, entity, 20, gc.CauseIllness)
+		require.True(t, world.Components.Dead.Has(entity))
+		effects := countEffects()
+
+		ApplyConditionDamage(world, entity, 20, gc.CauseIllness)
+		assert.Equal(t, 0, world.Components.HP.Get(entity).Current)
+		assert.Equal(t, effects, countEffects())
 	})
 
 	t.Run("プレイヤーが倒れると死因を記録する", func(t *testing.T) {

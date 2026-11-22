@@ -1641,6 +1641,18 @@ msgstr "%s は %s を食べた。"
 msgid "%s threw %s."
 msgstr "%s は %s を投げた。"
 
+msgid "%s was caught in %s and took %s damage."
+msgstr "%s は %s に巻き込まれ、%s のダメージを受けた。"
+
+msgid "%s contracted %s."
+msgstr "%s は %s にかかった。"
+
+msgid "Venom"
+msgstr "毒"
+
+msgid "Venom is spreading through the body. It clears on its own over time."
+msgstr "毒が体に回っている。時間が経てば自然に抜ける。"
+
 msgid "%s ate fresh %s."
 msgstr "%s は新鮮な %s を食べた。"
 
@@ -6739,3 +6751,9 @@ msgstr "植物のくず"
 
 msgid "Cloth Scraps"
 msgstr "布きれ"
+
+msgid "%s resisted the %s."
+msgstr "%sは%sに耐えた"
+
+msgid "%s is weak to %s."
+msgstr "%sは%sに弱い"

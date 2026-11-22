@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSpawn_デバッグの町の木箱にモジュールと装着アイテムと道具が入る(t *testing.T) {
+func TestSpawn_デバッグの町の木箱にモジュールと装着アイテムと道具と手榴弾が入る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	pt := mapplanner.LayoutPlannerType("debug_town")
@@ -42,6 +42,7 @@ func TestSpawn_デバッグの町の木箱にモジュールと装着アイテ�
 		[]string{"pickaxe"},
 		slices.Repeat([]string{"cube_range_module", "cube_fuel_module"}, consts.CubeModuleSlots),
 		slices.Repeat([]string{"deployable_storage", "deployable_bed", "deployable_workbench"}, 2),
+		slices.Repeat([]string{"grenade", "poison_grenade", "flame_grenade"}, 3),
 	)
 	assert.ElementsMatch(t, want, got)
 }
