@@ -427,7 +427,7 @@ func TestExplode_構えた道具は置物に効かせない(t *testing.T) {
 	})
 }
 
-func TestExplode_閃光弾は範囲の者の体を鈍らせる(t *testing.T) {
+func TestExplode_閃光弾は範囲の者の目をくらませる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
@@ -445,13 +445,13 @@ func TestExplode_閃光弾は範囲の者の体を鈍らせる(t *testing.T) {
 
 	funcs := query.EffectiveBodyFuncs(world, enemy)
 	assert.Equal(t, hp, world.Components.HP.Get(enemy).Current, "閃光弾は傷つけない")
-	assert.Equal(t, consts.Percent(60), funcs.Consciousness)
-	assert.Equal(t, consts.Percent(60), funcs.Moving)
-	assert.Equal(t, consts.Percent(60), funcs.Sight)
-	assert.Less(t, query.CalculateSpeed(world, enemy), speed)
+	assert.Equal(t, consts.Percent(100), funcs.Consciousness)
+	assert.Equal(t, consts.Percent(100), funcs.Moving)
+	assert.Equal(t, consts.Percent(60), funcs.Sight, "発症したての目くらみは軽度で、頭の視覚を 40 下げる")
+	assert.Equal(t, speed, query.CalculateSpeed(world, enemy), "頭の不調は速さを変えない")
 }
 
-func TestExplode_閃光弾は半径2までの者を本人も含めて鈍らせる(t *testing.T) {
+func TestExplode_閃光弾は半径2までの者の目を本人も含めてくらませる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
@@ -469,7 +469,7 @@ func TestExplode_閃光弾は半径2までの者を本人も含めて鈍らせ�
 
 	daze := gc.ConditionType("daze")
 	dazed := func(e ecs.Entity) bool {
-		return world.Components.HealthStatus.Get(e).Parts[gc.BodyPartWholeBody].GetCondition(daze) != nil
+		return world.Components.HealthStatus.Get(e).Parts[gc.BodyPartHead].GetCondition(daze) != nil
 	}
 	assert.Equal(t, []bool{true, true, false}, []bool{dazed(player), dazed(target), dazed(far)})
 }

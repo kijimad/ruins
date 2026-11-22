@@ -151,6 +151,19 @@ func TestConditionDefs_Injury(t *testing.T) {
 	assert.False(t, ok, "未登録は ok=false")
 }
 
+func TestConditionDefs_IsInjury(t *testing.T) {
+	t.Parallel()
+
+	got := map[ConditionType]bool{}
+	for _, ct := range testDefs.Types() {
+		got[ct] = testDefs.IsInjury(ct)
+	}
+	assert.Equal(t, map[ConditionType]bool{
+		"exhaustion": false, "food_poisoning": false, "fracture": true, "hypothermia": false,
+		"laceration": true, "liver_illness": false, "malnutrition": false,
+	}, got)
+}
+
 func TestConditionDefs_ByOnset(t *testing.T) {
 	t.Parallel()
 

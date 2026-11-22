@@ -88,6 +88,16 @@ func (d ConditionDefs) Injury(at rawschema.AttackCategory) (ConditionType, bool)
 	return ct, ok
 }
 
+// IsInjury は不調がいずれかの攻撃種別で負う怪我かを返す
+func (d ConditionDefs) IsInjury(ct ConditionType) bool {
+	for _, injury := range d.injuries {
+		if injury == ct {
+			return true
+		}
+	}
+	return false
+}
+
 // ByOnset は仕組み o が起こす不調を返す。仕組みごとに不調があることは読み込み時に確かめるので、無ければ panic する
 func (d ConditionDefs) ByOnset(o rawschema.ConditionOnset) ConditionType {
 	ct, ok := d.onsets[o]

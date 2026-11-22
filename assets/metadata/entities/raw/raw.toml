@@ -1350,10 +1350,11 @@
 
 [[conditions]]
   bodyFuncDropPerSeverity = 40
-  description = "Dazed by a blinding flash and a deafening bang. It wears off in a few turns."
+  description = "Eyes dazzled by a blinding flash. It wears off in a few turns."
   id = "daze"
   name = "Daze"
   painPerSeverity = 0
+  parts = ["head"]
   recoverPer = 2
   recovery = "recover_over_time"
 
@@ -14503,7 +14504,7 @@
     usableScene = "ANY"
 
 [[items]]
-  description = "A thrown grenade that stuns with a burst of blinding light and sound."
+  description = "A thrown grenade that dazzles the eyes with a burst of blinding light."
   id = "flashbang"
   material = "METAL"
   name = "Flashbang"
