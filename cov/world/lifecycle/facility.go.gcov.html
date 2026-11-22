@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 07:22:51</td>
+            <td class="headerValue">2026-11-22 10:48:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -128,7 +128,7 @@
 <span id="L66"><span class="lineNum">      66</span>              :         // 前の所有者を渡して総重量の再計算を促す</span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         owner := world.Components.LocationInBackpack.Get(item).Owner</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.Item, item)</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         ensureMarker(world, world.Components.Prop, item, &amp;gc.Prop{})</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         EnsureMarker(world, world.Components.Prop, item, &amp;gc.Prop{})</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         MoveMembersToField(world, []ecs.Entity{item}, coord, owner)</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return item, nil</span></span>
 <span id="L72"><span class="lineNum">      72</span>              : }</span>
@@ -143,7 +143,7 @@
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;remove facility: storage is not empty&quot;)</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         ensureRemoved(world.Components.Prop, facility)</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         ensureMarker(world, world.Components.Item, facility, &amp;gc.Item{})</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         EnsureMarker(world, world.Components.Item, facility, &amp;gc.Item{})</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         return MoveToBackpack(world, facility, player)</span></span>
 <span id="L86"><span class="lineNum">      86</span>              : }</span>
         </pre>

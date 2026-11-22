@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">97.9&nbsp;%</td>
+            <td class="headerCovTableEntryHi">98.9&nbsp;%</td>
             <td class="headerCovTableEntry">95</td>
-            <td class="headerCovTableEntry">93</td>
+            <td class="headerCovTableEntry">94</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 07:22:51</td>
+            <td class="headerValue">2026-11-22 10:48:26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -145,18 +145,18 @@
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 abils.Agility.Modifier += wearable.EquipBonus.Agility</span></span>
 <span id="L84"><span class="lineNum">      84</span>              :         }</span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
-<span id="L86"><span class="lineNum">      86</span>              :         // 装備した光源をプレイヤー自身の LightSource へ写す。装備品は位置を持たず vision に</span>
+<span id="L86"><span class="lineNum">      86</span>              :         // 持っている光源をプレイヤー自身の LightSource へ写す。持ち物は位置を持たず vision に</span>
 <span id="L87"><span class="lineNum">      87</span>              :         // 拾われないので、位置を持つプレイヤーが代わりに光源になる。複数あれば最も明るいもの。</span>
 <span id="L88"><span class="lineNum">      88</span>              :         // プレイヤー限定なのは、発光する member 等の内蔵光源を装備の有無で消さないため。</span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         if world.Components.Player.Has(entity) &amp;&amp; world.Components.LightSource.Has(entity) {</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 ls := world.Components.LightSource.Get(entity)</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 ls.Enabled = false</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                 var bestRadius consts.Tile</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 lightQuery := query.ActiveFilter2[gc.LocationEquipped, gc.LightSource](world).Query()</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 lightQuery := query.ActiveFilter1[gc.LightSource](world).Query()</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 for lightQuery.Next() {</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                         litem := lightQuery.Entity()</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                         if !query.LightLit(world, entity, litem) {</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                                 continue</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                         if !query.CarriedBy(world, litem, entity) || !query.LightLit(world, entity, litem) {</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L98"><span class="lineNum">      98</span>              :                         }</span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                         src := world.Components.LightSource.Get(litem)</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                         if src.Radius &gt; bestRadius {</span></span>
