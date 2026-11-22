@@ -440,14 +440,15 @@ func TestExplode_閃光弾は範囲の者の目をくらませる(t *testing.T) 
 	require.True(t, ok)
 	hp := world.Components.HP.Get(enemy).Current
 	speed := query.CalculateSpeed(world, enemy)
+	before := query.EffectiveBodyFuncs(world, enemy)
 
 	require.NoError(t, explode(world, player, enemy, attack, "Flashbang"))
 
 	funcs := query.EffectiveBodyFuncs(world, enemy)
 	assert.Equal(t, hp, world.Components.HP.Get(enemy).Current, "閃光弾は傷つけない")
-	assert.Equal(t, consts.Percent(100), funcs.Consciousness)
-	assert.Equal(t, consts.Percent(100), funcs.Moving)
-	assert.Equal(t, consts.Percent(60), funcs.Sight, "発症したての目くらみは軽度で、頭の視覚を 40 下げる")
+	assert.Equal(t, before.Consciousness, funcs.Consciousness)
+	assert.Equal(t, before.Moving, funcs.Moving)
+	assert.Equal(t, before.Sight*60/100, funcs.Sight, "発症したての目くらみは軽度で、頭の視覚を 40 下げる")
 	assert.Equal(t, speed, query.CalculateSpeed(world, enemy), "頭の不調は速さを変えない")
 }
 

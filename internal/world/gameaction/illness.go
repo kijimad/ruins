@@ -12,8 +12,8 @@ import (
 const illnessOnsetTimer = 30
 
 // ContractIllness は病気などの不調を1つ発症させる。部位を書いた不調はその最初の部位に、ほかは全身性なので全身に付ける。
-// 同じ病気が発症中なら重ねない。
-// 治りかけで発症していない同じ病気が残っていれば、発症したての進行度に戻す。
+// 同じ不調が発症中なら重ねない。
+// 治りかけで発症していない同じ不調が残っていれば、発症したての進行度に戻す。
 // HealthStatus を持たない対象には何もしない。発症したら true を返し、身体機能の再計算を促す。
 // 発症したての浅い進行度で始まり、以降の進行は不調ごとの回復モードに従う
 func ContractIllness(world w.World, entity ecs.Entity, ct gc.ConditionType) bool {
