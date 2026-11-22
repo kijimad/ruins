@@ -1,16 +1,13 @@
 package systems
 
 import (
-	"strconv"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -219,65 +216,4 @@ func TestManagedConditionDef_扱う不調を網羅しHypothermiaを含まない(
 	// 低体温は Recovery を持たず TemperatureSystem 管轄なので ConditionSystem は扱わない
 	_, ok := managedConditionDef(defs, gc.ConditionType("hypothermia"))
 	assert.False(t, ok, "低体温は ConditionSystem 管轄でない")
-}
-
-func TestConditionSystem_毒はプレイヤーも敵も同じくHPを削り紫の数字を浮かべる(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 5}, "bat")
-	require.NoError(t, err)
-	before := map[ecs.Entity]int{}
-	for _, e := range []ecs.Entity{player, enemy} {
-		require.True(t, gameaction.ContractIllness(world, e, gc.ConditionType("venom")))
-		before[e] = world.Components.HP.Get(e).Current
-	}
-
-	require.NoError(t, (&ConditionSystem{}).Update(world))
-
-	var texts []string
-	q := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
-	for q.Next() {
-		for _, ef := range q.Get().Effects {
-			dt, ok := ef.(*gc.DamageTextEffect)
-			require.True(t, ok)
-			assert.Equal(t, gc.NewConditionDamageEffect(2).Color, dt.Color)
-			texts = append(texts, dt.Text)
-		}
-	}
-	assert.Equal(t, before[player]-2, world.Components.HP.Get(player).Current, "軽度の毒は1ターンに2削る")
-	assert.Equal(t, before[enemy]-2, world.Components.HP.Get(enemy).Current, "敵もプレイヤーと同じく削れる")
-	assert.Equal(t, []string{"2", "2"}, texts)
-}
-
-func TestConditionSystem_失血と毒の削りは合計して1度に与える(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-	require.NoError(t, err)
-	require.True(t, gameaction.ContractIllness(world, player, gc.ConditionType("venom")))
-	hs := world.Components.HealthStatus.Get(player)
-	defs := world.Resources.ConditionDefs
-	for _, part := range []gc.BodyPart{gc.BodyPartArms, gc.BodyPartLegs, gc.BodyPartHands, gc.BodyPartFeet, gc.BodyPartHead} {
-		hs.Parts[part].AddCondition(gc.HealthCondition{Type: gc.ConditionType("laceration"), Timer: 90, Severity: gc.TimerToSeverity(90)})
-	}
-	blood, _ := hs.BloodLossHPDrain(defs)
-	require.Positive(t, blood, "失血で HP が削れる状態にする")
-	venom, _ := hs.ConditionHPDrain(defs)
-	world.Components.HP.Get(player).Current = 1000
-	world.Components.HP.Get(player).Max = 1000
-
-	require.NoError(t, (&ConditionSystem{}).Update(world))
-
-	var texts []string
-	q := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
-	for q.Next() {
-		for _, ef := range q.Get().Effects {
-			if dt, ok := ef.(*gc.DamageTextEffect); ok {
-				texts = append(texts, dt.Text)
-			}
-		}
-	}
-	assert.Equal(t, []string{strconv.Itoa(blood + venom)}, texts)
 }

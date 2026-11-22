@@ -544,6 +544,6 @@ func TestConditionDeathCauseValues_不調の死因はどれも死因の定数に
 	for _, v := range values {
 		got = append(got, gc.DeathCause(v))
 	}
-	assert.Equal(t, []gc.DeathCause{gc.CauseHypothermia, gc.CauseIllness, gc.CauseBloodLoss, gc.CausePoison}, got,
+	assert.Equal(t, []gc.DeathCause{gc.CauseHypothermia, gc.CauseIllness, gc.CauseBloodLoss}, got,
 		"raw の値をそのまま死因にするので、列挙値と定数の文字列が一致しないと表示名が引けない")
 }

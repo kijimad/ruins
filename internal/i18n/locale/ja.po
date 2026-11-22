@@ -6754,6 +6754,3 @@ msgstr "%sは%sに耐えた"
 
 msgid "%s is weak to %s."
 msgstr "%sは%sに弱い"
-
-msgid "Poisoning"
-msgstr "中毒"

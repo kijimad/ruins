@@ -1119,9 +1119,6 @@ func NewConditionDefs(raws rawschema.Raws) (gc.ConditionDefs, error) {
 		if row.BloodDropPerSeverity != nil {
 			def.BloodDropPerSeverity = *row.BloodDropPerSeverity
 		}
-		if row.HpDrainPerSeverity != nil {
-			def.HPDrainPerSeverity = *row.HpDrainPerSeverity
-		}
 		if row.Cause != nil {
 			def.Cause = gc.DeathCause(*row.Cause)
 		}

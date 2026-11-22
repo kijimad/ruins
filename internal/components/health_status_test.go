@@ -527,30 +527,3 @@ func TestConditionDefs_BodyFuncImpact(t *testing.T) {
 		assert.Equal(t, 0, drop)
 	})
 }
-
-func TestHealthStatus_ConditionHPDrain(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name      string
-		cond      HealthCondition
-		wantDrain int
-		wantCause DeathCause
-	}{
-		{name: "軽度の毒は2削り死因は中毒", cond: HealthCondition{Type: "venom", Timer: 30}, wantDrain: 2, wantCause: CausePoison},
-		{name: "中度の毒は4削る", cond: HealthCondition{Type: "venom", Timer: 60}, wantDrain: 4, wantCause: CausePoison},
-		{name: "発症前の毒は削らない", cond: HealthCondition{Type: "venom", Timer: 20}, wantDrain: 0, wantCause: CauseIllness},
-		{name: "HP を削らない不調は削らない", cond: HealthCondition{Type: "hypothermia", Timer: 60}, wantDrain: 0, wantCause: CauseIllness},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			hs := &HealthStatus{}
-			tt.cond.Severity = TimerToSeverity(tt.cond.Timer)
-			hs.Parts[BodyPartTorso].SetCondition(tt.cond)
-
-			drain, cause := hs.ConditionHPDrain(testDefs)
-			assert.Equal(t, tt.wantDrain, drain)
-			assert.Equal(t, tt.wantCause, cause)
-		})
-	}
-}

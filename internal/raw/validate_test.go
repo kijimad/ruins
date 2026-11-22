@@ -162,16 +162,6 @@ func TestSchema_制約の違反を位置で返す(t *testing.T) {
 			wantPath: "items.0.melee.attackCount",
 		},
 		{
-			name: "HP を削る不調に死因が無い",
-			raws: func() rawschema.Raws {
-				drain := rawschema.ConditionAmountPerSeverity(2)
-				return rawschema.Raws{Conditions: &[]rawschema.Condition{{
-					Id: "c", Name: "c", Description: "c", HpDrainPerSeverity: &drain,
-				}}}
-			}(),
-			wantPath: "conditions.0.cause",
-		},
-		{
 			name:     "コレクションの出現確率が0",
 			raws:     makeCollectionRaws(0),
 			wantPath: "itemCollections.0.entries.0.chance",

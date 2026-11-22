@@ -382,32 +382,6 @@ func (hs *HealthStatus) BloodLossHPDrain(defs ConditionDefs) (int, DeathCause) {
 	return drain, hs.bloodLossCause(defs)
 }
 
-// ConditionHPDrain は発症中の不調が1ターンで削る HP の合計と、最も多く削る不調の死因を返す。
-// 死因を持たない不調は病気とする
-func (hs *HealthStatus) ConditionHPDrain(defs ConditionDefs) (int, DeathCause) {
-	total, best := 0, 0
-	cause := CauseIllness
-	for i := range hs.Parts {
-		for j := range hs.Parts[i].Conditions {
-			c := &hs.Parts[i].Conditions[j]
-			def, ok := defs.Def(c.Type)
-			if !ok || def.HPDrainPerSeverity == 0 || !c.IsActive() {
-				continue
-			}
-			d := def.HPDrainPerSeverity * conditionSeverityMultiplier(c.Severity)
-			total += d
-			if d > best {
-				best = d
-				cause = CauseIllness
-				if def.Cause != "" {
-					cause = def.Cause
-				}
-			}
-		}
-	}
-	return total, cause
-}
-
 // BloodLossHPDrainRate は血液量から失血による1ターンのHP減少量を返す純関数。危険域 bloodCriticalThreshold
 // 以上なら0、下回るほど段階的に増える。バランス導出が血液→HPの連鎖を単一出典で評価できるよう公開する。
 func BloodLossHPDrainRate(blood int) int {
