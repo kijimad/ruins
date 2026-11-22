@@ -439,6 +439,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 		methodName = query.T(world, attackMethodName)
 	}
 	switch {
+	case hit && attacker == target && withMethod:
+		logger.Markup(query.T(world, "%s was caught in %s and took %s damage.", targetMarkup, methodName, damageStr))
 	case !hit:
 		if withMethod {
 			logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))

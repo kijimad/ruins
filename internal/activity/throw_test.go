@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"testing"
 
@@ -221,6 +222,7 @@ func TestThrowBehavior_DoTurn_爆風は投げた本人も巻き込む(t *testing
 	require.NoError(t, (&ThrowBehavior{}).DoTurn(NewThrowActivity(grenade, enemy), player, world))
 
 	assert.Less(t, world.Components.HP.Get(player).Current, playerHP)
+	assert.Contains(t, query.GetGameLog(world).GetRecent(3), fmt.Sprintf("Ash was caught in Grenade and took %d damage.", playerHP-world.Components.HP.Get(player).Current))
 }
 
 func TestThrowBehavior_DoTurn_自分の爆風で倒れても物を消して終える(t *testing.T) {

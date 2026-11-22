@@ -1638,6 +1638,9 @@ msgstr "%s は %s を食べた。"
 msgid "%s threw %s."
 msgstr "%s は %s を投げた。"
 
+msgid "%s was caught in %s and took %s damage."
+msgstr "%s は %s に巻き込まれ、%s のダメージを受けた。"
+
 msgid "%s contracted %s."
 msgstr "%s は %s にかかった。"
 

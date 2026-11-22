@@ -77,12 +77,16 @@ func (sys *ConditionSystem) Update(world w.World) error {
 
 		// 血液量が危険域まで落ちたら、じわじわ HP を削る。失血・凍死・衰弱はすべて血液量経由で死なせる。
 		// 毒のように HP を直に削る不調は、血液量とは別に削る
+		// 同じ者の削りは合計して1度に与え、浮かぶ数字を1つにする。死因は削る量の多い方を採る
 		if hasHP {
-			if drain, cause := hs.BloodLossHPDrain(defs); drain > 0 {
-				toDamage = append(toDamage, conditionDamage{entity: entity, amount: drain, cause: cause})
+			blood, bloodCause := hs.BloodLossHPDrain(defs)
+			cond, condCause := hs.ConditionHPDrain(defs)
+			cause := bloodCause
+			if cond > blood {
+				cause = condCause
 			}
-			if drain, cause := hs.ConditionHPDrain(defs); drain > 0 {
-				toDamage = append(toDamage, conditionDamage{entity: entity, amount: drain, cause: cause})
+			if total := blood + cond; total > 0 {
+				toDamage = append(toDamage, conditionDamage{entity: entity, amount: total, cause: cause})
 			}
 		}
 	}
