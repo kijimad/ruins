@@ -5,10 +5,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// LightLit は light が今照らしているかを返す。点いていて、スイッチを持つならオンで、残量を持つなら残っていて、
-// 照らせる置き場所にあるときに照らす。
-// 照らせる置き場所は、位置を持つ床や置物と、holder が持っている物。バックパックでも手持ち欄でもよい。
-// 視界と減らす処理はプレイヤーを holder に渡すので、照らすのはプレイヤーが持つ物だけになる
+// LightLit は light が今照らしているかを返す。点いていて、スイッチを持つならオンで、残量が残り、
+// 床か holder の持ち物にあるときに照らす。視界と減らす処理はプレイヤーを holder に渡す
 func LightLit(world w.World, holder, light ecs.Entity) bool {
 	if !world.Components.LightSource.Has(light) || !world.Components.LightSource.Get(light).Enabled {
 		return false

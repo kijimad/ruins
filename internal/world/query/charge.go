@@ -32,8 +32,7 @@ func ChargeTriggerOf(world w.World, item ecs.Entity) ChargeTrigger {
 	return ChargeTriggerOnUse
 }
 
-// IsOn は、オンの間に減る item がいまオンかを返す。オンの間に減るのは今は灯りだけで、照らしているかで決まる。
-// 灯りでない物は、スイッチを持っていてもオフとして扱う。holder は LightLit と同じく、持っている物を照らす物とみなす者
+// IsOn は、オンの間に減る item がいまオンかを返す。今は灯りだけで、照らしているかで決まる
 func IsOn(world w.World, holder, item ecs.Entity) bool {
 	if world.Components.LightSource.Has(item) {
 		return LightLit(world, holder, item)
@@ -66,7 +65,7 @@ func FuelKindOf(world w.World, fuel ecs.Entity) (rawschema.FuelKindId, bool) {
 	return raw.FindFuelKind(world.Resources.RawMaster, world.Components.RawID.Get(fuel).ID)
 }
 
-// FuelKindMatches は fuel が燃料で、その種別が want かを返す。灯りが受ける種別との一致を、一覧の絞り込みと補充の両方がこれで判定する
+// FuelKindMatches は fuel が燃料で、その種別が want かを返す
 func FuelKindMatches(world w.World, want rawschema.FuelKindId, fuel ecs.Entity) bool {
 	got, ok := FuelKindOf(world, fuel)
 	return ok && got == want

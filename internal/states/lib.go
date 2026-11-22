@@ -54,7 +54,6 @@ func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) men
 	if marker := query.FreshnessMarker(world, e); marker != "" {
 		label += " (" + marker + ")"
 	}
-	// スイッチを持つ物はオンかを添え、点けたまま持ち歩いて減らし続けないようにする
 	if marker := query.SwitchMarker(world, e); marker != "" {
 		label += " (" + marker + ")"
 	}

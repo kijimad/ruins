@@ -325,7 +325,7 @@ type Chance = float64
 
 // Charge アイテムの残量。灯りは点いている間に、武器と道具は使うと減り、0で尽きる
 type Charge struct {
-	// AcceptedFuel 受ける燃料の種別。同じ種別の燃料ならどれでも満たせる。省くと使い切りで、尽きると無くなる
+	// AcceptedFuel 受ける燃料の種別。省くと使い切りで、尽きると無くなる
 	AcceptedFuel *FuelKindId `json:"acceptedFuel,omitempty"`
 
 	// Max 残量の上限。灯りはターン数、武器と道具は回数

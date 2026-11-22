@@ -12,8 +12,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ConsumeCharge は Charge を持つ item の残量を amount 減らす。0になったら、満たせる物は残し、使い切りの物は消す。
-// どちらも視界を計算し直させる。プレイヤーが持つ物なら尽きたことをログに出す。減っていく途中はゲージで見せるのでログを出さない
+// ConsumeCharge は item の残量を amount 減らす。0になれば、満たせる物は残し、使い切りの物は消す。
+// ログは尽きたときだけ出す。減っていく途中はゲージで見せる
 func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
 	charge := world.Components.Charge.Get(item)
 	charge.Current = max(charge.Current-amount, 0)
@@ -54,8 +54,7 @@ var (
 )
 
 // RefillCharge は fuel を1つ使い、item の残量を上限まで戻す。種別が合わなければ ErrRefillMismatch を、
-// 満タンなら ErrChargeFull を返し、どちらも燃料を使わない。
-// 尽きていた灯りが照らし直すので、持ち主の灯りと視界を計算し直させる
+// 満タンなら ErrChargeFull を返し、どちらも燃料を使わない
 func RefillCharge(world w.World, item, fuel ecs.Entity) error {
 	want, refillable := query.AcceptedFuelOf(world, item)
 	if !refillable || !query.FuelKindMatches(world, want, fuel) {

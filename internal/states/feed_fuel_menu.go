@@ -32,8 +32,8 @@ type FeedFuelMenuState struct {
 	screen *menuloop.Screen[FeedFuelProps]
 }
 
-// FuelSink は給油メニューのくべ先。見出し、くべられる燃料の判定、1つくべると増える量の表示、くべる処理を持つ。
-// 一覧に出す燃料と、選んだときにくべる燃料は同じ accepts で決める。done が真を返せば、くべた後にメニューを閉じる
+// FuelSink は給油メニューのくべ先。一覧に出す燃料と選んでくべる燃料は同じ accepts で決める。
+// done が真を返せば、くべた後にメニューを閉じる
 type FuelSink struct {
 	title   func(world w.World) string
 	accepts func(world w.World, fuel ecs.Entity) bool
@@ -81,9 +81,8 @@ func CubeFuelSink(cube ecs.Entity) FuelSink {
 	}
 }
 
-// LightFuelSink は満たせる灯りをくべ先にする。灯りと同じ種別の燃料を1つ使い、残量を上限まで戻す。
-// 増える量は満たせる量で表す。1つで満タンになるので、満たしたらメニューを閉じる。
-// メニューを開いている間はターンが進まず灯りが消えないので、灯りの生存はここで確かめない
+// LightFuelSink は満たせる灯りをくべ先にする。1つで満タンになるので、満たしたらメニューを閉じる。
+// メニューを開いている間はターンが進まず灯りが消えないので、灯りの生存は確かめない
 func LightFuelSink(world w.World, light ecs.Entity) FuelSink {
 	want, refillable := query.AcceptedFuelOf(world, light)
 	return FuelSink{

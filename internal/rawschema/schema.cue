@@ -463,7 +463,7 @@ import (
 	// 残量の上限。灯りはターン数、武器と道具は回数
 	max!: #ChargeAmount
 
-	// 受ける燃料の種別。同じ種別の燃料ならどれでも満たせる。省くと使い切りで、尽きると無くなる
+	// 受ける燃料の種別。省くと使い切りで、尽きると無くなる
 	acceptedFuel?: #FuelKindId
 	if acceptedFuel != _|_ {
 		acceptedFuel_ref: _fuelKindIDs[acceptedFuel] @rawgen(-)
@@ -995,7 +995,6 @@ import (
 		charge!: _ @rawgen(-)
 	}
 	if lightSource != _|_ {
-		// 灯りは持っていれば照らし、手に持って殴ることもできる
 		melee!: _ @rawgen(-)
 	}
 

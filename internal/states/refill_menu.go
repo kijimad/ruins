@@ -8,8 +8,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// NewRefillMenuState は補充メニューを作る。持っている満たせる物のうち満タンでない物を並べ、
-// 選ぶとその物をくべ先にした給油メニューを開く。満タンにして戻ると一覧から消える
+// NewRefillMenuState は補充メニューを作る。選んだ物をくべ先にして給油メニューを開く
 func NewRefillMenuState() (es.State[w.World], error) {
 	return NewChoiceMenu(refillChoices), nil
 }
