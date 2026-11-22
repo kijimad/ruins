@@ -163,8 +163,7 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 		NextPortals: snap.NextPortals,
 		SpawnPoints: snap.SpawnPoints,
 		// 収納の中身の抽選が乱数を引くので、シードから決まる乱数を渡して描画を毎回同じにする
-		RNG:  rand.New(rand.NewPCG(st.Seed, st.Seed)),
-		Seed: st.Seed,
+		RNG: rand.New(rand.NewPCG(st.Seed, st.Seed)),
 	}
 	// 計画の前のフェーズの空のタイルは void で描く
 	for i := range tiles {

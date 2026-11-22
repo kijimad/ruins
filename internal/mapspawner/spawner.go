@@ -50,7 +50,9 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
 	if err := spawnNPCs(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
-	chargeRNG := rand.New(rand.NewPCG(metaPlan.Seed^lifecycle.LootChargeChannel, 0))
+	// 残量の流れの種は物の種類に依らず1回だけ引く。残量を計画の乱数から直に引くと、燃料や灯りの数で消費が変わり、
+	// 物の定義を変えるたびに後の抽選がずれる
+	chargeRNG := rand.New(rand.NewPCG(metaPlan.RNG.Uint64()^lifecycle.LootChargeChannel, 0))
 	if err := spawnItems(world, metaPlan, offsetX, offsetY, chargeRNG); err != nil {
 		return gc.Level{}, err
 	}
