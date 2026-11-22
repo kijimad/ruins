@@ -359,7 +359,6 @@ func validateCodeRows(raws rawschema.Raws) error {
 		name    string
 		present bool
 	}{
-		{"foliageEffects", len(PtrSlice(raws.FoliageEffects)) > 0},
 		{"dungeons", len(PtrSlice(raws.Dungeons)) > 0},
 		{"settlements", len(PtrSlice(raws.Settlements)) > 0},
 	}

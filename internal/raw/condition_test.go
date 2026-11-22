@@ -42,10 +42,9 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			{Id: "hypothermia", Name: "Hypothermia", Description: "Hypothermia"},
 			{Id: "fracture", Name: "Fracture", Description: "Fracture", Parts: &[]rawschema.BodyPartId{"arm"}},
 		},
-		AttackTypes:    &[]rawschema.AttackType{attackType(rawschema.AttackCategorySword), attackType(rawschema.AttackCategorySpear)},
-		Skills:         &[]rawschema.Skill{skill("sword"), skill("spear")},
-		Members:        &[]rawschema.Member{{Id: "ash", Player: new(true)}},
-		FoliageEffects: &[]rawschema.Foliage{{Id: "grass"}},
+		AttackTypes: &[]rawschema.AttackType{attackType(rawschema.AttackCategorySword), attackType(rawschema.AttackCategorySpear)},
+		Skills:      &[]rawschema.Skill{skill("sword"), skill("spear")},
+		Members:     &[]rawschema.Member{{Id: "ash", Player: new(true)}},
 	}
 	mutate(&raws)
 	return raws
