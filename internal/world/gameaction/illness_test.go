@@ -47,6 +47,20 @@ func TestContractIllness_発症が終わって残った病気はかかり直す(
 	assert.Len(t, world.Components.HealthStatus.Get(player).Parts[gc.BodyPartWholeBody].Conditions, 1)
 }
 
+func TestContractIllness_部位を書いた不調はその部位に付ける(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	require.True(t, ContractIllness(world, player, gc.ConditionType("daze")))
+
+	hs := world.Components.HealthStatus.Get(player)
+	assert.NotNil(t, hs.Parts[gc.BodyPartHead].GetCondition(gc.ConditionType("daze")))
+	assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionType("daze")))
+}
+
 func TestContractIllness_HealthStatusなしは何もしない(t *testing.T) {
 	t.Parallel()
 
