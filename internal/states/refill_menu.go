@@ -71,18 +71,15 @@ func lightRefillChoices(world w.World, light ecs.Entity) (string, []Choice) {
 	return query.GetEntityName(light, world), choices
 }
 
-// carriesFuelFor はプレイヤーが灯りの light に合う燃料を持っているかを返す
+// carriesFuelFor はプレイヤーが灯りの light に合う燃料を持っているかを返す。給油メニューが並べる燃料と同じ条件で見る
 func carriesFuelFor(world w.World, light ecs.Entity) bool {
-	want, ok := query.AcceptedFuelOf(world, light)
-	if !ok {
-		return false
-	}
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return false
 	}
+	sink := LightFuelSink(world, light)
 	for _, stack := range query.BackpackStacks(world, player) {
-		if query.FuelKindMatches(world, want, stack.Rep) {
+		if sink.accepts(world, stack.Rep) {
 			return true
 		}
 	}

@@ -205,3 +205,22 @@ func TestSpawnStorageLoot_同じ乱数なら同じ残量になる(t *testing.T) 
 	assert.Len(t, first, 6)
 	assert.Equal(t, first, second)
 }
+
+func TestEmptyFuel_置き場所の無い燃料は空の物を作らずに消す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	owner := world.ECS.NewEntity()
+	oil, err := lifecycle.SpawnFieldItem(world, "lamp_oil", 3, 4, 1)
+	require.NoError(t, err)
+	lifecycle.MoveToEquip(world, oil, owner, gc.SlotHand1)
+
+	require.True(t, lifecycle.EmptyFuel(world, oil))
+
+	assert.False(t, world.ECS.Alive(oil))
+	var ids []string
+	q := ecs.NewFilter1[gc.RawID](world.ECS).Query()
+	for q.Next() {
+		ids = append(ids, world.Components.RawID.Get(q.Entity()).ID)
+	}
+	assert.Empty(t, ids)
+}

@@ -21,16 +21,6 @@ import (
 // seed と別チャネルにし、どのタイルに何が出るかの相関を切る。scatter.go の grass/weed チャネルと同じ考え方。
 const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // "loot_itm"
 
-// lootChargeChannel は見つかる物の残量の乱数を、物の選択と配置の乱数から切り離すハッシュチャネル。
-// 配置の乱数は後の抽選にも使われるので、そこから引くと後の配置がずれる
-const lootChargeChannel uint64 = 0x6c6f6f745f636867 // "loot_chg"
-
-// lootChargeRNG は種 seed から、見つかる物の残量を引く乱数を作る。第2引数に定数を足すと、同じ種で同じ定数を使う
-// 別の処理と同じ乱数列になるので、種のほうにチャネルを混ぜる
-func lootChargeRNG(seed, salt uint64) *rand.Rand {
-	return rand.New(rand.NewPCG(seed^lootChargeChannel, salt))
-}
-
 // scatterOutdoorLoot は開けたチャンクの地表へ屑物をごく疎に撒く。候補は土系の地面かつ非占有で、accept と
 // occupied は草・樹木の散布と共有して重なりを避ける。group は散布ゾーン行の lootGroup から引き、
 // 抽選は建物 loot と同じ raw.SelectFromItemGroup で行い、深度は扱わない。乱数は
@@ -42,7 +32,7 @@ func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chu
 	// 相関しうるので、アイテム側は専用チャネルを XOR して無相関にする
 	selSeed := consts.Mix2D(runSeed^outdoorLootSalt, c.X, c.Y)
 	rng := rand.New(rand.NewPCG(selSeed^outdoorLootItemChannel, outdoorLootSalt))
-	chargeRNG := lootChargeRNG(selSeed, outdoorLootSalt)
+	chargeRNG := lifecycle.NewLootChargeRNG(selSeed, outdoorLootSalt)
 	// 置くタイル数は散布ゾーンの密度から面積で導く。反復乱数でなく密度で決めるので純関数のまま
 	count := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * cat.LootDensity))
 

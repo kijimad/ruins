@@ -43,13 +43,18 @@ func ReplaceItem(world w.World, item ecs.Entity, rawID string) (ecs.Entity, erro
 	return next, nil
 }
 
-// EmptyFuel は燃料の item を、同じ置き場所の空の物に置き換える。燃料でない物には何もせず偽を返す
+// EmptyFuel は燃料の item を、同じ置き場所の空の物に置き換える。持ち物にも収納にも床にもない燃料は、空の物を作らずに消す。
+// 燃料でない物には何もせず偽を返す
 func EmptyFuel(world w.World, item ecs.Entity) bool {
 	refill, ok := query.RefillOf(world, item)
 	if !ok {
 		return false
 	}
-	if _, err := ReplaceItem(world, item, refill.EmptiesTo); err != nil {
+	_, err := ReplaceItem(world, item, refill.EmptiesTo)
+	switch {
+	case errors.Is(err, errNoReplaceLocation):
+		RemoveItem(world, item)
+	case err != nil:
 		// 空の物の行があることは raw の検証が保証する
 		panic(fmt.Sprintf("failed to replace fuel with its empty item: %v", err))
 	}

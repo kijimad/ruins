@@ -27,10 +27,6 @@ var (
 	errDrawLoot = errors.New("failed to draw item")
 )
 
-// lootChargeChannel は見つかる物の残量の乱数を、計画の乱数から切り離すハッシュチャネル。計画の乱数は第2引数が
-// 種で変わるので、第2引数の定数では重ならないことを保証できない。種のほうに混ぜる
-const lootChargeChannel uint64 = 0x6c6f6f745f636867 // "loot_chg"
-
 // Spawn はMetaPlanからレベルを生成する
 // タイル、NPC、Props、ワープポータル情報から効率的にエンティティを生成する
 func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (gc.Level, error) {
@@ -54,8 +50,7 @@ func SpawnAt(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY cons
 	if err := spawnNPCs(world, metaPlan, offsetX, offsetY); err != nil {
 		return gc.Level{}, err
 	}
-	// 残量は計画の乱数から引かない。計画の乱数は後の抽選にも使われ、1回引くだけで後の配置がずれる
-	chargeRNG := rand.New(rand.NewPCG(metaPlan.Seed^lootChargeChannel, 0))
+	chargeRNG := lifecycle.NewLootChargeRNG(metaPlan.Seed, 0)
 	if err := spawnItems(world, metaPlan, offsetX, offsetY, chargeRNG); err != nil {
 		return gc.Level{}, err
 	}
