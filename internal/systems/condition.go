@@ -77,7 +77,7 @@ func (sys *ConditionSystem) Update(world w.World) error {
 
 		// 血液量が危険域まで落ちたら、じわじわ HP を削る。失血・凍死・衰弱はすべて血液量経由で死なせる。
 		// 毒のように HP を直に削る不調は、血液量とは別に削る
-		// 同じ者の削りは合計して1度に与え、浮かぶ数字を1つにする。死因は削る量の多い方を採る
+		// 同じ者の削りは合計して1度に与え、浮かぶ数字を1つにする。死因は削る量の多い方を採り、同じ量なら失血にする
 		if hasHP {
 			blood, bloodCause := hs.BloodLossHPDrain(defs)
 			cond, condCause := hs.ConditionHPDrain(defs)

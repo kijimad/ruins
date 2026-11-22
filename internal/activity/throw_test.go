@@ -341,3 +341,15 @@ func TestExplode(t *testing.T) {
 		assert.Greater(t, world.Components.Skills.Get(player).Get(rawschema.SkillIdThrow).Exp.Current, exp)
 	})
 }
+
+func TestCalculateThrowHitRate_爆ぜる物は100(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	require.NoError(t, err)
+
+	assert.Equal(t, 100, CalculateThrowHitRate(player, enemy, gc.ThrowAttack{Damage: 20, Accuracy: 10, Blast: &gc.Blast{Radius: 1}}, world))
+}

@@ -26,11 +26,7 @@ func (m throwMode) canTarget(world w.World, player, target ecs.Entity) bool {
 	return activity.CanThrowTarget(player, m.item, target, world)
 }
 
-// hitRate は命中率を返す。爆ぜる物は命中の判定をせず必ず狙ったマスで爆ぜるので 100 にする
 func (m throwMode) hitRate(world w.World, player, target ecs.Entity) int {
-	if m.attack.Blast != nil {
-		return 100
-	}
 	return activity.CalculateThrowHitRate(player, target, m.attack, world)
 }
 
