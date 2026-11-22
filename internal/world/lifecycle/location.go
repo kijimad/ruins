@@ -17,8 +17,8 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	clearLocation(world, entity)
 	world.Components.LocationInBackpack.Add(entity, &gc.LocationInBackpack{Owner: owner})
 	ensureRemoved(world.Components.GridElement, entity)
-	MarkStatsChanged(world, owner)
-	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+	EnsureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+	EnsureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	return nil
 }
 
@@ -103,8 +103,8 @@ func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.Equ
 		EquipmentSlot: slot,
 	})
 	ensureRemoved(world.Components.GridElement, entity)
-	MarkStatsChanged(world, owner)
-	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+	EnsureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+	EnsureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 }
 
 // MoveToField はエンティティをフィールドに移動する。
@@ -115,7 +115,7 @@ func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 	world.Components.LocationOnField.Add(entity, &gc.LocationOnField{})
 	// フィールド配置ではGridElement（座標）を残す
 	if previousOwner != nil {
-		ensureMarker(world, world.Components.WeightDirty, *previousOwner, &gc.WeightDirty{})
+		EnsureMarker(world, world.Components.WeightDirty, *previousOwner, &gc.WeightDirty{})
 		// 所有者からフィールドへ移す実行時の移送は現ステージに属す。すぐ現ステージへ束縛し、
 		// 置いた物が総重量など現ステージのクエリに即座に乗るようにする。次の swap を待つ遅延束縛
 		// では、内部で置いた物が退場するまで総重量に現れない。
@@ -152,7 +152,7 @@ func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	clearLocation(world, entity)
 	world.Components.LocationInStorage.Add(entity, &gc.LocationInStorage{Owner: storage})
 	ensureRemoved(world.Components.GridElement, entity)
-	ensureMarker(world, world.Components.WeightDirty, storage, &gc.WeightDirty{})
+	EnsureMarker(world, world.Components.WeightDirty, storage, &gc.WeightDirty{})
 	return nil
 }
 
@@ -176,15 +176,10 @@ func UnequipAll(world w.World, playerEntity ecs.Entity) error {
 	return nil
 }
 
-// MarkStatsChanged は持ち主に能力値と灯りを計算し直させる。持ち主が生きていなければ何もしない
-func MarkStatsChanged(world w.World, owner ecs.Entity) {
-	ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
-}
-
-// ensureMarker はマーカーコンポーネントを冪等に付与する。
+// EnsureMarker はマーカーコンポーネントを冪等に付与する。
 // エンティティが死亡している場合や既に付与済みの場合は何もしない。
 // Arkは死亡エンティティへの付与と二重付与でパニックするため、ここで吸収する
-func ensureMarker[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity, data *T) {
+func EnsureMarker[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity, data *T) {
 	if !world.ECS.Alive(entity) {
 		return
 	}
@@ -207,29 +202,29 @@ func ensureRemoved[T any](comp *ecs.Map[T], entity ecs.Entity) {
 func clearLocation(world w.World, entity ecs.Entity) {
 	if world.Components.LocationInBackpack.Has(entity) {
 		owner := world.Components.LocationInBackpack.Get(entity).Owner
-		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+		EnsureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 		// バックパックの灯りも持ち主を照らすので、出ていけば写し直させる
 		if world.Components.LightSource.Has(entity) {
-			MarkStatsChanged(world, owner)
+			EnsureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 		}
 	}
 	if world.Components.LocationEquipped.Has(entity) {
 		owner := world.Components.LocationEquipped.Get(entity).Owner
-		MarkStatsChanged(world, owner)
-		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+		EnsureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+		EnsureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 	if world.Components.LocationInStorage.Has(entity) {
 		owner := world.Components.LocationInStorage.Get(entity).Owner
-		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+		EnsureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 	if world.Components.LocationStowed.Has(entity) {
 		owner := world.Components.LocationStowed.Get(entity).Owner
-		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+		EnsureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 	if world.Components.LocationInstalled.Has(entity) {
 		owner := world.Components.LocationInstalled.Get(entity).Owner
-		MarkStatsChanged(world, owner)
-		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+		EnsureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+		EnsureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 
 	ensureRemoved(world.Components.LocationInBackpack, entity)
@@ -245,8 +240,8 @@ func MoveToInstalled(world w.World, entity ecs.Entity, cube ecs.Entity, slot int
 	clearLocation(world, entity)
 	world.Components.LocationInstalled.Add(entity, &gc.LocationInstalled{Owner: cube, Slot: slot})
 	ensureRemoved(world.Components.GridElement, entity)
-	MarkStatsChanged(world, cube)
-	ensureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
+	EnsureMarker(world, world.Components.StatsChanged, cube, &gc.StatsChanged{})
+	EnsureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
 }
 
 // MoveToStowed はアイテムをキューブへ畳み込む。他ロケーションと排他になるよう clearLocation してから
@@ -255,7 +250,7 @@ func MoveToStowed(world w.World, entity ecs.Entity, cube ecs.Entity, offset cons
 	clearLocation(world, entity)
 	world.Components.LocationStowed.Add(entity, &gc.LocationStowed{Owner: cube, Offset: offset})
 	ensureRemoved(world.Components.GridElement, entity)
-	ensureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
+	EnsureMarker(world, world.Components.WeightDirty, cube, &gc.WeightDirty{})
 }
 
 // errPlayerNotPlaceable は座標・スプライト・カメラのそろったプレイヤーがいないときに返す
@@ -306,8 +301,8 @@ func RemoveItem(world w.World, item ecs.Entity) {
 	}
 	world.ECS.RemoveEntity(item)
 	if hasOwner {
-		MarkStatsChanged(world, owner)
-		ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+		EnsureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
+		EnsureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 	}
 }
 

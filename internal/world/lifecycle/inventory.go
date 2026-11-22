@@ -47,7 +47,7 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 		players = append(players, playerQuery.Entity())
 	}
 	for _, playerEntity := range players {
-		ensureMarker(world, world.Components.WeightDirty, playerEntity, &gc.WeightDirty{})
+		EnsureMarker(world, world.Components.WeightDirty, playerEntity, &gc.WeightDirty{})
 	}
 
 	return nil

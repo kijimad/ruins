@@ -82,7 +82,7 @@ func (tb *ToggleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "%s has no fuel.", name)).Log()
 	}
 
-	lifecycle.MarkStatsChanged(world, actor)
+	lifecycle.EnsureMarker(world, world.Components.StatsChanged, actor, &gc.StatsChanged{})
 	query.GetVisionState(world).RequestUpdate()
 	Complete(comp)
 	return nil

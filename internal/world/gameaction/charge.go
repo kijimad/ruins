@@ -3,6 +3,7 @@ package gameaction
 import (
 	"errors"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/i18n"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -27,7 +28,7 @@ func ConsumeCharge(world w.World, item ecs.Entity, amount int) {
 		}
 		// 物は残るので、持ち主の灯りを写し直させる
 		if carried {
-			lifecycle.MarkStatsChanged(world, owner)
+			lifecycle.EnsureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 		}
 		query.GetVisionState(world).RequestUpdate()
 		return
@@ -70,7 +71,7 @@ func RefillCharge(world w.World, item, fuel ecs.Entity) error {
 	charge = world.Components.Charge.Get(item)
 	charge.Current = charge.Max
 	if owner, carried := query.Carrier(world, item); carried {
-		lifecycle.MarkStatsChanged(world, owner)
+		lifecycle.EnsureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 	}
 	query.GetVisionState(world).RequestUpdate()
 	return nil

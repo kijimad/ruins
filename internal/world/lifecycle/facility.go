@@ -66,7 +66,7 @@ func PlaceFacility(world w.World, cube ecs.Entity, item ecs.Entity, coord consts
 	// 前の所有者を渡して総重量の再計算を促す
 	owner := world.Components.LocationInBackpack.Get(item).Owner
 	ensureRemoved(world.Components.Item, item)
-	ensureMarker(world, world.Components.Prop, item, &gc.Prop{})
+	EnsureMarker(world, world.Components.Prop, item, &gc.Prop{})
 	MoveMembersToField(world, []ecs.Entity{item}, coord, owner)
 	return item, nil
 }
@@ -81,6 +81,6 @@ func RemoveFacility(world w.World, facility ecs.Entity, player ecs.Entity) error
 		return fmt.Errorf("remove facility: storage is not empty")
 	}
 	ensureRemoved(world.Components.Prop, facility)
-	ensureMarker(world, world.Components.Item, facility, &gc.Item{})
+	EnsureMarker(world, world.Components.Item, facility, &gc.Item{})
 	return MoveToBackpack(world, facility, player)
 }
