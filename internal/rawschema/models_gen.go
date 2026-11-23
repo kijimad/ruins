@@ -2383,15 +2383,12 @@ type SeasonTemp = int
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
 
-// Settlement 原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。
-// id は地図の記号の id を兼ねる。行の順に重みを積む
+// Settlement 原野の小集落1種。当選したチャンクで weight の比で種類を選び、チャンクの中央に施設 facility の絵を置く。
+// 道は集落どうしを結ぶ。id は地図の記号の id を兼ねる。行の順に重みを積む
 type Settlement struct {
+	Facility EntityID `json:"facility"`
+
 	Id EntityID `json:"id"`
-
-	// Members 住人の member。name は members の id
-	Members []PropSpot `json:"members"`
-
-	Props []PropSpot `json:"props"`
 
 	Weight int32 `json:"weight"`
 }

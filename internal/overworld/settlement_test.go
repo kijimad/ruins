@@ -5,10 +5,11 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -24,34 +25,63 @@ func namesInWorld(world w.World) map[string]int {
 	return counts
 }
 
-// settlementRow は raw の settlements の行を id で引く
-func settlementRow(t *testing.T, raws rawschema.Raws, id string) rawschema.Settlement {
-	t.Helper()
-	for _, s := range raw.PtrSlice(raws.Settlements) {
-		if s.Id == id {
-			return s
-		}
+func TestSettlementFeature_集落のチャンクの中央に施設を置く(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	chunkW, chunkH, cols, _ := dungeon.DungeonOverworld.BandShape()
+	for _, id := range []string{"village", "hamlet"} {
+		t.Run(id, func(t *testing.T) {
+			t.Parallel()
+			var seed uint64
+			var c consts.Coord[consts.Chunk]
+		search:
+			for s := uint64(1); s < 500; s++ {
+				for y := range consts.Chunk(30) {
+					for x := range cols {
+						cc := consts.Coord[consts.Chunk]{X: x, Y: y}
+						if chunkTypeAt(raws, s, cc, cols, 0) == chunkSettlement && settlementAt(raws, s, cc).Id == id {
+							seed, c = s, cc
+							break search
+						}
+					}
+				}
+			}
+			require.NotZero(t, seed, "前提: 集落のチャンクが見つかる")
+
+			world := testutil.InitTestWorld(t)
+			for y := range chunkH {
+				for x := range chunkW {
+					_, err := lifecycle.SpawnTile(world, "dirt_tundra", x, y, new(15))
+					require.NoError(t, err)
+				}
+			}
+			g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: chunkW, chunkH: chunkH, tiles: &tileIndex{world: world, loX: 0, hiX: chunkW}}
+			require.NoError(t, settlementFeature{}.place(world, seed, c, cols, g))
+
+			props := 0
+			q := ecs.NewFilter2[gc.GridElement, gc.Prop](world.ECS).Query()
+			for q.Next() {
+				props++
+			}
+			assert.Positive(t, props, "施設の家具が置かれる")
+		})
 	}
-	require.FailNow(t, "settlement not found", id)
-	return rawschema.Settlement{}
 }
 
-func TestSpawnSettlement_村には商人がいる(t *testing.T) {
+func TestSettlementFeature_集落でないチャンクには何も置かない(t *testing.T) {
 	t.Parallel()
 
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	chunkW, chunkH, cols, _ := dungeon.DungeonOverworld.BandShape()
+	c := consts.Coord[consts.Chunk]{Y: 1}
+	for chunkTypeAt(raws, 123, c, cols, 0) == chunkSettlement {
+		c.Y++
+	}
 	world := testutil.InitTestWorld(t)
-	require.NoError(t, spawnSettlement(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, settlementRow(t, world.Resources.RawMaster, "village")))
-	counts := namesInWorld(world)
-	assert.Equal(t, 1, counts["Merchant"], "交易と雇用")
-}
-
-func TestSpawnSettlement_一軒家は商人だけの行商拠点(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, spawnSettlement(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, settlementRow(t, world.Resources.RawMaster, "hamlet")))
-	counts := namesInWorld(world)
-	assert.Equal(t, 1, counts["Merchant"], "行商の商人はいる")
+	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: chunkW, chunkH: chunkH, tiles: &tileIndex{world: world, loX: 0, hiX: chunkW}}
+	require.NoError(t, settlementFeature{}.place(world, 123, c, cols, g))
+	assert.Empty(t, namesInWorld(world), "集落でないチャンクに施設は出ない")
 }
 
 func TestSettlementAt_重みの比で種類を選ぶ(t *testing.T) {

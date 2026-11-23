@@ -115,9 +115,9 @@ func TestSpawnFacility_絵がチャンクからはみ出すとエラー(t *testi
 			cells[y][x] = maptemplate.MapCell{Terrain: consts.TileNameDirt}
 		}
 	}
-	_, _, err := spawnFacility(world, g, cells, 3, 3, "campsite", 1, 1)
+	_, _, err := spawnFacility(world, g, cells, 3, 3, "abandoned_hut", 1, 1)
 	require.NoError(t, err, "右下の端までちょうど収まる")
-	_, _, err = spawnFacility(world, g, cells, 4, 3, "campsite", 1, 1)
+	_, _, err = spawnFacility(world, g, cells, 4, 3, "abandoned_hut", 1, 1)
 	require.ErrorIs(t, err, errFacilityOutOfChunk)
 }
 
@@ -143,7 +143,7 @@ func TestSpawnFacility_下地を残すマスの下が土の地面でないとエ
 				require.NoError(t, err)
 			}
 			g := chunkGeom{chunkW: 1, chunkH: 1, tiles: &tileIndex{world: world, loX: 0, hiX: 1}}
-			_, _, err := spawnFacility(world, g, cells, 0, 0, "campsite", 1, 1)
+			_, _, err := spawnFacility(world, g, cells, 0, 0, "abandoned_hut", 1, 1)
 			assert.ErrorIs(t, err, tt.wantErr)
 		})
 	}

@@ -9,7 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
-	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/kijimaD/ruins/internal/worldstream"
@@ -141,72 +140,20 @@ func TestShiftNorth_実チャンク生成との統合(t *testing.T) {
 	}
 }
 
-// merchantName は小集落の店NPC名。テスト間で共有する。
-const merchantName = "Merchant"
-
-// settlementBucket は 商人 が立つチャンク行スロットと、商人がいるかを返す。集落は Y リージョンに並ぶ。
-func settlementBucket(world w.World) (int, bool) {
-	const chunkH consts.Tile = 24
-	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
-	for q.Next() {
-		e := q.Entity()
-		if world.Components.Name.Get(e).Name != merchantName {
-			continue
-		}
-		y := world.Components.GridElement.Get(e).Y
-		q.Close()
-		return int(y / chunkH), true
-	}
-	return 0, false
-}
-
-// TestNewChunkGen_小集落はリージョンにちょうど1つ生成される は、地物レイヤが
-// リージョン方式の当選チャンクにだけ小集落を置くことを固定する。
+// TestNewChunkGen_小集落はリージョンにちょうど1つ生成される は、小集落がリージョン方式の当選チャンクにだけ
+// 分類されることを固定する。集落のチャンクに施設を置くことは settlementFeature のテストが固定する。
 func TestNewChunkGen_小集落はリージョンにちょうど1つ生成される(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 24, 24
-	const regionSpan = 5 // settlementPlacement の Spacing。1リージョンぶんを生成する
-	world := testutil.InitTestWorld(t)
-	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
-	// 集落は Y リージョンに並ぶので、1リージョンぶんを Y 方向に生成する
-	for i := range regionSpan {
-		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
-	}
-
+	const regionSpan = 5 // settlementPlacement の Spacing
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	count := 0
-	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
-	for q.Next() {
-		if world.Components.Name.Get(q.Entity()).Name == merchantName {
+	for i := range regionSpan {
+		if overworld.IsSettlementChunk(raws, 123, consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 1) {
 			count++
 		}
 	}
 	assert.Equal(t, 1, count, "1リージョンに小集落はちょうど1つ")
-}
-
-// TestNewChunkGen_外れチャンクには小集落が出ない は、リージョン抽選に外れたチャンクには
-// 小集落が置かれないことを固定する。開始特例は無く、当選チャンクだけが集落になる。
-func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T) {
-	t.Parallel()
-
-	const chunkW, chunkH consts.Tile = 24, 24
-	// まず当選チャンクを探し、外れチャンクを1つ確定させる。集落は Y リージョンなので Y 方向に生成する
-	scout := testutil.InitTestWorld(t)
-	genScout := overworld.NewChunkGen(scout, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
-	const regionSpan = 5 // settlementPlacement の Spacing。1リージョンぶんを生成する
-	for i := range regionSpan {
-		require.NoError(t, genScout(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
-	}
-	winner, ok := settlementBucket(scout)
-	require.True(t, ok, "前提: 当選チャンクが存在する")
-	loser := consts.Coord[consts.Chunk]{Y: consts.Chunk((winner + 1) % regionSpan)}
-
-	// 外れチャンク単体では小集落が出ない
-	plain := testutil.InitTestWorld(t)
-	genPlain := overworld.NewChunkGen(plain, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
-	require.NoError(t, genPlain(loser, 0, 0))
-	_, plainOK := settlementBucket(plain)
-	assert.False(t, plainOK, "外れチャンクに小集落は出ない")
 }
 
 // TestNewChunkGen_生成は時間に依存しない は、GameTime が進んでいても同じ (runSeed, 座標) から
@@ -218,7 +165,7 @@ func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 	const chunkW, chunkH consts.Tile = 24, 24
 	c := consts.Coord[consts.Chunk]{X: 3}
 
-	collect := func(advanceTurns consts.Turn) ([]gc.GridElement, int, bool) {
+	collect := func(advanceTurns consts.Turn) ([]gc.GridElement, []string) {
 		world := testutil.InitTestWorld(t)
 		query.GetGameTime(world).TotalTurns += advanceTurns
 		gen := overworld.NewChunkGen(world, 999, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
@@ -235,13 +182,17 @@ func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 			}
 			return walls[i].Y < walls[j].Y
 		})
-		slot, ok := settlementBucket(world)
-		return walls, slot, ok
+		var names []string
+		nq := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
+		for nq.Next() {
+			names = append(names, string(world.Components.Name.Get(nq.Entity()).Name))
+		}
+		sort.Strings(names)
+		return walls, names
 	}
 
-	wallsA, slotA, okA := collect(0)
-	wallsB, slotB, okB := collect(99999)
+	wallsA, namesA := collect(0)
+	wallsB, namesB := collect(99999)
 	assert.Equal(t, wallsA, wallsB, "時間が進んでも壁配置は同一")
-	assert.Equal(t, okA, okB, "時間が進んでも小集落の有無は同一")
-	assert.Equal(t, slotA, slotB, "時間が進んでも小集落のスロットは同一")
+	assert.Equal(t, namesA, namesB, "時間が進んでも置かれる物は同一")
 }

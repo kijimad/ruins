@@ -12,15 +12,3 @@ map = """
 ,###+##,
 ,,,,,,,,
 """
-
-[[chunk]]
-name = "5x4_campsite"
-facility = "campsite"
-weight = 100
-palettes = ["landmark"]
-map = """
-,,,,,
-,nH,,
-,f,K,
-,,,,,
-"""

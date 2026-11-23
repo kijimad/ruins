@@ -4253,12 +4253,6 @@
   zones = []
 
 [[facilities]]
-  enemyTable = "ruins_area"
-  id = "campsite"
-  lootedChance = 0
-  zones = []
-
-[[facilities]]
   enemyTable = "house_enemies"
   id = "farmhouse"
   lootedChance = 50
@@ -18166,10 +18160,6 @@
   id = "abandoned_hut"
   weight = 30
 
-[[landmarks]]
-  id = "campsite"
-  weight = 25
-
 [[layouts]]
   id = "small_room"
   start = "rect_rooms"
@@ -18306,17 +18296,6 @@
     b = 80
     g = 160
     r = 150
-
-[[mapGlyphs]]
-  glyph = "^"
-  id = "campsite"
-  name = "Campsite"
-  order = 7
-  [mapGlyphs.color]
-    a = 255
-    b = 90
-    g = 150
-    r = 215
 
 [[mapGlyphs]]
   glyph = "h"
@@ -23434,47 +23413,14 @@
   temp = -30
 
 [[settlements]]
+  facility = "house"
   id = "village"
   weight = 6
 
-  [[settlements.members]]
-    dx = -2
-    dy = -1
-    name = "merchant"
-
-  [[settlements.props]]
-    dx = 2
-    dy = -2
-    name = "hearth"
-
-  [[settlements.props]]
-    dx = 3
-    dy = 1
-    name = "bench"
-
-  [[settlements.props]]
-    dx = 0
-    dy = -3
-    name = "wooden_sign"
-
 [[settlements]]
+  facility = "farmhouse"
   id = "hamlet"
   weight = 4
-
-  [[settlements.members]]
-    dx = -2
-    dy = -1
-    name = "merchant"
-
-  [[settlements.props]]
-    dx = 2
-    dy = -2
-    name = "hearth"
-
-  [[settlements.props]]
-    dx = 1
-    dy = 2
-    name = "crate"
 
 [[shelterEffects]]
   anchorTemp = 10

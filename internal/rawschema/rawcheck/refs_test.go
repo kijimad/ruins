@@ -108,7 +108,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			Planners:   []rawschema.DungeonPlannerWeight{{Id: "cave", Weight: 1}},
 			EnemyCount: rawschema.RandInt{Base: 1, Spread: 1}, ItemCount: rawschema.RandInt{Base: 1, Spread: 1},
 		}},
-		Settlements: &[]rawschema.Settlement{{Id: "village", Weight: 1, Members: []rawschema.PropSpot{{Name: "slime"}}, Props: []rawschema.PropSpot{{Name: "bed"}}}},
+		Settlements: &[]rawschema.Settlement{{Id: "village", Weight: 1, Facility: "house"}},
 		Dialogues:   &[]rawschema.Dialogue{{Id: "greeting", Pages: []rawschema.DialoguePage{"Hi."}}},
 		Tiles:       &[]rawschema.Tile{tile("floor", &rawschema.TileSpawn{Tile: new("wall")}), tile("wall", nil)},
 		Layouts: &[]rawschema.Layout{{
@@ -211,8 +211,7 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"間取りの最初の段", func(r *rawschema.Raws) { (*r.Layouts)[0].Start = "none" }, "layouts.0.start_ref"},
 		{"間取りの中の段", func(r *rawschema.Raws) { (*r.Layouts)[0].Steps[1] = "none" }, "layouts.0.steps_ref.1"},
 		{"小道の段のタイル", func(r *rawschema.Raws) { (*r.TrailSteps)[0].Tile = "none" }, "trailSteps.0.tile_ref"},
-		{"集落の住人", func(r *rawschema.Raws) { (*r.Settlements)[0].Members[0].Name = "none" }, "settlements.0.members_ref.0"},
-		{"集落の prop", func(r *rawschema.Raws) { (*r.Settlements)[0].Props[0].Name = "none" }, "settlements.0.props_ref.0"},
+		{"集落の施設", func(r *rawschema.Raws) { (*r.Settlements)[0].Facility = "none" }, "settlements.0.facility_ref"},
 		{"タイルの生成の仕様", func(r *rawschema.Raws) { (*r.Tiles)[0].Spawn.Tile = new("none") }, "tileSpawns_ref.floor"},
 	}
 	for _, tt := range tests {

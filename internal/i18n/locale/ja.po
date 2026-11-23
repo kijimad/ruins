@@ -1770,9 +1770,6 @@ msgstr "廃屋"
 msgid "Farmhouse"
 msgstr "農家"
 
-msgid "Campsite"
-msgstr "キャンプ跡"
-
 msgid "Unclassified"
 msgstr "未分類"
 
