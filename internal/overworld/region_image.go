@@ -1,13 +1,14 @@
 package overworld
 
 import (
+	"cmp"
 	"errors"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/png"
 	"io/fs"
-	"sort"
+	"slices"
 
 	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -43,17 +44,20 @@ func RenderRegion(world w.World, area image.Rectangle, tilePx int) (*image.RGBA,
 		}
 		ents = append(ents, ent{g: ge, sr: *world.Components.SpriteRender.Get(e)})
 	}
-	sort.SliceStable(ents, func(i, j int) bool {
-		if ents[i].sr.Depth.Rank() != ents[j].sr.Depth.Rank() {
-			return ents[i].sr.Depth.Rank() < ents[j].sr.Depth.Rank()
+	slices.SortStableFunc(ents, func(a, b ent) int {
+		if c := cmp.Compare(a.sr.Depth.Rank(), b.sr.Depth.Rank()); c != 0 {
+			return c
 		}
-		if isTile := ents[i].sr.SpriteSheetName == "tile"; isTile != (ents[j].sr.SpriteSheetName == "tile") {
-			return isTile
+		if aTile, bTile := a.sr.SpriteSheetName == "tile", b.sr.SpriteSheetName == "tile"; aTile != bTile {
+			if aTile {
+				return -1
+			}
+			return 1
 		}
-		if ents[i].g.Y != ents[j].g.Y {
-			return ents[i].g.Y < ents[j].g.Y
+		if c := cmp.Compare(a.g.Y, b.g.Y); c != 0 {
+			return c
 		}
-		return ents[i].g.X < ents[j].g.X
+		return cmp.Compare(a.g.X, b.g.X)
 	})
 
 	sprites := &regionSprites{px: tilePx, cache: map[string]image.Image{}}

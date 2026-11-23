@@ -27,7 +27,8 @@ const (
 )
 
 const (
-	// maxOverworldRows は1枚に生成するチャンクの行の上限。打ち間違いで画像や world が大きくなりすぎるのを防ぐ
+	// maxOverworldRows は1枚に生成するチャンクの行の上限。チャンクを1つ置くたびに world の全タイルを見てオートタイルを
+	// 計算し直すので、時間は行の数のおよそ2乗で伸びる。上限の近くでは数十秒と1GB を超えるメモリを使う
 	maxOverworldRows = 100
 	// minTilePx と maxTilePx は1タイルの画素の数の範囲。小さすぎると座標の文字がチャンクを埋め、スプライトより大きくしても細かくならない
 	minTilePx = 2
@@ -35,7 +36,7 @@ const (
 )
 
 // errOverworldRange は生成する行の数や1タイルの画素の数が範囲の外のときに返す
-var errOverworldRange = errors.New("out of range: north and south must be >= 0, rows must be <= 100, tile-px must be 2 to 32")
+var errOverworldRange = errors.New("north, south or tile-px out of range")
 
 // CmdOverworldPNG は地上の地図を開始の行から北へ長く生成し、チャンクの座標を書き込んだ PNG を書き出すサブコマンド。
 // 生成の自然さや面白さを人が目で確かめるための開発用の道具で、書き出した画像はリポジトリに入れない
@@ -45,7 +46,7 @@ var CmdOverworldPNG = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.StringFlag{Name: outFlag, Usage: "output png path", Value: filepath.Join(os.TempDir(), "overworld.png")},
 		&cli.Uint64Flag{Name: seedFlag, Usage: "overworld run seed. random when omitted"},
-		&cli.IntFlag{Name: northFlag, Usage: "chunk rows to generate north of the start row", Value: 20},
+		&cli.IntFlag{Name: northFlag, Usage: "chunk rows to generate north of the start row. time grows roughly with the square of the rows", Value: 20},
 		&cli.IntFlag{Name: southFlag, Usage: "chunk rows to generate south of the start row", Value: 1},
 		&cli.IntFlag{Name: tilePxFlag, Usage: "pixels per tile, 2 to 32", Value: 8},
 	},
@@ -59,7 +60,8 @@ func runOverworldPNG(_ context.Context, cmd *cli.Command) error {
 	}
 	north, south, tilePx := cmd.Int(northFlag), cmd.Int(southFlag), cmd.Int(tilePxFlag)
 	if north < 0 || south < 0 || north+south+1 > maxOverworldRows || tilePx < minTilePx || tilePx > maxTilePx {
-		return fmt.Errorf("%w: north=%d south=%d tile-px=%d", errOverworldRange, north, south, tilePx)
+		return fmt.Errorf("%w: north and south must be >= 0 with north+south+1 <= %d, tile-px must be %d to %d: north=%d south=%d tile-px=%d",
+			errOverworldRange, maxOverworldRows, minTilePx, maxTilePx, north, south, tilePx)
 	}
 	world, err := newOverworldWorld()
 	if err != nil {
