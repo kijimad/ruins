@@ -23,11 +23,10 @@ type mapRecorder struct {
 
 // mapSnapshot は地上の地図の生成の1段階を終えた時点の写し
 type mapSnapshot struct {
-	label       string
-	placed      map[chunkType]bool
-	roads       map[consts.Coord[consts.Chunk]][]roadPort
-	settlements map[consts.Coord[consts.Chunk]]RoadDir
-	reserved    map[consts.Coord[consts.Chunk]]bool
+	label    string
+	placed   map[chunkType]bool
+	roads    map[consts.Coord[consts.Chunk]][]roadPort
+	reserved map[consts.Coord[consts.Chunk]]bool
 }
 
 // place はチャンクの種類 kind を置いた段階として、label の名前で写しを残す
@@ -60,11 +59,10 @@ func (r *mapRecorder) snapshot(label string, plan *roadPlan) {
 		roads[c] = slices.Clone(ports)
 	}
 	r.snapshots = append(r.snapshots, mapSnapshot{
-		label:       label,
-		placed:      maps.Clone(r.placed),
-		roads:       roads,
-		settlements: maps.Clone(plan.settlements),
-		reserved:    maps.Clone(plan.reserved),
+		label:    label,
+		placed:   maps.Clone(r.placed),
+		roads:    roads,
+		reserved: maps.Clone(plan.reserved),
 	})
 }
 

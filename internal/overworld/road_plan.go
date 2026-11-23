@@ -206,8 +206,9 @@ func (plan *roadPlan) addPort(c consts.Coord[consts.Chunk], p roadPort) {
 	}
 }
 
-// planSpan は道の表 road の行数で区切った計画区間 k の道と集落を計画する。段階は、墜落現場と区域を置く、行き先を予約する、
-// 経路を1本ずつ足す、集落を置く、の順に計画を書き換える。記録係 rec が nil でなければ段階ごとの写しを残す
+// planSpan は道の表 road の行数で区切った計画区間 k の道と集落を計画する。行き先を予約する、経路を1本ずつ足す、集落を置く、の順に
+// 計画を書き換える。記録係 rec が nil でなければ段階ごとの写しを残す。墜落現場と区域は計画を書き換えず、
+// 写しに見せる種類を足す段階にする
 func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols, spawnRow consts.Chunk, rec *mapRecorder) *roadPlan {
 	plan := &roadPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}, reserved: map[consts.Coord[consts.Chunk]]bool{}}
 	g := newSpanGrid(raws, runSeed, k, consts.Chunk(road.SpanRows), cols, spawnRow)
