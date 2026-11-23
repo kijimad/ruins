@@ -27,14 +27,7 @@ func TestFacilityTemplates_扉が塞がらず全ての床へ入れる(t *testing
 	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
 
-	blockedProp := map[string]bool{}
-	for _, p := range raw.PtrSlice(raws.Props) {
-		blockedProp[p.Id] = p.BlockPass
-	}
-	blockedTile := map[string]bool{}
-	for _, tl := range raw.PtrSlice(raws.Tiles) {
-		blockedTile[tl.Id] = tl.BlockPass
-	}
+	rules := newCellRules(raws)
 
 	for _, fac := range loader.Facilities() {
 		// 部屋の絵を組む建物は building_test.go で確かめる
@@ -48,40 +41,52 @@ func TestFacilityTemplates_扉が塞がらず全ての床へ入れる(t *testing
 				for _, mirror := range []bool{false, true} {
 					cells := maptemplate.TransformCells(base, turns, mirror)
 					name := fmt.Sprintf("%s seed=%d turns=%d mirror=%v", fac, seed, turns, mirror)
-					assert.Empty(t, unreachableCells(cells, blockedTile, blockedProp), name)
+					assert.Empty(t, unreachableCells(cells, rules), name)
 				}
 			}
 		}
 	}
 }
 
-// unreachableCells は扉の片側が塞がっている扉と、区画の縁から歩いて入れない通れるマスを返す
-func unreachableCells(cells [][]maptemplate.MapCell, blockedTile, blockedProp map[string]bool) []string {
+// cellRules は施設の絵のマスが通れるかを決める、タイルと置物の行の性質
+type cellRules struct {
+	blockedTile, blockedProp, costly, door, storage map[string]bool
+}
+
+// newCellRules は raw の行から、通れないタイルと置物、移動コストを持つ置物、扉と収納の置物を集める
+func newCellRules(raws rawschema.Raws) cellRules {
+	r := cellRules{blockedTile: map[string]bool{}, blockedProp: map[string]bool{}, costly: map[string]bool{}, door: map[string]bool{}, storage: map[string]bool{}}
+	tiles, props := raw.PtrSlice(raws.Tiles), raw.PtrSlice(raws.Props)
+	for i := range tiles {
+		r.blockedTile[tiles[i].Id] = tiles[i].BlockPass
+	}
+	for i := range props {
+		r.blockedProp[props[i].Id] = props[i].BlockPass
+		r.costly[props[i].Id] = props[i].PassCost != nil
+		r.door[props[i].Id] = props[i].Door != nil
+		r.storage[props[i].Id] = props[i].Storage != nil
+	}
+	return r
+}
+
+// unreachableCells は扉の片側が塞がっている扉と、区画の縁から歩いて入れない置物の無い通れるマスと、
+// 歩いて入れるマスから探せない収納を返す
+func unreachableCells(cells [][]maptemplate.MapCell, rules cellRules) []string {
 	h, w := len(cells), len(cells[0])
 	passable := func(x, y int) bool {
 		if x < 0 || y < 0 || x >= w || y >= h {
 			return false
 		}
 		c := cells[y][x]
-		if blockedTile[c.Terrain] {
+		if rules.blockedTile[c.Terrain] {
 			return false
 		}
-		return c.Prop == "" || c.Prop == "door" || !blockedProp[c.Prop]
+		return c.Prop == "" || rules.door[c.Prop] || !rules.blockedProp[c.Prop]
 	}
 
-	var bad []string
-	for y := range h {
-		for x := range w {
-			if cells[y][x].Prop != "door" {
-				continue
-			}
-			throughX := passable(x-1, y) && passable(x+1, y)
-			throughY := passable(x, y-1) && passable(x, y+1)
-			if !throughX && !throughY {
-				bad = append(bad, fmt.Sprintf("door blocked at %d,%d", x, y))
-			}
-		}
-	}
+	// 扉の出入口は家具で塞がず、家具の無い床にする
+	free := func(x, y int) bool { return passable(x, y) && !rules.costly[cells[y][x].Prop] }
+	bad := blockedDoors(cells, rules.door, free)
 
 	seen := map[[2]int]bool{}
 	var queue [][2]int
@@ -107,12 +112,67 @@ func unreachableCells(cells [][]maptemplate.MapCell, blockedTile, blockedProp ma
 	}
 	for y := range h {
 		for x := range w {
-			if passable(x, y) && !seen[[2]int{x, y}] {
+			// 移動コストを持つ家具のマスは通り道でなく囲まれていてもよい。収納は下で探せるかを確かめる
+			if passable(x, y) && !rules.costly[cells[y][x].Prop] && !seen[[2]int{x, y}] {
 				bad = append(bad, fmt.Sprintf("unreachable %s at %d,%d", cells[y][x].Terrain, x, y))
 			}
 		}
 	}
+	return append(bad, unsearchableStorage(cells, rules.storage, seen)...)
+}
+
+// unsearchableStorage は、歩いて入れるマス seen の上にも8方向の隣にも無い収納を返す。
+// 収納は拾うメニュー nearbyPickupActions が足元と周囲8マスから開く
+func unsearchableStorage(cells [][]maptemplate.MapCell, storage map[string]bool, seen map[[2]int]bool) []string {
+	var bad []string
+	for y := range cells {
+		for x := range cells[y] {
+			if !storage[cells[y][x].Prop] {
+				continue
+			}
+			searchable := false
+			for dy := -1; dy <= 1 && !searchable; dy++ {
+				for dx := -1; dx <= 1 && !searchable; dx++ {
+					searchable = seen[[2]int{x + dx, y + dy}]
+				}
+			}
+			if !searchable {
+				bad = append(bad, fmt.Sprintf("unsearchable %s at %d,%d", cells[y][x].Prop, x, y))
+			}
+		}
+	}
 	return bad
+}
+
+// blockedDoors は両側の向かい合うマスが出入口として空いていない扉を返す
+func blockedDoors(cells [][]maptemplate.MapCell, door map[string]bool, passable func(x, y int) bool) []string {
+	var bad []string
+	for y := range cells {
+		for x := range cells[y] {
+			if !door[cells[y][x].Prop] {
+				continue
+			}
+			throughX := passable(x-1, y) && passable(x+1, y)
+			throughY := passable(x, y-1) && passable(x, y+1)
+			if !throughX && !throughY {
+				bad = append(bad, fmt.Sprintf("door blocked at %d,%d", x, y))
+			}
+		}
+	}
+	return bad
+}
+
+func TestUnsearchableStorage_歩いて入れるマスの上か隣に無い収納を返す(t *testing.T) {
+	t.Parallel()
+
+	storage := map[string]bool{"crate": true}
+	cells := [][]maptemplate.MapCell{
+		{{}, {}, {}, {Prop: "crate"}},
+		{{Prop: "crate"}, {}, {}, {}},
+	}
+	seen := map[[2]int]bool{{0, 0}: true, {1, 0}: true}
+
+	assert.Equal(t, []string{"unsearchable crate at 3,0"}, unsearchableStorage(cells, storage, seen))
 }
 
 func TestFacilityTemplates_収納家具は戦利品表を持つ(t *testing.T) {

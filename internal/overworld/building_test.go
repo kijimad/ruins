@@ -46,17 +46,7 @@ func TestBuilding_部屋で組む建物は入口から全ての部屋へ入れ�
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
-	blockedProp, blockedTile := map[string]bool{}, map[string]bool{}
-	for _, p := range raw.PtrSlice(raws.Props) {
-		blockedProp[p.Id] = p.BlockPass
-	}
-	for _, tl := range raw.PtrSlice(raws.Tiles) {
-		blockedTile[tl.Id] = tl.BlockPass
-	}
-	storage := map[string]bool{}
-	for _, p := range raw.PtrSlice(raws.Props) {
-		storage[p.Id] = p.Storage != nil
-	}
+	rules := newCellRules(raws)
 
 	for _, fac := range loader.Facilities() {
 		if !loader.HasRooms(fac) {
@@ -65,10 +55,10 @@ func TestBuilding_部屋で組む建物は入口から全ての部屋へ入れ�
 		for _, b := range roomLots(raws, fac) {
 			cells := composeBuilding(t, raws, loader, b)
 			name := fmt.Sprintf("%s %dx%d seed=%d", fac, b.w, b.h, b.seed)
-			assert.Empty(t, unreachableCells(cells, blockedTile, blockedProp), name)
+			assert.Empty(t, unreachableCells(cells, rules), name)
 			for y, row := range cells {
 				for x, c := range row {
-					if storage[c.Prop] {
+					if rules.storage[c.Prop] {
 						assert.NotEmpty(t, c.LootTable, "%s %s at %d,%d", name, c.Prop, x, y)
 					}
 				}
