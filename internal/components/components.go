@@ -153,7 +153,7 @@ type Wallet struct {
 type HP Pool[int]
 
 // Charge はアイテムの残量。灯りは照らしている間に減り、0で尽きる。キューブは燃料ポイントを熱量の単位で持つ。
-// Max は生成時に写すので、raw を変えても生成済みの物には効かない。キューブの Max は装着したモジュールで計算し直す
+// Max は生成時に写すので、raw を変えても生成済みの物には効かない
 type Charge Pool[int]
 
 // WeightCapacity は重量容量を表すコンポーネント。
