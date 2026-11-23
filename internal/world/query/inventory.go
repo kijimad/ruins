@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+	"strings"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/rawschema"
@@ -90,6 +91,19 @@ func FormatNameCount(name string, count int) string {
 		return fmt.Sprintf("%d %s", count, name)
 	}
 	return name
+}
+
+// ItemLabel は entity の名前に個数と、残量・鮮度・スイッチの印を添えた表示を返す。印は残量を先にし、数が名前のすぐ後ろに来るようにする。
+// 腐敗食は新鮮以外のとき鮮度を添え、状態を見て食べるか捨てるか判断できるようにする
+func ItemLabel(world w.World, entity ecs.Entity, count int) string {
+	var label strings.Builder
+	label.WriteString(FormatNameCount(GetEntityName(entity, world), count))
+	for _, marker := range []string{ChargeMarker(world, entity), FreshnessMarker(world, entity), SwitchMarker(world, entity)} {
+		if marker != "" {
+			label.WriteString(" (" + marker + ")")
+		}
+	}
+	return label.String()
 }
 
 // FormatItemName はアイテムエンティティから名前と個数を取得してフォーマットする。

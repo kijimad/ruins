@@ -48,19 +48,7 @@ func itemIconCell(world w.World, e ecs.Entity) styled.Cell {
 // 個数は呼び出し側が GroupStacks で確定済みの値を渡す。ここで数え直すと一覧の行ごとに
 // 全走査が走るため、束ねた結果を持ち回って表示する
 func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuframe.Row {
-	name := query.GetEntityName(e, world)
-	label := query.FormatNameCount(name, count)
-	if marker := query.ChargeMarker(world, e); marker != "" {
-		label += " (" + marker + ")"
-	}
-	// 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする
-	if marker := query.FreshnessMarker(world, e); marker != "" {
-		label += " (" + marker + ")"
-	}
-	if marker := query.SwitchMarker(world, e); marker != "" {
-		label += " (" + marker + ")"
-	}
-	cells := append([]styled.Cell{itemIconCell(world, e), styled.TextCell(label)}, styled.TextCells(trailing...)...)
+	cells := append([]styled.Cell{itemIconCell(world, e), styled.TextCell(query.ItemLabel(world, e, count))}, styled.TextCells(trailing...)...)
 	return menuframe.Row{Cells: cells}
 }
 

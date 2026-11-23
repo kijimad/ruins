@@ -184,3 +184,23 @@ func TestChargeMarker(t *testing.T) {
 
 	assert.Equal(t, []string{"750", "0", ""}, []string{ChargeMarker(world, battery), ChargeMarker(world, empty), ChargeMarker(world, coat)})
 }
+
+func TestItemLabel(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	battery := world.ECS.NewEntity()
+	world.Components.Name.Add(battery, &gc.Name{Name: "Battery"})
+	world.Components.Charge.Add(battery, &gc.Charge{Current: 750, Max: 1000})
+	lantern := world.ECS.NewEntity()
+	world.Components.Name.Add(lantern, &gc.Name{Name: "Lantern"})
+	world.Components.Charge.Add(lantern, &gc.Charge{Current: 600, Max: 1500})
+	world.Components.Switch.Add(lantern, &gc.Switch{})
+	stone := world.ECS.NewEntity()
+	world.Components.Name.Add(stone, &gc.Name{Name: "Stone"})
+
+	assert.Equal(t, []string{
+		"2 Battery (750)",
+		"Lantern (600) (" + T(world, "Switched off") + ")",
+		"Stone",
+	}, []string{ItemLabel(world, battery, 2), ItemLabel(world, lantern, 1), ItemLabel(world, stone, 1)})
+}
