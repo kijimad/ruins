@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"slices"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -145,5 +146,143 @@ func TestSpawnFacility_下地を残すマスの下が土の地面でないとエ
 			_, _, err := spawnFacility(world, g, cells, 0, 0, "campsite", 1, 1)
 			assert.ErrorIs(t, err, tt.wantErr)
 		})
+	}
+}
+
+func TestLandmarkOrigins_道から間を空けた位置だけを返す(t *testing.T) {
+	t.Parallel()
+
+	const chunkW, chunkH consts.Tile = 20, 20
+	roads := map[consts.Coord[consts.Tile]]bool{}
+	for x := range chunkW {
+		roads[consts.Coord[consts.Tile]{X: x, Y: 6}] = true
+	}
+
+	got := landmarkOrigins(5, 4, chunkW, chunkH, roads)
+
+	// 縁から1マス、道の6行目からも1マス空けるので、原点の行は北側の1と南側の8から15、列は1から14になる
+	var want []consts.Coord[consts.Tile]
+	for _, y := range []consts.Tile{1, 8, 9, 10, 11, 12, 13, 14, 15} {
+		for x := consts.Tile(1); x <= 14; x++ {
+			want = append(want, consts.Coord[consts.Tile]{X: x, Y: y})
+		}
+	}
+	assert.Equal(t, want, got)
+}
+
+func TestLandmarkOrigins_道で埋まれば置き場所が無い(t *testing.T) {
+	t.Parallel()
+
+	const chunkW, chunkH consts.Tile = 10, 10
+	roads := map[consts.Coord[consts.Tile]]bool{}
+	for x := range chunkW {
+		roads[consts.Coord[consts.Tile]{X: x, Y: 5}] = true
+	}
+
+	assert.Empty(t, landmarkOrigins(5, 4, chunkW, chunkH, roads))
+}
+
+func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *testing.T) {
+	t.Parallel()
+
+	base := testutil.InitTestWorld(t)
+	raws := base.Resources.RawMaster
+	// place は spawnRowOf で開始の行を読むので、期待する道も同じ行から求める
+	spawnRow := spawnRowOf(base)
+	chunkW, chunkH, cols, _ := dungeon.DungeonOverworld.BandShape()
+	type found struct {
+		seed  uint64
+		c     consts.Coord[consts.Chunk]
+		roads map[consts.Coord[consts.Tile]]bool
+	}
+	var cases []found
+	for s := uint64(1); s < 2000 && len(cases) < 20; s++ {
+		for y := range consts.Chunk(30) {
+			for x := range cols {
+				c := consts.Coord[consts.Chunk]{X: x, Y: y}
+				if chunkTypeAt(raws, s, c, cols, spawnRow) != chunkLandmark {
+					continue
+				}
+				if r := chunkRoadTiles(raws, s, c, cols, spawnRow, chunkW, chunkH); len(r) > 0 {
+					cases = append(cases, found{s, c, r})
+				}
+			}
+		}
+	}
+	require.GreaterOrEqual(t, len(cases), 20, "前提: 道の通るランドマークのチャンクが見つかる。ランドマークや道の出る率を下げたら探す seed と行の範囲を広げる")
+
+	roadTiles := map[string]bool{}
+	for _, f := range raw.PtrSlice(raws.PointFeatures) {
+		if f.Road != nil {
+			roadTiles[f.Road.Tile] = true
+		}
+	}
+	placed := 0
+	var blocked, unpaved []consts.Coord[consts.Tile]
+	for _, tc := range cases {
+		world := testutil.InitTestWorld(t)
+		for y := range chunkH {
+			for x := range chunkW {
+				_, err := lifecycle.SpawnTile(world, "dirt_tundra", x, y, new(15))
+				require.NoError(t, err)
+			}
+		}
+		g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: chunkW, chunkH: chunkH, tiles: &tileIndex{world: world, loX: 0, hiX: chunkW}}
+		require.NoError(t, wildernessLandmarkFeature{}.place(world, tc.seed, tc.c, cols, g))
+		require.NoError(t, roadFeature{}.place(world, tc.seed, tc.c, cols, g))
+		// 計算した道でなく実際に舗装されたマスを見る。舗装されないマスは、ランドマークの壁や床が道を途切れさせている
+		tiles := g.tiles.get()
+		for p := range tc.roads {
+			if !roadTiles[tileIDAt(world, tiles, p)] {
+				unpaved = append(unpaved, p)
+			}
+		}
+		q := ecs.NewFilter2[gc.GridElement, gc.Prop](world.ECS).Query()
+		for q.Next() {
+			placed++
+			if p := world.Components.GridElement.Get(q.Entity()).Coord; roadTiles[tileIDAt(world, tiles, p)] {
+				blocked = append(blocked, p)
+			}
+		}
+	}
+	require.Positive(t, placed, "前提: ランドマークが置かれる")
+	assert.Empty(t, unpaved, "道は途切れずに舗装される")
+	assert.Empty(t, blocked, "舗装された道のマスにランドマークの置物が無い")
+}
+
+func TestLandmarks_道が十字や迂回で通るチャンクでも全ての絵に置き場所がある(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	chunkW, chunkH, _, _ := dungeon.DungeonOverworld.BandShape()
+	width := 0
+	for _, f := range raw.PtrSlice(raws.PointFeatures) {
+		if f.Road != nil {
+			width = max(width, f.Road.Width)
+		}
+	}
+	require.Positive(t, width, "前提: 道を持つ地物がある")
+	cross := []roadSeg{
+		span(orientHorizontal, chunkCenter(0, chunkH), 0, chunkW-1),
+		span(orientVertical, chunkCenter(0, chunkW), 0, chunkH-1),
+	}
+	// 塀に囲まれた区域を迂回する道は、区域の門の列の街路の帯の真ん中、チャンクの西の縁の近くを縦に通る
+	detour := append(slices.Clone(cross), span(orientVertical, gateLane(0, chunkW), 0, chunkH-1))
+	for name, segs := range map[string][]roadSeg{"十字": cross, "十字と迂回": detour} {
+		roads := map[consts.Coord[consts.Tile]]bool{}
+		for p := range roadBand(segs, width) {
+			roads[p] = true
+		}
+		for _, lm := range raw.PtrSlice(raws.Landmarks) {
+			for _, tmpl := range loader.FacilityChunkNames(lm.Id) {
+				_, _, cells, err := loader.LoadTemplateByName(tmpl, 1)
+				require.NoError(t, err, tmpl)
+				// 絵は回転して置くので、幅と高さの大きい方で確かめる
+				side := consts.Tile(max(len(cells), len(cells[0])))
+				assert.NotEmpty(t, landmarkOrigins(side, side, chunkW, chunkH, roads), name+" "+tmpl)
+			}
+		}
 	}
 }
