@@ -6770,18 +6770,6 @@ msgstr "%sを満たす"
 msgid "Drain %s"
 msgstr "%sから抜く"
 
-msgid "Charge full"
-msgstr "満タン"
-
-msgid "No charge"
-msgstr "残量が無い"
-
-msgid "No fuel"
-msgstr "燃料が無い"
-
-msgid "No container"
-msgstr "入れ物が無い"
-
 msgid "It is already full."
 msgstr "もう満タンだ"
 

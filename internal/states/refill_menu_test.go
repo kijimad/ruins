@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -174,20 +173,19 @@ func TestLightDrainSink_抜く先が満タンになって無くなれば閉じ�
 
 func TestRefillMenuState_Fetch(t *testing.T) {
 	t.Parallel()
-	// 選べない行は理由の msgid を期待し、空なら選べる行を期待する
 	tests := []struct {
-		name  string
-		light int
-		fuel  int
-		fill  i18n.Msgid
-		drain i18n.Msgid
+		name          string
+		light         int
+		fuel          int
+		fillDisabled  bool
+		drainDisabled bool
 	}{
-		{name: "燃料を持たなければどちらも選べない", light: 600, fuel: -1, fill: "No fuel", drain: "No container"},
+		{name: "燃料を持たなければどちらも選べない", light: 600, fuel: -1, fillDisabled: true, drainDisabled: true},
 		{name: "減っていて使いかけの燃料を持てばどちらも選べる", light: 600, fuel: 700},
-		{name: "満タンなら満たせず満タンでない燃料へ抜ける", light: 1500, fuel: 700, fill: "Charge full"},
-		{name: "空の燃料では満たせないが抜ける", light: 600, fuel: 0, fill: "No fuel"},
-		{name: "満タンの燃料へは抜けない", light: 600, fuel: 1500, drain: "No container"},
-		{name: "残量0の灯りからは抜けない", light: 0, fuel: 0, fill: "No fuel", drain: "No charge"},
+		{name: "満タンなら満たせず満タンでない燃料へ抜ける", light: 1500, fuel: 700, fillDisabled: true},
+		{name: "空の燃料では満たせないが抜ける", light: 600, fuel: 0, fillDisabled: true},
+		{name: "満タンの燃料へは抜けない", light: 600, fuel: 1500, drainDisabled: true},
+		{name: "残量0の灯りからは抜けない", light: 0, fuel: 0, fillDisabled: true, drainDisabled: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -203,14 +201,7 @@ func TestRefillMenuState_Fetch(t *testing.T) {
 				require.NoError(t, err)
 				world.Components.Charge.Get(oil).Current = tt.fuel
 			}
-			expected := make([]refillRow, 0, 2)
-			for _, reason := range []i18n.Msgid{tt.fill, tt.drain} {
-				if reason != "" {
-					expected = append(expected, refillRow{Entity: lantern, Value: query.T(world, reason), Disabled: true})
-					continue
-				}
-				expected = append(expected, refillRow{Entity: lantern})
-			}
+			expected := []refillRow{{Entity: lantern, Disabled: tt.fillDisabled}, {Entity: lantern, Disabled: tt.drainDisabled}}
 
 			props, err := (&RefillMenuState{}).Fetch(world)
 			require.NoError(t, err)

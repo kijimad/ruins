@@ -12,7 +12,6 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -48,40 +47,27 @@ type refillTab struct {
 // refillTabSpec は補充メニューの1タブの振る舞い。タブの番号で引く。sinkOf は灯りを選んだときに開く給油メニューのくべ先を作り、
 // amount は灯りの側で移せる量の上限を返し、0なら選べない
 type refillTabSpec struct {
+	label  func(world w.World) string
 	sinkOf func(world w.World, light ecs.Entity) FuelSink
 	amount func(charge gc.Charge) int
-	text   func(world w.World) refillTabText
-}
-
-// refillTabText はタブの見出しと選べない理由の文。灯りの側で移せる量が0なら lightReason、持ち物に受ける物が無ければ noneReason
-type refillTabText struct {
-	label       string
-	lightReason string
-	noneReason  string
 }
 
 var refillTabSpecs = []refillTabSpec{
 	{
+		label:  func(world w.World) string { return query.T(world, "Fill") },
 		sinkOf: LightFuelSink,
 		amount: func(c gc.Charge) int { return c.Max - c.Current },
-		text: func(world w.World) refillTabText {
-			return refillTabText{label: query.T(world, "Fill"), lightReason: query.T(world, "Charge full"), noneReason: query.T(world, "No fuel")}
-		},
 	},
 	{
+		label:  func(world w.World) string { return query.T(world, "Drain") },
 		sinkOf: LightDrainSink,
 		amount: func(c gc.Charge) int { return c.Current },
-		text: func(world w.World) refillTabText {
-			return refillTabText{label: query.T(world, "Drain"), lightReason: query.T(world, "No charge"), noneReason: query.T(world, "No container")}
-		},
 	},
 }
 
-// refillRow は補充メニューの1行。Disabled なら Value に選べない理由を入れる。
-// 選べない行もほかの物の一覧と同じ色で描き、理由の文とカーソルを止めないことで見分けさせる
+// refillRow は補充メニューの1行。選べない行は無効の色で描き、カーソルを止めない
 type refillRow struct {
 	Entity   ecs.Entity
-	Value    string
 	Disabled bool
 }
 
@@ -135,25 +121,17 @@ func (st *RefillMenuState) Fetch(world w.World) (RefillProps, error) {
 	lights := refillableItems(world)
 	tabs := make([]refillTab, len(refillTabSpecs))
 	for i, spec := range refillTabSpecs {
-		text := spec.text(world)
-		tabs[i].Label = text.label
+		tabs[i].Label = spec.label(world)
 		for _, light := range lights {
-			tabs[i].Rows = append(tabs[i].Rows, spec.row(world, light, text))
+			tabs[i].Rows = append(tabs[i].Rows, refillRow{Entity: light, Disabled: !spec.selectable(world, light)})
 		}
 	}
 	return RefillProps{Tabs: tabs}, nil
 }
 
-// row は灯りの light の1行を組む。選べなければ理由を出す。選べる行の量は名前に添えた残量から分かるので出さない
-func (spec refillTabSpec) row(world w.World, light ecs.Entity, text refillTabText) refillRow {
-	amount := spec.amount(*world.Components.Charge.Get(light))
-	switch {
-	case amount <= 0:
-		return refillRow{Entity: light, Value: text.lightReason, Disabled: true}
-	case !carriesAccepted(world, spec.sinkOf(world, light)):
-		return refillRow{Entity: light, Value: text.noneReason, Disabled: true}
-	}
-	return refillRow{Entity: light}
+// selectable は灯りの light をこのタブで選べるかを返す。灯りの側で移せる量があり、持ち物に sinkOf が受ける物があるとき選べる
+func (spec refillTabSpec) selectable(world w.World, light ecs.Entity) bool {
+	return spec.amount(*world.Components.Charge.Get(light)) > 0 && carriesAccepted(world, spec.sinkOf(world, light))
 }
 
 // Menu はタブごとの一覧の構成を返す。選べない行はカーソルを飛ばす
@@ -182,9 +160,10 @@ func (st *RefillMenuState) ViewUI(world w.World, props RefillProps, cursor menul
 		tab := props.Tabs[cursor.TabIndex]
 		rows := make([]menuframe.Row, len(tab.Rows))
 		for i, r := range tab.Rows {
-			rows[i] = itemMenuRow(world, r.Entity, 1, r.Value)
+			rows[i] = itemMenuRow(world, r.Entity, 1)
+			rows[i].Disabled = r.Disabled
 		}
-		content, pager = menuframe.RenderList(cursor.ItemIndex, rows, itemMenuColumns(styled.Num()), menuframe.ListOpts{EmptyText: query.T(world, "Nothing to refill"), ItemsPerPage: cursor.PageSize}, res)
+		content, pager = menuframe.RenderList(cursor.ItemIndex, rows, itemMenuColumns(), menuframe.ListOpts{EmptyText: query.T(world, "Nothing to refill"), ItemsPerPage: cursor.PageSize}, res)
 	}
 	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
