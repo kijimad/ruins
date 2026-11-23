@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 11:35:32</td>
+            <td class="headerValue">2026-11-23 11:49:03</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,7 +81,7 @@
 <span id="L19"><span class="lineNum">      19</span>              : // cols は帯の列数で当選列の抽選に使う。</span>
 <span id="L20"><span class="lineNum">      20</span>              : func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, cols consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {</span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 zone, ok := raw.GetScatterZone(world.Resources.RawMaster, string(outdoorZoneAt(world.Resources.RawMaster, runSeed, c, cols)))</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 zone, ok := raw.GetScatterZone(world.Resources.RawMaster, string(outdoorZoneAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world))))</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;chunk (x=%d, y=%d): %w&quot;, c.X, c.Y, errScatterZoneMissing)</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -94,7 +94,7 @@
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 if _, err := mapspawner.SpawnAt(world, plan, offsetX, offsetY); err != nil {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;failed to place chunk (x=%d, y=%d): %w&quot;, c.X, c.Y, err)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L35"><span class="lineNum">      35</span>              :                 // 地形の上に地物の層を重ねる。小集落などの当選判定は (runSeed, 座標) の純関数</span>
+<span id="L35"><span class="lineNum">      35</span>              :                 // 地形の上に地物の層を重ねる。集落などの当選判定は (runSeed, 座標) の純関数</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 if err := PlaceFeatures(world, runSeed, c, cols, offsetX, offsetY, chunkW, chunkH); err != nil {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                         return err</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 }</span></span>

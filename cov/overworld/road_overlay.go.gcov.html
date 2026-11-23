@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">50</td>
-            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 11:35:32</td>
+            <td class="headerValue">2026-11-23 11:49:03</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,102 +64,45 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              : )</span>
-<span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              : // マクロ地図に道を重ねるための算出。道タイルを生成せず、roadPath の道の辺をチャンク空間で解釈し、</span>
-<span id="L10"><span class="lineNum">      10</span>              : // 各チャンクをどの方角へ抜けるかをビット集合で表す。</span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // RoadDir はチャンクを通る道が接続する方角のビット集合。線分描画で、セル中央からどの辺の</span>
-<span id="L13"><span class="lineNum">      13</span>              : // 中点へ線を引くかを表す。0 は道なし。</span>
-<span id="L14"><span class="lineNum">      14</span>              : type RoadDir uint8</span>
-<span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span>              : const (</span>
-<span id="L17"><span class="lineNum">      17</span>              :         // RoadN は上、Y-1 の隣へ抜ける。</span>
-<span id="L18"><span class="lineNum">      18</span>              :         RoadN RoadDir = 1 &lt;&lt; iota</span>
-<span id="L19"><span class="lineNum">      19</span>              :         // RoadS は下、Y+1 の隣へ抜ける。</span>
-<span id="L20"><span class="lineNum">      20</span>              :         RoadS</span>
-<span id="L21"><span class="lineNum">      21</span>              :         // RoadE は右、X+1 の隣へ抜ける。</span>
-<span id="L22"><span class="lineNum">      22</span>              :         RoadE</span>
-<span id="L23"><span class="lineNum">      23</span>              :         // RoadW は左、X-1 の隣へ抜ける。</span>
-<span id="L24"><span class="lineNum">      24</span>              :         RoadW</span>
-<span id="L25"><span class="lineNum">      25</span>              : )</span>
-<span id="L26"><span class="lineNum">      26</span>              : </span>
-<span id="L27"><span class="lineNum">      27</span>              : // Any は道が1方角でも接続するかを返す。0 は道なしの空集合。</span>
-<span id="L28"><span class="lineNum">      28</span>              : func (d RoadDir) Any() bool {</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         return d != 0</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span>              : // buildRoadOverlay は表示範囲に重なる範囲の道の接続方角を、絶対チャンク座標をキーに算出する。</span>
-<span id="L33"><span class="lineNum">      33</span>              : // road.go と同じく隣接リージョンの当選集落どうしを roadPath で結ぶ。生成を伴わない純関数で、</span>
-<span id="L34"><span class="lineNum">      34</span>              : // 表示範囲外へはみ出すチャンクも含みうるが、読み手が表示範囲内だけを引くので無害。</span>
-<span id="L35"><span class="lineNum">      35</span>              : func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols, spawnRow consts.Chunk, chunkW, chunkH consts.Tile) map[consts.Coord[consts.Chunk]]RoadDir {</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         overlay := map[consts.Coord[consts.Chunk]]RoadDir{}</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         cols = max(cols, 1)</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         // 道 (pr, pr+1) が占めるチャンク列は当選集落 a.X..b.X で、a.X は pr*Spacing 以上、b.X は</span></span>
-<span id="L39"><span class="lineNum">      39</span>              :         // (pr+2)*Spacing 未満に収まる。よって表示範囲 [OriginX, OriginX+Cols) に列が掛かりうる道は、表示範囲の左端の</span>
-<span id="L40"><span class="lineNum">      40</span>              :         // 属するリージョンの1つ西から表示範囲の右端の属するリージョンまで。端の道を取りこぼさないよう、左右へ</span>
-<span id="L41"><span class="lineNum">      41</span>              :         // scanMargin ぶんの余裕を足す。表示範囲外へ出たチャンクを印しても読み手が引かないので無害</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         const scanMargin consts.Chunk = 1</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         for _, f := range raw.PtrSlice(raws.PointFeatures) {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 if f.Road == nil {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L46"><span class="lineNum">      46</span>              :                 }</span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 p := placementFrom(f)</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 topRegion := consts.FloorDiv(area.OriginY, p.Spacing)</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 botRegion := consts.FloorDiv(area.OriginY+area.Rows-1, p.Spacing)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 rLo := topRegion - 1 - scanMargin // 1つ北のリージョンの道が南へ食い込みうる</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 rHi := botRegion + scanMargin</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 for pr := rLo; pr &lt;= rHi; pr++ {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                         a := p.WinnerOf(runSeed, pr, cols)</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                         b := p.WinnerOf(runSeed, pr+1, cols)</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                         markRoadPath(overlay, roadPath(raws, runSeed, a, b, cols, spawnRow, chunkW, chunkH), chunkW, chunkH)</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L57"><span class="lineNum">      57</span>              :         }</span>
-<span id="L58"><span class="lineNum">      58</span>              :         // 実体の道は墜落現場の中を描かないので、地図の道も印さない</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         delete(overlay, spawnChunkOf(cols, spawnRow))</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return overlay</span></span>
-<span id="L61"><span class="lineNum">      61</span>              : }</span>
-<span id="L62"><span class="lineNum">      62</span>              : </span>
-<span id="L63"><span class="lineNum">      63</span>              : // markRoadPath は道の辺 segs が通るチャンクへ接続方角を積む。辺の端のチャンクには端の側のビットを積まないので、</span>
-<span id="L64"><span class="lineNum">      64</span>              : // 辺どうしが接する折れは両方のビットが積まれて L 字になり、複数の道が重なる交差はビットが増えて T・十字になる。</span>
-<span id="L65"><span class="lineNum">      65</span>              : func markRoadPath(overlay map[consts.Coord[consts.Chunk]]RoadDir, segs []roadSeg, chunkW, chunkH consts.Tile) {</span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         for _, seg := range segs {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 alongSize, acrossSize := chunkW, chunkH</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 if seg.orient == orientVertical {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                         alongSize, acrossSize = chunkH, chunkW</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 fixed := consts.Chunk(consts.FloorDiv(seg.fixed, acrossSize))</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 lo := consts.Chunk(consts.FloorDiv(seg.lo, alongSize))</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 hi := consts.Chunk(consts.FloorDiv(seg.hi, alongSize))</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 for v := lo; v &lt;= hi; v++ {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                         var cell consts.Coord[consts.Chunk]</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                         var bits RoadDir</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                         if seg.orient == orientHorizontal {</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                                 cell = consts.Coord[consts.Chunk]{X: v, Y: fixed}</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                                 if v &gt; lo {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                                         bits |= RoadW</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                                 if v &lt; hi {</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                                         bits |= RoadE</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L85"><span class="lineNum">      85</span>              :                         } else {</span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                                 cell = consts.Coord[consts.Chunk]{X: fixed, Y: v}</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                                 if v &gt; lo {</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                                         bits |= RoadN</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                                 if v &lt; hi {</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                                         bits |= RoadS</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L93"><span class="lineNum">      93</span>              :                         }</span>
-<span id="L94"><span class="lineNum">      94</span>              :                         // 退化辺、すなわち1チャンクに収まる辺はビットが 0。空の道キーを作らないよう積まない</span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                         if bits.Any() {</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                                 overlay[cell] |= bits</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L98"><span class="lineNum">      98</span>              :                 }</span>
-<span id="L99"><span class="lineNum">      99</span>              :         }</span>
-<span id="L100"><span class="lineNum">     100</span>              : }</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/rawschema&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              : )</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : // マクロ地図に道を重ねるための算出。道タイルを生成せず、各チャンクをどの方角へ抜けるかをビット集合で表す。</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              : // RoadDir はチャンクを通る道が接続する方角のビット集合。線分描画で、セル中央からどの辺の</span>
+<span id="L11"><span class="lineNum">      11</span>              : // 中点へ線を引くかを表す。0 は道なし。</span>
+<span id="L12"><span class="lineNum">      12</span>              : type RoadDir uint8</span>
+<span id="L13"><span class="lineNum">      13</span>              : </span>
+<span id="L14"><span class="lineNum">      14</span>              : const (</span>
+<span id="L15"><span class="lineNum">      15</span>              :         // RoadN は上、Y-1 の隣へ抜ける。</span>
+<span id="L16"><span class="lineNum">      16</span>              :         RoadN RoadDir = 1 &lt;&lt; iota</span>
+<span id="L17"><span class="lineNum">      17</span>              :         // RoadS は下、Y+1 の隣へ抜ける。</span>
+<span id="L18"><span class="lineNum">      18</span>              :         RoadS</span>
+<span id="L19"><span class="lineNum">      19</span>              :         // RoadE は右、X+1 の隣へ抜ける。</span>
+<span id="L20"><span class="lineNum">      20</span>              :         RoadE</span>
+<span id="L21"><span class="lineNum">      21</span>              :         // RoadW は左、X-1 の隣へ抜ける。</span>
+<span id="L22"><span class="lineNum">      22</span>              :         RoadW</span>
+<span id="L23"><span class="lineNum">      23</span>              : )</span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : // Any は道が1方角でも接続するかを返す。0 は道なしの空集合。</span>
+<span id="L26"><span class="lineNum">      26</span>              : func (d RoadDir) Any() bool {</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         return d != 0</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // buildRoadOverlay は表示範囲の道のチャンクが道でつながる方角を、絶対チャンク座標をキーに算出する。舗装 road.go と同じく</span>
+<span id="L31"><span class="lineNum">      31</span>              : // 計画区間の計画を引くので、地図に出る道と舗装される道が一致する。生成を伴わない純関数。</span>
+<span id="L32"><span class="lineNum">      32</span>              : func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols, spawnRow consts.Chunk) map[consts.Coord[consts.Chunk]]RoadDir {</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         overlay := map[consts.Coord[consts.Chunk]]RoadDir{}</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         for y := area.OriginY; y &lt; area.OriginY+area.Rows; y++ {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 for x := area.OriginX; x &lt; area.OriginX+area.Cols; x++ {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         c := consts.Coord[consts.Chunk]{X: x, Y: y}</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                         if ports, _, ok := roadAt(raws, runSeed, c, cols, spawnRow); ok {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                                 overlay[c] = portDirs(ports)</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L40"><span class="lineNum">      40</span>              :                 }</span>
+<span id="L41"><span class="lineNum">      41</span>              :         }</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         return overlay</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : }</span>
         </pre>
               </td>
             </tr>
