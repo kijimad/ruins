@@ -561,6 +561,36 @@ func TestCollectBillboards_前後方向に沿うfacingの置物は表の絵だ�
 	assert.Equal(t, 1, pictures)
 }
 
+func TestCollectBillboards_記憶エリアの開いた扉は閉じた形で描く(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	remembered := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, false }
+
+	world := testutil.InitTestWorld(t)
+	sheet := ebiten.NewImage(32, 32)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {Texture: gc.Texture{Image: sheet}, Sprites: map[string]gc.Sprite{"door_vertical_closed": {Width: 32, Height: 32}}},
+	})
+	// 平均色は画素を読むので、ゲームの開始前のテストでは先に置いておく
+	r3flatColor.Store(flatColorKey{sheet, 0, 0, 32, 32}, [3]float64{0.5, 0.5, 0.5})
+	door, err := lifecycle.SpawnDoor(world, center, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.OpenDoor(world, door))
+	sys := &Render3DSystem{}
+
+	quads := sys.collectBillboards(world, nil, projector, remembered, nil, closedInsets(world), nil, nil)
+
+	// 閉じた形は開口部の真ん中に東西に立つ板で、z は厚みの範囲に収まる
+	require.NotEmpty(t, quads)
+	for _, q := range quads {
+		for _, v := range q.p {
+			assert.GreaterOrEqual(t, v.Z, float64(center.Y)+0.5-insetThickness/2-1e-9)
+			assert.LessOrEqual(t, v.Z, float64(center.Y)+0.5+insetThickness/2+1e-9)
+		}
+	}
+}
+
 func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T) {
 	t.Parallel()
 

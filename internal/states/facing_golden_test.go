@@ -55,6 +55,7 @@ func TestGolden_Inset_OpenDoor(t *testing.T) {
 	require.NoError(t, err)
 	sm, err := es.Init(s, world)
 	require.NoError(t, err)
+	// 昼の中心にして、屋外も屋内も明かり無しで見える明るさで撮る
 	query.GetGameTime(world).TotalTurns = 625
 	require.NoError(t, sm.Update(world))
 
@@ -75,12 +76,15 @@ func TestGolden_Inset_OpenDoor(t *testing.T) {
 	require.NoError(t, lifecycle.OpenDoor(world, door))
 	at := world.Components.GridElement.Get(door).Coord
 	si := query.GetSpatialIndex(world)
+	moved := false
 	for _, d := range []consts.Coord[consts.Tile]{{Y: 2}, {Y: -2}, {X: 2}, {X: -2}} {
 		if c := at.Add(d); !si.IsBlockPass(c) {
 			require.NoError(t, lifecycle.MovePlayerToPosition(world, c))
+			moved = true
 			break
 		}
 	}
+	require.True(t, moved, "前提: 扉の前後か左右の2マス先に立てるマスがある")
 	query.GetPlayerCamera(world).Dist = 6
 
 	require.NoError(t, sm.Update(world))

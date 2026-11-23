@@ -703,7 +703,7 @@ func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
 // openInsetGap は開いた扉の板と脇の壁のあいだ。壁の面と重なってちらつかないよう少し離す
 const openInsetGap = 0.08
 
-// openInsetFaces は開いた扉の面を返す。閉じた板を90度倒して開口部と直角に立て、つながる壁の脇へ寄せる。
+// openInsetFaces は開いた扉の面を返す。閉じた板を90度回して開口部と直角に立て、つながる壁の脇へ寄せる。
 // 東西に並ぶ扉は東だけとつながるとき東、それ以外は西の脇へ寄せ、南北に並ぶ扉は南だけとつながるとき南、それ以外は北へ寄せる
 func openInsetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
 	alongX := conn.west || conn.east || (!conn.north && !conn.south)
