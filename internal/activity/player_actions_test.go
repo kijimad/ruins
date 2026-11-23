@@ -299,6 +299,23 @@ func TestExecuteMoveAction_背の低い家具には移動コストを払って�
 	assert.Equal(t, []string{"Chair is here."}, query.GetGameLog(world).GetHistory())
 }
 
+func TestMoveActivity_敵も背の低い家具に乗るときは移動コストを払う(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "bat")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "chair", 11, 10)
+	require.NoError(t, err)
+
+	// Execute は構造変更を伴うので TurnBased は都度取り直す
+	apBefore := world.Components.TurnBased.Get(enemy).AP.Current
+	_, err = Execute(NewMoveActivity(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}}), enemy, world)
+	require.NoError(t, err)
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 11, Y: 10}, world.Components.GridElement.Get(enemy).Coord)
+	assert.Equal(t, consts.StandardActionCost+100, apBefore-world.Components.TurnBased.Get(enemy).AP.Current)
+}
+
 func TestExecuteMoveAction_地図の外へは何も出さずに止まる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

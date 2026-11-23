@@ -50,18 +50,19 @@ func TestFacilityTemplates_扉が塞がらず全ての床へ入れる(t *testing
 
 // cellRules は施設の絵のマスが通れるかを決める、タイルと置物の行の性質
 type cellRules struct {
-	blockedTile, blockedProp, door, storage map[string]bool
+	blockedTile, blockedProp, costly, door, storage map[string]bool
 }
 
-// newCellRules は raw の行から、通れないタイルと置物、扉と収納の置物を集める
+// newCellRules は raw の行から、通れないタイルと置物、移動コストを持つ置物、扉と収納の置物を集める
 func newCellRules(raws rawschema.Raws) cellRules {
-	r := cellRules{blockedTile: map[string]bool{}, blockedProp: map[string]bool{}, door: map[string]bool{}, storage: map[string]bool{}}
+	r := cellRules{blockedTile: map[string]bool{}, blockedProp: map[string]bool{}, costly: map[string]bool{}, door: map[string]bool{}, storage: map[string]bool{}}
 	tiles, props := raw.PtrSlice(raws.Tiles), raw.PtrSlice(raws.Props)
 	for i := range tiles {
 		r.blockedTile[tiles[i].Id] = tiles[i].BlockPass
 	}
 	for i := range props {
 		r.blockedProp[props[i].Id] = props[i].BlockPass
+		r.costly[props[i].Id] = props[i].PassCost != nil
 		r.door[props[i].Id] = props[i].Door != nil
 		r.storage[props[i].Id] = props[i].Storage != nil
 	}
@@ -83,7 +84,9 @@ func unreachableCells(cells [][]maptemplate.MapCell, rules cellRules) []string {
 		return c.Prop == "" || rules.door[c.Prop] || !rules.blockedProp[c.Prop]
 	}
 
-	bad := blockedDoors(cells, rules.door, passable)
+	// 扉の出入口は家具で塞がず、家具の無い床にする
+	free := func(x, y int) bool { return passable(x, y) && !rules.costly[cells[y][x].Prop] }
+	bad := blockedDoors(cells, rules.door, free)
 
 	seen := map[[2]int]bool{}
 	var queue [][2]int
@@ -109,8 +112,8 @@ func unreachableCells(cells [][]maptemplate.MapCell, rules cellRules) []string {
 	}
 	for y := range h {
 		for x := range w {
-			// 家具のマスは通り道でなく囲まれていてもよい。収納は下で探せるかを確かめる
-			if passable(x, y) && cells[y][x].Prop == "" && !seen[[2]int{x, y}] {
+			// 移動コストを持つ家具のマスは通り道でなく囲まれていてもよい。収納は下で探せるかを確かめる
+			if passable(x, y) && !rules.costly[cells[y][x].Prop] && !seen[[2]int{x, y}] {
 				bad = append(bad, fmt.Sprintf("unreachable %s at %d,%d", cells[y][x].Terrain, x, y))
 			}
 		}
@@ -118,7 +121,8 @@ func unreachableCells(cells [][]maptemplate.MapCell, rules cellRules) []string {
 	return append(bad, unsearchableStorage(cells, rules.storage, seen)...)
 }
 
-// unsearchableStorage は、歩いて入れるマス seen の上にも8方向の隣にも無い収納を返す。収納は同じマスか隣から探す
+// unsearchableStorage は、歩いて入れるマス seen の上にも8方向の隣にも無い収納を返す。
+// 収納は拾うメニュー nearbyPickupActions が足元と周囲8マスから開く
 func unsearchableStorage(cells [][]maptemplate.MapCell, storage map[string]bool, seen map[[2]int]bool) []string {
 	var bad []string
 	for y := range cells {
@@ -140,7 +144,7 @@ func unsearchableStorage(cells [][]maptemplate.MapCell, storage map[string]bool,
 	return bad
 }
 
-// blockedDoors は両側の向かい合うマスが通れない扉を返す
+// blockedDoors は両側の向かい合うマスが出入口として空いていない扉を返す
 func blockedDoors(cells [][]maptemplate.MapCell, door map[string]bool, passable func(x, y int) bool) []string {
 	var bad []string
 	for y := range cells {
