@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-22 16:46:54</td>
+            <td class="headerValue">2026-11-23 00:04:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,8 +73,8 @@
 <span id="L11"><span class="lineNum">      11</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              : )</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
-<span id="L14"><span class="lineNum">      14</span>              : // 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・</span>
-<span id="L15"><span class="lineNum">      15</span>              : // 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。</span>
+<span id="L14"><span class="lineNum">      14</span>              : // 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。raw の landmarks から</span>
+<span id="L15"><span class="lineNum">      15</span>              : // 出現重みで決定的に選び、探索の単調さを崩す。</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
 <span id="L17"><span class="lineNum">      17</span>              : // landmarkKindAt は当選チャンクに置くランドマークの施設の id を出現重みで抽選する。</span>
 <span id="L18"><span class="lineNum">      18</span>              : func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {</span>

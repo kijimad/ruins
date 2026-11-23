@@ -389,7 +389,7 @@
 				
 				<option value="file166">github.com/kijimaD/ruins/internal/mapplanner/layout.go (88.4%)</option>
 				
-				<option value="file167">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.1%)</option>
+				<option value="file167">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.8%)</option>
 				
 				<option value="file168">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -21501,7 +21501,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
         <span class="cov8" title="1">if bm.existPlannedEntityOnTile(pos) </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
 
         <span class="cov8" title="1">return true</span>
@@ -27448,8 +27448,8 @@ import (
         w "github.com/kijimaD/ruins/internal/world"
 )
 
-// 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・
-// 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。
+// 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。raw の landmarks から
+// 出現重みで決定的に選び、探索の単調さを崩す。
 
 // landmarkKindAt は当選チャンクに置くランドマークの施設の id を出現重みで抽選する。
 func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk]) string {
