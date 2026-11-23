@@ -28,20 +28,3 @@ lootTable = "storage_box"
 [palette.props."k"]
 tile = "floor"
 id = "crate"
-
-[palette.props."K"]
-tile = "ground"
-id = "crate"
-
-[palette.props."H"]
-tile = "ground"
-id = "hearth"
-
-[palette.props."n"]
-tile = "ground"
-id = "bench"
-
-[palette.items."f"]
-itemGroup = "food"
-tile = "ground"
-chance = 60

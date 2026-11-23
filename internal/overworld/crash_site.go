@@ -46,9 +46,8 @@ func (crashSiteFeature) place(world w.World, runSeed uint64, c consts.Coord[cons
 	if err != nil {
 		return fmt.Errorf("failed to plan crash site %q: %w", fac, err)
 	}
-	ox := g.chunkW/2 - consts.Tile(len(cells[0]))/2
-	oy := g.chunkH/2 - consts.Tile(len(cells))/2
-	if _, _, err := spawnFacility(world, g, cells, ox, oy, fac, urbanDangerAt(world, c), seed); err != nil {
+	o := centerOrigin(g, cells)
+	if _, _, err := spawnFacility(world, g, cells, o.X, o.Y, fac, urbanDangerAt(world, c), seed); err != nil {
 		return fmt.Errorf("failed to place crash site %q: %w", fac, err)
 	}
 	return nil

@@ -1,18 +1,15 @@
 package overworld_test
 
 import (
-	"sort"
 	"strings"
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -25,24 +22,20 @@ func TestNewChunkGen_隣接する小集落が道で結ばれる(t *testing.T) {
 
 	const chunkW, chunkH consts.Tile = 24, 24
 	world := testutil.InitTestWorld(t)
-	gen := overworld.NewChunkGen(world, 27, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
+	const runSeed = 27
+	gen := overworld.NewChunkGen(world, runSeed, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
 	// 集落は Y 方向のリージョンに並ぶので Y 方向に生成する
 	for i := range 16 {
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
 	}
 
-	// 商人の位置から集落中心を復元する。商人は中心の (-2,-1) に立つ
+	// 集落に分類されるチャンクの中心を集める。道は集落のチャンクの中心どうしを結ぶ
 	var centers []consts.Coord[consts.Tile]
-	q := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
-	for q.Next() {
-		e := q.Entity()
-		if world.Components.Name.Get(e).Name != merchantName {
-			continue
+	for i := range 16 {
+		if overworld.IsSettlementChunk(world.Resources.RawMaster, runSeed, consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 1) {
+			centers = append(centers, consts.Coord[consts.Tile]{X: chunkW / 2, Y: consts.Tile(i)*chunkH + chunkH/2})
 		}
-		p := world.Components.GridElement.Get(e).Coord
-		centers = append(centers, consts.Coord[consts.Tile]{X: p.X + 2, Y: p.Y + 1})
 	}
-	sort.Slice(centers, func(i, j int) bool { return centers[i].Y < centers[j].Y })
 	require.GreaterOrEqual(t, len(centers), 2, "前提: 隣接リージョンに集落が2つある")
 
 	// 集落は Y 隣接なので道は縦に走る。集落中心 X の列で、幅を持たせた縦帯の1本を探す。行 y で

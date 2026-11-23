@@ -1632,17 +1632,13 @@ import (
 // 感覚。命中率と回避率に影響する
 #Sensation: int & >=-100 & <=100
 
-// 原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。
-// id は地図の記号の id を兼ねる。行の順に重みを積む
+// 原野の小集落1種。当選したチャンクで weight の比で種類を選び、チャンクの中央に施設 facility の絵を置く。
+// 道は集落どうしを結ぶ。id は地図の記号の id を兼ねる。行の順に重みを積む
 #Settlement: {
-	id!:     #EntityID
-	weight!: int32 & >=1
-
-	// 住人の member。name は members の id
-	members!: [...#PropSpot]
-	members_ref: [for x in members {_memberIDs[x.name]}] @rawgen(-)
-	props!: [...#PropSpot]
-	props_ref: [for x in props {_propIDs[x.name]}] @rawgen(-)
+	id!:          #EntityID
+	weight!:      int32 & >=1
+	facility!:    #EntityID
+	facility_ref: _facilityIDs[facility] @rawgen(-)
 }
 
 // タイルの囲われの度合い。屋内外の判定と、世界温度の受け方に効く

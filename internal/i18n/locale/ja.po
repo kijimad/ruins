@@ -1755,11 +1755,8 @@ msgstr "中庭"
 msgid "Wasteland"
 msgstr "荒れ地"
 
-msgid "Village"
-msgstr "村"
-
-msgid "Lone House"
-msgstr "一軒家"
+msgid "Dwelling"
+msgstr "民家"
 
 msgid "Ruins Entrance"
 msgstr "遺跡入口"
@@ -1769,9 +1766,6 @@ msgstr "廃屋"
 
 msgid "Farmhouse"
 msgstr "農家"
-
-msgid "Campsite"
-msgstr "キャンプ跡"
 
 msgid "Unclassified"
 msgstr "未分類"

@@ -243,20 +243,16 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 	gen := NewChunkGen(world, seed, chunkW, chunkH, cols, mapplanner.PlannerTypeOverworldField)
 	require.NoError(t, gen(c, 0, 0))
 
-	// 商人が spawn され、オーバーワールド帯へ束縛され、相互作用を持つ
-	merchantFound := false
-	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
+	// 集落の施設の扉が置かれ、オーバーワールド帯へ束縛される。原野の散布は扉を置かないので、扉で施設を見分ける
+	doors := 0
+	q := ecs.NewFilter1[gc.Door](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.Name.Get(e).Name != "Merchant" {
-			continue
-		}
-		merchantFound = true
-		require.True(t, world.Components.StageBound.Has(e), "商人はステージへ束縛される")
-		assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(e).Key, "商人はオーバーワールド帯へ束縛される")
-		assert.True(t, world.Components.Interactable.Has(e), "商人は相互作用を持つ")
+		doors++
+		require.True(t, world.Components.StageBound.Has(e), "扉はステージへ束縛される")
+		assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(e).Key, "扉はオーバーワールド帯へ束縛される")
 	}
-	assert.True(t, merchantFound, "集落と分類されるチャンクに商人が配置される")
+	assert.Positive(t, doors, "集落と分類されるチャンクに施設の扉が置かれる")
 }
 
 // TestDriver_Rowsの書き込みと正規化 は、新規開始が Rows をセーブ対象へ書き込み、

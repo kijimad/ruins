@@ -54,6 +54,11 @@ func cachedPropRows(raws rawschema.Raws) func(id string) (rawschema.Prop, error)
 	}
 }
 
+// centerOrigin は絵 cells をチャンクの真ん中に置く原点を、チャンク内の座標で返す
+func centerOrigin(g chunkGeom, cells [][]maptemplate.MapCell) consts.Coord[consts.Tile] {
+	return consts.Coord[consts.Tile]{X: g.chunkW/2 - consts.Tile(len(cells[0]))/2, Y: g.chunkH/2 - consts.Tile(len(cells))/2}
+}
+
 // spawnFacility は施設の絵のマスを、チャンク内の区画の左上 (ox, oy) から実体として置く。
 // 扉は左右か上下の壁から向きを決める。
 // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする

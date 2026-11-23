@@ -16,6 +16,14 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// relSpot は基準点からの相対座標に置くエンティティの定義。散布の起点を基準に、
+// prop をずらして配置するのに使う。
+type relSpot struct {
+	name string
+	dx   consts.Tile
+	dy   consts.Tile
+}
+
 // 屋外の散布は wasteland チャンクの開けた地表を自然の野原に仕立てる feature。草・低木・岩を撒く。
 // 草と土の模様は透明背景の地面の飾りとして地面に重ねる。タイルのオートタイルで草地を作ると、
 // 同種で埋めた面は中央が暗いフィルに、異種の境界は縁取りになり自然に繋がらないためである。飾りなら
