@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/maptemplate"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -37,7 +38,7 @@ func TestPlanAt_道の出入り口の先は道か行き先につながる(t *tes
 					continue
 				}
 				for _, p := range ports {
-					n := c.Add(roadSteps[slices.Index([]RoadDir{RoadN, RoadE, RoadS, RoadW}, p.dir)])
+					n := c.Add(stepOf(p.dir))
 					kind := chunkTypeAt(raws, seed, n, planTestCols, planTestSpawn)
 					if p.gate {
 						assert.Equal(t, chunkUrban, kind, "seed=%d %v の門の出入り口の先は区域", seed, c)
@@ -94,9 +95,8 @@ func TestPlanAt_区域と集落と墜落現場に道が届く(t *testing.T) {
 					continue
 				}
 				settlements++
-				steps := map[RoadDir]consts.Coord[consts.Chunk]{RoadN: {X: 0, Y: -1}, RoadE: {X: 1, Y: 0}, RoadS: {X: 0, Y: 1}, RoadW: {X: -1, Y: 0}}
 				back := map[RoadDir]RoadDir{RoadN: RoadS, RoadS: RoadN, RoadE: RoadW, RoadW: RoadE}
-				assert.True(t, reached(seed, c.Add(steps[facing]), back[facing], false), "seed=%d 集落 %v", seed, c)
+				assert.True(t, reached(seed, c.Add(stepOf(facing)), back[facing], false), "seed=%d 集落 %v", seed, c)
 			}
 		}
 	}
@@ -114,6 +114,12 @@ func TestPlanAt_区画の境目で道が途切れない(t *testing.T) {
 			b := k * planRows
 			x, ok := crossingAt(raws, seed, b, planTestCols, planTestSpawn)
 			if !ok {
+				// 区域の間に隙間を空けるので、通り道が引けないのは区域が境目をまたぐときだけ
+				straddled := false
+				for _, r := range districtsBetween(raws, seed, b-1, b, planTestCols, planTestSpawn) {
+					straddled = straddled || (r.anchor.Y <= b-1 && r.anchor.Y+r.h-1 >= b)
+				}
+				assert.True(t, straddled, "seed=%d 境目 %d", seed, b)
 				continue
 			}
 			crossings++
@@ -137,7 +143,7 @@ func TestFacingCells_扉が道の側を向く向きで置く(t *testing.T) {
 	cells[0][2].Prop = "door"
 	require.Equal(t, RoadN, doorSide(cells), "前提: 扉は北を向く")
 
-	for _, facing := range []RoadDir{RoadN, RoadE, RoadS, RoadW} {
+	for _, facing := range roadDirs {
 		for seed := range uint64(8) {
 			got := facingCells(cells, facing, rand.New(rand.NewPCG(seed, 0)))
 			assert.Equal(t, facing, doorSide(got), "facing=%d seed=%d", facing, seed)
@@ -169,8 +175,7 @@ func TestNewChunkGen_集落の扉は道の側を向き道が集落の縁まで�
 
 	world := testutil.InitTestWorld(t)
 	gen := NewChunkGen(world, seed, chunkW, chunkH, planTestCols, mapplanner.PlannerTypeOverworldField)
-	steps := map[RoadDir]consts.Coord[consts.Chunk]{RoadN: {X: 0, Y: -1}, RoadE: {X: 1, Y: 0}, RoadS: {X: 0, Y: 1}, RoadW: {X: -1, Y: 0}}
-	road := s.Add(steps[facing])
+	road := s.Add(stepOf(facing))
 	for _, c := range []consts.Coord[consts.Chunk]{s, road} {
 		require.NoError(t, gen(c, c.X.Tiles(chunkW), c.Y.Tiles(chunkH)))
 	}
@@ -206,4 +211,12 @@ func TestNewChunkGen_集落の扉は道の側を向き道が集落の縁まで�
 		}
 	}
 	assert.Equal(t, facing, side, "扉は道の側を向く")
+}
+
+func TestPlanRows_集落のリージョンの行数で割り切れる(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	// 割り切れないと、区画の境目をまたぐ集落のリージョンに両側の区画が集落を1つずつ置く
+	assert.Zero(t, planRows%placementOf(raws, rawschema.PointFeatureKindSettlement).Spacing)
 }

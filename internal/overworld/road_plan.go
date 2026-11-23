@@ -15,7 +15,7 @@ import (
 // 墜落現場を行き先として、網に近い行き先から順にチャンク単位の経路でつなぐ。集落は道に接する空いたチャンクに置く。
 // 計画は区画の番号と seed の純関数なので、どのチャンクから引いても同じ道と集落になる。
 
-// planRows は区画の行数。区域の間隔の最大より大きくし、区画の中で区域の門どうしを結べるようにする
+// planRows は区画の行数。集落のリージョンの行数で割り切れる値にし、集落のリージョンが区画の境目をまたがないようにする
 const planRows consts.Chunk = 40
 
 // roadSalt は区画の境目の通り道と集落の置き場所の抽選に混ぜる値
@@ -308,8 +308,8 @@ func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *regionPlan, g r
 				if _, road := plan.roads[c]; road || g.blocked[c] {
 					continue
 				}
-				for _, d := range []consts.Coord[consts.Chunk]{{X: 0, Y: -1}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: -1, Y: 0}} {
-					n := c.Add(d)
+				for _, d := range roadDirs {
+					n := c.Add(stepOf(d))
 					if _, ok := plan.roads[n]; ok {
 						sites = append(sites, site{c: c, road: n})
 					}
@@ -328,7 +328,7 @@ func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *regionPlan, g r
 // roadState は経路探索の状態。曲がる費用を数えるため、来た向きを持つ
 type roadState struct {
 	c   consts.Coord[consts.Chunk]
-	dir int // 0 から 3 が北東南西。-1 は出発点
+	dir RoadDir // 来た向き。0 は出発点
 }
 
 type roadItem struct {
@@ -359,8 +359,23 @@ func (q *roadQueue) Pop() any {
 	return it
 }
 
-// roadSteps は北東南西の隣への差
-var roadSteps = [4]consts.Coord[consts.Chunk]{{X: 0, Y: -1}, {X: 1, Y: 0}, {X: 0, Y: 1}, {X: -1, Y: 0}}
+// roadDirs は経路が隣へ進む方角を、探索で試す順に並べる
+var roadDirs = [4]RoadDir{RoadN, RoadE, RoadS, RoadW}
+
+// stepOf は方角 d の隣への差を返す
+func stepOf(d RoadDir) consts.Coord[consts.Chunk] {
+	switch d {
+	case RoadN:
+		return consts.Coord[consts.Chunk]{X: 0, Y: -1}
+	case RoadE:
+		return consts.Coord[consts.Chunk]{X: 1, Y: 0}
+	case RoadS:
+		return consts.Coord[consts.Chunk]{X: 0, Y: 1}
+	case RoadW:
+		return consts.Coord[consts.Chunk]{X: -1, Y: 0}
+	}
+	panic("stepOf: not a single direction")
+}
 
 // shortestRoad は網 from のどれかから行き先 targets のどれかまでの、費用の最も小さい経路を出発点から順に返す。
 // passable なチャンクだけを通る。経路が無ければ nil
@@ -375,7 +390,7 @@ func shortestRoad(from map[consts.Coord[consts.Chunk]][]roadPort, targets map[co
 	q := &roadQueue{}
 	seq := 0
 	for _, c := range starts {
-		s := roadState{c: c, dir: -1}
+		s := roadState{c: c}
 		dist[s] = 0
 		heap.Push(q, roadItem{s: s, seq: seq})
 		seq++
@@ -392,20 +407,20 @@ func shortestRoad(from map[consts.Coord[consts.Chunk]][]roadPort, targets map[co
 			var path []consts.Coord[consts.Chunk]
 			for s := it.s; ; s = prev[s] {
 				path = append(path, s.c)
-				if s.dir < 0 {
+				if s.dir == 0 {
 					break
 				}
 			}
 			slices.Reverse(path)
 			return path
 		}
-		for d, step := range roadSteps {
-			n := it.s.c.Add(step)
+		for _, d := range roadDirs {
+			n := it.s.c.Add(stepOf(d))
 			if !passable(n) {
 				continue
 			}
 			cost := it.cost + roadStepCost
-			if it.s.dir >= 0 && it.s.dir != d {
+			if it.s.dir != 0 && it.s.dir != d {
 				cost += roadTurnCost
 			}
 			ns := roadState{c: n, dir: d}
