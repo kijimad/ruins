@@ -354,6 +354,38 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 	}
 }
 
+func TestSnowLayer_日中の底上げを越えない色で重ねる(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		tint [3]float64
+		want []float64
+	}{
+		{"底上げされた色は最大の成分で割る", [3]float64{1.3, 1.1, 0.8}, []float64{1, 1.1 / 1.3, 0.8 / 1.3}},
+		{"最大の成分がちょうど1の色はそのまま重ねる", [3]float64{1, 0.9, 0.7}, []float64{1, 0.9, 0.7}},
+		{"夜の暗い色はそのまま重ねる", [3]float64{0.6, 0.5, 0.4}, []float64{0.6, 0.5, 0.4}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			query.GetGameTime(world).TotalTurns = 24*1500 + 500
+			query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+			query.EnsureSeamlessBand(world)
+			tile, err := lifecycle.SpawnTile(world, consts.TileNameDirt, 3, 3, nil)
+			require.NoError(t, err)
+			layer := &snowLayer{sys: &Render3DSystem{}, ok: true, fractions: map[consts.Tile]float64{}}
+
+			var quads []r3quad
+			layer.add(&quads, world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}, tt.tint)
+
+			require.Len(t, quads, 1)
+			assert.InDeltaSlice(t, tt.want, quads[0].col[:], 1e-9)
+		})
+	}
+}
+
 // assertFacesInDelta は面の並びを、頂点を近似で、塗り方を一致で比べる
 func assertFacesInDelta(t *testing.T, want, got []insetFace, msg string) {
 	t.Helper()
