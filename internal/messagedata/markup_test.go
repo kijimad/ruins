@@ -1,6 +1,7 @@
 package messagedata
 
 import (
+	"image/color"
 	"strings"
 	"testing"
 
@@ -79,7 +80,8 @@ func TestTagStyle(t *testing.T) {
 		t.Parallel()
 		style, ok := tagStyle("item")
 		require.True(t, ok)
-		assert.NotNil(t, style.fg, "意味タグは前景色を持つ")
+		require.NotNil(t, style.fg)
+		assert.Equal(t, gamelog.ColorCyan, *style.fg)
 		assert.Nil(t, style.bg, "意味タグは背景を持たない")
 	})
 
@@ -89,6 +91,8 @@ func TestTagStyle(t *testing.T) {
 		require.True(t, ok)
 		require.NotNil(t, style.fg)
 		require.NotNil(t, style.bg)
+		assert.Equal(t, color.RGBA{R: 255, G: 100, B: 100, A: 255}, *style.fg)
+		assert.Equal(t, color.RGBA{R: 80, G: 20, B: 20, A: 180}, *style.bg)
 	})
 
 	t.Run("color_接頭辞は既知の色名を解決する", func(t *testing.T) {

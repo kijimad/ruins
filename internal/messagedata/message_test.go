@@ -53,6 +53,19 @@ func TestAddText(t *testing.T) {
 		assert.Equal(t, "前半", m.TextSegmentLines[0][0].Text)
 		assert.Equal(t, "後半", m.TextSegmentLines[0][1].Text)
 	})
+
+	t.Run("末尾の改行は空の断片だけの行を作る", func(t *testing.T) {
+		t.Parallel()
+		m := (&MessageData{}).AddText("a\n")
+		assert.Equal(t, [][]TextSegment{{{Text: "a"}}, {{Text: ""}}}, m.TextSegmentLines)
+	})
+
+	t.Run("改行で終えた後に呼ぶと次の行に積む", func(t *testing.T) {
+		t.Parallel()
+		m := (&MessageData{}).AddText("前半\n")
+		m.AddText("後半")
+		assert.Equal(t, [][]TextSegment{{{Text: "前半"}}, {{Text: ""}, {Text: "後半"}}}, m.TextSegmentLines)
+	})
 }
 
 func TestNewDialogMessage(t *testing.T) {
