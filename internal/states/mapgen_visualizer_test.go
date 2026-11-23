@@ -26,10 +26,18 @@ func TestMapGenVisualizerState_開始した後に止めるとスポーンした�
 		q.Close()
 		return n
 	}
-	before := gridCount()
+	spriteCount := func() int {
+		q := ecs.NewFilter1[gc.SpriteRender](world.ECS).Query()
+		n := q.Count()
+		q.Close()
+		return n
+	}
+	beforeGrid, beforeSprite := gridCount(), spriteCount()
 	st := &gs.MapGenVisualizerState{PlannerType: plannerTypes[i], Seed: 1}
 	require.NoError(t, st.OnStart(world))
-	require.Greater(t, gridCount(), before, "開始するとタイルなどをスポーンする")
+	require.Greater(t, gridCount(), beforeGrid, "開始するとタイルなどをスポーンする")
+	require.Greater(t, spriteCount(), beforeSprite, "開始すると描く物をスポーンする")
 	require.NoError(t, st.OnStop(world))
-	assert.Equal(t, before, gridCount(), "止めるとスポーンした物が残らない")
+	assert.Equal(t, beforeGrid, gridCount(), "止めると地図の上の物が残らない")
+	assert.Equal(t, beforeSprite, spriteCount(), "止めると描く物が残らない")
 }

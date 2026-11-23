@@ -20,6 +20,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	raws := rawschema.Raws{
 		ToolCategories: &[]rawschema.ToolCategory{{Id: "mining"}},
 		AmmoKinds:      &[]rawschema.AmmoKind{{Id: "9mm"}},
+		CrashSites:     &[]rawschema.CrashSite{{Id: "house", Weight: 1}},
 		Zones:          &[]rawschema.Zone{{Id: "residential"}, {Id: "downtown"}},
 		FoliageEffects: &[]rawschema.Foliage{{Id: "grass", TempModifier: -1}},
 		Materials:      &[]rawschema.Material{{Id: "metal", Name: "Metal", Disassembly: &rawschema.MaterialDisassembly{Item: "iron", PerWeight: "1 kg"}}},
@@ -240,6 +241,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"ドロップテーブル", func(r *rawschema.Raws) { *r.DropTables = append(*r.DropTables, (*r.DropTables)[0]) }, "dropTableIds_unique.remains"},
 		{"アイテムテーブル", func(r *rawschema.Raws) { *r.ItemTables = append(*r.ItemTables, (*r.ItemTables)[0]) }, "itemTableIds_unique.chest"},
 		{"敵テーブル", func(r *rawschema.Raws) { *r.EnemyTables = append(*r.EnemyTables, (*r.EnemyTables)[0]) }, "enemyTableIds_unique.wild"},
+		{"墜落現場", func(r *rawschema.Raws) { *r.CrashSites = append(*r.CrashSites, (*r.CrashSites)[0]) }, "crashSiteIds_unique.house"},
 		{"職業", func(r *rawschema.Raws) { *r.Professions = append(*r.Professions, (*r.Professions)[0]) }, "professionIds_unique.soldier"},
 		{"タイル", func(r *rawschema.Raws) { *r.Tiles = append(*r.Tiles, (*r.Tiles)[0]) }, "tileIds_unique.floor"},
 		{"置物", func(r *rawschema.Raws) { *r.Props = append(*r.Props, (*r.Props)[0]) }, "propIds_unique.bed"},

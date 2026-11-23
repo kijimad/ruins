@@ -30,6 +30,7 @@ func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error
 	fileName := filepath.Join(sm.saveDirectory, slotName+saveFileExt)
 	tmp := fileName + ".tmp"
 	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+		_ = os.Remove(tmp)
 		return fmt.Errorf("failed to write save file: %w", err)
 	}
 	if err := os.Rename(tmp, fileName); err != nil {
