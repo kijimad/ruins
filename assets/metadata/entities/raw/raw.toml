@@ -20303,9 +20303,6 @@
   salt = 1
   separation = 1
   spacing = 5
-  [pointFeatures.road]
-    tile = "road"
-    width = 4
 
 [[pointFeatures]]
   id = "landmark"
@@ -23298,6 +23295,11 @@
   name = "Cloth Scraps"
   spriteKeys = ["cloth_scraps_a", "cloth_scraps_b", "cloth_scraps_c", "cloth_scraps_d", "cloth_scraps_e"]
   spriteSheetName = "field"
+
+[road]
+  spanRows = 40
+  tile = "road"
+  width = 4
 
 [[ruinedPathSteps]]
   chance = 0.3

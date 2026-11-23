@@ -387,20 +387,21 @@ import (
 	separation!: int & >=0 & <spacing
 	// 乱数の種を地物ごとにずらす値。行ごとに違う値にする。変えると同じ run の seed でも別の世界になる
 	salt!: int & >=1
-	// 道のタイルと幅。この欄を持つ地物があれば、計画区間ごとに区域・集落・墜落現場を道でつなぐ
-	road?: #Road
 }
 
 // 区域でない地物の種類
 #PointFeatureKind: "settlement" | "landmark" @rawgen(prefix)
 
-// 道のタイルと幅
+// 地上の道。地上を南北に spanRows 行ずつの計画区間に分け、計画区間ごとに区域・集落・墜落現場を道でつなぐ。
+// 集落は道に接するチャンクに置く
 #Road: {
 	// 道のタイル
 	tile!:    #EntityID
 	tile_ref: _tileIDs[tile] @rawgen(-)
 	// 道の幅。タイル数
 	width!: int & >=1
+	// 計画区間の行数。チャンク数。集落のリージョンの行数で割り切れる値にし、集落のリージョンが計画区間の境目をまたがないようにする
+	spanRows!: int & >=1
 }
 
 // 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める
@@ -1464,6 +1465,10 @@ import (
 	simpleSteps?: [...#SimpleStep]
 	settlements?: [...#Settlement]
 	dialogues?: [...#Dialogue]
+	road?: #Road
+
+	// 計画区間の行数は集落のリージョンの行数で割り切れる。割り切れないと、境目をまたぐリージョンに両側の計画区間が集落を1つずつ置く
+	roadSpanRows_divisible: {if road != _|_ && pointFeatures != _|_ for f in pointFeatures if f.id == "settlement" {(f.id): 0 & mod(road.spanRows, f.spacing)}} @rawgen(-)
 
 	// id は表ごとに一意にする。重複すると同じ id に別の行番号が入り、値が食い違う
 	bodyAttackIds_unique: {if bodyAttacks != _|_ for i, x in bodyAttacks {(x.id): i}} @rawgen(-)

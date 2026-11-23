@@ -9,7 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/maptemplate"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -110,8 +109,9 @@ func TestPlanAt_計画区間の境目で道が途切れない(t *testing.T) {
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	crossings := 0
 	for seed := range uint64(20) {
-		for k := consts.FloorDiv(planTestTop, planRows) + 1; k <= consts.FloorDiv(planTestBottom, planRows); k++ {
-			b := k * planRows
+		rows := consts.Chunk(raws.Road.SpanRows)
+		for k := consts.FloorDiv(planTestTop, rows) + 1; k <= consts.FloorDiv(planTestBottom, rows); k++ {
+			b := k * rows
 			x, ok := crossingAt(raws, seed, b, planTestCols, planTestSpawn)
 			if !ok {
 				// 区域の間に隙間を空けるので、通り道が引けないのは区域が境目をまたぐときだけ
@@ -235,14 +235,6 @@ func TestNewChunkGen_集落の扉は道の側を向き道が集落の縁まで�
 		}
 	}
 	assert.Equal(t, facing, side, "扉は道の側を向く")
-}
-
-func TestPlanRows_集落のリージョンの行数で割り切れる(t *testing.T) {
-	t.Parallel()
-
-	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	// 割り切れないと、計画区間の境目をまたぐ集落のリージョンに両側の計画区間が集落を1つずつ置く
-	assert.Zero(t, planRows%placementOf(raws, rawschema.PointFeatureKindSettlement).Spacing)
 }
 
 func TestEntranceOf(t *testing.T) {

@@ -65,8 +65,9 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Remains: &[]rawschema.Remains{{Id: "splinters", Name: "Splinters", SpriteSheetName: "field", SpriteKeys: []rawschema.SpriteKey{"debris"}}},
 		Decors:  &[]rawschema.Decor{{Id: "moss", Name: "Moss", SpriteRender: render("moss")}},
 		PointFeatures: &[]rawschema.PointFeature{
-			{Id: rawschema.PointFeatureKindSettlement, Spacing: 3, Separation: 1, Salt: 1, Road: &rawschema.Road{Tile: "floor", Width: 2}},
+			{Id: rawschema.PointFeatureKindSettlement, Spacing: 3, Separation: 1, Salt: 1},
 		},
+		Road: &rawschema.Road{Tile: "floor", Width: 2, SpanRows: 6},
 		ScatterZones: &[]rawschema.ScatterZone{{
 			Id: "meadow", Ground: "floor", LootGroup: "junk",
 			Entries: []rawschema.ScatterEntry{
@@ -168,7 +169,8 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"施設の敵テーブル", func(r *rawschema.Raws) { (*r.Facilities)[0].EnemyTable = "none" }, "facilities.0.enemyTable_ref"},
 		{"ランドマークの施設", func(r *rawschema.Raws) { (*r.Landmarks)[0].Id = "none" }, "landmarks.0.id_ref"},
 		{"区域の塀の家具", func(r *rawschema.Raws) { (*r.Districts)[0].Fence = new(rawschema.EntityID("none")) }, "districts.0.fence_ref"},
-		{"地物の道のタイル", func(r *rawschema.Raws) { (*r.PointFeatures)[0].Road.Tile = "none" }, "pointFeatures.0.road.tile_ref"},
+		{"道のタイル", func(r *rawschema.Raws) { r.Road.Tile = "none" }, "road.tile_ref"},
+		{"計画区間の行数が集落のリージョンの行数で割り切れない", func(r *rawschema.Raws) { r.Road.SpanRows = 4 }, "roadSpanRows_divisible.settlement"},
 		{"散布ゾーンの下地のタイル", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Ground = "none" }, "scatterZones.0.ground_ref"},
 		{"散布ゾーンの戦利品グループ", func(r *rawschema.Raws) { (*r.ScatterZones)[0].LootGroup = "none" }, "scatterZones.0.lootGroup_ref"},
 		{"区域の目玉の施設", func(r *rawschema.Raws) { (*r.Districts)[0].Landmark = new(rawschema.EntityID("none")) }, "districts.0.landmark_ref"},

@@ -1755,9 +1755,6 @@ type PointFeature struct {
 	// Id 地物の種類
 	Id PointFeatureKind `json:"id"`
 
-	// Road 道のタイルと幅。この欄を持つ地物があれば、計画区間ごとに区域・集落・墜落現場を道でつなぐ
-	Road *Road `json:"road,omitempty"`
-
 	// Salt 乱数の種を地物ごとにずらす値。行ごとに違う値にする。変えると同じ run の seed でも別の世界になる
 	Salt int `json:"salt"`
 
@@ -2138,6 +2135,8 @@ type Raws struct {
 
 	Remains *[]Remains `json:"remains,omitempty"`
 
+	Road *Road `json:"road,omitempty"`
+
 	RuinedPathSteps *[]RuinedPathStep `json:"ruinedPathSteps,omitempty"`
 
 	RuinedWallSteps *[]RuinedWallStep `json:"ruinedWallSteps,omitempty"`
@@ -2268,8 +2267,12 @@ type Remedy struct {
 	Treats []ConditionTypeName `json:"treats"`
 }
 
-// Road 道のタイルと幅
+// Road 地上の道。地上を南北に spanRows 行ずつの計画区間に分け、計画区間ごとに区域・集落・墜落現場を道でつなぐ。
+// 集落は道に接するチャンクに置く
 type Road struct {
+	// SpanRows 計画区間の行数。チャンク数。集落のリージョンの行数で割り切れる値にし、集落のリージョンが計画区間の境目をまたがないようにする
+	SpanRows int `json:"spanRows"`
+
 	// Tile 道のタイル
 	Tile EntityID `json:"tile"`
 
