@@ -466,10 +466,18 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 
 // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、
 // inset は壁にはめる板、facing は置き方 Pose に合わせて立てる閉じた板にし、Pose が無ければ立て板にする。flat は地面に寝かせる。
-// linked は描けるマスの linked の隣へ中心から伸ばす格子の板にする
+// linked は描けるマスの linked の隣へ中心から伸ばす格子の板にする。寝かせる物の他は、描いたマスに足元の影を1枚ずつ積む
 func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, poses map[consts.Coord[consts.Tile]]gc.Pose, linked map[consts.Coord[consts.Tile]]bool) []r3quad {
 	right := projector.Right()
+	// 同じマスに立つ物が重なっても影は1枚にし、そのマスだけ濃くしない。積む順を走査順に固定するため、集合と並びを両方持つ
 	shaded := map[consts.Coord[consts.Tile]]bool{}
+	var stood []consts.Coord[consts.Tile]
+	stand := func(c consts.Coord[consts.Tile]) {
+		if !shaded[c] {
+			shaded[c] = true
+			stood = append(stood, c)
+		}
+	}
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
 		e := objQ.Entity()
@@ -513,6 +521,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 				sys.addLinkedSpan(&quads, g.Coord, s, atlas, ux, uy, uw, uh, tint)
 				quads[len(quads)-1].depth = sr.Depth.Rank()
 			}
+			stand(g.Coord)
 			continue
 		}
 		if sr.Shape == rawschema.Inset {
@@ -520,6 +529,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			// 開いた扉は描かず、開口部だけを残す
 			if !vis || world.Components.BlockPass.Has(e) {
 				sys.addSlab(&quads, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
+				stand(g.Coord)
 			}
 			continue
 		}
@@ -533,6 +543,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 				return v && projector.TileOnScreen(n, render3d.BillboardHeight)
 			}
 			sys.addSlab(&quads, facingFaces(g.Coord, f, poses, drawn), atlas, ux, uy, uw, uh, tint)
+			stand(g.Coord)
 			continue
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
@@ -545,13 +556,12 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		// 立て板の上下は SpriteRender.Depth で決める。同一タイルの立て板は4隅が一致して奥行きが
 		// 同値になるので、この副キーが無いと走査順で前後がばらつく
 		depth := sr.Depth.Rank()
-		// 同じマスに立て板が重なっても影は1枚にし、そのマスだけ濃くしない
-		if !shaded[g.Coord] {
-			shaded[g.Coord] = true
-			sys.addFootShadow(&quads, g.Coord)
-		}
 		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
 		quads[len(quads)-1].depth = depth
+		stand(g.Coord)
+	}
+	for _, c := range stood {
+		sys.addFootShadow(&quads, c)
 	}
 	return quads
 }

@@ -462,6 +462,42 @@ func TestClosedInsets_閉じた壁にはめる置物だけを集める(t *testin
 	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 5, Y: 3}: true}, closedInsets(world))
 }
 
+func TestCollectBillboards_立つ物は形によらず描いたマスに影を1枚積む(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
+	door, fence, shelf := consts.Coord[consts.Tile]{X: 24, Y: 25}, consts.Coord[consts.Tile]{X: 26, Y: 25}, consts.Coord[consts.Tile]{X: 25, Y: 24}
+
+	world := testutil.InitTestWorld(t)
+	img := ebiten.NewImage(32, 32)
+	// 扉と棚の板は側面を絵の平均色で塗る。ゲームの開始前は画素を読めないので、平均色を先に入れておく
+	r3flatColor.Store(flatColorKey{img, 0, 0, 32, 32}, [3]float64{1, 1, 1})
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {
+			Texture: gc.Texture{Image: img},
+			Sprites: map[string]gc.Sprite{"door_vertical_closed": {Width: 32, Height: 32}, "fence": {Width: 32, Height: 32}, "book_shelf_2": {Width: 32, Height: 32}},
+		},
+	})
+	_, err := lifecycle.SpawnDoor(world, door, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "fence", fence.X, fence.Y)
+	require.NoError(t, err)
+	e, err := lifecycle.SpawnProp(world, "book_shelf_2", shelf.X, shelf.Y)
+	require.NoError(t, err)
+	world.Components.Pose.Add(e, &gc.Pose{Facing: consts.West, Anchor: gc.AnchorBack})
+	sys := &Render3DSystem{}
+
+	var shadows []consts.Coord[consts.Tile]
+	for _, q := range sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), posesAt(world), linkedAt(world)) {
+		if q.depth == rawschema.SpriteDepthShadow.Rank() {
+			shadows = append(shadows, consts.Coord[consts.Tile]{X: consts.Tile(q.p[0].X), Y: consts.Tile(q.p[0].Z)})
+		}
+	}
+
+	assert.ElementsMatch(t, []consts.Coord[consts.Tile]{door, fence, shelf}, shadows)
+}
+
 func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
 	t.Parallel()
 	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
@@ -652,7 +688,7 @@ func TestCollectBillboards_柵は描けるマスの隣とだけつなぐ(t *test
 	sys := &Render3DSystem{}
 	// 中央のマスの板だけを見る。隣の柵の板は中央のマスの外から始まる
 	inCenter := func(q r3quad) bool {
-		return q.p[0].X >= 25 && q.p[0].X <= 25.5 && q.p[0].Z >= 25 && q.p[0].Z <= 25.5
+		return q.depth == rawschema.SpriteDepthTaller.Rank() && q.p[0].X >= 25 && q.p[0].X <= 25.5 && q.p[0].Z >= 25 && q.p[0].Z <= 25.5
 	}
 	centerQuads := func(known func(consts.Coord[consts.Tile]) bool) []r3quad {
 		vis := func(g *gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, known(g.Coord), true }
@@ -672,7 +708,6 @@ func TestCollectBillboards_柵は描けるマスの隣とだけつなぐ(t *test
 	half := corner[0].uv[1][0] - corner[0].uv[0][0]
 	for _, q := range corner {
 		assert.InDelta(t, half, q.uv[1][0]-q.uv[0][0], 1e-9, "角の2枚は同じ幅の絵を貼る")
-		assert.Equal(t, rawschema.SpriteDepthTaller.Rank(), q.depth)
 	}
 
 	southUnseen := centerQuads(func(c consts.Coord[consts.Tile]) bool { return c != south })
