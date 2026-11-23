@@ -70,7 +70,7 @@ document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(new THREE.Color(T.fog), V.fog * T.fogK);
 
-// 空: 地平線は朝焼けの桃色、天頂は冷たい青
+// 空: 時刻ごとの天頂・中ほど・地平線の3色を高さで混ぜる
 {
   const g = new THREE.SphereGeometry(900, 32, 16);
   const cols = [], p = g.attributes.position, c = new THREE.Color();
@@ -266,7 +266,8 @@ flame(5.5, craterH(5.5, -3.5) - 0.1, -3.5, 0.5 * V.fire);
 }
 
 // 煙の柱: 小さな塊を数多く重ね、上ほど大きく薄くして空に溶かす。
-// 山と都市の形を保つため、煙は別の乱数で作り、本の乱数は以前の煙と同じ回数だけ進めておく。
+// 煙は別の乱数で作る。山と都市は本の乱数のこの位置から作られるので、選んだ構図を保つため
+// 本の乱数を 720 回進めておく。720 は高さ30段×3塊×1塊あたり8回の乱数。
 for (let i = 0; i < 720; i++) rnd();
 {
   let ss = (seed ^ 0x5bd1e995) | 0;
@@ -332,6 +333,5 @@ const cam = new THREE.PerspectiveCamera(V.fov, W / H, 0.1, 2000);
 cam.position.set(...V.cam);
 cam.lookAt(...V.look);
 renderer.render(scene, cam);
-document.title = 'rendered';
 </script>
 </body></html>

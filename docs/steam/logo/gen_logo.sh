@@ -1,6 +1,6 @@
 #!/bin/bash
 # Coldward のロゴを決定的に生成する。縦長の極太書体で COLDWARD を広い字間に組み、下へ細い罫で挟んだ小さな副題を置く。
-# 塗りは単色で、縁取り・グラデ・色収差は使わない。明るい雪原から浮かせるのは、広く薄い暗い暈しだけに任せる。
+# 塗りは単色で、縁取り・グラデ・色収差は使わない。背景から浮かせるのは、広く薄い暗い暈しだけに任せる。
 # 依存: ImageMagick と fonts の Bebas Neue と Jost。いずれも SIL OFL、各 OFL.txt 参照。
 # 使い方: bash docs/steam/logo/gen_logo.sh  出力: logo.png 透過・高解像
 

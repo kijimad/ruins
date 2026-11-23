@@ -6,7 +6,9 @@
 #   python3 gen_crash.py 7            seed 7 の基準の構図だけ描く
 #   python3 gen_crash.py 100-147      範囲の seed を描き、12枚ずつ一覧にする
 #   python3 gen_crash.py 203:1-24     seed 203 の世界のまま、カメラと太陽と煙を j ごとに少しずらす
-# 依存: google-chrome。出力は ./crash-out/ に置く。
+# 依存: google-chrome。Google Chrome 156.0.8078.79 で描いた絵を master にしている。
+# SwiftShader の出力は Chrome の版で変わりうるので、版が違うと画素は一致しないことがある。
+# 出力は ./crash-out/ に置く。
 
 import os
 import subprocess
@@ -22,6 +24,7 @@ SCENE = "file://" + os.path.join(HERE, "crash_scene.html")
 W, H = 480, 320
 SCALE = 8
 AUTO_COLORS = 26
+MIN_COLORS = 64
 WARM = [
     0xFF, 0x6A, 0x1F, 0xFF, 0xB3, 0x47, 0xFF, 0xE0, 0x8A,
     0xC0, 0x44, 0x1A, 0x7A, 0x30, 0x1A, 0x3A, 0x1E, 0x18,
@@ -29,17 +32,27 @@ WARM = [
 
 
 def render(key, path):
+    """シーンを描いて path に書く。three.js の読み込みやシェーダが失敗すると Chrome は
+    ほぼ単色の画面を書いて正常に終わるので、色の数で描き損じを見分けて止める。"""
     seed, _, j = str(key).partition(":")
     extra = f"&j={j}" if j else ""
     env = {k: v for k, v in os.environ.items() if k != "LD_LIBRARY_PATH"}
-    subprocess.run(
-        [
-            "google-chrome", "--headless=new", "--enable-unsafe-swiftshader", "--use-angle=swiftshader",
-            f"--window-size={W},{H + 200}", "--hide-scrollbars", "--virtual-time-budget=20000",
-            f"--screenshot={path}", f"{SCENE}?w={W}&h={H}&px=1&seed={seed}{extra}",
-        ],
-        env=env, check=True, capture_output=True,
-    )
+    try:
+        subprocess.run(
+            [
+                "google-chrome", "--headless=new", "--enable-unsafe-swiftshader", "--use-angle=swiftshader",
+                f"--window-size={W},{H + 200}", "--hide-scrollbars", "--virtual-time-budget=20000",
+                f"--screenshot={path}", f"{SCENE}?w={W}&h={H}&px=1&seed={seed}{extra}",
+            ],
+            env=env, check=True, capture_output=True, text=True,
+        )
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"google-chrome が失敗した: {key}\n{e.stderr}") from e
+    if not os.path.exists(path):
+        raise RuntimeError(f"描き損じた: {key} の画像が書かれなかった")
+    colors = Image.open(path).convert("RGB").crop((0, 0, W, H)).getcolors(MIN_COLORS)
+    if colors is not None:
+        raise RuntimeError(f"描き損じた: {key} の色が {len(colors)} 色しかない")
 
 
 def pixelize(raw):
