@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// planSpan は計画を確かめる行の範囲。開始の行を挟んで北へ3区画ほど見る
+// planSpan は計画を確かめる行の範囲。開始の行を挟んで北へ3計画区間ほど見る
 const (
 	planTestTop    consts.Chunk = -100
 	planTestBottom consts.Chunk = 19
@@ -104,7 +104,7 @@ func TestPlanAt_区域と集落と墜落現場に道が届く(t *testing.T) {
 	require.Positive(t, settlements, "前提: 集落がある")
 }
 
-func TestPlanAt_区画の境目で道が途切れない(t *testing.T) {
+func TestPlanAt_計画区間の境目で道が途切れない(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
@@ -129,7 +129,7 @@ func TestPlanAt_区画の境目で道が途切れない(t *testing.T) {
 			assert.Contains(t, above, roadPort{dir: RoadS}, "seed=%d 境目 %d の北", seed, b)
 		}
 	}
-	require.Positive(t, crossings, "前提: 区画の境目を越える道がある")
+	require.Positive(t, crossings, "前提: 計画区間の境目を越える道がある")
 }
 
 func TestFacingCells_扉が道の側を向く向きで置く(t *testing.T) {
@@ -241,7 +241,7 @@ func TestPlanRows_集落のリージョンの行数で割り切れる(t *testing
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	// 割り切れないと、区画の境目をまたぐ集落のリージョンに両側の区画が集落を1つずつ置く
+	// 割り切れないと、計画区間の境目をまたぐ集落のリージョンに両側の計画区間が集落を1つずつ置く
 	assert.Zero(t, planRows%placementOf(raws, rawschema.PointFeatureKindSettlement).Spacing)
 }
 

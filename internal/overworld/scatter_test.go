@@ -182,7 +182,7 @@ func TestScatterFeature_草と土の飾りを種類を混ぜて撒く(t *testing
 }
 
 // TestScatterFeature_wasteland以外は置かない は、散布のスコープが wasteland 限定であることを固定する。
-// 集落や市街のチャンクでは散布が何も置かず、建物との占有衝突を構造的に避ける。
+// 集落や市街地のチャンクでは散布が何も置かず、建物との占有衝突を構造的に避ける。
 func TestScatterFeature_wasteland以外は置かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

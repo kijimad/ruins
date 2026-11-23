@@ -5,7 +5,7 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
-// 道のチャンクの中の道の形。道がどのチャンクを通りどの縁へ抜けるかは区画の計画 road_plan.go が決め、ここは出入り口から
+// 道のチャンクの中の道の形。道がどのチャンクを通りどの縁へ抜けるかは計画区間の計画 road_plan.go が決め、ここは出入り口から
 // チャンクの中に描く道の辺を作る。舗装 road.go と散布の回避 scatter.go が同じ辺を使う。
 
 // roadOrient は道の一辺の向き。実体は文字列で、%v やテスト失敗の出力に種別名が出る。

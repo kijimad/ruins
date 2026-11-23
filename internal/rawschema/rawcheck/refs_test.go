@@ -108,7 +108,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			Planners:   []rawschema.DungeonPlannerWeight{{Id: "cave", Weight: 1}},
 			EnemyCount: rawschema.RandInt{Base: 1, Spread: 1}, ItemCount: rawschema.RandInt{Base: 1, Spread: 1},
 		}},
-		Settlements: &[]rawschema.Settlement{{Id: "village", Weight: 1, Facility: "house"}},
+		Settlements: &[]rawschema.Settlement{{Id: "dwelling", Weight: 1, Facility: "house"}},
 		Dialogues:   &[]rawschema.Dialogue{{Id: "greeting", Pages: []rawschema.DialoguePage{"Hi."}}},
 		Tiles:       &[]rawschema.Tile{tile("floor", &rawschema.TileSpawn{Tile: new("wall")}), tile("wall", nil)},
 		Layouts: &[]rawschema.Layout{{
@@ -255,7 +255,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"植生", func(r *rawschema.Raws) { *r.FoliageEffects = append(*r.FoliageEffects, (*r.FoliageEffects)[0]) }, "foliageEffectIds_unique.grass"},
 		{"道具の分類", func(r *rawschema.Raws) { *r.ToolCategories = append(*r.ToolCategories, (*r.ToolCategories)[0]) }, "toolCategoryIds_unique.mining"},
 		{"弾の口径", func(r *rawschema.Raws) { *r.AmmoKinds = append(*r.AmmoKinds, (*r.AmmoKinds)[0]) }, `ammoKindIds_unique."9mm"`},
-		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.village"},
+		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.dwelling"},
 		{"部位", func(r *rawschema.Raws) { *r.BodyParts = append(*r.BodyParts, (*r.BodyParts)[0]) }, "bodyPartIds_unique.arm"},
 		{"不調", func(r *rawschema.Raws) { *r.Conditions = append(*r.Conditions, (*r.Conditions)[0]) }, "conditionIds_unique.fracture"},
 		{"攻撃種別", func(r *rawschema.Raws) { *r.AttackTypes = append(*r.AttackTypes, (*r.AttackTypes)[0]) }, "attackTypeIds_unique.sword"},

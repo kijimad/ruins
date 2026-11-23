@@ -21,7 +21,7 @@ func TestSettlementFeature_集落のチャンクに施設を置く(t *testing.T)
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	chunkW, chunkH, cols, _ := dungeon.DungeonOverworld.BandShape()
-	for _, id := range []string{"village", "hamlet"} {
+	for _, id := range []string{"dwelling", "farmstead"} {
 		t.Run(id, func(t *testing.T) {
 			t.Parallel()
 			var seed uint64
@@ -99,9 +99,9 @@ func TestSettlementAt_重みの比で種類を選ぶ(t *testing.T) {
 	want := map[string]int{}
 	for x := range consts.Chunk(10) {
 		for y := range consts.Chunk(10) {
-			id := "hamlet"
+			id := "farmstead"
 			if consts.Mix2D(7^placementOf(raws, rawschema.PointFeatureKindSettlement).Salt, x, y)%10 < 6 {
-				id = "village"
+				id = "dwelling"
 			}
 			want[id]++
 		}

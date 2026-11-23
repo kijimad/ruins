@@ -58,12 +58,12 @@ type scatterCatalog struct {
 
 var errScatterZoneMissing = errors.New("scatter zone not found")
 
-// outdoorZone は wasteland チャンクの人の手の残り具合。近傍の集落・市街地までの距離で決まる。
+// outdoorZone は wasteland チャンクの人の手の残り具合。近傍の道・集落・区域までの距離で決まる。
 // 実体は文字列にし、%v やログで数値でなく種別名が出て読みやすい。iota の連番は割に合わないので使わない。
 type outdoorZone string
 
 const (
-	// zoneRoadside は道・集落・市街に近い。人が踏み分けた開けた原で、草や低木は疎。
+	// zoneRoadside は道・集落・区域に近い。人が踏み分けた開けた原で、草や低木は疎。
 	zoneRoadside outdoorZone = "roadside"
 	// zoneWild は奥地。草が濃く、低木・木立・岩が茂る自然の野原。
 	zoneWild outdoorZone = "wild"
@@ -78,8 +78,7 @@ const (
 	// scatterRouteBuffer は経路マスクのバッファ幅。道の中心線からこのタイル数以内では Big の大物を置かず、
 	// 道の縁に大物が寄って通りを狭めないようにする。舗装した道のマスは土の地面でなくなるので散布されない。
 	scatterRouteBuffer consts.Tile = 2
-	// scatterRoadsideRange は道沿いゾーンの半径。集落・市街の当選チャンクからこのチャンク数以内を
-	// 道沿いにする。道は集落間を結ぶので、集落の近傍が道沿いの帯を兼ねる。
+	// scatterRoadsideRange は道沿いゾーンの半径。道・集落のチャンクと区域からこのチャンク数以内を道沿いにする
 	scatterRoadsideRange consts.Chunk = 1
 	// scatterGrassChannel は草の選定を prop 選定と無相関にするハッシュチャネル。
 	scatterGrassChannel uint64 = 0x67726173735f7072 // "grass_pr"
@@ -307,8 +306,8 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 	return entries[i]
 }
 
-// outdoorZoneAt は wasteland チャンクのゾーンを返す。道・集落・市街の近傍を道沿いにし、それ以外を奥地にする。
-// 道と集落は区画の計画から生成せずに引く
+// outdoorZoneAt は wasteland チャンクのゾーンを返す。道・集落・区域の近傍を道沿いにし、それ以外を奥地にする。
+// 道と集落は計画区間の計画から生成せずに引く
 func outdoorZoneAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) outdoorZone {
 	for dy := -scatterRoadsideRange; dy <= scatterRoadsideRange; dy++ {
 		for dx := -scatterRoadsideRange; dx <= scatterRoadsideRange; dx++ {
@@ -319,7 +318,7 @@ func outdoorZoneAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Ch
 			}
 		}
 	}
-	// 市街は Y 方向のリージョンに並ぶので region は c.Y から引く
+	// 区域は Y 方向のリージョンに並ぶので region は c.Y から引く
 	for _, d := range districtsFrom(raws) {
 		ry := consts.FloorDiv(c.Y, consts.Chunk(d.row.Spacing))
 		for _, pr := range []consts.Chunk{ry - 1, ry, ry + 1} {

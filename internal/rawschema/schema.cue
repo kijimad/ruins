@@ -376,24 +376,25 @@ import (
 	}
 }
 
-// 区域でない地物の置き方。南北に spacing チャンクの帯ごとに1つの当選を置き、隣の帯の当選と separation チャンク以上離す
+// 区域でない地物の置き方。南北に spacing チャンクのリージョンごとに1つの当選を置き、隣のリージョンの当選と separation チャンク以上離す。
+// 集落は spacing をリージョンの行数にだけ使い、置く所は道の計画が決める
 #PointFeature: {
 	// 地物の種類
 	id!: #PointFeatureKind
 	// 当選の間隔。チャンク数
 	spacing!: int & >=2
-	// 隣の帯の当選との最小の空き。チャンク数
+	// 隣のリージョンの当選との最小の空き。チャンク数。集落では使わない
 	separation!: int & >=0 & <spacing
 	// 乱数の種を地物ごとにずらす値。行ごとに違う値にする。変えると同じ run の seed でも別の世界になる
 	salt!: int & >=1
-	// この地物の当選どうしを結ぶ道。省けば道を引かない
+	// 道のタイルと幅。この欄を持つ地物があれば、計画区間ごとに区域・集落・墜落現場を道でつなぐ
 	road?: #Road
 }
 
 // 区域でない地物の種類
 #PointFeatureKind: "settlement" | "landmark" @rawgen(prefix)
 
-// 地物の当選どうしを結ぶ道
+// 道のタイルと幅
 #Road: {
 	// 道のタイル
 	tile!:    #EntityID
@@ -734,7 +735,7 @@ import (
 // 装備部位
 #EquipmentCategory: "HEAD" | "TORSO" | "ARMS" | "HANDS" | "LEGS" | "FEET" | "JEWELRY" @rawgen(prefix)
 
-// 市街地の施設1種
+// 施設1種。区域の建物、集落、点在ランドマーク、墜落現場が、施設の絵をこの id で引く
 #Facility: {
 	// 施設の id。施設の絵の facility が指す
 	id!: #EntityID
@@ -1635,8 +1636,8 @@ import (
 // 感覚。命中率と回避率に影響する
 #Sensation: int & >=-100 & <=100
 
-// 原野の小集落1種。当選したチャンクで weight の比で種類を選び、チャンクの中央に施設 facility の絵を置く。
-// 道は集落どうしを結ぶ。id は地図の記号の id を兼ねる。行の順に重みを積む
+// 道の脇に建つ集落1種。道の計画が集落のリージョンごとに道に接するチャンクを1つ選び、そこで weight の比で種類を選んで、
+// チャンクの中央に施設 facility の絵を扉が道の側を向く向きで置く。id は地図の記号の id を兼ねる。行の順に重みを積む
 #Settlement: {
 	id!:          #EntityID
 	weight!:      int32 & >=1

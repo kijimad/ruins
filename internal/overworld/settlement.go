@@ -11,7 +11,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// settlementFeature は小集落の feature 実装。道の脇の集落のチャンクの中央に、集落の行が指す施設の絵を1つ置く。
+// settlementFeature は集落の feature 実装。道の脇の集落のチャンクの中央に、集落の行が指す施設の絵を1つ置く。
 // 施設は扉が道の側を向く向きで置き、チャンクの縁から施設の玄関まで道を伸ばす
 type settlementFeature struct{}
 

@@ -90,7 +90,7 @@ const (
 )
 
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
-// 荒れ地を返す。優先度は墜落現場 > 市街地 > 道 > 集落 > 点在ランドマーク > 荒れ地。道と集落は区画の計画から引き、重ならない。
+// 荒れ地を返す。優先度は墜落現場 > 市街地 > 道 > 集落 > 点在ランドマーク > 荒れ地。道と集落は計画区間の計画から引き、重ならない。
 // 地図も生成もこの分類を唯一の源にするので、地図の記号と実体が食い違わない。spawnRow は開始の行で、開始チャンクを決める
 func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) chunkType {
 	kind, _ := classifyChunk(raws, runSeed, c, cols, spawnRow)

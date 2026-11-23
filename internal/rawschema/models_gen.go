@@ -973,7 +973,7 @@ func EquipmentCategoryValues() []EquipmentCategory {
 // EscapeDevice 脱出の装置。使うと惑星を脱出してクリアになる
 type EscapeDevice = map[string]interface{}
 
-// Facility 市街地の施設1種
+// Facility 施設1種。区域の建物、集落、点在ランドマーク、墜落現場が、施設の絵をこの id で引く
 type Facility struct {
 	// EnemyTable 施設に湧く敵の表
 	EnemyTable EntityID `json:"enemyTable"`
@@ -1749,18 +1749,19 @@ type NutritionPercent = int
 // PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
 type PassCost = int
 
-// PointFeature 区域でない地物の置き方。南北に spacing チャンクの帯ごとに1つの当選を置き、隣の帯の当選と separation チャンク以上離す
+// PointFeature 区域でない地物の置き方。南北に spacing チャンクのリージョンごとに1つの当選を置き、隣のリージョンの当選と separation チャンク以上離す。
+// 集落は spacing をリージョンの行数にだけ使い、置く所は道の計画が決める
 type PointFeature struct {
 	// Id 地物の種類
 	Id PointFeatureKind `json:"id"`
 
-	// Road この地物の当選どうしを結ぶ道。省けば道を引かない
+	// Road 道のタイルと幅。この欄を持つ地物があれば、計画区間ごとに区域・集落・墜落現場を道でつなぐ
 	Road *Road `json:"road,omitempty"`
 
 	// Salt 乱数の種を地物ごとにずらす値。行ごとに違う値にする。変えると同じ run の seed でも別の世界になる
 	Salt int `json:"salt"`
 
-	// Separation 隣の帯の当選との最小の空き。チャンク数
+	// Separation 隣のリージョンの当選との最小の空き。チャンク数。集落では使わない
 	Separation int `json:"separation"`
 
 	// Spacing 当選の間隔。チャンク数
@@ -2267,7 +2268,7 @@ type Remedy struct {
 	Treats []ConditionTypeName `json:"treats"`
 }
 
-// Road 地物の当選どうしを結ぶ道
+// Road 道のタイルと幅
 type Road struct {
 	// Tile 道のタイル
 	Tile EntityID `json:"tile"`
@@ -2386,8 +2387,8 @@ type SeasonTemp = int
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
 
-// Settlement 原野の小集落1種。当選したチャンクで weight の比で種類を選び、チャンクの中央に施設 facility の絵を置く。
-// 道は集落どうしを結ぶ。id は地図の記号の id を兼ねる。行の順に重みを積む
+// Settlement 道の脇に建つ集落1種。道の計画が集落のリージョンごとに道に接するチャンクを1つ選び、そこで weight の比で種類を選んで、
+// チャンクの中央に施設 facility の絵を扉が道の側を向く向きで置く。id は地図の記号の id を兼ねる。行の順に重みを積む
 type Settlement struct {
 	Facility EntityID `json:"facility"`
 

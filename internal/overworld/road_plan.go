@@ -11,14 +11,14 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
-// 地上を南北に区画へ分け、区画ごとに道と集落を一度に計画する。区域と墜落現場を先に置き、区画の境目の通り道・区域の門・
+// 地上を南北に計画区間へ分け、計画区間ごとに道と集落を一度に計画する。区域と墜落現場を先に置き、計画区間の境目の通り道・区域の門・
 // 墜落現場を行き先として、網に近い行き先から順にチャンク単位の経路でつなぐ。集落は道に接する空いたチャンクに置く。
-// 計画は区画の番号と seed の純関数なので、どのチャンクから引いても同じ道と集落になる。
+// 計画は計画区間の番号と seed の純関数なので、どのチャンクから引いても同じ道と集落になる。
 
-// planRows は区画の行数。集落のリージョンの行数で割り切れる値にし、集落のリージョンが区画の境目をまたがないようにする
+// planRows は計画区間の行数。集落のリージョンの行数で割り切れる値にし、集落のリージョンが計画区間の境目をまたがないようにする
 const planRows consts.Chunk = 40
 
-// roadSalt は区画の境目の通り道と集落の置き場所の抽選に混ぜる値
+// roadSalt は計画区間の境目の通り道と集落の置き場所の抽選に混ぜる値
 const roadSalt uint64 = 0x9e3779b97f4a7c15
 
 // 経路探索の費用。曲がるごとに費用を足し、まっすぐな道を好む
@@ -42,8 +42,8 @@ type roadPort struct {
 	lane portLane
 }
 
-// regionPlan は区画1つの計画
-type regionPlan struct {
+// roadPlan は計画区間1つの計画
+type roadPlan struct {
 	roads       map[consts.Coord[consts.Chunk]][]roadPort
 	settlements map[consts.Coord[consts.Chunk]]RoadDir // 集落と、道のある側
 }
@@ -55,27 +55,27 @@ type planKey struct {
 	runSeed   uint64
 	cols      consts.Chunk
 	spawnRow  consts.Chunk
-	region    consts.Chunk
+	span      consts.Chunk
 }
 
-// planCacheLimit を超えて覚えたら全て忘れる。北へ進む1回の遊びで引く区画は少ないので、テストで多くの seed を引くときだけ効く
+// planCacheLimit を超えて覚えたら全て忘れる。北へ進む1回の遊びで引く計画区間は少ないので、テストで多くの seed を引くときだけ効く
 const planCacheLimit = 512
 
 var (
 	planMu    sync.Mutex
-	planCache = map[planKey]*regionPlan{}
+	planCache = map[planKey]*roadPlan{}
 )
 
-// planAt は行 y を持つ区画の計画を返す。区画ごとに一度だけ計画し、覚えておく
-func planAt(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.Chunk) *regionPlan {
-	key := planKey{features: raws.PointFeatures, districts: raws.Districts, runSeed: runSeed, cols: cols, spawnRow: spawnRow, region: consts.FloorDiv(y, planRows)}
+// planAt は行 y を持つ計画区間の計画を返す。計画区間ごとに一度だけ計画し、覚えておく
+func planAt(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.Chunk) *roadPlan {
+	key := planKey{features: raws.PointFeatures, districts: raws.Districts, runSeed: runSeed, cols: cols, spawnRow: spawnRow, span: consts.FloorDiv(y, planRows)}
 	planMu.Lock()
 	p, ok := planCache[key]
 	planMu.Unlock()
 	if ok {
 		return p
 	}
-	p = planRegion(raws, runSeed, key.region, cols, spawnRow)
+	p = planSpan(raws, runSeed, key.span, cols, spawnRow)
 	planMu.Lock()
 	if len(planCache) >= planCacheLimit {
 		clear(planCache)
@@ -125,7 +125,7 @@ func districtsBetween(raws rawschema.Raws, runSeed uint64, top, bottom, cols, sp
 	return out
 }
 
-// crossingAt は区画の境目の行 b、すなわち行 b-1 と行 b の間を道が越える列を返す。両側のチャンクがどちらも通れる列から
+// crossingAt は計画区間の境目の行 b、すなわち行 b-1 と行 b の間を道が越える列を返す。両側のチャンクがどちらも通れる列から
 // b と seed で引く。区域が境目をまたげば区域の門と通りが通り道になるので、列は引かず ok=false。通れる列が無くても ok=false
 func crossingAt(raws rawschema.Raws, runSeed uint64, b, cols, spawnRow consts.Chunk) (consts.Chunk, bool) {
 	for _, r := range districtsBetween(raws, runSeed, b-1, b, cols, spawnRow) {
@@ -157,15 +157,15 @@ type planNode struct {
 	terms []planTerminal
 }
 
-// regionGrid は計画する区画の範囲と、道の通れないチャンク
-type regionGrid struct {
+// spanGrid は計画する計画区間の範囲と、道の通れないチャンク
+type spanGrid struct {
 	top, bottom, cols consts.Chunk
 	blocked           map[consts.Coord[consts.Chunk]]bool
 }
 
-// newRegionGrid は区画 k の範囲を作り、区域と墜落現場のチャンクを集める
-func newRegionGrid(raws rawschema.Raws, runSeed uint64, k, cols, spawnRow consts.Chunk) regionGrid {
-	g := regionGrid{top: k * planRows, bottom: (k+1)*planRows - 1, cols: cols, blocked: map[consts.Coord[consts.Chunk]]bool{}}
+// newSpanGrid は計画区間 k の範囲を作り、区域と墜落現場のチャンクを集める
+func newSpanGrid(raws rawschema.Raws, runSeed uint64, k, cols, spawnRow consts.Chunk) spanGrid {
+	g := spanGrid{top: k * planRows, bottom: (k+1)*planRows - 1, cols: cols, blocked: map[consts.Coord[consts.Chunk]]bool{}}
 	for y := g.top; y <= g.bottom; y++ {
 		for x := range cols {
 			c := consts.Coord[consts.Chunk]{X: x, Y: y}
@@ -175,13 +175,13 @@ func newRegionGrid(raws rawschema.Raws, runSeed uint64, k, cols, spawnRow consts
 	return g
 }
 
-// passable は c が区画の中で道の通れるチャンクかを返す
-func (g regionGrid) passable(c consts.Coord[consts.Chunk]) bool {
+// passable は c が計画区間の中で道の通れるチャンクかを返す
+func (g spanGrid) passable(c consts.Coord[consts.Chunk]) bool {
 	return c.X >= 0 && c.X < g.cols && c.Y >= g.top && c.Y <= g.bottom && !g.blocked[c]
 }
 
-// nodeOf は terms のうち区画の中で道の通れるものだけを持つ行き先を返す。1つも無ければ ok=false
-func (g regionGrid) nodeOf(terms ...planTerminal) (planNode, bool) {
+// nodeOf は terms のうち計画区間の中で道の通れるものだけを持つ行き先を返す。1つも無ければ ok=false
+func (g spanGrid) nodeOf(terms ...planTerminal) (planNode, bool) {
 	var n planNode
 	for _, t := range terms {
 		if g.passable(t.c) {
@@ -192,23 +192,23 @@ func (g regionGrid) nodeOf(terms ...planTerminal) (planNode, bool) {
 }
 
 // addPort は道のチャンク c に出入り口 p を足す。同じ出入り口は重ねない
-func (plan *regionPlan) addPort(c consts.Coord[consts.Chunk], p roadPort) {
+func (plan *roadPlan) addPort(c consts.Coord[consts.Chunk], p roadPort) {
 	if !slices.Contains(plan.roads[c], p) {
 		plan.roads[c] = append(plan.roads[c], p)
 	}
 }
 
-// planRegion は区画 k の道と集落を計画する
-func planRegion(raws rawschema.Raws, runSeed uint64, k, cols, spawnRow consts.Chunk) *regionPlan {
-	plan := &regionPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}}
+// planSpan は計画区間 k の道と集落を計画する
+func planSpan(raws rawschema.Raws, runSeed uint64, k, cols, spawnRow consts.Chunk) *roadPlan {
+	plan := &roadPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}}
 	if _, ok := roadRow(raws); !ok {
 		return plan
 	}
-	g := newRegionGrid(raws, runSeed, k, cols, spawnRow)
+	g := newSpanGrid(raws, runSeed, k, cols, spawnRow)
 	var start, nodes []planNode
 	if x, ok := crossingAt(raws, runSeed, g.top, cols, spawnRow); ok {
 		t := planTerminal{c: consts.Coord[consts.Chunk]{X: x, Y: g.top}, port: roadPort{dir: RoadN}}
-		// 境目の通り道は、区画をまたいで道を続けるため初めから道にする
+		// 境目の通り道は、計画区間をまたいで道を続けるため初めから道にする
 		plan.addPort(t.c, t.port)
 		start = append(start, planNode{terms: []planTerminal{t}})
 	}
@@ -233,9 +233,9 @@ func planRegion(raws rawschema.Raws, runSeed uint64, k, cols, spawnRow consts.Ch
 	return plan
 }
 
-// districtNodes は門の外のチャンクが区画の中にある区域を行き先にする。区画の北の境目をまたぐ区域は、北の区画の網から
+// districtNodes は門の外のチャンクが計画区間の中にある区域を行き先にする。計画区間の北の境目をまたぐ区域は、北の計画区間の網から
 // 通りを通ってつながっているので網の始まり start にする
-func districtNodes(raws rawschema.Raws, runSeed uint64, g regionGrid, spawnRow consts.Chunk) (start, nodes []planNode) {
+func districtNodes(raws rawschema.Raws, runSeed uint64, g spanGrid, spawnRow consts.Chunk) (start, nodes []planNode) {
 	cat := zoneCatalogFrom(raws)
 	for _, r := range districtsBetween(raws, runSeed, g.top-1, g.bottom+1, g.cols, spawnRow) {
 		north, south := gateColumns(r, lotsOf(raws, cat, r, spawnRow))
@@ -255,7 +255,7 @@ func districtNodes(raws rawschema.Raws, runSeed uint64, g regionGrid, spawnRow c
 }
 
 // connectNodes は網 start に、行き先 nodes を網に近い順に経路でつなぐ。つながらない行き先は残す
-func connectNodes(plan *regionPlan, g regionGrid, start, nodes []planNode) {
+func connectNodes(plan *roadPlan, g spanGrid, start, nodes []planNode) {
 	// attach は網につながった所。値は、そこを道のチャンクにするときに足す行き先の出入り口
 	attach := map[consts.Coord[consts.Chunk]][]roadPort{}
 	join := func(n planNode) {
@@ -304,7 +304,7 @@ func connectNodes(plan *regionPlan, g regionGrid, start, nodes []planNode) {
 }
 
 // placeSettlements は集落のリージョンごとに、道のチャンクに接する空いたチャンクから集落を1つ引き、道から集落の側へ出入り口を足す
-func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *regionPlan, g regionGrid) {
+func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *roadPlan, g spanGrid) {
 	p := placementOf(raws, rawschema.PointFeatureKindSettlement)
 	for ry := consts.FloorDiv(g.top, p.Spacing); ry <= consts.FloorDiv(g.bottom, p.Spacing); ry++ {
 		type site struct {

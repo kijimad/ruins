@@ -11,7 +11,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 道は区域・集落・墜落現場をつなぐ舗装路。区画の計画 road_plan.go が道のチャンクと出入り口を決め、
+// 道は区域・集落・墜落現場をつなぐ舗装路。計画区間の計画 road_plan.go が道のチャンクと出入り口を決め、
 // 各チャンクは自分の出入り口だけを舗装する。
 type roadFeature struct{}
 

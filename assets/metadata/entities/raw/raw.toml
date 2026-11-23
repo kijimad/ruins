@@ -18255,7 +18255,7 @@
 
 [[mapGlyphs]]
   glyph = "T"
-  id = "village"
+  id = "dwelling"
   name = "Dwelling"
   order = 1
   [mapGlyphs.color]
@@ -18266,7 +18266,7 @@
 
 [[mapGlyphs]]
   glyph = "t"
-  id = "hamlet"
+  id = "farmstead"
   name = "Farmhouse"
   order = 2
   [mapGlyphs.color]
@@ -23547,12 +23547,12 @@
 
 [[settlements]]
   facility = "house"
-  id = "village"
+  id = "dwelling"
   weight = 6
 
 [[settlements]]
   facility = "farmhouse"
-  id = "hamlet"
+  id = "farmstead"
   weight = 4
 
 [[shelterEffects]]

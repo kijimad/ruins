@@ -140,9 +140,9 @@ func TestShiftNorth_実チャンク生成との統合(t *testing.T) {
 	}
 }
 
-// TestChunkType_小集落はリージョンにちょうど1つ は、小集落がリージョン方式の当選チャンクにだけ
+// TestChunkType_集落はリージョンに1つまで は、集落が集落のリージョンごとに高々1つだけ
 // 分類されることを固定する。集落のチャンクに施設を置くことは settlementFeature のテストが固定する。
-func TestChunkType_小集落はリージョンに1つまで(t *testing.T) {
+func TestChunkType_集落はリージョンに1つまで(t *testing.T) {
 	t.Parallel()
 
 	const regionSpan = 5 // 集落の地物の Spacing
@@ -158,7 +158,7 @@ func TestChunkType_小集落はリージョンに1つまで(t *testing.T) {
 	}
 	require.NotEmpty(t, counts, "前提: 集落がある")
 	for r, n := range counts {
-		assert.Equal(t, 1, n, "リージョン %d の小集落", r)
+		assert.Equal(t, 1, n, "リージョン %d の集落", r)
 	}
 }
 

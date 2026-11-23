@@ -36,7 +36,7 @@ func makeDefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 	raws := rawschema.Raws{
 		BodyAttacks: &[]rawschema.BodyAttack{{Id: BareHands, Name: "Bare hands"}},
 		Dungeons:    &[]rawschema.Dungeon{{Id: "dead_forest"}},
-		Settlements: &[]rawschema.Settlement{{Id: "village", Weight: 1}},
+		Settlements: &[]rawschema.Settlement{{Id: "dwelling", Weight: 1}},
 		BodyParts:   &bodyParts,
 		Conditions: &[]rawschema.Condition{
 			{Id: "hypothermia", Name: "Hypothermia", Description: "Hypothermia"},
