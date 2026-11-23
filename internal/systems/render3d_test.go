@@ -369,7 +369,7 @@ func TestSnowLayer_日中の底上げを越えない色で重ねる(t *testing.T
 	layer.add(&quads, world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}, [3]float64{1.3, 1.1, 0.8})
 
 	require.Len(t, quads, 1)
-	assert.Equal(t, [3]float64{1, 1, 0.8}, quads[0].col)
+	assert.InDeltaSlice(t, []float64{1, 1.1 / 1.3, 0.8 / 1.3}, quads[0].col[:], 1e-9)
 }
 
 // assertFacesInDelta は面の並びを、頂点を近似で、塗り方を一致で比べる
