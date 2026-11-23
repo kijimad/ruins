@@ -27,7 +27,7 @@ type OverworldMapVisualizerState struct {
 
 var _ es.State[w.World] = &OverworldMapVisualizerState{}
 
-// overworldMapCellPx は1チャンクの辺。計画区間の40行が画面に収まる大きさにする
+// overworldMapCellPx は1チャンクの辺。計画区間の全ての行が画面に収まる大きさにする
 const overworldMapCellPx = 16
 
 // OnPause は一時停止時の処理

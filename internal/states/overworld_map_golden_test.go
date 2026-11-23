@@ -54,7 +54,7 @@ var roadLines = map[overworld.RoadDir]rune{
 	overworld.RoadN | overworld.RoadE: '└', overworld.RoadN | overworld.RoadW: '┘',
 	overworld.RoadS | overworld.RoadE: '┌', overworld.RoadS | overworld.RoadW: '┐',
 	overworld.RoadN | overworld.RoadS | overworld.RoadE: '├', overworld.RoadN | overworld.RoadS | overworld.RoadW: '┤',
-	overworld.RoadE | overworld.RoadW | overworld.RoadN: '┴', overworld.RoadE | overworld.RoadW | overworld.RoadS: '┬',
+	overworld.RoadN | overworld.RoadE | overworld.RoadW: '┴', overworld.RoadS | overworld.RoadE | overworld.RoadW: '┬',
 	overworld.RoadN | overworld.RoadS | overworld.RoadE | overworld.RoadW: '┼',
 }
 
