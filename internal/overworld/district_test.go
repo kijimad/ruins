@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -116,6 +117,19 @@ func TestDistrictAt_先の種類の区域と重なるか接する後の種類の
 				town := ds[1].regionIn(seed, consts.FloorDiv(y, 3), cols)
 				assert.Equal(t, town.contains(c) && !town.near(campus), ok, "seed=%d %v", seed, c)
 			}
+		}
+	}
+}
+
+func TestDistricts_全ての大きさは地上の列数より狭い(t *testing.T) {
+	t.Parallel()
+
+	// 区域が帯の全幅を塞ぐと、区域の外がひと続きでなくなり、道がその先の行き先へ届かない
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	_, _, cols, _ := dungeon.DungeonOverworld.BandShape()
+	for _, d := range raw.PtrSlice(raws.Districts) {
+		for _, size := range d.Sizes {
+			assert.Less(t, consts.Chunk(size.W), cols, "%s の幅 %d", d.Id, size.W)
 		}
 	}
 }

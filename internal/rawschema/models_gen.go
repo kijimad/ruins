@@ -645,7 +645,7 @@ type District struct {
 	// Pattern 地区の並べ方
 	Pattern DistrictPattern `json:"pattern"`
 
-	// Separation 隣のリージョンの区域との最小の空き。チャンク数
+	// Separation 隣のリージョンの区域との最小の空き。チャンク数。同じ種類の区域どうしも南北に接しないよう1以上にし、区域の外をひと続きに保つ
 	Separation int `json:"separation"`
 
 	// Sizes 大きさの候補。区域ごとに重みで1つ選ぶ

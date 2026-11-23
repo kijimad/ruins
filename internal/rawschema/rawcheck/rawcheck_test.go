@@ -26,6 +26,14 @@ func TestValidate_違反を位置で返す(t *testing.T) {
 	assert.Equal(t, []string{"items.0.spriteKey"}, ce.Paths())
 }
 
+func TestValidate_区域の空きが0なら位置で返す(t *testing.T) {
+	t.Parallel()
+	raws := makeRefRaws(func(r *rawschema.Raws) { (*r.Districts)[0].Separation = 0 })
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"districts.0.separation"}, ce.Paths())
+}
+
 func TestValidate_コードだけが組む描画の段を書くと位置で返す(t *testing.T) {
 	t.Parallel()
 	for _, depth := range []rawschema.SpriteDepth{rawschema.SpriteDepthSnow, rawschema.SpriteDepthRemains, rawschema.SpriteDepthItem, rawschema.SpriteDepthPlayer} {

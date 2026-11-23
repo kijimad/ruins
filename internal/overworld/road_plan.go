@@ -52,13 +52,14 @@ type roadPlan struct {
 // planKey は計画を覚えておく鍵。raws は表の中身へのポインタで見分けるので、同じ raws の表をその場で書き換えると古い計画を引く。
 // raws を変えるときはコピーしてから変える
 type planKey struct {
-	road      *rawschema.Road
-	features  *[]rawschema.PointFeature
-	districts *[]rawschema.District
-	runSeed   uint64
-	cols      consts.Chunk
-	spawnRow  consts.Chunk
-	span      consts.Chunk
+	road       *rawschema.Road
+	features   *[]rawschema.PointFeature
+	districts  *[]rawschema.District
+	facilities *[]rawschema.Facility
+	runSeed    uint64
+	cols       consts.Chunk
+	spawnRow   consts.Chunk
+	span       consts.Chunk
 }
 
 // planCacheLimit を超えて覚えたら全て忘れる。北へ進む1回の遊びで引く計画区間は少ないので、テストで多くの seed を引くときだけ効く
@@ -75,7 +76,7 @@ func planAt(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.Chunk)
 	if !ok {
 		return &roadPlan{}
 	}
-	key := planKey{road: raws.Road, features: raws.PointFeatures, districts: raws.Districts, runSeed: runSeed, cols: cols, spawnRow: spawnRow, span: consts.FloorDiv(y, consts.Chunk(road.SpanRows))}
+	key := planKey{road: raws.Road, features: raws.PointFeatures, districts: raws.Districts, facilities: raws.Facilities, runSeed: runSeed, cols: cols, spawnRow: spawnRow, span: consts.FloorDiv(y, consts.Chunk(road.SpanRows))}
 	planMu.Lock()
 	p, found := planCache[key]
 	planMu.Unlock()
@@ -133,7 +134,7 @@ func districtsBetween(raws rawschema.Raws, runSeed uint64, top, bottom, cols, sp
 // crossingAt は計画区間の境目の行 b、すなわち行 b-1 と行 b の間を道が越える列を返す。両側のチャンクがどちらも通れる列から
 // b と seed で引く。区域が境目をまたげば区域の門と通りが通り道になるので、列は引かず ok=false。通れる列が無くても ok=false。
 // 境目の両側の計画区間が、それぞれ自分の網をこの通り道へつなげることを前提にする。区域の間に隙間を空けるので、区域の外は
-// ひと続きになり、この前提が成り立つ。TestPlanAt_道の出入り口の先は道か行き先につながる が確かめる
+// ひと続きになり、この前提が成り立つ。道の出入り口のつながりのテストが確かめる
 func crossingAt(raws rawschema.Raws, runSeed uint64, b, cols, spawnRow consts.Chunk) (consts.Chunk, bool) {
 	for _, r := range districtsBetween(raws, runSeed, b-1, b, cols, spawnRow) {
 		if r.anchor.Y <= b-1 && r.anchor.Y+r.h-1 >= b {
@@ -216,12 +217,13 @@ func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols,
 	districtStart, districtNodes := districtNodes(raws, runSeed, g, spawnRow)
 	start = append(start, districtStart...)
 	nodes = append(nodes, districtNodes...)
-	s := spawnChunkOf(cols, spawnRow)
-	if n, ok := g.nodeOf(
-		planTerminal{c: consts.Coord[consts.Chunk]{X: s.X, Y: s.Y - 1}, port: roadPort{dir: RoadS}},
-		planTerminal{c: consts.Coord[consts.Chunk]{X: s.X, Y: s.Y + 1}, port: roadPort{dir: RoadN}},
-	); ok && s.Y >= g.top && s.Y <= g.bottom {
-		nodes = append(nodes, n)
+	if s := spawnChunkOf(cols, spawnRow); s.Y >= g.top && s.Y <= g.bottom {
+		if n, ok := g.nodeOf(
+			planTerminal{c: consts.Coord[consts.Chunk]{X: s.X, Y: s.Y - 1}, port: roadPort{dir: RoadS}},
+			planTerminal{c: consts.Coord[consts.Chunk]{X: s.X, Y: s.Y + 1}, port: roadPort{dir: RoadN}},
+		); ok {
+			nodes = append(nodes, n)
+		}
 	}
 	if x, ok := crossingAt(raws, runSeed, g.bottom+1, cols, spawnRow); ok {
 		nodes = append(nodes, planNode{terms: []planTerminal{{c: consts.Coord[consts.Chunk]{X: x, Y: g.bottom}, port: roadPort{dir: RoadS}}}})
@@ -272,7 +274,7 @@ func districtNodes(raws rawschema.Raws, runSeed uint64, g spanGrid, spawnRow con
 }
 
 // connectNodes は網 start に、行き先 nodes を網に近い順に経路でつなぐ。経路が無い行き先は残して戻る。区域の間に隙間を空けるので
-// 区域の外はひと続きになり、どの行き先にも経路がある前提にする。TestPlanAt_道の網は区域の門と墜落現場を通ってひとつながり が確かめる
+// 区域の外はひと続きになり、どの行き先にも経路がある前提にする。道の網のつながりのテストが確かめる
 func connectNodes(plan *roadPlan, g spanGrid, start, nodes []planNode) {
 	// attach は網につながった所。値は、そこを道のチャンクにするときに足す行き先の出入り口
 	attach := map[consts.Coord[consts.Chunk]][]roadPort{}
