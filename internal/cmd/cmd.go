@@ -35,6 +35,7 @@ func NewMainApp() *cli.Command {
 			CmdFmtRaw,
 			CmdCutSprite,
 			CmdLayoutPNG,
+			CmdOverworldPNG,
 		},
 	}
 
