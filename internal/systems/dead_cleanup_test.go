@@ -316,11 +316,26 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 	}
 }
 
-func TestDeadCleanupSystem_形を持つ置物はシルエットを出さない(t *testing.T) {
+func TestDeadCleanupSystem_立て板で描く物にだけシルエットを出す(t *testing.T) {
 	t.Parallel()
 
-	for _, shape := range rawschema.SpriteShapeValues() {
-		t.Run(string(shape), func(t *testing.T) {
+	type testCase struct {
+		name    string
+		shape   rawschema.SpriteShape
+		pose    bool
+		effects int
+	}
+	shapes := rawschema.SpriteShapeValues()
+	tests := make([]testCase, 0, 2+len(shapes))
+	tests = append(tests,
+		testCase{name: "形なし", effects: 1},
+		testCase{name: "置き方の無いfacing", shape: rawschema.Facing, effects: 1},
+	)
+	for _, shape := range shapes {
+		tests = append(tests, testCase{name: "置き方のある" + string(shape), shape: shape, pose: true, effects: 0})
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			world := testutil.InitTestWorld(t)
@@ -330,16 +345,19 @@ func TestDeadCleanupSystem_形を持つ置物はシルエットを出さない(t
 			world.Components.SpriteRender.Add(prop, &gc.SpriteRender{
 				SpriteSheetName: "field",
 				SpriteKey:       "fence",
-				Shape:           shape,
+				Shape:           tt.shape,
 			})
+			if tt.pose {
+				world.Components.Pose.Add(prop, &gc.Pose{Facing: consts.South})
+			}
 
 			sys := &DeadCleanupSystem{}
 			require.NoError(t, sys.Update(world))
 
 			assert.False(t, world.ECS.Alive(prop))
 			effects := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
-			assert.Equal(t, 0, effects.Count())
-			effects.Close()
+			defer effects.Close()
+			assert.Equal(t, tt.effects, effects.Count())
 		})
 	}
 }

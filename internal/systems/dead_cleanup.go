@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -123,10 +124,8 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 	// エンティティを削除する
 	for _, entity := range toDelete {
-		// スプライトフェードアウトエフェクトを生成する。シルエットはカメラを向く立て板で描くので、
-		// 3D で形を持つ置物に出すと壊れる前の向きとずれる。立て板で描く物にだけ出す
-		if world.Components.SpriteRender.Has(entity) && world.Components.GridElement.Has(entity) &&
-			world.Components.SpriteRender.Get(entity).Shape == "" {
+		// スプライトフェードアウトエフェクトを生成
+		if world.Components.SpriteRender.Has(entity) && world.Components.GridElement.Has(entity) && drawnAsBillboard(world, entity) {
 			spriteRender := world.Components.SpriteRender.Get(entity)
 			gridElement := world.Components.GridElement.Get(entity)
 
@@ -146,6 +145,13 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	}
 
 	return nil
+}
+
+// drawnAsBillboard は e が 3D でカメラを向く立て板で描かれるかを返す。白いシルエットは立て板で描くので、
+// 形を持つ置物に出すと壊れる前の向きとずれる。facing でも置き方 Pose が無ければ立て板で描かれる
+func drawnAsBillboard(world w.World, e ecs.Entity) bool {
+	shape := world.Components.SpriteRender.Get(e).Shape
+	return shape == "" || shape == rawschema.Facing && !world.Components.Pose.Has(e)
 }
 
 // placeRemains は死んだ実体 e の行が持つ跡を、e の座標へ置く。そのマスにすでに跡があれば置かない。
