@@ -348,6 +348,8 @@ import (
 	separation!: int & >=1
 	// 大きさの候補。区域ごとに重みで1つ選ぶ
 	sizes!: [...#DistrictSize] & [_, ...]
+	// 区域の高さはリージョンの縦の範囲 spacing - separation に収まる。収まらないと位置を引く範囲が空になる
+	sizes_fit: [for s in sizes {s.h & <=(spacing - separation)}] @rawgen(-)
 	// 地区の並べ方
 	pattern!: #DistrictPattern
 	// 地区の層。プレイヤーが入ってくる側から順に並べる。rings は外から内へ、rows は南から北へ

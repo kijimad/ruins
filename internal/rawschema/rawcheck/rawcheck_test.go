@@ -26,6 +26,14 @@ func TestValidate_違反を位置で返す(t *testing.T) {
 	assert.Equal(t, []string{"items.0.spriteKey"}, ce.Paths())
 }
 
+func TestValidate_区域の高さがリージョンに収まらなければ位置で返す(t *testing.T) {
+	t.Parallel()
+	raws := makeRefRaws(func(r *rawschema.Raws) { (*r.Districts)[0].Sizes[0].H = 6 })
+	var ce *rawcheck.Error
+	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
+	assert.Equal(t, []string{"districts.0.sizes_fit.0"}, ce.Paths())
+}
+
 func TestValidate_区域の空きが0なら位置で返す(t *testing.T) {
 	t.Parallel()
 	raws := makeRefRaws(func(r *rawschema.Raws) { (*r.Districts)[0].Separation = 0 })

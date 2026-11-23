@@ -101,7 +101,7 @@ func roadRow(raws rawschema.Raws) (rawschema.Road, bool) {
 	return *raws.Road, true
 }
 
-// blockedChunk は c が道の通れないチャンクかを返す。区域と墜落現場は持ち主が決まっているので道を通さない
+// blockedChunk は c が道の通れないチャンクかを返す。区域と墜落現場は持ち主が決まっているので道を通さない。墜落現場は開始チャンクにある
 func blockedChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) bool {
 	if c == spawnChunkOf(cols, spawnRow) {
 		return true

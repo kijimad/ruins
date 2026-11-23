@@ -59,6 +59,7 @@ func (d district) regionIn(runSeed uint64, ry, cols consts.Chunk) districtRegion
 		panic("district has no size: " + d.row.Id)
 	}
 	size := d.row.Sizes[i]
+	// 全幅に詰めた区域は帯を東西に塞ぎ、道の網が切れる。区域の幅が地上の列数より狭いことはテストで確かめている
 	w := min(consts.Chunk(size.W), cols)
 	anchor := consts.Coord[consts.Chunk]{
 		X: consts.Chunk(rng.IntN(int(cols-w) + 1)),
