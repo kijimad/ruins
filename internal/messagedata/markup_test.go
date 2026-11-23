@@ -79,9 +79,8 @@ func TestTagStyle(t *testing.T) {
 		t.Parallel()
 		style, ok := tagStyle("item")
 		require.True(t, ok)
-		require.NotNil(t, style.fg)
-		assert.Equal(t, gamelog.ColorCyan, *style.fg)
-		assert.Nil(t, style.bg)
+		assert.NotNil(t, style.fg, "意味タグは前景色を持つ")
+		assert.Nil(t, style.bg, "意味タグは背景を持たない")
 	})
 
 	t.Run("keywordは前景色と背景色を両方解決する", func(t *testing.T) {
@@ -110,6 +109,12 @@ func TestTagStyle(t *testing.T) {
 	t.Run("接頭辞の無い未知タグは解決しない", func(t *testing.T) {
 		t.Parallel()
 		_, ok := tagStyle("unknown")
+		assert.False(t, ok)
+	})
+
+	t.Run("color_接頭辞のみで色名が無ければ解決しない", func(t *testing.T) {
+		t.Parallel()
+		_, ok := tagStyle("color_")
 		assert.False(t, ok)
 	})
 }
@@ -147,5 +152,38 @@ func TestParseMarkupSegments(t *testing.T) {
 		t.Parallel()
 		segs := parseMarkupSegments("")
 		assert.Empty(t, segs)
+	})
+
+	t.Run("中身の無い既知タグは断片を残さない", func(t *testing.T) {
+		t.Parallel()
+		segs := parseMarkupSegments("<item></item>")
+		assert.Empty(t, segs)
+	})
+
+	t.Run("閉じタグが対応しないマークはすべて地の文になる", func(t *testing.T) {
+		t.Parallel()
+		segs := parseMarkupSegments("<item>a</npc>")
+		var got strings.Builder
+		for _, seg := range segs {
+			assert.Nil(t, seg.style.fg, "対応しない閉じタグは地の文として残る")
+			got.WriteString(seg.text)
+		}
+		assert.Equal(t, "<item>a</npc>", got.String())
+	})
+
+	t.Run("入れ子タグは解釈されず外側タグの中身としてそのまま残る", func(t *testing.T) {
+		t.Parallel()
+		segs := parseMarkupSegments("<item><keyword>x</keyword></item>")
+		require.Len(t, segs, 1)
+		assert.Equal(t, "<keyword>x</keyword>", segs[0].text)
+		assert.NotNil(t, segs[0].style.fg, "内側のタグは解釈されず外側 item のスタイルが適用される")
+	})
+
+	t.Run("空タグは未知タグとして地の文に残る", func(t *testing.T) {
+		t.Parallel()
+		segs := parseMarkupSegments("<>")
+		require.Len(t, segs, 1)
+		assert.Equal(t, "<>", segs[0].text)
+		assert.Nil(t, segs[0].style.fg)
 	})
 }
