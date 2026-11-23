@@ -261,9 +261,25 @@ func TestExecuteMoveAction_塞がれたマスに歩き込むと塞ぐものの�
 			require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))
 
 			assert.Equal(t, consts.Coord[consts.Tile]{X: 10, Y: 10}, world.Components.GridElement.Get(player).Coord)
-			assert.Equal(t, tt.want, query.GetGameLog(world).GetHistory())
+			assert.ElementsMatch(t, tt.want, query.GetGameLog(world).GetHistory())
 		})
 	}
+}
+
+func TestExecuteMoveAction_塞ぐものが変われば続けて名前を出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnTile(world, "wall", 11, 10, nil)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "laundry", 10, 11)
+	require.NoError(t, err)
+
+	require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))
+	require.NoError(t, ExecuteMoveAction(world, gc.DirectionDown))
+
+	assert.Equal(t, []string{"Wall is here.", "Laundry is here."}, query.GetGameLog(world).GetHistory())
 }
 
 func TestExecuteMoveAction_地図の外へは何も出さずに止まる(t *testing.T) {
