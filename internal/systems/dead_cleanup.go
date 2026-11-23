@@ -123,8 +123,10 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 	// エンティティを削除する
 	for _, entity := range toDelete {
-		// スプライトフェードアウトエフェクトを生成
-		if world.Components.SpriteRender.Has(entity) && world.Components.GridElement.Has(entity) {
+		// スプライトフェードアウトエフェクトを生成する。シルエットはカメラを向く立て板で描くので、
+		// 3D で形を持つ置物に出すと壊れる前の向きとずれる。立て板で描く物にだけ出す
+		if world.Components.SpriteRender.Has(entity) && world.Components.GridElement.Has(entity) &&
+			world.Components.SpriteRender.Get(entity).Shape == "" {
 			spriteRender := world.Components.SpriteRender.Get(entity)
 			gridElement := world.Components.GridElement.Get(entity)
 

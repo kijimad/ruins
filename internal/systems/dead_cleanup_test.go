@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -312,6 +313,34 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 		assert.Equal(t, "slime_0", effect.SpriteKey)
 		assert.Equal(t, consts.Tile(5), ge.X, "エフェクトは敵の位置に生成されるべき")
 		assert.Equal(t, consts.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
+	}
+}
+
+func TestDeadCleanupSystem_形を持つ置物はシルエットを出さない(t *testing.T) {
+	t.Parallel()
+
+	for _, shape := range rawschema.SpriteShapeValues() {
+		t.Run(string(shape), func(t *testing.T) {
+			t.Parallel()
+
+			world := testutil.InitTestWorld(t)
+			prop := world.ECS.NewEntity()
+			world.Components.Dead.Add(prop, &gc.Dead{})
+			world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+			world.Components.SpriteRender.Add(prop, &gc.SpriteRender{
+				SpriteSheetName: "field",
+				SpriteKey:       "fence",
+				Shape:           shape,
+			})
+
+			sys := &DeadCleanupSystem{}
+			require.NoError(t, sys.Update(world))
+
+			assert.False(t, world.ECS.Alive(prop))
+			effects := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+			assert.Equal(t, 0, effects.Count())
+			effects.Close()
+		})
 	}
 }
 
