@@ -333,7 +333,7 @@
 				
 				<option value="file138">github.com/kijimaD/ruins/internal/hooks/store.go (100.0%)</option>
 				
-				<option value="file139">github.com/kijimaD/ruins/internal/hooks/tabmenu.go (94.0%)</option>
+				<option value="file139">github.com/kijimaD/ruins/internal/hooks/tabmenu.go (94.8%)</option>
 				
 				<option value="file140">github.com/kijimaD/ruins/internal/hooks/timer.go (100.0%)</option>
 				
@@ -545,7 +545,7 @@
 				
 				<option value="file244">github.com/kijimaD/ruins/internal/states/character_view.go (100.0%)</option>
 				
-				<option value="file245">github.com/kijimaD/ruins/internal/states/choice.go (76.6%)</option>
+				<option value="file245">github.com/kijimaD/ruins/internal/states/choice.go (74.5%)</option>
 				
 				<option value="file246">github.com/kijimaD/ruins/internal/states/component_debug_state.go (84.4%)</option>
 				
@@ -579,7 +579,7 @@
 				
 				<option value="file261">github.com/kijimaD/ruins/internal/states/item_action_state.go (69.5%)</option>
 				
-				<option value="file262">github.com/kijimaD/ruins/internal/states/lib.go (92.9%)</option>
+				<option value="file262">github.com/kijimaD/ruins/internal/states/lib.go (100.0%)</option>
 				
 				<option value="file263">github.com/kijimaD/ruins/internal/states/look_around.go (75.4%)</option>
 				
@@ -593,7 +593,7 @@
 				
 				<option value="file268">github.com/kijimaD/ruins/internal/states/persistent_message_state.go (43.8%)</option>
 				
-				<option value="file269">github.com/kijimaD/ruins/internal/states/refill_menu.go (78.9%)</option>
+				<option value="file269">github.com/kijimaD/ruins/internal/states/refill_menu.go (88.9%)</option>
 				
 				<option value="file270">github.com/kijimaD/ruins/internal/states/run_stats_state.go (81.8%)</option>
 				
@@ -18011,19 +18011,39 @@ func (n *tabMenuNav) skipNext(tabIdx, idx, dir int) int {
         <span class="cov8" title="1">return idx</span>
 }
 
+// nearestSelectable は idx から下へ、無ければ上へ探した最初のスキップ対象でないインデックスを返す。どれもスキップ対象なら idx を返す
+func (n *tabMenuNav) nearestSelectable(tabIdx, idx int) int {
+        <span class="cov8" title="1">count := n.itemCountForTab(tabIdx)
+        for i := idx; i &lt; count; i++ </span>{
+                <span class="cov8" title="1">if !n.isSkip(tabIdx, i) </span>{
+                        <span class="cov8" title="1">return i
+</span>                }
+        }
+        <span class="cov8" title="1">for i := idx - 1; i &gt;= 0; i-- </span>{
+                <span class="cov8" title="1">if !n.isSkip(tabIdx, i) </span>{
+                        <span class="cov8" title="1">return i
+</span>                }
+        }
+        <span class="cov8" title="1">return idx</span>
+}
+
 func (n *tabMenuNav) firstSelectable(tabIdx int) int {
         <span class="cov8" title="1">return n.skipNext(tabIdx, 0, 1)
 </span>}
 
-// clamp はアイテム数変化に対してインデックスを安全な範囲に収める
+// clamp はアイテム数とスキップ対象の変化に対してインデックスを安全な範囲に収める。
+// 表示中に今の行がスキップ対象へ変わることがあるので、そのときは近い選べる行へ寄せる。先頭へ回すと離れたページへ飛ぶ
 func (n *tabMenuNav) clamp(s TabMenuState) TabMenuState {
         <span class="cov8" title="1">count := n.itemCountForTab(s.TabIndex)
         if count == 0 </span>{
                 <span class="cov8" title="1">s.ItemIndex = 0
-</span>        } else <span class="cov8" title="1">if s.ItemIndex &gt;= count </span>{
+                return s
+</span>        }
+        <span class="cov8" title="1">if s.ItemIndex &gt;= count </span>{
                 <span class="cov8" title="1">s.ItemIndex = count - 1
 </span>        }
-        <span class="cov8" title="1">return s</span>
+        <span class="cov8" title="1">s.ItemIndex = n.nearestSelectable(s.TabIndex, s.ItemIndex)
+        return s</span>
 }
 
 // navHandlers は移動系 Action と状態遷移の対応表。移動系の集合の唯一の定義で、
@@ -36602,7 +36622,7 @@ func nearbyPickupActions(world w.World) []InteractionAction {
 </span>                        }
                         <span class="cov8" title="1">for _, stack := range query.GroupStacks(world, query.PickablesAt(world, c)) </span>{
                                 <span class="cov8" title="1">actions = append(actions, InteractionAction{
-                                        Label:       query.T(world, "Pick up %s (%s)", query.FormatNameCount(query.GetEntityName(stack.Rep, world), stack.Count), dirLabel),
+                                        Label:       query.T(world, "Pick up %s (%s)", query.ItemLabel(world, stack.Rep, stack.Count), dirLabel),
                                         Target:      stack.Rep,
                                         Interaction: gc.InteractionItem,
                                 })
@@ -38228,7 +38248,7 @@ func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menul
 // pushChoice は指定ファクトリの state を push する Choice.Run を返す。選択メニューの共通部品
 func pushChoice(factory es.StateFactory[w.World]) func(w.World) (es.Transition[w.World], error) {
         <span class="cov8" title="1">return func(_ w.World) (es.Transition[w.World], error) </span>{
-                <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{factory}}, nil
+                <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{factory}}, nil
 </span>        }
 }
 
@@ -42677,18 +42697,9 @@ func itemIconCell(world w.World, e ecs.Entity) styled.Cell {
 // 個数は呼び出し側が GroupStacks で確定済みの値を渡す。ここで数え直すと一覧の行ごとに
 // 全走査が走るため、束ねた結果を持ち回って表示する
 func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuframe.Row {
-        <span class="cov8" title="1">name := query.GetEntityName(e, world)
-        label := query.FormatNameCount(name, count)
-</span>        // 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする
-        <span class="cov8" title="1">if marker := query.FreshnessMarker(world, e); marker != "" </span>{
-                <span class="cov0" title="0">label += " (" + marker + ")"
-</span>        }
-        <span class="cov8" title="1">if marker := query.SwitchMarker(world, e); marker != "" </span>{
-                <span class="cov8" title="1">label += " (" + marker + ")"
-</span>        }
-        <span class="cov8" title="1">cells := append([]styled.Cell{itemIconCell(world, e), styled.TextCell(label)}, styled.TextCells(trailing...)...)
-        return menuframe.Row{Cells: cells}</span>
-}
+        <span class="cov8" title="1">cells := append([]styled.Cell{itemIconCell(world, e), styled.TextCell(query.ItemLabel(world, e, count))}, styled.TextCells(trailing...)...)
+        return menuframe.Row{Cells: cells}
+</span>}
 
 // ================
 </pre>
@@ -42900,7 +42911,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 
 // drawEntityInfo はエンティティ情報を描画する。個数は束ねた結果を呼び出し側が渡す
 func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, count int, drawText func(string)) {
-        <span class="cov8" title="1">name := query.FormatNameCount(query.GetEntityName(entity, world), count)
+        <span class="cov8" title="1">name := query.ItemLabel(world, entity, count)
 </span>
         <span class="cov8" title="1">cat, ok := world.Components.CategoryOf(gc.FieldLookCategoryKey, entity)
         if !ok </span>{
@@ -43762,65 +43773,192 @@ func NewPersistentMessageState(messageData *messagedata.MessageData) *Persistent
 		<pre class="file" id="file269" style="display: none">package states
 
 import (
+        "fmt"
+
+        "github.com/hajimehoshi/ebiten/v2"
         gc "github.com/kijimaD/ruins/internal/components"
-        "github.com/kijimaD/ruins/internal/consts"
         es "github.com/kijimaD/ruins/internal/engine/states"
+        "github.com/kijimaD/ruins/internal/inputmapper"
+        "github.com/kijimaD/ruins/internal/keybind"
+        "github.com/kijimaD/ruins/internal/menuloop"
+        "github.com/kijimaD/ruins/internal/resources"
+        "github.com/kijimaD/ruins/internal/widgets/menuframe"
+        "github.com/kijimaD/ruins/internal/widgets/overlay"
+        "github.com/kijimaD/ruins/internal/widgets/uicore"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
 )
 
-// NewRefillMenuState は補充メニューを作る。持っている灯りを選び、満たすか抜くかを選ぶ
+// RefillMenuState は補充メニュー。満たすタブと抜くタブに持っている灯りを並べ、選ぶと燃料を選ぶ給油メニューを開く
+type RefillMenuState struct {
+        es.BaseState[w.World]
+        detail overlay.Detail
+        screen *menuloop.Screen[RefillProps]
+}
+
+var _ es.State[w.World] = &amp;RefillMenuState{}
+var _ menuloop.KeyBindings = &amp;RefillMenuState{}
+
+// NewRefillMenuState は補充メニューを作る
 func NewRefillMenuState() (es.State[w.World], error) {
-        <span class="cov0" title="0">return NewChoiceMenu(refillChoices), nil
+        <span class="cov8" title="1">return &amp;RefillMenuState{}, nil
 </span>}
 
-func refillChoices(world w.World) (string, []Choice) {
-        <span class="cov8" title="1">var choices []Choice
-        for _, light := range refillableItems(world) </span>{
-                <span class="cov8" title="1">choices = append(choices, Choice{
-                        Label: query.GetEntityName(light, world),
-                        Value: consts.Turn(world.Components.Charge.Get(light).Current).String(),
-                        Run: pushChoice(func() (es.State[w.World], error) </span>{
-                                <span class="cov0" title="0">return NewChoiceMenu(func(world w.World) (string, []Choice) </span>{ <span class="cov0" title="0">return lightRefillChoices(world, light) }</span>), nil
-                        }),
-                })
-        }
-        <span class="cov8" title="1">if len(choices) == 0 </span>{
-                <span class="cov8" title="1">choices = append(choices, Choice{Label: query.T(world, "Nothing to refill"), Disabled: true})
-</span>        }
-        <span class="cov8" title="1">choices = append(choices, Choice{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) </span>{
-                <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil
-</span>        }})
-        <span class="cov8" title="1">return query.T(world, "Refill"), choices</span>
+// RefillProps は補充メニューの表示 props
+type RefillProps struct {
+        Tabs []refillTab
 }
 
-// lightRefillChoices は灯りの light を満たすか抜くかの選択肢を返す。使えない方は選べない行にする
-func lightRefillChoices(world w.World, light ecs.Entity) (string, []Choice) {
-        <span class="cov8" title="1">charge := world.Components.Charge.Get(light)
-        fill := LightFuelSink(world, light)
-        drain := LightDrainSink(world, light)
-        choices := []Choice{
-                {
-                        Label:    query.T(world, "Fill"),
-                        Disabled: charge.Current &gt;= charge.Max || !carriesAccepted(world, fill),
-                        Run: pushChoice(func() (es.State[w.World], error) </span>{
-                                <span class="cov0" title="0">return NewFeedFuelMenuState(fill)
-</span>                        }),
-                },
-                {
-                        Label:    query.T(world, "Drain"),
-                        Disabled: charge.Current &lt;= 0 || !carriesAccepted(world, drain),
-                        Run: pushChoice(func() (es.State[w.World], error) {
-                                <span class="cov0" title="0">return NewFeedFuelMenuState(drain)
-</span>                        }),
-                },
-                {Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
-                        <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransPop}, nil
-</span>                }},
-        }
-        <span class="cov8" title="1">return query.GetEntityName(light, world), choices</span>
+// refillTab は補充メニューの1タブの表示。props は前の値と DeepEqual で比べて描き直すかを決めるので、値だけを持つ
+type refillTab struct {
+        Label string
+        Rows  []refillRow
 }
+
+// refillTabSpec は補充メニューの1タブの振る舞い。タブの番号で引く。sinkOf は灯りを選んだときに開く給油メニューのくべ先を作り、
+// amount は灯りの側で移せる量の上限を返し、0なら選べない
+type refillTabSpec struct {
+        label  func(world w.World) string
+        sinkOf func(world w.World, light ecs.Entity) FuelSink
+        amount func(charge gc.Charge) int
+}
+
+var refillTabSpecs = []refillTabSpec{
+        {
+                label:  func(world w.World) string { <span class="cov8" title="1">return query.T(world, "Fill") }</span>,
+                sinkOf: LightFuelSink,
+                amount: func(c gc.Charge) int { <span class="cov8" title="1">return c.Max - c.Current }</span>,
+        },
+        {
+                label:  func(world w.World) string { <span class="cov8" title="1">return query.T(world, "Drain") }</span>,
+                sinkOf: LightDrainSink,
+                amount: func(c gc.Charge) int { <span class="cov8" title="1">return c.Current }</span>,
+        },
+}
+
+// refillRow は補充メニューの1行。選べない行は無効の色で描き、カーソルを止めない
+type refillRow struct {
+        Entity   ecs.Entity
+        Disabled bool
+}
+
+// OnStart はステートが開始される際に呼ばれる
+func (st *RefillMenuState) OnStart(_ w.World) error {
+        <span class="cov8" title="1">st.detail = overlay.NewEntityDetail(st.selectedEntity)
+        st.screen = menuloop.NewScreen[RefillProps](st, &amp;st.detail)
+        return nil
+</span>}
+
+// Update はゲームステートの更新処理を行う
+func (st *RefillMenuState) Update(world w.World) (es.Transition[w.World], error) {
+        <span class="cov8" title="1">return st.screen.Update(world)
+</span>}
+
+// Draw はゲームステートの描画処理を行う
+func (st *RefillMenuState) Draw(_ w.World, screen *ebiten.Image) error {
+        <span class="cov8" title="1">st.screen.Draw(screen)
+        return nil
+</span>}
+
+// KeyBindings は x の詳細表示を共通入力に足す
+func (st *RefillMenuState) KeyBindings() []keybind.Binding {
+        <span class="cov8" title="1">return detailOpenBindings
+</span>}
+
+// DoAction はActionを実行する。選んだ灯りのくべ先で給油メニューを開く
+func (st *RefillMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+        <span class="cov8" title="1">switch action </span>{
+        case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
+                <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil</span>
+        case inputmapper.ActionOpenItemDetail:
+                <span class="cov0" title="0">st.detail.Open(world)</span>
+        case inputmapper.ActionMenuSelect:
+                <span class="cov8" title="1">tabIndex, row, ok := st.selected()
+                if !ok || row.Disabled </span>{
+                        <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransNone}, nil
+</span>                }
+                <span class="cov8" title="1">sink := refillTabSpecs[tabIndex].sinkOf(world, row.Entity)
+                return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) </span>{
+                        <span class="cov0" title="0">return NewFeedFuelMenuState(sink)
+</span>                }}}, nil
+        default:
+                <span class="cov0" title="0">return es.Transition[w.World]{}, fmt.Errorf("refillMenu: unsupported action: %s", action)</span>
+        }
+        <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
+}
+
+// Fetch は世界から表示 props を構築する
+func (st *RefillMenuState) Fetch(world w.World) (RefillProps, error) {
+        <span class="cov8" title="1">lights := refillableItems(world)
+        tabs := make([]refillTab, len(refillTabSpecs))
+        for i, spec := range refillTabSpecs </span>{
+                <span class="cov8" title="1">tabs[i].Label = spec.label(world)
+                for _, light := range lights </span>{
+                        <span class="cov8" title="1">tabs[i].Rows = append(tabs[i].Rows, refillRow{Entity: light, Disabled: !spec.selectable(world, light)})
+</span>                }
+        }
+        <span class="cov8" title="1">return RefillProps{Tabs: tabs}, nil</span>
+}
+
+// selectable は灯りの light をこのタブで選べるかを返す。灯りの側で移せる量があり、持ち物に sinkOf が受ける物があるとき選べる
+func (spec refillTabSpec) selectable(world w.World, light ecs.Entity) bool {
+        <span class="cov8" title="1">return spec.amount(*world.Components.Charge.Get(light)) &gt; 0 &amp;&amp; carriesAccepted(world, spec.sinkOf(world, light))
+</span>}
+
+// Menu はタブごとの一覧の構成を返す。選べない行はカーソルを飛ばす
+func (st *RefillMenuState) Menu(props RefillProps) menuloop.MenuConfig {
+        <span class="cov8" title="1">counts := make([]int, len(props.Tabs))
+        skips := make([][]bool, len(props.Tabs))
+        for i, tab := range props.Tabs </span>{
+                <span class="cov8" title="1">counts[i] = len(tab.Rows)
+                skips[i] = make([]bool, len(tab.Rows))
+                for j, row := range tab.Rows </span>{
+                        <span class="cov8" title="1">skips[i][j] = row.Disabled
+</span>                }
+        }
+        <span class="cov8" title="1">return menuloop.MenuConfig{Key: "refill", TabCount: len(props.Tabs), ItemCounts: counts, ItemsPerPage: menuloop.ItemsPerPageAuto, Skips: skips}</span>
+}
+
+// ViewUI はタブと、アイコンとゲージ付きの灯りの一覧を組む
+func (st *RefillMenuState) ViewUI(world w.World, props RefillProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
+        <span class="cov8" title="1">labels := make([]string, len(props.Tabs))
+        for i, tab := range props.Tabs </span>{
+                <span class="cov8" title="1">labels[i] = tab.Label
+</span>        }
+        <span class="cov8" title="1">var content []uicore.Drawable
+        var pager string
+        if cursor.TabIndex &lt; len(props.Tabs) </span>{
+                <span class="cov8" title="1">tab := props.Tabs[cursor.TabIndex]
+                rows := make([]menuframe.Row, len(tab.Rows))
+                for i, r := range tab.Rows </span>{
+                        <span class="cov8" title="1">rows[i] = itemMenuRow(world, r.Entity, 1)
+                        rows[i].Disabled = r.Disabled
+</span>                }
+                <span class="cov8" title="1">content, pager = menuframe.RenderList(cursor.ItemIndex, rows, itemMenuColumns(), menuframe.ListOpts{EmptyText: query.T(world, "Nothing to refill"), ItemsPerPage: cursor.PageSize}, res)</span>
+        }
+        <span class="cov8" title="1">return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)</span>
+}
+
+// selected は現在カーソルが当たっているタブの番号と行を返す
+func (st *RefillMenuState) selected() (int, refillRow, bool) {
+        <span class="cov8" title="1">props := st.screen.Props()
+        cursor := st.screen.Selection()
+        if cursor.TabIndex &gt;= len(props.Tabs) </span>{
+                <span class="cov0" title="0">return 0, refillRow{}, false
+</span>        }
+        <span class="cov8" title="1">rows := props.Tabs[cursor.TabIndex].Rows
+        if cursor.ItemIndex &lt; 0 || cursor.ItemIndex &gt;= len(rows) </span>{
+                <span class="cov0" title="0">return 0, refillRow{}, false
+</span>        }
+        <span class="cov8" title="1">return cursor.TabIndex, rows[cursor.ItemIndex], true</span>
+}
+
+// selectedEntity は現在カーソルが当たっている灯りを返す
+func (st *RefillMenuState) selectedEntity() (ecs.Entity, bool) {
+        <span class="cov8" title="1">_, row, ok := st.selected()
+        return row.Entity, ok
+</span>}
 
 // carriesAccepted はプレイヤーの持ち物に sink が受ける物があるかを返す
 func carriesAccepted(world w.World, sink FuelSink) bool {
@@ -54707,8 +54845,8 @@ var (
         TextAccent = rgb(0x9dd793)
         // TextSelected は選択中の項目に使う明るい白
         TextSelected = color.RGBA{R: 255, G: 255, B: 240, A: 255}
-        // TextDisabled は無効状態のテキスト色
-        TextDisabled = rgb(0x5a7a91)
+        // TextDisabled は無効状態のテキスト色。非選択の行の TextSecondary より暗い灰色にして選べないことを示す
+        TextDisabled = rgb(0x6b6b6b)
 )
 
 // ========== カーソル色 ==========
@@ -58199,6 +58337,8 @@ func ConditionDescription(world w.World, ct gc.ConditionType) string {
 		<pre class="file" id="file375" style="display: none">package query
 
 import (
+        "strconv"
+
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/raw"
         "github.com/kijimaD/ruins/internal/rawschema"
@@ -58282,6 +58422,14 @@ func ChargeKindOf(world w.World, item ecs.Entity) (rawschema.FuelKindId, bool) {
                 <span class="cov8" title="1">return kind, true
 </span>        }
         <span class="cov8" title="1">return FuelKindOf(world, item)</span>
+}
+
+// ChargeMarker は名前に添える残量の数を返す。残量を持たない物は空文字を返す
+func ChargeMarker(world w.World, entity ecs.Entity) string {
+        <span class="cov8" title="1">if !world.Components.Charge.Has(entity) </span>{
+                <span class="cov8" title="1">return ""
+</span>        }
+        <span class="cov8" title="1">return strconv.Itoa(world.Components.Charge.Get(entity).Current)</span>
 }
 </pre>
 		
@@ -58996,6 +59144,7 @@ func IsCombustible(world w.World, entity ecs.Entity) bool {
 
 import (
         "fmt"
+        "strings"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/rawschema"
@@ -59084,6 +59233,20 @@ func FormatNameCount(name string, count int) string {
                 <span class="cov8" title="1">return fmt.Sprintf("%d %s", count, name)
 </span>        }
         <span class="cov8" title="1">return name</span>
+}
+
+// ItemLabel は entity の名前に個数と、残量・鮮度・スイッチの印を添えた表示を返す。印は残量を先にし、数が名前のすぐ後ろに来るようにする。
+// 残量の違う物は別の束になり、ゲージだけでは近い残量の束を見分けにくいので数を添える。
+// 腐敗食は新鮮以外のとき鮮度を添え、状態を見て食べるか捨てるか判断できるようにする
+func ItemLabel(world w.World, entity ecs.Entity, count int) string {
+        <span class="cov8" title="1">var label strings.Builder
+        label.WriteString(FormatNameCount(GetEntityName(entity, world), count))
+        for _, marker := range []string{ChargeMarker(world, entity), FreshnessMarker(world, entity), SwitchMarker(world, entity)} </span>{
+                <span class="cov8" title="1">if marker != "" </span>{
+                        <span class="cov8" title="1">label.WriteString(" (" + marker + ")")
+</span>                }
+        }
+        <span class="cov8" title="1">return label.String()</span>
 }
 
 // FormatItemName はアイテムエンティティから名前と個数を取得してフォーマットする。

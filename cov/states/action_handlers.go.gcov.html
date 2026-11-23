@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 01:26:21</td>
+            <td class="headerValue">2026-11-23 01:59:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -305,7 +305,7 @@
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                         for _, stack := range query.GroupStacks(world, query.PickablesAt(world, c)) {</span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                                 actions = append(actions, InteractionAction{</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                                         Label:       query.T(world, &quot;Pick up %s (%s)&quot;, query.FormatNameCount(query.GetEntityName(stack.Rep, world), stack.Count), dirLabel),</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                                         Label:       query.T(world, &quot;Pick up %s (%s)&quot;, query.ItemLabel(world, stack.Rep, stack.Count), dirLabel),</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                                         Target:      stack.Rep,</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                                         Interaction: gc.InteractionItem,</span></span>
 <span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                                 })</span></span>
