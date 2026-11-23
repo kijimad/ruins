@@ -76,12 +76,13 @@ func withChunkGrid(m *image.RGBA, chunkPxW, chunkPxH, cols, rows, north int) *im
 	draw.Draw(img, img.Bounds(), image.NewUniform(gridMarginBack), image.Point{}, draw.Src)
 	draw.Draw(img, b.Add(image.Pt(gridMarginLeft, gridMarginTop)), m, image.Point{}, draw.Src)
 
+	// 線は各チャンクの北と西の辺に引く。東端と南端は画像の端なので引かない
 	line := image.NewUniform(gridLineColor)
-	for c := 0; c <= cols; c++ {
+	for c := range cols {
 		x := gridMarginLeft + c*chunkPxW
 		draw.Draw(img, image.Rect(x, gridMarginTop, x+1, img.Bounds().Dy()), line, image.Point{}, draw.Over)
 	}
-	for r := 0; r <= rows; r++ {
+	for r := range rows {
 		y := gridMarginTop + r*chunkPxH
 		draw.Draw(img, image.Rect(gridMarginLeft, y, img.Bounds().Dx(), y+1), line, image.Point{}, draw.Over)
 	}
