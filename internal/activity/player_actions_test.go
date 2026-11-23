@@ -14,6 +14,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -295,6 +296,17 @@ func TestExecuteMoveAction_背の低い家具には移動コストを払って�
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 11, Y: 10}, world.Components.GridElement.Get(player).Coord)
 	assert.Equal(t, 100, getPassCostAt(world, 11, 10))
 	assert.Equal(t, []string{"Chair is here."}, query.GetGameLog(world).GetHistory())
+}
+
+func TestGetAllInteractiveInteractablesInRange_乗った箱の収納を探せる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 10)
+	require.NoError(t, err)
+
+	got := GetAllInteractiveInteractablesInRange(world, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+
+	assert.Equal(t, []ecs.Entity{crate}, got)
 }
 
 func TestExecuteMoveAction_地図の外へは何も出さずに止まる(t *testing.T) {
