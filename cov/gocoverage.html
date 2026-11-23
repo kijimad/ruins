@@ -389,7 +389,7 @@
 				
 				<option value="file166">github.com/kijimaD/ruins/internal/mapplanner/layout.go (88.4%)</option>
 				
-				<option value="file167">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.1%)</option>
+				<option value="file167">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.8%)</option>
 				
 				<option value="file168">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -649,7 +649,7 @@
 				
 				<option value="file296">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file297">github.com/kijimaD/ruins/internal/systems/render3d.go (75.8%)</option>
+				<option value="file297">github.com/kijimaD/ruins/internal/systems/render3d.go (77.3%)</option>
 				
 				<option value="file298">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.4%)</option>
 				
@@ -21519,7 +21519,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
         <span class="cov8" title="1">if bm.existPlannedEntityOnTile(pos) </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
 
         <span class="cov8" title="1">return true</span>
@@ -48388,12 +48388,14 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
                         <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">if sr.Shape == rawschema.Inset </span>{
-                        // 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする。
-                        // 開いた扉は描かず、開口部だけを残す
+                        // 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする
                         <span class="cov8" title="1">if !vis || world.Components.BlockPass.Has(e) </span>{
-                                <span class="cov0" title="0">sys.addSlab(&amp;quads, projector, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
-</span>                        }
-                        <span class="cov8" title="1">continue</span>
+                                <span class="cov8" title="1">sys.addSlab(&amp;quads, projector, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
+                                continue</span>
+                        }
+                        // 開いた扉は蝶番のある壁の側へ寄せるので、隣の閉じた扉とはつながらない
+                        <span class="cov8" title="1">sys.addSlab(&amp;quads, projector, openInsetFaces(g.Coord, insetConnections(walls, nil, g.Coord)), atlas, ux, uy, uw, uh, tint)
+                        continue</span>
                 }
                 // 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない
                 <span class="cov8" title="1">if !vis </span>{
@@ -48582,6 +48584,11 @@ type connections struct {
         north, east, south, west bool
 }
 
+// alongX は、つながりから壁にはめる置物が東西に並ぶかを返す。東西のどちらかとつながるか、どの向きともつながらなければ東西に並べる
+func (c connections) alongX() bool {
+        <span class="cov8" title="1">return c.west || c.east || (!c.north &amp;&amp; !c.south)
+</span>}
+
 // insetConnections は c の置物が、隣の壁 walls か閉じている壁にはめる置物 insets とつながるかを返す
 func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile]) connections {
         <span class="cov8" title="1">at := func(dx, dy consts.Tile) bool </span>{
@@ -48594,7 +48601,7 @@ func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts
 // insetFaces は閉じた壁にはめる置物の面を返す。つながる向きに並ぶ板にし、つながりが無ければ東西に並べ、
 // つながる端を省く。南北の板は東西の板をタイルの中心で回して作る
 func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
-        <span class="cov8" title="1">alongX := conn.west || conn.east || (!conn.north &amp;&amp; !conn.south)
+        <span class="cov8" title="1">alongX := conn.alongX()
         var faces []insetFace
         if alongX </span>{
                 <span class="cov8" title="1">faces = slab(0.5-insetThickness/2, 0.5+insetThickness/2, !conn.west, !conn.east)
@@ -48604,6 +48611,35 @@ func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
         <span class="cov8" title="1">for i := range faces </span>{
                 <span class="cov8" title="1">for j, v := range faces[i].p </span>{
                         <span class="cov8" title="1">if !alongX </span>{
+                                <span class="cov8" title="1">v = turnQuarter(v)
+</span>                        }
+                        <span class="cov8" title="1">faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))</span>
+                }
+        }
+        <span class="cov8" title="1">return faces</span>
+}
+
+// openInsetGap は開いた扉の板と脇の壁のあいだ。壁の面と重なってちらつかないよう少し離す
+const openInsetGap = 0.08
+
+// openInsetFaces は開いた扉の面を返す。閉じた板を90度回して開口部と直角に立て、つながる壁の脇へ寄せる。
+// 東西に並ぶ扉は東だけとつながるとき東、それ以外は西の脇へ寄せ、南北に並ぶ扉は南だけとつながるとき南、それ以外は北へ寄せる
+func openInsetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
+        <span class="cov8" title="1">alongX := conn.alongX()
+        first, second := conn.west, conn.east
+        if !alongX </span>{
+                <span class="cov8" title="1">first, second = conn.north, conn.south
+</span>        }
+        <span class="cov8" title="1">shift := openInsetGap + insetThickness/2 - 0.5
+        if second &amp;&amp; !first </span>{
+                <span class="cov8" title="1">shift = -shift
+</span>        }
+        <span class="cov8" title="1">faces := slab(0.5-insetThickness/2, 0.5+insetThickness/2, true, true)
+        for i := range faces </span>{
+                <span class="cov8" title="1">for j, v := range faces[i].p </span>{
+                        <span class="cov8" title="1">v = turnQuarter(v)
+                        v.X += shift
+                        if !alongX </span>{
                                 <span class="cov8" title="1">v = turnQuarter(v)
 </span>                        }
                         <span class="cov8" title="1">faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))</span>
