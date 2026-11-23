@@ -404,3 +404,22 @@ func TestPlanAt_行き先の前に集落と点在ランドマークを置かな�
 	}
 	require.Positive(t, reserved, "前提: 予約したチャンクがある")
 }
+
+func TestPlanSpan_記録しても計画は変わらず最後の写しが仕上がりと一致する(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	road, ok := roadRow(raws)
+	require.True(t, ok)
+	for seed := range uint64(5) {
+		plain := planSpan(raws, seed, road, 0, planTestCols, planTestSpawn, false)
+		recorded := planSpan(raws, seed, road, 0, planTestCols, planTestSpawn, true)
+		require.GreaterOrEqual(t, len(recorded.snapshots), 3, "前提: 区域、行き先、集落の段階がある")
+		last := recorded.snapshots[len(recorded.snapshots)-1]
+		assert.Equal(t, "settlements", last.label)
+		assert.Equal(t, plain.roads, last.roads, "seed=%d", seed)
+		assert.Equal(t, plain.settlements, last.settlements, "seed=%d", seed)
+		assert.Equal(t, plain.reserved, last.reserved, "seed=%d", seed)
+		assert.Empty(t, plain.snapshots, "記録しなければ写しを持たない")
+	}
+}

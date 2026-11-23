@@ -3,6 +3,8 @@ package overworld
 import (
 	"cmp"
 	"container/heap"
+	"fmt"
+	"maps"
 	"slices"
 	"sync"
 
@@ -47,6 +49,29 @@ type roadPlan struct {
 	settlements map[consts.Coord[consts.Chunk]]RoadDir // 集落と、道のある側
 	// reserved は行き先が網につながる所。道が通らなかった所も、門や墜落現場の前を塞がないよう集落と点在ランドマークを置かない
 	reserved map[consts.Coord[consts.Chunk]]bool
+	// record が立っていれば、段階を終えるたびに snapshots へ写しを足す
+	record    bool
+	snapshots []planSnapshot
+}
+
+// planSnapshot は計画の1段階を終えた時点の写し
+type planSnapshot struct {
+	label       string
+	roads       map[consts.Coord[consts.Chunk]][]roadPort
+	settlements map[consts.Coord[consts.Chunk]]RoadDir
+	reserved    map[consts.Coord[consts.Chunk]]bool
+}
+
+// snapshot は record が立っていれば、今の道・集落・予約の写しを label の名前で残す
+func (plan *roadPlan) snapshot(label string) {
+	if !plan.record {
+		return
+	}
+	roads := make(map[consts.Coord[consts.Chunk]][]roadPort, len(plan.roads))
+	for c, ports := range plan.roads {
+		roads[c] = slices.Clone(ports)
+	}
+	plan.snapshots = append(plan.snapshots, planSnapshot{label: label, roads: roads, settlements: maps.Clone(plan.settlements), reserved: maps.Clone(plan.reserved)})
 }
 
 // planKey は計画を覚えておく鍵。raws は表の中身へのポインタで見分けるので、同じ raws の表をその場で書き換えると古い計画を引く。
@@ -83,7 +108,7 @@ func planAt(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.Chunk)
 	if found {
 		return p
 	}
-	p = planSpan(raws, runSeed, road, key.span, cols, spawnRow)
+	p = planSpan(raws, runSeed, road, key.span, cols, spawnRow, false)
 	planMu.Lock()
 	if len(planCache) >= planCacheLimit {
 		clear(planCache)
@@ -206,10 +231,12 @@ func (plan *roadPlan) addPort(c consts.Coord[consts.Chunk], p roadPort) {
 	}
 }
 
-// planSpan は道の表 road の行数で区切った計画区間 k の道と集落を計画する
-func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols, spawnRow consts.Chunk) *roadPlan {
-	plan := &roadPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}, reserved: map[consts.Coord[consts.Chunk]]bool{}}
+// planSpan は道の表 road の行数で区切った計画区間 k の道と集落を計画する。段階は、区域と墜落現場を置く、行き先を予約する、
+// 経路を1本ずつ足す、集落を置く、の順に計画を書き換える。record が立っていれば段階ごとの写しを残す
+func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols, spawnRow consts.Chunk, record bool) *roadPlan {
+	plan := &roadPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}, reserved: map[consts.Coord[consts.Chunk]]bool{}, record: record}
 	g := newSpanGrid(raws, runSeed, k, consts.Chunk(road.SpanRows), cols, spawnRow)
+	plan.snapshot("districts")
 	var start, nodes []planNode
 	if x, ok := crossingAt(raws, runSeed, g.top, cols, spawnRow); ok {
 		start = append(start, planNode{terms: []planTerminal{{c: consts.Coord[consts.Chunk]{X: x, Y: g.top}, port: roadPort{dir: RoadN}}}})
@@ -247,8 +274,10 @@ func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols,
 			plan.reserved[t.c] = true
 		}
 	}
+	plan.snapshot("destinations")
 	connectNodes(plan, g, start, nodes)
 	placeSettlements(raws, runSeed, plan, g)
+	plan.snapshot("settlements")
 	return plan
 }
 
@@ -314,6 +343,7 @@ func connectNodes(plan *roadPlan, g spanGrid, start, nodes []planNode) {
 			}
 		}
 		join(nodes[i])
+		plan.snapshot(fmt.Sprintf("road %d", len(plan.snapshots)-1))
 		for _, c := range path {
 			if _, ok := attach[c]; !ok {
 				attach[c] = nil
@@ -481,3 +511,56 @@ func roadAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], c
 func settlementFacing(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) RoadDir {
 	return planAt(raws, runSeed, c.Y, cols, spawnRow).settlements[c]
 }
+
+// RoadPlanSnapshot は道の計画の途中の1段階を、俯瞰図と同じ描画モデルで表す
+type RoadPlanSnapshot struct {
+	Label string
+	View  MacroView
+}
+
+// RoadPlanSnapshots は行 y を持つ計画区間を記録しながら計画し直し、段階ごとの写しを北から南への俯瞰図にして返す。最後に、
+// 点在ランドマークまで置いた仕上がりを足す。覚えておいた計画は使わず、書き換えもしない
+func RoadPlanSnapshots(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.Chunk) []RoadPlanSnapshot {
+	road, ok := roadRow(raws)
+	if !ok {
+		return nil
+	}
+	rows := consts.Chunk(road.SpanRows)
+	k := consts.FloorDiv(y, rows)
+	plan := planSpan(raws, runSeed, road, k, cols, spawnRow, true)
+	colorOf := glyphColorMap(raws)
+	cat := zoneCatalogFrom(raws)
+	wasteland := chunkGlyph(raws, rawschema.Wasteland)
+	view := func(s planSnapshot, final bool) MacroView {
+		cells := make([][]MacroCell, rows)
+		for cy := range rows {
+			cells[cy] = make([]MacroCell, cols)
+			for x := range cols {
+				c := consts.Coord[consts.Chunk]{X: x, Y: k*rows + cy}
+				glyph := wasteland
+				switch {
+				case final, blockedChunk(raws, runSeed, c, cols, spawnRow):
+					glyph = chunkPlace(raws, cat, runSeed, c, cols, spawnRow)
+				case s.settlements[c] != 0:
+					if g, ok := glyphByID(raws, settlementAt(raws, runSeed, c).Id); ok {
+						glyph = g.Label
+					}
+				case s.reserved[c]:
+					glyph = reservedGlyph
+				}
+				col, hasCol := colorOf[glyph]
+				cells[cy][x] = MacroCell{Glyph: glyph, Color: col, HasColor: hasCol, Discovered: true, Road: portDirs(s.roads[c])}
+			}
+		}
+		return MacroView{Cells: cells}
+	}
+	out := make([]RoadPlanSnapshot, 0, len(plan.snapshots)+1)
+	for _, s := range plan.snapshots {
+		out = append(out, RoadPlanSnapshot{Label: s.label, View: view(s, false)})
+	}
+	last := plan.snapshots[len(plan.snapshots)-1]
+	return append(out, RoadPlanSnapshot{Label: "landmarks", View: view(last, true)})
+}
+
+// reservedGlyph は途中経過の俯瞰図で、行き先の前に予約したチャンクを示す記号
+const reservedGlyph = '+'
