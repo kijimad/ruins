@@ -90,3 +90,12 @@ func TestOverworldMapVisualizerState_最初の段階を描ける(t *testing.T) {
 	png := vrt.RenderPNG(t, vrt.States(&gs.OverworldMapVisualizerState{Seed: overworldMapSeed}))
 	require.NotEmpty(t, png)
 }
+
+func TestOverworldMapVisualizerState_地図が画面に収まらなければエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetScreenDimensions(100, 100)
+	st := &gs.OverworldMapVisualizerState{Seed: overworldMapSeed}
+	require.Error(t, st.OnStart(world))
+}

@@ -27,8 +27,13 @@ type OverworldMapVisualizerState struct {
 
 var _ es.State[w.World] = &OverworldMapVisualizerState{}
 
-// overworldMapCellPx は1チャンクの辺。計画区間の全ての行が画面に収まる大きさにする
-const overworldMapCellPx = 16
+const (
+	// overworldMapCellPx は1チャンクの辺。計画区間の全ての行が画面に収まる大きさにする
+	overworldMapCellPx = 16
+	// overworldMapOriginX と overworldMapOriginY は地図の左上。上の余白に段階の名前を出す
+	overworldMapOriginX = 4
+	overworldMapOriginY = 20
+)
 
 // OnPause は一時停止時の処理
 func (st *OverworldMapVisualizerState) OnPause(_ w.World) error { return nil }
@@ -36,13 +41,20 @@ func (st *OverworldMapVisualizerState) OnPause(_ w.World) error { return nil }
 // OnResume は再開時の処理
 func (st *OverworldMapVisualizerState) OnResume(_ w.World) error { return nil }
 
-// OnStart は計画区間の地上の地図を記録しながら作り、表示する段階を確かめる
+// OnStart は計画区間の地上の地図を記録しながら作り、表示する段階と、地図が画面に収まることを確かめる
 func (st *OverworldMapVisualizerState) OnStart(world w.World) error {
 	_, _, cols, rows := dungeon.DungeonOverworld.BandShape()
 	spawnRow := gc.SeamlessBand{Rows: rows}.SpawnChunkY()
 	st.snapshots = overworld.MapSnapshots(world.Resources.RawMaster, st.Seed, spawnRow, cols, spawnRow)
 	if st.SnapshotIndex < 0 || st.SnapshotIndex >= len(st.snapshots) {
 		return fmt.Errorf("SnapshotIndex %d out of range, snapshot count %d", st.SnapshotIndex, len(st.snapshots))
+	}
+	cells := st.snapshots[st.SnapshotIndex].View.Cells
+	mapW := overworldMapOriginX + len(cells[0])*overworldMapCellPx
+	mapH := overworldMapOriginY + len(cells)*overworldMapCellPx
+	screen := world.Resources.ScreenDimensions
+	if mapW > screen.Width || mapH > screen.Height {
+		return fmt.Errorf("map %dx%d does not fit the screen %dx%d", mapW, mapH, screen.Width, screen.Height)
 	}
 	return nil
 }
@@ -59,8 +71,8 @@ func (st *OverworldMapVisualizerState) Update(_ w.World) (es.Transition[w.World]
 func (st *OverworldMapVisualizerState) Draw(world w.World, screen *ebiten.Image) error {
 	snap := st.snapshots[st.SnapshotIndex]
 	hud.DrawMapGrid(uicore.NewEbitenCanvas(screen), snap.View, hud.MapGridStyle{
-		OriginX:   4,
-		OriginY:   20,
+		OriginX:   overworldMapOriginX,
+		OriginY:   overworldMapOriginY,
 		CellPx:    overworldMapCellPx,
 		GlyphFace: world.Resources.UIResources.Text.SmallFace,
 	})

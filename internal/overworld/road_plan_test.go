@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"fmt"
 	"slices"
 	"testing"
 
@@ -421,6 +422,18 @@ func TestPlanSpan_記録しても計画は変わらず集落の段階の写し�
 		}
 		require.GreaterOrEqual(t, len(labels), 4, "前提: 墜落現場、区域、行き先、集落の段階がある")
 		assert.Equal(t, []string{"crash site", "districts", "destinations"}, labels[:3])
+		roads := rec.snapshots[3 : len(rec.snapshots)-1]
+		require.NotEmpty(t, roads, "前提: 経路を1本以上足す")
+		ports := 0
+		for i, s := range roads {
+			assert.Equal(t, fmt.Sprintf("road %d", i+1), s.label)
+			n := 0
+			for _, ps := range s.roads {
+				n += len(ps)
+			}
+			assert.Greater(t, n, ports, "seed=%d %s で道の出入り口が増える", seed, s.label)
+			ports = n
+		}
 		last := rec.snapshots[len(rec.snapshots)-1]
 		assert.Equal(t, "settlements", last.label)
 		assert.Equal(t, plain.roads, last.roads, "seed=%d", seed)
