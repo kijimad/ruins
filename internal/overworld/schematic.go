@@ -83,13 +83,14 @@ type chunkType string
 const (
 	chunkWasteland  chunkType = "wasteland"  // 荒れ地。特徴的な地物が無い開けた地形
 	chunkSettlement chunkType = "settlement" // 集落。民家・農家
+	chunkRoad       chunkType = "road"       // 道。集落どうしを結ぶ道が通り、他の地物を置かない
 	chunkUrban      chunkType = "urban"      // 市街地。建物チャンク
 	chunkLandmark   chunkType = "landmark"   // 自然の点在ランドマーク
 	chunkCrashSite  chunkType = "crash_site" // 宇宙船が墜落した開始の現場
 )
 
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
-// 荒れ地を返す。優先度は墜落現場 > 市街地 > 集落 > 点在ランドマーク > 荒れ地。地図も生成もこの
+// 荒れ地を返す。優先度は墜落現場 > 市街地 > 集落 > 道 > 点在ランドマーク > 荒れ地。地図も生成もこの
 // 分類を唯一の源にするので、地図の記号と実体が食い違わない。spawnRow は開始の行で、開始チャンクを決める
 func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) chunkType {
 	kind, _ := classifyChunk(raws, runSeed, c, cols, spawnRow)
@@ -111,6 +112,9 @@ func classifyChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Ch
 func openChunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
 	if placementOf(raws, rawschema.PointFeatureKindSettlement).At(runSeed, c, cols) {
 		return chunkSettlement
+	}
+	if onRoad(raws, runSeed, c, cols) {
+		return chunkRoad
 	}
 	if placementOf(raws, rawschema.PointFeatureKindLandmark).At(runSeed, c, cols) {
 		return chunkLandmark
@@ -142,7 +146,7 @@ func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.C
 			return g.Label
 		}
 		return placeUnknownGlyph
-	case chunkWasteland:
+	case chunkWasteland, chunkRoad:
 		return chunkGlyph(raws, rawschema.Wasteland)
 	}
 	return placeUnknownGlyph

@@ -75,9 +75,8 @@ const (
 	// Big は位相 0 のタイルにだけ乗せる。実効密度が 1/P に希釈され、P が通行性のダイヤルになる。
 	scatterBigPhaseMod consts.Tile = 3
 	scatterBigPhaseK   consts.Tile = 2
-	// scatterRouteBuffer は経路マスクのバッファ幅。隊商の横断レーンを確保するため、算出した経路の
-	// 直線からこのタイル数以内では Big の大物を置かない。road.go の roadWidth とは独立で、舗装済みの道は
-	// 道のタイルになり土の地面でなくなるので散布対象外になる。ここが守るのは舗装されない wasteland 内の横断レーン。
+	// scatterRouteBuffer は経路マスクのバッファ幅。道の中心線からこのタイル数以内では Big の大物を置かず、
+	// 道の縁に大物が寄って通りを狭めないようにする。舗装した道のマスは土の地面でなくなるので散布されない。
 	scatterRouteBuffer consts.Tile = 2
 	// scatterRoadsideRange は道沿いゾーンの半径。集落・市街の当選チャンクからこのチャンク数以内を
 	// 道沿いにする。道は集落間を結ぶので、集落の近傍が道沿いの帯を兼ねる。
@@ -148,7 +147,7 @@ func groundCoverEntries(rows []rawschema.GroundCoverEntry) []scatterEntry {
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
 func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) (scatterCatalog, bool, error) {
 	switch chunkTypeAt(raws, runSeed, c, cols, spawnRow) {
-	case chunkWasteland, chunkCrashSite:
+	case chunkWasteland, chunkCrashSite, chunkRoad:
 		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(raws, runSeed, c, cols))
 		return cat, err == nil, err
 	default:
@@ -343,19 +342,17 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 	return m == 0
 }
 
-// scatterRoute はチャンク c を横切りうる道の辺を返す。実際の道タイルを読まず WinnerOf で算出した
-// 当選どうしの経路で、散布はタイルごとに onScatterRoute でこの辺と比べる。チャンクにつき1回だけ作る
+// scatterRoute はチャンク c が道のチャンクなら、その中に描く道の辺を返す。実際の道タイルを読まず経路から算出し、
+// 散布はタイルごとに onScatterRoute でこの辺と比べる。チャンクにつき1回だけ作る
 func scatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, g chunkGeom) []roadSeg {
-	links := crossingRoads(raws, runSeed, c, cols)
-	segs := make([]roadSeg, 0, len(links)*2)
-	for _, link := range links {
-		segs = append(segs, roadPath(raws, runSeed, link.a, link.b, cols, spawnRow, g.chunkW, g.chunkH)...)
+	dirs, road, ok := roadDirsAt(raws, runSeed, c, cols, spawnRow)
+	if !ok {
+		return nil
 	}
-	return segs
+	return roadChunkSegs(c, dirs, road.Width, g.chunkW, g.chunkH)
 }
 
-// onScatterRoute は絶対タイル pos が道の辺 route からバッファ以内かを返す。道は floor 化済みで散布は
-// 土にしか置かないので、経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。
+// onScatterRoute は絶対タイル pos が道の辺 route からバッファ以内かを返す
 func onScatterRoute(route []roadSeg, pos consts.Coord[consts.Tile]) bool {
 	for _, seg := range route {
 		var d consts.Tile

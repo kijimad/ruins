@@ -1,7 +1,6 @@
 package overworld
 
 import (
-	"cmp"
 	"slices"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -9,9 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
-// 道の幾何の唯一の出典。道が「隣接リージョンの当選集落を L 字で結び、塀に囲まれた区域は門を通る」という規則をここ一箇所に置き、
-// 舗装 road.go・散布回避 scatter.go・マクロ地図 road_overlay.go・ランドマークの置き場所 landmark.go の4消費者が同じ分解を各粒度で解釈する。
-// 分解を1箇所にすることで、地図に出る道と実際に舗装される道が構造的に一致し続ける。
+// 道の幾何の唯一の出典。道は隣接リージョンの当選集落の道ばたのチャンクどうしをチャンク単位で結び、通るチャンクを
+// 道のチャンクにする。道のチャンクは道だけが使うので、施設や区域と道は重ならない。チャンクの種別 classifyChunk、
+// 舗装 road.go、散布の回避 scatter.go、マクロ地図 road_overlay.go がここの経路を共有する。
 
 // roadOrient は道の一辺の向き。実体は文字列で、%v やテスト失敗の出力に種別名が出る。
 type roadOrient string
@@ -33,79 +32,66 @@ func span(orient roadOrient, fixed, a, b consts.Tile) roadSeg {
 	return roadSeg{orient: orient, fixed: fixed, lo: min(a, b), hi: max(a, b)}
 }
 
-// chunkCenter はチャンク c の中心のタイルを返す
-func chunkCenter(c consts.Chunk, size consts.Tile) consts.Tile {
-	return c.Tiles(size) + size/2
+// roadsideOf は集落 s の脇を道が通るチャンクを返す。西隣にし、西端の列の集落だけ東隣にする。集落ごとに1つに決まるので、
+// 北から来る道と南へ出る道が同じチャンクを通り、集落の脇を過ぎる。列が1つしかなければ脇が無いので ok=false
+func roadsideOf(s consts.Coord[consts.Chunk], cols consts.Chunk) (consts.Coord[consts.Chunk], bool) {
+	switch {
+	case s.X > 0:
+		return consts.Coord[consts.Chunk]{X: s.X - 1, Y: s.Y}, true
+	case cols > 1:
+		return consts.Coord[consts.Chunk]{X: s.X + 1, Y: s.Y}, true
+	}
+	return consts.Coord[consts.Chunk]{}, false
 }
 
-// roadSegments は当選集落 a から b への道を水平辺・垂直辺の2区間で返す。分解規則の唯一の出典で、
-// 水平辺は始点 a の行、垂直辺は終点 b の列、角は (b.X, a.Y)。各辺はチャンクの北と西の境目を通り、チャンクの中に置く
-// 施設の脇を通り過ぎる。西端の列の道は世界の端に掛かり、世界の中の半分だけを舗装する。
-// 端点は min/max で正規化するので、a と b の東西の大小に依らず同じ2辺になる。
-func roadSegments(a, b consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) []roadSeg {
-	return []roadSeg{
-		span(orientHorizontal, a.Y.Tiles(chunkH), a.X.Tiles(chunkW), b.X.Tiles(chunkW)),
-		span(orientVertical, b.X.Tiles(chunkW), a.Y.Tiles(chunkH), b.Y.Tiles(chunkH)),
+// linkChunks は集落 a から b への道が通るチャンクを、a の道ばたから b の道ばたまで順に返す。道ばたから縦に進み、
+// 2つの集落の間の行で横へ折れ、相手の道ばたへ縦に進む。折れる行が両端の集落の行と違えば集落を通らない。
+// 間に行が無いときは外側の行で折れ、それでも集落を通るなら道を作らない
+func linkChunks(a, b consts.Coord[consts.Chunk], cols consts.Chunk) []consts.Coord[consts.Chunk] {
+	ra, okA := roadsideOf(a, cols)
+	rb, okB := roadsideOf(b, cols)
+	if !okA || !okB {
+		return nil
+	}
+	top, bottom := min(a.Y, b.Y), max(a.Y, b.Y)
+	var turns []consts.Chunk
+	if bottom-top >= 2 {
+		turns = append(turns, (top+bottom)/2)
+	}
+	turns = append(turns, top-1, bottom+1)
+	for _, m := range turns {
+		path := chunkLine(nil, ra, consts.Coord[consts.Chunk]{X: ra.X, Y: m})
+		path = chunkLine(path, consts.Coord[consts.Chunk]{X: ra.X, Y: m}, consts.Coord[consts.Chunk]{X: rb.X, Y: m})
+		path = chunkLine(path, consts.Coord[consts.Chunk]{X: rb.X, Y: m}, rb)
+		if !slices.Contains(path, a) && !slices.Contains(path, b) {
+			return path
+		}
+	}
+	return nil
+}
+
+// chunkLine は path の後ろへ from から to までの縦か横の直線のチャンクを足して返す。path の末尾が from なら重ねない
+func chunkLine(path []consts.Coord[consts.Chunk], from, to consts.Coord[consts.Chunk]) []consts.Coord[consts.Chunk] {
+	step := consts.Coord[consts.Chunk]{X: sign(to.X - from.X), Y: sign(to.Y - from.Y)}
+	for p := from; ; p = p.Add(step) {
+		if len(path) == 0 || path[len(path)-1] != p {
+			path = append(path, p)
+		}
+		if p == to {
+			return path
+		}
 	}
 }
 
-// gateLane は区域の門の列 col を道が縦に通るタイルの列を返す。門は区域の外周の街路の帯に開くので、帯の幅の真ん中を通す
-func gateLane(col consts.Chunk, chunkW consts.Tile) consts.Tile {
-	return col.Tiles(chunkW) + urbanStreetW/2
-}
-
-// roadPath は当選集落 a から b への道を返す。roadSegments の垂直辺が塀に囲まれた区域を横切るなら、区域の手前の行で
-// 北の門の列へ折れて門へ入り、南の門から出て区域の向こうの行で元の列へ戻る。区域の中は区域が街路を敷くので辺を置かない
-func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, chunkW, chunkH consts.Tile) []roadSeg {
-	segs := roadSegments(a, b, chunkW, chunkH)
-	vertical := segs[1]
-	x, y := vertical.fixed, vertical.lo
-	out := []roadSeg{segs[0]}
-	for _, r := range fencedDistrictsBetween(raws, runSeed, min(a.Y, b.Y), max(a.Y, b.Y), cols, spawnRow) {
-		north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, spawnRow))
-		top := r.anchor.Y.Tiles(chunkH)
-		bottom := (r.anchor.Y + r.h).Tiles(chunkH) - 1
-		if y < top {
-			before := chunkCenter(r.anchor.Y-1, chunkH)
-			out = append(out,
-				span(orientVertical, x, y, before),
-				span(orientHorizontal, before, x, gateLane(north, chunkW)),
-				span(orientVertical, gateLane(north, chunkW), before, top),
-			)
-		}
-		if vertical.hi <= bottom {
-			return out
-		}
-		after := chunkCenter(r.anchor.Y+r.h, chunkH)
-		out = append(out,
-			span(orientVertical, gateLane(south, chunkW), bottom, after),
-			span(orientHorizontal, after, gateLane(south, chunkW), x),
-		)
-		y = after
+// sign は v の符号を -1, 0, 1 で返す
+func sign(v consts.Chunk) consts.Chunk {
+	switch {
+	case v > 0:
+		return 1
+	case v < 0:
+		return -1
 	}
-	return append(out, span(orientVertical, x, y, vertical.hi))
-}
-
-// fencedDistrictsBetween は絶対チャンク行 top から bottom に掛かる、塀に囲まれた区域を北から順に返す
-func fencedDistrictsBetween(raws rawschema.Raws, runSeed uint64, top, bottom, cols, spawnRow consts.Chunk) []districtRegion {
-	var out []districtRegion
-	for _, d := range districtsFrom(raws) {
-		if d.row.Fence == nil {
-			continue
-		}
-		spacing := consts.Chunk(d.row.Spacing)
-		for ry := consts.FloorDiv(top, spacing); ry <= consts.FloorDiv(bottom, spacing); ry++ {
-			r := d.regionIn(runSeed, ry, cols)
-			if r.anchor.Y > bottom || r.anchor.Y+r.h-1 < top {
-				continue
-			}
-			if got, ok := districtAt(raws, runSeed, r.anchor, cols, spawnRow); ok && got == r {
-				out = append(out, r)
-			}
-		}
-	}
-	slices.SortFunc(out, func(a, b districtRegion) int { return cmp.Compare(a.anchor.Y, b.anchor.Y) })
-	return out
+	return 0
 }
 
 // roadLink は道で結ぶ2つの当選と、その道
@@ -115,7 +101,7 @@ type roadLink struct {
 }
 
 // crossingRoads はチャンク c を横切りうる道を返す。道を持つ地物ごとに、c の行が属するリージョン r の
-// (r-1,r) と (r,r+1) の当選を結ぶ2本だけが c を横切りうる。road.go の舗装、scatter.go の回避、landmark.go の置き場所が同じ結線を共有する
+// (r-1,r) と (r,r+1) の当選を結ぶ2本だけが c を横切りうる
 func crossingRoads(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) []roadLink {
 	var links []roadLink
 	for _, f := range raw.PtrSlice(raws.PointFeatures) {
@@ -129,4 +115,75 @@ func crossingRoads(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Ch
 		}
 	}
 	return links
+}
+
+// onRoad は c を道が通るかを返す。チャンクの種別の分類が道のチャンクかを決めるのに使う
+func onRoad(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) bool {
+	for _, link := range crossingRoads(raws, runSeed, c, cols) {
+		if slices.Contains(linkChunks(link.a, link.b, cols), c) {
+			return true
+		}
+	}
+	return false
+}
+
+// roadDirsAt は道のチャンク c から道がつながる方角と、その道を返す。経路の前後のチャンクのうち、道のチャンクに
+// 分類された隣へだけつなぐので、集落や市街地に経路がぶつかる所で道が途切れる。道のチャンクでなければ ok=false
+func roadDirsAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) (RoadDir, rawschema.Road, bool) {
+	if chunkTypeAt(raws, runSeed, c, cols, spawnRow) != chunkRoad {
+		return 0, rawschema.Road{}, false
+	}
+	var dirs RoadDir
+	var road rawschema.Road
+	for _, link := range crossingRoads(raws, runSeed, c, cols) {
+		path := linkChunks(link.a, link.b, cols)
+		i := slices.Index(path, c)
+		if i < 0 {
+			continue
+		}
+		road = link.road
+		for _, j := range []int{i - 1, i + 1} {
+			if j < 0 || j >= len(path) || chunkTypeAt(raws, runSeed, path[j], cols, spawnRow) != chunkRoad {
+				continue
+			}
+			dirs |= roadDirToward(c, path[j])
+		}
+	}
+	return dirs, road, true
+}
+
+// roadDirToward は c から隣のチャンク n への方角を返す
+func roadDirToward(c, n consts.Coord[consts.Chunk]) RoadDir {
+	switch {
+	case n.Y < c.Y:
+		return RoadN
+	case n.Y > c.Y:
+		return RoadS
+	case n.X > c.X:
+		return RoadE
+	default:
+		return RoadW
+	}
+}
+
+// roadChunkSegs は道のチャンク c の中に描く道の辺を、絶対タイル座標で返す。チャンクの中心から dirs の方角の縁まで伸ばす。
+// 各辺は中心にある幅 width の四角まで含めるので、折れる所や交わる所が欠けない
+func roadChunkSegs(c consts.Coord[consts.Chunk], dirs RoadDir, width int, chunkW, chunkH consts.Tile) []roadSeg {
+	wd := consts.Tile(width)
+	x0, y0 := c.X.Tiles(chunkW), c.Y.Tiles(chunkH)
+	cx, cy := x0+chunkW/2, y0+chunkH/2
+	var segs []roadSeg
+	if dirs&RoadN != 0 {
+		segs = append(segs, span(orientVertical, cx, y0, cy+wd-wd/2-1))
+	}
+	if dirs&RoadS != 0 {
+		segs = append(segs, span(orientVertical, cx, cy-wd/2, y0+chunkH-1))
+	}
+	if dirs&RoadW != 0 {
+		segs = append(segs, span(orientHorizontal, cy, x0, cx+wd-wd/2-1))
+	}
+	if dirs&RoadE != 0 {
+		segs = append(segs, span(orientHorizontal, cy, cx-wd/2, x0+chunkW-1))
+	}
+	return segs
 }
