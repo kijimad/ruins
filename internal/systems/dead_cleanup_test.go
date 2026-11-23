@@ -260,61 +260,6 @@ func TestDeadCleanupSystem_CancelsActivity(t *testing.T) {
 		"死亡エンティティは削除されるべき")
 }
 
-func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	// SpriteRenderを持つ敵エンティティを作成
-	enemy := world.ECS.NewEntity()
-	world.Components.Name.Add(enemy, &gc.Name{Name: "スライム"})
-	world.Components.Dead.Add(enemy, &gc.Dead{})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-	world.Components.SpriteRender.Add(enemy, &gc.SpriteRender{
-		SpriteSheetName: "character",
-		SpriteKey:       "slime_0",
-	})
-
-	// 実行前のVisualEffectエンティティ数
-	effectCountBefore := 0
-	effectBeforeQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
-	for effectBeforeQuery.Next() {
-		effectCountBefore++
-	}
-
-	// DeadCleanupSystemを実行
-	sys := &DeadCleanupSystem{}
-	require.NoError(t, sys.Update(world))
-
-	// 敵エンティティは削除されているべき
-	assert.False(t, world.ECS.Alive(enemy), "敵エンティティは削除されるべき")
-
-	// スプライトフェードアウトエフェクトが生成されているべき
-	effectCountAfter := 0
-	effectAfterQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
-	for effectAfterQuery.Next() {
-		effectCountAfter++
-	}
-	assert.Equal(t, effectCountBefore+1, effectCountAfter, "スプライトフェードアウトエフェクトが生成されているべき")
-
-	// エフェクトの内容を確認
-	effectQuery := ecs.NewFilter2[gc.VisualEffects, gc.GridElement](world.ECS).Query()
-	for effectQuery.Next() {
-		entity := effectQuery.Entity()
-		ve := world.Components.VisualEffects.Get(entity)
-		ge := world.Components.GridElement.Get(entity)
-
-		require.Len(t, ve.Effects, 1)
-		effect, ok := ve.Effects[0].(*gc.SpriteFadeoutEffect)
-		require.True(t, ok, "SpriteFadeoutEffectであるべき")
-
-		assert.Equal(t, "character", effect.SpriteSheetName)
-		assert.Equal(t, "slime_0", effect.SpriteKey)
-		assert.Equal(t, consts.Tile(5), ge.X, "エフェクトは敵の位置に生成されるべき")
-		assert.Equal(t, consts.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
-	}
-}
-
 func TestDeadCleanupSystem_壊れた収納propは中身を足元へ出す(t *testing.T) {
 	t.Parallel()
 

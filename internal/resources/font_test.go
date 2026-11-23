@@ -29,7 +29,7 @@ func TestNewFont_存在しないパスはエラー(t *testing.T) {
 func TestNewFont_フォント形式でないファイルはエラー(t *testing.T) {
 	t.Parallel()
 
-	f, err := NewFont("file/shaders/white_silhouette.kage")
+	f, err := NewFont("file/shaders/retro.kage")
 
 	require.Error(t, err)
 	assert.Equal(t, Font{}, f)
