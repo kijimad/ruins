@@ -277,11 +277,11 @@ func TestItemMenuRow_残量を持つ物は残量の数を添える(t *testing.T)
 	battery, err := lifecycle.SpawnBackpackItem(world, "battery", 2)
 	require.NoError(t, err)
 	world.Components.Charge.Get(battery).Current = 750
-	coat, err := lifecycle.SpawnBackpackItem(world, "bandage", 1)
+	bandage, err := lifecycle.SpawnBackpackItem(world, "bandage", 1)
 	require.NoError(t, err)
 
 	assert.Equal(t, []string{
 		query.FormatNameCount(query.GetEntityName(battery, world), 2) + " (750)",
-		query.GetEntityName(coat, world),
-	}, []string{itemMenuRow(world, battery, 2).Cells[1].Text, itemMenuRow(world, coat, 1).Cells[1].Text})
+		query.GetEntityName(bandage, world),
+	}, []string{itemMenuRow(world, battery, 2).Cells[1].Text, itemMenuRow(world, bandage, 1).Cells[1].Text})
 }
