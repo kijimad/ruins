@@ -47,7 +47,7 @@ type refillTab struct {
 }
 
 // refillTabSpec は補充メニューの1タブの振る舞い。タブの番号で引く。sinkOf は灯りを選んだときに開く給油メニューのくべ先を作り、
-// amount は灯りの側で移せる量の上限を返す
+// amount は灯りの側で移せる量の上限を返す。灯りの残量はターン数なので、量はターンとして出す
 type refillTabSpec struct {
 	sinkOf func(world w.World, light ecs.Entity) FuelSink
 	amount func(charge gc.Charge) int
