@@ -112,7 +112,7 @@ func classifyChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Ch
 	if plan.settlements[c] != 0 {
 		return chunkSettlement, districtRegion{}
 	}
-	if placementOf(raws, rawschema.PointFeatureKindLandmark).At(runSeed, c, cols) {
+	if !plan.reserved[c] && placementOf(raws, rawschema.PointFeatureKindLandmark).At(runSeed, c, cols) {
 		return chunkLandmark, districtRegion{}
 	}
 	return chunkWasteland, districtRegion{}

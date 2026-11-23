@@ -114,36 +114,42 @@ func entranceOf(cells [][]maptemplate.MapCell, side RoadDir) consts.Tile {
 	if side == RoadW || side == RoadE {
 		length, depthMax = h, w
 	}
-	middle := func(match func(maptemplate.MapCell) bool, depth int) (consts.Tile, bool) {
-		lo, hi := -1, -1
+	// runs は depth の線で match するマスの連続した範囲を並べる
+	runs := func(match func(maptemplate.MapCell) bool, depth int) [][2]int {
+		var out [][2]int
 		for i := range length {
 			if !match(at(depth, i)) {
 				continue
 			}
-			if lo < 0 {
-				lo = i
-			}
-			if hi < 0 || hi == i-1 {
-				hi = i
+			if n := len(out); n > 0 && out[n-1][1] == i-1 {
+				out[n-1][1] = i
+			} else {
+				out = append(out, [2]int{i, i})
 			}
 		}
-		if lo < 0 {
-			return 0, false
-		}
-		return consts.Tile((lo + hi + 1) / 2), true
+		return out
 	}
+	middle := func(r [2]int) consts.Tile { return consts.Tile((r[0] + r[1] + 1) / 2) }
+	isFence := func(c maptemplate.MapCell) bool { return c.Prop == "fence" }
 	fenced := false
 	for i := range length {
-		fenced = fenced || at(0, i).Prop == "fence"
+		fenced = fenced || isFence(at(0, i))
 	}
 	if fenced {
-		if m, ok := middle(func(c maptemplate.MapCell) bool { return c.Prop != "fence" }, 0); ok {
-			return m
+		// 柵の切れ目は両側を柵に挟まれた範囲にする。縁の角の柵の無いマスを切れ目と取り違えない
+		gaps := runs(func(c maptemplate.MapCell) bool { return !isFence(c) }, 0)
+		for _, r := range gaps {
+			if r[0] > 0 && r[1] < length-1 {
+				return middle(r)
+			}
+		}
+		if len(gaps) > 0 {
+			return middle(gaps[0])
 		}
 	}
 	for depth := range depthMax {
-		if m, ok := middle(func(c maptemplate.MapCell) bool { return c.Prop == "door" }, depth); ok {
-			return m
+		if doors := runs(func(c maptemplate.MapCell) bool { return c.Prop == "door" }, depth); len(doors) > 0 {
+			return middle(doors[0])
 		}
 	}
 	return consts.Tile(length / 2)

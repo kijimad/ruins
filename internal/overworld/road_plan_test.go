@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// planSpan は計画を確かめる行の範囲。開始の行を挟んで北へ3計画区間ほど見る
+// planTest* は計画を確かめる範囲。開始の行を挟んで北へ3計画区間ほど見る
 const (
 	planTestTop    consts.Chunk = -100
 	planTestBottom consts.Chunk = 19
@@ -264,6 +264,7 @@ func TestEntranceOf(t *testing.T) {
 		{"柵の切れ目の真ん中を大きい側へ寄せる", grid("fffff,,fff", "f........f", "ffffffffff"), RoadN, 6},
 		{"南の縁の柵の切れ目", grid("ffffffffff", "f........f", "ff,,,fffff"), RoadS, 3},
 		{"西の縁の柵の切れ目は縦に数える", grid("fff", "f..", ",..", ",..", "fff"), RoadW, 3},
+		{"縁の角の柵の無いマスは切れ目と取り違えない", grid(".ffff..ffff.", ".f........f.", ".ffffffffff."), RoadN, 6},
 		{"柵が無ければ最も近い扉の並び", grid(",,,,,,,,", ",,,,,,,,", ",,,++,,,", ",,,,,,,,"), RoadN, 4},
 	}
 	for _, tt := range tests {
@@ -272,4 +273,89 @@ func TestEntranceOf(t *testing.T) {
 			assert.Equal(t, tt.want, entranceOf(tt.cells, tt.side))
 		})
 	}
+}
+
+func TestPlanAt_道の網は区域の門と墜落現場を通ってひとつながり(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	// 範囲の端の計画区間は範囲の外とつながるので、計画区間をまるごと含む範囲を見る
+	rows := consts.Chunk(raws.Road.SpanRows)
+	top, bottom := -5*rows, rows-1
+	for seed := range uint64(20) {
+		// 区域は門の出入り口どうしを、墜落現場は隣の出入り口どうしを、通り抜けとしてつなぐ
+		roads := map[consts.Coord[consts.Chunk]][]roadPort{}
+		for y := top; y <= bottom; y++ {
+			for x := range planTestCols {
+				c := consts.Coord[consts.Chunk]{X: x, Y: y}
+				if ports, _, ok := roadAt(raws, seed, c, planTestCols, planTestSpawn); ok {
+					roads[c] = ports
+				}
+			}
+		}
+		require.NotEmpty(t, roads, "前提: seed=%d に道がある", seed)
+		through := map[string][]consts.Coord[consts.Chunk]{}
+		for c, ports := range roads {
+			for _, p := range ports {
+				n := c.Add(stepOf(p.dir))
+				switch chunkTypeAt(raws, seed, n, planTestCols, planTestSpawn) {
+				case chunkUrban:
+					r, _ := districtAt(raws, seed, n, planTestCols, planTestSpawn)
+					key := r.kind.Id + r.anchor.String()
+					through[key] = append(through[key], c)
+				case chunkCrashSite:
+					through["crash"] = append(through["crash"], c)
+				case chunkWasteland, chunkSettlement, chunkRoad, chunkLandmark:
+				}
+			}
+		}
+		var start consts.Coord[consts.Chunk]
+		for c := range roads {
+			start = c
+			break
+		}
+		seen := map[consts.Coord[consts.Chunk]]bool{start: true}
+		queue := []consts.Coord[consts.Chunk]{start}
+		visit := func(n consts.Coord[consts.Chunk]) {
+			if _, ok := roads[n]; ok && !seen[n] {
+				seen[n] = true
+				queue = append(queue, n)
+			}
+		}
+		for len(queue) > 0 {
+			c := queue[0]
+			queue = queue[1:]
+			for _, p := range roads[c] {
+				visit(c.Add(stepOf(p.dir)))
+			}
+			for _, group := range through {
+				if slices.Contains(group, c) {
+					for _, n := range group {
+						visit(n)
+					}
+				}
+			}
+		}
+		assert.Len(t, seen, len(roads), "seed=%d の道の網がひとつながり", seed)
+	}
+}
+
+func TestPlanAt_行き先の前に集落と点在ランドマークを置かない(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	reserved := 0
+	for seed := range uint64(20) {
+		for y := planTestTop; y <= planTestBottom; y++ {
+			for c := range planAt(raws, seed, y, planTestCols, planTestSpawn).reserved {
+				if c.Y != y {
+					continue
+				}
+				reserved++
+				kind := chunkTypeAt(raws, seed, c, planTestCols, planTestSpawn)
+				assert.Contains(t, []chunkType{chunkRoad, chunkWasteland}, kind, "seed=%d %v", seed, c)
+			}
+		}
+	}
+	require.Positive(t, reserved, "前提: 予約したチャンクがある")
 }

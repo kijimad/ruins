@@ -42,9 +42,12 @@ type roadPort struct {
 type roadPlan struct {
 	roads       map[consts.Coord[consts.Chunk]][]roadPort
 	settlements map[consts.Coord[consts.Chunk]]RoadDir // 集落と、道のある側
+	// reserved は行き先が網につながる所。道が通らなかった所も、門や墜落現場の前を塞がないよう集落と点在ランドマークを置かない
+	reserved map[consts.Coord[consts.Chunk]]bool
 }
 
-// planKey は計画を覚えておく鍵。raws は表の中身へのポインタで見分ける
+// planKey は計画を覚えておく鍵。raws は表の中身へのポインタで見分けるので、同じ raws の表をその場で書き換えると古い計画を引く。
+// raws を変えるときはコピーしてから変える
 type planKey struct {
 	road      *rawschema.Road
 	features  *[]rawschema.PointFeature
@@ -199,7 +202,7 @@ func (plan *roadPlan) addPort(c consts.Coord[consts.Chunk], p roadPort) {
 
 // planSpan は道の表 road の行数で区切った計画区間 k の道と集落を計画する
 func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols, spawnRow consts.Chunk) *roadPlan {
-	plan := &roadPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}}
+	plan := &roadPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}, reserved: map[consts.Coord[consts.Chunk]]bool{}}
 	g := newSpanGrid(raws, runSeed, k, consts.Chunk(road.SpanRows), cols, spawnRow)
 	var start, nodes []planNode
 	if x, ok := crossingAt(raws, runSeed, g.top, cols, spawnRow); ok {
@@ -223,6 +226,11 @@ func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols,
 	}
 	if len(start) == 0 && len(nodes) > 0 {
 		start, nodes = nodes[:1], nodes[1:]
+	}
+	for _, n := range append(slices.Clone(start), nodes...) {
+		for _, t := range n.terms {
+			plan.reserved[t.c] = true
+		}
 	}
 	connectNodes(plan, g, start, nodes)
 	placeSettlements(raws, runSeed, plan, g)
@@ -310,7 +318,7 @@ func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *roadPlan, g spa
 		for y := max(ry*p.Spacing, g.top); y <= min((ry+1)*p.Spacing-1, g.bottom); y++ {
 			for x := range g.cols {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if _, road := plan.roads[c]; road || g.blocked[c] {
+				if _, road := plan.roads[c]; road || g.blocked[c] || plan.reserved[c] {
 					continue
 				}
 				for _, d := range roadDirs {
