@@ -58,7 +58,8 @@ var roadLines = map[overworld.RoadDir]rune{
 	overworld.RoadN | overworld.RoadS | overworld.RoadE | overworld.RoadW: '┼',
 }
 
-// overworldMapText は段階の俯瞰図を、チャンクの記号の文字の地図にする。道のチャンクは記号の代わりに出入り口の罫線を描く
+// overworldMapText は段階の俯瞰図を、チャンクの記号の文字の地図にする。道のチャンクは記号の代わりに出入り口の罫線を描く。
+// 道のチャンクは他の地物を持たないので、罫線が施設の記号を隠すことはない
 func overworldMapText(snap overworld.MapSnapshot) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "label: %s\n", snap.Label)
@@ -73,4 +74,19 @@ func overworldMapText(snap overworld.MapSnapshot) string {
 		b.WriteString("\n")
 	}
 	return b.String()
+}
+
+func TestOverworldMapVisualizerState_範囲外の段階を開くとエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	st := &gs.OverworldMapVisualizerState{Seed: overworldMapSeed, SnapshotIndex: 999}
+	require.Error(t, st.OnStart(world))
+}
+
+func TestOverworldMapVisualizerState_最初の段階を描ける(t *testing.T) {
+	t.Parallel()
+
+	png := vrt.RenderPNG(t, vrt.States(&gs.OverworldMapVisualizerState{Seed: overworldMapSeed}))
+	require.NotEmpty(t, png)
 }

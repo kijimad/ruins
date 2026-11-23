@@ -3,7 +3,6 @@ package overworld
 import (
 	"cmp"
 	"container/heap"
-	"fmt"
 	"slices"
 	"sync"
 
@@ -48,8 +47,6 @@ type roadPlan struct {
 	settlements map[consts.Coord[consts.Chunk]]RoadDir // 集落と、道のある側
 	// reserved は行き先が網につながる所。道が通らなかった所も、門や墜落現場の前を塞がないよう集落と点在ランドマークを置かない
 	reserved map[consts.Coord[consts.Chunk]]bool
-	// rec は地上の地図の生成の途中経過を残す記録係。nil なら残さない
-	rec *mapRecorder
 }
 
 // planKey は計画を覚えておく鍵。raws は表の中身へのポインタで見分けるので、同じ raws の表をその場で書き換えると古い計画を引く。
@@ -212,7 +209,7 @@ func (plan *roadPlan) addPort(c consts.Coord[consts.Chunk], p roadPort) {
 // planSpan は道の表 road の行数で区切った計画区間 k の道と集落を計画する。段階は、墜落現場と区域を置く、行き先を予約する、
 // 経路を1本ずつ足す、集落を置く、の順に計画を書き換える。記録係 rec が nil でなければ段階ごとの写しを残す
 func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols, spawnRow consts.Chunk, rec *mapRecorder) *roadPlan {
-	plan := &roadPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}, reserved: map[consts.Coord[consts.Chunk]]bool{}, rec: rec}
+	plan := &roadPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}, reserved: map[consts.Coord[consts.Chunk]]bool{}}
 	g := newSpanGrid(raws, runSeed, k, consts.Chunk(road.SpanRows), cols, spawnRow)
 	rec.place("crash site", plan, chunkCrashSite)
 	rec.place("districts", plan, chunkUrban)
@@ -254,7 +251,7 @@ func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols,
 		}
 	}
 	rec.snapshot("destinations", plan)
-	connectNodes(plan, g, start, nodes)
+	connectNodes(plan, g, start, nodes, rec)
 	placeSettlements(raws, runSeed, plan, g)
 	rec.place("settlements", plan, chunkSettlement)
 	return plan
@@ -282,8 +279,8 @@ func districtNodes(raws rawschema.Raws, runSeed uint64, g spanGrid, spawnRow con
 }
 
 // connectNodes は網 start に、行き先 nodes を網に近い順に経路でつなぐ。経路が無い行き先は残して戻る。区域の間に隙間を空けるので
-// 区域の外はひと続きになり、どの行き先にも経路がある前提にする。道の網のつながりのテストが確かめる
-func connectNodes(plan *roadPlan, g spanGrid, start, nodes []planNode) {
+// 区域の外はひと続きになり、どの行き先にも経路がある前提にする。道の網のつながりのテストが確かめる。記録係 rec には経路を1本足すたびに写しを残す
+func connectNodes(plan *roadPlan, g spanGrid, start, nodes []planNode, rec *mapRecorder) {
 	// attach は網につながった所。値は、そこを道のチャンクにするときに足す行き先の出入り口
 	attach := map[consts.Coord[consts.Chunk]][]roadPort{}
 	join := func(n planNode) {
@@ -322,7 +319,7 @@ func connectNodes(plan *roadPlan, g spanGrid, start, nodes []planNode) {
 			}
 		}
 		join(nodes[i])
-		plan.rec.snapshot(fmt.Sprintf("road %d", step), plan)
+		rec.road(step, plan)
 		for _, c := range path {
 			if _, ok := attach[c]; !ok {
 				attach[c] = nil

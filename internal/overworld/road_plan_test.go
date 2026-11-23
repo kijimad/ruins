@@ -413,7 +413,7 @@ func TestPlanSpan_記録しても計画は変わらず集落の段階の写し�
 	require.True(t, ok)
 	for seed := range uint64(5) {
 		plain := planSpan(raws, seed, road, 0, planTestCols, planTestSpawn, nil)
-		rec := &mapRecorder{placed: map[chunkType]bool{}}
+		rec := &mapRecorder{}
 		recorded := planSpan(raws, seed, road, 0, planTestCols, planTestSpawn, rec)
 		labels := make([]string, 0, len(rec.snapshots))
 		for _, s := range rec.snapshots {
@@ -427,5 +427,7 @@ func TestPlanSpan_記録しても計画は変わらず集落の段階の写し�
 		assert.Equal(t, plain.settlements, last.settlements, "seed=%d", seed)
 		assert.Equal(t, plain.reserved, last.reserved, "seed=%d", seed)
 		assert.Equal(t, plain.roads, recorded.roads, "seed=%d 記録しても計画は変わらない", seed)
+		assert.Equal(t, plain.settlements, recorded.settlements, "seed=%d 記録しても計画は変わらない", seed)
+		assert.Equal(t, plain.reserved, recorded.reserved, "seed=%d 記録しても計画は変わらない", seed)
 	}
 }

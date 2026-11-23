@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"fmt"
 	"maps"
 	"slices"
 
@@ -12,7 +13,8 @@ import (
 // 段階を終えるたびに、その時点の地図の写しを記録係 mapRecorder に残す。段階は記録係の place か snapshot を呼ぶだけで
 // 途中経過に加わり、MapSnapshots が写しを俯瞰図と同じ描画モデルにして返す
 
-// mapRecorder は地上の地図の生成の段階ごとの写しを残す記録係。nil の記録係は何も残さないので、本番の生成は nil を渡す
+// mapRecorder は地上の地図の生成の段階ごとの写しを残す記録係。nil の記録係は何も残さず、写しの名前も作らないので、本番の生成は
+// nil を渡す。ゼロ値のまま使える
 type mapRecorder struct {
 	// placed はここまでの段階で置いたチャンクの種類。写しは置いた種類のチャンクだけを描く
 	placed    map[chunkType]bool
@@ -33,8 +35,19 @@ func (r *mapRecorder) place(label string, plan *roadPlan, kind chunkType) {
 	if r == nil {
 		return
 	}
+	if r.placed == nil {
+		r.placed = map[chunkType]bool{}
+	}
 	r.placed[kind] = true
 	r.snapshot(label, plan)
+}
+
+// road は経路を step 本目まで足した段階として写しを残す
+func (r *mapRecorder) road(step int, plan *roadPlan) {
+	if r == nil {
+		return
+	}
+	r.snapshot(fmt.Sprintf("road %d", step), plan)
 }
 
 // snapshot は今の地図の写しを label の名前で残す
@@ -62,7 +75,8 @@ type MapSnapshot struct {
 }
 
 // MapSnapshots は行 y を持つ計画区間の地上の地図を記録しながら作り直し、段階ごとの写しを北から南への俯瞰図にして返す。
-// 段階は墜落現場、区域、行き先の予約、道を1本ずつ、集落、点在ランドマークの順に並ぶ。覚えておいた計画は使わず、書き換えもしない
+// 段階は墜落現場、区域、行き先の予約、道を1本ずつ、集落、点在ランドマークの順に並ぶ。チャンクの種類は完成した地図から判定し、
+// 段階の写しで、その段階までに置いた所だけを見せる
 func MapSnapshots(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.Chunk) []MapSnapshot {
 	road, ok := roadRow(raws)
 	if !ok {
@@ -70,7 +84,7 @@ func MapSnapshots(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.
 	}
 	rows := consts.Chunk(road.SpanRows)
 	k := consts.FloorDiv(y, rows)
-	rec := &mapRecorder{placed: map[chunkType]bool{}}
+	rec := &mapRecorder{}
 	plan := planSpan(raws, runSeed, road, k, cols, spawnRow, rec)
 	rec.place("landmarks", plan, chunkLandmark)
 
