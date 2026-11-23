@@ -113,8 +113,8 @@ func entranceOf(cells [][]maptemplate.MapCell, side RoadDir) consts.Tile {
 	return consts.Tile(len(edgeLine(cells, side, 0)) / 2)
 }
 
-// entranceSide は絵の玄関がある側を返す。縁に柵がある絵では、両側を柵に挟まれた切れ目がある縁の側にする。柵の無い絵では、
-// 縁に最も近い扉の側にする。玄関の側が決まらなければ0
+// entranceSide は絵の玄関がある側を返す。縁に柵がある絵では、両側を柵に挟まれた切れ目がある縁の側にする。切れ目が複数の縁にあれば
+// roadDirs の順で最初の側にする。柵の無い絵では、縁に最も近い扉の側にする。玄関の側が決まらなければ0
 func entranceSide(cells [][]maptemplate.MapCell) RoadDir {
 	fenced := false
 	for _, d := range roadDirs {

@@ -211,10 +211,7 @@ func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols,
 	g := newSpanGrid(raws, runSeed, k, consts.Chunk(road.SpanRows), cols, spawnRow)
 	var start, nodes []planNode
 	if x, ok := crossingAt(raws, runSeed, g.top, cols, spawnRow); ok {
-		t := planTerminal{c: consts.Coord[consts.Chunk]{X: x, Y: g.top}, port: roadPort{dir: RoadN}}
-		// 境目の通り道は、計画区間をまたいで道を続けるため初めから道にする
-		plan.addPort(t.c, t.port)
-		start = append(start, planNode{terms: []planTerminal{t}})
+		start = append(start, planNode{terms: []planTerminal{{c: consts.Coord[consts.Chunk]{X: x, Y: g.top}, port: roadPort{dir: RoadN}}}})
 	}
 	districtStart, districtNodes := districtNodes(raws, runSeed, g, spawnRow)
 	start = append(start, districtStart...)
@@ -233,11 +230,13 @@ func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols,
 	if len(start) > 1 {
 		start, nodes = start[:1], append(start[1:], nodes...)
 	}
-	// 北の境目から網を始められなければ、最初の行き先から始める。経路の出発点に使われなくても道になるよう、境目の通り道と同じく
-	// 初めから出入り口を足す
+	// 北の境目から網を始められなければ、最初の行き先から始める
 	if len(start) == 0 && len(nodes) > 0 {
 		start, nodes = nodes[:1], nodes[1:]
-		for _, t := range start[0].terms {
+	}
+	// 網の始まりは、経路の出発点に使われなくても道にする。北の計画区間から来た道や通りがここで途切れない
+	for _, n := range start {
+		for _, t := range n.terms {
 			plan.addPort(t.c, t.port)
 		}
 	}
