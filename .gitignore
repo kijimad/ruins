@@ -32,3 +32,4 @@ cdda/
 graphify-out/
 # Steam キーアートの墜落現場の試し描き
 docs/steam/background/crash-out/
+docs/steam/background/__pycache__/

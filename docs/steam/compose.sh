@@ -109,12 +109,8 @@ generate_capsule 600 900 library_capsule.png 1707 2560 north southwest 120
 # シネマ配置。ロゴを左上、メニューは左下(ゲーム側で描画)に置く。
 # 炎はマスターの左下にあり、左下のメニューとぶつかるので、左右を反転して炎を右下へ移す。
 magick "$MASTER" -flop -gravity southeast -crop 2560x1920+120+0 +repage -resize 960x720! "$TMP/title_bg.png"
-# 下部と左にダークグラデのスクリムを敷く。左下のメニュー域を暗くして可読性を確保する。
 TITLE_OUT="${TITLE_OUT:-assets/file/textures/bg/title1_.png}"
-magick "$TMP/title_bg.png" \
-	\( -size 960x720 gradient:none-'#060a1499' \) -compose over -composite \
-	\( -size 720x960 gradient:'#060a1466'-none -rotate 90 \) -compose over -composite \
-	"$TITLE_OUT"
+cp "$TMP/title_bg.png" "$TITLE_OUT"
 # ロゴを左上へ。幅は画面の約55%。メニューは main_menu.go が左下へ左寄せで描く。
 # ロゴは暈しを内包する。寸法を合わせて重ねるだけ
 magick "$LOGO_PNG" -resize 500x "$TMP/title_logo.png"

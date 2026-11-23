@@ -7,7 +7,6 @@
 #   python3 gen_crash.py 100-147      範囲の seed を描き、12枚ずつ一覧にする
 #   python3 gen_crash.py 203:1-24     seed 203 の世界のまま、カメラと太陽と煙を j ごとに少しずらす
 # 依存: google-chrome。出力は ./crash-out/ に置く。
-# master_3840x2560.png は 203:9 の絵。
 
 import os
 import subprocess
@@ -95,4 +94,5 @@ def main():
         sheet(chunk, os.path.join(OUT, f"sheet_{chunk[0][0]}-{chunk[-1][0]}.png".replace(":", "_j")))
 
 
-main()
+if __name__ == "__main__":
+    main()

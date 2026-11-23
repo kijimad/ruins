@@ -1,3 +1,0 @@
-# gen_master.py の実行時に作る venv とモデルキャッシュ
-sdvenv/
-hf-cache/
