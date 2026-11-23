@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/i18n"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -99,6 +100,16 @@ func TestApplyProfession(t *testing.T) {
 		abils := world.Components.Abilities.Get(player)
 		assert.Equal(t, 99, abils.Strength.Base, "再適用時は能力値も新しい値で上書きされるべき")
 	})
+
+	for _, prof := range raw.PtrSlice(testutil.InitTestWorld(t).Resources.RawMaster.Professions) {
+		t.Run("実データの職業を適用できる/"+prof.Id, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
+			require.NoError(t, err)
+			require.NoError(t, ApplyProfession(world, player, prof))
+		})
+	}
 
 	tests := []struct {
 		name    string

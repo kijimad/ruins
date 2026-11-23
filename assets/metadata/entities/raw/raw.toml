@@ -20669,6 +20669,139 @@
     id = "heavy_armor"
     value = 2
 
+[[professions]]
+  debug = true
+  description = "Carries one item for each distinct function, for testing."
+  id = "debug"
+  name = "Debug"
+  [professions.abilities]
+    agility = 10
+    defense = 10
+    dexterity = 10
+    sensation = 10
+    strength = 10
+    vitality = 10
+
+  [[professions.equips]]
+    name = "handgun"
+    slot = "HAND1"
+
+  [[professions.equips]]
+    name = "cloth_hat"
+    slot = "HEAD"
+
+  [[professions.equips]]
+    name = "cloth_shirt"
+    slot = "TORSO"
+
+  [[professions.equips]]
+    name = "cloth_armband"
+    slot = "ARMS"
+
+  [[professions.equips]]
+    name = "cloth_gloves"
+    slot = "HANDS"
+
+  [[professions.equips]]
+    name = "cloth_pants"
+    slot = "LEGS"
+
+  [[professions.equips]]
+    name = "cloth_shoes"
+    slot = "FEET"
+
+  [[professions.items]]
+    count = 1
+    name = "cube_core"
+
+  [[professions.items]]
+    count = 1
+    name = "cube_range_module"
+
+  [[professions.items]]
+    count = 1
+    name = "cube_fuel_module"
+
+  [[professions.items]]
+    count = 1
+    name = "deployable_storage"
+
+  [[professions.items]]
+    count = 1
+    name = "deployable_bed"
+
+  [[professions.items]]
+    count = 1
+    name = "deployable_workbench"
+
+  [[professions.items]]
+    count = 1
+    name = "torch"
+
+  [[professions.items]]
+    count = 1
+    name = "hand_lantern"
+
+  [[professions.items]]
+    count = 1
+    name = "flashlight"
+
+  [[professions.items]]
+    count = 1
+    name = "lamp_oil"
+
+  [[professions.items]]
+    count = 1
+    name = "battery"
+
+  [[professions.items]]
+    count = 5
+    name = "firewood"
+
+  [[professions.items]]
+    count = 1
+    name = "escape_core"
+
+  [[professions.items]]
+    count = 1
+    name = "monkey_wrench"
+
+  [[professions.items]]
+    count = 1
+    name = "electric_screwdriver"
+
+  [[professions.items]]
+    count = 1
+    name = "iron_cutter"
+
+  [[professions.items]]
+    count = 1
+    name = "grenade"
+
+  [[professions.items]]
+    count = 1
+    name = "smoke_bomb"
+
+  [[professions.items]]
+    count = 1
+    name = "bandage"
+
+  [[professions.items]]
+    count = 1
+    name = "splint"
+
+  [[professions.items]]
+    count = 1
+    name = "its_ruins"
+
+  [[professions.items]]
+    count = 30
+    name = "9mm_fmj"
+
+  [[professions.items]]
+    count = 3
+    name = "bread"
+
 [[props]]
   blockPass = false
   blockView = false

@@ -1800,6 +1800,9 @@ type Potency = int
 type Profession struct {
 	Abilities Abilities `json:"abilities"`
 
+	// Debug 開発用の職業か。立てると Debug の設定のときだけ選べる
+	Debug *bool `json:"debug,omitempty"`
+
 	Description EntityDescription `json:"description"`
 
 	Equips []ProfessionEquip `json:"equips"`

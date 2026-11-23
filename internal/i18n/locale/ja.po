@@ -5715,6 +5715,9 @@ msgstr "なめらかな床"
 msgid "Planks"
 msgstr "板張り"
 
+msgid "Carries one item for each distinct function, for testing."
+msgstr "機能を持つアイテムを1つずつ持つ。検証用。"
+
 msgid "Refugee"
 msgstr "避難民"
 
