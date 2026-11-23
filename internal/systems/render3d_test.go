@@ -669,3 +669,42 @@ func TestCollectBillboards_柵は描けるマスの隣とだけつなぐ(t *test
 
 	assert.Empty(t, centerQuads(func(c consts.Coord[consts.Tile]) bool { return c != center }), "描けないマスの柵は板を積まない")
 }
+
+func TestSlabFaces_絵の面はどの向きでもカメラに1枚だけ表を向ける(t *testing.T) {
+	t.Parallel()
+
+	// 板を画面の中心から外して置く。目が板の表と裏の面のあいだに入ると、どちらの面も見えず0枚になる
+	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	center := consts.Coord[consts.Tile]{X: 8, Y: 9}
+	all := func(consts.Coord[consts.Tile]) bool { return true }
+	facing := func(dir consts.Cardinal) []insetFace {
+		pose := gc.Pose{Facing: dir}
+		return facingFaces(c, pose, map[consts.Coord[consts.Tile]]gc.Pose{c: pose}, all)
+	}
+	tests := []struct {
+		name  string
+		faces []insetFace
+	}{
+		{name: "南を向く棚", faces: facing(consts.South)},
+		{name: "西を向く棚", faces: facing(consts.West)},
+		{name: "北を向く棚", faces: facing(consts.North)},
+		{name: "東を向く棚", faces: facing(consts.East)},
+		{name: "東西に並ぶ扉", faces: insetFaces(c, connections{west: true})},
+		{name: "南北に並ぶ扉", faces: insetFaces(c, connections{north: true})},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			for orient := range gc.Orient(gc.CameraOrientCount) {
+				projector := render3d.NewProjector(gc.Camera{Orient: orient, Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+				front := 0
+				for _, f := range tt.faces {
+					if !f.flat && projector.FacesCamera(f.p) {
+						front++
+					}
+				}
+				assert.Equal(t, 1, front, "カメラの向き %d", orient)
+			}
+		})
+	}
+}

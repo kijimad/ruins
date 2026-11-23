@@ -613,6 +613,7 @@ func facingFaces(c consts.Coord[consts.Tile], f gc.Pose, poses map[consts.Coord[
 	for i := range faces {
 		faces[i].flat = true
 	}
+	// 絵の面は箱の面より後に積む。カメラの前後方向に沿うと箱の表の面と表の絵の奥行きが同点になり、積んだ順に塗られるため
 	faces = append(faces,
 		insetFace{p: [4]render3d.Vec{render3d.At(0, 0, z1), render3d.At(1, 0, z1), render3d.At(1, 0, z0), render3d.At(0, 0, z0)}, flat: true},
 		insetFace{p: [4]render3d.Vec{render3d.At(0, h, z1+facingLift), render3d.At(1, h, z1+facingLift), render3d.At(1, 0, z1+facingLift), render3d.At(0, 0, z1+facingLift)}},
