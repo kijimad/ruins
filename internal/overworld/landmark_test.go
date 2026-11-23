@@ -262,7 +262,7 @@ func TestLandmarks_道が十字や迂回で通るチャンクでも全ての絵�
 		span(orientVertical, chunkCenter(0, chunkW), 0, chunkH-1),
 	}
 	// 塀に囲まれた区域を迂回する道は、区域の門の列の街路の帯の真ん中、チャンクの西の縁の近くを縦に通る
-	detour := append(slices.Clone(cross), span(orientVertical, urbanStreetW/2, 0, chunkH-1))
+	detour := append(slices.Clone(cross), span(orientVertical, gateLane(0, chunkW), 0, chunkH-1))
 	for name, segs := range map[string][]roadSeg{"十字": cross, "十字と迂回": detour} {
 		roads := map[consts.Coord[consts.Tile]]bool{}
 		for p := range roadBand(segs, width) {
