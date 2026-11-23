@@ -32,14 +32,6 @@ func (e *DamageTextEffect) Update(deltaMs float64) bool {
 	return e.FadeAnimation.Update(deltaMs)
 }
 
-// SpriteFadeoutEffect はスプライトをフェードアウト表示するエフェクト。
-// 敵撃破時などに使用する
-type SpriteFadeoutEffect struct {
-	FadeAnimation
-	SpriteSheetName string // スプライトシート名
-	SpriteKey       string // スプライトキー
-}
-
 // NewSplashTextEffect はダンジョン開始時などのスプラッシュエフェクトを作成する
 func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *SplashTextEffect {
 	fadeInMs := 800.0
@@ -161,22 +153,5 @@ func NewHealEffect(amount int) *DamageTextEffect {
 			Color:  color.RGBA{80, 255, 80, 255},
 		},
 		VelocityY: -0.5,
-	}
-}
-
-// NewSpriteFadeoutEffect はスプライトフェードアウトエフェクトを作成する
-func NewSpriteFadeoutEffect(spriteSheetName, spriteKey string) *SpriteFadeoutEffect {
-	totalMs := 400.0
-	return &SpriteFadeoutEffect{
-		FadeAnimation: FadeAnimation{
-			FadeInMs:    0,
-			HoldMs:      100,
-			FadeOutMs:   300,
-			TotalMs:     totalMs,
-			RemainingMs: totalMs,
-			Alpha:       1.0,
-		},
-		SpriteSheetName: spriteSheetName,
-		SpriteKey:       spriteKey,
 	}
 }

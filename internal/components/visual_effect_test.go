@@ -166,17 +166,6 @@ func TestNewSplashTextEffect(t *testing.T) {
 	assert.Equal(t, color.RGBA{255, 255, 255, 255}, effect.Color)
 }
 
-func TestNewSpriteFadeoutEffect(t *testing.T) {
-	t.Parallel()
-	effect := NewSpriteFadeoutEffect("character", "slime_0")
-
-	assert.Equal(t, "character", effect.SpriteSheetName)
-	assert.Equal(t, "slime_0", effect.SpriteKey)
-	assert.Equal(t, 1.0, effect.Alpha, "フェードアウトなので初期Alphaは1.0")
-	assert.Equal(t, 400.0, effect.TotalMs)
-	assert.Equal(t, 0.0, effect.FadeInMs, "フェードインなし")
-}
-
 func TestVisualEffects_MultipleEffects(t *testing.T) {
 	t.Parallel()
 	ve := &VisualEffects{

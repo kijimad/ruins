@@ -11,7 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/raw"
-	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -259,107 +258,6 @@ func TestDeadCleanupSystem_CancelsActivity(t *testing.T) {
 	// エンティティが削除され、アクティビティも消えている
 	assert.False(t, world.ECS.Alive(enemy),
 		"死亡エンティティは削除されるべき")
-}
-
-func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	// SpriteRenderを持つ敵エンティティを作成
-	enemy := world.ECS.NewEntity()
-	world.Components.Name.Add(enemy, &gc.Name{Name: "スライム"})
-	world.Components.Dead.Add(enemy, &gc.Dead{})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-	world.Components.SpriteRender.Add(enemy, &gc.SpriteRender{
-		SpriteSheetName: "character",
-		SpriteKey:       "slime_0",
-	})
-
-	// 実行前のVisualEffectエンティティ数
-	effectCountBefore := 0
-	effectBeforeQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
-	for effectBeforeQuery.Next() {
-		effectCountBefore++
-	}
-
-	// DeadCleanupSystemを実行
-	sys := &DeadCleanupSystem{}
-	require.NoError(t, sys.Update(world))
-
-	// 敵エンティティは削除されているべき
-	assert.False(t, world.ECS.Alive(enemy), "敵エンティティは削除されるべき")
-
-	// スプライトフェードアウトエフェクトが生成されているべき
-	effectCountAfter := 0
-	effectAfterQuery := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
-	for effectAfterQuery.Next() {
-		effectCountAfter++
-	}
-	assert.Equal(t, effectCountBefore+1, effectCountAfter, "スプライトフェードアウトエフェクトが生成されているべき")
-
-	// エフェクトの内容を確認
-	effectQuery := ecs.NewFilter2[gc.VisualEffects, gc.GridElement](world.ECS).Query()
-	for effectQuery.Next() {
-		entity := effectQuery.Entity()
-		ve := world.Components.VisualEffects.Get(entity)
-		ge := world.Components.GridElement.Get(entity)
-
-		require.Len(t, ve.Effects, 1)
-		effect, ok := ve.Effects[0].(*gc.SpriteFadeoutEffect)
-		require.True(t, ok, "SpriteFadeoutEffectであるべき")
-
-		assert.Equal(t, "character", effect.SpriteSheetName)
-		assert.Equal(t, "slime_0", effect.SpriteKey)
-		assert.Equal(t, consts.Tile(5), ge.X, "エフェクトは敵の位置に生成されるべき")
-		assert.Equal(t, consts.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
-	}
-}
-
-func TestDeadCleanupSystem_立て板で描く物にだけシルエットを出す(t *testing.T) {
-	t.Parallel()
-
-	type testCase struct {
-		name    string
-		shape   rawschema.SpriteShape
-		pose    bool
-		effects int
-	}
-	shapes := rawschema.SpriteShapeValues()
-	tests := make([]testCase, 0, 2+len(shapes))
-	tests = append(tests,
-		testCase{name: "形なし", effects: 1},
-		testCase{name: "置き方の無いfacing", shape: rawschema.Facing, effects: 1},
-	)
-	for _, shape := range shapes {
-		tests = append(tests, testCase{name: "置き方のある" + string(shape), shape: shape, pose: true, effects: 0})
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			world := testutil.InitTestWorld(t)
-			prop := world.ECS.NewEntity()
-			world.Components.Dead.Add(prop, &gc.Dead{})
-			world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-			world.Components.SpriteRender.Add(prop, &gc.SpriteRender{
-				SpriteSheetName: "field",
-				SpriteKey:       "fence",
-				Shape:           tt.shape,
-			})
-			if tt.pose {
-				world.Components.Pose.Add(prop, &gc.Pose{Facing: consts.South})
-			}
-
-			sys := &DeadCleanupSystem{}
-			require.NoError(t, sys.Update(world))
-
-			assert.False(t, world.ECS.Alive(prop))
-			effects := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
-			defer effects.Close()
-			assert.Equal(t, tt.effects, effects.Count())
-		})
-	}
 }
 
 func TestDeadCleanupSystem_壊れた収納propは中身を足元へ出す(t *testing.T) {
