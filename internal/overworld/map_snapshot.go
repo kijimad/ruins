@@ -89,8 +89,22 @@ func MapSnapshots(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.
 	plan := planSpan(raws, runSeed, road, k, cols, spawnRow, rec)
 	rec.place("landmarks", plan, chunkLandmark)
 
-	colorOf := glyphColorMap(raws)
+	// finished は完成した地図のチャンクの種類と記号。段階の写しはこのうち見せる所を選ぶだけ
+	type finished struct {
+		kind  chunkType
+		glyph rune
+	}
 	cat := zoneCatalogFrom(raws)
+	done := make([][]finished, rows)
+	for cy := range rows {
+		done[cy] = make([]finished, cols)
+		for x := range cols {
+			c := consts.Coord[consts.Chunk]{X: x, Y: k*rows + cy}
+			done[cy][x] = finished{kind: chunkTypeAt(raws, runSeed, c, cols, spawnRow), glyph: chunkPlace(raws, cat, runSeed, c, cols, spawnRow)}
+		}
+	}
+
+	colorOf := glyphColorMap(raws)
 	wasteland := chunkGlyph(raws, rawschema.Wasteland)
 	out := make([]MapSnapshot, 0, len(rec.snapshots))
 	for _, s := range rec.snapshots {
@@ -99,10 +113,11 @@ func MapSnapshots(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.
 			cells[cy] = make([]MacroCell, cols)
 			for x := range cols {
 				c := consts.Coord[consts.Chunk]{X: x, Y: k*rows + cy}
+				f := done[cy][x]
 				glyph := wasteland
-				switch kind := chunkTypeAt(raws, runSeed, c, cols, spawnRow); {
-				case kind != chunkRoad && s.placed[kind]:
-					glyph = chunkPlace(raws, cat, runSeed, c, cols, spawnRow)
+				switch {
+				case f.kind != chunkRoad && s.placed[f.kind]:
+					glyph = f.glyph
 				case s.reserved[c] && s.roads[c] == nil:
 					glyph = reservedGlyph
 				}

@@ -15,7 +15,7 @@ import (
 const phaseStripGap = 8
 
 // phaseStrip は段階ごとの画像 frames を、それぞれ背景と違う所に切り詰めて 1/shrink に縮め、左から横一列に並べた PNG にする。
-// 背景は各画像の右下の画素の色とみなす
+// 背景は画面を塗りつぶす黒とみなす
 func phaseStrip(t *testing.T, frames [][]byte, shrink int) []byte {
 	t.Helper()
 	imgs := make([]image.Image, 0, len(frames))
