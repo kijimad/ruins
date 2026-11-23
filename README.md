@@ -112,7 +112,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
-| draft | [コード監査: VRT専用ステートのクエリ内削除・セーブ書き込み非原子性・raw表の検証漏れ 2026-11-23](docs/design/261123002523.md) | 0/4 | ecs, save, item |
+| | No open documents | | |
 
 
 ## References

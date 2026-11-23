@@ -24,15 +24,18 @@ func (sm *SerializationManager) initImpl() error {
 	return nil
 }
 
-// saveDataImpl はデスクトップ環境でファイルシステムにデータを保存する
+// saveDataImpl はデスクトップ環境でファイルシステムにデータを保存する。一時ファイルに書いてから差し替え、
+// 書き込みの途中で止まっても既存のセーブを壊さない。一時ファイルは拡張子が saveFileExt で終わらないので一覧に出ない
 func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error {
-	// ファイルに書き込み
 	fileName := filepath.Join(sm.saveDirectory, slotName+saveFileExt)
-	err := os.WriteFile(fileName, data, 0644)
-	if err != nil {
+	tmp := fileName + ".tmp"
+	if err := os.WriteFile(tmp, data, 0o644); err != nil {
 		return fmt.Errorf("failed to write save file: %w", err)
 	}
-
+	if err := os.Rename(tmp, fileName); err != nil {
+		_ = os.Remove(tmp)
+		return fmt.Errorf("failed to replace save file: %w", err)
+	}
 	return nil
 }
 

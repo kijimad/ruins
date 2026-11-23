@@ -841,6 +841,7 @@ type EnemyTable struct {
 type EnemyTableEntry struct {
 	Id EntityID `json:"id"`
 
+	// MaxDanger 下限より小さいと、どの危険度でも抽選されない
 	MaxDanger DangerLevel `json:"maxDanger"`
 
 	MinDanger DangerLevel `json:"minDanger"`
@@ -1513,6 +1514,7 @@ type ItemTableEntry struct {
 	// Id 参照するアイテムグループかアイテムコレクションの id
 	Id EntityID `json:"id"`
 
+	// MaxDanger 下限より小さいと、どの危険度でも抽選されない
 	MaxDanger DangerLevel `json:"maxDanger"`
 
 	MinDanger DangerLevel `json:"minDanger"`

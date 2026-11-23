@@ -228,3 +228,29 @@ func TestValidate_無属性を軽減する熟練度は位置で返す(t *testing
 	require.ErrorAs(t, rawcheck.Validate(raws), &ce)
 	assert.Equal(t, []string{"skills.0.proficiencies.0.resists"}, ce.Paths())
 }
+
+func TestValidate_危険度の範囲が逆転すると位置で返す(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		mutate   func(*rawschema.Raws)
+		wantPath string
+	}{
+		{"敵テーブル", func(r *rawschema.Raws) {
+			e := &(*r.EnemyTables)[0].Entries[0]
+			e.MinDanger, e.MaxDanger = 2, 1
+		}, "enemyTables.0.entries.0.maxDanger"},
+		{"アイテムテーブル", func(r *rawschema.Raws) {
+			e := &(*r.ItemTables)[0].Entries[0]
+			e.MinDanger, e.MaxDanger = 2, 1
+		}, "itemTables.0.entries.0.maxDanger"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var ce *rawcheck.Error
+			require.ErrorAs(t, rawcheck.Validate(makeRefRaws(tt.mutate)), &ce)
+			assert.Equal(t, []string{tt.wantPath}, ce.Paths())
+		})
+	}
+}
