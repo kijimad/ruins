@@ -240,6 +240,13 @@ func TestExecuteMoveAction_塞がれたマスに歩き込むと塞ぐものの�
 			_, err := lifecycle.SpawnProp(world, "laundry", 11, 10)
 			require.NoError(t, err)
 		}, []string{"Laundry is here."}},
+		{"壁のタイルの上の通れない置物", func(t *testing.T, world w.World) {
+			t.Helper()
+			_, err := lifecycle.SpawnTile(world, "wall", 11, 10, nil)
+			require.NoError(t, err)
+			_, err = lifecycle.SpawnProp(world, "laundry", 11, 10)
+			require.NoError(t, err)
+		}, []string{"Wall is here.", "Laundry is here."}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -257,6 +264,18 @@ func TestExecuteMoveAction_塞がれたマスに歩き込むと塞ぐものの�
 			assert.Equal(t, tt.want, query.GetGameLog(world).GetHistory())
 		})
 	}
+}
+
+func TestExecuteMoveAction_地図の外へは何も出さずに止まる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 10}, "ash")
+	require.NoError(t, err)
+
+	require.NoError(t, ExecuteMoveAction(world, gc.DirectionLeft))
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 0, Y: 10}, world.Components.GridElement.Get(player).Coord)
+	assert.Equal(t, []string{}, query.GetGameLog(world).GetHistory())
 }
 
 func TestExecuteWaitAction(t *testing.T) {
