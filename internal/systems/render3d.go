@@ -138,21 +138,26 @@ func whitePixel() *ebiten.Image {
 	return r3whiteImg
 }
 
-// footShadow の絵の大きさと濃さ。中心の濃さ footShadowAlpha から、半径の footShadowEdge 割より外を縁へ向けてぼかす
+// 足元の影の形。長さはマス幅を1とする。影は半径 footShadowRadius の円で、隣のマスの影と離れ、そのすき間でマスの間隔が読める。
+// 円の中心は立て板の根元から footShadowBack だけ奥にずらす。上から見た絵は下端が物の手前の縁に見えるので、
+// 影が根元より手前へ大きくはみ出すと物が浮いて見える。濃さは中心の footShadowAlpha から、半径の footShadowEdge 割より外を縁へ向けてぼかす
 const (
-	footShadowSize  = 32
-	footShadowAlpha = 0.4
-	footShadowEdge  = 0.5
+	footShadowRadius = 0.35
+	footShadowBack   = 0.1
+	footShadowAlpha  = 0.4
+	footShadowEdge   = 0.5
+	footShadowSize   = 64
 )
 
-// footShadow は足元の影に貼る、縁をぼかした黒い円の絵を返す。アトラス配置に画素が左右されないよう unmanaged で作る
+// footShadow はマス1つ分に貼る、縁をぼかした黒い円の絵を返す。アトラス配置に画素が左右されないよう unmanaged で作る
 func footShadow() *ebiten.Image {
 	r3shadowOnce.Do(func() {
 		pix := make([]byte, footShadowSize*footShadowSize*4)
-		const r = footShadowSize / 2.0
+		cx, cy := 0.5*footShadowSize, (0.5-footShadowBack)*footShadowSize
+		const r = footShadowRadius * footShadowSize
 		for y := range footShadowSize {
 			for x := range footShadowSize {
-				d := math.Hypot(float64(x)+0.5-r, float64(y)+0.5-r) / r
+				d := math.Hypot(float64(x)+0.5-cx, float64(y)+0.5-cy) / r
 				a := footShadowAlpha * min(max((1-d)/(1-footShadowEdge), 0), 1)
 				pix[(y*footShadowSize+x)*4+3] = byte(math.Round(a * 255))
 			}
@@ -163,14 +168,11 @@ func footShadow() *ebiten.Image {
 	return r3shadowImg
 }
 
-// footShadowRadius は足元の影の半径。マス幅を1とする。隣のマスの影と離れ、そのすき間でマスの間隔が読める
-const footShadowRadius = 0.35
-
-// addFootShadow はマス c の中心の地面に足元の影を寝かせて積む
+// addFootShadow はマス c の地面に足元の影を寝かせて積む。円をずらすのは絵の中だけにし、面はマスに合わせる。
+// 面をずらすと奥行きが床と変わり、床より先に描かれて床に隠れる
 func (sys *Render3DSystem) addFootShadow(out *[]r3quad, c consts.Coord[consts.Tile]) {
-	cx, cz := float64(c.X)+0.5, float64(c.Y)+0.5
-	const rr = footShadowRadius
-	sys.addQuad(out, render3d.At(cx-rr, 0, cz-rr), render3d.At(cx+rr, 0, cz-rr), render3d.At(cx+rr, 0, cz+rr), render3d.At(cx-rr, 0, cz+rr), footShadow(), 0, 0, footShadowSize, footShadowSize, [3]float64{})
+	fx, fz := float64(c.X), float64(c.Y)
+	sys.addQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), footShadow(), 0, 0, footShadowSize, footShadowSize, [3]float64{})
 	(*out)[len(*out)-1].depth = rawschema.SpriteDepthShadow.Rank()
 }
 

@@ -536,6 +536,20 @@ func TestPosesAt_地図を作るときに決めた向きを座標ごとに集め
 	assert.Equal(t, map[consts.Coord[consts.Tile]]gc.Pose{{X: 3, Y: 3}: {Facing: consts.West, Anchor: gc.AnchorBack}}, posesAt(world))
 }
 
+func TestAddFootShadow_同じマスの床の後に描く(t *testing.T) {
+	t.Parallel()
+	c := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, c, 960, 720)
+	sys := &Render3DSystem{}
+
+	var quads []r3quad
+	sys.addFootShadow(&quads, c)
+	sys.addQuad(&quads, render3d.At(25, 0, 25), render3d.At(26, 0, 25), render3d.At(26, 0, 26), render3d.At(25, 0, 26), whitePixel(), 0, 0, 1, 1, [3]float64{1, 1, 1})
+	sortQuadsByDepth(quads, projector.Depth)
+
+	assert.Equal(t, []int{rawschema.SpriteDepthFloor.Rank(), rawschema.SpriteDepthShadow.Rank()}, []int{quads[0].depth, quads[1].depth})
+}
+
 func TestCollectBillboards_同じマスのテーブルとアイテムはアイテムを手前に描く(t *testing.T) {
 	t.Parallel()
 	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
