@@ -517,7 +517,7 @@ func TestCollectBillboards_開いた扉は壁の脇へ開いた板で描く(t *t
 
 	quads := sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil, nil)
 
-	// 壁が無いので西の脇へ寄せ、カメラに向く東の面にだけ絵を貼る
+	// 壁が無いので西の脇へ寄せる。カメラは扉のタイルの中心を見るので、西へずれた板の東の面がカメラに向き、そこにだけ絵を貼る
 	require.NotEmpty(t, quads)
 	pictures := 0
 	for _, q := range quads {
