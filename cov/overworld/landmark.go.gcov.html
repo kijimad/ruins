@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">75.0&nbsp;%</td>
-            <td class="headerCovTableEntry">28</td>
-            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryMed">80.0&nbsp;%</td>
+            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntry">36</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 01:18:43</td>
+            <td class="headerValue">2026-11-23 01:26:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,38 +90,67 @@
 <span id="L28"><span class="lineNum">      28</span>              : // wildernessLandmarkFeature は自然の点在ランドマークの feature 実装。</span>
 <span id="L29"><span class="lineNum">      29</span>              : type wildernessLandmarkFeature struct{}</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
-<span id="L31"><span class="lineNum">      31</span>              : // landmarkMargin はランドマークの絵とチャンクの縁の間に空けるマス数</span>
-<span id="L32"><span class="lineNum">      32</span>              : const landmarkMargin consts.Tile = 2</span>
+<span id="L31"><span class="lineNum">      31</span>              : // landmarkMargin はランドマークの絵とチャンクの縁や道の間に空けるマス数</span>
+<span id="L32"><span class="lineNum">      32</span>              : const landmarkMargin consts.Tile = 1</span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
-<span id="L34"><span class="lineNum">      34</span>              : // place は当選チャンクの荒れ地に、ランドマークの施設の絵を1つ置く。景色の脇役なので主役の地物には譲り、構図を</span>
-<span id="L35"><span class="lineNum">      35</span>              : // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が</span>
-<span id="L36"><span class="lineNum">      36</span>              : // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。</span>
-<span id="L37"><span class="lineNum">      37</span>              : func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world)) != chunkLandmark {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         loader, err := maptemplate.FacilityTemplates()</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to load facility templates: %w&quot;, err)</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         seed := consts.Mix2D(runSeed^placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindLandmark).Salt, c.X, c.Y)</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         // ストリーム 0 は絵と原点の抽選。spawnFacility が戦利品と敵に使う 0x4 と 0x5 と分ける</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         fac := landmarkKindAt(world.Resources.RawMaster, runSeed, c)</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         cells, err := planFacility(loader, fac, rng.Uint64(), rng)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to plan landmark %q: %w&quot;, fac, err)</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L53"><span class="lineNum">      53</span>              :         // 絵がチャンクの縁から landmarkMargin 以上離れる範囲で原点を引く</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         spanX := max(1, int(g.chunkW-2*landmarkMargin)-len(cells[0])+1)</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         spanY := max(1, int(g.chunkH-2*landmarkMargin)-len(cells)+1)</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         ox := landmarkMargin + consts.Tile(rng.IntN(spanX))</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         oy := landmarkMargin + consts.Tile(rng.IntN(spanY))</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         if _, _, err := spawnFacility(world, g, cells, ox, oy, fac, urbanDangerAt(world, c), seed); err != nil {</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to place landmark %q: %w&quot;, fac, err)</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L62"><span class="lineNum">      62</span>              : }</span>
+<span id="L34"><span class="lineNum">      34</span>              : // landmarkOrigins は幅 w 高さ h の絵の原点の候補を、チャンク内の座標で北西から順に返す。絵はチャンクの縁から</span>
+<span id="L35"><span class="lineNum">      35</span>              : // landmarkMargin 以上離し、道のマス roads からも landmarkMargin 以上離して、道を塞がず道の脇に置く</span>
+<span id="L36"><span class="lineNum">      36</span>              : func landmarkOrigins(w, h, chunkW, chunkH consts.Tile, roads map[consts.Coord[consts.Tile]]bool) []consts.Coord[consts.Tile] {</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         var out []consts.Coord[consts.Tile]</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         for oy := landmarkMargin; oy+h+landmarkMargin &lt;= chunkH; oy++ {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 for ox := landmarkMargin; ox+w+landmarkMargin &lt;= chunkW; ox++ {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                         if !touchesRoad(ox-landmarkMargin, oy-landmarkMargin, ox+w+landmarkMargin, oy+h+landmarkMargin, roads) {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                                 out = append(out, consts.Coord[consts.Tile]{X: ox, Y: oy})</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L43"><span class="lineNum">      43</span>              :                 }</span>
+<span id="L44"><span class="lineNum">      44</span>              :         }</span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : }</span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              : // touchesRoad は半開区間の矩形 [x0,x1)×[y0,y1) に道のマスがあるかを返す</span>
+<span id="L49"><span class="lineNum">      49</span>              : func touchesRoad(x0, y0, x1, y1 consts.Tile, roads map[consts.Coord[consts.Tile]]bool) bool {</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         for y := y0; y &lt; y1; y++ {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 for x := x0; x &lt; x1; x++ {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         if roads[consts.Coord[consts.Tile]{X: x, Y: y}] {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                                 return true</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L55"><span class="lineNum">      55</span>              :                 }</span>
+<span id="L56"><span class="lineNum">      56</span>              :         }</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         return false</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : }</span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              : // place は当選チャンクの荒れ地に、ランドマークの施設の絵を1つ置く。景色の脇役なので主役の地物には譲り、構図を</span>
+<span id="L61"><span class="lineNum">      61</span>              : // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が</span>
+<span id="L62"><span class="lineNum">      62</span>              : // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。</span>
+<span id="L63"><span class="lineNum">      63</span>              : func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         spawnRow := spawnRowOf(world)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRow) != chunkLandmark {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         loader, err := maptemplate.FacilityTemplates()</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to load facility templates: %w&quot;, err)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         seed := consts.Mix2D(runSeed^placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindLandmark).Salt, c.X, c.Y)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         // ストリーム 0 は絵と原点の抽選。spawnFacility が戦利品と敵に使う 0x4 と 0x5 と分ける</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         fac := landmarkKindAt(world.Resources.RawMaster, runSeed, c)</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         cells, err := planFacility(loader, fac, rng.Uint64(), rng)</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to plan landmark %q: %w&quot;, fac, err)</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         roads := chunkRoadTiles(world.Resources.RawMaster, runSeed, c, cols, spawnRow, g.chunkW, g.chunkH)</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         origins := landmarkOrigins(consts.Tile(len(cells[0])), consts.Tile(len(cells)), g.chunkW, g.chunkH, roads)</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         // 道を塞がない置き場所が無ければ、このチャンクには置かない</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         if len(origins) == 0 {</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         o := origins[rng.IntN(len(origins))]</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         if _, _, err := spawnFacility(world, g, cells, o.X, o.Y, fac, urbanDangerAt(world, c), seed); err != nil {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to place landmark %q: %w&quot;, fac, err)</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L91"><span class="lineNum">      91</span>              : }</span>
         </pre>
               </td>
             </tr>
