@@ -250,30 +250,6 @@ func TestRawDuplicateNames(t *testing.T) {
 			assert.Equal(t, 1, count, "SpriteSheet名 '%s' が重複しています（%d個）", name, count)
 		}
 	})
-
-	t.Run("Tile idの重複がない", func(t *testing.T) {
-		t.Parallel()
-		// 表示名は素材でまとめて重複しうるので、一意性は id で検証する。brick の色違いは全て Brick。
-		ids := make(map[string]int)
-		for _, tile := range PtrSlice(raws.Tiles) {
-			ids[tile.Id]++
-		}
-		for id, count := range ids {
-			assert.Equal(t, 1, count, "Tile id '%s' が重複しています（%d個）", id, count)
-		}
-	})
-
-	t.Run("Prop idの重複がない", func(t *testing.T) {
-		t.Parallel()
-		// 表示名は素材でまとめて重複しうるので、一意性は id で検証する。generator の色違いは両方 Generator。
-		ids := make(map[string]int)
-		for _, prop := range PtrSlice(raws.Props) {
-			ids[prop.Id]++
-		}
-		for id, count := range ids {
-			assert.Equal(t, 1, count, "Prop id '%s' が重複しています（%d個）", id, count)
-		}
-	})
 }
 
 // buildSpriteSheetSprites はSpriteSheetからスプライトキー一覧を構築する

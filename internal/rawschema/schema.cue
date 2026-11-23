@@ -695,7 +695,8 @@ import (
 	id_ref:     _memberIDs[id] @rawgen(-)
 	weight!:    #EntryWeight
 	minDanger!: #DangerLevel
-	maxDanger!: #DangerLevel
+	// 下限より小さいと、どの危険度でも抽選されない
+	maxDanger!: #DangerLevel & >=minDanger
 
 	// 1群あたりの敵数のダイス表記
 	pack!: #Dice
@@ -1106,7 +1107,8 @@ import (
 	id_ref:     _itemGroupIDs[id] @rawgen(-)
 	weight!:    #EntryWeight
 	minDanger!: #DangerLevel
-	maxDanger!: #DangerLevel
+	// 下限より小さいと、どの危険度でも抽選されない
+	maxDanger!: #DangerLevel & >=minDanger
 }
 
 // 売買価格
@@ -1484,6 +1486,17 @@ import (
 	skillCategoryIds_unique: {if skillCategories != _|_ for i, x in skillCategories {(x.id): i}} @rawgen(-)
 	dialogueIds_unique: {if dialogues != _|_ for i, x in dialogues {(x.id): i}} @rawgen(-)
 	dungeonIds_unique: {if dungeons != _|_ for i, x in dungeons {(x.id): i}} @rawgen(-)
+	itemIds_unique: {if items != _|_ for i, x in items {(x.id): i}} @rawgen(-)
+	recipeIds_unique: {if recipes != _|_ for i, x in recipes {(x.id): i}} @rawgen(-)
+	memberIds_unique: {if members != _|_ for i, x in members {(x.id): i}} @rawgen(-)
+	commandTableIds_unique: {if commandTables != _|_ for i, x in commandTables {(x.id): i}} @rawgen(-)
+	dropTableIds_unique: {if dropTables != _|_ for i, x in dropTables {(x.id): i}} @rawgen(-)
+	itemTableIds_unique: {if itemTables != _|_ for i, x in itemTables {(x.id): i}} @rawgen(-)
+	enemyTableIds_unique: {if enemyTables != _|_ for i, x in enemyTables {(x.id): i}} @rawgen(-)
+	crashSiteIds_unique: {if crashSites != _|_ for i, x in crashSites {(x.id): i}} @rawgen(-)
+	professionIds_unique: {if professions != _|_ for i, x in professions {(x.id): i}} @rawgen(-)
+	tileIds_unique: {if tiles != _|_ for i, x in tiles {(x.id): i}} @rawgen(-)
+	propIds_unique: {if props != _|_ for i, x in props {(x.id): i}} @rawgen(-)
 
 	layoutIds_unique: {if layouts != _|_ for i, x in layouts {(x.id): i}} @rawgen(-)
 

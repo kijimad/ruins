@@ -15,6 +15,7 @@ import (
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -207,21 +208,28 @@ func (st *MapGenVisualizerState) hidePlayer(world w.World) {
 	}
 }
 
-// clearEntities はスポーンしたエンティティを削除する
+// clearEntities はスポーンしたエンティティを削除する。クエリの反復中は world がロックされるので、集めてから消す
 func (st *MapGenVisualizerState) clearEntities(world w.World) {
+	var toRemove []ecs.Entity
 	spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).Query()
 	for spriteRenderQuery.Next() {
 		entity := spriteRenderQuery.Entity()
 		if !world.Components.Player.Has(entity) &&
 			!world.Components.LocationInBackpack.Has(entity) &&
 			!world.Components.LocationEquipped.Has(entity) {
-			world.ECS.RemoveEntity(entity)
+			toRemove = append(toRemove, entity)
 		}
 	}
 	gridElementQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
 	for gridElementQuery.Next() {
 		entity := gridElementQuery.Entity()
 		if !world.Components.Player.Has(entity) {
+			toRemove = append(toRemove, entity)
+		}
+	}
+	lifecycle.RemoveOwnedEntities(world, toRemove)
+	for _, entity := range toRemove {
+		if world.ECS.Alive(entity) {
 			world.ECS.RemoveEntity(entity)
 		}
 	}
