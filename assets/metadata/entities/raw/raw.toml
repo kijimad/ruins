@@ -20679,7 +20679,7 @@
     defense = 10
     dexterity = 10
     sensation = 10
-    strength = 10
+    strength = 50
     vitality = 10
 
   [[professions.equips]]
