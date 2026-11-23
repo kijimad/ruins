@@ -53,7 +53,7 @@ type cellRules struct {
 	blockedTile, blockedProp, door, storage map[string]bool
 }
 
-// newCellRules は raw の行から、通れないタイルと置物、扉の置物を集める
+// newCellRules は raw の行から、通れないタイルと置物、扉と収納の置物を集める
 func newCellRules(raws rawschema.Raws) cellRules {
 	r := cellRules{blockedTile: map[string]bool{}, blockedProp: map[string]bool{}, door: map[string]bool{}, storage: map[string]bool{}}
 	tiles, props := raw.PtrSlice(raws.Tiles), raw.PtrSlice(raws.Props)
@@ -156,6 +156,19 @@ func blockedDoors(cells [][]maptemplate.MapCell, door map[string]bool, passable 
 		}
 	}
 	return bad
+}
+
+func TestUnsearchableStorage_歩いて入れるマスの上か隣に無い収納を返す(t *testing.T) {
+	t.Parallel()
+
+	storage := map[string]bool{"crate": true}
+	cells := [][]maptemplate.MapCell{
+		{{}, {}, {}, {Prop: "crate"}},
+		{{Prop: "crate"}, {}, {}, {}},
+	}
+	seen := map[[2]int]bool{{0, 0}: true, {1, 0}: true}
+
+	assert.Equal(t, []string{"unsearchable crate at 3,0"}, unsearchableStorage(cells, storage, seen))
 }
 
 func TestFacilityTemplates_収納家具は戦利品表を持つ(t *testing.T) {

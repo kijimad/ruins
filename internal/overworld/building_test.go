@@ -47,10 +47,6 @@ func TestBuilding_部屋で組む建物は入口から全ての部屋へ入れ�
 	loader, err := maptemplate.FacilityTemplates()
 	require.NoError(t, err)
 	rules := newCellRules(raws)
-	storage := map[string]bool{}
-	for _, p := range raw.PtrSlice(raws.Props) {
-		storage[p.Id] = p.Storage != nil
-	}
 
 	for _, fac := range loader.Facilities() {
 		if !loader.HasRooms(fac) {
@@ -62,7 +58,7 @@ func TestBuilding_部屋で組む建物は入口から全ての部屋へ入れ�
 			assert.Empty(t, unreachableCells(cells, rules), name)
 			for y, row := range cells {
 				for x, c := range row {
-					if storage[c.Prop] {
+					if rules.storage[c.Prop] {
 						assert.NotEmpty(t, c.LootTable, "%s %s at %d,%d", name, c.Prop, x, y)
 					}
 				}
