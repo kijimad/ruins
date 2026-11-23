@@ -3,6 +3,7 @@ package overworld
 import (
 	"bytes"
 	"fmt"
+	"image"
 	"image/png"
 	"maps"
 	"slices"
@@ -264,7 +265,8 @@ func TestGolden_Building(t *testing.T) {
 			g := chunkGeom{chunkW: w, chunkH: h, tiles: &tileIndex{world: world, loX: 0, hiX: w}}
 			_, _, err := spawnFacility(world, g, cells, 0, 0, tt.lot.facility, 1, tt.lot.seed)
 			require.NoError(t, err)
-			img := renderOverworldRegion(t, world, 0, 0, int(w), int(h))
+			img, err := RenderRegion(world, image.Rect(0, 0, int(w), int(h)), RegionSpritePx)
+			require.NoError(t, err)
 			var buf bytes.Buffer
 			require.NoError(t, png.Encode(&buf, img))
 			goldie.New(t, goldie.WithNameSuffix(".png")).Assert(t, t.Name(), buf.Bytes())
