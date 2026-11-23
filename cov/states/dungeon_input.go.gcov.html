@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">34.2&nbsp;%</td>
+            <td class="headerCovTableEntryLo">33.2&nbsp;%</td>
             <td class="headerCovTableEntry">193</td>
-            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntry">64</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 04:57:10</td>
+            <td class="headerValue">2026-11-23 07:13:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -256,10 +256,10 @@
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                 st.three.rotate(world, -1)</span></span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L196"><span class="lineNum">     196</span>              :         case inputmapper.ActionWait:</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 if err := activity.ExecuteWaitAction(world); err != nil {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 if err := activity.ExecuteWaitAction(world); err != nil {</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransNone}, err</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L201"><span class="lineNum">     201</span>              : </span>
 <span id="L202"><span class="lineNum">     202</span>              :         // 相互作用系アクション</span>
 <span id="L203"><span class="lineNum">     203</span>              :         case inputmapper.ActionInteract:</span>

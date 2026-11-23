@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">81</td>
-            <td class="headerCovTableEntry">81</td>
+            <td class="headerCovTableEntryHi">97.3&nbsp;%</td>
+            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntry">73</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 04:57:10</td>
+            <td class="headerValue">2026-11-23 07:13:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -212,19 +212,8 @@
 <span id="L150"><span class="lineNum">     150</span>              : // BillboardTop はタイルに立つ立て板の頭をスクリーン座標へ写す。</span>
 <span id="L151"><span class="lineNum">     151</span>              : // エンティティの上へ出すダメージテキストやHP表示の基準点にする。</span>
 <span id="L152"><span class="lineNum">     152</span>              : func (p Projector) BillboardTop(c consts.Coord[consts.Tile]) (consts.Coord[consts.ScreenPixel], bool) {</span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         return p.Point(Vec{float64(c.X) + 0.5, BillboardHeight, float64(c.Y) + 0.5})</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span>              : // BillboardScale は立て板1枚分の高さが画面上で何ピクセルになるかを返す。</span>
-<span id="L157"><span class="lineNum">     157</span>              : // 立て板と同じ大きさで重ねたいスプライトの拡大率を決めるのに使う。投影できなければ ok=false。</span>
-<span id="L158"><span class="lineNum">     158</span>              : func (p Projector) BillboardScale(c consts.Coord[consts.Tile]) (float64, bool) {</span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         top, okTop := p.BillboardTop(c)</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         base, okBase := p.TileCenter(c, 0)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         if !okTop || !okBase {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 return 0, false</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         return math.Abs(float64(base.Y - top.Y)), true</span></span>
-<span id="L165"><span class="lineNum">     165</span>              : }</span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         return p.Point(Vec{float64(c.X) + 0.5, BillboardHeight, float64(c.Y) + 0.5})</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>
             </tr>

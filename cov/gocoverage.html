@@ -113,7 +113,7 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -257,7 +257,7 @@
 				
 				<option value="file100">github.com/kijimaD/ruins/internal/components/visual_effect.go (92.9%)</option>
 				
-				<option value="file101">github.com/kijimaD/ruins/internal/components/visual_effect_types.go (96.6%)</option>
+				<option value="file101">github.com/kijimaD/ruins/internal/components/visual_effect_types.go (96.3%)</option>
 				
 				<option value="file102">github.com/kijimaD/ruins/internal/config/config.go (100.0%)</option>
 				
@@ -501,7 +501,7 @@
 				
 				<option value="file222">github.com/kijimaD/ruins/internal/render3d/geometry.go (100.0%)</option>
 				
-				<option value="file223">github.com/kijimaD/ruins/internal/render3d/projector.go (100.0%)</option>
+				<option value="file223">github.com/kijimaD/ruins/internal/render3d/projector.go (97.9%)</option>
 				
 				<option value="file224">github.com/kijimaD/ruins/internal/render3d/world.go (96.7%)</option>
 				
@@ -569,7 +569,7 @@
 				
 				<option value="file256">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (74.1%)</option>
 				
-				<option value="file257">github.com/kijimaD/ruins/internal/states/dungeon_input.go (34.9%)</option>
+				<option value="file257">github.com/kijimaD/ruins/internal/states/dungeon_input.go (33.6%)</option>
 				
 				<option value="file258">github.com/kijimaD/ruins/internal/states/equip_select_state.go (82.5%)</option>
 				
@@ -623,7 +623,7 @@
 				
 				<option value="file283">github.com/kijimaD/ruins/internal/systems/condition.go (97.9%)</option>
 				
-				<option value="file284">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (91.8%)</option>
+				<option value="file284">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (91.0%)</option>
 				
 				<option value="file285">github.com/kijimaD/ruins/internal/systems/debug_invincible.go (100.0%)</option>
 				
@@ -643,7 +643,7 @@
 				
 				<option value="file293">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file294">github.com/kijimaD/ruins/internal/systems/render3d.go (69.2%)</option>
+				<option value="file294">github.com/kijimaD/ruins/internal/systems/render3d.go (71.6%)</option>
 				
 				<option value="file295">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.4%)</option>
 				
@@ -655,7 +655,7 @@
 				
 				<option value="file299">github.com/kijimaD/ruins/internal/systems/vision.go (70.2%)</option>
 				
-				<option value="file300">github.com/kijimaD/ruins/internal/systems/visual_effect.go (19.5%)</option>
+				<option value="file300">github.com/kijimaD/ruins/internal/systems/visual_effect.go (27.7%)</option>
 				
 				<option value="file301">github.com/kijimaD/ruins/internal/systems/weather.go (93.3%)</option>
 				
@@ -6133,7 +6133,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -14670,14 +14670,6 @@ func (e *DamageTextEffect) Update(deltaMs float64) bool {
         return e.FadeAnimation.Update(deltaMs)
 </span>}
 
-// SpriteFadeoutEffect はスプライトをフェードアウト表示するエフェクト。
-// 敵撃破時などに使用する
-type SpriteFadeoutEffect struct {
-        FadeAnimation
-        SpriteSheetName string // スプライトシート名
-        SpriteKey       string // スプライトキー
-}
-
 // NewSplashTextEffect はダンジョン開始時などのスプラッシュエフェクトを作成する
 func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *SplashTextEffect {
         <span class="cov8" title="1">fadeInMs := 800.0
@@ -14799,23 +14791,6 @@ func NewHealEffect(amount int) *DamageTextEffect {
                         Color:  color.RGBA{80, 255, 80, 255},
                 },
                 VelocityY: -0.5,
-</span>        }
-}
-
-// NewSpriteFadeoutEffect はスプライトフェードアウトエフェクトを作成する
-func NewSpriteFadeoutEffect(spriteSheetName, spriteKey string) *SpriteFadeoutEffect {
-        <span class="cov8" title="1">totalMs := 400.0
-        return &amp;SpriteFadeoutEffect{
-                FadeAnimation: FadeAnimation{
-                        FadeInMs:    0,
-                        HoldMs:      100,
-                        FadeOutMs:   300,
-                        TotalMs:     totalMs,
-                        RemainingMs: totalMs,
-                        Alpha:       1.0,
-                },
-                SpriteSheetName: spriteSheetName,
-                SpriteKey:       spriteKey,
 </span>        }
 }
 </pre>
@@ -34861,19 +34836,8 @@ func (p Projector) TileOnScreen(c consts.Coord[consts.Tile], topHeight float64) 
 // BillboardTop はタイルに立つ立て板の頭をスクリーン座標へ写す。
 // エンティティの上へ出すダメージテキストやHP表示の基準点にする。
 func (p Projector) BillboardTop(c consts.Coord[consts.Tile]) (consts.Coord[consts.ScreenPixel], bool) {
-        <span class="cov8" title="1">return p.Point(Vec{float64(c.X) + 0.5, BillboardHeight, float64(c.Y) + 0.5})
+        <span class="cov0" title="0">return p.Point(Vec{float64(c.X) + 0.5, BillboardHeight, float64(c.Y) + 0.5})
 </span>}
-
-// BillboardScale は立て板1枚分の高さが画面上で何ピクセルになるかを返す。
-// 立て板と同じ大きさで重ねたいスプライトの拡大率を決めるのに使う。投影できなければ ok=false。
-func (p Projector) BillboardScale(c consts.Coord[consts.Tile]) (float64, bool) {
-        <span class="cov8" title="1">top, okTop := p.BillboardTop(c)
-        base, okBase := p.TileCenter(c, 0)
-        if !okTop || !okBase </span>{
-                <span class="cov8" title="1">return 0, false
-</span>        }
-        <span class="cov8" title="1">return math.Abs(float64(base.Y - top.Y)), true</span>
-}
 </pre>
 		
 		<pre class="file" id="file224" style="display: none">package render3d
@@ -41069,10 +41033,10 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
                 <span class="cov0" title="0">st.three.rotate(world, -1)
                 return es.Transition[w.World]{Type: es.TransNone}, nil</span>
         case inputmapper.ActionWait:
-                <span class="cov8" title="1">if err := activity.ExecuteWaitAction(world); err != nil </span>{
+                <span class="cov0" title="0">if err := activity.ExecuteWaitAction(world); err != nil </span>{
                         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}, err
 </span>                }
-                <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
+                <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
 
         // 相互作用系アクション
         case inputmapper.ActionInteract:
@@ -45926,23 +45890,9 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 </span>                }
         }
 
-        // エンティティを削除する
         <span class="cov8" title="1">for _, entity := range toDelete </span>{
-                // スプライトフェードアウトエフェクトを生成
-                <span class="cov8" title="1">if world.Components.SpriteRender.Has(entity) &amp;&amp; world.Components.GridElement.Has(entity) </span>{
-                        <span class="cov8" title="1">spriteRender := world.Components.SpriteRender.Get(entity)
-                        gridElement := world.Components.GridElement.Get(entity)
-</span>
-                        <span class="cov8" title="1">effect := gc.NewSpriteFadeoutEffect(spriteRender.SpriteSheetName, spriteRender.SpriteKey)
-                        effectEntity := world.ECS.NewEntity()
-                        world.Components.GridElement.Add(effectEntity, &amp;gc.GridElement{Coord: gridElement.Coord})
-                        world.Components.VisualEffects.Add(effectEntity, &amp;gc.VisualEffects{
-                                Effects: []gc.VisualEffect{effect},
-                        })
-</span>                }
-
-                <span class="cov8" title="1">world.ECS.RemoveEntity(entity)</span>
-        }
+                <span class="cov8" title="1">world.ECS.RemoveEntity(entity)
+</span>        }
 
         <span class="cov8" title="1">if len(toDelete) &gt; 0 </span>{
                 <span class="cov8" title="1">logger.Debug("Dead cleanup completed", "deleted_count", len(toDelete))
@@ -47536,16 +47486,20 @@ func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Ti
         <span class="cov8" title="1">return query.SnowAmount(f, query.SnowRankAt(world, c.X, c.Y)) * float64(100-env.SnowMeltPercent) / 100</span>
 }
 
-// add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。雪の段で、地面より後、跡や床の模様より先に描く
+// add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。雪の段で、地面より後、跡や床の模様より先に描く。
+// 雪の絵は白に近く、日中の底上げで 1.0 を超えると影の色まで白に潰れるので、色味を保ったまま最大の成分を 1.0 に抑える
 func (l *snowLayer) add(out *[]r3quad, world w.World, e ecs.Entity, c consts.Coord[consts.Tile], tint [3]float64) {
-        <span class="cov0" title="0">if !l.ok </span>{
+        <span class="cov8" title="1">if !l.ok </span>{
                 <span class="cov0" title="0">return
 </span>        }
-        <span class="cov0" title="0">a := l.amount(world, e, c)
+        <span class="cov8" title="1">a := l.amount(world, e, c)
         if a &lt;= 0 </span>{
                 <span class="cov0" title="0">return
 </span>        }
-        <span class="cov0" title="0">fx, fz := float64(c.X), float64(c.Y)
+        <span class="cov8" title="1">if m := max(tint[0], tint[1], tint[2]); m &gt; 1 </span>{
+                <span class="cov8" title="1">tint = scaleCol(tint, 1/m)
+</span>        }
+        <span class="cov8" title="1">fx, fz := float64(c.X), float64(c.Y)
         l.sys.addQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), l.atlas, l.ux, l.uy, l.uw, l.uh, tint)
         q := &amp;(*out)[len(*out)-1]
         q.alpha = a
@@ -49648,7 +49602,6 @@ import (
 
         "github.com/hajimehoshi/ebiten/v2"
         "github.com/hajimehoshi/ebiten/v2/text/v2"
-        "github.com/kijimaD/ruins/assets"
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/render3d"
         "github.com/kijimaD/ruins/internal/widgets/hud"
@@ -49659,9 +49612,7 @@ import (
 )
 
 // VisualEffectSystem はビジュアルエフェクトを管理するシステム
-type VisualEffectSystem struct {
-        silhouetteShader *ebiten.Shader
-}
+type VisualEffectSystem struct{}
 
 // String はシステム名を返す
 func (sys VisualEffectSystem) String() string {
@@ -49739,12 +49690,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
         <span class="cov0" title="0">drawQuery := query.ActiveFilter1[gc.VisualEffects](world).Query()
         for drawQuery.Next() </span>{
                 <span class="cov0" title="0">entity := drawQuery.Entity()
-                if err != nil </span>{
-                        <span class="cov0" title="0">continue</span>
-                }
-                <span class="cov0" title="0">ve := world.Components.VisualEffects.Get(entity)
-</span>
-        <span class="cov0" title="0">effectLoop:
+                ve := world.Components.VisualEffects.Get(entity)
                 for _, effect := range ve.Effects </span>{
                         <span class="cov0" title="0">switch e := effect.(type) </span>{
                         case *gc.SplashTextEffect:
@@ -49754,19 +49700,10 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
                                         <span class="cov0" title="0">gridElement := world.Components.GridElement.Get(entity)
                                         sys.drawDamageText(screen, projector, smallFace, gridElement, e)
 </span>                                }
-                        case *gc.SpriteFadeoutEffect:
-                                <span class="cov0" title="0">if world.Components.GridElement.Has(entity) </span>{
-                                        <span class="cov0" title="0">gridElement := world.Components.GridElement.Get(entity)
-                                        err = sys.drawSpriteFadeoutEffect(world, screen, projector, gridElement, e)
-                                        if err != nil </span>{
-                                                <span class="cov0" title="0">break effectLoop</span>
-                                        }
-                                }
                         }
                 }
         }
-
-        <span class="cov0" title="0">return err</span>
+        <span class="cov0" title="0">return nil</span>
 }
 
 // drawSplashText はスプラッシュテキストを画面座標で描画する。
@@ -49865,66 +49802,6 @@ func (sys *VisualEffectSystem) drawHorizontalLine(world w.World, screen *ebiten.
         op.GeoM.Translate(x, y)
         op.ColorScale.ScaleWithColor(clr)
         screen.DrawImage(img, op)</span>
-}
-
-// drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する
-func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, projector render3d.Projector, gridElement *gc.GridElement, effect *gc.SpriteFadeoutEffect) error {
-        <span class="cov0" title="0">if effect.Alpha &lt;= 0 </span>{
-                <span class="cov0" title="0">return nil
-</span>        }
-        <span class="cov0" title="0">if world.Resources.SpriteSheets == nil </span>{
-                <span class="cov0" title="0">return nil
-</span>        }
-
-        // シェーダーを初期化（初回のみ）
-        <span class="cov0" title="0">if sys.silhouetteShader == nil </span>{
-                <span class="cov0" title="0">shaderSource, err := assets.FS.ReadFile("file/shaders/white_silhouette.kage")
-                if err != nil </span>{
-                        <span class="cov0" title="0">return err
-</span>                }
-                <span class="cov0" title="0">sys.silhouetteShader, err = ebiten.NewShader(shaderSource)
-                if err != nil </span>{
-                        <span class="cov0" title="0">return err
-</span>                }
-        }
-
-        // スプライトの矩形とテクスチャを解決し、その部分を切り出す
-        <span class="cov0" title="0">tex, rect, ok := world.Resources.Sprites.Rect(&amp;gc.SpriteRender{SpriteSheetName: effect.SpriteSheetName, SpriteKey: effect.SpriteKey})
-        if !ok </span>{
-                <span class="cov0" title="0">return nil
-</span>        }
-        <span class="cov0" title="0">img := gc.SubImage(tex.Image, rect)
-</span>
-        // 立て板と同じ位置・大きさで重ねる。スプライトの高さが立て板1枚分になるよう拡大率を決め、
-        // 立て板の中心へ合わせる
-        <span class="cov0" title="0">scale, ok := projector.BillboardScale(gridElement.Coord)
-        if !ok </span>{
-                <span class="cov0" title="0">return nil
-</span>        }
-        <span class="cov0" title="0">center, ok := projector.TileCenter(gridElement.Coord, render3d.BillboardHeight/2)
-        if !ok </span>{
-                <span class="cov0" title="0">return nil
-</span>        }
-        // 高さ0のスプライトは拡大率が定まらず描けない。ゼロ除算を避けて描画をやめる
-        <span class="cov0" title="0">if rect.Dy() == 0 </span>{
-                <span class="cov0" title="0">return nil
-</span>        }
-        <span class="cov0" title="0">zoom := scale / float64(rect.Dy())
-</span>
-        <span class="cov0" title="0">op := &amp;ebiten.DrawRectShaderOptions{}
-        op.GeoM.Translate(float64(-rect.Dx())/2, float64(-rect.Dy())/2)
-        op.GeoM.Scale(zoom, zoom)
-        op.GeoM.Translate(float64(center.X), float64(center.Y))
-</span>
-        // ソース画像を設定
-        <span class="cov0" title="0">op.Images[0] = img
-</span>
-        // 透明度をシェーダーに渡す（ColorScaleのAlphaを使用）
-        <span class="cov0" title="0">op.ColorScale.ScaleAlpha(float32(effect.Alpha))
-</span>
-        // シェーダーで白シルエットを描画
-        <span class="cov0" title="0">screen.DrawRectShader(rect.Dx(), rect.Dy(), sys.silhouetteShader, op)
-        return nil</span>
 }
 </pre>
 		
