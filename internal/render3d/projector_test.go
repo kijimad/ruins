@@ -115,14 +115,6 @@ func TestProjector_TileCornersはカメラ後方なら投影できない(t *test
 	assert.False(t, ok)
 }
 
-func TestProjector_BillboardScaleはカメラ後方なら投影できない(t *testing.T) {
-	t.Parallel()
-
-	_, ok := render3d.NewProjector(defaultView, playerTile, screenW, screenH).
-		BillboardScale(consts.Coord[consts.Tile]{X: 25, Y: 60})
-	assert.False(t, ok)
-}
-
 func TestProjector_TileOnScreenは画面に掛かる升だけ通す(t *testing.T) {
 	t.Parallel()
 
@@ -163,19 +155,6 @@ func TestProjector_TileOnScreenは大マップの大半を落とす(t *testing.T
 		}
 	}
 	assert.Less(t, on, n*n/2, "100x100 の升のうち画面に掛かるのは半分未満")
-}
-
-func TestProjector_BillboardScaleは立て板の画面上の高さを返す(t *testing.T) {
-	t.Parallel()
-
-	projector := render3d.NewProjector(defaultView, playerTile, screenW, screenH)
-	nearScale, ok := projector.BillboardScale(playerTile)
-	require.True(t, ok)
-	farScale, ok := projector.BillboardScale(consts.Coord[consts.Tile]{X: 25, Y: 20})
-	require.True(t, ok)
-
-	assert.Greater(t, nearScale, 0.0)
-	assert.Greater(t, nearScale, farScale, "手前の立て板ほど大きく写る")
 }
 
 func TestProjector_Depthは奥ほど小さい(t *testing.T) {

@@ -121,7 +121,6 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 	}
 
-	// エンティティを削除する
 	for _, entity := range toDelete {
 		world.ECS.RemoveEntity(entity)
 	}
