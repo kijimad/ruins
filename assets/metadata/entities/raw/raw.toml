@@ -20901,12 +20901,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "茶の木製の背もたれ付き長椅子。公園・待合・通路に"
   hp = 20
   id = "bench"
   name = "Bench"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "floor"
@@ -21076,12 +21076,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "茶色のオフィス回転椅子。背もたれと脚付き。机まわりに"
   hp = 15
   id = "chair"
   name = "Chair"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
@@ -21147,12 +21147,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "茶の木製の箱、金具付き。倉庫の保管用。中身が入っていることがある"
   hp = 30
   id = "crate"
   name = "Crate"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "prying"
@@ -21176,12 +21176,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "茶の木製の作業机。脚付きの平机。書斎・オフィス"
   hp = 20
   id = "desk"
   name = "Desk"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
@@ -21651,12 +21651,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "茶の木製の小さなテーブル。素朴な卓"
   hp = 20
   id = "prop_table"
   name = "Table"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
@@ -21775,12 +21775,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "茶の頑丈な木製テーブル。食堂や作業台"
   hp = 25
   id = "table"
   name = "Table"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
@@ -21872,12 +21872,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "茶の木製の長持ち。保管用。何か入っているかも"
   hp = 25
   id = "wood_chest"
   name = "Wooden Chest"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
@@ -21954,12 +21954,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "茶色の革張りの2人掛けソファ。居間や待合"
   hp = 25
   id = "two_seat_sofa"
   name = "Two-Seat Sofa"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
@@ -21967,12 +21967,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "茶の使い込まれた木製の仕事机。オフィス"
   hp = 20
   id = "work_desk"
   name = "Work Desk"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
@@ -22006,12 +22006,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "茶色の革張りの高級な椅子。座り心地が良い"
   hp = 20
   id = "fur_upholstered_chair"
   name = "Fur-Upholstered Chair"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
@@ -22084,12 +22084,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "黒い革張りのオフィス椅子"
   hp = 20
   id = "black_chair"
   name = "Black Chair"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "taller"
@@ -22110,12 +22110,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "古びた茶の木箱。何か入っているかも"
   hp = 20
   id = "wooden_crate"
   name = "Wooden Crate"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.disassembly]
     toolCategory = "prying"
@@ -22230,12 +22230,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "[dummy] レジカウンター。会計を行う横長のカウンター。店舗。実アート未実装の仮素材"
   hp = 15
   id = "checkout_counter"
   name = "Checkout Counter"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "floor"
@@ -22243,12 +22243,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "[dummy] 診察台。患者を診る医療用ベッド。診療所。実アート未実装の仮素材"
   hp = 15
   id = "exam_bed"
   name = "Exam Bed"
+  passCost = 100
   remainsId = "metal_fragments"
   [props.spriteRender]
     depth = "floor"
@@ -22282,12 +22282,12 @@
     spriteSheetName = "field"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "[dummy] ストレッチャー。搬送用の車輪付き寝台。診療所。実アート未実装の仮素材"
   hp = 15
   id = "stretcher"
   name = "Stretcher"
+  passCost = 100
   remainsId = "metal_fragments"
   [props.spriteRender]
     depth = "floor"
@@ -22313,12 +22313,12 @@
     maxWeight = "30 kg"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "[dummy] 受付カウンター。案内や受付の横長カウンター。診療所や施設。実アート未実装の仮素材"
   hp = 15
   id = "reception_counter"
   name = "Reception Counter"
+  passCost = 100
   remainsId = "wood_splinters"
   [props.spriteRender]
     depth = "floor"
@@ -22863,12 +22863,12 @@
     maxWeight = "60 kg"
 
 [[props]]
-  blockPass = true
   blockView = false
   description = "[dummy] 弾薬を詰めた金属の箱。実アート未実装の仮素材"
   hp = 30
   id = "ammo_crate"
   name = "Ammo Crate"
+  passCost = 100
   remainsId = "metal_fragments"
   [props.disassembly]
     toolCategory = "prying"

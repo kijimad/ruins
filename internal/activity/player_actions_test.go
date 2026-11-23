@@ -282,6 +282,21 @@ func TestExecuteMoveAction_塞ぐものが変われば続けて名前を出す(t
 	assert.Equal(t, []string{"Wall is here.", "Laundry is here."}, query.GetGameLog(world).GetHistory())
 }
 
+func TestExecuteMoveAction_背の低い家具には移動コストを払って乗れる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "chair", 11, 10)
+	require.NoError(t, err)
+
+	require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 11, Y: 10}, world.Components.GridElement.Get(player).Coord)
+	assert.Equal(t, 100, getPassCostAt(world, 11, 10))
+	assert.Equal(t, []string{"Chair is here."}, query.GetGameLog(world).GetHistory())
+}
+
 func TestExecuteMoveAction_地図の外へは何も出さずに止まる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

@@ -55,7 +55,7 @@ func TestFacilityTemplates_扉が塞がらず全ての床へ入れる(t *testing
 	}
 }
 
-// unreachableCells は扉の片側が塞がっている扉と、区画の縁から歩いて入れない通れるマスを返す
+// unreachableCells は扉の片側が塞がっている扉と、区画の縁から歩いて入れない置物の無い通れるマスを返す
 func unreachableCells(cells [][]maptemplate.MapCell, blockedTile, blockedProp map[string]bool) []string {
 	h, w := len(cells), len(cells[0])
 	passable := func(x, y int) bool {
@@ -69,19 +69,7 @@ func unreachableCells(cells [][]maptemplate.MapCell, blockedTile, blockedProp ma
 		return c.Prop == "" || c.Prop == "door" || !blockedProp[c.Prop]
 	}
 
-	var bad []string
-	for y := range h {
-		for x := range w {
-			if cells[y][x].Prop != "door" {
-				continue
-			}
-			throughX := passable(x-1, y) && passable(x+1, y)
-			throughY := passable(x, y-1) && passable(x, y+1)
-			if !throughX && !throughY {
-				bad = append(bad, fmt.Sprintf("door blocked at %d,%d", x, y))
-			}
-		}
-	}
+	bad := blockedDoors(cells, passable)
 
 	seen := map[[2]int]bool{}
 	var queue [][2]int
@@ -107,8 +95,27 @@ func unreachableCells(cells [][]maptemplate.MapCell, blockedTile, blockedProp ma
 	}
 	for y := range h {
 		for x := range w {
-			if passable(x, y) && !seen[[2]int{x, y}] {
+			// 家具のマスは通り道でなく、中身は斜めからでも探せるので、囲まれていてもよい
+			if passable(x, y) && cells[y][x].Prop == "" && !seen[[2]int{x, y}] {
 				bad = append(bad, fmt.Sprintf("unreachable %s at %d,%d", cells[y][x].Terrain, x, y))
+			}
+		}
+	}
+	return bad
+}
+
+// blockedDoors は両側の向かい合うマスが通れない扉を返す
+func blockedDoors(cells [][]maptemplate.MapCell, passable func(x, y int) bool) []string {
+	var bad []string
+	for y := range cells {
+		for x := range cells[y] {
+			if cells[y][x].Prop != "door" {
+				continue
+			}
+			throughX := passable(x-1, y) && passable(x+1, y)
+			throughY := passable(x, y-1) && passable(x, y+1)
+			if !throughX && !throughY {
+				bad = append(bad, fmt.Sprintf("door blocked at %d,%d", x, y))
 			}
 		}
 	}
