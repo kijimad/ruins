@@ -405,21 +405,27 @@ func TestPlanAt_行き先の前に集落と点在ランドマークを置かな�
 	require.Positive(t, reserved, "前提: 予約したチャンクがある")
 }
 
-func TestPlanSpan_記録しても計画は変わらず最後の写しが仕上がりと一致する(t *testing.T) {
+func TestPlanSpan_記録しても計画は変わらず集落の段階の写しが仕上がりと一致する(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	road, ok := roadRow(raws)
 	require.True(t, ok)
 	for seed := range uint64(5) {
-		plain := planSpan(raws, seed, road, 0, planTestCols, planTestSpawn, false)
-		recorded := planSpan(raws, seed, road, 0, planTestCols, planTestSpawn, true)
-		require.GreaterOrEqual(t, len(recorded.snapshots), 3, "前提: 区域、行き先、集落の段階がある")
-		last := recorded.snapshots[len(recorded.snapshots)-1]
+		plain := planSpan(raws, seed, road, 0, planTestCols, planTestSpawn, nil)
+		rec := &mapRecorder{placed: map[chunkType]bool{}}
+		recorded := planSpan(raws, seed, road, 0, planTestCols, planTestSpawn, rec)
+		labels := make([]string, 0, len(rec.snapshots))
+		for _, s := range rec.snapshots {
+			labels = append(labels, s.label)
+		}
+		require.GreaterOrEqual(t, len(labels), 4, "前提: 墜落現場、区域、行き先、集落の段階がある")
+		assert.Equal(t, []string{"crash site", "districts", "destinations"}, labels[:3])
+		last := rec.snapshots[len(rec.snapshots)-1]
 		assert.Equal(t, "settlements", last.label)
 		assert.Equal(t, plain.roads, last.roads, "seed=%d", seed)
 		assert.Equal(t, plain.settlements, last.settlements, "seed=%d", seed)
 		assert.Equal(t, plain.reserved, last.reserved, "seed=%d", seed)
-		assert.Empty(t, plain.snapshots, "記録しなければ写しを持たない")
+		assert.Equal(t, plain.roads, recorded.roads, "seed=%d 記録しても計画は変わらない", seed)
 	}
 }
