@@ -117,3 +117,23 @@ func TestFindStackInInventory_使いかけの物は選ばず新品を返す(t *t
 	assert.True(t, found)
 	assert.Equal(t, 80, world.Components.Charge.Get(got).Current, "新品を返す")
 }
+
+func TestItemLabel(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	battery := world.ECS.NewEntity()
+	world.Components.Name.Add(battery, &gc.Name{Name: "Battery"})
+	world.Components.Charge.Add(battery, &gc.Charge{Current: 750, Max: 1000})
+	lantern := world.ECS.NewEntity()
+	world.Components.Name.Add(lantern, &gc.Name{Name: "Lantern"})
+	world.Components.Charge.Add(lantern, &gc.Charge{Current: 600, Max: 1500})
+	world.Components.Switch.Add(lantern, &gc.Switch{})
+	stone := world.ECS.NewEntity()
+	world.Components.Name.Add(stone, &gc.Name{Name: "Stone"})
+
+	assert.Equal(t, []string{
+		"2 Battery (750)",
+		"Lantern (600) (" + query.T(world, "Switched off") + ")",
+		"Stone",
+	}, []string{query.ItemLabel(world, battery, 2), query.ItemLabel(world, lantern, 1), query.ItemLabel(world, stone, 1)})
+}

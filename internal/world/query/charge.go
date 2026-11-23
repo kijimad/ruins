@@ -1,6 +1,8 @@
 package query
 
 import (
+	"strconv"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
@@ -84,4 +86,12 @@ func ChargeKindOf(world w.World, item ecs.Entity) (rawschema.FuelKindId, bool) {
 		return kind, true
 	}
 	return FuelKindOf(world, item)
+}
+
+// ChargeMarker は名前に添える残量の数を返す。残量を持たない物は空文字を返す
+func ChargeMarker(world w.World, entity ecs.Entity) string {
+	if !world.Components.Charge.Has(entity) {
+		return ""
+	}
+	return strconv.Itoa(world.Components.Charge.Get(entity).Current)
 }

@@ -243,7 +243,7 @@ func nearbyPickupActions(world w.World) []InteractionAction {
 			}
 			for _, stack := range query.GroupStacks(world, query.PickablesAt(world, c)) {
 				actions = append(actions, InteractionAction{
-					Label:       query.T(world, "Pick up %s (%s)", query.FormatNameCount(query.GetEntityName(stack.Rep, world), stack.Count), dirLabel),
+					Label:       query.T(world, "Pick up %s (%s)", query.ItemLabel(world, stack.Rep, stack.Count), dirLabel),
 					Target:      stack.Rep,
 					Interaction: gc.InteractionItem,
 				})

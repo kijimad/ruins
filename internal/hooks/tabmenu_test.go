@@ -333,6 +333,44 @@ func TestUseTabMenu_MultipleInstances(t *testing.T) {
 	assert.Equal(t, 1, s2.TabIndex)
 }
 
+func TestUseTabMenu_今の行がスキップ対象に変わると近い選べる行へ寄せる(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name  string
+		start int
+		skips []bool
+		want  int
+	}{
+		{name: "下に選べる行があれば下へ", start: 1, skips: []bool{false, true, false}, want: 2},
+		{name: "最後の行なら上へ", start: 2, skips: []bool{false, false, true}, want: 1},
+		{name: "下に無ければ離れた上の行まで戻る", start: 2, skips: []bool{false, true, true}, want: 0},
+		{name: "すべて選べなければ今の位置に残る", start: 1, skips: []bool{true, true, true}, want: 1},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			mount := NewMount[tabMenuTestProps]()
+			config := func(skips []bool) TabMenuConfig {
+				return TabMenuConfig{TabCount: 1, ItemCounts: []int{3}, Skips: [][]bool{skips}}
+			}
+			allOpen := []bool{false, false, false}
+			UseTabMenu(mount.Store(), "menu", config(allOpen))
+			mount.Update()
+			for range tt.start {
+				mount.Dispatch(inputmapper.ActionMenuDown)
+			}
+			UseTabMenu(mount.Store(), "menu", config(allOpen))
+			mount.Update()
+			s, _ := GetState[TabMenuState](mount, "menu")
+			require.Equal(t, tt.start, s.ItemIndex)
+
+			got := UseTabMenu(mount.Store(), "menu", config(tt.skips))
+
+			assert.Equal(t, tt.want, got.ItemIndex)
+		})
+	}
+}
+
 func TestUseTabMenu_Skip(t *testing.T) {
 	t.Parallel()
 

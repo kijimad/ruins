@@ -31,8 +31,8 @@ var (
 	TextAccent = rgb(0x9dd793)
 	// TextSelected は選択中の項目に使う明るい白
 	TextSelected = color.RGBA{R: 255, G: 255, B: 240, A: 255}
-	// TextDisabled は無効状態のテキスト色
-	TextDisabled = rgb(0x5a7a91)
+	// TextDisabled は無効状態のテキスト色。非選択の行の TextSecondary より暗い灰色にして選べないことを示す
+	TextDisabled = rgb(0x6b6b6b)
 )
 
 // ========== カーソル色 ==========

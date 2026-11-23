@@ -205,7 +205,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 
 // drawEntityInfo はエンティティ情報を描画する。個数は束ねた結果を呼び出し側が渡す
 func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, count int, drawText func(string)) {
-	name := query.FormatNameCount(query.GetEntityName(entity, world), count)
+	name := query.ItemLabel(world, entity, count)
 
 	cat, ok := world.Components.CategoryOf(gc.FieldLookCategoryKey, entity)
 	if !ok {

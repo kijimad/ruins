@@ -429,6 +429,32 @@ var goldenCases = []struct {
 		},
 		steps: []replayStep{{shot: true}},
 	},
+	// RefillMenu は補充メニューの満たすタブと抜くタブを固定する。減ったランタンは両方で選べる。満タンの懐中電灯は、
+	// 満たすタブでは満タンなので、抜くタブでは抜いて入れる電池を持たないので、無効の色で選べない行になる
+	{
+		name: "RefillMenu",
+		build: func(world w.World) ([]es.State[w.World], error) {
+			lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+			if err != nil {
+				return nil, err
+			}
+			world.Components.Charge.Get(lantern).Current = 600
+			if _, err := lifecycle.SpawnBackpackItem(world, "flashlight", 1); err != nil {
+				return nil, err
+			}
+			oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)
+			if err != nil {
+				return nil, err
+			}
+			world.Components.Charge.Get(oil).Current = 700
+			s, err := gs.NewRefillMenuState()
+			return []es.State[w.World]{s}, err
+		},
+		steps: []replayStep{
+			{shot: true, suffix: "Fill"},
+			{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Drain"},
+		},
+	},
 	// ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
 	{
 		name: "ChoiceMenuMany",
