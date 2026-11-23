@@ -41,14 +41,14 @@ func phaseStrip(t *testing.T, frames [][]byte, shrink int) []byte {
 	return buf.Bytes()
 }
 
-// contentOf は img のうち、右下の画素と違う色の画素を全て含む最小の矩形を切り出す。全て同じ色なら img をそのまま返す
+// contentOf は img のうち、画面を塗りつぶす黒でない画素を全て含む最小の矩形を切り出す。全て黒なら img をそのまま返す。
+// 地図が画面の端まで届いても、地図の外の余白を切り詰められる
 func contentOf(img image.Image) image.Image {
 	b := img.Bounds()
-	bg := color.NRGBAModel.Convert(img.At(b.Max.X-1, b.Max.Y-1))
 	box := image.Rectangle{}
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
-			if color.NRGBAModel.Convert(img.At(x, y)) != bg {
+			if r, g, bl, _ := img.At(x, y).RGBA(); r|g|bl != 0 {
 				box = box.Union(image.Rect(x, y, x+1, y+1))
 			}
 		}
