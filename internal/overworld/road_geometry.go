@@ -10,7 +10,7 @@ import (
 )
 
 // 道の幾何の唯一の出典。道が「隣接リージョンの当選集落を L 字で結び、塀に囲まれた区域は門を通る」という規則をここ一箇所に置き、
-// 舗装 road.go・散布回避 scatter.go・マクロ地図 road_overlay.go の3消費者が同じ分解を各粒度で解釈する。
+// 舗装 road.go・散布回避 scatter.go・マクロ地図 road_overlay.go・ランドマークの置き場所 landmark.go の4消費者が同じ分解を各粒度で解釈する。
 // 分解を1箇所にすることで、地図に出る道と実際に舗装される道が構造的に一致し続ける。
 
 // roadOrient は道の一辺の向き。実体は文字列で、%v やテスト失敗の出力に種別名が出る。
@@ -48,9 +48,13 @@ func roadSegments(a, b consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) [
 	}
 }
 
+// gateLane は区域の門の列 col を道が縦に通るタイルの列を返す。門は区域の外周の街路の帯に開くので、帯の幅の真ん中を通す
+func gateLane(col consts.Chunk, chunkW consts.Tile) consts.Tile {
+	return col.Tiles(chunkW) + urbanStreetW/2
+}
+
 // roadPath は当選集落 a から b への道を返す。roadSegments の垂直辺が塀に囲まれた区域を横切るなら、区域の手前の行で
-// 北の門の列へ折れて門へ入り、南の門から出て区域の向こうの行で元の列へ戻る。区域の中は区域が街路を敷くので辺を置かない。
-// 門は区域の外周の街路の帯に開くので、門の列では帯の幅の真ん中を通す
+// 北の門の列へ折れて門へ入り、南の門から出て区域の向こうの行で元の列へ戻る。区域の中は区域が街路を敷くので辺を置かない
 func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, chunkW, chunkH consts.Tile) []roadSeg {
 	segs := roadSegments(a, b, chunkW, chunkH)
 	vertical := segs[1]
@@ -60,13 +64,12 @@ func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chun
 		north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, spawnRow))
 		top := r.anchor.Y.Tiles(chunkH)
 		bottom := (r.anchor.Y + r.h).Tiles(chunkH) - 1
-		lane := func(col consts.Chunk) consts.Tile { return col.Tiles(chunkW) + urbanStreetW/2 }
 		if y < top {
 			before := chunkCenter(r.anchor.Y-1, chunkH)
 			out = append(out,
 				span(orientVertical, x, y, before),
-				span(orientHorizontal, before, x, lane(north)),
-				span(orientVertical, lane(north), before, top),
+				span(orientHorizontal, before, x, gateLane(north, chunkW)),
+				span(orientVertical, gateLane(north, chunkW), before, top),
 			)
 		}
 		if vertical.hi <= bottom {
@@ -74,8 +77,8 @@ func roadPath(raws rawschema.Raws, runSeed uint64, a, b consts.Coord[consts.Chun
 		}
 		after := chunkCenter(r.anchor.Y+r.h, chunkH)
 		out = append(out,
-			span(orientVertical, lane(south), bottom, after),
-			span(orientHorizontal, after, lane(south), x),
+			span(orientVertical, gateLane(south, chunkW), bottom, after),
+			span(orientHorizontal, after, gateLane(south, chunkW), x),
 		)
 		y = after
 	}
@@ -111,7 +114,7 @@ type roadLink struct {
 }
 
 // crossingRoads はチャンク c を横切りうる道を返す。道を持つ地物ごとに、c の行が属するリージョン r の
-// (r-1,r) と (r,r+1) の当選を結ぶ2本だけが c を横切りうる。road.go の舗装と scatter.go の回避が同じ結線を共有する
+// (r-1,r) と (r,r+1) の当選を結ぶ2本だけが c を横切りうる。road.go の舗装、scatter.go の回避、landmark.go の置き場所が同じ結線を共有する
 func crossingRoads(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) []roadLink {
 	var links []roadLink
 	for _, f := range raw.PtrSlice(raws.PointFeatures) {

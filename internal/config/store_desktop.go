@@ -64,6 +64,7 @@ func writeSettingsTo(path string, data []byte) error {
 	}
 	tmp := path + ".tmp"
 	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+		_ = os.Remove(tmp)
 		return fmt.Errorf("%w: %w", errWriteConfig, err)
 	}
 	if err := os.Rename(tmp, path); err != nil {

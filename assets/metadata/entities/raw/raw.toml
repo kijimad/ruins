@@ -4254,12 +4254,6 @@
 
 [[facilities]]
   enemyTable = "ruins_area"
-  id = "shrine"
-  lootedChance = 0
-  zones = []
-
-[[facilities]]
-  enemyTable = "ruins_area"
   id = "campsite"
   lootedChance = 0
   zones = []
@@ -18173,10 +18167,6 @@
   weight = 30
 
 [[landmarks]]
-  id = "shrine"
-  weight = 20
-
-[[landmarks]]
   id = "campsite"
   weight = 25
 
@@ -18316,17 +18306,6 @@
     b = 80
     g = 160
     r = 150
-
-[[mapGlyphs]]
-  glyph = "s"
-  id = "shrine"
-  name = "Shrine"
-  order = 6
-  [mapGlyphs.color]
-    a = 255
-    b = 175
-    g = 190
-    r = 130
 
 [[mapGlyphs]]
   glyph = "^"

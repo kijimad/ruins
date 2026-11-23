@@ -1770,9 +1770,6 @@ msgstr "廃屋"
 msgid "Farmhouse"
 msgstr "農家"
 
-msgid "Shrine"
-msgstr "祠"
-
 msgid "Campsite"
 msgstr "キャンプ跡"
 

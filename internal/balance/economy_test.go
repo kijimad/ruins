@@ -25,6 +25,64 @@ func TestExpectedLootValue_危険度で上がり正の値(t *testing.T) {
 	assert.Equal(t, 0.0, ExpectedLootValue(master, "no_such_table", 1), "不明テーブルは0")
 }
 
+func TestExpectedLootValue_該当行の重みの総和が0なら0(t *testing.T) {
+	t.Parallel()
+	raws := rawschema.Raws{
+		ItemTables: &[]rawschema.ItemTable{{
+			Id:      "zero_table",
+			Entries: []rawschema.ItemTableEntry{{Id: "junk", MinDanger: 1, MaxDanger: 10, Weight: 0}},
+		}},
+	}
+	assert.Equal(t, 0.0, ExpectedLootValue(raws, "zero_table", 5), "危険度に該当する行はあるが重みの総和が0なら0で割らず0を返す")
+}
+
+func TestExpectedGroupValue_グループでもコレクションでもないならアイテムの価値を返す(t *testing.T) {
+	t.Parallel()
+	raws := rawschema.Raws{
+		Items: &[]rawschema.Item{{Id: "gem", Name: "Gem", Value: 42}},
+	}
+	assert.Equal(t, 42.0, expectedGroupValue(raws, "gem"), "グループ・コレクションどちらでもない id はアイテムとして直接解決する")
+}
+
+func TestExpectedGroupValue_どれにも解決しないidは0(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, 0.0, expectedGroupValue(rawschema.Raws{}, "no_such_id"), "アイテムグループ・コレクション・アイテムのどれでもない id は0")
+}
+
+func TestExpectedGroupValue_グループの参照先アイテムが見つからなければ0(t *testing.T) {
+	t.Parallel()
+	raws := rawschema.Raws{
+		ItemGroups: &[]rawschema.ItemGroup{{
+			Id:      "junk",
+			Entries: []rawschema.ItemGroupEntry{{Id: "no_such_item", Weight: 1, Pack: "1d1"}},
+		}},
+	}
+	assert.Equal(t, 0.0, expectedGroupValue(raws, "junk"), "参照先のアイテムが1件も見つからなければ個数の総和が0のまま0を返す")
+}
+
+func TestExpectedGroupValue_グループの全行の重みが0なら個数の総和が0のまま0(t *testing.T) {
+	t.Parallel()
+	raws := rawschema.Raws{
+		Items: &[]rawschema.Item{{Id: "gem", Name: "Gem", Value: 42}},
+		ItemGroups: &[]rawschema.ItemGroup{{
+			Id:      "junk",
+			Entries: []rawschema.ItemGroupEntry{{Id: "gem", Weight: 0, Pack: "1d1"}},
+		}},
+	}
+	assert.Equal(t, 0.0, expectedGroupValue(raws, "junk"), "重みの総和が0だと行が1件も出ず個数の総和が0のまま0を返す")
+}
+
+func TestExpectedPack_解釈できないダイス表記は0(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, 0.0, expectedPack("not-a-dice"))
+}
+
+func TestExpectedPack_ダイスの期待値はMinとMaxの平均(t *testing.T) {
+	t.Parallel()
+	// 2d6 は 2..12 なので期待値は (2+12)/2 = 7
+	assert.Equal(t, 7.0, expectedPack("2d6"))
+}
+
 func TestExpectedNetLootValue_手取りは額面より小さく正(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
