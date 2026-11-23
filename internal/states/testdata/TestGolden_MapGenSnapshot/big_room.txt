@@ -1,0 +1,699 @@
+label: Initial
+tiles:
+  '?' = ""
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+|??????????????????????????????????????????????????|
+room: 0,0-49,49
+
+label: FillAll
+tiles:
+  '#' = "wall"
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+|##################################################|
+room: 0,0-49,49
+
+label: BigRoomDraw
+tiles:
+  '.' = "floor"
+  '#' = "wall"
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+room: 0,0-49,49
+
+label: ConvertIsolatedWalls
+tiles:
+  '.' = "floor"
+  '#' = "wall"
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+room: 0,0-49,49
+
+label: EnvironmentPlanner
+tiles:
+  '.' = "floor"
+  '#' = "wall"
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+environments shelter/water/foliage:
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+room: 0,0-49,49
+
+label: HostileNPCPlanner
+tiles:
+  '.' = "floor"
+  '#' = "wall"
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+environments shelter/water/foliage:
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+room: 0,0-49,49
+npc: 4,10 poison_frog
+npc: 41,48 poison_frog
+npc: 43,44 poison_frog
+npc: 37,27 poison_frog
+npc: 42,26 poison_frog
+npc: 41,25 poison_frog
+npc: 31,20 poison_frog
+npc: 27,24 poison_frog
+
+label: ItemPlanner
+tiles:
+  '.' = "floor"
+  '#' = "wall"
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+environments shelter/water/foliage:
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+room: 0,0-49,49
+npc: 4,10 poison_frog
+npc: 41,48 poison_frog
+npc: 43,44 poison_frog
+npc: 37,27 poison_frog
+npc: 42,26 poison_frog
+npc: 41,25 poison_frog
+npc: 31,20 poison_frog
+npc: 27,24 poison_frog
+item: 12,36 dummy_medkit x1
+item: 20,34 green_herb x1
+item: 42,3 green_herb x1
+item: 10,17 green_herb x1
+item: 46,35 dummy_medkit x1
+item: 9,49 shovel x1
+item: 6,33 green_herb x1
+item: 11,13 yellow_herb x1
+
+label: PortalPlanner
+tiles:
+  '.' = "floor"
+  '#' = "wall"
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+|..................................................|
+|...#...#...#...#...#...#...#...#...#...#...#...#..|
+|..................................................|
+|..................................................|
+environments shelter/water/foliage:
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioiiioii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+|iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii|
+room: 0,0-49,49
+portal: 43,16
+npc: 4,10 poison_frog
+npc: 41,48 poison_frog
+npc: 43,44 poison_frog
+npc: 37,27 poison_frog
+npc: 42,26 poison_frog
+npc: 41,25 poison_frog
+npc: 31,20 poison_frog
+npc: 27,24 poison_frog
+item: 12,36 dummy_medkit x1
+item: 20,34 green_herb x1
+item: 42,3 green_herb x1
+item: 10,17 green_herb x1
+item: 46,35 dummy_medkit x1
+item: 9,49 shovel x1
+item: 6,33 green_herb x1
+item: 11,13 yellow_herb x1
+

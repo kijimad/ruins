@@ -19,8 +19,8 @@ import (
 // roadPlanSeed は道の計画の途中経過を撮る seed
 const roadPlanSeed = 12345
 
-// TestGolden_RoadPlanSnapshot は地上の道の計画の全ての段階を文字の地図で検証する。マップ生成の TestGolden_MapGenSnapshot と同じく、
-// 目視用の参照画像は比較せず、更新の実行で地図が変わったときだけ描き直す
+// TestGolden_RoadPlanSnapshot は地上の道の計画の全ての段階を、1つの文字の地図で検証する。マップ生成の TestGolden_MapGenSnapshot と
+// 同じく、目視用の参照画像は比較せず、更新の実行で地図が変わったときだけ、全ての段階を横一列に並べた1枚に描き直す
 func TestGolden_RoadPlanSnapshot(t *testing.T) {
 	t.Parallel()
 
@@ -29,19 +29,22 @@ func TestGolden_RoadPlanSnapshot(t *testing.T) {
 	spawnRow := gc.SeamlessBand{Rows: rows}.SpawnChunkY()
 	snaps := overworld.RoadPlanSnapshots(raws, roadPlanSeed, spawnRow, cols, spawnRow)
 	require.NotEmpty(t, snaps)
-	for i, snap := range snaps {
-		t.Run(fmt.Sprintf("RoadPlan/Phase%d_%s", i, snap.Label), func(t *testing.T) {
-			t.Parallel()
-			text := []byte(roadPlanText(snap))
-			g := goldie.New(t, goldie.WithNameSuffix(".txt"))
-			img := goldie.New(t, goldie.WithNameSuffix(".png"))
-			if goldenUpdating() && imgNeedsUpdate(img.GoldenFileName(t, t.Name()), g.GoldenFileName(t, t.Name()), text) {
-				pngData := vrt.RenderPNG(t, vrt.States(&gs.RoadPlanVisualizerState{Seed: roadPlanSeed, SnapshotIndex: i}))
-				require.NoError(t, img.Update(t, t.Name(), pngData))
-			}
-			g.Assert(t, t.Name(), text)
-		})
+	var b strings.Builder
+	for _, snap := range snaps {
+		b.WriteString(roadPlanText(snap))
+		b.WriteString("\n")
 	}
+	text := []byte(b.String())
+	g := goldie.New(t, goldie.WithNameSuffix(".txt"))
+	img := goldie.New(t, goldie.WithNameSuffix(".png"))
+	if goldenUpdating() && imgNeedsUpdate(img.GoldenFileName(t, t.Name()), g.GoldenFileName(t, t.Name()), text) {
+		frames := make([][]byte, len(snaps))
+		for i := range frames {
+			frames[i] = vrt.RenderPNG(t, vrt.States(&gs.RoadPlanVisualizerState{Seed: roadPlanSeed, SnapshotIndex: i}))
+		}
+		require.NoError(t, img.Update(t, t.Name(), phaseStrip(t, frames, 1)))
+	}
+	g.Assert(t, t.Name(), text)
 }
 
 // roadLines は道の出入り口の方角の組を罫線の文字にする。北1・南2・東4・西8

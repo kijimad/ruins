@@ -55,11 +55,11 @@ func (st *RoadPlanVisualizerState) Update(_ w.World) (es.Transition[w.World], er
 	return st.ConsumeTransition(), nil
 }
 
-// Draw は表示する段階を俯瞰図と同じ描き方で描き、段階の名前を出す
+// Draw は表示する段階を俯瞰図と同じ描き方で左上に描き、段階の名前を出す。段階を横に並べるとき、地図の外の余白を切り詰められる
 func (st *RoadPlanVisualizerState) Draw(world w.World, screen *ebiten.Image) error {
 	snap := st.snapshots[st.SnapshotIndex]
 	hud.DrawMapGrid(uicore.NewEbitenCanvas(screen), snap.View, hud.MapGridStyle{
-		OriginX:   (screen.Bounds().Dx() - len(snap.View.Cells[0])*roadPlanCellPx) / 2,
+		OriginX:   4,
 		OriginY:   20,
 		CellPx:    roadPlanCellPx,
 		GlyphFace: world.Resources.UIResources.Text.SmallFace,
