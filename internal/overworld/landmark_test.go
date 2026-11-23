@@ -147,3 +147,84 @@ func TestSpawnFacility_下地を残すマスの下が土の地面でないとエ
 		})
 	}
 }
+
+func TestLandmarkOrigins_道から間を空けた位置だけを返す(t *testing.T) {
+	t.Parallel()
+
+	const chunkW, chunkH consts.Tile = 20, 20
+	roads := map[consts.Coord[consts.Tile]]bool{}
+	for x := range chunkW {
+		roads[consts.Coord[consts.Tile]{X: x, Y: 6}] = true
+	}
+
+	got := landmarkOrigins(5, 4, chunkW, chunkH, roads)
+
+	// 縁から2マス、道の6行目からも2マス空けるので、原点の行は南側の9から14、列は2から13になる
+	var want []consts.Coord[consts.Tile]
+	for y := consts.Tile(9); y <= 14; y++ {
+		for x := consts.Tile(2); x <= 13; x++ {
+			want = append(want, consts.Coord[consts.Tile]{X: x, Y: y})
+		}
+	}
+	assert.Equal(t, want, got)
+}
+
+func TestLandmarkOrigins_道で埋まれば置き場所が無い(t *testing.T) {
+	t.Parallel()
+
+	const chunkW, chunkH consts.Tile = 12, 12
+	roads := map[consts.Coord[consts.Tile]]bool{}
+	for x := range chunkW {
+		roads[consts.Coord[consts.Tile]{X: x, Y: 6}] = true
+	}
+
+	assert.Empty(t, landmarkOrigins(5, 4, chunkW, chunkH, roads))
+}
+
+func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	chunkW, chunkH, _, _ := dungeon.DungeonOverworld.BandShape()
+	type found struct {
+		seed  uint64
+		c     consts.Coord[consts.Chunk]
+		roads map[consts.Coord[consts.Tile]]bool
+	}
+	var cases []found
+	for s := uint64(1); s < 2000 && len(cases) < 20; s++ {
+		for y := range consts.Chunk(30) {
+			c := consts.Coord[consts.Chunk]{Y: y}
+			if chunkTypeAt(raws, s, c, 1, 0) != chunkLandmark {
+				continue
+			}
+			if r := chunkRoadTiles(raws, s, c, 1, 0, chunkW, chunkH); len(r) > 0 {
+				cases = append(cases, found{s, c, r})
+			}
+		}
+	}
+	require.Len(t, cases, 20, "前提: 道の通るランドマークのチャンクが見つかる")
+
+	placed := 0
+	var blocked []consts.Coord[consts.Tile]
+	for _, tc := range cases {
+		world := testutil.InitTestWorld(t)
+		for y := range chunkH {
+			for x := range chunkW {
+				_, err := lifecycle.SpawnTile(world, "dirt_tundra", x, y, new(15))
+				require.NoError(t, err)
+			}
+		}
+		g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: chunkW, chunkH: chunkH, tiles: &tileIndex{world: world, loX: 0, hiX: chunkW}}
+		require.NoError(t, wildernessLandmarkFeature{}.place(world, tc.seed, tc.c, 1, g))
+		q := ecs.NewFilter2[gc.GridElement, gc.Prop](world.ECS).Query()
+		for q.Next() {
+			placed++
+			if p := world.Components.GridElement.Get(q.Entity()).Coord; tc.roads[p] {
+				blocked = append(blocked, p)
+			}
+		}
+	}
+	require.Positive(t, placed, "前提: ランドマークが置かれる")
+	assert.Empty(t, blocked, "道のマスにランドマークの置物が無い")
+}

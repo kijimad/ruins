@@ -2,6 +2,7 @@ package overworld
 
 import (
 	"fmt"
+	"iter"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -49,24 +50,49 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, segs [
 		return nil
 	}
 
-	// 各辺を道の幅のバンドで敷く。進行軸に沿って可変軸を進め、垂直に幅ぶん広げる。
-	// 角付近は両辺のバンドが重なるが paveEarthTile は冪等なので二重舗装は無害。
-	width := consts.Tile(road.Width)
-	for _, seg := range segs {
-		for v := seg.lo; v <= seg.hi; v++ {
-			for w := range width {
-				off := w - width/2
-				px, py := v, seg.fixed+off
-				if seg.orient == orientVertical {
-					px, py = seg.fixed+off, v
-				}
-				if err := pave(px, py); err != nil {
-					return err
+	// 角付近は両辺のバンドが重なるが paveEarthTile は冪等なので二重舗装は無害
+	for p := range roadBand(segs, road.Width) {
+		if err := pave(p.X, p.Y); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// roadBand は道の辺 segs を幅 width のバンドに広げたマスを、絶対タイル座標で順に返す。進行軸に沿って可変軸を進め、
+// 垂直に幅ぶん広げる
+func roadBand(segs []roadSeg, width int) iter.Seq[consts.Coord[consts.Tile]] {
+	return func(yield func(consts.Coord[consts.Tile]) bool) {
+		wd := consts.Tile(width)
+		for _, seg := range segs {
+			for v := seg.lo; v <= seg.hi; v++ {
+				for w := range wd {
+					off := w - wd/2
+					p := consts.Coord[consts.Tile]{X: v, Y: seg.fixed + off}
+					if seg.orient == orientVertical {
+						p = consts.Coord[consts.Tile]{X: seg.fixed + off, Y: v}
+					}
+					if !yield(p) {
+						return
+					}
 				}
 			}
 		}
 	}
-	return nil
+}
+
+// chunkRoadTiles はチャンク c を通る道が舗装するマスを、チャンク内の座標で返す。生成せずに道の経路から求める
+func chunkRoadTiles(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, chunkW, chunkH consts.Tile) map[consts.Coord[consts.Tile]]bool {
+	lo := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW), Y: c.Y.Tiles(chunkH)}
+	out := map[consts.Coord[consts.Tile]]bool{}
+	for _, link := range crossingRoads(raws, runSeed, c, cols) {
+		for p := range roadBand(roadPath(raws, runSeed, link.a, link.b, cols, spawnRow, chunkW, chunkH), link.road.Width) {
+			if l := p.Sub(lo); l.X >= 0 && l.X < chunkW && l.Y >= 0 && l.Y < chunkH {
+				out[l] = true
+			}
+		}
+	}
+	return out
 }
 
 // paveEarthTile は座標のタイルが土の地面のときだけ道のタイル tile へ置き換える。土でないタイルは他の地物の
