@@ -66,7 +66,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 	canMove := CanMoveTo(world, next, current, entity)
 	if !canMove {
-		logBlockingProps(world, next)
+		logBlockers(world, next)
 	}
 	if canMove {
 		destination := gc.GridElement{Coord: next}
@@ -79,9 +79,9 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	return nil
 }
 
-// logBlockingProps は c にある通れない置物の名前を出す。壁と同じく黙って止まると、置物があると分からないため
-func logBlockingProps(world w.World, c consts.Coord[consts.Tile]) {
-	q := query.ActiveFilter3[gc.GridElement, gc.Prop, gc.BlockPass](world).Without(ecs.C[gc.Dead]()).Query()
+// logBlockers は c で通行を塞ぐタイルと置物の名前を出す。黙って止まると、何に塞がれたか分からないため
+func logBlockers(world w.World, c consts.Coord[consts.Tile]) {
+	q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Dead]()).Query()
 	for q.Next() {
 		e := q.Entity()
 		if world.Components.GridElement.Get(e).Coord != c {
