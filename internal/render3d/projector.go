@@ -152,14 +152,3 @@ func (p Projector) TileOnScreen(c consts.Coord[consts.Tile], topHeight float64) 
 func (p Projector) BillboardTop(c consts.Coord[consts.Tile]) (consts.Coord[consts.ScreenPixel], bool) {
 	return p.Point(Vec{float64(c.X) + 0.5, BillboardHeight, float64(c.Y) + 0.5})
 }
-
-// BillboardScale は立て板1枚分の高さが画面上で何ピクセルになるかを返す。
-// 立て板と同じ大きさで重ねたいスプライトの拡大率を決めるのに使う。投影できなければ ok=false。
-func (p Projector) BillboardScale(c consts.Coord[consts.Tile]) (float64, bool) {
-	top, okTop := p.BillboardTop(c)
-	base, okBase := p.TileCenter(c, 0)
-	if !okTop || !okBase {
-		return 0, false
-	}
-	return math.Abs(float64(base.Y - top.Y)), true
-}

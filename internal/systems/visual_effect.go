@@ -6,7 +6,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
@@ -17,9 +16,7 @@ import (
 )
 
 // VisualEffectSystem はビジュアルエフェクトを管理するシステム
-type VisualEffectSystem struct {
-	silhouetteShader *ebiten.Shader
-}
+type VisualEffectSystem struct{}
 
 // String はシステム名を返す
 func (sys VisualEffectSystem) String() string {
@@ -97,12 +94,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	drawQuery := query.ActiveFilter1[gc.VisualEffects](world).Query()
 	for drawQuery.Next() {
 		entity := drawQuery.Entity()
-		if err != nil {
-			continue
-		}
 		ve := world.Components.VisualEffects.Get(entity)
-
-	effectLoop:
 		for _, effect := range ve.Effects {
 			switch e := effect.(type) {
 			case *gc.SplashTextEffect:
@@ -112,19 +104,10 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 					gridElement := world.Components.GridElement.Get(entity)
 					sys.drawDamageText(screen, projector, smallFace, gridElement, e)
 				}
-			case *gc.SpriteFadeoutEffect:
-				if world.Components.GridElement.Has(entity) {
-					gridElement := world.Components.GridElement.Get(entity)
-					err = sys.drawSpriteFadeoutEffect(world, screen, projector, gridElement, e)
-					if err != nil {
-						break effectLoop
-					}
-				}
 			}
 		}
 	}
-
-	return err
+	return nil
 }
 
 // drawSplashText はスプラッシュテキストを画面座標で描画する。
@@ -223,64 +206,4 @@ func (sys *VisualEffectSystem) drawHorizontalLine(world w.World, screen *ebiten.
 	op.GeoM.Translate(x, y)
 	op.ColorScale.ScaleWithColor(clr)
 	screen.DrawImage(img, op)
-}
-
-// drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する
-func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, projector render3d.Projector, gridElement *gc.GridElement, effect *gc.SpriteFadeoutEffect) error {
-	if effect.Alpha <= 0 {
-		return nil
-	}
-	if world.Resources.SpriteSheets == nil {
-		return nil
-	}
-
-	// シェーダーを初期化（初回のみ）
-	if sys.silhouetteShader == nil {
-		shaderSource, err := assets.FS.ReadFile("file/shaders/white_silhouette.kage")
-		if err != nil {
-			return err
-		}
-		sys.silhouetteShader, err = ebiten.NewShader(shaderSource)
-		if err != nil {
-			return err
-		}
-	}
-
-	// スプライトの矩形とテクスチャを解決し、その部分を切り出す
-	tex, rect, ok := world.Resources.Sprites.Rect(&gc.SpriteRender{SpriteSheetName: effect.SpriteSheetName, SpriteKey: effect.SpriteKey})
-	if !ok {
-		return nil
-	}
-	img := gc.SubImage(tex.Image, rect)
-
-	// 立て板と同じ位置・大きさで重ねる。スプライトの高さが立て板1枚分になるよう拡大率を決め、
-	// 立て板の中心へ合わせる
-	scale, ok := projector.BillboardScale(gridElement.Coord)
-	if !ok {
-		return nil
-	}
-	center, ok := projector.TileCenter(gridElement.Coord, render3d.BillboardHeight/2)
-	if !ok {
-		return nil
-	}
-	// 高さ0のスプライトは拡大率が定まらず描けない。ゼロ除算を避けて描画をやめる
-	if rect.Dy() == 0 {
-		return nil
-	}
-	zoom := scale / float64(rect.Dy())
-
-	op := &ebiten.DrawRectShaderOptions{}
-	op.GeoM.Translate(float64(-rect.Dx())/2, float64(-rect.Dy())/2)
-	op.GeoM.Scale(zoom, zoom)
-	op.GeoM.Translate(float64(center.X), float64(center.Y))
-
-	// ソース画像を設定
-	op.Images[0] = img
-
-	// 透明度をシェーダーに渡す（ColorScaleのAlphaを使用）
-	op.ColorScale.ScaleAlpha(float32(effect.Alpha))
-
-	// シェーダーで白シルエットを描画
-	screen.DrawRectShader(rect.Dx(), rect.Dy(), sys.silhouetteShader, op)
-	return nil
 }
