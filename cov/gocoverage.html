@@ -113,7 +113,7 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -441,7 +441,7 @@
 				
 				<option value="file192">github.com/kijimaD/ruins/internal/overworld/chunkgen.go (76.5%)</option>
 				
-				<option value="file193">github.com/kijimaD/ruins/internal/overworld/crash_site.go (82.6%)</option>
+				<option value="file193">github.com/kijimaD/ruins/internal/overworld/crash_site.go (81.8%)</option>
 				
 				<option value="file194">github.com/kijimaD/ruins/internal/overworld/district.go (97.8%)</option>
 				
@@ -451,7 +451,7 @@
 				
 				<option value="file197">github.com/kijimaD/ruins/internal/overworld/facility_loot.go (83.3%)</option>
 				
-				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_template.go (90.2%)</option>
+				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_template.go (90.3%)</option>
 				
 				<option value="file199">github.com/kijimaD/ruins/internal/overworld/feature.go (88.9%)</option>
 				
@@ -477,7 +477,7 @@
 				
 				<option value="file210">github.com/kijimaD/ruins/internal/overworld/seam.go (100.0%)</option>
 				
-				<option value="file211">github.com/kijimaD/ruins/internal/overworld/settlement.go (86.4%)</option>
+				<option value="file211">github.com/kijimaD/ruins/internal/overworld/settlement.go (84.0%)</option>
 				
 				<option value="file212">github.com/kijimaD/ruins/internal/overworld/urban.go (91.0%)</option>
 				
@@ -6133,7 +6133,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -26345,9 +26345,8 @@ func (crashSiteFeature) place(world w.World, runSeed uint64, c consts.Coord[cons
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to plan crash site %q: %w", fac, err)
 </span>        }
-        <span class="cov8" title="1">ox := g.chunkW/2 - consts.Tile(len(cells[0]))/2
-        oy := g.chunkH/2 - consts.Tile(len(cells))/2
-        if _, _, err := spawnFacility(world, g, cells, ox, oy, fac, urbanDangerAt(world, c), seed); err != nil </span>{
+        <span class="cov8" title="1">o := centerOrigin(g, cells)
+        if _, _, err := spawnFacility(world, g, cells, o.X, o.Y, fac, urbanDangerAt(world, c), seed); err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to place crash site %q: %w", fac, err)
 </span>        }
         <span class="cov8" title="1">return nil</span>
@@ -27026,6 +27025,11 @@ func cachedPropRows(raws rawschema.Raws) func(id string) (rawschema.Prop, error)
         }
 }
 
+// centerOrigin は絵 cells をチャンクの真ん中に置く原点を、チャンク内の座標で返す
+func centerOrigin(g chunkGeom, cells [][]maptemplate.MapCell) consts.Coord[consts.Tile] {
+        <span class="cov8" title="1">return consts.Coord[consts.Tile]{X: g.chunkW/2 - consts.Tile(len(cells[0]))/2, Y: g.chunkH/2 - consts.Tile(len(cells))/2}
+</span>}
+
 // spawnFacility は施設の絵のマスを、チャンク内の区画の左上 (ox, oy) から実体として置く。
 // 扉は左右か上下の壁から向きを決める。
 // 壁判定の関数と占有したマスを返し、後段の街路の敵が建物の上に湧かないようにする
@@ -27350,7 +27354,7 @@ type feature interface {
 }
 
 // features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。施設の絵は下地を残す地形のマスに
-// 先に置かれたタイルを残すので、施設を置く市街地より前の地物は土の地面以外を置かない
+// 先に置かれたタイルを残すので、施設を置く地物より前の地物は土の地面以外を置かない
 func features() []feature {
         // 点在ランドマークは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に
         // 評価する。散布は占有と道の実状態を読むため最後に評価する
@@ -28121,6 +28125,14 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
+// relSpot は基準点からの相対座標に置くエンティティの定義。散布の起点を基準に、
+// prop をずらして配置するのに使う。
+type relSpot struct {
+        name string
+        dx   consts.Tile
+        dy   consts.Tile
+}
+
 // 屋外の散布は wasteland チャンクの開けた地表を自然の野原に仕立てる feature。草・低木・岩を撒く。
 // 草と土の模様は透明背景の地面の飾りとして地面に重ねる。タイルのオートタイルで草地を作ると、
 // 同種で埋めた面は中央が暗いフィルに、異種の境界は縁取りになり自然に繋がらないためである。飾りなら
@@ -28670,7 +28682,7 @@ type chunkType string
 
 const (
         chunkWasteland  chunkType = "wasteland"  // 荒れ地。特徴的な地物が無い開けた地形
-        chunkSettlement chunkType = "settlement" // 集落。村・一軒家
+        chunkSettlement chunkType = "settlement" // 集落。民家・農家
         chunkUrban      chunkType = "urban"      // 市街地。建物チャンク
         chunkLandmark   chunkType = "landmark"   // 自然の点在ランドマーク
         chunkCrashSite  chunkType = "crash_site" // 宇宙船が墜落した開始の現場
@@ -28910,23 +28922,16 @@ func autotileBase(key string) (string, bool) {
 
 import (
         "fmt"
+        "math/rand/v2"
 
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/maptemplate"
         "github.com/kijimaD/ruins/internal/raw"
         "github.com/kijimaD/ruins/internal/rawschema"
         w "github.com/kijimaD/ruins/internal/world"
-        "github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
-// relSpot は基準点からの相対座標に置くエンティティの定義。散布の起点を基準に、
-// prop をずらして配置するのに使う。
-type relSpot struct {
-        name string
-        dx   consts.Tile
-        dy   consts.Tile
-}
-
-// settlementFeature は小集落の feature 実装。当選チャンクに村または一軒家を置く。
+// settlementFeature は小集落の feature 実装。当選チャンクの中央に、集落の行が指す施設の絵を1つ置く。
 type settlementFeature struct{}
 
 func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
@@ -28934,8 +28939,23 @@ func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[con
         <span class="cov8" title="1">if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world)) != chunkSettlement </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
-        <span class="cov8" title="1">center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}
-        return spawnSettlement(world, center, settlementAt(world.Resources.RawMaster, runSeed, c))</span>
+        <span class="cov8" title="1">loader, err := maptemplate.FacilityTemplates()
+        if err != nil </span>{
+                <span class="cov0" title="0">return fmt.Errorf("failed to load facility templates: %w", err)
+</span>        }
+        <span class="cov8" title="1">fac := settlementAt(world.Resources.RawMaster, runSeed, c).Facility
+        seed := consts.Mix2D(runSeed^placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindSettlement).Salt, c.X, c.Y)
+</span>        // seed は settlementAt が種類を選ぶ値と同じだが、ストリーム 0 で絵の抽選に分ける。spawnFacility は戦利品と敵に 0x4 と 0x5 を使う
+        <span class="cov8" title="1">rng := rand.New(rand.NewPCG(seed, 0))
+        cells, err := planFacility(loader, fac, rng.Uint64(), rng)
+        if err != nil </span>{
+                <span class="cov0" title="0">return fmt.Errorf("failed to plan settlement %q: %w", fac, err)
+</span>        }
+        <span class="cov8" title="1">o := centerOrigin(g, cells)
+        if _, _, err := spawnFacility(world, g, cells, o.X, o.Y, fac, urbanDangerAt(world, c), seed); err != nil </span>{
+                <span class="cov0" title="0">return fmt.Errorf("failed to place settlement %q: %w", fac, err)
+</span>        }
+        <span class="cov8" title="1">return nil</span>
 }
 
 // settlementAt は集落の種類を raw の settlements の行から重みの比で選ぶ。純粋に (runSeed, 座標) の
@@ -28955,25 +28975,6 @@ func settlementAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chu
 </span>                }
         }
         <span class="cov0" title="0">return rows[len(rows)-1]</span>
-}
-
-// spawnSettlement は小集落を構成する。center を集落の中心として、行の住人と生活感の prop を
-// 近傍へ決定的に配置する。住人と prop の座標は重ねない。
-// 集落はステージでなくオーバーワールドの地物なので、専用の State を持たず prop として常在する。
-// 帯への束縛は呼び出し元のチャンク生成が一括で行う。
-func spawnSettlement(world w.World, center consts.Coord[consts.Tile], s rawschema.Settlement) error {
-        <span class="cov8" title="1">for _, n := range s.Members </span>{
-                <span class="cov8" title="1">pos := consts.Coord[consts.Tile]{X: center.X + consts.Tile(n.Dx), Y: center.Y + consts.Tile(n.Dy)}
-                if _, err := lifecycle.SpawnNeutralNPC(world, pos, n.Name); err != nil </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("failed to place settlement NPC (%s): %w", n.Name, err)
-</span>                }
-        }
-        <span class="cov8" title="1">for _, p := range s.Props </span>{
-                <span class="cov8" title="1">if _, err := lifecycle.SpawnProp(world, p.Name, center.X+consts.Tile(p.Dx), center.Y+consts.Tile(p.Dy)); err != nil </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("failed to place settlement prop (%s): %w", p.Name, err)
-</span>                }
-        }
-        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		
@@ -33737,15 +33738,12 @@ type SeasonTemp = int
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
 
-// Settlement 原野の小集落1種。当選したチャンクで weight の比で種類を選び、中心から相対の位置に住人の member と prop を置く。
-// id は地図の記号の id を兼ねる。行の順に重みを積む
+// Settlement 原野の小集落1種。当選したチャンクで weight の比で種類を選び、チャンクの中央に施設 facility の絵を置く。
+// 道は集落どうしを結ぶ。id は地図の記号の id を兼ねる。行の順に重みを積む
 type Settlement struct {
+        Facility EntityID `json:"facility"`
+
         Id EntityID `json:"id"`
-
-        // Members 住人の member。name は members の id
-        Members []PropSpot `json:"members"`
-
-        Props []PropSpot `json:"props"`
 
         Weight int32 `json:"weight"`
 }

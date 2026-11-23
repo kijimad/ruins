@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">74.1&nbsp;%</td>
-            <td class="headerCovTableEntry">27</td>
-            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryLo">73.1&nbsp;%</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">19</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 02:43:17</td>
+            <td class="headerValue">2026-11-23 02:47:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -108,13 +108,12 @@
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to plan crash site %q: %w&quot;, fac, err)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         ox := g.chunkW/2 - consts.Tile(len(cells[0]))/2</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         oy := g.chunkH/2 - consts.Tile(len(cells))/2</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         if _, _, err := spawnFacility(world, g, cells, ox, oy, fac, urbanDangerAt(world, c), seed); err != nil {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to place crash site %q: %w&quot;, fac, err)</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L55"><span class="lineNum">      55</span>              : }</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         o := centerOrigin(g, cells)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         if _, _, err := spawnFacility(world, g, cells, o.X, o.Y, fac, urbanDangerAt(world, c), seed); err != nil {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to place crash site %q: %w&quot;, fac, err)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : }</span>
         </pre>
               </td>
             </tr>
