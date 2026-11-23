@@ -113,7 +113,7 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -537,7 +537,7 @@
 				
 				<option value="file240">github.com/kijimaD/ruins/internal/states/character_info.go (93.6%)</option>
 				
-				<option value="file241">github.com/kijimaD/ruins/internal/states/character_job.go (62.2%)</option>
+				<option value="file241">github.com/kijimaD/ruins/internal/states/character_job.go (63.2%)</option>
 				
 				<option value="file242">github.com/kijimaD/ruins/internal/states/character_naming.go (70.7%)</option>
 				
@@ -643,7 +643,7 @@
 				
 				<option value="file293">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file294">github.com/kijimaD/ruins/internal/systems/render3d.go (69.2%)</option>
+				<option value="file294">github.com/kijimaD/ruins/internal/systems/render3d.go (71.6%)</option>
 				
 				<option value="file295">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.4%)</option>
 				
@@ -6133,7 +6133,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -33155,6 +33155,9 @@ type Potency = int
 type Profession struct {
         Abilities Abilities `json:"abilities"`
 
+        // Debug 開発用の職業か。立てると Debug の設定のときだけ選べる
+        Debug *bool `json:"debug,omitempty"`
+
         Description EntityDescription `json:"description"`
 
         Equips []ProfessionEquip `json:"equips"`
@@ -37255,10 +37258,13 @@ type jobMenuItem struct {
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *CharacterJobState) Fetch(world w.World) (JobMenuProps, error) {
         <span class="cov8" title="1">professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
-        items := make([]jobMenuItem, len(professions))
+        items := make([]jobMenuItem, 0, len(professions))
         for i := range professions </span>{
-                <span class="cov8" title="1">items[i] = jobMenuItem{Profession: professions[i]}
-</span>        }
+                <span class="cov8" title="1">if professions[i].Debug != nil &amp;&amp; *professions[i].Debug &amp;&amp; !world.Resources.Config.Debug </span>{
+                        <span class="cov8" title="1">continue</span>
+                }
+                <span class="cov8" title="1">items = append(items, jobMenuItem{Profession: professions[i]})</span>
+        }
         <span class="cov8" title="1">return JobMenuProps{Items: items}, nil</span>
 }
 
@@ -47530,16 +47536,20 @@ func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Ti
         <span class="cov8" title="1">return query.SnowAmount(f, query.SnowRankAt(world, c.X, c.Y)) * float64(100-env.SnowMeltPercent) / 100</span>
 }
 
-// add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。雪の段で、地面より後、跡や床の模様より先に描く
+// add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。雪の段で、地面より後、跡や床の模様より先に描く。
+// 雪の絵は白に近く、日中の底上げで 1.0 を超えると影の色まで白に潰れるので、色味を保ったまま最大の成分を 1.0 に抑える
 func (l *snowLayer) add(out *[]r3quad, world w.World, e ecs.Entity, c consts.Coord[consts.Tile], tint [3]float64) {
-        <span class="cov0" title="0">if !l.ok </span>{
+        <span class="cov8" title="1">if !l.ok </span>{
                 <span class="cov0" title="0">return
 </span>        }
-        <span class="cov0" title="0">a := l.amount(world, e, c)
+        <span class="cov8" title="1">a := l.amount(world, e, c)
         if a &lt;= 0 </span>{
                 <span class="cov0" title="0">return
 </span>        }
-        <span class="cov0" title="0">fx, fz := float64(c.X), float64(c.Y)
+        <span class="cov8" title="1">if m := max(tint[0], tint[1], tint[2]); m &gt; 1 </span>{
+                <span class="cov8" title="1">tint = scaleCol(tint, 1/m)
+</span>        }
+        <span class="cov8" title="1">fx, fz := float64(c.X), float64(c.Y)
         l.sys.addQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), l.atlas, l.ux, l.uy, l.uw, l.uh, tint)
         q := &amp;(*out)[len(*out)-1]
         q.alpha = a
