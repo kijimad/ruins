@@ -79,3 +79,31 @@ func TestNewChunkGen_隣接する小集落が道で結ばれる(t *testing.T) {
 	}
 	require.True(t, found, "集落間に幅 roadWidth の舗装区間がある")
 }
+
+func TestNewChunkGen_集落のチャンクの中は道を舗装しない(t *testing.T) {
+	t.Parallel()
+
+	const chunkW, chunkH consts.Tile = 24, 24
+	world := testutil.InitTestWorld(t)
+	const runSeed = 27
+	gen := overworld.NewChunkGen(world, runSeed, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
+	for i := range 16 {
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 0, consts.Tile(i)*chunkH))
+	}
+
+	// 1列の世界では道は集落の中心の列を縦に走り、集落のチャンクの北と南の端の行を通る。端の行は施設の絵の外にある
+	var edges []string
+	var want []string
+	for i := range 16 {
+		if !overworld.IsSettlementChunk(world.Resources.RawMaster, runSeed, consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 1) {
+			continue
+		}
+		for _, y := range []consts.Tile{consts.Tile(i) * chunkH, consts.Tile(i+1)*chunkH - 1} {
+			key := spriteKeyAtOrEmpty(world, chunkW/2, y)
+			edges = append(edges, strings.SplitN(key, "_", 2)[0])
+			want = append(want, consts.TileNameDirt)
+		}
+	}
+	require.GreaterOrEqual(t, len(edges), 4, "前提: 集落が2つ以上ある")
+	assert.Equal(t, want, edges)
+}

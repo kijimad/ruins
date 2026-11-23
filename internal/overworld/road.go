@@ -18,8 +18,8 @@ import (
 type roadFeature struct{}
 
 func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	// 区域の中は区域が街路を敷き、墜落現場の中は絵のとおりに残すので、道を描かない
-	if kind := chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world)); kind == chunkUrban || kind == chunkCrashSite {
+	// 区域の中は区域が街路を敷き、墜落現場と集落の中は施設の絵のとおりに残すので、道を描かない
+	if kind := chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world)); kind == chunkUrban || kind == chunkCrashSite || kind == chunkSettlement {
 		return nil
 	}
 	tiles := g.tiles.get()
