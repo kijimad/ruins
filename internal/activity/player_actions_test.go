@@ -222,6 +222,20 @@ func TestShowTileInteractionMessage_足元の置物の名前を出す(t *testing
 	}
 }
 
+func TestExecuteMoveAction_通れない置物に歩き込むと名前を出して止まる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "laundry", 11, 10)
+	require.NoError(t, err)
+
+	require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))
+
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 10, Y: 10}, world.Components.GridElement.Get(player).Coord)
+	assert.Equal(t, []string{"Laundry is here."}, query.GetGameLog(world).GetHistory())
+}
+
 func TestExecuteWaitAction(t *testing.T) {
 	t.Parallel()
 

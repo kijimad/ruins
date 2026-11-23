@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/i18n"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -64,6 +65,9 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	canMove := CanMoveTo(world, next, current, entity)
+	if !canMove {
+		logBlockingProps(world, next)
+	}
 	if canMove {
 		destination := gc.GridElement{Coord: next}
 		// 重量超過はプレイヤーの通常状態。Execute はユーザ起因の失敗を gamelog へ出したうえで
@@ -73,6 +77,20 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	return nil
+}
+
+// logBlockingProps は c にある通れない置物の名前を出す。壁と同じく黙って止まると、置物があると分からないため
+func logBlockingProps(world w.World, c consts.Coord[consts.Tile]) {
+	q := query.ActiveFilter3[gc.GridElement, gc.Prop, gc.BlockPass](world).Without(ecs.C[gc.Dead]()).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.GridElement.Get(e).Coord != c {
+			continue
+		}
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "%s is here.", query.GetEntityName(e, world))).
+			Log()
+	}
 }
 
 // ExecuteWaitAction は待機アクションを実行する
