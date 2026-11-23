@@ -6765,10 +6765,10 @@ msgid "%s ran out."
 msgstr "%sが切れた"
 
 msgid "Refill %s"
-msgstr "%sを満たす"
+msgstr "%sに充填"
 
 msgid "Drain %s"
-msgstr "%sから抜く"
+msgstr "%sから排出"
 
 msgid "It is already full."
 msgstr "もう満タンだ"
@@ -6780,13 +6780,13 @@ msgid "Nothing to refill"
 msgstr "補充できる物が無い"
 
 msgid "Fill"
-msgstr "満たす"
+msgstr "充填"
 
 msgid "Drain"
-msgstr "抜く"
+msgstr "排出"
 
 msgid "Drained %s into %s."
-msgstr "%sから%sへ抜き取った"
+msgstr "%sから%sへ排出した"
 
 msgid "Hand Lantern"
 msgstr "手提げランタン"
