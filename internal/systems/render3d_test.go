@@ -558,8 +558,8 @@ func TestCollectBillboards_同じマスのテーブルとアイテムはアイ�
 	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil, nil)
 	sortQuadsByDepth(quads, projector.Depth)
 
-	require.Len(t, quads, 2)
-	assert.Equal(t, []int{rawschema.SpriteDepthTaller.Rank(), rawschema.SpriteDepthItem.Rank()}, []int{quads[0].depth, quads[1].depth}, "後に描くアイテムが手前に出る")
+	require.Len(t, quads, 3)
+	assert.Equal(t, []int{rawschema.SpriteDepthShadow.Rank(), rawschema.SpriteDepthTaller.Rank(), rawschema.SpriteDepthItem.Rank()}, []int{quads[0].depth, quads[1].depth, quads[2].depth}, "足元の影はマスに1枚だけ先に描き、後に描くアイテムが手前に出る")
 }
 
 func TestCollectBillboards_同じマスのアイテムとプレイヤーはプレイヤーを手前に描く(t *testing.T) {
@@ -585,8 +585,8 @@ func TestCollectBillboards_同じマスのアイテムとプレイヤーはプ�
 	quads := sys.collectBillboards(world, nil, projector, visible, nil, nil, nil, nil)
 	sortQuadsByDepth(quads, projector.Depth)
 
-	require.Len(t, quads, 2)
-	assert.Equal(t, []int{rawschema.SpriteDepthItem.Rank(), rawschema.SpriteDepthPlayer.Rank()}, []int{quads[0].depth, quads[1].depth}, "後に描くプレイヤーが手前に出る")
+	require.Len(t, quads, 3)
+	assert.Equal(t, []int{rawschema.SpriteDepthShadow.Rank(), rawschema.SpriteDepthItem.Rank(), rawschema.SpriteDepthPlayer.Rank()}, []int{quads[0].depth, quads[1].depth, quads[2].depth}, "足元の影はマスに1枚だけ先に描き、後に描くプレイヤーが手前に出る")
 }
 
 func TestLinkedSpans(t *testing.T) {

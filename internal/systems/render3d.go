@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"math"
 	"sort"
 	"sync"
 
@@ -120,9 +121,11 @@ type flatColorKey struct {
 }
 
 var (
-	r3whiteImg  *ebiten.Image
-	r3whiteOnce sync.Once
-	r3flatColor sync.Map // flatColorKey -> [3]float64
+	r3whiteImg   *ebiten.Image
+	r3whiteOnce  sync.Once
+	r3shadowImg  *ebiten.Image
+	r3shadowOnce sync.Once
+	r3flatColor  sync.Map // flatColorKey -> [3]float64
 )
 
 // whitePixel はフラット塗り用の白1pxを返す。頂点色をそのまま出すために使う。
@@ -133,6 +136,42 @@ func whitePixel() *ebiten.Image {
 		r3whiteImg.Fill(color.White)
 	})
 	return r3whiteImg
+}
+
+// footShadow の絵の大きさと濃さ。中心の濃さ footShadowAlpha から、半径の footShadowEdge 割より外を縁へ向けてぼかす
+const (
+	footShadowSize  = 32
+	footShadowAlpha = 0.4
+	footShadowEdge  = 0.5
+)
+
+// footShadow は足元の影に貼る、縁をぼかした黒い円の絵を返す。アトラス配置に画素が左右されないよう unmanaged で作る
+func footShadow() *ebiten.Image {
+	r3shadowOnce.Do(func() {
+		pix := make([]byte, footShadowSize*footShadowSize*4)
+		const r = footShadowSize / 2.0
+		for y := range footShadowSize {
+			for x := range footShadowSize {
+				d := math.Hypot(float64(x)+0.5-r, float64(y)+0.5-r) / r
+				a := footShadowAlpha * min(max((1-d)/(1-footShadowEdge), 0), 1)
+				pix[(y*footShadowSize+x)*4+3] = byte(math.Round(a * 255))
+			}
+		}
+		r3shadowImg = ebiten.NewImageWithOptions(image.Rect(0, 0, footShadowSize, footShadowSize), &ebiten.NewImageOptions{Unmanaged: true})
+		r3shadowImg.WritePixels(pix)
+	})
+	return r3shadowImg
+}
+
+// footShadowRadius は足元の影の半径。マス幅を1とする。隣のマスの影と離れ、そのすき間でマスの間隔が読める
+const footShadowRadius = 0.35
+
+// addFootShadow はマス c の中心の地面に足元の影を寝かせて積む
+func (sys *Render3DSystem) addFootShadow(out *[]r3quad, c consts.Coord[consts.Tile]) {
+	cx, cz := float64(c.X)+0.5, float64(c.Y)+0.5
+	const rr = footShadowRadius
+	sys.addQuad(out, render3d.At(cx-rr, 0, cz-rr), render3d.At(cx+rr, 0, cz-rr), render3d.At(cx+rr, 0, cz+rr), render3d.At(cx-rr, 0, cz+rr), footShadow(), 0, 0, footShadowSize, footShadowSize, [3]float64{})
+	(*out)[len(*out)-1].depth = rawschema.SpriteDepthShadow.Rank()
 }
 
 // avgSpriteColor はアトラス上の矩形の平均色を 0..1 で返す。透明画素は除く。結果はキャッシュする。
@@ -428,6 +467,7 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 // linked は描けるマスの linked の隣へ中心から伸ばす格子の板にする
 func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, poses map[consts.Coord[consts.Tile]]gc.Pose, linked map[consts.Coord[consts.Tile]]bool) []r3quad {
 	right := projector.Right()
+	shaded := map[consts.Coord[consts.Tile]]bool{}
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
 		e := objQ.Entity()
@@ -503,6 +543,11 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		// 立て板の上下は SpriteRender.Depth で決める。同一タイルの立て板は4隅が一致して奥行きが
 		// 同値になるので、この副キーが無いと走査順で前後がばらつく
 		depth := sr.Depth.Rank()
+		// 同じマスに立て板が重なっても影は1枚にし、そのマスだけ濃くしない
+		if !shaded[g.Coord] {
+			shaded[g.Coord] = true
+			sys.addFootShadow(&quads, g.Coord)
+		}
 		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)
 		quads[len(quads)-1].depth = depth
 	}

@@ -28,7 +28,7 @@ func TestValidate_違反を位置で返す(t *testing.T) {
 
 func TestValidate_コードだけが組む描画の段を書くと位置で返す(t *testing.T) {
 	t.Parallel()
-	for _, depth := range []rawschema.SpriteDepth{rawschema.SpriteDepthSnow, rawschema.SpriteDepthRemains, rawschema.SpriteDepthItem, rawschema.SpriteDepthPlayer} {
+	for _, depth := range []rawschema.SpriteDepth{rawschema.SpriteDepthSnow, rawschema.SpriteDepthRemains, rawschema.SpriteDepthShadow, rawschema.SpriteDepthItem, rawschema.SpriteDepthPlayer} {
 		raws := makeRefRaws(func(r *rawschema.Raws) { (*r.Props)[0].SpriteRender.Depth = depth })
 		var ce *rawcheck.Error
 		require.ErrorAs(t, rawcheck.Validate(raws), &ce, depth)

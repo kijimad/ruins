@@ -1716,7 +1716,7 @@ import (
 #SpellTurns: int & >=1 & <=100000
 
 // スプライトの描画の段。描く順は depthOrder で決まる
-#SpriteDepth: "floor" | "snow" | "remains" | "decal" | "rug" | "taller" | "item" | "player" @rawgen(prefix)
+#SpriteDepth: "floor" | "snow" | "remains" | "decal" | "rug" | "shadow" | "taller" | "item" | "player" @rawgen(prefix)
 
 // スプライトキー
 #SpriteKey: string & strings.MinRunes(
@@ -1727,7 +1727,7 @@ import (
 #SpriteRender: {
 	spriteSheetName!: #SpriteSheetName
 	spriteKey!:       #SpriteKey
-	// snow・remains・item・player はコードだけが組む段なので、raw の行には書けない
+	// snow・remains・shadow・item・player はコードだけが組む段なので、raw の行には書けない
 	depth!: #SpriteDepth & ("floor" | "decal" | "rug" | "taller")
 	shape?: #SpriteShape
 }

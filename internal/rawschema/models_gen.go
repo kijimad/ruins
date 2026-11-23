@@ -2596,6 +2596,7 @@ const (
 	SpriteDepthPlayer  SpriteDepth = "player"
 	SpriteDepthRemains SpriteDepth = "remains"
 	SpriteDepthRug     SpriteDepth = "rug"
+	SpriteDepthShadow  SpriteDepth = "shadow"
 	SpriteDepthSnow    SpriteDepth = "snow"
 	SpriteDepthTaller  SpriteDepth = "taller"
 )
@@ -2615,6 +2616,8 @@ func (e SpriteDepth) Valid() bool {
 		return true
 	case SpriteDepthRug:
 		return true
+	case SpriteDepthShadow:
+		return true
 	case SpriteDepthSnow:
 		return true
 	case SpriteDepthTaller:
@@ -2626,7 +2629,7 @@ func (e SpriteDepth) Valid() bool {
 
 // SpriteDepthValues は SpriteDepth の値を、スキーマに書いた順に返す。
 func SpriteDepthValues() []SpriteDepth {
-	return []SpriteDepth{SpriteDepthFloor, SpriteDepthSnow, SpriteDepthRemains, SpriteDepthDecal, SpriteDepthRug, SpriteDepthTaller, SpriteDepthItem, SpriteDepthPlayer}
+	return []SpriteDepth{SpriteDepthFloor, SpriteDepthSnow, SpriteDepthRemains, SpriteDepthDecal, SpriteDepthRug, SpriteDepthShadow, SpriteDepthTaller, SpriteDepthItem, SpriteDepthPlayer}
 }
 
 // SpriteKey スプライトキー
@@ -2634,7 +2637,7 @@ type SpriteKey = string
 
 // SpriteRender スプライトレンダー設定
 type SpriteRender struct {
-	// Depth snow・remains・item・player はコードだけが組む段なので、raw の行には書けない
+	// Depth snow・remains・shadow・item・player はコードだけが組む段なので、raw の行には書けない
 	Depth SpriteDepth `json:"depth"`
 
 	Shape *SpriteShape `json:"shape,omitempty"`
