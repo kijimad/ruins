@@ -670,6 +670,11 @@ type connections struct {
 	north, east, south, west bool
 }
 
+// alongX は、つながりから壁にはめる置物が東西に並ぶかを返す。東西のどちらかとつながるか、どの向きともつながらなければ東西に並べる
+func (c connections) alongX() bool {
+	return c.west || c.east || (!c.north && !c.south)
+}
+
 // insetConnections は c の置物が、隣の壁 walls か閉じている壁にはめる置物 insets とつながるかを返す
 func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile]) connections {
 	at := func(dx, dy consts.Tile) bool {
@@ -682,7 +687,7 @@ func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts
 // insetFaces は閉じた壁にはめる置物の面を返す。つながる向きに並ぶ板にし、つながりが無ければ東西に並べ、
 // つながる端を省く。南北の板は東西の板をタイルの中心で回して作る
 func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
-	alongX := conn.west || conn.east || (!conn.north && !conn.south)
+	alongX := conn.alongX()
 	var faces []insetFace
 	if alongX {
 		faces = slab(0.5-insetThickness/2, 0.5+insetThickness/2, !conn.west, !conn.east)
@@ -706,7 +711,7 @@ const openInsetGap = 0.08
 // openInsetFaces は開いた扉の面を返す。閉じた板を90度回して開口部と直角に立て、つながる壁の脇へ寄せる。
 // 東西に並ぶ扉は東だけとつながるとき東、それ以外は西の脇へ寄せ、南北に並ぶ扉は南だけとつながるとき南、それ以外は北へ寄せる
 func openInsetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
-	alongX := conn.west || conn.east || (!conn.north && !conn.south)
+	alongX := conn.alongX()
 	first, second := conn.west, conn.east
 	if !alongX {
 		first, second = conn.north, conn.south
