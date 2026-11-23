@@ -39,12 +39,13 @@ func chunkCenter(c consts.Chunk, size consts.Tile) consts.Tile {
 }
 
 // roadSegments は当選集落 a から b への道を水平辺・垂直辺の2区間で返す。分解規則の唯一の出典で、
-// 水平辺は始点 a の行、垂直辺は終点 b の列、角は (b.X, a.Y)。各辺はチャンクの中心を通る。端点は min/max で
-// 正規化するので、a と b の東西の大小に依らず同じ2辺になる。
+// 水平辺は始点 a の行、垂直辺は終点 b の列、角は (b.X, a.Y)。各辺はチャンクの北と西の境目を通り、チャンクの中に置く
+// 施設の脇を通り過ぎる。西端の列の道は世界の端に掛かり、世界の中の半分だけを舗装する。
+// 端点は min/max で正規化するので、a と b の東西の大小に依らず同じ2辺になる。
 func roadSegments(a, b consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) []roadSeg {
 	return []roadSeg{
-		span(orientHorizontal, chunkCenter(a.Y, chunkH), chunkCenter(a.X, chunkW), chunkCenter(b.X, chunkW)),
-		span(orientVertical, chunkCenter(b.X, chunkW), chunkCenter(a.Y, chunkH), chunkCenter(b.Y, chunkH)),
+		span(orientHorizontal, a.Y.Tiles(chunkH), a.X.Tiles(chunkW), b.X.Tiles(chunkW)),
+		span(orientVertical, b.X.Tiles(chunkW), a.Y.Tiles(chunkH), b.Y.Tiles(chunkH)),
 	}
 }
 

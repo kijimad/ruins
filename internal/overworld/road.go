@@ -15,11 +15,12 @@ import (
 // 集落の位置は Placement.WinnerOf で生成せずに算出できるため、各チャンクは自分を
 // 横切る区間だけを独立に描ける。経路は西の集落から東の集落への L 字で、端点が
 // リージョン順に正規化されているので、どちらのチャンクから生成しても同じ道になる。
+// 道はチャンクの境目を通り、チャンクの中に置く施設や墜落現場の脇を過ぎる。
 type roadFeature struct{}
 
 func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	// 区域の中は区域が街路を敷き、墜落現場と集落の中は施設の絵のとおりに残すので、道を描かない
-	if kind := chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world)); kind == chunkUrban || kind == chunkCrashSite || kind == chunkSettlement {
+	// 区域の中は区域が街路を敷くので、道を描かない
+	if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world)) == chunkUrban {
 		return nil
 	}
 	tiles := g.tiles.get()
