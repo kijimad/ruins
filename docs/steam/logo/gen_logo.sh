@@ -1,6 +1,6 @@
 #!/bin/bash
 # Coldward のロゴを決定的に生成する。縦長の極太書体で COLDWARD を広い字間に組み、下へ細い罫で挟んだ小さな副題を置く。
-# 塗りは単色で、縁取り・グラデ・色収差は使わない。背景から浮かせるのは、広く薄い暗い暈しだけに任せる。
+# 塗りは単色で、縁取り・グラデ・色収差は使わない。背景から浮かせるのは、文字の後ろに広く薄く敷く、ぼかした暗い影だけに任せる。
 # 依存: ImageMagick と fonts の Bebas Neue と Jost。いずれも SIL OFL、各 OFL.txt 参照。
 # 使い方: bash docs/steam/logo/gen_logo.sh  出力: logo.png 透過・高解像
 
@@ -24,7 +24,7 @@ SUB_KERN=$((SUB_PT / 2))
 SUB_COLOR='#d3dde4' # 副題と罫の色。題字より一段落とす
 RULE_THICK=2        # 罫の太さ
 SUB_GAP=$((PT / 5)) # 題字と副題の間隔
-HALO='55x22+0+4'    # 暗い暈しの濃さと広がり。硬い影でなく広く薄く敷く
+HALO='55x22+0+4'    # ぼかした影の濃さと広がり。くっきりした影でなく広く薄く敷く
 HALO_COLOR='#03070d'
 # 透明な下地。xc:none は Gray として作られ、重ねた色が落ちるので、青をわずかに持つ透明で RGB にする
 CLEAR='rgba(0,0,1,0)'
@@ -51,7 +51,7 @@ magick -size "${Tw}x${Sh}" xc:"$CLEAR" \
 
 magick "$TMP/title.png" "$TMP/subline.png" -background "$CLEAR" -gravity center -smush "$SUB_GAP" "PNG32:$TMP/base.png"
 
-# 暈しが縁で切れないよう余白を足してから敷く
+# ぼかした影が画像の端で切れないよう余白を足してから敷く
 magick "$TMP/base.png" -bordercolor "$CLEAR" -border 60 \
 	\( +clone -background "$HALO_COLOR" -shadow "$HALO" \) \
 	+swap -background none -layers merge +repage "$OUT/logo.png"
