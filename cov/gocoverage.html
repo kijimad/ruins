@@ -73,13 +73,13 @@
 				
 				<option value="file8">github.com/kijimaD/ruins/internal/activity/injury.go (93.5%)</option>
 				
-				<option value="file9">github.com/kijimaD/ruins/internal/activity/move.go (87.3%)</option>
+				<option value="file9">github.com/kijimaD/ruins/internal/activity/move.go (88.7%)</option>
 				
 				<option value="file10">github.com/kijimaD/ruins/internal/activity/pathfind.go (93.3%)</option>
 				
 				<option value="file11">github.com/kijimaD/ruins/internal/activity/pickup.go (89.3%)</option>
 				
-				<option value="file12">github.com/kijimaD/ruins/internal/activity/player_actions.go (93.4%)</option>
+				<option value="file12">github.com/kijimaD/ruins/internal/activity/player_actions.go (95.0%)</option>
 				
 				<option value="file13">github.com/kijimaD/ruins/internal/activity/read.go (90.7%)</option>
 				
@@ -2888,7 +2888,7 @@ func CanMoveTo(world w.World, to, from consts.Coord[consts.Tile], _ ecs.Entity) 
 </span>        }
 
         <span class="cov8" title="1">if to.X &lt; 0 || to.Y &lt; 0 || to.X &gt;= si.MapWidth || to.Y &gt;= si.MapHeight </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
 
         // 斜め移動の場合、隣接する直交2方向が両方ブロックされていれば通行不可
@@ -3331,6 +3331,7 @@ import (
         "github.com/kijimaD/ruins/internal/i18n"
 
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/gamelog"
         w "github.com/kijimaD/ruins/internal/world"
 
@@ -3388,16 +3389,38 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
                 }
         }
 
-        <span class="cov8" title="1">canMove := CanMoveTo(world, next, current, entity)
-        if canMove </span>{
-                <span class="cov8" title="1">destination := gc.GridElement{Coord: next}
-</span>                // 重量超過はプレイヤーの通常状態。Execute はユーザ起因の失敗を gamelog へ出したうえで
-                // err=nil を返すため、壁への歩き込みと同じく no-op になる
-                <span class="cov8" title="1">_, err := Execute(NewMoveActivity(destination), entity, world)
-                return err
+        <span class="cov8" title="1">if !CanMoveTo(world, next, current, entity) </span>{
+                <span class="cov8" title="1">logBlockers(world, next)
+                return nil
 </span>        }
+        <span class="cov8" title="1">destination := gc.GridElement{Coord: next}
+</span>        // 重量超過はプレイヤーの通常状態。Execute はユーザ起因の失敗を gamelog へ出したうえで
+        // err=nil を返すため、壁への歩き込みと同じく no-op になる
+        <span class="cov8" title="1">_, err = Execute(NewMoveActivity(destination), entity, world)
+        return err</span>
+}
 
-        <span class="cov0" title="0">return nil</span>
+// logBlockers は c で通行を塞ぐタイルと置物の名前を出す。黙って止まると、何に塞がれたか分からないため。
+// 移動キーは押し続けるとリピートし、止まってもターンが進まないので、前の歩き込みで出した文が最新の行なら重ねない
+func logBlockers(world w.World, c consts.Coord[consts.Tile]) {
+        <span class="cov8" title="1">var msgs []string
+        q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Dead]()).Query()
+        for q.Next() </span>{
+                <span class="cov8" title="1">e := q.Entity()
+                if world.Components.GridElement.Get(e).Coord == c </span>{
+                        <span class="cov8" title="1">msgs = append(msgs, query.T(world, "%s is here.", query.GetEntityName(e, world)))
+</span>                }
+        }
+        <span class="cov8" title="1">if len(msgs) == 0 </span>{
+                <span class="cov8" title="1">return
+</span>        }
+        <span class="cov8" title="1">last := query.GetGameLog(world).GetRecentEntries(1)
+        if len(last) == 1 &amp;&amp; last[0].Text() == (gamelog.LogEntry{Fragments: gamelog.ParseMarkup(msgs[len(msgs)-1])}).Text() </span>{
+                <span class="cov8" title="1">return
+</span>        }
+        <span class="cov8" title="1">for _, msg := range msgs </span>{
+                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).Markup(msg).Log()
+</span>        }
 }
 
 // ExecuteWaitAction は待機アクションを実行する
