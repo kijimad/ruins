@@ -1,0 +1,279 @@
+label: Initial
+tiles:
+  ',' = "dirt"
+  '.' = "floor"
+  'a' = "road"
+  '#' = "wall"
+|####################|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,a,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,.,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|####################|
+
+label: TemplatePlanner
+tiles:
+  ',' = "dirt"
+  '.' = "floor"
+  'a' = "road"
+  '#' = "wall"
+|####################|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,a,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,.,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|####################|
+spawn: 10,10
+npc: 10,9 merchant
+npc: 11,9 old_soldier
+prop: 9,10 debug_crate
+prop: 10,13 hearth
+
+label: EnvironmentPlanner
+tiles:
+  ',' = "dirt"
+  '.' = "floor"
+  'a' = "road"
+  '#' = "wall"
+|####################|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,a,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,.,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|####################|
+environments shelter/water/foliage:
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|ooooooooooiooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+spawn: 10,10
+npc: 10,9 merchant
+npc: 11,9 old_soldier
+prop: 9,10 debug_crate
+prop: 10,13 hearth
+
+label: HostileNPCPlanner
+tiles:
+  ',' = "dirt"
+  '.' = "floor"
+  'a' = "road"
+  '#' = "wall"
+|####################|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,a,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,.,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|####################|
+environments shelter/water/foliage:
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|ooooooooooiooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+spawn: 10,10
+npc: 10,9 merchant
+npc: 11,9 old_soldier
+prop: 9,10 debug_crate
+prop: 10,13 hearth
+
+label: ItemPlanner
+tiles:
+  ',' = "dirt"
+  '.' = "floor"
+  'a' = "road"
+  '#' = "wall"
+|####################|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,a,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,.,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|####################|
+environments shelter/water/foliage:
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|ooooooooooiooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+spawn: 10,10
+npc: 10,9 merchant
+npc: 11,9 old_soldier
+prop: 9,10 debug_crate
+prop: 10,13 hearth
+
+label: PortalPlanner
+tiles:
+  ',' = "dirt"
+  '.' = "floor"
+  'a' = "road"
+  '#' = "wall"
+|####################|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,a,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,.,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|#,,,,,,,,,,,,,,,,,,#|
+|####################|
+environments shelter/water/foliage:
+  'i' = "indoor//"
+  'o' = "outdoor//"
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|ooooooooooiooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+|oooooooooooooooooooo|
+spawn: 10,10
+npc: 10,9 merchant
+npc: 11,9 old_soldier
+prop: 9,10 debug_crate
+prop: 10,13 hearth
+

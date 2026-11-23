@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"fmt"
 	"slices"
 	"testing"
 
@@ -403,4 +404,42 @@ func TestPlanAt_行き先の前に集落と点在ランドマークを置かな�
 		}
 	}
 	require.Positive(t, reserved, "前提: 予約したチャンクがある")
+}
+
+func TestPlanSpan_記録しても計画は変わらず集落の段階の写しの道と予約が仕上がりと一致する(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	road, ok := roadRow(raws)
+	require.True(t, ok)
+	for seed := range uint64(5) {
+		plain := planSpan(raws, seed, road, 0, planTestCols, planTestSpawn, nil)
+		rec := &mapRecorder{}
+		recorded := planSpan(raws, seed, road, 0, planTestCols, planTestSpawn, rec)
+		labels := make([]string, 0, len(rec.snapshots))
+		for _, s := range rec.snapshots {
+			labels = append(labels, s.label)
+		}
+		require.GreaterOrEqual(t, len(labels), 4, "前提: 墜落現場、区域、行き先、集落の段階がある")
+		assert.Equal(t, []string{"crash site", "districts", "destinations"}, labels[:3])
+		roads := rec.snapshots[3 : len(rec.snapshots)-1]
+		require.NotEmpty(t, roads, "前提: 経路を1本以上足す")
+		ports := 0
+		for i, s := range roads {
+			assert.Equal(t, fmt.Sprintf("road %d", i+1), s.label)
+			n := 0
+			for _, ps := range s.roads {
+				n += len(ps)
+			}
+			assert.Greater(t, n, ports, "seed=%d %s で道の出入り口が増える", seed, s.label)
+			ports = n
+		}
+		last := rec.snapshots[len(rec.snapshots)-1]
+		assert.Equal(t, "settlements", last.label)
+		assert.Equal(t, plain.roads, last.roads, "seed=%d", seed)
+		assert.Equal(t, plain.reserved, last.reserved, "seed=%d", seed)
+		assert.Equal(t, plain.roads, recorded.roads, "seed=%d 記録しても計画は変わらない", seed)
+		assert.Equal(t, plain.settlements, recorded.settlements, "seed=%d 記録しても計画は変わらない", seed)
+		assert.Equal(t, plain.reserved, recorded.reserved, "seed=%d 記録しても計画は変わらない", seed)
+	}
 }

@@ -107,8 +107,8 @@ func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 	return nil
 }
 
-// TestGolden_MapGenSnapshot は全PlannerTypeの全フェーズのスナップショットを文字の地図で検証する。
-// 目視用の参照画像は比較せず、更新の実行で地図が変わったときだけ描き直す。
+// TestGolden_MapGenSnapshot は全PlannerTypeの全フェーズのスナップショットを、PlannerTypeごとに1つの文字の地図で検証する。
+// 目視用の参照画像は比較せず、更新の実行で地図が変わったときだけ、全フェーズを横一列に並べた1枚に描き直す。
 // 変わったかは golden を書き換える前に比べる
 func TestGolden_MapGenSnapshot(t *testing.T) {
 	t.Parallel()
@@ -119,24 +119,25 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 			continue
 		}
 		width := int(result.chain.PlanData.Level.TileWidth)
-		for i, snap := range result.chain.Snapshots {
-			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
-				t.Parallel()
-				text := []byte(snapshotText(snap, width))
-				g := goldie.New(t, goldie.WithNameSuffix(".txt"))
-				img := goldie.New(t, goldie.WithNameSuffix(".png"))
-
-				if goldenUpdating() && imgNeedsUpdate(img.GoldenFileName(t, t.Name()), g.GoldenFileName(t, t.Name()), text) {
-					pngData := vrt.RenderPNG(t, vrt.States(&gs.MapGenVisualizerState{
-						PlannerType:   pt,
-						Seed:          result.seed,
-						SnapshotIndex: i,
-					}))
-					require.NoError(t, img.Update(t, t.Name(), pngData))
+		t.Run(pt.Name, func(t *testing.T) {
+			t.Parallel()
+			var b strings.Builder
+			for _, snap := range result.chain.Snapshots {
+				b.WriteString(snapshotText(snap, width))
+				b.WriteString("\n")
+			}
+			text := []byte(b.String())
+			g := goldie.New(t, goldie.WithNameSuffix(".txt"))
+			img := goldie.New(t, goldie.WithNameSuffix(".png"))
+			if goldenUpdating() && imgNeedsUpdate(img.GoldenFileName(t, t.Name()), g.GoldenFileName(t, t.Name()), text) {
+				frames := make([][]byte, len(result.chain.Snapshots))
+				for i := range frames {
+					frames[i] = vrt.RenderPNG(t, vrt.States(&gs.MapGenVisualizerState{PlannerType: pt, Seed: result.seed, SnapshotIndex: i}))
 				}
-				g.Assert(t, t.Name(), text)
-			})
-		}
+				require.NoError(t, img.Update(t, t.Name(), phaseStrip(t, frames, 2)))
+			}
+			g.Assert(t, t.Name(), text)
+		})
 	}
 }
 
