@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">89.4&nbsp;%</td>
+            <td class="headerCovTableEntryHi">90.5&nbsp;%</td>
             <td class="headerCovTableEntry">189</td>
-            <td class="headerCovTableEntry">169</td>
+            <td class="headerCovTableEntry">171</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 15:00:17</td>
+            <td class="headerValue">2026-11-23 15:09:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -333,8 +333,8 @@
 <span id="L271"><span class="lineNum">     271</span>              :         // scatterTiles は選定時点の occupied で候補を絞るが、その後この関数が衛星を置いて occupied を更新する。</span>
 <span id="L272"><span class="lineNum">     272</span>              :         // 同じ scatterTiles が返した後続の anchor が、先の entry の衛星に占有されうるので入口で再確認する。</span>
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         if occupied[gc.GridElement{Coord: origin}] {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         if _, err := lifecycle.SpawnProp(world, entry.Ref, origin.X, origin.Y); err != nil {</span></span>
 <span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to place scatter prop (%s): %w&quot;, entry.Ref, err)</span></span>
 <span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         }</span></span>
