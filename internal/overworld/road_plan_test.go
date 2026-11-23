@@ -1,7 +1,6 @@
 package overworld
 
 import (
-	"math/rand/v2"
 	"slices"
 	"testing"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/maptemplate"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -132,22 +132,67 @@ func TestPlanAt_計画区間の境目で道が途切れない(t *testing.T) {
 	require.Positive(t, crossings, "前提: 計画区間の境目を越える道がある")
 }
 
-func TestFacingCells_扉が道の側を向く向きで置く(t *testing.T) {
+func TestFacingCells_全ての集落の絵は玄関を4方向へ向けられ玄関の縁に柵が無い(t *testing.T) {
 	t.Parallel()
 
-	// 北の縁の真ん中に扉がある 5x3 の絵
-	cells := make([][]maptemplate.MapCell, 3)
-	for y := range cells {
-		cells[y] = make([]maptemplate.MapCell, 5)
-	}
-	cells[0][2].Prop = "door"
-	require.Equal(t, RoadN, doorSide(cells), "前提: 扉は北を向く")
-
-	for _, facing := range roadDirs {
-		for seed := range uint64(8) {
-			got := facingCells(cells, facing, rand.New(rand.NewPCG(seed, 0)))
-			assert.Equal(t, facing, doorSide(got), "facing=%d seed=%d", facing, seed)
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	for _, st := range raw.PtrSlice(raws.Settlements) {
+		for _, name := range loader.FacilityChunkNames(st.Facility) {
+			_, _, cells, err := loader.LoadTemplateByName(name, 1)
+			require.NoError(t, err, name)
+			var sides []RoadDir
+			for turns := range 4 {
+				for _, mirror := range []bool{false, true} {
+					tc := maptemplate.TransformCells(cells, turns, mirror)
+					side := entranceSide(tc)
+					require.NotZero(t, side, "%s turns=%d mirror=%v の玄関の側が決まる", name, turns, mirror)
+					if !slices.Contains(sides, side) {
+						sides = append(sides, side)
+					}
+					// 玄関の位置の縁のマスは柵でない。道はここから施設へ入る
+					at := entranceOf(tc, side)
+					assert.False(t, isFence(edgeLine(tc, side, 0)[at]), "%s turns=%d mirror=%v side=%d", name, turns, mirror, side)
+				}
+			}
+			assert.ElementsMatch(t, []RoadDir{RoadN, RoadE, RoadS, RoadW}, sides, name)
 		}
+	}
+}
+
+func TestEntranceSide(t *testing.T) {
+	t.Parallel()
+
+	grid := func(rows ...string) [][]maptemplate.MapCell {
+		cells := make([][]maptemplate.MapCell, len(rows))
+		for y, r := range rows {
+			cells[y] = make([]maptemplate.MapCell, len(r))
+			for x, ch := range r {
+				switch ch {
+				case 'f':
+					cells[y][x].Prop = "fence"
+				case '+':
+					cells[y][x].Prop = "door"
+				}
+			}
+		}
+		return cells
+	}
+	tests := []struct {
+		name  string
+		cells [][]maptemplate.MapCell
+		want  RoadDir
+	}{
+		{"柵のある絵は扉の近さでなく柵の切れ目の側", grid("ffffffff", "f+.....f", "f......f", "f.....+f", "fff,,fff"), RoadS},
+		{"柵の無い絵は縁に最も近い扉の側", grid(",,,,,,", ",,,,,+", ",,,,,,"), RoadE},
+		{"柵に切れ目が無ければ決まらない", grid("ffff", "f++f", "ffff"), 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, entranceSide(tt.cells))
+		})
 	}
 }
 

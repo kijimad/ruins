@@ -323,6 +323,7 @@ func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *roadPlan, g spa
 		type site struct {
 			c, road consts.Coord[consts.Chunk]
 		}
+		// 1つのチャンクは、接する道が何本でも候補に1回だけ入れる。道は roadDirs の順で最初に接するものにする
 		var sites []site
 		for y := max(ry*p.Spacing, g.top); y <= min((ry+1)*p.Spacing-1, g.bottom); y++ {
 			for x := range g.cols {
@@ -332,8 +333,9 @@ func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *roadPlan, g spa
 				}
 				for _, d := range roadDirs {
 					n := c.Add(stepOf(d))
-					if _, ok := plan.roads[n]; ok {
+					if _, road := plan.roads[n]; road {
 						sites = append(sites, site{c: c, road: n})
+						break
 					}
 				}
 			}

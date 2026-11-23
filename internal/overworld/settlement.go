@@ -3,6 +3,7 @@ package overworld
 import (
 	"fmt"
 	"math/rand/v2"
+	"slices"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
@@ -96,64 +97,94 @@ func (l settlementLayout) drivewaySegs(c consts.Coord[consts.Chunk], chunkW, chu
 // entranceOf は絵 cells の side の側の縁に沿った玄関の位置を、絵の中の座標で返す。玄関はその縁の柵の切れ目の真ん中にする。
 // 縁に柵が無ければ、その側に最も近い扉の並びの真ん中にする。偶数の幅の道が切れ目の真ん中に来るよう、真ん中は大きい側へ寄せる
 func entranceOf(cells [][]maptemplate.MapCell, side RoadDir) consts.Tile {
-	h, w := len(cells), len(cells[0])
-	// at は side の側の縁から depth だけ内側の線の、縁に沿った i 番目のマスを返す
-	at := func(depth, i int) maptemplate.MapCell {
-		switch side {
-		case RoadS:
-			return cells[h-1-depth][i]
-		case RoadW:
-			return cells[i][depth]
-		case RoadE:
-			return cells[i][w-1-depth]
-		default:
-			return cells[depth][i]
-		}
-	}
-	length, depthMax := w, h
-	if side == RoadW || side == RoadE {
-		length, depthMax = h, w
-	}
-	// runs は depth の線で match するマスの連続した範囲を並べる
-	runs := func(match func(maptemplate.MapCell) bool, depth int) [][2]int {
-		var out [][2]int
-		for i := range length {
-			if !match(at(depth, i)) {
-				continue
-			}
-			if n := len(out); n > 0 && out[n-1][1] == i-1 {
-				out[n-1][1] = i
-			} else {
-				out = append(out, [2]int{i, i})
-			}
-		}
-		return out
-	}
 	middle := func(r [2]int) consts.Tile { return consts.Tile((r[0] + r[1] + 1) / 2) }
-	isFence := func(c maptemplate.MapCell) bool { return c.Prop == "fence" }
-	fenced := false
-	for i := range length {
-		fenced = fenced || isFence(at(0, i))
+	if r, ok := fenceGap(cells, side); ok {
+		return middle(r)
 	}
-	if fenced {
-		// 柵の切れ目は両側を柵に挟まれた範囲にする。縁の角の柵の無いマスを切れ目と取り違えない
-		gaps := runs(func(c maptemplate.MapCell) bool { return !isFence(c) }, 0)
-		for _, r := range gaps {
-			if r[0] > 0 && r[1] < length-1 {
-				return middle(r)
-			}
-		}
-		if len(gaps) > 0 {
+	edge := edgeLine(cells, side, 0)
+	if slices.ContainsFunc(edge, isFence) {
+		if gaps := runsOf(edge, func(c maptemplate.MapCell) bool { return !isFence(c) }); len(gaps) > 0 {
 			return middle(gaps[0])
 		}
 	}
+	depthMax := len(cells)
+	if side == RoadW || side == RoadE {
+		depthMax = len(cells[0])
+	}
 	for depth := range depthMax {
-		if doors := runs(func(c maptemplate.MapCell) bool { return c.Prop == "door" }, depth); len(doors) > 0 {
+		if doors := runsOf(edgeLine(cells, side, depth), func(c maptemplate.MapCell) bool { return c.Prop == "door" }); len(doors) > 0 {
 			return middle(doors[0])
 		}
 	}
-	return consts.Tile(length / 2)
+	return consts.Tile(len(edge) / 2)
 }
+
+// entranceSide は絵の玄関がある側を返す。縁に柵がある絵では、両側を柵に挟まれた切れ目がある縁の側にする。柵の無い絵では、
+// 縁に最も近い扉の側にする。玄関の側が決まらなければ0
+func entranceSide(cells [][]maptemplate.MapCell) RoadDir {
+	fenced := false
+	for _, d := range roadDirs {
+		if _, ok := fenceGap(cells, d); ok {
+			return d
+		}
+		fenced = fenced || slices.ContainsFunc(edgeLine(cells, d, 0), isFence)
+	}
+	if fenced {
+		return 0
+	}
+	return doorSide(cells)
+}
+
+// fenceGap は絵の side の側の縁で、両側を柵に挟まれた切れ目の範囲を返す。縁の角の柵の無いマスは切れ目にしない
+func fenceGap(cells [][]maptemplate.MapCell, side RoadDir) ([2]int, bool) {
+	edge := edgeLine(cells, side, 0)
+	for _, r := range runsOf(edge, func(c maptemplate.MapCell) bool { return !isFence(c) }) {
+		if r[0] > 0 && r[1] < len(edge)-1 {
+			return r, true
+		}
+	}
+	return [2]int{}, false
+}
+
+// edgeLine は絵の side の側の縁から depth だけ内側の線のマスを、縁に沿って並べて返す
+func edgeLine(cells [][]maptemplate.MapCell, side RoadDir, depth int) []maptemplate.MapCell {
+	h, w := len(cells), len(cells[0])
+	switch side {
+	case RoadS:
+		return cells[h-1-depth]
+	case RoadW, RoadE:
+		x := depth
+		if side == RoadE {
+			x = w - 1 - depth
+		}
+		line := make([]maptemplate.MapCell, h)
+		for y := range h {
+			line[y] = cells[y][x]
+		}
+		return line
+	default:
+		return cells[depth]
+	}
+}
+
+// runsOf は line の中で match するマスの連続した範囲を、両端を含む添字の組で並べる
+func runsOf(line []maptemplate.MapCell, match func(maptemplate.MapCell) bool) [][2]int {
+	var out [][2]int
+	for i, c := range line {
+		if !match(c) {
+			continue
+		}
+		if n := len(out); n > 0 && out[n-1][1] == i-1 {
+			out[n-1][1] = i
+		} else {
+			out = append(out, [2]int{i, i})
+		}
+	}
+	return out
+}
+
+// isFence はマスに柵が立つかを返す
+func isFence(c maptemplate.MapCell) bool { return c.Prop == "fence" }
 
 // settlementAt は集落の種類を raw の settlements の行から重みの比で選ぶ。純粋に (runSeed, 座標) の
 // 関数で、地図の分類と生成の両方がこれを使うので種類の見た目と実体が一致する。
@@ -174,7 +205,7 @@ func settlementAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chu
 	return rows[len(rows)-1]
 }
 
-// facingCells は施設の絵 cells を、扉が facing の側を向く回転と反転から rng で1つ選んで返す。扉がその側を向く向きが無ければ、
+// facingCells は施設の絵 cells を、玄関が facing の側を向く回転と反転から rng で1つ選んで返す。玄関がその側を向く向きが無ければ、
 // 全ての向きから選ぶ
 func facingCells(cells [][]maptemplate.MapCell, facing RoadDir, rng *rand.Rand) [][]maptemplate.MapCell {
 	all := make([][][]maptemplate.MapCell, 0, 8)
@@ -183,7 +214,7 @@ func facingCells(cells [][]maptemplate.MapCell, facing RoadDir, rng *rand.Rand) 
 		for _, mirror := range []bool{false, true} {
 			t := maptemplate.TransformCells(cells, turns, mirror)
 			all = append(all, t)
-			if doorSide(t) == facing {
+			if entranceSide(t) == facing {
 				matched = append(matched, t)
 			}
 		}
