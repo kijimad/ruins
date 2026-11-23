@@ -20,6 +20,7 @@ func TestFollowRangeTiles_手計算と一致(t *testing.T) {
 func TestFollowRangeTiles_燃費が0以下なら0除算を避けて0(t *testing.T) {
 	t.Parallel()
 	// 燃費が0になる負の積載。基準燃料を1kgあたりの燃料で打ち消す
+	require.Zero(t, consts.FollowFuelBase%consts.FollowFuelPerKg, "燃費がちょうど0になる整数kgが存在する前提")
 	zeroKg := consts.Milligram(-consts.FollowFuelBase / consts.FollowFuelPerKg)
 	assert.Equal(t, 0.0, FollowRangeTiles(1000, zeroKg*consts.MilligramPerKg), "燃費がちょうど0")
 	assert.Equal(t, 0.0, FollowRangeTiles(1000, (zeroKg-1)*consts.MilligramPerKg), "燃費が負")
