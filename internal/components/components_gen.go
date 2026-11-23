@@ -51,7 +51,6 @@ type EntitySpec struct {
 	Remains            *Remains
 	Decor              *Decor
 	Cube               *Cube
-	FuelTank           *FuelTank
 	Deployed           *Deployed
 	LightSource        *LightSource
 	Charge             *Charge
@@ -153,7 +152,6 @@ type Components struct {
 	Remains            *ecs.Map[Remains]
 	Decor              *ecs.Map[Decor]
 	Cube               *ecs.Map[Cube]
-	FuelTank           *ecs.Map[FuelTank]
 	Deployed           *ecs.Map[Deployed]
 	LightSource        *ecs.Map[LightSource]
 	Charge             *ecs.Map[Charge]
@@ -255,7 +253,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Remains = ecs.NewMap[Remains](world)
 	c.Decor = ecs.NewMap[Decor](world)
 	c.Cube = ecs.NewMap[Cube](world)
-	c.FuelTank = ecs.NewMap[FuelTank](world)
 	c.Deployed = ecs.NewMap[Deployed](world)
 	c.LightSource = ecs.NewMap[LightSource](world)
 	c.Charge = ecs.NewMap[Charge](world)
@@ -359,7 +356,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Remains, entity, spec.Remains)
 	addComp(c.Decor, entity, spec.Decor)
 	addComp(c.Cube, entity, spec.Cube)
-	addComp(c.FuelTank, entity, spec.FuelTank)
 	addComp(c.Deployed, entity, spec.Deployed)
 	addComp(c.LightSource, entity, spec.LightSource)
 	addComp(c.Charge, entity, spec.Charge)

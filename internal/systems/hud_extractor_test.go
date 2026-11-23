@@ -532,3 +532,30 @@ func TestAmbientTempDisplayColor(t *testing.T) {
 		assert.Equal(t, white, ambientTempDisplayColor(query.ComfortableTempUpper))
 	})
 }
+
+func TestExtractCubeStatus_燃料ゲージは燃料ポイントの割合(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name    string
+		current int
+		want    float64
+	}{
+		{name: "満タン", current: int(consts.CubeFuelCapacityBase), want: 1},
+		{name: "半分", current: int(consts.CubeFuelCapacityBase) / 2, want: 0.5},
+		{name: "空", current: 0, want: 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+			require.NoError(t, err)
+			world.Components.Charge.Get(cube).Current = tt.current
+
+			got := extractCubeStatus(world)
+
+			assert.True(t, got.Visible)
+			assert.InDelta(t, tt.want, got.FuelRatio, 1e-9)
+		})
+	}
+}

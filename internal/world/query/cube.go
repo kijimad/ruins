@@ -160,20 +160,12 @@ func FollowFuelCost(total consts.Milligram) consts.Heat {
 	return consts.Heat(consts.FollowFuelBase + consts.FollowFuelPerKg*kg)
 }
 
-// CubeFuelTotal はキューブに貯めた燃料ポイントを返す。FuelTank を持たなければ0。
+// CubeFuelTotal はキューブに貯めた燃料ポイントを返す。キューブでなければ0。
 func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
-	if !world.Components.FuelTank.Has(cube) {
+	if !world.Components.Cube.Has(cube) {
 		return 0
 	}
-	return world.Components.FuelTank.Get(cube).Current
-}
-
-// FuelGaugeRatio は燃料ゲージの充填率を現在値と上限の比で返す。上限が0以下なら0。
-func FuelGaugeRatio(tank gc.FuelTank) float64 {
-	if tank.Max <= 0 {
-		return 0
-	}
-	return float64(tank.Current) / float64(tank.Max)
+	return consts.Heat(world.Components.Charge.Get(cube).Current)
 }
 
 // ActiveCube は現ステージにいるキューブを返す。ダンジョンなどキューブのいないステージでは false。

@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
@@ -110,11 +111,11 @@ func cubeInfoItems(world w.World, cube ecs.Entity) []statusItemData {
 	return []statusItemData{
 		{Label: query.T(world, "Deploy size"), Value: fmt.Sprintf("%dx%d", 2*r.X+1, 2*r.Y+1)},
 		{Label: query.T(world, "Total weight"), Value: weight.KgString()},
-		{Label: query.T(world, "Fuel"), Value: fuelTankText(*world.Components.FuelTank.Get(cube))},
+		{Label: query.T(world, "Fuel"), Value: cubeFuelText(*world.Components.Charge.Get(cube))},
 	}
 }
 
-// fuelTankText は燃料タンクを現在値と上限で整形する。
-func fuelTankText(tank gc.FuelTank) string {
-	return fmt.Sprintf("%s / %d", tank.Current.String(), int(tank.Max))
+// cubeFuelText はキューブの燃料ポイントを現在値と上限で整形する。
+func cubeFuelText(charge gc.Charge) string {
+	return fmt.Sprintf("%s / %d", consts.Heat(charge.Current).String(), charge.Max)
 }

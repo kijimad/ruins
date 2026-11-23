@@ -81,20 +81,20 @@ func TestSaveWorld_キューブの移動方針と燃料ポイントをロード�
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 	require.NoError(t, err)
 	world.Components.SoloAI.Get(cube).Movement = rawschema.Follow
-	*world.Components.FuelTank.Get(cube) = gc.FuelTank{Max: 4500, Current: 1234}
+	*world.Components.Charge.Get(cube) = gc.Charge{Max: 4500, Current: 1234}
 	require.NoError(t, sm.SaveWorld(world, "slot1"))
 
 	fresh := testutil.InitTestWorld(t)
 	require.NoError(t, sm.LoadWorld(fresh, "slot1"))
 
-	var got []gc.FuelTank
+	var got []gc.Charge
 	var movements []rawschema.MovementPatternType
-	q := ecs.NewFilter3[gc.Cube, gc.FuelTank, gc.SoloAI](fresh.ECS).Query()
+	q := ecs.NewFilter3[gc.Cube, gc.Charge, gc.SoloAI](fresh.ECS).Query()
 	for q.Next() {
 		_, tank, solo := q.Get()
 		got = append(got, *tank)
 		movements = append(movements, solo.Movement)
 	}
-	assert.Equal(t, []gc.FuelTank{{Max: 4500, Current: 1234}}, got)
+	assert.Equal(t, []gc.Charge{{Max: 4500, Current: 1234}}, got)
 	assert.Equal(t, []rawschema.MovementPatternType{rawschema.Follow}, movements)
 }

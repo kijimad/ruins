@@ -69,14 +69,11 @@ type PassCost struct {
 // Renderable はフィールド上で描画できる
 type Renderable struct{}
 
-// Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与する。
+// Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与し、燃料ポイントを Charge に一緒に持たせる。
 type Cube struct{}
 
 // CubeCore はキューブの核に付くマーカー。使うと隣に新しいキューブが組み上がる
 type CubeCore struct{}
-
-// FuelTank はキューブの燃料ポイントの上限と現在値。
-type FuelTank Pool[consts.Heat]
 
 // Deployed はキューブが展開中であることを示す。展開中のキューブは随伴せず、その場に留まる。
 // Range は展開した時点の野営フットプリントの縦横別半径を凍結して持つ。圧縮の畳み込みとレーザー壁描画は

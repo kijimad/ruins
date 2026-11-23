@@ -34,26 +34,6 @@ func TestFollowFuelCost(t *testing.T) {
 	}
 }
 
-func TestFuelGaugeRatio(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name string
-		tank gc.FuelTank
-		want float64
-	}{
-		{"空は0", gc.FuelTank{Max: 3000, Current: 0}, 0},
-		{"現在値を上限で割る", gc.FuelTank{Max: 4000, Current: 1000}, 0.25},
-		{"満タンで1", gc.FuelTank{Max: 3000, Current: 3000}, 1},
-		{"上限が0なら0", gc.FuelTank{Max: 0, Current: 0}, 0},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.InDelta(t, tt.want, query.FuelGaugeRatio(tt.tank), 1e-9)
-		})
-	}
-}
-
 func TestCubeFuelCapacity_基準に装着中モジュールのボーナスを足す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -101,7 +81,7 @@ func TestCubeFuelTotal_燃料ポイントを返し収納の可燃物は数えな
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
 	require.NoError(t, err)
-	world.Components.FuelTank.Get(cube).Current = 1200
+	world.Components.Charge.Get(cube).Current = 1200
 	addCubeStorageItem(t, world, cube, "coal", consts.Milligram(2*consts.MilligramPerKg))
 
 	assert.Equal(t, consts.Heat(1200), query.CubeFuelTotal(world, cube))
@@ -275,12 +255,14 @@ func TestDiscoveredChunks_北進ぶん絶対チャンク行をずらす(t *testi
 	assert.Len(t, got, 2, "探索済みタイルを含むチャンクだけ返す")
 }
 
-func TestCubeFuelTotal_FuelTankが無ければ0(t *testing.T) {
+func TestCubeFuelTotal_キューブでなければ0(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	cube := world.ECS.NewEntity()
+	plain := world.ECS.NewEntity()
+	light := world.ECS.NewEntity()
+	world.Components.Charge.Add(light, &gc.Charge{Max: 1000, Current: 800})
 
-	assert.Equal(t, consts.Heat(0), query.CubeFuelTotal(world, cube))
+	assert.Equal(t, []consts.Heat{0, 0}, []consts.Heat{query.CubeFuelTotal(world, plain), query.CubeFuelTotal(world, light)}, "残量を持つ灯りも燃料ポイントとして数えない")
 }
 
 func TestCubeWeight_畳み込んだ貨物も合算する(t *testing.T) {

@@ -316,14 +316,14 @@ func TestStatsChangedSystem_モジュールの着脱でキューブの燃料タ�
 	// 装着で上限が伸びる。満タンだった現在値はそのまま
 	lifecycle.MoveToInstalled(world, module, cube, 0)
 	require.NoError(t, sys.Update(world))
-	assert.Equal(t, gc.FuelTank{Max: consts.CubeFuelCapacityBase + 1500, Current: consts.CubeFuelCapacityBase}, *world.Components.FuelTank.Get(cube))
+	assert.Equal(t, gc.Charge{Max: int(consts.CubeFuelCapacityBase + 1500), Current: int(consts.CubeFuelCapacityBase)}, *world.Components.Charge.Get(cube))
 	assert.False(t, world.Components.StatsChanged.Has(cube), "処理後は印を外す")
 
 	// 上限まで給油してから外すと、下がった上限まで切り詰める
-	world.Components.FuelTank.Get(cube).Current = consts.CubeFuelCapacityBase + 1500
+	world.Components.Charge.Get(cube).Current = int(consts.CubeFuelCapacityBase + 1500)
 	require.NoError(t, lifecycle.MoveToBackpack(world, module, player))
 	require.NoError(t, sys.Update(world))
-	assert.Equal(t, gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase}, *world.Components.FuelTank.Get(cube))
+	assert.Equal(t, gc.Charge{Max: int(consts.CubeFuelCapacityBase), Current: int(consts.CubeFuelCapacityBase)}, *world.Components.Charge.Get(cube))
 }
 
 func TestStatsChangedSystem_能力値と燃料タンクを両方持つ実体はどちらも計算し直す(t *testing.T) {
@@ -332,12 +332,12 @@ func TestStatsChangedSystem_能力値と燃料タンクを両方持つ実体は�
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
 	world.Components.Abilities.Add(cube, &gc.Abilities{Agility: gc.Ability{Base: 5}})
-	*world.Components.FuelTank.Get(cube) = gc.FuelTank{Max: 1, Current: 1}
+	*world.Components.Charge.Get(cube) = gc.Charge{Max: 1, Current: 1}
 	world.Components.StatsChanged.Add(cube, &gc.StatsChanged{})
 
 	require.NoError(t, (&StatsChangedSystem{}).Update(world))
 
 	assert.Equal(t, 5, world.Components.Abilities.Get(cube).Agility.Total)
-	assert.Equal(t, consts.CubeFuelCapacityBase, world.Components.FuelTank.Get(cube).Max)
+	assert.Equal(t, int(consts.CubeFuelCapacityBase), world.Components.Charge.Get(cube).Max)
 	assert.False(t, world.Components.StatsChanged.Has(cube))
 }

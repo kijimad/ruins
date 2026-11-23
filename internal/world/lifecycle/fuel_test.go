@@ -38,7 +38,7 @@ func TestAddCubeFuel_灯油は残量の割合の熱を足して残量0で残る(
 	world := testutil.InitTestWorld(t)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
-	world.Components.FuelTank.Get(cube).Current = 0
+	world.Components.Charge.Get(cube).Current = 0
 	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
 	oil, err := lifecycle.SpawnBackpackItem(world, "lamp_oil", 1)

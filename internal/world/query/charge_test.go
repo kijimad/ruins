@@ -56,6 +56,10 @@ func TestChargeTriggerOf(t *testing.T) {
 		{name: "残量を持たない物は減らない", build: func(world w.World, e ecs.Entity) {
 			world.Components.LightSource.Add(e, &gc.LightSource{Radius: 6, Enabled: true})
 		}, want: ChargeTriggerNone},
+		{name: "キューブの燃料ポイントは使っても減らない", build: func(world w.World, e ecs.Entity) {
+			world.Components.Charge.Add(e, &gc.Charge{Max: 3000, Current: 3000})
+			world.Components.Cube.Add(e, &gc.Cube{})
+		}, want: ChargeTriggerNone},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
