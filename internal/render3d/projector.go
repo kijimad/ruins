@@ -55,6 +55,11 @@ func NewProjector(orbit gc.Camera, center consts.Coord[consts.Tile], sw, sh int)
 	}
 }
 
+// FacesCamera は外から見て時計回りに張った面 q が、カメラに表を向けているかを返す
+func (p Projector) FacesCamera(q [4]Vec) bool {
+	return dot(cross(sub(q[1], q[0]), sub(q[2], q[0])), sub(p.eye, q[0])) < 0
+}
+
 // Right はカメラから見た画面右方向の単位ベクトル。立て板をカメラへ正対させるのに使う
 func (p Projector) Right() Vec {
 	return norm(cross(norm(sub(p.target, p.eye)), Vec{0, 1, 0}))

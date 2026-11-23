@@ -483,6 +483,35 @@ func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
 	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil, nil))
 }
 
+func TestCollectBillboards_前後方向に沿うfacingの置物は表の絵だけを積む(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
+
+	world := testutil.InitTestWorld(t)
+	sheet := ebiten.NewImage(32, 32)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {Texture: gc.Texture{Image: sheet}, Sprites: map[string]gc.Sprite{"closet": {Width: 32, Height: 32}}},
+	})
+	// 平均色は画素を読むので、ゲームの開始前のテストでは先に置いておく
+	r3flatColor.Store(flatColorKey{sheet, 0, 0, 32, 32}, [3]float64{0.5, 0.5, 0.5})
+	// 北を見るカメラの左に、東を向いた押し入れを置く
+	closet := world.ECS.NewEntity()
+	world.Components.GridElement.Add(closet, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 22, Y: 22}})
+	world.Components.SpriteRender.Add(closet, &gc.SpriteRender{SpriteSheetName: "field", SpriteKey: "closet", Shape: rawschema.Facing})
+	world.Components.Pose.Add(closet, &gc.Pose{Facing: consts.East})
+	sys := &Render3DSystem{}
+
+	pictures := 0
+	for _, q := range sys.collectBillboards(world, nil, projector, visible, nil, nil, posesAt(world), nil) {
+		if q.atlas == sheet {
+			pictures++
+		}
+	}
+	assert.Equal(t, 1, pictures)
+}
+
 func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T) {
 	t.Parallel()
 
@@ -668,4 +697,43 @@ func TestCollectBillboards_柵は描けるマスの隣とだけつなぐ(t *test
 	assert.InDelta(t, corner[0].uv[1][0], southUnseen[0].uv[1][0], 1e-9, "東の半分の板は絵の右半分を貼る")
 
 	assert.Empty(t, centerQuads(func(c consts.Coord[consts.Tile]) bool { return c != center }), "描けないマスの柵は板を積まない")
+}
+
+func TestSlabFaces_絵の面はどの向きでもカメラに1枚だけ表を向ける(t *testing.T) {
+	t.Parallel()
+
+	// 板を画面の中心から外して置く。目が板の表と裏の面のあいだに入ると、どちらの面も見えず0枚になる
+	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	center := consts.Coord[consts.Tile]{X: 8, Y: 9}
+	all := func(consts.Coord[consts.Tile]) bool { return true }
+	facing := func(dir consts.Cardinal) []insetFace {
+		pose := gc.Pose{Facing: dir}
+		return facingFaces(c, pose, map[consts.Coord[consts.Tile]]gc.Pose{c: pose}, all)
+	}
+	tests := []struct {
+		name  string
+		faces []insetFace
+	}{
+		{name: "南を向く棚", faces: facing(consts.South)},
+		{name: "西を向く棚", faces: facing(consts.West)},
+		{name: "北を向く棚", faces: facing(consts.North)},
+		{name: "東を向く棚", faces: facing(consts.East)},
+		{name: "東西に並ぶ扉", faces: insetFaces(c, connections{west: true})},
+		{name: "南北に並ぶ扉", faces: insetFaces(c, connections{north: true})},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			for orient := range gc.Orient(gc.CameraOrientCount) {
+				projector := render3d.NewProjector(gc.Camera{Orient: orient, Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+				front := 0
+				for _, f := range tt.faces {
+					if !f.flat && projector.FacesCamera(f.p) {
+						front++
+					}
+				}
+				assert.Equal(t, 1, front, "カメラの向き %d", orient)
+			}
+		})
+	}
 }

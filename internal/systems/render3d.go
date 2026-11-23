@@ -477,7 +477,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする。
 			// 開いた扉は描かず、開口部だけを残す
 			if !vis || world.Components.BlockPass.Has(e) {
-				sys.addSlab(&quads, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
+				sys.addSlab(&quads, projector, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
 			}
 			continue
 		}
@@ -490,7 +490,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 				_, _, v := visTint(&gc.GridElement{Coord: n})
 				return v && projector.TileOnScreen(n, render3d.BillboardHeight)
 			}
-			sys.addSlab(&quads, facingFaces(g.Coord, f, poses, drawn), atlas, ux, uy, uw, uh, tint)
+			sys.addSlab(&quads, projector, facingFaces(g.Coord, f, poses, drawn), atlas, ux, uy, uw, uh, tint)
 			continue
 		}
 		base := render3d.At(fx+0.5, 0, fz+0.5)
@@ -613,6 +613,7 @@ func facingFaces(c consts.Coord[consts.Tile], f gc.Pose, poses map[consts.Coord[
 	for i := range faces {
 		faces[i].flat = true
 	}
+	// 絵の面は箱の面より後に積む。カメラの前後方向に沿うと箱の表の面と表の絵の奥行きが同点になり、積んだ順に塗られるため
 	faces = append(faces,
 		insetFace{p: [4]render3d.Vec{render3d.At(0, 0, z1), render3d.At(1, 0, z1), render3d.At(1, 0, z0), render3d.At(0, 0, z0)}, flat: true},
 		insetFace{p: [4]render3d.Vec{render3d.At(0, h, z1+facingLift), render3d.At(1, h, z1+facingLift), render3d.At(1, 0, z1+facingLift), render3d.At(0, 0, z1+facingLift)}},
@@ -732,12 +733,16 @@ func faceShade(p [4]render3d.Vec) float64 {
 	}
 }
 
-// addSlab は板の面を積む
-func (sys *Render3DSystem) addSlab(out *[]r3quad, faces []insetFace, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
+// addSlab は板の面を積む。絵を貼る面はカメラに背を向けていれば積まない。板の表と裏の絵はカメラの前後方向に沿うと
+// 奥行きが同点になり、裏の絵が表の上に描かれるため
+func (sys *Render3DSystem) addSlab(out *[]r3quad, projector render3d.Projector, faces []insetFace, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
 	for _, f := range faces {
 		// 絵を貼る面は立て板と同じ明るさにし、平均色の面にだけ陰影を付ける
 		if f.flat {
 			sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, faceShade(f.p)))
+			continue
+		}
+		if !projector.FacesCamera(f.p) {
 			continue
 		}
 		sys.addQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, tint)

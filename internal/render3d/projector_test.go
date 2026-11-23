@@ -175,3 +175,27 @@ func TestCameraYaw_Orientから水平角を導出する(t *testing.T) {
 	assert.InDelta(t, 0.7853981633974483, gc.Camera{Orient: 1}.Yaw(), 1e-9)
 	assert.InDelta(t, 5.497787143782138, gc.Camera{Orient: 7}.Yaw(), 1e-9)
 }
+
+func TestProjector_FacesCameraは表を向ける面だけを返す(t *testing.T) {
+	t.Parallel()
+
+	// 既定のカメラはプレイヤーの南から北を見る。面は外から見て左上から時計回りに張る
+	projector := render3d.NewProjector(defaultView, playerTile, screenW, screenH)
+	const h = render3d.WallHeight
+	tests := []struct {
+		name string
+		face [4]render3d.Vec
+		want bool
+	}{
+		{name: "北にある南向きの面", face: [4]render3d.Vec{render3d.At(25, h, 20), render3d.At(26, h, 20), render3d.At(26, 0, 20), render3d.At(25, 0, 20)}, want: true},
+		{name: "北にある北向きの面", face: [4]render3d.Vec{render3d.At(26, h, 20), render3d.At(25, h, 20), render3d.At(25, 0, 20), render3d.At(26, 0, 20)}, want: false},
+		{name: "西にある東向きの面", face: [4]render3d.Vec{render3d.At(20, h, 26), render3d.At(20, h, 25), render3d.At(20, 0, 25), render3d.At(20, 0, 26)}, want: true},
+		{name: "西にある西向きの面", face: [4]render3d.Vec{render3d.At(20, h, 25), render3d.At(20, h, 26), render3d.At(20, 0, 26), render3d.At(20, 0, 25)}, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, projector.FacesCamera(tt.face))
+		})
+	}
+}
