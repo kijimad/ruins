@@ -7,6 +7,7 @@
 #   python3 gen_crash.py 100-147      範囲の seed を描き、12枚ずつ一覧にする
 #   python3 gen_crash.py 203:1-24     seed 203 の世界のまま、カメラと太陽と煙を j ごとに少しずらす
 # 依存: google-chrome。出力は ./crash-out/ に置く。
+# crash_draft.png は 203:9 の絵。
 
 import os
 import subprocess
