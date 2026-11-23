@@ -354,6 +354,24 @@ func TestSnowLayer_屋根の無い通れる地面にだけ量を重ねる(t *tes
 	}
 }
 
+func TestSnowLayer_日中の底上げを越えない色で重ねる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	query.GetGameTime(world).TotalTurns = 24*1500 + 500
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	query.EnsureSeamlessBand(world)
+	tile, err := lifecycle.SpawnTile(world, consts.TileNameDirt, 3, 3, nil)
+	require.NoError(t, err)
+	layer := &snowLayer{sys: &Render3DSystem{}, ok: true, fractions: map[consts.Tile]float64{}}
+
+	var quads []r3quad
+	layer.add(&quads, world, tile, consts.Coord[consts.Tile]{X: 3, Y: 3}, [3]float64{1.3, 1.1, 0.8})
+
+	require.Len(t, quads, 1)
+	assert.Equal(t, [3]float64{1, 1, 0.8}, quads[0].col)
+}
+
 // assertFacesInDelta は面の並びを、頂点を近似で、塗り方を一致で比べる
 func assertFacesInDelta(t *testing.T, want, got []insetFace, msg string) {
 	t.Helper()

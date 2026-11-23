@@ -384,7 +384,8 @@ func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Ti
 	return query.SnowAmount(f, query.SnowRankAt(world, c.X, c.Y)) * float64(100-env.SnowMeltPercent) / 100
 }
 
-// add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。雪の段で、地面より後、跡や床の模様より先に描く
+// add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。雪の段で、地面より後、跡や床の模様より先に描く。
+// 雪の絵は白に近く、日中の底上げで 1.0 を超えると影の色まで白に潰れるので、色は 1.0 で頭打ちにする
 func (l *snowLayer) add(out *[]r3quad, world w.World, e ecs.Entity, c consts.Coord[consts.Tile], tint [3]float64) {
 	if !l.ok {
 		return
@@ -392,6 +393,9 @@ func (l *snowLayer) add(out *[]r3quad, world w.World, e ecs.Entity, c consts.Coo
 	a := l.amount(world, e, c)
 	if a <= 0 {
 		return
+	}
+	for i := range tint {
+		tint[i] = min(tint[i], 1)
 	}
 	fx, fz := float64(c.X), float64(c.Y)
 	l.sys.addQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), l.atlas, l.ux, l.uy, l.uw, l.uh, tint)
