@@ -131,13 +131,13 @@
 				
 				<option value="file37">github.com/kijimaD/ruins/internal/balance/combat.go (97.5%)</option>
 				
-				<option value="file38">github.com/kijimaD/ruins/internal/balance/economy.go (89.3%)</option>
+				<option value="file38">github.com/kijimaD/ruins/internal/balance/economy.go (100.0%)</option>
 				
 				<option value="file39">github.com/kijimaD/ruins/internal/balance/exchange.go (96.7%)</option>
 				
 				<option value="file40">github.com/kijimaD/ruins/internal/balance/growth.go (100.0%)</option>
 				
-				<option value="file41">github.com/kijimaD/ruins/internal/balance/logistics.go (83.3%)</option>
+				<option value="file41">github.com/kijimaD/ruins/internal/balance/logistics.go (100.0%)</option>
 				
 				<option value="file42">github.com/kijimaD/ruins/internal/balance/markov.go (92.2%)</option>
 				
@@ -161,7 +161,7 @@
 				
 				<option value="file52">github.com/kijimaD/ruins/internal/balance/targets.go (100.0%)</option>
 				
-				<option value="file53">github.com/kijimaD/ruins/internal/balance/viability.go (90.0%)</option>
+				<option value="file53">github.com/kijimaD/ruins/internal/balance/viability.go (95.0%)</option>
 				
 				<option value="file54">github.com/kijimaD/ruins/internal/cmd/balance_report.go (0.0%)</option>
 				
@@ -389,7 +389,7 @@
 				
 				<option value="file166">github.com/kijimaD/ruins/internal/mapplanner/layout.go (88.4%)</option>
 				
-				<option value="file167">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.8%)</option>
+				<option value="file167">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.1%)</option>
 				
 				<option value="file168">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -7742,7 +7742,7 @@ func ExpectedLootValue(master rawschema.Raws, itemTableName string, danger int) 
                 vSum += e.Weight * expectedGroupValue(master, e.Id)
 </span>        }
         <span class="cov8" title="1">if wSum == 0 </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">return vSum / wSum</span>
 }
@@ -7752,22 +7752,22 @@ func ExpectedLootValue(master rawschema.Raws, itemTableName string, danger int) 
 func expectedGroupValue(master rawschema.Raws, id string) float64 {
         <span class="cov8" title="1">draws, ok := expectedDraws(master, id)
         if !ok </span>{
-                <span class="cov0" title="0">if it, e := raw.FindItem(master, id); e == nil </span>{
-                        <span class="cov0" title="0">return float64(it.Value)
+                <span class="cov8" title="1">if it, e := raw.FindItem(master, id); e == nil </span>{
+                        <span class="cov8" title="1">return float64(it.Value)
 </span>                }
-                <span class="cov0" title="0">return 0</span>
+                <span class="cov8" title="1">return 0</span>
         }
         <span class="cov8" title="1">var nSum, vSum float64
         for _, d := range draws </span>{
                 <span class="cov8" title="1">it, err := raw.FindItem(master, d.id)
                 if err != nil </span>{
-                        <span class="cov0" title="0">continue</span>
+                        <span class="cov8" title="1">continue</span>
                 }
                 <span class="cov8" title="1">nSum += d.count
                 vSum += d.count * float64(it.Value)</span>
         }
         <span class="cov8" title="1">if nSum == 0 </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">return vSum / nSum</span>
 }
@@ -7801,14 +7801,14 @@ func expectedDraws(master rawschema.Raws, id string) ([]expectedDraw, bool) {
 </span>                }
                 <span class="cov8" title="1">return out, true</span>
         }
-        <span class="cov0" title="0">return nil, false</span>
+        <span class="cov8" title="1">return nil, false</span>
 }
 
 // expectedPack は pack のダイスの期待値を返す。解釈できない表記は0。
 func expectedPack(pack rawschema.Dice) float64 {
         <span class="cov8" title="1">d, err := consts.ParseDice(pack)
         if err != nil </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">return float64(d.Min()+d.Max()) / 2</span>
 }
@@ -8039,7 +8039,7 @@ import (
 func FollowRangeTiles(fuel consts.Heat, load consts.Milligram) float64 {
         <span class="cov8" title="1">cost := query.FollowFuelCost(load)
         if cost &lt;= 0 </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">return float64(fuel) / float64(cost)</span>
 }
@@ -9211,7 +9211,7 @@ type ViabilitySummary struct {
 // ViableRate は評価した武器のうち viable の割合を返す。
 func (s ViabilitySummary) ViableRate() float64 {
         <span class="cov8" title="1">if s.Total == 0 </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">return float64(s.Viable) / float64(s.Total)</span>
 }
@@ -21501,7 +21501,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
         <span class="cov8" title="1">if bm.existPlannedEntityOnTile(pos) </span>{
-                <span class="cov8" title="1">return false
+                <span class="cov0" title="0">return false
 </span>        }
 
         <span class="cov8" title="1">return true</span>
