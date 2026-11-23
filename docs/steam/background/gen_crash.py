@@ -5,6 +5,7 @@
 # 使い方: nix-shell ../shell.nix 内で
 #   python3 gen_crash.py 7            seed 7 の基準の構図だけ描く
 #   python3 gen_crash.py 100-147      範囲の seed を描き、12枚ずつ一覧にする
+#   python3 gen_crash.py 203:1-24     seed 203 の世界のまま、カメラと太陽と煙を j ごとに少しずらす
 # 依存: google-chrome。出力は ./crash-out/ に置く。
 
 import os
@@ -27,13 +28,15 @@ WARM = [
 ]
 
 
-def render(seed, path):
+def render(key, path):
+    seed, _, j = str(key).partition(":")
+    extra = f"&j={j}" if j else ""
     env = {k: v for k, v in os.environ.items() if k != "LD_LIBRARY_PATH"}
     subprocess.run(
         [
             "google-chrome", "--headless=new", "--enable-unsafe-swiftshader", "--use-angle=swiftshader",
             f"--window-size={W},{H + 200}", "--hide-scrollbars", "--virtual-time-budget=20000",
-            f"--screenshot={path}", f"{SCENE}?w={W}&h={H}&px=1&seed={seed}",
+            f"--screenshot={path}", f"{SCENE}?w={W}&h={H}&px=1&seed={seed}{extra}",
         ],
         env=env, check=True, capture_output=True,
     )
@@ -50,7 +53,11 @@ def pixelize(raw):
 
 def seeds_of(args):
     for a in args:
-        if "-" in a:
+        if ":" in a:
+            base, _, rng = a.partition(":")
+            lo, hi = map(int, rng.split("-"))
+            yield from (f"{base}:{j}" for j in range(lo, hi + 1))
+        elif "-" in a:
             lo, hi = map(int, a.split("-"))
             yield from range(lo, hi + 1)
         else:
@@ -78,12 +85,13 @@ def main():
             raw = os.path.join(tmp, f"{seed}.png")
             render(seed, raw)
             px = pixelize(raw)
-            px.resize((W * SCALE, H * SCALE), Image.NEAREST).save(os.path.join(OUT, f"crash_{seed:04d}.png"))
+            name = f"crash_{seed:04d}.png" if isinstance(seed, int) else "crash_" + seed.replace(":", "_j") + ".png"
+            px.resize((W * SCALE, H * SCALE), Image.NEAREST).save(os.path.join(OUT, name))
             done.append((seed, px))
-            print(f"crash_{seed:04d}.png", flush=True)
+            print(name, flush=True)
     for i in range(0, len(done), 12):
         chunk = done[i : i + 12]
-        sheet(chunk, os.path.join(OUT, f"sheet_{chunk[0][0]:04d}-{chunk[-1][0]:04d}.png"))
+        sheet(chunk, os.path.join(OUT, f"sheet_{chunk[0][0]}-{chunk[-1][0]}.png".replace(":", "_j")))
 
 
 main()

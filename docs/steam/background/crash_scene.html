@@ -43,6 +43,20 @@ const vary = () => {
   };
 };
 const V = seed === 7 ? BASE : vary();
+
+// j を与えると、世界はそのままにカメラと太陽と煙だけを少しずらす
+if (q.has('j')) {
+  let js = +q.get('j');
+  const jr = () => { js |= 0; js = js + 0x6D2B79F5 | 0; let t = Math.imul(js ^ js >>> 15, 1 | js); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const J = (v, d) => v + (jr() * 2 - 1) * d;
+  V.cam = [J(V.cam[0], 4), Math.max(1.5, J(V.cam[1], 2)), J(V.cam[2], 4)];
+  V.look = [J(V.look[0], 5), J(V.look[1], 2), J(V.look[2], 5)];
+  V.fov = J(V.fov, 5);
+  V.sun = [J(V.sun[0], 40), Math.max(8, J(V.sun[1], 10)), J(V.sun[2], 40)];
+  V.wind = [J(V.wind[0], 15), J(V.wind[1], 15)];
+  V.smokeH = J(V.smokeH, 10);
+  V.fire = J(V.fire, 0.2);
+}
 const T = TIMES[V.time];
 
 const renderer = new THREE.WebGLRenderer({ antialias: !q.has("px"), preserveDrawingBuffer: true });
