@@ -1,0 +1,344 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style>
+</head><body>
+<script type="importmap">
+{
+  "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" },
+  "integrity": { "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js": "sha384-GY5FqjttLCFRt/McQbyaVdCk2O1IQtOeX8Py6NfD89BIAsIyJFRl4UgSXrk2vXAk" }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const q = new URLSearchParams(location.search);
+const W = +(q.get('w') || 1536), H = +(q.get('h') || 1024);
+let seed = +(q.get('seed') || 7);
+const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const R = (a, b) => a + (b - a) * rnd();
+
+// 時刻ごとの色。空は天頂・中ほど・地平線の3色を混ぜる
+const TIMES = {
+  dawn: { zen: '#3d5680', mid: '#9fb0cf', hor: '#f0b89a', tint: '#c8a0a8', fog: '#aab8d4', fogK: 1, sun: '#ffd2b0', sunI: 2.4, sky: '#b9c9ec', gnd: '#6d7890', hemiI: 1.1, exp: 1.05 },
+  day: { zen: '#4f7ec4', mid: '#a9c3e6', hor: '#e4ecf5', tint: '#e0e8f5', fog: '#c4d2e6', fogK: 0.8, sun: '#fff6ea', sunI: 3.0, sky: '#cfe0ff', gnd: '#8090a8', hemiI: 1.3, exp: 1.0 },
+  dusk: { zen: '#232c58', mid: '#6a6f9e', hor: '#ff9566', tint: '#d0708a', fog: '#8c8cae', fogK: 1, sun: '#ff9a5a', sunI: 2.0, sky: '#8a90c0', gnd: '#4a4a66', hemiI: 0.9, exp: 1.1 },
+  night: { zen: '#070b18', mid: '#1c2540', hor: '#34406a', tint: '#3a3060', fog: '#1e2640', fogK: 1.2, sun: '#9fb4ff', sunI: 0.7, sky: '#3a4a7a', gnd: '#151a2a', hemiI: 0.5, exp: 1.2 },
+  blizzard: { zen: '#8e98aa', mid: '#b4bccb', hor: '#c9cfd9', tint: '#c9cfd9', fog: '#b8c0cc', fogK: 2.6, sun: '#e8eef8', sunI: 0.9, sky: '#c8d2e4', gnd: '#7a8496', hemiI: 1.4, exp: 1.0 },
+};
+
+// 構図の揺らぎ。seed 7 は揺らさない基準の構図
+const BASE = {
+  time: 'dawn', cam: [-24, 8.5, 32], look: [8, 5, -30], fov: 38, sun: [-120, 28, -160],
+  city: [60, -520], cityU: [1, 0], mtnC: -1.5, wind: [60, -20], smokeH: 55, cr: 7.5, fire: 1, fog: 0.0032,
+};
+const vary = () => {
+  const names = ['dawn', 'day', 'dusk', 'night', 'blizzard'];
+  const time = names[Math.floor(rnd() * names.length)];
+  const az = R(0, Math.PI * 2), dist = R(18, 46), h = R(3, 24);
+  const cam = [Math.sin(az) * dist, h, Math.cos(az) * dist];
+  const fx = -Math.sin(az), fz = -Math.cos(az), rx = -fz, rz = fx;
+  const ahead = R(25, 45), side = R(-14, 14);
+  const look = [fx * ahead + rx * side, R(0, 7), fz * ahead + rz * side];
+  const fa = Math.atan2(fz, fx), sa = fa + R(-Math.PI, Math.PI), sh = R(12, 70);
+  const cd = R(480, 650), cs = R(-170, 170);
+  const wa = R(0, Math.PI * 2), ws = R(15, 70);
+  return {
+    time, cam, look, fov: R(28, 55), sun: [Math.cos(sa) * 180, sh, Math.sin(sa) * 180],
+    city: [fx * cd + rx * cs, fz * cd + rz * cs], cityU: [rx, rz], mtnC: fa,
+    wind: [Math.cos(wa) * ws, Math.sin(wa) * ws], smokeH: R(35, 70), cr: R(5, 10), fire: R(0.7, 1.5), fog: R(0.0022, 0.0045),
+  };
+};
+const V = seed === 7 ? BASE : vary();
+
+// j を与えると、世界はそのままにカメラと太陽と煙だけを少しずらす
+if (q.has('j')) {
+  let js = +q.get('j');
+  const jr = () => { js |= 0; js = js + 0x6D2B79F5 | 0; let t = Math.imul(js ^ js >>> 15, 1 | js); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const J = (v, d) => v + (jr() * 2 - 1) * d;
+  V.cam = [J(V.cam[0], 4), Math.max(1.5, J(V.cam[1], 2)), J(V.cam[2], 4)];
+  V.look = [J(V.look[0], 5), J(V.look[1], 2), J(V.look[2], 5)];
+  V.fov = J(V.fov, 5);
+  V.sun = [J(V.sun[0], 40), Math.max(8, J(V.sun[1], 10)), J(V.sun[2], 40)];
+  V.wind = [J(V.wind[0], 15), J(V.wind[1], 15)];
+  V.smokeH = J(V.smokeH, 10);
+  V.fire = J(V.fire, 0.2);
+}
+const T = TIMES[V.time];
+
+const renderer = new THREE.WebGLRenderer({ antialias: !q.has("px"), preserveDrawingBuffer: true });
+renderer.setSize(W, H);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = T.exp;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(new THREE.Color(T.fog), V.fog * T.fogK);
+
+// 空: 時刻ごとの天頂・中ほど・地平線の3色を高さで混ぜる
+{
+  const g = new THREE.SphereGeometry(900, 32, 16);
+  const cols = [], p = g.attributes.position, c = new THREE.Color();
+  const zen = new THREE.Color(T.zen), mid = new THREE.Color(T.mid), hor = new THREE.Color(T.hor);
+  for (let i = 0; i < p.count; i++) {
+    const y = p.getY(i) / 900;
+    const dir = p.getX(i) / 900;
+    if (y < 0.06) c.copy(hor).lerp(mid, Math.max(0, y) / 0.06 * 0.4);
+    else if (y < 0.35) c.copy(hor).lerp(mid, 0.4 + (y - 0.06) / 0.29 * 0.6);
+    else c.copy(mid).lerp(zen, Math.min(1, (y - 0.35) / 0.5));
+    c.lerp(new THREE.Color(T.tint), Math.max(0, -dir) * 0.15 * (1 - Math.min(1, y * 3)));
+    cols.push(c.r, c.g, c.b);
+  }
+  g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+  scene.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false })));
+}
+
+const sun = new THREE.DirectionalLight(T.sun, T.sunI);
+sun.position.set(...V.sun);
+sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+Object.assign(sun.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, near: 1, far: 500 });
+scene.add(sun);
+scene.add(new THREE.HemisphereLight(T.sky, T.gnd, T.hemiI));
+
+// 雪原とクレーター
+const CR = V.cr;
+// クレーターの周りの高さ。細かい網目の地面と、底に置く物の高さをこれで揃える
+const CRATER_R = CR * 3.4, DEPTH = 1.2, RIM = 0.8;
+// 断面は、すり鉢と縁の盛り上がりを1つのなめらかな式で重ね、境目で傾きが折れないようにする
+const craterShape = d => {
+  const k = Math.min(1, d / (CR * 1.1));
+  return -DEPTH * (1 - k * k) ** 2 + RIM * Math.exp(-(((d - CR * 1.15) / (CR * 0.4)) ** 2));
+};
+const craterH = (x, z) => Math.sin(x * 0.05) * 0.6 + Math.cos(z * 0.043 + x * 0.02) * 0.7 + craterShape(Math.hypot(x, z));
+{
+  const g = new THREE.PlaneGeometry(700, 700, 220, 220);
+  g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), z = p.getZ(i), d = Math.hypot(x, z);
+    let y = Math.sin(x * 0.05) * 0.6 + Math.cos(z * 0.043 + x * 0.02) * 0.7 + R(-0.12, 0.12);
+    if (d > 120) y += (d - 120) * 0.02 * (0.5 + 0.5 * Math.sin(x * 0.01));
+    // クレーターの周りは細かい網目の地面が受け持つので、粗い地面はその下へ沈める
+    if (d < CRATER_R - 4) y -= 8;
+    p.setY(i, y);
+  }
+  const ng = g.toNonIndexed();
+  ng.computeVertexNormals();
+  const q = ng.attributes.position, cols = [], c = new THREE.Color();
+  const snow = new THREE.Color('#e6ecf7'), burnt = new THREE.Color('#2a2624'), ash = new THREE.Color('#7d7a80');
+  for (let i = 0; i < q.count; i += 3) {
+    const x = (q.getX(i) + q.getX(i + 1) + q.getX(i + 2)) / 3, z = (q.getZ(i) + q.getZ(i + 1) + q.getZ(i + 2)) / 3;
+    const d = Math.hypot(x, z) + R(-1.2, 1.2);
+    if (d < CR * 0.9) c.copy(burnt);
+    else if (d < CR * 1.5) c.copy(burnt).lerp(ash, (d - CR * 0.9) / (CR * 0.6));
+    else if (d < CR * 2.4) c.copy(ash).lerp(snow, (d - CR * 1.5) / (CR * 0.9));
+    else c.copy(snow).offsetHSL(0, 0, R(-0.02, 0.02));
+    if (Math.hypot(x, z) < CRATER_R + 2) c.copy(snow);
+    for (let k = 0; k < 3; k++) cols.push(c.r, c.g, c.b);
+  }
+  ng.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+  const m = new THREE.Mesh(ng, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.95 }));
+  m.receiveShadow = true;
+  scene.add(m);
+}
+
+// クレーター: 細かい網目で、すり鉢の底と盛り上がった縁と放射状に飛び散った跡を描く。
+// 山と都市の形を保つため、本の乱数は使わない。種はこの位置での本の乱数の状態から取るので、
+// ここより前で本の乱数の回数を変えると、クレーターと燠と煙の形も変わる
+{
+  let cs = (seed ^ 0x1b873593) | 0;
+  const cr = () => { cs = cs + 0x6D2B79F5 | 0; let t = Math.imul(cs ^ cs >>> 15, 1 | cs); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const rays = Array.from({ length: 13 }, () => ({ a: cr() * Math.PI * 2, w: 0.05 + cr() * 0.09, len: CR * (2.2 + cr() * 1.2) }));
+  const RINGS = 48, SEGS = 160, pos = [], cols = [];
+  const snow = new THREE.Color('#e6ecf7'), burnt = new THREE.Color('#2e2522'), wall = new THREE.Color('#5a4a44'), ash = new THREE.Color('#8a8490'), soot = new THREE.Color('#4a4650');
+  const colorAt = (x, z) => {
+    // 色は断面の高さに沿って連続して変える。底の焦げから斜面を上がるほど明るく、縁を越えると雪に戻る
+    const d = Math.hypot(x, z), a = Math.atan2(z, x), c = new THREE.Color();
+    const h = craterShape(d);
+    if (d < CR * 1.15) c.copy(burnt).lerp(wall, Math.min(1, (h + DEPTH) / DEPTH) ** 1.5).lerp(ash, Math.max(0, h / RIM) ** 2);
+    else c.copy(ash).lerp(snow, Math.min(1, (d - CR * 1.15) / (CR * 0.8)));
+    if (d > CR * 1.1) {
+      for (const r of rays) {
+        let da = Math.abs(((a - r.a + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+        const fade = 1 - (d - CR) / (r.len - CR);
+        if (fade > 0 && da < r.w * fade) c.lerp(soot, 0.75 * fade);
+      }
+    }
+    return c;
+  };
+  const vtx = (ri, si) => {
+    const rr = CRATER_R * (ri / RINGS) ** 1.3, a = si / SEGS * Math.PI * 2;
+    const x = Math.cos(a) * rr, z = Math.sin(a) * rr;
+    const edge = ri === RINGS ? 0 : 1;
+    return [x, craterH(x, z) + edge * (cr() - 0.5) * 0.12, z];
+  };
+  const grid = [];
+  for (let ri = 0; ri <= RINGS; ri++) { grid.push([]); for (let si = 0; si < SEGS; si++) grid[ri].push(vtx(ri, si)); }
+  for (let ri = 0; ri < RINGS; ri++) for (let si = 0; si < SEGS; si++) {
+    const a = grid[ri][si], b = grid[ri][(si + 1) % SEGS], c2 = grid[ri + 1][si], d2 = grid[ri + 1][(si + 1) % SEGS];
+    for (const tri of [[a, b, c2], [b, d2, c2]]) {
+      const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cz = (tri[0][2] + tri[1][2] + tri[2][2]) / 3;
+      const col = colorAt(cx, cz);
+      for (const v of tri) { pos.push(...v); cols.push(col.r, col.g, col.b); }
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.95 }));
+  m.receiveShadow = true;
+  scene.add(m);
+}
+
+const metal = new THREE.MeshStandardMaterial({ color: '#4a5566', flatShading: true, roughness: 0.55, metalness: 0.5 });
+const hot = new THREE.MeshStandardMaterial({ color: '#3a2a22', emissive: '#ff5a1a', emissiveIntensity: 1.6, flatShading: true });
+const glow = new THREE.MeshStandardMaterial({ color: '#ffb060', emissive: '#ff8a30', emissiveIntensity: 5, flatShading: true });
+
+// 脱出ポッド: 車ほどの大きさ。クレーターに斜めに刺さる
+const pod = new THREE.Group();
+{
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(1.3, 2.4, 3, 7), metal);
+  body.rotation.z = Math.PI / 2;
+  body.castShadow = body.receiveShadow = true;
+  pod.add(body);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.35, 0.14, 4, 8), metal);
+  ring.rotation.y = Math.PI / 2; ring.position.x = 0.6; pod.add(ring);
+  const win = new THREE.Mesh(new THREE.CircleGeometry(0.5, 6), glow);
+  win.position.set(-0.4, 0.35, 1.25); win.rotation.x = -0.25; pod.add(win);
+  const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.95, 0.9, 7, 1, true), hot);
+  nozzle.rotation.z = Math.PI / 2; nozzle.position.x = 2.5; pod.add(nozzle);
+  const fin = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 1.0), metal);
+  fin.position.set(1.4, 1.2, 0); fin.rotation.z = 0.5; fin.castShadow = true; pod.add(fin);
+  pod.position.set(-0.3, craterH(-0.3, 0) + 0.9, 0);
+  pod.scale.setScalar(1.35);
+  pod.rotation.set(0.15, 0.55, -0.42);
+  scene.add(pod);
+}
+
+// 散らばった破片。一部はまだ熱い
+for (let i = 0; i < 46; i++) {
+  const a = R(0, Math.PI * 2), d = R(CR * 0.6, CR * 3.2) * (i % 5 === 0 ? 1.6 : 1);
+  const s = R(0.15, 0.7) * (d < CR * 1.5 ? 1.3 : 1);
+  const geo = i % 3 === 0 ? new THREE.TetrahedronGeometry(s) : new THREE.BoxGeometry(s * R(1, 3), s * 0.12, s * R(0.6, 1.6));
+  const m = new THREE.Mesh(geo, i % 6 === 0 ? hot : metal);
+  m.position.set(Math.cos(a) * d, craterH(Math.cos(a) * d, Math.sin(a) * d) + 0.1, Math.sin(a) * d);
+  m.rotation.set(R(0, 3), R(0, 3), R(0, 3));
+  m.castShadow = true;
+  scene.add(m);
+}
+
+// 炎: 低いポリゴンの錐を重ねる
+const flame = (x, y, z, s) => {
+  for (let k = 0; k < 4; k++) {
+    const h = s * R(1.2, 2.2);
+    const m = new THREE.Mesh(new THREE.ConeGeometry(s * R(0.35, 0.55), h, 5), new THREE.MeshBasicMaterial({ color: k % 2 ? '#ffb347' : '#ff6a1f', transparent: true, opacity: 0.92 }));
+    m.position.set(x + R(-0.4, 0.4) * s, y + h / 2, z + R(-0.4, 0.4) * s);
+    m.rotation.set(R(-0.2, 0.2), R(0, 3), R(-0.2, 0.2));
+    scene.add(m);
+  }
+  const l = new THREE.PointLight('#ff7a30', 30 * s, 13, 1.6);
+  l.position.set(x, y + s, z);
+  scene.add(l);
+};
+flame(2.2, craterH(2.2, 0.9) - 0.1, 0.9, 1.1 * V.fire);
+flame(-1.6, craterH(-1.6, 1.6) - 0.1, 1.6, 0.7 * V.fire);
+flame(5.5, craterH(5.5, -3.5) - 0.1, -3.5, 0.5 * V.fire);
+
+// クレーターの底を照らす。穴の形が暗がりに沈まないよう、低く広い灯りで内側の斜面と縁を浮かせる
+{
+  const glowLight = new THREE.PointLight('#ff6a2a', 18 * V.fire, CR * 1.6, 1.4);
+  glowLight.position.set(0, craterH(0, 0) + 1.5, 0);
+  scene.add(glowLight);
+}
+
+// 底のくすぶる燠。山と都市の形を保つため、本の乱数は使わない
+{
+  let es = (seed ^ 0x2c1b3c6d) | 0;
+  const er = () => { es = es + 0x6D2B79F5 | 0; let t = Math.imul(es ^ es >>> 15, 1 | es); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const E = (a, b) => a + (b - a) * er();
+  const ember = new THREE.MeshBasicMaterial({ color: '#ff5a1a' });
+  const ember2 = new THREE.MeshBasicMaterial({ color: '#ffb347' });
+  for (let i = 0; i < 30; i++) {
+    const a = E(0, Math.PI * 2), d = Math.sqrt(er()) * CR * 0.6;
+    const x = Math.cos(a) * d, z = Math.sin(a) * d;
+    const y = craterH(x, z) + 0.08;
+    const m = new THREE.Mesh(new THREE.BoxGeometry(E(0.15, 0.6), 0.05, E(0.08, 0.25)), er() < 0.25 ? ember2 : ember);
+    m.position.set(x, y, z);
+    m.rotation.y = E(0, Math.PI);
+    scene.add(m);
+  }
+}
+
+// 煙の柱: 小さな塊を数多く重ね、上ほど大きく薄くして空に溶かす。
+// 煙は別の乱数で作る。山と都市は本の乱数のこの位置から作られるので、選んだ構図を保つため、
+// この位置までの本の乱数の回数を変えない。
+for (let i = 0; i < 720; i++) rnd();
+{
+  let ss = (seed ^ 0x5bd1e995) | 0;
+  const sr = () => { ss = ss + 0x6D2B79F5 | 0; let t = Math.imul(ss ^ ss >>> 15, 1 | ss); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const S = (a, b) => a + (b - a) * sr();
+  const geo = new THREE.IcosahedronGeometry(1, 0);
+  for (let i = 0; i < 70; i++) {
+    const t = i / 70;
+    for (let k = 0; k < 5; k++) {
+      const s = (0.35 + t * 3.6) * S(0.5, 1.1);
+      const col = new THREE.Color('#2e2c33').lerp(new THREE.Color('#9aa0b0'), t * 0.8 + S(0, 0.15));
+      const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, flatShading: true, transparent: true, opacity: (0.6 - t * 0.5) * S(0.6, 1), roughness: 1, depthWrite: false }));
+      const spread = 0.6 + t * 6;
+      m.scale.setScalar(s);
+      m.position.set(2 + t * t * V.wind[0] + S(-1, 1) * spread, 0.5 + t * V.smokeH + S(-1, 1) * spread * 0.4, t * V.wind[1] + S(-1, 1) * spread);
+      m.rotation.set(S(0, 3), S(0, 3), S(0, 3));
+      scene.add(m);
+    }
+  }
+}
+
+// 遠くの山並み
+for (let i = 0; i < 26; i++) {
+  const a = V.mtnC + R(-1.1, 1.1), d = R(620, 760);
+  const h = R(30, 95);
+  const g = new THREE.ConeGeometry(R(60, 120), h, 7, 4);
+  const gp = g.attributes.position;
+  // 継ぎ目で重なる頂点は同じだけ動かす。別々に動かすと面の間に隙間が開き、空が線になって見える
+  const moved = new Map();
+  for (let j = 0; j < gp.count; j++) {
+    if (gp.getY(j) >= h / 2 - 0.01) continue;
+    const key = [gp.getX(j), gp.getY(j), gp.getZ(j)].map(v => Math.round(v * 1000)).join();
+    const off = [R(0.75, 1.2), R(-0.08, 0.08), R(0.75, 1.2)];
+    if (!moved.has(key)) moved.set(key, off);
+    const [kx, dy, kz] = moved.get(key);
+    gp.setX(j, gp.getX(j) * kx); gp.setY(j, gp.getY(j) + dy * h); gp.setZ(j, gp.getZ(j) * kz);
+  }
+  const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: '#8d9bb8', flatShading: true }));
+  m.position.set(Math.cos(a) * d, h / 2 - 8, Math.sin(a) * d);
+  m.rotation.y = R(0, 3);
+  scene.add(m);
+}
+
+// 地平線の都市: 暗く凍った塔の群れ
+{
+  const mat = new THREE.MeshStandardMaterial({ color: '#3a4560', flatShading: true, roughness: 0.8 });
+  const [cx, cz] = V.city, [ux, uz] = V.cityU;
+  for (let i = 0; i < 34; i++) {
+    const w = R(5, 13), h = R(20, 60) * (i < 3 ? 1.7 : 1);
+    const along = R(-90, 90), across = R(-30, 30);
+    const x = cx + ux * along - uz * across, z = cz + uz * along + ux * across;
+    const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, w * R(0.7, 1.3)), mat);
+    b.position.set(x, h / 2 - 2, z); b.rotation.y = R(0, 1.5); scene.add(b);
+    if (rnd() < 0.45) {
+      const sh = h * R(0.3, 0.7);
+      const sp = new THREE.Mesh(new THREE.ConeGeometry(w * 0.45, sh, 4), mat);
+      sp.position.set(x, h - 2 + sh / 2, z); sp.rotation.y = b.rotation.y; scene.add(sp);
+    }
+  }
+}
+
+const cam = new THREE.PerspectiveCamera(V.fov, W / H, 0.1, 2000);
+cam.position.set(...V.cam);
+cam.lookAt(...V.look);
+renderer.render(scene, cam);
+</script>
+</body></html>
