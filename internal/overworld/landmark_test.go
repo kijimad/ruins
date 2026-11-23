@@ -209,7 +209,7 @@ func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *
 			}
 		}
 	}
-	require.GreaterOrEqual(t, len(cases), 20, "前提: 道の通るランドマークのチャンクが見つかる")
+	require.GreaterOrEqual(t, len(cases), 20, "前提: 道の通るランドマークのチャンクが見つかる。ランドマークや道の出る率を下げたら探す seed と行の範囲を広げる")
 
 	roadTiles := map[string]bool{}
 	for _, f := range raw.PtrSlice(raws.PointFeatures) {
