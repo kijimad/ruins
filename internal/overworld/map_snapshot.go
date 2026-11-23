@@ -76,8 +76,8 @@ type MapSnapshot struct {
 
 // MapSnapshots は行 y を持つ計画区間の地上の地図を記録しながら作り直し、段階ごとの写しを北から南への俯瞰図にして返す。
 // 段階は墜落現場、区域、行き先の予約、道を1本ずつ、集落、点在ランドマークの順に並ぶ。チャンクの種類は完成した地図から判定し、
-// 段階の写しで、その段階までに置いた所だけを見せる。写しが持つのは置いた種類と道と予約だけなので、後の段階が前の段階の
-// 置いた所を書き換えると、写しは途中の状態を表さない
+// 段階の写しで、その段階までに置いた所だけを見せる。予約は集落を置くまで見せるので、最後の段階は俯瞰図と同じになる。
+// 写しが持つのは置いた種類と道と予約だけなので、後の段階が前の段階の置いた所を書き換えると、写しは途中の状態を表さない
 func MapSnapshots(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.Chunk) []MapSnapshot {
 	road, ok := roadRow(raws)
 	if !ok {
@@ -118,7 +118,7 @@ func MapSnapshots(raws rawschema.Raws, runSeed uint64, y, cols, spawnRow consts.
 				switch {
 				case f.kind != chunkRoad && s.placed[f.kind]:
 					glyph = f.glyph
-				case s.reserved[c] && s.roads[c] == nil:
+				case s.reserved[c] && s.roads[c] == nil && !s.placed[chunkSettlement]:
 					glyph = reservedGlyph
 				}
 				col, hasCol := colorOf[glyph]
