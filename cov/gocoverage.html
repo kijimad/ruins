@@ -113,7 +113,7 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -643,7 +643,7 @@
 				
 				<option value="file293">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file294">github.com/kijimaD/ruins/internal/systems/render3d.go (71.6%)</option>
+				<option value="file294">github.com/kijimaD/ruins/internal/systems/render3d.go (75.8%)</option>
 				
 				<option value="file295">github.com/kijimaD/ruins/internal/systems/render_sprite.go (8.4%)</option>
 				
@@ -6133,7 +6133,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -34741,6 +34741,11 @@ func NewProjector(orbit gc.Camera, center consts.Coord[consts.Tile], sw, sh int)
 </span>        }
 }
 
+// FacesCamera は外から見て時計回りに張った面 q が、カメラに表を向けているかを返す
+func (p Projector) FacesCamera(q [4]Vec) bool {
+        <span class="cov8" title="1">return dot(cross(sub(q[1], q[0]), sub(q[2], q[0])), sub(p.eye, q[0])) &lt; 0
+</span>}
+
 // Right はカメラから見た画面右方向の単位ベクトル。立て板をカメラへ正対させるのに使う
 func (p Projector) Right() Vec {
         <span class="cov8" title="1">return norm(cross(norm(sub(p.target, p.eye)), Vec{0, 1, 0}))
@@ -47206,7 +47211,7 @@ func (sys *Render3DSystem) addQuad(out *[]r3quad, p0, p1, p2, p3 render3d.Vec, a
 // addFlatQuad は面をスプライトの平均色でフラットに塗る。壁の側面に使う。真上視点用テクスチャを
 // 垂直面へ引き伸ばす違和感を避け、新規アートなしでローポリらしい平板シェードにする。
 func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 render3d.Vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64) {
-        <span class="cov0" title="0">c := avgSpriteColor(atlas, x, y, ww, hh)
+        <span class="cov8" title="1">c := avgSpriteColor(atlas, x, y, ww, hh)
         *out = append(*out, r3quad{
                 p:     [4]render3d.Vec{p0, p1, p2, p3},
                 uv:    [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
@@ -47239,10 +47244,10 @@ func whitePixel() *ebiten.Image {
 
 // avgSpriteColor はアトラス上の矩形の平均色を 0..1 で返す。透明画素は除く。結果はキャッシュする。
 func avgSpriteColor(atlas *ebiten.Image, x, y, w, h float64) [3]float64 {
-        <span class="cov0" title="0">key := flatColorKey{atlas, int(x), int(y), int(w), int(h)}
+        <span class="cov8" title="1">key := flatColorKey{atlas, int(x), int(y), int(w), int(h)}
         if v, ok := r3flatColor.Load(key); ok </span>{
-                <span class="cov0" title="0">if c, ok2 := v.([3]float64); ok2 </span>{
-                        <span class="cov0" title="0">return c
+                <span class="cov8" title="1">if c, ok2 := v.([3]float64); ok2 </span>{
+                        <span class="cov8" title="1">return c
 </span>                }
         }
         <span class="cov0" title="0">var sr, sg, sb, n float64
@@ -47579,7 +47584,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
                         // 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする。
                         // 開いた扉は描かず、開口部だけを残す
                         <span class="cov8" title="1">if !vis || world.Components.BlockPass.Has(e) </span>{
-                                <span class="cov0" title="0">sys.addSlab(&amp;quads, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
+                                <span class="cov0" title="0">sys.addSlab(&amp;quads, projector, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
 </span>                        }
                         <span class="cov8" title="1">continue</span>
                 }
@@ -47588,11 +47593,11 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
                         <span class="cov0" title="0">continue</span>
                 }
                 <span class="cov8" title="1">if f, ok := poses[g.Coord]; ok &amp;&amp; sr.Shape == rawschema.Facing </span>{
-                        <span class="cov0" title="0">drawn := func(n consts.Coord[consts.Tile]) bool </span>{
+                        <span class="cov8" title="1">drawn := func(n consts.Coord[consts.Tile]) bool </span>{
                                 <span class="cov0" title="0">_, _, v := visTint(&amp;gc.GridElement{Coord: n})
                                 return v &amp;&amp; projector.TileOnScreen(n, render3d.BillboardHeight)
 </span>                        }
-                        <span class="cov0" title="0">sys.addSlab(&amp;quads, facingFaces(g.Coord, f, poses, drawn), atlas, ux, uy, uw, uh, tint)
+                        <span class="cov8" title="1">sys.addSlab(&amp;quads, projector, facingFaces(g.Coord, f, poses, drawn), atlas, ux, uy, uw, uh, tint)
                         continue</span>
                 }
                 <span class="cov8" title="1">base := render3d.At(fx+0.5, 0, fz+0.5)
@@ -47715,6 +47720,7 @@ func facingFaces(c consts.Coord[consts.Tile], f gc.Pose, poses map[consts.Coord[
         for i := range faces </span>{
                 <span class="cov8" title="1">faces[i].flat = true
 </span>        }
+        // 絵の面は箱の面より後に積む。カメラの前後方向に沿うと箱の表の面と表の絵の奥行きが同点になり、積んだ順に塗られるため
         <span class="cov8" title="1">faces = append(faces,
                 insetFace{p: [4]render3d.Vec{render3d.At(0, 0, z1), render3d.At(1, 0, z1), render3d.At(1, 0, z0), render3d.At(0, 0, z0)}, flat: true},
                 insetFace{p: [4]render3d.Vec{render3d.At(0, h, z1+facingLift), render3d.At(1, h, z1+facingLift), render3d.At(1, 0, z1+facingLift), render3d.At(0, 0, z1+facingLift)}},
@@ -47834,15 +47840,19 @@ func faceShade(p [4]render3d.Vec) float64 {
         }
 }
 
-// addSlab は板の面を積む
-func (sys *Render3DSystem) addSlab(out *[]r3quad, faces []insetFace, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
-        <span class="cov0" title="0">for _, f := range faces </span>{
+// addSlab は板の面を積む。絵を貼る面はカメラに背を向けていれば積まない。板の表と裏の絵はカメラの前後方向に沿うと
+// 奥行きが同点になり、裏の絵が表の上に描かれるため
+func (sys *Render3DSystem) addSlab(out *[]r3quad, projector render3d.Projector, faces []insetFace, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
+        <span class="cov8" title="1">for _, f := range faces </span>{
                 // 絵を貼る面は立て板と同じ明るさにし、平均色の面にだけ陰影を付ける
-                <span class="cov0" title="0">if f.flat </span>{
-                        <span class="cov0" title="0">sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, faceShade(f.p)))
+                <span class="cov8" title="1">if f.flat </span>{
+                        <span class="cov8" title="1">sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, faceShade(f.p)))
                         continue</span>
                 }
-                <span class="cov0" title="0">sys.addQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, tint)</span>
+                <span class="cov8" title="1">if !projector.FacesCamera(f.p) </span>{
+                        <span class="cov8" title="1">continue</span>
+                }
+                <span class="cov8" title="1">sys.addQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, tint)</span>
         }
 }
 
