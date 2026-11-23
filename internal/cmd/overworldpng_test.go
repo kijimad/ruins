@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/cli/v3"
@@ -32,14 +33,14 @@ func overworldPNGApp() *cli.Command {
 	}
 }
 
-func TestRunOverworldPNG_seedの地図をPNGに書きseedと出力先を表示する(t *testing.T) {
+func TestRunOverworldPNG_テストのworldと同じ地図をPNGに書きseedと出力先を表示する(t *testing.T) {
 	t.Parallel()
 
 	out := filepath.Join(t.TempDir(), "out.png")
 	var buf bytes.Buffer
 	app := overworldPNGApp()
 	app.Writer = &buf
-	require.NoError(t, app.Run(context.Background(), []string{"overworldpng", "--seed", "7", "--north", "1", "--south", "0", "--tile-px", "2", "--out", out}))
+	require.NoError(t, app.Run(context.Background(), []string{"overworldpng", "--seed", "7", "--north", "8", "--south", "1", "--tile-px", "2", "--out", out}))
 	assert.Equal(t, "seed: 7\nout: "+out+"\n", buf.String())
 
 	f, err := os.Open(out)
@@ -48,9 +49,8 @@ func TestRunOverworldPNG_seedの地図をPNGに書きseedと出力先を表示�
 	got, err := png.Decode(f)
 	require.NoError(t, err)
 
-	world, err := newOverworldWorld()
-	require.NoError(t, err)
-	want, err := overworld.RenderNorthward(world, 7, 1, 0, 2)
+	// サブコマンドの world とテストの world で、raw と定義の読み方が食い違えば地図がずれる
+	want, err := overworld.RenderNorthward(testutil.InitTestWorld(t), 7, 8, 1, 2)
 	require.NoError(t, err)
 	assert.Equal(t, want.Bounds(), got.Bounds())
 	assert.Equal(t, want.Pix, imageRGBA(got).Pix)

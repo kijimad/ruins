@@ -34,7 +34,8 @@ func RenderNorthward(world w.World, runSeed uint64, north, south consts.Chunk, t
 }
 
 // generateNorthward は開始の行から北へ north 行、南へ south 行のチャンクを world に生成する。北端の行を帯ローカルの0行目に置き、
-// ゲームが北へ進んだときと同じく帯の NorthIndex で絶対の行と結ぶ
+// ゲームが北へ進んだときと同じく帯の NorthIndex で絶対の行と結ぶ。ゲームは帯の行を北へ1行ずつ足していくが、ここでは北端から
+// 一度に並べる。チャンクの生成が位置と seed だけで決まり、隣とのつながりをオートタイルの計算し直しで合わせる間は、順が違っても同じ地図になる
 func generateNorthward(world w.World, runSeed uint64, north, south consts.Chunk) error {
 	chunkW, chunkH, cols, rows := dungeon.DungeonOverworld.BandShape()
 	sb := query.EnsureSeamlessBand(world)

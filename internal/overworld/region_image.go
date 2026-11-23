@@ -111,7 +111,7 @@ func (s *regionSprites) load(sr gc.SpriteRender) (img image.Image, ok bool, err 
 	if err != nil {
 		return nil, false, err
 	}
-	if s.px != im.Bounds().Dx() {
+	if b := im.Bounds(); b.Dx() != s.px || b.Dy() != s.px {
 		small := image.NewRGBA(image.Rect(0, 0, s.px, s.px))
 		xdraw.NearestNeighbor.Scale(small, small.Bounds(), im, im.Bounds(), draw.Src, nil)
 		im = small
