@@ -14,8 +14,11 @@ import (
 // 墜落現場を行き先として、網に近い行き先から順にチャンク単位の経路でつなぐ。集落は道に接する空いたチャンクに置く。
 // 計画は計画区間の番号と seed の純関数なので、どのチャンクから引いても同じ道と集落になる。
 
-// roadSalt は計画区間の境目の通り道と集落の置き場所の抽選に混ぜる値
-const roadSalt uint64 = 0x9e3779b97f4a7c15
+// 計画区間の境目の通り道と、集落の置き場所の抽選に混ぜる値
+const (
+	crossingSalt       uint64 = 0x9e3779b97f4a7c15
+	settlementSiteSalt uint64 = 0xc2b2ae3d27d4eb4f
+)
 
 // 経路探索の費用。曲がるごとに費用を足し、まっすぐな道を好む
 const (
@@ -128,7 +131,9 @@ func districtsBetween(raws rawschema.Raws, runSeed uint64, top, bottom, cols, sp
 }
 
 // crossingAt は計画区間の境目の行 b、すなわち行 b-1 と行 b の間を道が越える列を返す。両側のチャンクがどちらも通れる列から
-// b と seed で引く。区域が境目をまたげば区域の門と通りが通り道になるので、列は引かず ok=false。通れる列が無くても ok=false
+// b と seed で引く。区域が境目をまたげば区域の門と通りが通り道になるので、列は引かず ok=false。通れる列が無くても ok=false。
+// 境目の両側の計画区間が、それぞれ自分の網をこの通り道へつなげることを前提にする。区域の間に隙間を空けるので、区域の外は
+// ひと続きになり、この前提が成り立つ。TestPlanAt_道の出入り口の先は道か行き先につながる が確かめる
 func crossingAt(raws rawschema.Raws, runSeed uint64, b, cols, spawnRow consts.Chunk) (consts.Chunk, bool) {
 	for _, r := range districtsBetween(raws, runSeed, b-1, b, cols, spawnRow) {
 		if r.anchor.Y <= b-1 && r.anchor.Y+r.h-1 >= b {
@@ -145,7 +150,7 @@ func crossingAt(raws rawschema.Raws, runSeed uint64, b, cols, spawnRow consts.Ch
 	if len(free) == 0 {
 		return 0, false
 	}
-	return free[consts.Mix2D(runSeed^roadSalt, b, 0)%uint64(len(free))], true
+	return free[consts.Mix2D(runSeed^crossingSalt, b, 0)%uint64(len(free))], true
 }
 
 // planTerminal は行き先が網につながる所。c は道のチャンクになり、port は行き先の側の出入り口
@@ -223,6 +228,10 @@ func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols,
 	}
 	if x, ok := crossingAt(raws, runSeed, g.bottom+1, cols, spawnRow); ok {
 		nodes = append(nodes, planNode{terms: []planTerminal{{c: consts.Coord[consts.Chunk]{X: x, Y: g.bottom}, port: roadPort{dir: RoadS}}}})
+	}
+	// 網の始まりは1つにし、残りの始まりも行き先として経路でつなぐ。始まりのままだと、経路の出発点に使われなかった門の先に道が届かない
+	if len(start) > 1 {
+		start, nodes = start[:1], append(start[1:], nodes...)
 	}
 	if len(start) == 0 && len(nodes) > 0 {
 		start, nodes = nodes[:1], nodes[1:]
@@ -332,7 +341,7 @@ func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *roadPlan, g spa
 		if len(sites) == 0 {
 			continue
 		}
-		s := sites[consts.Mix2D(runSeed^p.Salt^roadSalt, ry, 0)%uint64(len(sites))]
+		s := sites[consts.Mix2D(runSeed^settlementSiteSalt, ry, 0)%uint64(len(sites))]
 		plan.settlements[s.c] = roadDirToward(s.c, s.road)
 		plan.addPort(s.road, roadPort{dir: roadDirToward(s.road, s.c), lane: laneEntrance})
 	}
