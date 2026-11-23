@@ -38,6 +38,10 @@ magick -background "$CLEAR" -fill "$SUB_COLOR" -font "$SUB_FONT" -kerning "$SUB_
 	-trim +repage "PNG32:$TMP/sub.png"
 read -r Sw Sh <<<"$(identify -format '%w %h' "$TMP/sub.png")"
 RULE_LEN=$(((Tw - Sw) / 2 - SUB_PT))
+[ "$RULE_LEN" -gt 0 ] || {
+	echo "ERROR: 副題が題字より長く、罫を引く幅が無い" >&2
+	exit 1
+}
 magick -size "${RULE_LEN}x${RULE_THICK}" xc:"$SUB_COLOR" "PNG32:$TMP/rule.png"
 magick -size "${Tw}x${Sh}" xc:"$CLEAR" \
 	\( "$TMP/rule.png" \) -gravity West -composite \

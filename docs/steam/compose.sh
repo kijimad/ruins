@@ -11,8 +11,8 @@ TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
 # マスターは横1枚だけ。縦カプセルもこの1枚をポートレートに切り出す。
-MASTER="${MASTER:-docs/steam/background/master_3840x2560.png}"
-OUT="${OUT:-docs/steam/generated}"
+MASTER="${STEAM_MASTER:-docs/steam/background/master_3840x2560.png}"
+OUT="${STEAM_OUT:-docs/steam/generated}"
 # 完成品ロゴ。副題と暗い暈しを内包する。加工せずそのまま重ねる
 LOGO_PNG="docs/steam/logo/logo.png"
 
@@ -109,12 +109,11 @@ generate_capsule 600 900 library_capsule.png 1707 2560 north southwest 120
 # シネマ配置。ロゴを左上、メニューは左下(ゲーム側で描画)に置く。
 # 炎はマスターの左下にあり、左下のメニューとぶつかるので、左右を反転して炎を右下へ移す。
 magick "$MASTER" -flop -gravity southeast -crop 2560x1920+120+0 +repage -resize 960x720! "$TMP/title_bg.png"
-TITLE_OUT="${TITLE_OUT:-assets/file/textures/bg/title1_.png}"
-cp "$TMP/title_bg.png" "$TITLE_OUT"
+TITLE_OUT="${STEAM_TITLE_OUT:-assets/file/textures/bg/title1_.png}"
 # ロゴを左上へ。幅は画面の約55%。メニューは main_menu.go が左下へ左寄せで描く。
 # ロゴは暈しを内包する。寸法を合わせて重ねるだけ
 magick "$LOGO_PNG" -resize 500x "$TMP/title_logo.png"
-magick "$TITLE_OUT" "$TMP/title_logo.png" -gravity NorthWest -geometry +40+48 -compose over -composite "$TMP/title_merged.png"
+magick "$TMP/title_bg.png" "$TMP/title_logo.png" -gravity NorthWest -geometry +40+48 -compose over -composite "$TMP/title_merged.png"
 mv "$TMP/title_merged.png" "$TITLE_OUT"
 echo "title1_.png (960x720)"
 

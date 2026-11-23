@@ -60,7 +60,8 @@ def pixelize(raw):
     auto = im.quantize(colors=AUTO_COLORS, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
     pal = Image.new("P", (1, 1))
     colors = auto.getpalette()[: AUTO_COLORS * 3] + WARM
-    pal.putpalette(colors + [0] * (768 - len(colors)))
+    # quantize は256色の枠をすべて候補にするので、空きは最後の色で埋め、使わない黒を混ぜない
+    pal.putpalette(colors + colors[-3:] * ((768 - len(colors)) // 3))
     return im.quantize(palette=pal, dither=Image.Dither.NONE).convert("RGB")
 
 
