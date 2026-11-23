@@ -249,6 +249,8 @@ func TestExecuteMoveAction_塞がれたマスに歩き込むと塞ぐものの�
 			require.NoError(t, err)
 			tt.spawn(t, world)
 
+			// 押し続けたときのリピートでも同じ文は重ねない
+			require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))
 			require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))
 
 			assert.Equal(t, consts.Coord[consts.Tile]{X: 10, Y: 10}, world.Components.GridElement.Get(player).Coord)

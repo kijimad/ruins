@@ -64,22 +64,19 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		}
 	}
 
-	canMove := CanMoveTo(world, next, current, entity)
-	if !canMove {
+	if !CanMoveTo(world, next, current, entity) {
 		logBlockers(world, next)
+		return nil
 	}
-	if canMove {
-		destination := gc.GridElement{Coord: next}
-		// 重量超過はプレイヤーの通常状態。Execute はユーザ起因の失敗を gamelog へ出したうえで
-		// err=nil を返すため、壁への歩き込みと同じく no-op になる
-		_, err := Execute(NewMoveActivity(destination), entity, world)
-		return err
-	}
-
-	return nil
+	destination := gc.GridElement{Coord: next}
+	// 重量超過はプレイヤーの通常状態。Execute はユーザ起因の失敗を gamelog へ出したうえで
+	// err=nil を返すため、壁への歩き込みと同じく no-op になる
+	_, err = Execute(NewMoveActivity(destination), entity, world)
+	return err
 }
 
-// logBlockers は c で通行を塞ぐタイルと置物の名前を出す。黙って止まると、何に塞がれたか分からないため
+// logBlockers は c で通行を塞ぐタイルと置物の名前を出す。黙って止まると、何に塞がれたか分からないため。
+// 移動キーは押し続けるとリピートし、止まってもターンが進まないので、直前の行と同じ文は重ねない
 func logBlockers(world w.World, c consts.Coord[consts.Tile]) {
 	q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Dead]()).Query()
 	for q.Next() {
@@ -87,9 +84,11 @@ func logBlockers(world w.World, c consts.Coord[consts.Tile]) {
 		if world.Components.GridElement.Get(e).Coord != c {
 			continue
 		}
-		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "%s is here.", query.GetEntityName(e, world))).
-			Log()
+		msg := query.T(world, "%s is here.", query.GetEntityName(e, world))
+		if last := query.GetGameLog(world).GetRecentEntries(1); len(last) == 1 && last[0].Text() == msg {
+			continue
+		}
+		gamelog.New(query.GetGameLog(world)).Markup(msg).Log()
 	}
 }
 
