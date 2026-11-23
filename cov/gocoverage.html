@@ -10948,7 +10948,7 @@ type Wallet struct {
 // なくなるとキャラクターはゲームオーバー、物は壊れる
 type HP Pool[int]
 
-// Charge はアイテムの残量。灯りは照らしている間に減り、0で尽きる。
+// Charge はアイテムの残量。灯りは照らしている間に減り、0で尽きる。キューブは燃料ポイントを熱量の単位で持つ。
 // Max は生成時に写すので、raw を変えても生成済みの物には効かない
 type Charge Pool[int]
 
@@ -11307,7 +11307,6 @@ type EntitySpec struct {
         Remains            *Remains
         Decor              *Decor
         Cube               *Cube
-        FuelTank           *FuelTank
         Deployed           *Deployed
         LightSource        *LightSource
         Charge             *Charge
@@ -11409,7 +11408,6 @@ type Components struct {
         Remains            *ecs.Map[Remains]
         Decor              *ecs.Map[Decor]
         Cube               *ecs.Map[Cube]
-        FuelTank           *ecs.Map[FuelTank]
         Deployed           *ecs.Map[Deployed]
         LightSource        *ecs.Map[LightSource]
         Charge             *ecs.Map[Charge]
@@ -11511,7 +11509,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
         c.Remains = ecs.NewMap[Remains](world)
         c.Decor = ecs.NewMap[Decor](world)
         c.Cube = ecs.NewMap[Cube](world)
-        c.FuelTank = ecs.NewMap[FuelTank](world)
         c.Deployed = ecs.NewMap[Deployed](world)
         c.LightSource = ecs.NewMap[LightSource](world)
         c.Charge = ecs.NewMap[Charge](world)
@@ -11615,7 +11612,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
         addComp(c.Remains, entity, spec.Remains)
         addComp(c.Decor, entity, spec.Decor)
         addComp(c.Cube, entity, spec.Cube)
-        addComp(c.FuelTank, entity, spec.FuelTank)
         addComp(c.Deployed, entity, spec.Deployed)
         addComp(c.LightSource, entity, spec.LightSource)
         addComp(c.Charge, entity, spec.Charge)
@@ -12227,14 +12223,11 @@ type PassCost struct {
 // Renderable はフィールド上で描画できる
 type Renderable struct{}
 
-// Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与する。
+// Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与し、燃料ポイントを Charge に一緒に持たせる。
 type Cube struct{}
 
 // CubeCore はキューブの核に付くマーカー。使うと隣に新しいキューブが組み上がる
 type CubeCore struct{}
-
-// FuelTank はキューブの燃料ポイントの上限と現在値。
-type FuelTank Pool[consts.Heat]
 
 // Deployed はキューブが展開中であることを示す。展開中のキューブは随伴せず、その場に留まる。
 // Range は展開した時点の野営フットプリントの縦横別半径を凍結して持つ。圧縮の畳み込みとレーザー壁描画は
@@ -39027,6 +39020,7 @@ import (
 
         "github.com/hajimehoshi/ebiten/v2"
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
         es "github.com/kijimaD/ruins/internal/engine/states"
         "github.com/kijimaD/ruins/internal/inputmapper"
         "github.com/kijimaD/ruins/internal/keybind"
@@ -39132,13 +39126,13 @@ func cubeInfoItems(world w.World, cube ecs.Entity) []statusItemData {
         return []statusItemData{
                 {Label: query.T(world, "Deploy size"), Value: fmt.Sprintf("%dx%d", 2*r.X+1, 2*r.Y+1)},
                 {Label: query.T(world, "Total weight"), Value: weight.KgString()},
-                {Label: query.T(world, "Fuel"), Value: fuelTankText(*world.Components.FuelTank.Get(cube))},
+                {Label: query.T(world, "Fuel"), Value: cubeFuelText(*world.Components.Charge.Get(cube))},
 </span>        }
 }
 
-// fuelTankText は燃料タンクを現在値と上限で整形する。
-func fuelTankText(tank gc.FuelTank) string {
-        <span class="cov8" title="1">return fmt.Sprintf("%s / %d", tank.Current.String(), int(tank.Max))
+// cubeFuelText はキューブの燃料ポイントを現在値と上限で整形する。
+func cubeFuelText(charge gc.Charge) string {
+        <span class="cov8" title="1">return fmt.Sprintf("%s / %d", consts.Heat(charge.Current).String(), charge.Max)
 </span>}
 </pre>
 		
@@ -41997,7 +41991,7 @@ func FireFuelSink(fire ecs.Entity) FuelSink {
 func CubeFuelSink(cube ecs.Entity) FuelSink {
         <span class="cov0" title="0">return FuelSink{
                 title: func(world w.World) string </span>{
-                        <span class="cov0" title="0">return query.T(world, "Fuel %s", fuelTankText(*world.Components.FuelTank.Get(cube)))
+                        <span class="cov0" title="0">return query.T(world, "Fuel %s", cubeFuelText(*world.Components.Charge.Get(cube)))
 </span>                },
                 accepts: query.IsCombustible,
                 gain: func(world w.World, fuel ecs.Entity) string {
@@ -46624,10 +46618,11 @@ func extractCubeStatus(world w.World) hud.CubeStatusData {
         if !ok </span>{
                 <span class="cov0" title="0">return hud.CubeStatusData{}
 </span>        }
-        <span class="cov8" title="1">return hud.CubeStatusData{
+        <span class="cov8" title="1">ratio, _ := query.ChargeRatio(world, cube)
+        return hud.CubeStatusData{
                 Visible:   true,
                 Name:      query.GetEntityName(cube, world),
-                FuelRatio: query.FuelGaugeRatio(*world.Components.FuelTank.Get(cube)),
+                FuelRatio: ratio,
 </span>        }
 }
 
@@ -48482,7 +48477,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
                 if world.Components.Abilities.Has(entity) </span>{
                         <span class="cov8" title="1">updateCharacterStats(world, entity)
 </span>                }
-                <span class="cov8" title="1">if world.Components.FuelTank.Has(entity) </span>{
+                <span class="cov8" title="1">if world.Components.Cube.Has(entity) </span>{
                         <span class="cov8" title="1">updateCubeFuelCapacity(world, entity)
 </span>                }
         }
@@ -48597,8 +48592,8 @@ func updateCharacterStats(world w.World, entity ecs.Entity) {
 
 // updateCubeFuelCapacity はキューブの燃料タンクの上限を計算し直し、現在値を切り詰める。
 func updateCubeFuelCapacity(world w.World, cube ecs.Entity) {
-        <span class="cov8" title="1">tank := world.Components.FuelTank.Get(cube)
-        tank.Max = query.CubeFuelCapacity(world, cube)
+        <span class="cov8" title="1">tank := world.Components.Charge.Get(cube)
+        tank.Max = int(query.CubeFuelCapacity(world, cube))
         tank.Current = min(tank.Current, tank.Max)
 </span>}
 
@@ -56494,14 +56489,14 @@ import (
 // AddCubeFuel は fuel の燃焼熱量を上限までキューブの燃料ポイントへ足して fuel を消す。燃料の行の物は入れ物を残量0で残す。
 // 満タンなら何もせず false を返す。
 func AddCubeFuel(world w.World, cube ecs.Entity, fuel ecs.Entity) bool {
-        <span class="cov8" title="1">if !world.Components.FuelTank.Has(cube) </span>{
+        <span class="cov8" title="1">if !world.Components.Cube.Has(cube) </span>{
                 <span class="cov0" title="0">return false
 </span>        }
-        <span class="cov8" title="1">tank := world.Components.FuelTank.Get(cube)
+        <span class="cov8" title="1">tank := world.Components.Charge.Get(cube)
         if tank.Current &gt;= tank.Max </span>{
                 <span class="cov8" title="1">return false
 </span>        }
-        <span class="cov8" title="1">tank.Current = min(tank.Max, tank.Current+query.HeatContent(world, fuel))
+        <span class="cov8" title="1">tank.Current = min(tank.Max, tank.Current+int(query.HeatContent(world, fuel)))
         burnFuel(world, fuel)
         return true</span>
 }
@@ -56515,7 +56510,7 @@ func ConsumeCubeFuel(world w.World, cube ecs.Entity, amount consts.Heat) bool {
         <span class="cov8" title="1">if query.CubeFuelTotal(world, cube) &lt; amount </span>{
                 <span class="cov8" title="1">return false
 </span>        }
-        <span class="cov8" title="1">world.Components.FuelTank.Get(cube).Current -= amount
+        <span class="cov8" title="1">world.Components.Charge.Get(cube).Current -= int(amount)
         return true</span>
 }
 </pre>
@@ -58008,7 +58003,7 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 </span>        }
         <span class="cov8" title="1">entitySpec.GridElement = &amp;gc.GridElement{Coord: pos}
         entitySpec.Cube = &amp;gc.Cube{}
-        entitySpec.FuelTank = &amp;gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase}
+        entitySpec.Charge = &amp;gc.Charge{Max: int(consts.CubeFuelCapacityBase), Current: int(consts.CubeFuelCapacityBase)}
         entitySpec.SoloAI = &amp;gc.SoloAI{
                 CombatDefault: rawschema.Ignore,
                 CombatCurrent: rawschema.Ignore,
@@ -58359,10 +58354,10 @@ const (
 )
 
 // ChargeTriggerOf は item の残量が何で減るかを、持つコンポーネントから導く。光源を持つ物はオンの間に減り、
-// ほかは使うたびに減る。燃料もほかに入るが、灯りへ移すときだけ減る
+// ほかは使うたびに減る。燃料もほかに入るが、灯りへ移すときだけ減る。キューブは随伴でだけ減るので、この分類では減らない物とする
 func ChargeTriggerOf(world w.World, item ecs.Entity) ChargeTrigger {
         <span class="cov8" title="1">switch </span>{
-        case item == gc.InvalidEntity || !world.Components.Charge.Has(item):
+        case item == gc.InvalidEntity || !world.Components.Charge.Has(item) || world.Components.Cube.Has(item):
                 <span class="cov8" title="1">return ChargeTriggerNone</span>
         case world.Components.LightSource.Has(item):
                 <span class="cov8" title="1">return ChargeTriggerWhileOn</span>
@@ -58378,7 +58373,7 @@ func IsOn(world w.World, holder, item ecs.Entity) bool {
         <span class="cov8" title="1">return false</span>
 }
 
-// ChargeRatio は残量の上限に対する割合を 0 から 1 で返す。残量を持たなければ ok は偽。上限は raw で1以上に決まる
+// ChargeRatio は残量の上限に対する割合を 0 から 1 で返す。残量を持たなければ ok は偽。上限は1以上に決まる
 func ChargeRatio(world w.World, entity ecs.Entity) (float64, bool) {
         <span class="cov8" title="1">if !world.Components.Charge.Has(entity) </span>{
                 <span class="cov8" title="1">return 0, false
@@ -58595,20 +58590,12 @@ func FollowFuelCost(total consts.Milligram) consts.Heat {
         return consts.Heat(consts.FollowFuelBase + consts.FollowFuelPerKg*kg)
 </span>}
 
-// CubeFuelTotal はキューブに貯めた燃料ポイントを返す。FuelTank を持たなければ0。
+// CubeFuelTotal はキューブに貯めた燃料ポイントを返す。キューブでなければ0。
 func CubeFuelTotal(world w.World, cube ecs.Entity) consts.Heat {
-        <span class="cov8" title="1">if !world.Components.FuelTank.Has(cube) </span>{
+        <span class="cov8" title="1">if !world.Components.Cube.Has(cube) </span>{
                 <span class="cov8" title="1">return 0
 </span>        }
-        <span class="cov8" title="1">return world.Components.FuelTank.Get(cube).Current</span>
-}
-
-// FuelGaugeRatio は燃料ゲージの充填率を現在値と上限の比で返す。上限が0以下なら0。
-func FuelGaugeRatio(tank gc.FuelTank) float64 {
-        <span class="cov8" title="1">if tank.Max &lt;= 0 </span>{
-                <span class="cov8" title="1">return 0
-</span>        }
-        <span class="cov8" title="1">return float64(tank.Current) / float64(tank.Max)</span>
+        <span class="cov8" title="1">return consts.Heat(world.Components.Charge.Get(cube).Current)</span>
 }
 
 // ActiveCube は現ステージにいるキューブを返す。ダンジョンなどキューブのいないステージでは false。

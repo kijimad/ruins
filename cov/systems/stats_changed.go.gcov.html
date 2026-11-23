@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 01:59:57</td>
+            <td class="headerValue">2026-11-23 02:43:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,7 +97,7 @@
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 if world.Components.Abilities.Has(entity) {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         updateCharacterStats(world, entity)</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 if world.Components.FuelTank.Has(entity) {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 if world.Components.Cube.Has(entity) {</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                         updateCubeFuelCapacity(world, entity)</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L41"><span class="lineNum">      41</span>              :         }</span>
@@ -212,8 +212,8 @@
 <span id="L150"><span class="lineNum">     150</span>              : </span>
 <span id="L151"><span class="lineNum">     151</span>              : // updateCubeFuelCapacity はキューブの燃料タンクの上限を計算し直し、現在値を切り詰める。</span>
 <span id="L152"><span class="lineNum">     152</span>              : func updateCubeFuelCapacity(world w.World, cube ecs.Entity) {</span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         tank := world.Components.FuelTank.Get(cube)</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         tank.Max = query.CubeFuelCapacity(world, cube)</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         tank := world.Components.Charge.Get(cube)</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         tank.Max = int(query.CubeFuelCapacity(world, cube))</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         tank.Current = min(tank.Current, tank.Max)</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L157"><span class="lineNum">     157</span>              : </span>

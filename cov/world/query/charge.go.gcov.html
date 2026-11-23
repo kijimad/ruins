@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 01:59:57</td>
+            <td class="headerValue">2026-11-23 02:43:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,10 +85,10 @@
 <span id="L23"><span class="lineNum">      23</span>              : )</span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
 <span id="L25"><span class="lineNum">      25</span>              : // ChargeTriggerOf は item の残量が何で減るかを、持つコンポーネントから導く。光源を持つ物はオンの間に減り、</span>
-<span id="L26"><span class="lineNum">      26</span>              : // ほかは使うたびに減る。燃料もほかに入るが、灯りへ移すときだけ減る</span>
+<span id="L26"><span class="lineNum">      26</span>              : // ほかは使うたびに減る。燃料もほかに入るが、灯りへ移すときだけ減る。キューブは随伴でだけ減るので、この分類では減らない物とする</span>
 <span id="L27"><span class="lineNum">      27</span>              : func ChargeTriggerOf(world w.World, item ecs.Entity) ChargeTrigger {</span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L29"><span class="lineNum">      29</span>              :         case item == gc.InvalidEntity || !world.Components.Charge.Has(item):</span>
+<span id="L29"><span class="lineNum">      29</span>              :         case item == gc.InvalidEntity || !world.Components.Charge.Has(item) || world.Components.Cube.Has(item):</span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 return ChargeTriggerNone</span></span>
 <span id="L31"><span class="lineNum">      31</span>              :         case world.Components.LightSource.Has(item):</span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return ChargeTriggerWhileOn</span></span>
@@ -104,7 +104,7 @@
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         return false</span></span>
 <span id="L43"><span class="lineNum">      43</span>              : }</span>
 <span id="L44"><span class="lineNum">      44</span>              : </span>
-<span id="L45"><span class="lineNum">      45</span>              : // ChargeRatio は残量の上限に対する割合を 0 から 1 で返す。残量を持たなければ ok は偽。上限は raw で1以上に決まる</span>
+<span id="L45"><span class="lineNum">      45</span>              : // ChargeRatio は残量の上限に対する割合を 0 から 1 で返す。残量を持たなければ ok は偽。上限は1以上に決まる</span>
 <span id="L46"><span class="lineNum">      46</span>              : func ChargeRatio(world w.World, entity ecs.Entity) (float64, bool) {</span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         if !world.Components.Charge.Has(entity) {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 return 0, false</span></span>

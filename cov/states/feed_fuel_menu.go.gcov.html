@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 01:59:57</td>
+            <td class="headerValue">2026-11-23 02:43:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -126,7 +126,7 @@
 <span id="L64"><span class="lineNum">      64</span>              : func CubeFuelSink(cube ecs.Entity) FuelSink {</span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         return FuelSink{</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                 title: func(world w.World) string {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                         return query.T(world, &quot;Fuel %s&quot;, fuelTankText(*world.Components.FuelTank.Get(cube)))</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                         return query.T(world, &quot;Fuel %s&quot;, cubeFuelText(*world.Components.Charge.Get(cube)))</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                 },</span></span>
 <span id="L69"><span class="lineNum">      69</span>              :                 accepts: query.IsCombustible,</span>
 <span id="L70"><span class="lineNum">      70</span>              :                 gain: func(world w.World, fuel ecs.Entity) string {</span>

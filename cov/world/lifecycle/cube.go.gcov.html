@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 01:59:57</td>
+            <td class="headerValue">2026-11-23 02:43:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,14 +72,14 @@
 <span id="L10"><span class="lineNum">      10</span>              : // AddCubeFuel は fuel の燃焼熱量を上限までキューブの燃料ポイントへ足して fuel を消す。燃料の行の物は入れ物を残量0で残す。</span>
 <span id="L11"><span class="lineNum">      11</span>              : // 満タンなら何もせず false を返す。</span>
 <span id="L12"><span class="lineNum">      12</span>              : func AddCubeFuel(world w.World, cube ecs.Entity, fuel ecs.Entity) bool {</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         if !world.Components.FuelTank.Has(cube) {</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         if !world.Components.Cube.Has(cube) {</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :                 return false</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         tank := world.Components.FuelTank.Get(cube)</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         tank := world.Components.Charge.Get(cube)</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         if tank.Current &gt;= tank.Max {</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         tank.Current = min(tank.Max, tank.Current+query.HeatContent(world, fuel))</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         tank.Current = min(tank.Max, tank.Current+int(query.HeatContent(world, fuel)))</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         burnFuel(world, fuel)</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return true</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : }</span>
@@ -93,7 +93,7 @@
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         if query.CubeFuelTotal(world, cube) &lt; amount {</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         world.Components.FuelTank.Get(cube).Current -= amount</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         world.Components.Charge.Get(cube).Current -= int(amount)</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return true</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : }</span>
         </pre>
