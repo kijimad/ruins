@@ -172,3 +172,15 @@ func TestTransferableCharge(t *testing.T) {
 		})
 	}
 }
+
+func TestChargeMarker(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	battery := world.ECS.NewEntity()
+	world.Components.Charge.Add(battery, &gc.Charge{Current: 750, Max: 1000})
+	empty := world.ECS.NewEntity()
+	world.Components.Charge.Add(empty, &gc.Charge{Current: 0, Max: 1000})
+	coat := world.ECS.NewEntity()
+
+	assert.Equal(t, []string{"750", "0", ""}, []string{ChargeMarker(world, battery), ChargeMarker(world, empty), ChargeMarker(world, coat)})
+}

@@ -50,6 +50,9 @@ func itemIconCell(world w.World, e ecs.Entity) styled.Cell {
 func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuframe.Row {
 	name := query.GetEntityName(e, world)
 	label := query.FormatNameCount(name, count)
+	if marker := query.ChargeMarker(world, e); marker != "" {
+		label += " (" + marker + ")"
+	}
 	// 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする
 	if marker := query.FreshnessMarker(world, e); marker != "" {
 		label += " (" + marker + ")"

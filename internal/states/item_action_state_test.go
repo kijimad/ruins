@@ -264,7 +264,24 @@ func TestItemMenuRow_スイッチを持つ物はオンかオフかを添える(t
 	require.NoError(t, err)
 	name := query.GetEntityName(lantern, world)
 
-	assert.Equal(t, name+" ("+query.T(world, "Switched off")+")", itemMenuRow(world, lantern, 1).Cells[1].Text)
+	assert.Equal(t, name+" (1500) ("+query.T(world, "Switched off")+")", itemMenuRow(world, lantern, 1).Cells[1].Text)
 	world.Components.Switch.Get(lantern).On = true
-	assert.Equal(t, name+" ("+query.T(world, "Switched on")+")", itemMenuRow(world, lantern, 1).Cells[1].Text)
+	assert.Equal(t, name+" (1500) ("+query.T(world, "Switched on")+")", itemMenuRow(world, lantern, 1).Cells[1].Text)
+}
+
+func TestItemMenuRow_残量を持つ物は残量の数を添える(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	battery, err := lifecycle.SpawnBackpackItem(world, "battery", 2)
+	require.NoError(t, err)
+	world.Components.Charge.Get(battery).Current = 750
+	coat, err := lifecycle.SpawnBackpackItem(world, "bandage", 1)
+	require.NoError(t, err)
+
+	assert.Equal(t, []string{
+		query.FormatNameCount(query.GetEntityName(battery, world), 2) + " (750)",
+		query.GetEntityName(coat, world),
+	}, []string{itemMenuRow(world, battery, 2).Cells[1].Text, itemMenuRow(world, coat, 1).Cells[1].Text})
 }
