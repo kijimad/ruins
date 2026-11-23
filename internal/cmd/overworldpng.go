@@ -35,8 +35,16 @@ const (
 	tilePxFlag = "tile-px"
 )
 
-// errOverworldRange は生成する行の数や1タイルの画素の数が負や0のときに返す
-var errOverworldRange = errors.New("north and south must be >= 0 and tile-px must be > 0")
+const (
+	// maxOverworldRows は1枚に生成するチャンクの行の上限。打ち間違いで画像や world が大きくなりすぎるのを防ぐ
+	maxOverworldRows = 100
+	// minTilePx と maxTilePx は1タイルの画素の数の範囲。小さすぎると座標の文字がチャンクを埋め、スプライトより大きくしても細かくならない
+	minTilePx = 2
+	maxTilePx = 32
+)
+
+// errOverworldRange は生成する行の数や1タイルの画素の数が範囲の外のときに返す
+var errOverworldRange = errors.New("out of range: north and south must be >= 0, rows must be <= 100, tile-px must be 2 to 32")
 
 // CmdOverworldPNG は地上の地図を開始の行から北へ長く生成し、チャンクの座標を書き込んだ PNG を書き出すサブコマンド。
 // 生成の自然さや面白さを人が目で確かめるための開発用の道具で、書き出した画像はリポジトリに入れない
@@ -48,7 +56,7 @@ var CmdOverworldPNG = &cli.Command{
 		&cli.Uint64Flag{Name: seedFlag, Usage: "overworld run seed. random when omitted"},
 		&cli.IntFlag{Name: northFlag, Usage: "chunk rows to generate north of the start row", Value: 20},
 		&cli.IntFlag{Name: southFlag, Usage: "chunk rows to generate south of the start row", Value: 1},
-		&cli.IntFlag{Name: tilePxFlag, Usage: "pixels per tile", Value: 8},
+		&cli.IntFlag{Name: tilePxFlag, Usage: "pixels per tile, 2 to 32", Value: 8},
 	},
 	Action: runOverworldPNG,
 }
@@ -59,7 +67,7 @@ func runOverworldPNG(_ context.Context, cmd *cli.Command) error {
 		seed = rand.Uint64()
 	}
 	north, south, tilePx := cmd.Int(northFlag), cmd.Int(southFlag), cmd.Int(tilePxFlag)
-	if north < 0 || south < 0 || tilePx <= 0 {
+	if north < 0 || south < 0 || north+south+1 > maxOverworldRows || tilePx < minTilePx || tilePx > maxTilePx {
 		return fmt.Errorf("%w: north=%d south=%d tile-px=%d", errOverworldRange, north, south, tilePx)
 	}
 	img, err := renderOverworld(seed, consts.Chunk(north), consts.Chunk(south), tilePx)
@@ -76,24 +84,11 @@ func runOverworldPNG(_ context.Context, cmd *cli.Command) error {
 
 // renderOverworld は地上の定義の帯の形で、開始の行から北へ north 行、南へ south 行のチャンクを生成し、座標を書き込んだ画像にする
 func renderOverworld(seed uint64, north, south consts.Chunk, tilePx int) (*image.RGBA, error) {
-	world, err := newOverworldWorld()
+	world, err := generateOverworld(seed, north, south)
 	if err != nil {
 		return nil, err
 	}
-	chunkW, chunkH, cols, rows := dungeon.DungeonOverworld.BandShape()
-	sb := query.EnsureSeamlessBand(world)
-	*sb = gc.SeamlessBand{Active: true, RunSeed: seed, ChunkW: chunkW, ChunkH: chunkH, Cols: cols, Rows: rows}
-	spawnRow := sb.SpawnChunkY()
-
-	top := spawnRow - north
-	gen := overworld.NewChunkGen(world, seed, chunkW, chunkH, cols, mapplanner.PlannerTypeOverworldField)
-	for cy := top; cy <= spawnRow+south; cy++ {
-		for cx := range cols {
-			if err := gen(consts.Coord[consts.Chunk]{X: cx, Y: cy}, cx.Tiles(chunkW), (cy - top).Tiles(chunkH)); err != nil {
-				return nil, err
-			}
-		}
-	}
+	chunkW, chunkH, cols, _ := dungeon.DungeonOverworld.BandShape()
 	mapRows := north + south + 1
 	area := image.Rect(0, 0, int(cols.Tiles(chunkW)), int(mapRows.Tiles(chunkH)))
 	m, err := overworld.RenderRegion(world, area, tilePx)
@@ -101,6 +96,31 @@ func renderOverworld(seed uint64, north, south consts.Chunk, tilePx int) (*image
 		return nil, err
 	}
 	return withChunkGrid(m, int(chunkW)*tilePx, int(chunkH)*tilePx, int(cols), int(mapRows), int(north)), nil
+}
+
+// generateOverworld は地上の定義の帯の形で、開始の行から北へ north 行、南へ south 行のチャンクを1つの world に生成する。
+// 北端の行を帯ローカルの0行目に置き、ゲームが北へ進んだときと同じく帯の NorthIndex で絶対の行と結ぶ
+func generateOverworld(seed uint64, north, south consts.Chunk) (w.World, error) {
+	world, err := newOverworldWorld()
+	if err != nil {
+		return w.World{}, err
+	}
+	chunkW, chunkH, cols, rows := dungeon.DungeonOverworld.BandShape()
+	sb := query.EnsureSeamlessBand(world)
+	*sb = gc.SeamlessBand{Active: true, RunSeed: seed, ChunkW: chunkW, ChunkH: chunkH, Cols: cols, Rows: rows}
+	spawnRow := sb.SpawnChunkY()
+	top := spawnRow - north
+	sb.NorthIndex = -top
+
+	gen := overworld.NewChunkGen(world, seed, chunkW, chunkH, cols, mapplanner.PlannerTypeOverworldField)
+	for cy := top; cy <= spawnRow+south; cy++ {
+		for cx := range cols {
+			if err := gen(consts.Coord[consts.Chunk]{X: cx, Y: cy}, cx.Tiles(chunkW), (cy - top).Tiles(chunkH)); err != nil {
+				return w.World{}, err
+			}
+		}
+	}
+	return world, nil
 }
 
 // newOverworldWorld は地上の生成に要る raw と定義だけを持つ world を作る。描画やシステムは組まない

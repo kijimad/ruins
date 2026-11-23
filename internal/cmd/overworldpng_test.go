@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/cli/v3"
@@ -57,11 +58,36 @@ func TestRunOverworldPNG_同じseedなら同じ画像を書き出しseedと出�
 	assert.Equal(t, image.Rect(0, 0, gridMarginLeft+9*24*2, gridMarginTop+2*24*2), img.Bounds())
 }
 
-func TestRunOverworldPNG_負の行数はエラー(t *testing.T) {
+func TestRunOverworldPNG_範囲の外の引数はエラー(t *testing.T) {
 	t.Parallel()
 
-	err := overworldPNGApp().Run(context.Background(), []string{"overworldpng", "--north", "-1", "--out", filepath.Join(t.TempDir(), "x.png")})
-	require.ErrorIs(t, err, errOverworldRange)
+	for _, tt := range []struct {
+		name string
+		args []string
+	}{
+		{"北が負", []string{"--north", "-1"}},
+		{"南が負", []string{"--south", "-1"}},
+		{"行の数が上限を超える", []string{"--north", "99", "--south", "1"}},
+		{"1タイルの画素が小さすぎる", []string{"--tile-px", "1"}},
+		{"1タイルの画素が大きすぎる", []string{"--tile-px", "33"}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			args := append([]string{"overworldpng", "--out", filepath.Join(t.TempDir(), "x.png")}, tt.args...)
+			require.ErrorIs(t, overworldPNGApp().Run(context.Background(), args), errOverworldRange)
+		})
+	}
+}
+
+func TestGenerateOverworld_帯ローカルの上端が北端の絶対の行になる(t *testing.T) {
+	t.Parallel()
+
+	world, err := generateOverworld(7, 3, 1)
+	require.NoError(t, err)
+	sb := query.GetSeamlessBand(world)
+	require.NotNil(t, sb)
+	assert.Equal(t, sb.SpawnChunkY()-3, sb.AbsChunkRow(0))
+	assert.Equal(t, sb.SpawnChunkY()+1, sb.AbsChunkRow(5*sb.ChunkH-1))
 }
 
 func TestWithChunkGrid_余白を足しチャンクの境目に線を引く(t *testing.T) {

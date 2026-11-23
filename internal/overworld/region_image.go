@@ -24,7 +24,7 @@ var regionBackground = color.RGBA{R: 20, G: 18, B: 15, A: 255}
 
 // RenderRegion は帯ローカルのタイルの矩形 area にあるタイルと置物を、1タイル tilePx 四方で1枚の画像に描く。
 // 各エンティティの SpriteRender が指すスプライトの PNG を assets から引き、Depth の順、同じ Depth は床、置物の順に重ねる。
-// tilePx がスプライトより小さければ最近傍で縮める。ゲーム本体と同じスプライトで、生成の結果そのものを写す
+// スプライトは tilePx 四方に最近傍で拡縮する。ゲーム本体と同じスプライトで、生成の結果そのものを写す
 func RenderRegion(world w.World, area image.Rectangle, tilePx int) (*image.RGBA, error) {
 	img := image.NewRGBA(image.Rect(0, 0, area.Dx()*tilePx, area.Dy()*tilePx))
 	draw.Draw(img, img.Bounds(), image.NewUniform(regionBackground), image.Point{}, draw.Src)
@@ -56,7 +56,7 @@ func RenderRegion(world w.World, area image.Rectangle, tilePx int) (*image.RGBA,
 		return ents[i].g.X < ents[j].g.X
 	})
 
-	sprites := regionSprites{px: tilePx, cache: map[string]image.Image{}}
+	sprites := &regionSprites{px: tilePx, cache: map[string]image.Image{}}
 	for i := range ents {
 		spr, ok, err := sprites.load(ents[i].sr)
 		if err != nil {
@@ -72,7 +72,7 @@ func RenderRegion(world w.World, area image.Rectangle, tilePx int) (*image.RGBA,
 	return img, nil
 }
 
-// regionSprites は RenderRegion が引いたスプライトを、px 四方に縮めて覚えておく
+// regionSprites は RenderRegion が引いたスプライトを、px 四方に拡縮して覚えておく
 type regionSprites struct {
 	px    int
 	cache map[string]image.Image
@@ -80,7 +80,7 @@ type regionSprites struct {
 
 // load は SpriteRender の指すスプライトを返す。タイルは tiles、置物は single の画像から引く。
 // 画像の無いスプライトは ok が偽で、描かない
-func (s regionSprites) load(sr gc.SpriteRender) (img image.Image, ok bool, err error) {
+func (s *regionSprites) load(sr gc.SpriteRender) (img image.Image, ok bool, err error) {
 	var dir string
 	switch sr.SpriteSheetName {
 	case "tile":
