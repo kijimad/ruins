@@ -56,8 +56,8 @@ def seeds_of(args):
     for a in args:
         if ":" in a:
             base, _, rng = a.partition(":")
-            lo, hi = map(int, rng.split("-"))
-            yield from (f"{base}:{j}" for j in range(lo, hi + 1))
+            lo, _, hi = rng.partition("-")
+            yield from (f"{base}:{j}" for j in range(int(lo), int(hi or lo) + 1))
         elif "-" in a:
             lo, hi = map(int, a.split("-"))
             yield from range(lo, hi + 1)
