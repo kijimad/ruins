@@ -320,3 +320,24 @@ func TestRefillMenuState_上の灯りが選べなければ下の灯りにカー�
 	require.NoError(t, err)
 	assert.Equal(t, es.TransPush, tr.Type)
 }
+
+func TestRefillMenuState_すべての行が選べなくても詳細はカーソルの灯りを見せる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t, testutil.WithUI())
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	lantern, err := lifecycle.SpawnBackpackItem(world, "hand_lantern", 1)
+	require.NoError(t, err)
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return "", false }
+	st := &RefillMenuState{}
+	require.NoError(t, st.OnStart(world))
+	_, err = st.Update(world)
+	require.NoError(t, err)
+
+	got, ok := st.selectedEntity()
+	require.True(t, ok)
+	assert.Equal(t, lantern, got, "燃料を持たないので行は選べないが、詳細の対象はカーソルの灯り")
+	tr, err := st.DoAction(world, inputmapper.ActionMenuSelect)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransNone, tr.Type)
+}
