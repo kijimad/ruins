@@ -2,6 +2,7 @@ package systems
 
 import (
 	"image/color"
+	"math"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -408,6 +409,40 @@ func TestInsetConnections_隣の壁と閉じた壁にはめる置物につなが
 	assert.Equal(t, connections{east: true, west: true}, insetConnections(walls, insets, consts.Coord[consts.Tile]{X: 25, Y: 25}))
 }
 
+func TestOpenInsetFaces_開いた扉は開口部と直角に立て蝶番の壁の脇へ寄せる(t *testing.T) {
+	t.Parallel()
+
+	c := consts.Coord[consts.Tile]{X: 5, Y: 5}
+	near, far := openInsetGap, openInsetGap+insetThickness
+	tests := []struct {
+		name                   string
+		conn                   connections
+		minX, maxX, minZ, maxZ float64
+	}{
+		{"東西の壁は西の脇", connections{west: true, east: true}, near, far, 0, 1},
+		{"東の壁だけなら東の脇", connections{east: true}, 1 - far, 1 - near, 0, 1},
+		{"壁が無ければ西の脇", connections{}, near, far, 0, 1},
+		{"南北の壁は北の脇", connections{north: true, south: true}, 0, 1, near, far},
+		{"南の壁だけなら南の脇", connections{south: true}, 0, 1, 1 - far, 1 - near},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			minX, maxX, minZ, maxZ := math.Inf(1), math.Inf(-1), math.Inf(1), math.Inf(-1)
+			for _, f := range openInsetFaces(c, tt.conn) {
+				for _, v := range f.p {
+					minX, maxX = math.Min(minX, v.X), math.Max(maxX, v.X)
+					minZ, maxZ = math.Min(minZ, v.Z), math.Max(maxZ, v.Z)
+				}
+			}
+			assert.InDelta(t, float64(c.X)+tt.minX, minX, 1e-9)
+			assert.InDelta(t, float64(c.X)+tt.maxX, maxX, 1e-9)
+			assert.InDelta(t, float64(c.Y)+tt.minZ, minZ, 1e-9)
+			assert.InDelta(t, float64(c.Y)+tt.maxZ, maxZ, 1e-9)
+		})
+	}
+}
+
 func TestInsetFaces_つながる向きに並ぶ薄い板になる(t *testing.T) {
 	t.Parallel()
 
@@ -462,25 +497,39 @@ func TestClosedInsets_閉じた壁にはめる置物だけを集める(t *testin
 	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: true, {X: 5, Y: 3}: true}, closedInsets(world))
 }
 
-func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
+func TestCollectBillboards_開いた扉は壁の脇へ開いた板で描く(t *testing.T) {
 	t.Parallel()
 	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
 	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
 	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
 
 	world := testutil.InitTestWorld(t)
+	sheet := ebiten.NewImage(32, 32)
 	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
-		"field": {
-			Texture: gc.Texture{Image: ebiten.NewImage(32, 32)},
-			Sprites: map[string]gc.Sprite{"door_vertical_closed": {Width: 32, Height: 32}},
-		},
+		"field": {Texture: gc.Texture{Image: sheet}, Sprites: map[string]gc.Sprite{"door_vertical_closed": {Width: 32, Height: 32}}},
 	})
+	// 平均色は画素を読むので、ゲームの開始前のテストでは先に置いておく
+	r3flatColor.Store(flatColorKey{sheet, 0, 0, 32, 32}, [3]float64{0.5, 0.5, 0.5})
 	door, err := lifecycle.SpawnDoor(world, center, gc.DoorOrientationHorizontal)
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.OpenDoor(world, door))
 	sys := &Render3DSystem{}
 
-	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil, nil))
+	quads := sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil, nil)
+
+	// 壁が無いので西の脇へ寄せ、カメラに向く東の面にだけ絵を貼る
+	require.NotEmpty(t, quads)
+	pictures := 0
+	for _, q := range quads {
+		if q.atlas == sheet {
+			pictures++
+		}
+		for _, v := range q.p {
+			assert.GreaterOrEqual(t, v.X, float64(center.X)+openInsetGap-1e-9)
+			assert.LessOrEqual(t, v.X, float64(center.X)+openInsetGap+insetThickness+1e-9)
+		}
+	}
+	assert.Equal(t, 1, pictures)
 }
 
 func TestCollectBillboards_前後方向に沿うfacingの置物は表の絵だけを積む(t *testing.T) {

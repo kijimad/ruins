@@ -474,11 +474,13 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 			continue
 		}
 		if sr.Shape == rawschema.Inset {
-			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする。
-			// 開いた扉は描かず、開口部だけを残す
+			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする
 			if !vis || world.Components.BlockPass.Has(e) {
 				sys.addSlab(&quads, projector, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
+				continue
 			}
+			// 開いた扉は蝶番のある壁の側へ寄せるので、隣の閉じた扉とはつながらない
+			sys.addSlab(&quads, projector, openInsetFaces(g.Coord, insetConnections(walls, nil, g.Coord)), atlas, ux, uy, uw, uh, tint)
 			continue
 		}
 		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない
@@ -689,6 +691,35 @@ func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
 	}
 	for i := range faces {
 		for j, v := range faces[i].p {
+			if !alongX {
+				v = turnQuarter(v)
+			}
+			faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))
+		}
+	}
+	return faces
+}
+
+// openInsetGap は開いた扉の板と脇の壁のあいだ。壁の面と重なってちらつかないよう少し離す
+const openInsetGap = 0.08
+
+// openInsetFaces は開いた扉の面を返す。閉じた板を90度倒して開口部と直角に立て、つながる壁の脇へ寄せる。
+// 東西に並ぶ扉は東だけとつながるとき東、それ以外は西の脇へ寄せ、南北に並ぶ扉は南だけとつながるとき南、それ以外は北へ寄せる
+func openInsetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {
+	alongX := conn.west || conn.east || (!conn.north && !conn.south)
+	first, second := conn.west, conn.east
+	if !alongX {
+		first, second = conn.north, conn.south
+	}
+	shift := openInsetGap + insetThickness/2 - 0.5
+	if second && !first {
+		shift = -shift
+	}
+	faces := slab(0.5-insetThickness/2, 0.5+insetThickness/2, true, true)
+	for i := range faces {
+		for j, v := range faces[i].p {
+			v = turnQuarter(v)
+			v.X += shift
 			if !alongX {
 				v = turnQuarter(v)
 			}
