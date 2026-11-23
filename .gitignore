@@ -30,3 +30,5 @@ cdda/
 /coverage.out
 # graphify(コード知識グラフ)が出力する
 graphify-out/
+# Steam キーアートの墜落現場の試し描き
+docs/steam/background/crash-out/

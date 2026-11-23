@@ -1,0 +1,192 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style>
+</head><body>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
+
+const q = new URLSearchParams(location.search);
+const W = +(q.get('w') || 1536), H = +(q.get('h') || 1024);
+let seed = +(q.get('seed') || 7);
+const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const R = (a, b) => a + (b - a) * rnd();
+
+// 構図の揺らぎ。seed 7 は揺らさない基準の構図
+const V = seed === 7
+  ? { camX: -24, camY: 8.5, camZ: 32, lookX: 8, lookY: 5, sunX: -120, sunY: 28, cityX: 60, fog: 0.0032 }
+  : { camX: R(-30, -16), camY: R(6, 12), camZ: R(26, 38), lookX: R(2, 14), lookY: R(3, 7), sunX: R(-170, -60), sunY: R(14, 45), cityX: R(-20, 120), fog: R(0.0024, 0.0042) };
+
+const renderer = new THREE.WebGLRenderer({ antialias: !q.has("px"), preserveDrawingBuffer: true });
+renderer.setSize(W, H);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const FOG = new THREE.Color('#aab8d4');
+scene.fog = new THREE.FogExp2(FOG, V.fog);
+
+// 空: 地平線は朝焼けの桃色、天頂は冷たい青
+{
+  const g = new THREE.SphereGeometry(900, 32, 16);
+  const cols = [], p = g.attributes.position, c = new THREE.Color();
+  const zen = new THREE.Color('#3d5680'), mid = new THREE.Color('#9fb0cf'), hor = new THREE.Color('#f0b89a');
+  for (let i = 0; i < p.count; i++) {
+    const y = p.getY(i) / 900;
+    const dir = p.getX(i) / 900;
+    if (y < 0.06) c.copy(hor).lerp(mid, Math.max(0, y) / 0.06 * 0.4);
+    else if (y < 0.35) c.copy(hor).lerp(mid, 0.4 + (y - 0.06) / 0.29 * 0.6);
+    else c.copy(mid).lerp(zen, Math.min(1, (y - 0.35) / 0.5));
+    c.lerp(new THREE.Color('#c8a0a8'), Math.max(0, -dir) * 0.15 * (1 - Math.min(1, y * 3)));
+    cols.push(c.r, c.g, c.b);
+  }
+  g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+  scene.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false })));
+}
+
+const sun = new THREE.DirectionalLight('#ffd2b0', 2.4);
+sun.position.set(V.sunX, V.sunY, -160);
+sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+Object.assign(sun.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, near: 1, far: 500 });
+scene.add(sun);
+scene.add(new THREE.HemisphereLight('#b9c9ec', '#6d7890', 1.1));
+
+// 雪原とクレーター
+const CR = 7.5;
+{
+  const g = new THREE.PlaneGeometry(700, 700, 220, 220);
+  g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), z = p.getZ(i), d = Math.hypot(x, z);
+    let y = Math.sin(x * 0.05) * 0.6 + Math.cos(z * 0.043 + x * 0.02) * 0.7 + R(-0.12, 0.12);
+    if (d > 120) y += (d - 120) * 0.02 * (0.5 + 0.5 * Math.sin(x * 0.01));
+    if (d < CR) y -= 1.5 * Math.cos(d / CR * Math.PI / 2) ** 2;
+    else if (d < CR * 1.7) y += 0.7 * Math.sin((d - CR) / (CR * 0.7) * Math.PI);
+    p.setY(i, y);
+  }
+  const ng = g.toNonIndexed();
+  ng.computeVertexNormals();
+  const q = ng.attributes.position, cols = [], c = new THREE.Color();
+  const snow = new THREE.Color('#e6ecf7'), burnt = new THREE.Color('#2a2624'), ash = new THREE.Color('#7d7a80');
+  for (let i = 0; i < q.count; i += 3) {
+    const x = (q.getX(i) + q.getX(i + 1) + q.getX(i + 2)) / 3, z = (q.getZ(i) + q.getZ(i + 1) + q.getZ(i + 2)) / 3;
+    const d = Math.hypot(x, z) + R(-1.2, 1.2);
+    if (d < CR * 0.9) c.copy(burnt);
+    else if (d < CR * 1.5) c.copy(burnt).lerp(ash, (d - CR * 0.9) / (CR * 0.6));
+    else if (d < CR * 2.4) c.copy(ash).lerp(snow, (d - CR * 1.5) / (CR * 0.9));
+    else c.copy(snow).offsetHSL(0, 0, R(-0.02, 0.02));
+    for (let k = 0; k < 3; k++) cols.push(c.r, c.g, c.b);
+  }
+  ng.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+  const m = new THREE.Mesh(ng, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.95 }));
+  m.receiveShadow = true;
+  scene.add(m);
+}
+
+const metal = new THREE.MeshStandardMaterial({ color: '#4a5566', flatShading: true, roughness: 0.55, metalness: 0.5 });
+const hot = new THREE.MeshStandardMaterial({ color: '#3a2a22', emissive: '#ff5a1a', emissiveIntensity: 1.6, flatShading: true });
+const glow = new THREE.MeshStandardMaterial({ color: '#ffb060', emissive: '#ff8a30', emissiveIntensity: 5, flatShading: true });
+
+// 脱出ポッド: 車ほどの大きさ。クレーターに斜めに刺さる
+const pod = new THREE.Group();
+{
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(1.3, 2.4, 3, 7), metal);
+  body.rotation.z = Math.PI / 2;
+  body.castShadow = body.receiveShadow = true;
+  pod.add(body);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.35, 0.14, 4, 8), metal);
+  ring.rotation.y = Math.PI / 2; ring.position.x = 0.6; pod.add(ring);
+  const win = new THREE.Mesh(new THREE.CircleGeometry(0.5, 6), glow);
+  win.position.set(-0.4, 0.35, 1.25); win.rotation.x = -0.25; pod.add(win);
+  const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.95, 0.9, 7, 1, true), hot);
+  nozzle.rotation.z = Math.PI / 2; nozzle.position.x = 2.5; pod.add(nozzle);
+  const fin = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 1.0), metal);
+  fin.position.set(1.4, 1.2, 0); fin.rotation.z = 0.5; fin.castShadow = true; pod.add(fin);
+  pod.position.set(-0.3, 0.1, 0);
+  pod.scale.setScalar(1.35);
+  pod.rotation.set(0.15, 0.55, -0.42);
+  scene.add(pod);
+}
+
+// 散らばった破片。一部はまだ熱い
+for (let i = 0; i < 46; i++) {
+  const a = R(0, Math.PI * 2), d = R(CR * 0.6, CR * 3.2) * (i % 5 === 0 ? 1.6 : 1);
+  const s = R(0.15, 0.7) * (d < CR * 1.5 ? 1.3 : 1);
+  const geo = i % 3 === 0 ? new THREE.TetrahedronGeometry(s) : new THREE.BoxGeometry(s * R(1, 3), s * 0.12, s * R(0.6, 1.6));
+  const m = new THREE.Mesh(geo, i % 6 === 0 ? hot : metal);
+  m.position.set(Math.cos(a) * d, d < CR ? -1.2 : 0.2, Math.sin(a) * d);
+  m.rotation.set(R(0, 3), R(0, 3), R(0, 3));
+  m.castShadow = true;
+  scene.add(m);
+}
+
+// 炎: 低いポリゴンの錐を重ねる
+const flame = (x, y, z, s) => {
+  for (let k = 0; k < 4; k++) {
+    const h = s * R(1.2, 2.2);
+    const m = new THREE.Mesh(new THREE.ConeGeometry(s * R(0.35, 0.55), h, 5), new THREE.MeshBasicMaterial({ color: k % 2 ? '#ffb347' : '#ff6a1f', transparent: true, opacity: 0.92 }));
+    m.position.set(x + R(-0.4, 0.4) * s, y + h / 2, z + R(-0.4, 0.4) * s);
+    m.rotation.set(R(-0.2, 0.2), R(0, 3), R(-0.2, 0.2));
+    scene.add(m);
+  }
+  const l = new THREE.PointLight('#ff7a30', 30 * s, 18, 1.6);
+  l.position.set(x, y + s, z);
+  scene.add(l);
+};
+flame(2.2, -0.9, 0.9, 1.1);
+flame(-1.6, -1.3, 1.6, 0.7);
+flame(5.5, 0.1, -3.5, 0.5);
+
+// 煙の柱: 風下へ流れながら膨らむ。高さごとに数個の塊を重ねる
+for (let i = 0; i < 30; i++) {
+  const t = i / 30;
+  for (let k = 0; k < 3; k++) {
+    const s = (0.6 + t * 6) * R(0.6, 1.1);
+    const col = new THREE.Color('#3e3a42').lerp(new THREE.Color('#c2c6d2'), t * 0.9 + R(0, 0.1));
+    const m = new THREE.Mesh(new THREE.IcosahedronGeometry(s, 0), new THREE.MeshStandardMaterial({ color: col, flatShading: true, transparent: true, opacity: 0.75 - t * 0.5, roughness: 1, depthWrite: false }));
+    m.position.set(2 + t * t * 60 + R(-1, 1) * s * 0.8, 0.5 + t * 55 + R(-1, 1) * s * 0.3, -t * 20 + R(-1, 1) * s * 0.8);
+    m.rotation.set(R(0, 3), R(0, 3), R(0, 3));
+    scene.add(m);
+  }
+}
+
+// 遠くの山並み
+for (let i = 0; i < 26; i++) {
+  const a = R(-2.6, -0.4), d = R(620, 760);
+  const h = R(30, 95);
+  const g = new THREE.ConeGeometry(R(60, 120), h, 7, 4);
+  const gp = g.attributes.position;
+  for (let j = 0; j < gp.count; j++) if (gp.getY(j) < h / 2 - 0.01) { gp.setX(j, gp.getX(j) * R(0.75, 1.2)); gp.setY(j, gp.getY(j) + R(-0.08, 0.08) * h); gp.setZ(j, gp.getZ(j) * R(0.75, 1.2)); }
+  const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: '#8d9bb8', flatShading: true }));
+  m.position.set(Math.cos(a) * d, h / 2 - 8, Math.sin(a) * d);
+  m.rotation.y = R(0, 3);
+  scene.add(m);
+}
+
+// 地平線の都市: 暗く凍った塔の群れ
+{
+  const mat = new THREE.MeshStandardMaterial({ color: '#3a4560', flatShading: true, roughness: 0.8 });
+  const cx = V.cityX, cz = -520;
+  for (let i = 0; i < 34; i++) {
+    const w = R(5, 13), h = R(20, 60) * (i < 3 ? 1.7 : 1);
+    const x = cx + R(-90, 90), z = cz + R(-30, 30);
+    const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, w * R(0.7, 1.3)), mat);
+    b.position.set(x, h / 2 - 2, z); b.rotation.y = R(0, 1.5); scene.add(b);
+    if (rnd() < 0.45) {
+      const sp = new THREE.Mesh(new THREE.ConeGeometry(w * 0.45, h * R(0.3, 0.7), 4), mat);
+      sp.position.set(x, h - 2 + h * 0.25, z); sp.rotation.y = b.rotation.y; scene.add(sp);
+    }
+  }
+}
+
+const cam = new THREE.PerspectiveCamera(38, W / H, 0.1, 2000);
+cam.position.set(V.camX, V.camY, V.camZ);
+cam.lookAt(V.lookX, V.lookY, -30);
+renderer.render(scene, cam);
+document.title = 'rendered';
+</script>
+</body></html>
