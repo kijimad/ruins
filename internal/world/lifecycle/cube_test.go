@@ -32,7 +32,7 @@ func TestAddCubeFuel(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 			cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 			require.NoError(t, err)
-			world.Components.FuelTank.Get(cube).Current = tt.current
+			world.Components.Charge.Get(cube).Current = int(tt.current)
 			_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 			require.NoError(t, err)
 			coal, err := lifecycle.SpawnBackpackItem(world, "coal", 1)
@@ -64,7 +64,7 @@ func TestConsumeCubeFuel(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 			cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 			require.NoError(t, err)
-			world.Components.FuelTank.Get(cube).Current = 1000
+			world.Components.Charge.Get(cube).Current = int(1000)
 
 			assert.Equal(t, tt.wantOK, lifecycle.ConsumeCubeFuel(world, cube, tt.amount))
 			assert.Equal(t, tt.wantLeft, query.CubeFuelTotal(world, cube))

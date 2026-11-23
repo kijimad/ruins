@@ -22,8 +22,8 @@ func TestSpawnCube_追従中で燃料満タンの随伴者として生成され�
 
 	assert.True(t, world.Components.Cube.Has(cube), "移動拠点の印を持つ")
 	assert.True(t, world.Components.Prop.Has(cube), "設置物である")
-	require.True(t, world.Components.FuelTank.Has(cube))
-	assert.Equal(t, gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase}, *world.Components.FuelTank.Get(cube), "基準容量で満タン")
+	require.True(t, world.Components.Charge.Has(cube))
+	assert.Equal(t, gc.Charge{Max: int(consts.CubeFuelCapacityBase), Current: int(consts.CubeFuelCapacityBase)}, *world.Components.Charge.Get(cube), "基準容量で満タン")
 	require.True(t, world.Components.SoloAI.Has(cube), "NPC AI で動く")
 	assert.Equal(t, rawschema.Follow, world.Components.SoloAI.Get(cube).Movement, "生成直後から追従する")
 	require.True(t, world.Components.TurnBased.Has(cube), "AP ループで行動する")

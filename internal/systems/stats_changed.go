@@ -35,7 +35,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		if world.Components.Abilities.Has(entity) {
 			updateCharacterStats(world, entity)
 		}
-		if world.Components.FuelTank.Has(entity) {
+		if world.Components.Cube.Has(entity) {
 			updateCubeFuelCapacity(world, entity)
 		}
 	}
@@ -150,8 +150,8 @@ func updateCharacterStats(world w.World, entity ecs.Entity) {
 
 // updateCubeFuelCapacity はキューブの燃料タンクの上限を計算し直し、現在値を切り詰める。
 func updateCubeFuelCapacity(world w.World, cube ecs.Entity) {
-	tank := world.Components.FuelTank.Get(cube)
-	tank.Max = query.CubeFuelCapacity(world, cube)
+	tank := world.Components.Charge.Get(cube)
+	tank.Max = int(query.CubeFuelCapacity(world, cube))
 	tank.Current = min(tank.Current, tank.Max)
 }
 

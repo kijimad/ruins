@@ -147,10 +147,11 @@ func extractCubeStatus(world w.World) hud.CubeStatusData {
 	if !ok {
 		return hud.CubeStatusData{}
 	}
+	ratio, _ := query.ChargeRatio(world, cube)
 	return hud.CubeStatusData{
 		Visible:   true,
 		Name:      query.GetEntityName(cube, world),
-		FuelRatio: query.FuelGaugeRatio(*world.Components.FuelTank.Get(cube)),
+		FuelRatio: ratio,
 	}
 }
 

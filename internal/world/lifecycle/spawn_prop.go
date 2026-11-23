@@ -169,7 +169,7 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 	}
 	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 	entitySpec.Cube = &gc.Cube{}
-	entitySpec.FuelTank = &gc.FuelTank{Max: consts.CubeFuelCapacityBase, Current: consts.CubeFuelCapacityBase}
+	entitySpec.Charge = &gc.Charge{Max: int(consts.CubeFuelCapacityBase), Current: int(consts.CubeFuelCapacityBase)}
 	entitySpec.SoloAI = &gc.SoloAI{
 		CombatDefault: rawschema.Ignore,
 		CombatCurrent: rawschema.Ignore,

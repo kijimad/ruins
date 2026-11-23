@@ -10,14 +10,14 @@ import (
 // AddCubeFuel は fuel の燃焼熱量を上限までキューブの燃料ポイントへ足して fuel を消す。燃料の行の物は入れ物を残量0で残す。
 // 満タンなら何もせず false を返す。
 func AddCubeFuel(world w.World, cube ecs.Entity, fuel ecs.Entity) bool {
-	if !world.Components.FuelTank.Has(cube) {
+	if !world.Components.Cube.Has(cube) {
 		return false
 	}
-	tank := world.Components.FuelTank.Get(cube)
+	tank := world.Components.Charge.Get(cube)
 	if tank.Current >= tank.Max {
 		return false
 	}
-	tank.Current = min(tank.Max, tank.Current+query.HeatContent(world, fuel))
+	tank.Current = min(tank.Max, tank.Current+int(query.HeatContent(world, fuel)))
 	burnFuel(world, fuel)
 	return true
 }
@@ -31,6 +31,6 @@ func ConsumeCubeFuel(world w.World, cube ecs.Entity, amount consts.Heat) bool {
 	if query.CubeFuelTotal(world, cube) < amount {
 		return false
 	}
-	world.Components.FuelTank.Get(cube).Current -= amount
+	world.Components.Charge.Get(cube).Current -= int(amount)
 	return true
 }

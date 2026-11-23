@@ -45,7 +45,7 @@ func TestPlanFollowAction(t *testing.T) {
 			require.NoError(t, err)
 			solo := world.Components.SoloAI.Get(cube)
 			solo.SubState = tt.subState
-			world.Components.FuelTank.Get(cube).Current = tt.fuel
+			world.Components.Charge.Get(cube).Current = int(tt.fuel)
 
 			rp := newSoloPlanner(newTestRNG())
 			act := rp.planFollowAction(world, cube, solo, world.Components.GridElement.Get(cube))

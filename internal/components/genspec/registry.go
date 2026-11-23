@@ -57,7 +57,6 @@ var Registry = []Def{
 	{Field: "Remains"},         // 敵や物が消えた跡の装飾であることを示す
 	{Field: "Decor"},           // 草や土の模様のような地面の飾りであることを示す
 	{Field: "Cube"},            // 移動拠点キューブであることを示す
-	{Field: "FuelTank"},        // キューブに貯めた燃料ポイントを保持する。保存する
 	{Field: "Deployed"},        // キューブが展開中であることを示す。展開中は随伴しない。保存する
 	{Field: "LightSource"},     // 光源であることを表す
 	{Field: "Charge"},          // 使って減る残量を保持する。保存する
