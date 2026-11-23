@@ -84,12 +84,12 @@ func TestOverworldDaylight_連続補間(t *testing.T) {
 
 	// turnsPerTimeOfDay=250。夜明け始まりなので各時間帯の中心は 125 + 250*idx（昼=625, 夕=875）
 	eveningCenter := &gc.GameTime{TotalTurns: 875} // 夕の中心
-	assert.InDelta(t, 0.55, overworldDaylight(defs, eveningCenter), 1e-9, "夕の中心は夕の代表値")
+	assert.InDelta(t, 0.4, overworldDaylight(defs, eveningCenter), 1e-9, "夕の中心は夕の代表値")
 
 	// 夕の入り口(turn 750)は昼と夕の中間。フラットな夕より明るく、夜っぽくない
 	eveningStart := &gc.GameTime{TotalTurns: 750}
 	got := overworldDaylight(defs, eveningStart)
-	assert.InDelta(t, (0.95+0.55)/2, got, 1e-9, "夕の入り口は昼と夕の中間")
+	assert.InDelta(t, (0.95+0.4)/2, got, 1e-9, "夕の入り口は昼と夕の中間")
 	assert.Greater(t, got, defs.TimesOfDay[gc.TimeEvening].Daylight, "夕の入り口はフラットな夕より明るい")
 
 	// 夕の入り口から夜の入り口へ向けて単調に暗くなる
@@ -120,6 +120,21 @@ func TestOverworldDaylight_一日を通して単調に増減する(t *testing.T)
 		assert.Less(t, daylightAt(turn), daylightAt(turn+25),
 			"深夜から翌昼へ向かう %d→%d は明るくなる", turn, turn+25)
 	}
+}
+
+// TestOverworldDaylight_明かりが無いと1日の4分の1以上は見えない は、夜の暗さが視界の制約になる長さを保つ。
+// 明かりの無いマスの明るさは日照そのものなので、日照が見える境界を下回るターンを数える
+func TestOverworldDaylight_明かりが無いと1日の4分の1以上は見えない(t *testing.T) {
+	t.Parallel()
+	defs := calendarDefs(t)
+
+	dark := consts.Turn(0)
+	for turn := range gc.TurnsPerDay {
+		if overworldDaylight(defs, &gc.GameTime{TotalTurns: turn}) < visibilityThreshold {
+			dark++
+		}
+	}
+	assert.GreaterOrEqual(t, dark, gc.TurnsPerDay/4)
 }
 
 func TestShelteredAmbient(t *testing.T) {
