@@ -111,11 +111,11 @@ func cubeInfoItems(world w.World, cube ecs.Entity) []statusItemData {
 	return []statusItemData{
 		{Label: query.T(world, "Deploy size"), Value: fmt.Sprintf("%dx%d", 2*r.X+1, 2*r.Y+1)},
 		{Label: query.T(world, "Total weight"), Value: weight.KgString()},
-		{Label: query.T(world, "Fuel"), Value: fuelTankText(*world.Components.Charge.Get(cube))},
+		{Label: query.T(world, "Fuel"), Value: cubeFuelText(*world.Components.Charge.Get(cube))},
 	}
 }
 
-// fuelTankText はキューブの燃料ポイントを現在値と上限で整形する。
-func fuelTankText(tank gc.Charge) string {
+// cubeFuelText はキューブの燃料ポイントを現在値と上限で整形する。
+func cubeFuelText(tank gc.Charge) string {
 	return fmt.Sprintf("%s / %d", consts.Heat(tank.Current).String(), tank.Max)
 }

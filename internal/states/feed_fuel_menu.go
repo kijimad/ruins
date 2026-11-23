@@ -64,7 +64,7 @@ func FireFuelSink(fire ecs.Entity) FuelSink {
 func CubeFuelSink(cube ecs.Entity) FuelSink {
 	return FuelSink{
 		title: func(world w.World) string {
-			return query.T(world, "Fuel %s", fuelTankText(*world.Components.Charge.Get(cube)))
+			return query.T(world, "Fuel %s", cubeFuelText(*world.Components.Charge.Get(cube)))
 		},
 		accepts: query.IsCombustible,
 		gain: func(world w.World, fuel ecs.Entity) string {

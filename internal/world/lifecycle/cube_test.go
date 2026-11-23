@@ -64,7 +64,7 @@ func TestConsumeCubeFuel(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 			cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 			require.NoError(t, err)
-			world.Components.Charge.Get(cube).Current = int(1000)
+			world.Components.Charge.Get(cube).Current = 1000
 
 			assert.Equal(t, tt.wantOK, lifecycle.ConsumeCubeFuel(world, cube, tt.amount))
 			assert.Equal(t, tt.wantLeft, query.CubeFuelTotal(world, cube))

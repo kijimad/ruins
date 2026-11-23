@@ -69,7 +69,7 @@ type PassCost struct {
 // Renderable はフィールド上で描画できる
 type Renderable struct{}
 
-// Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与する。
+// Cube は移動拠点キューブであることを示すマーカー。SpawnCube が付与し、燃料ポイントを Charge に一緒に持たせる。
 type Cube struct{}
 
 // CubeCore はキューブの核に付くマーカー。使うと隣に新しいキューブが組み上がる
