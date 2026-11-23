@@ -847,6 +847,21 @@ func TestNearbyPickupActions(t *testing.T) {
 	assert.Equal(t, southEast, actions[3].Target)
 }
 
+func TestNearbyPickupActions_乗った箱の収納を足元として出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 10)
+	require.NoError(t, err)
+
+	actions := nearbyPickupActions(world)
+
+	require.Len(t, actions, 1)
+	assert.Equal(t, "Search Wooden Crate (here)", actions[0].Label)
+	assert.Equal(t, crate, actions[0].Target)
+}
+
 func TestHandleStateChangeRequest_収納は拾うメニューの上に開く(t *testing.T) {
 	t.Parallel()
 
