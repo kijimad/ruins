@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">70.7&nbsp;%</td>
-            <td class="headerCovTableEntry">451</td>
-            <td class="headerCovTableEntry">319</td>
+            <td class="headerCovTableEntryLo">68.8&nbsp;%</td>
+            <td class="headerCovTableEntry">448</td>
+            <td class="headerCovTableEntry">308</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 04:56:35</td>
+            <td class="headerValue">2026-11-23 04:57:10</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -446,442 +446,438 @@
 <span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 :         return query.SnowAmount(f, query.SnowRankAt(world, c.X, c.Y)) * float64(100-env.SnowMeltPercent) / 100</span></span>
 <span id="L385"><span class="lineNum">     385</span>              : }</span>
 <span id="L386"><span class="lineNum">     386</span>              : </span>
-<span id="L387"><span class="lineNum">     387</span>              : // add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。雪の段で、地面より後、跡や床の模様より先に描く。</span>
-<span id="L388"><span class="lineNum">     388</span>              : // 雪の絵は白に近く、日中の底上げで 1.0 を超えると影の色まで白に潰れるので、色味を保ったまま最大の成分を 1.0 に抑える</span>
-<span id="L389"><span class="lineNum">     389</span>              : func (l *snowLayer) add(out *[]r3quad, world w.World, e ecs.Entity, c consts.Coord[consts.Tile], tint [3]float64) {</span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :         if !l.ok {</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :         a := l.amount(world, e, c)</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :         if a &lt;= 0 {</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :         if m := max(tint[0], tint[1], tint[2]); m &gt; 1 {</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :                 tint = scaleCol(tint, 1/m)</span></span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :         fx, fz := float64(c.X), float64(c.Y)</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :         l.sys.addQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), l.atlas, l.ux, l.uy, l.uw, l.uh, tint)</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :         q := &amp;(*out)[len(*out)-1]</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :         q.alpha = a</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :         q.depth = rawschema.SpriteDepthSnow.Rank()</span></span>
-<span id="L405"><span class="lineNum">     405</span>              : }</span>
-<span id="L406"><span class="lineNum">     406</span>              : </span>
-<span id="L407"><span class="lineNum">     407</span>              : // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。</span>
-<span id="L408"><span class="lineNum">     408</span>              : func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {</span>
-<span id="L409"><span class="lineNum">     409</span>              :         // 天面は真上視点なので既存テクスチャをそのまま貼り、側面はフラット単色にする。</span>
-<span id="L410"><span class="lineNum">     410</span>              :         // 面ごとのシェード 天面0.95・南北0.6・東西0.78 は疑似方向光源で、平板な側面に陰影を付けて立体に見せる</span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :         sys.addQuad(out, render3d.At(fx, render3d.WallHeight, fz), render3d.At(fx+1, render3d.WallHeight, fz), render3d.At(fx+1, render3d.WallHeight, fz+1), render3d.At(fx, render3d.WallHeight, fz+1), atlas, ux, uy, uw, uh, scaleCol(tint, 0.95))</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :         if !walls[c.Add(consts.Coord[consts.Tile]{X: 0, Y: -1})] {</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, render3d.WallHeight, fz), render3d.At(fx, render3d.WallHeight, fz), atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :         if !walls[c.Add(consts.Coord[consts.Tile]{X: 0, Y: 1})] {</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), render3d.At(fx, render3d.WallHeight, fz+1), render3d.At(fx+1, render3d.WallHeight, fz+1), atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))</span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :         if !walls[c.Add(consts.Coord[consts.Tile]{X: -1, Y: 0})] {</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, render3d.At(fx, 0, fz+1), render3d.At(fx, 0, fz), render3d.At(fx, render3d.WallHeight, fz), render3d.At(fx, render3d.WallHeight, fz+1), atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :         if !walls[c.Add(consts.Coord[consts.Tile]{X: 1, Y: 0})] {</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx+1, render3d.WallHeight, fz+1), render3d.At(fx+1, render3d.WallHeight, fz), atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L424"><span class="lineNum">     424</span>              : }</span>
-<span id="L425"><span class="lineNum">     425</span>              : </span>
-<span id="L426"><span class="lineNum">     426</span>              : // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、</span>
-<span id="L427"><span class="lineNum">     427</span>              : // inset は壁にはめる板、facing は置き方 Pose に合わせて立てる閉じた板にし、Pose が無ければ立て板にする。flat は地面に寝かせる。</span>
-<span id="L428"><span class="lineNum">     428</span>              : // linked は描けるマスの linked の隣へ中心から伸ばす格子の板にする</span>
-<span id="L429"><span class="lineNum">     429</span>              : func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, poses map[consts.Coord[consts.Tile]]gc.Pose, linked map[consts.Coord[consts.Tile]]bool) []r3quad {</span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :         right := projector.Right()</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :         objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :         for objQ.Next() {</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :                 e := objQ.Entity()</span></span>
-<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">           1 :                 g := world.Components.GridElement.Get(e)</span></span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           1 :                 fx, fz := float64(g.X), float64(g.Y)</span></span>
-<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 :                 // 立て板は上へ伸びるので天面 BillboardHeight まで含めて画面掛かりを判定する</span></span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :                 if !projector.TileOnScreen(g.Coord, render3d.BillboardHeight) {</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L439"><span class="lineNum">     439</span>              :                 }</span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                 sr := world.Components.SpriteRender.Get(e)</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :                 atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
+<span id="L387"><span class="lineNum">     387</span>              : // add は地面 e の上に、積もる量を透明度にした雪の層を重ねる。雪の段で、地面より後、跡や床の模様より先に描く</span>
+<span id="L388"><span class="lineNum">     388</span>              : func (l *snowLayer) add(out *[]r3quad, world w.World, e ecs.Entity, c consts.Coord[consts.Tile], tint [3]float64) {</span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         if !l.ok {</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :         a := l.amount(world, e, c)</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :         if a &lt;= 0 {</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         fx, fz := float64(c.X), float64(c.Y)</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :         l.sys.addQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), l.atlas, l.ux, l.uy, l.uw, l.uh, tint)</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :         q := &amp;(*out)[len(*out)-1]</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :         q.alpha = a</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :         q.depth = rawschema.SpriteDepthSnow.Rank()</span></span>
+<span id="L401"><span class="lineNum">     401</span>              : }</span>
+<span id="L402"><span class="lineNum">     402</span>              : </span>
+<span id="L403"><span class="lineNum">     403</span>              : // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。</span>
+<span id="L404"><span class="lineNum">     404</span>              : func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile], fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {</span>
+<span id="L405"><span class="lineNum">     405</span>              :         // 天面は真上視点なので既存テクスチャをそのまま貼り、側面はフラット単色にする。</span>
+<span id="L406"><span class="lineNum">     406</span>              :         // 面ごとのシェード 天面0.95・南北0.6・東西0.78 は疑似方向光源で、平板な側面に陰影を付けて立体に見せる</span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :         sys.addQuad(out, render3d.At(fx, render3d.WallHeight, fz), render3d.At(fx+1, render3d.WallHeight, fz), render3d.At(fx+1, render3d.WallHeight, fz+1), render3d.At(fx, render3d.WallHeight, fz+1), atlas, ux, uy, uw, uh, scaleCol(tint, 0.95))</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :         if !walls[c.Add(consts.Coord[consts.Tile]{X: 0, Y: -1})] {</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, render3d.WallHeight, fz), render3d.At(fx, render3d.WallHeight, fz), atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :         if !walls[c.Add(consts.Coord[consts.Tile]{X: 0, Y: 1})] {</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), render3d.At(fx, render3d.WallHeight, fz+1), render3d.At(fx+1, render3d.WallHeight, fz+1), atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :         if !walls[c.Add(consts.Coord[consts.Tile]{X: -1, Y: 0})] {</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, render3d.At(fx, 0, fz+1), render3d.At(fx, 0, fz), render3d.At(fx, render3d.WallHeight, fz), render3d.At(fx, render3d.WallHeight, fz+1), atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))</span></span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :         if !walls[c.Add(consts.Coord[consts.Tile]{X: 1, Y: 0})] {</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx+1, render3d.WallHeight, fz+1), render3d.At(fx+1, render3d.WallHeight, fz), atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L420"><span class="lineNum">     420</span>              : }</span>
+<span id="L421"><span class="lineNum">     421</span>              : </span>
+<span id="L422"><span class="lineNum">     422</span>              : // collectBillboards はタイル以外のエンティティを SpriteRender.Shape の形で積む。省けばカメラを向く立て板、</span>
+<span id="L423"><span class="lineNum">     423</span>              : // inset は壁にはめる板、facing は置き方 Pose に合わせて立てる閉じた板にし、Pose が無ければ立て板にする。flat は地面に寝かせる。</span>
+<span id="L424"><span class="lineNum">     424</span>              : // linked は描けるマスの linked の隣へ中心から伸ばす格子の板にする</span>
+<span id="L425"><span class="lineNum">     425</span>              : func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, projector render3d.Projector, visTint tintFunc, walls, insets map[consts.Coord[consts.Tile]]bool, poses map[consts.Coord[consts.Tile]]gc.Pose, linked map[consts.Coord[consts.Tile]]bool) []r3quad {</span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :         right := projector.Right()</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :         objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         for objQ.Next() {</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :                 e := objQ.Entity()</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :                 g := world.Components.GridElement.Get(e)</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                 fx, fz := float64(g.X), float64(g.Y)</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :                 // 立て板は上へ伸びるので天面 BillboardHeight まで含めて画面掛かりを判定する</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :                 if !projector.TileOnScreen(g.Coord, render3d.BillboardHeight) {</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L435"><span class="lineNum">     435</span>              :                 }</span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 :                 sr := world.Components.SpriteRender.Get(e)</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :                 atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L440"><span class="lineNum">     440</span>              :                 }</span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :                 tint, vok, vis := visTint(g)</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :                 if !vok {</span></span>
 <span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L444"><span class="lineNum">     444</span>              :                 }</span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                 tint, vok, vis := visTint(g)</span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                 if !vok {</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L448"><span class="lineNum">     448</span>              :                 }</span>
-<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :                 if sr.Shape == rawschema.Flat {</span></span>
-<span id="L450"><span class="lineNum">     450</span>              :                         // 地面に寝かせるものは床と同じく記憶エリアにも描く。ただし跡はプレイ中に増えるので、視界の外で増えた</span>
-<span id="L451"><span class="lineNum">     451</span>              :                         // 跡を見せないよう、見えているタイルにだけ描く</span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :                         if !vis &amp;&amp; world.Components.Remains.Has(e) {</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L454"><span class="lineNum">     454</span>              :                         }</span>
-<span id="L455"><span class="lineNum">     455</span>              :                         // 奥行きが床と同値になるので、副キーの描画順で床の後に段の順に描く</span>
-<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :                         sys.addQuad(&amp;quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)</span></span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :                         quads[len(quads)-1].depth = sr.Depth.Rank()</span></span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L459"><span class="lineNum">     459</span>              :                 }</span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :                 if sr.Shape == rawschema.Linked {</span></span>
-<span id="L461"><span class="lineNum">     461</span>              :                         // 壁と同じく動かない仕切りなので、記憶エリアにも描く。まだ見ていないマスの柵の在りかを板の伸び方で明かさないよう、</span>
-<span id="L462"><span class="lineNum">     462</span>              :                         // 描けるマスの隣だけをつなぐ</span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :                         known := func(n consts.Coord[consts.Tile]) bool {</span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :                                 if !linked[n] {</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 :                                         return false</span></span>
-<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           1 :                                 _, ok, _ := visTint(&amp;gc.GridElement{Coord: n})</span></span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 :                                 return ok</span></span>
-<span id="L469"><span class="lineNum">     469</span>              :                         }</span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :                         for _, s := range linkedSpans(g.Coord, known) {</span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                                 sys.addLinkedSpan(&amp;quads, g.Coord, s, atlas, ux, uy, uw, uh, tint)</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :                                 quads[len(quads)-1].depth = sr.Depth.Rank()</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L475"><span class="lineNum">     475</span>              :                 }</span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 :                 if sr.Shape == rawschema.Inset {</span></span>
-<span id="L477"><span class="lineNum">     477</span>              :                         // 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする。</span>
-<span id="L478"><span class="lineNum">     478</span>              :                         // 開いた扉は描かず、開口部だけを残す</span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :                         if !vis || world.Components.BlockPass.Has(e) {</span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :                                 sys.addSlab(&amp;quads, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)</span></span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                 if sr.Shape == rawschema.Flat {</span></span>
+<span id="L446"><span class="lineNum">     446</span>              :                         // 地面に寝かせるものは床と同じく記憶エリアにも描く。ただし跡はプレイ中に増えるので、視界の外で増えた</span>
+<span id="L447"><span class="lineNum">     447</span>              :                         // 跡を見せないよう、見えているタイルにだけ描く</span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                         if !vis &amp;&amp; world.Components.Remains.Has(e) {</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L450"><span class="lineNum">     450</span>              :                         }</span>
+<span id="L451"><span class="lineNum">     451</span>              :                         // 奥行きが床と同値になるので、副キーの描画順で床の後に段の順に描く</span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :                         sys.addQuad(&amp;quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                         quads[len(quads)-1].depth = sr.Depth.Rank()</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L455"><span class="lineNum">     455</span>              :                 }</span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :                 if sr.Shape == rawschema.Linked {</span></span>
+<span id="L457"><span class="lineNum">     457</span>              :                         // 壁と同じく動かない仕切りなので、記憶エリアにも描く。まだ見ていないマスの柵の在りかを板の伸び方で明かさないよう、</span>
+<span id="L458"><span class="lineNum">     458</span>              :                         // 描けるマスの隣だけをつなぐ</span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :                         known := func(n consts.Coord[consts.Tile]) bool {</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :                                 if !linked[n] {</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :                                         return false</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :                                 _, ok, _ := visTint(&amp;gc.GridElement{Coord: n})</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :                                 return ok</span></span>
+<span id="L465"><span class="lineNum">     465</span>              :                         }</span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :                         for _, s := range linkedSpans(g.Coord, known) {</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           1 :                                 sys.addLinkedSpan(&amp;quads, g.Coord, s, atlas, ux, uy, uw, uh, tint)</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 :                                 quads[len(quads)-1].depth = sr.Depth.Rank()</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L471"><span class="lineNum">     471</span>              :                 }</span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :                 if sr.Shape == rawschema.Inset {</span></span>
+<span id="L473"><span class="lineNum">     473</span>              :                         // 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする。</span>
+<span id="L474"><span class="lineNum">     474</span>              :                         // 開いた扉は描かず、開口部だけを残す</span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :                         if !vis || world.Components.BlockPass.Has(e) {</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :                                 sys.addSlab(&amp;quads, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L479"><span class="lineNum">     479</span>              :                 }</span>
+<span id="L480"><span class="lineNum">     480</span>              :                 // 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない</span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :                 if !vis {</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L483"><span class="lineNum">     483</span>              :                 }</span>
-<span id="L484"><span class="lineNum">     484</span>              :                 // 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない</span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :                 if !vis {</span></span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L487"><span class="lineNum">     487</span>              :                 }</span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">           1 :                 if f, ok := poses[g.Coord]; ok &amp;&amp; sr.Shape == rawschema.Facing {</span></span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :                         drawn := func(n consts.Coord[consts.Tile]) bool {</span></span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :                                 _, _, v := visTint(&amp;gc.GridElement{Coord: n})</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :                                 return v &amp;&amp; projector.TileOnScreen(n, render3d.BillboardHeight)</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :                         sys.addSlab(&amp;quads, facingFaces(g.Coord, f, poses, drawn), atlas, ux, uy, uw, uh, tint)</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L495"><span class="lineNum">     495</span>              :                 }</span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :                 base := render3d.At(fx+0.5, 0, fz+0.5)</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :                 const bw = 0.45</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :                 const bh = render3d.BillboardHeight</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :                 b0 := render3d.Add(base, render3d.Scale(right, -bw))</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :                 b1 := render3d.Add(base, render3d.Scale(right, bw))</span></span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :                 top := render3d.At(0, bh, 0)</span></span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :                 tl, tr := render3d.Add(b0, top), render3d.Add(b1, top)</span></span>
-<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :                 // 立て板の上下は SpriteRender.Depth で決める。同一タイルの立て板は4隅が一致して奥行きが</span></span>
-<span id="L504"><span class="lineNum">     504</span>              :                 // 同値になるので、この副キーが無いと走査順で前後がばらつく</span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :                 depth := sr.Depth.Rank()</span></span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :                 sys.addQuad(&amp;quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)</span></span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :                 quads[len(quads)-1].depth = depth</span></span>
-<span id="L508"><span class="lineNum">     508</span>              :         }</span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :         return quads</span></span>
-<span id="L510"><span class="lineNum">     510</span>              : }</span>
-<span id="L511"><span class="lineNum">     511</span>              : </span>
-<span id="L512"><span class="lineNum">     512</span>              : // linkedAt は linked の置物がある座標の集合を返す</span>
-<span id="L513"><span class="lineNum">     513</span>              : func linkedAt(world w.World) map[consts.Coord[consts.Tile]]bool {</span>
-<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           1 :         linked := map[consts.Coord[consts.Tile]]bool{}</span></span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :                 if world.Components.SpriteRender.Get(q.Entity()).Shape == rawschema.Linked {</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :                         linked[world.Components.GridElement.Get(q.Entity()).Coord] = true</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L520"><span class="lineNum">     520</span>              :         }</span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :         return linked</span></span>
-<span id="L522"><span class="lineNum">     522</span>              : }</span>
-<span id="L523"><span class="lineNum">     523</span>              : </span>
-<span id="L524"><span class="lineNum">     524</span>              : // linkedSpan はマスの中で板が占める範囲。northSouth なら x=0.5 の線を北から南へ、そうでなければ z=0.5 の線を西から東へ、</span>
-<span id="L525"><span class="lineNum">     525</span>              : // from から to までを占める。絵も同じ割合で切り出す</span>
-<span id="L526"><span class="lineNum">     526</span>              : type linkedSpan struct {</span>
-<span id="L527"><span class="lineNum">     527</span>              :         northSouth bool</span>
-<span id="L528"><span class="lineNum">     528</span>              :         from, to   float64</span>
-<span id="L529"><span class="lineNum">     529</span>              : }</span>
-<span id="L530"><span class="lineNum">     530</span>              : </span>
-<span id="L531"><span class="lineNum">     531</span>              : // linkedSpans はマス c の格子の板を返す。東西と南北の両方につなぐ隣 linked があれば、隣のある方向へだけ中心から端まで伸ばす。</span>
-<span id="L532"><span class="lineNum">     532</span>              : // 片方の軸だけなら、その軸に沿ってマスの端から端まで渡す。隣が無ければ東西に渡す</span>
-<span id="L533"><span class="lineNum">     533</span>              : func linkedSpans(c consts.Coord[consts.Tile], linked func(consts.Coord[consts.Tile]) bool) []linkedSpan {</span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           1 :         east, west := linked(c.Add(consts.East.Delta())), linked(c.Add(consts.West.Delta()))</span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :         north, south := linked(c.Add(consts.North.Delta())), linked(c.Add(consts.South.Delta()))</span></span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           1 :         ew, ns := east || west, north || south</span></span>
-<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L538"><span class="lineNum">     538</span>              :         case ew &amp;&amp; ns:</span>
-<span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">           1 :                 var spans []linkedSpan</span></span>
-<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">           1 :                 if west {</span></span>
-<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           1 :                         spans = append(spans, linkedSpan{from: 0, to: 0.5})</span></span>
-<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :                 if east {</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 :                         spans = append(spans, linkedSpan{from: 0.5, to: 1})</span></span>
-<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">           1 :                 if north {</span></span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           1 :                         spans = append(spans, linkedSpan{northSouth: true, from: 0, to: 0.5})</span></span>
-<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">           1 :                 if south {</span></span>
-<span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC">           1 :                         spans = append(spans, linkedSpan{northSouth: true, from: 0.5, to: 1})</span></span>
-<span id="L551"><span class="lineNum">     551</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC">           1 :                 return spans</span></span>
-<span id="L553"><span class="lineNum">     553</span>              :         case ns:</span>
-<span id="L554"><span class="lineNum">     554</span> <span class="tlaGNC">           1 :                 return []linkedSpan{{northSouth: true, from: 0, to: 1}}</span></span>
-<span id="L555"><span class="lineNum">     555</span>              :         default:</span>
-<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           1 :                 return []linkedSpan{{from: 0, to: 1}}</span></span>
-<span id="L557"><span class="lineNum">     557</span>              :         }</span>
-<span id="L558"><span class="lineNum">     558</span>              : }</span>
-<span id="L559"><span class="lineNum">     559</span>              : </span>
-<span id="L560"><span class="lineNum">     560</span>              : // addLinkedSpan は格子の板を1枚積む。中身を塗らず絵だけを貼るので、絵の透けた所から向こうが見える</span>
-<span id="L561"><span class="lineNum">     561</span>              : func (sys *Render3DSystem) addLinkedSpan(out *[]r3quad, c consts.Coord[consts.Tile], s linkedSpan, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {</span>
-<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           1 :         const h = render3d.WallHeight</span></span>
-<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 :         at := func(along, y float64) render3d.Vec {</span></span>
-<span id="L564"><span class="lineNum">     564</span> <span class="tlaGNC">           1 :                 if s.northSouth {</span></span>
-<span id="L565"><span class="lineNum">     565</span> <span class="tlaGNC">           1 :                         return render3d.At(float64(c.X)+0.5, y, float64(c.Y)+along)</span></span>
-<span id="L566"><span class="lineNum">     566</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">           1 :                 return render3d.At(float64(c.X)+along, y, float64(c.Y)+0.5)</span></span>
-<span id="L568"><span class="lineNum">     568</span>              :         }</span>
-<span id="L569"><span class="lineNum">     569</span> <span class="tlaGNC">           1 :         sys.addQuad(out, at(s.from, h), at(s.to, h), at(s.to, 0), at(s.from, 0), atlas, ux+uw*s.from, uy, uw*(s.to-s.from), uh, tint)</span></span>
-<span id="L570"><span class="lineNum">     570</span>              : }</span>
-<span id="L571"><span class="lineNum">     571</span>              : </span>
-<span id="L572"><span class="lineNum">     572</span>              : // insetThickness は壁にはめる置物の板の厚み</span>
-<span id="L573"><span class="lineNum">     573</span>              : const insetThickness = 0.2</span>
-<span id="L574"><span class="lineNum">     574</span>              : </span>
-<span id="L575"><span class="lineNum">     575</span>              : const (</span>
-<span id="L576"><span class="lineNum">     576</span>              :         // facingThickness は向きを決めた置物の板の厚み。扉の板とそろえる</span>
-<span id="L577"><span class="lineNum">     577</span>              :         facingThickness = insetThickness</span>
-<span id="L578"><span class="lineNum">     578</span>              :         // facingGap は背の塞がりに寄せた板と背のあいだ。壁の面と重なってちらつかないよう少し離す</span>
-<span id="L579"><span class="lineNum">     579</span>              :         facingGap = 0.02</span>
-<span id="L580"><span class="lineNum">     580</span>              :         // facingLift は板の正面と背面から絵を浮かせる距離。奥行きの並べ替えで絵を板の面より後に描かせる</span>
-<span id="L581"><span class="lineNum">     581</span>              :         facingLift = 0.01</span>
-<span id="L582"><span class="lineNum">     582</span>              : )</span>
-<span id="L583"><span class="lineNum">     583</span>              : </span>
-<span id="L584"><span class="lineNum">     584</span>              : // posesAt は置き方 Pose を持つエンティティの、座標ごとの置き方を返す。板の端を隣とつなぐのに使う</span>
-<span id="L585"><span class="lineNum">     585</span>              : func posesAt(world w.World) map[consts.Coord[consts.Tile]]gc.Pose {</span>
-<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           1 :         poses := map[consts.Coord[consts.Tile]]gc.Pose{}</span></span>
-<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.Pose, gc.GridElement](world).Query()</span></span>
-<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
-<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           1 :                 poses[world.Components.GridElement.Get(q.Entity()).Coord] = *world.Components.Pose.Get(q.Entity())</span></span>
-<span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">           1 :         return poses</span></span>
-<span id="L592"><span class="lineNum">     592</span>              : }</span>
-<span id="L593"><span class="lineNum">     593</span>              : </span>
-<span id="L594"><span class="lineNum">     594</span>              : // facingFaces は置き方 f の置物の面を返す。平均色で塗った閉じた6面の板の正面と背面に、外向きに絵を貼る。</span>
-<span id="L595"><span class="lineNum">     595</span>              : // 同じ置き方の隣が描かれ drawn、接するときは、重なってちらつかないよう端を省く</span>
-<span id="L596"><span class="lineNum">     596</span>              : func facingFaces(c consts.Coord[consts.Tile], f gc.Pose, poses map[consts.Coord[consts.Tile]]gc.Pose, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {</span>
-<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           1 :         const h = render3d.WallHeight</span></span>
-<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">           1 :         turns := quarterTurns(f.Facing)</span></span>
-<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           1 :         connected := func(side consts.Cardinal) bool {</span></span>
-<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           1 :                 local := side.Delta()</span></span>
-<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :                 for range turns {</span></span>
-<span id="L602"><span class="lineNum">     602</span> <span class="tlaGNC">           1 :                         local = consts.Coord[consts.Tile]{X: -local.Y, Y: local.X}</span></span>
-<span id="L603"><span class="lineNum">     603</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L604"><span class="lineNum">     604</span> <span class="tlaGNC">           1 :                 n, ok := poses[c.Add(local)]</span></span>
-<span id="L605"><span class="lineNum">     605</span> <span class="tlaGNC">           1 :                 return ok &amp;&amp; n.Facing == f.Facing &amp;&amp; n.Anchor == f.Anchor &amp;&amp; drawn(c.Add(local))</span></span>
-<span id="L606"><span class="lineNum">     606</span>              :         }</span>
-<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">           1 :         z0 := 0.5 - facingThickness/2</span></span>
-<span id="L608"><span class="lineNum">     608</span> <span class="tlaGNC">           1 :         if f.Anchor == gc.AnchorBack {</span></span>
-<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">           1 :                 z0 = facingGap</span></span>
-<span id="L610"><span class="lineNum">     610</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L611"><span class="lineNum">     611</span> <span class="tlaGNC">           1 :         z1 := z0 + facingThickness</span></span>
-<span id="L612"><span class="lineNum">     612</span> <span class="tlaGNC">           1 :         faces := slab(z0, z1, !connected(consts.West), !connected(consts.East))</span></span>
-<span id="L613"><span class="lineNum">     613</span> <span class="tlaGNC">           1 :         for i := range faces {</span></span>
-<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC">           1 :                 faces[i].flat = true</span></span>
-<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :         faces = append(faces,</span></span>
-<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           1 :                 insetFace{p: [4]render3d.Vec{render3d.At(0, 0, z1), render3d.At(1, 0, z1), render3d.At(1, 0, z0), render3d.At(0, 0, z0)}, flat: true},</span></span>
-<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC">           1 :                 insetFace{p: [4]render3d.Vec{render3d.At(0, h, z1+facingLift), render3d.At(1, h, z1+facingLift), render3d.At(1, 0, z1+facingLift), render3d.At(0, 0, z1+facingLift)}},</span></span>
-<span id="L619"><span class="lineNum">     619</span> <span class="tlaGNC">           1 :                 insetFace{p: [4]render3d.Vec{render3d.At(1, h, z0-facingLift), render3d.At(0, h, z0-facingLift), render3d.At(0, 0, z0-facingLift), render3d.At(1, 0, z0-facingLift)}},</span></span>
-<span id="L620"><span class="lineNum">     620</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L621"><span class="lineNum">     621</span> <span class="tlaGNC">           1 :         for i := range faces {</span></span>
-<span id="L622"><span class="lineNum">     622</span> <span class="tlaGNC">           1 :                 for j, v := range faces[i].p {</span></span>
-<span id="L623"><span class="lineNum">     623</span> <span class="tlaGNC">           1 :                         for range turns {</span></span>
-<span id="L624"><span class="lineNum">     624</span> <span class="tlaGNC">           1 :                                 v = turnQuarter(v)</span></span>
-<span id="L625"><span class="lineNum">     625</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L626"><span class="lineNum">     626</span> <span class="tlaGNC">           1 :                         faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))</span></span>
-<span id="L627"><span class="lineNum">     627</span>              :                 }</span>
-<span id="L628"><span class="lineNum">     628</span>              :         }</span>
-<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           1 :         return faces</span></span>
-<span id="L630"><span class="lineNum">     630</span>              : }</span>
-<span id="L631"><span class="lineNum">     631</span>              : </span>
-<span id="L632"><span class="lineNum">     632</span>              : // quarterTurns は南を向く板を向き dir へ回す90度の回数を返す</span>
-<span id="L633"><span class="lineNum">     633</span>              : func quarterTurns(dir consts.Cardinal) int {</span>
-<span id="L634"><span class="lineNum">     634</span> <span class="tlaGNC">           1 :         switch dir {</span></span>
-<span id="L635"><span class="lineNum">     635</span>              :         case consts.South:</span>
-<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L637"><span class="lineNum">     637</span>              :         case consts.West:</span>
-<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">           1 :                 return 1</span></span>
-<span id="L639"><span class="lineNum">     639</span>              :         case consts.North:</span>
-<span id="L640"><span class="lineNum">     640</span> <span class="tlaGNC">           1 :                 return 2</span></span>
-<span id="L641"><span class="lineNum">     641</span>              :         case consts.East:</span>
-<span id="L642"><span class="lineNum">     642</span> <span class="tlaGNC">           1 :                 return 3</span></span>
-<span id="L643"><span class="lineNum">     643</span>              :         }</span>
-<span id="L644"><span class="lineNum">     644</span> <span class="tlaUNC">           0 :         panic(fmt.Sprintf(&quot;unknown cardinal: %d&quot;, int(dir)))</span></span>
-<span id="L645"><span class="lineNum">     645</span>              : }</span>
-<span id="L646"><span class="lineNum">     646</span>              : </span>
-<span id="L647"><span class="lineNum">     647</span>              : // insetFace は壁にはめる置物の1面。flat は絵を貼らず平均色で塗る面</span>
-<span id="L648"><span class="lineNum">     648</span>              : type insetFace struct {</span>
-<span id="L649"><span class="lineNum">     649</span>              :         p    [4]render3d.Vec</span>
-<span id="L650"><span class="lineNum">     650</span>              :         flat bool</span>
-<span id="L651"><span class="lineNum">     651</span>              : }</span>
-<span id="L652"><span class="lineNum">     652</span>              : </span>
-<span id="L653"><span class="lineNum">     653</span>              : // closedInsets は閉じている壁にはめる置物の座標の集合を返す</span>
-<span id="L654"><span class="lineNum">     654</span>              : func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {</span>
-<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">           1 :         insets := map[consts.Coord[consts.Tile]]bool{}</span></span>
-<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
-<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
-<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">           1 :                 if world.Components.SpriteRender.Get(q.Entity()).Shape == rawschema.Inset {</span></span>
-<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">           1 :                         insets[world.Components.GridElement.Get(q.Entity()).Coord] = true</span></span>
-<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L661"><span class="lineNum">     661</span>              :         }</span>
-<span id="L662"><span class="lineNum">     662</span> <span class="tlaGNC">           1 :         return insets</span></span>
-<span id="L663"><span class="lineNum">     663</span>              : }</span>
-<span id="L664"><span class="lineNum">     664</span>              : </span>
-<span id="L665"><span class="lineNum">     665</span>              : // connections は壁にはめる置物が、北・東・南・西の隣とつながるか</span>
-<span id="L666"><span class="lineNum">     666</span>              : type connections struct {</span>
-<span id="L667"><span class="lineNum">     667</span>              :         north, east, south, west bool</span>
-<span id="L668"><span class="lineNum">     668</span>              : }</span>
-<span id="L669"><span class="lineNum">     669</span>              : </span>
-<span id="L670"><span class="lineNum">     670</span>              : // insetConnections は c の置物が、隣の壁 walls か閉じている壁にはめる置物 insets とつながるかを返す</span>
-<span id="L671"><span class="lineNum">     671</span>              : func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile]) connections {</span>
-<span id="L672"><span class="lineNum">     672</span> <span class="tlaGNC">           1 :         at := func(dx, dy consts.Tile) bool {</span></span>
-<span id="L673"><span class="lineNum">     673</span> <span class="tlaGNC">           1 :                 n := c.Add(consts.Coord[consts.Tile]{X: dx, Y: dy})</span></span>
-<span id="L674"><span class="lineNum">     674</span> <span class="tlaGNC">           1 :                 return walls[n] || insets[n]</span></span>
-<span id="L675"><span class="lineNum">     675</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L676"><span class="lineNum">     676</span> <span class="tlaGNC">           1 :         return connections{north: at(0, -1), east: at(1, 0), south: at(0, 1), west: at(-1, 0)}</span></span>
-<span id="L677"><span class="lineNum">     677</span>              : }</span>
-<span id="L678"><span class="lineNum">     678</span>              : </span>
-<span id="L679"><span class="lineNum">     679</span>              : // insetFaces は閉じた壁にはめる置物の面を返す。つながる向きに並ぶ板にし、つながりが無ければ東西に並べ、</span>
-<span id="L680"><span class="lineNum">     680</span>              : // つながる端を省く。南北の板は東西の板をタイルの中心で回して作る</span>
-<span id="L681"><span class="lineNum">     681</span>              : func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {</span>
-<span id="L682"><span class="lineNum">     682</span> <span class="tlaGNC">           1 :         alongX := conn.west || conn.east || (!conn.north &amp;&amp; !conn.south)</span></span>
-<span id="L683"><span class="lineNum">     683</span> <span class="tlaGNC">           1 :         var faces []insetFace</span></span>
-<span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">           1 :         if alongX {</span></span>
-<span id="L685"><span class="lineNum">     685</span> <span class="tlaGNC">           1 :                 faces = slab(0.5-insetThickness/2, 0.5+insetThickness/2, !conn.west, !conn.east)</span></span>
-<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">           1 :         } else {</span></span>
-<span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">           1 :                 faces = slab(0.5-insetThickness/2, 0.5+insetThickness/2, !conn.north, !conn.south)</span></span>
-<span id="L688"><span class="lineNum">     688</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L689"><span class="lineNum">     689</span> <span class="tlaGNC">           1 :         for i := range faces {</span></span>
-<span id="L690"><span class="lineNum">     690</span> <span class="tlaGNC">           1 :                 for j, v := range faces[i].p {</span></span>
-<span id="L691"><span class="lineNum">     691</span> <span class="tlaGNC">           1 :                         if !alongX {</span></span>
-<span id="L692"><span class="lineNum">     692</span> <span class="tlaGNC">           1 :                                 v = turnQuarter(v)</span></span>
-<span id="L693"><span class="lineNum">     693</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L694"><span class="lineNum">     694</span> <span class="tlaGNC">           1 :                         faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))</span></span>
-<span id="L695"><span class="lineNum">     695</span>              :                 }</span>
-<span id="L696"><span class="lineNum">     696</span>              :         }</span>
-<span id="L697"><span class="lineNum">     697</span> <span class="tlaGNC">           1 :         return faces</span></span>
-<span id="L698"><span class="lineNum">     698</span>              : }</span>
-<span id="L699"><span class="lineNum">     699</span>              : </span>
-<span id="L700"><span class="lineNum">     700</span>              : // slab は z0..z1 に東西に立つ板の面を、タイルの北西の角を原点に返す。南北の2面に絵を貼り、天面と東西の端は平均色で塗る。</span>
-<span id="L701"><span class="lineNum">     701</span>              : // westEnd と eastEnd は西と東の端を描くか。面は外から見て左上から時計回りに張る</span>
-<span id="L702"><span class="lineNum">     702</span>              : func slab(z0, z1 float64, westEnd, eastEnd bool) []insetFace {</span>
-<span id="L703"><span class="lineNum">     703</span> <span class="tlaGNC">           1 :         const h = render3d.WallHeight</span></span>
-<span id="L704"><span class="lineNum">     704</span> <span class="tlaGNC">           1 :         faces := []insetFace{</span></span>
-<span id="L705"><span class="lineNum">     705</span> <span class="tlaGNC">           1 :                 {p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(1, h, z0), render3d.At(1, h, z1), render3d.At(0, h, z1)}, flat: true},</span></span>
-<span id="L706"><span class="lineNum">     706</span> <span class="tlaGNC">           1 :                 {p: [4]render3d.Vec{render3d.At(1, h, z0), render3d.At(0, h, z0), render3d.At(0, 0, z0), render3d.At(1, 0, z0)}},</span></span>
-<span id="L707"><span class="lineNum">     707</span> <span class="tlaGNC">           1 :                 {p: [4]render3d.Vec{render3d.At(0, h, z1), render3d.At(1, h, z1), render3d.At(1, 0, z1), render3d.At(0, 0, z1)}},</span></span>
-<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">           1 :         if westEnd {</span></span>
-<span id="L710"><span class="lineNum">     710</span> <span class="tlaGNC">           1 :                 faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(0, h, z1), render3d.At(0, 0, z1), render3d.At(0, 0, z0)}, flat: true})</span></span>
-<span id="L711"><span class="lineNum">     711</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC">           1 :         if eastEnd {</span></span>
-<span id="L713"><span class="lineNum">     713</span> <span class="tlaGNC">           1 :                 faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(1, h, z1), render3d.At(1, h, z0), render3d.At(1, 0, z0), render3d.At(1, 0, z1)}, flat: true})</span></span>
-<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L715"><span class="lineNum">     715</span> <span class="tlaGNC">           1 :         return faces</span></span>
-<span id="L716"><span class="lineNum">     716</span>              : }</span>
-<span id="L717"><span class="lineNum">     717</span>              : </span>
-<span id="L718"><span class="lineNum">     718</span>              : // turnQuarter はタイルの中の点を中心で90度回す。西の端が北へ、東の端が南へ来る。裏返らないので面の張り順が保たれる</span>
-<span id="L719"><span class="lineNum">     719</span>              : func turnQuarter(v render3d.Vec) render3d.Vec {</span>
-<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">           1 :         return render3d.At(1-v.Z, v.Y, v.X)</span></span>
-<span id="L721"><span class="lineNum">     721</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L722"><span class="lineNum">     722</span>              : </span>
-<span id="L723"><span class="lineNum">     723</span>              : // faceShade は面の向きから陰影を返す。天面0.95・東西0.78・南北0.6は壁の箱と同じ疑似方向光源</span>
-<span id="L724"><span class="lineNum">     724</span>              : func faceShade(p [4]render3d.Vec) float64 {</span>
-<span id="L725"><span class="lineNum">     725</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L726"><span class="lineNum">     726</span>              :         case p[0].Y == p[1].Y &amp;&amp; p[1].Y == p[2].Y:</span>
-<span id="L727"><span class="lineNum">     727</span> <span class="tlaGNC">           1 :                 return 0.95</span></span>
-<span id="L728"><span class="lineNum">     728</span>              :         case p[0].X == p[1].X &amp;&amp; p[1].X == p[2].X:</span>
-<span id="L729"><span class="lineNum">     729</span> <span class="tlaGNC">           1 :                 return 0.78</span></span>
-<span id="L730"><span class="lineNum">     730</span>              :         default:</span>
-<span id="L731"><span class="lineNum">     731</span> <span class="tlaGNC">           1 :                 return 0.6</span></span>
-<span id="L732"><span class="lineNum">     732</span>              :         }</span>
-<span id="L733"><span class="lineNum">     733</span>              : }</span>
-<span id="L734"><span class="lineNum">     734</span>              : </span>
-<span id="L735"><span class="lineNum">     735</span>              : // addSlab は板の面を積む</span>
-<span id="L736"><span class="lineNum">     736</span>              : func (sys *Render3DSystem) addSlab(out *[]r3quad, faces []insetFace, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {</span>
-<span id="L737"><span class="lineNum">     737</span> <span class="tlaUNC">           0 :         for _, f := range faces {</span></span>
-<span id="L738"><span class="lineNum">     738</span>              :                 // 絵を貼る面は立て板と同じ明るさにし、平均色の面にだけ陰影を付ける</span>
-<span id="L739"><span class="lineNum">     739</span> <span class="tlaUNC">           0 :                 if f.flat {</span></span>
-<span id="L740"><span class="lineNum">     740</span> <span class="tlaUNC">           0 :                         sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, faceShade(f.p)))</span></span>
-<span id="L741"><span class="lineNum">     741</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L742"><span class="lineNum">     742</span>              :                 }</span>
-<span id="L743"><span class="lineNum">     743</span> <span class="tlaUNC">           0 :                 sys.addQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, tint)</span></span>
-<span id="L744"><span class="lineNum">     744</span>              :         }</span>
-<span id="L745"><span class="lineNum">     745</span>              : }</span>
-<span id="L746"><span class="lineNum">     746</span>              : </span>
-<span id="L747"><span class="lineNum">     747</span>              : // sortQuadsByDepth はカメラ空間の奥行きでクアッドを安定ソートする。画家アルゴリズムの前段。</span>
-<span id="L748"><span class="lineNum">     748</span>              : // クアッドを物理的に並べ替えるので、続く emit は連続アクセスで辿れる。添字ソートは emit が</span>
-<span id="L749"><span class="lineNum">     749</span>              : // ランダムアクセスになりキャッシュミスで却って遅くなるため採らない。</span>
-<span id="L750"><span class="lineNum">     750</span>              : func sortQuadsByDepth(quads []r3quad, depth func(render3d.Vec) float64) {</span>
-<span id="L751"><span class="lineNum">     751</span> <span class="tlaGNC">           1 :         for i := range quads {</span></span>
-<span id="L752"><span class="lineNum">     752</span> <span class="tlaGNC">           1 :                 c := render3d.Vec{}</span></span>
-<span id="L753"><span class="lineNum">     753</span> <span class="tlaGNC">           1 :                 for _, p := range quads[i].p {</span></span>
-<span id="L754"><span class="lineNum">     754</span> <span class="tlaGNC">           1 :                         c = render3d.Add(c, p)</span></span>
-<span id="L755"><span class="lineNum">     755</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L756"><span class="lineNum">     756</span> <span class="tlaGNC">           1 :                 quads[i].key = depth(render3d.Scale(c, 0.25))</span></span>
-<span id="L757"><span class="lineNum">     757</span>              :         }</span>
-<span id="L758"><span class="lineNum">     758</span>              :         // 奥行きが同値のときは depth で割る。同一タイルの立て板はここで前後が確定する。</span>
-<span id="L759"><span class="lineNum">     759</span>              :         // 大きい depth を後に描いて手前にし、プレイヤーを足元のアイテムより必ず上へ出す</span>
-<span id="L760"><span class="lineNum">     760</span> <span class="tlaGNC">           1 :         sort.SliceStable(quads, func(i, j int) bool {</span></span>
-<span id="L761"><span class="lineNum">     761</span> <span class="tlaGNC">           1 :                 if quads[i].key != quads[j].key {</span></span>
-<span id="L762"><span class="lineNum">     762</span> <span class="tlaGNC">           1 :                         return quads[i].key &lt; quads[j].key</span></span>
-<span id="L763"><span class="lineNum">     763</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L764"><span class="lineNum">     764</span> <span class="tlaGNC">           1 :                 return quads[i].depth &lt; quads[j].depth</span></span>
-<span id="L765"><span class="lineNum">     765</span>              :         })</span>
-<span id="L766"><span class="lineNum">     766</span>              : }</span>
-<span id="L767"><span class="lineNum">     767</span>              : </span>
-<span id="L768"><span class="lineNum">     768</span>              : // emit はクアッドを奥行き順の添字で辿り、アトラスが変わる境目でバッチに分けて描く。</span>
-<span id="L769"><span class="lineNum">     769</span>              : // 頂点バッファはフレーム間で使い回す。</span>
-<span id="L770"><span class="lineNum">     770</span>              : func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector render3d.Projector) {</span>
-<span id="L771"><span class="lineNum">     771</span> <span class="tlaUNC">           0 :         sortQuadsByDepth(quads, projector.Depth)</span></span>
-<span id="L772"><span class="lineNum">     772</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L773"><span class="lineNum">     773</span> <span class="tlaUNC">           0 :         verts := sys.verts[:0]</span></span>
-<span id="L774"><span class="lineNum">     774</span> <span class="tlaUNC">           0 :         inds := sys.inds[:0]</span></span>
-<span id="L775"><span class="lineNum">     775</span> <span class="tlaUNC">           0 :         var curAtlas *ebiten.Image</span></span>
-<span id="L776"><span class="lineNum">     776</span> <span class="tlaUNC">           0 :         flush := func() {</span></span>
-<span id="L777"><span class="lineNum">     777</span> <span class="tlaUNC">           0 :                 if len(inds) == 0 || curAtlas == nil {</span></span>
-<span id="L778"><span class="lineNum">     778</span> <span class="tlaUNC">           0 :                         return</span></span>
-<span id="L779"><span class="lineNum">     779</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L780"><span class="lineNum">     780</span> <span class="tlaUNC">           0 :                 screen.DrawTriangles(verts, inds, curAtlas, &amp;ebiten.DrawTrianglesOptions{})</span></span>
-<span id="L781"><span class="lineNum">     781</span> <span class="tlaUNC">           0 :                 verts = verts[:0]</span></span>
-<span id="L782"><span class="lineNum">     782</span> <span class="tlaUNC">           0 :                 inds = inds[:0]</span></span>
-<span id="L783"><span class="lineNum">     783</span>              :         }</span>
-<span id="L784"><span class="lineNum">     784</span> <span class="tlaUNC">           0 :         for i := range quads {</span></span>
-<span id="L785"><span class="lineNum">     785</span> <span class="tlaUNC">           0 :                 q := &amp;quads[i]</span></span>
-<span id="L786"><span class="lineNum">     786</span> <span class="tlaUNC">           0 :                 // アトラス切り替え、または uint16 の頂点インデックス上限を跨ぐ前に flush する。</span></span>
-<span id="L787"><span class="lineNum">     787</span>              :                 // 同一スプライトシートのタイルが大量に積まれても 65535 を超えると黙って描画化けするため</span>
-<span id="L788"><span class="lineNum">     788</span> <span class="tlaUNC">           0 :                 if q.atlas != curAtlas || len(verts)+4 &gt; maxVertsPerBatch {</span></span>
-<span id="L789"><span class="lineNum">     789</span> <span class="tlaUNC">           0 :                         flush()</span></span>
-<span id="L790"><span class="lineNum">     790</span> <span class="tlaUNC">           0 :                         curAtlas = q.atlas</span></span>
-<span id="L791"><span class="lineNum">     791</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L792"><span class="lineNum">     792</span> <span class="tlaUNC">           0 :                 sys.emitQuad(&amp;verts, &amp;inds, q, projector.Point)</span></span>
-<span id="L793"><span class="lineNum">     793</span>              :         }</span>
-<span id="L794"><span class="lineNum">     794</span> <span class="tlaUNC">           0 :         flush()</span></span>
-<span id="L795"><span class="lineNum">     795</span> <span class="tlaUNC">           0 :         sys.verts = verts</span></span>
-<span id="L796"><span class="lineNum">     796</span> <span class="tlaUNC">           0 :         sys.inds = inds</span></span>
-<span id="L797"><span class="lineNum">     797</span>              : }</span>
-<span id="L798"><span class="lineNum">     798</span>              : </span>
-<span id="L799"><span class="lineNum">     799</span>              : // maxVertsPerBatch は1回の DrawTriangles へ積む頂点数の上限。インデックスが uint16 なので 65535 まで。</span>
-<span id="L800"><span class="lineNum">     800</span>              : const maxVertsPerBatch = 65535</span>
-<span id="L801"><span class="lineNum">     801</span>              : </span>
-<span id="L802"><span class="lineNum">     802</span>              : // emitQuad は1クアッドを三角形2枚として頂点バッファへ積む。画面外の頂点があれば捨てる。</span>
-<span id="L803"><span class="lineNum">     803</span>              : func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r3quad, project func(render3d.Vec) (consts.Coord[consts.ScreenPixel], bool)) {</span>
-<span id="L804"><span class="lineNum">     804</span> <span class="tlaUNC">           0 :         var sp [4]consts.Coord[consts.ScreenPixel]</span></span>
-<span id="L805"><span class="lineNum">     805</span> <span class="tlaUNC">           0 :         for k, p := range q.p {</span></span>
-<span id="L806"><span class="lineNum">     806</span> <span class="tlaUNC">           0 :                 screenPos, ok := project(p)</span></span>
-<span id="L807"><span class="lineNum">     807</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
-<span id="L808"><span class="lineNum">     808</span> <span class="tlaUNC">           0 :                         return</span></span>
-<span id="L809"><span class="lineNum">     809</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L810"><span class="lineNum">     810</span> <span class="tlaUNC">           0 :                 sp[k] = screenPos</span></span>
-<span id="L811"><span class="lineNum">     811</span>              :         }</span>
-<span id="L812"><span class="lineNum">     812</span> <span class="tlaUNC">           0 :         b := uint16(len(*verts))</span></span>
-<span id="L813"><span class="lineNum">     813</span> <span class="tlaUNC">           0 :         cr, cg, cb, ca := float32(q.col[0]), float32(q.col[1]), float32(q.col[2]), float32(q.alpha)</span></span>
-<span id="L814"><span class="lineNum">     814</span> <span class="tlaUNC">           0 :         for k := range 4 {</span></span>
-<span id="L815"><span class="lineNum">     815</span> <span class="tlaUNC">           0 :                 *verts = append(*verts, ebiten.Vertex{</span></span>
-<span id="L816"><span class="lineNum">     816</span> <span class="tlaUNC">           0 :                         DstX: float32(sp[k].X), DstY: float32(sp[k].Y),</span></span>
-<span id="L817"><span class="lineNum">     817</span> <span class="tlaUNC">           0 :                         SrcX: float32(q.uv[k][0]), SrcY: float32(q.uv[k][1]),</span></span>
-<span id="L818"><span class="lineNum">     818</span> <span class="tlaUNC">           0 :                         ColorR: cr, ColorG: cg, ColorB: cb, ColorA: ca,</span></span>
-<span id="L819"><span class="lineNum">     819</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L820"><span class="lineNum">     820</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L821"><span class="lineNum">     821</span> <span class="tlaUNC">           0 :         *inds = append(*inds, b, b+1, b+2, b, b+2, b+3)</span></span>
-<span id="L822"><span class="lineNum">     822</span>              : }</span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 :                 if f, ok := poses[g.Coord]; ok &amp;&amp; sr.Shape == rawschema.Facing {</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :                         drawn := func(n consts.Coord[consts.Tile]) bool {</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :                                 _, _, v := visTint(&amp;gc.GridElement{Coord: n})</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :                                 return v &amp;&amp; projector.TileOnScreen(n, render3d.BillboardHeight)</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :                         sys.addSlab(&amp;quads, facingFaces(g.Coord, f, poses, drawn), atlas, ux, uy, uw, uh, tint)</span></span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L491"><span class="lineNum">     491</span>              :                 }</span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :                 base := render3d.At(fx+0.5, 0, fz+0.5)</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 :                 const bw = 0.45</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :                 const bh = render3d.BillboardHeight</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :                 b0 := render3d.Add(base, render3d.Scale(right, -bw))</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :                 b1 := render3d.Add(base, render3d.Scale(right, bw))</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :                 top := render3d.At(0, bh, 0)</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :                 tl, tr := render3d.Add(b0, top), render3d.Add(b1, top)</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :                 // 立て板の上下は SpriteRender.Depth で決める。同一タイルの立て板は4隅が一致して奥行きが</span></span>
+<span id="L500"><span class="lineNum">     500</span>              :                 // 同値になるので、この副キーが無いと走査順で前後がばらつく</span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :                 depth := sr.Depth.Rank()</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :                 sys.addQuad(&amp;quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, tint)</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :                 quads[len(quads)-1].depth = depth</span></span>
+<span id="L504"><span class="lineNum">     504</span>              :         }</span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :         return quads</span></span>
+<span id="L506"><span class="lineNum">     506</span>              : }</span>
+<span id="L507"><span class="lineNum">     507</span>              : </span>
+<span id="L508"><span class="lineNum">     508</span>              : // linkedAt は linked の置物がある座標の集合を返す</span>
+<span id="L509"><span class="lineNum">     509</span>              : func linkedAt(world w.World) map[consts.Coord[consts.Tile]]bool {</span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">           1 :         linked := map[consts.Coord[consts.Tile]]bool{}</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :                 if world.Components.SpriteRender.Get(q.Entity()).Shape == rawschema.Linked {</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           1 :                         linked[world.Components.GridElement.Get(q.Entity()).Coord] = true</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L516"><span class="lineNum">     516</span>              :         }</span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :         return linked</span></span>
+<span id="L518"><span class="lineNum">     518</span>              : }</span>
+<span id="L519"><span class="lineNum">     519</span>              : </span>
+<span id="L520"><span class="lineNum">     520</span>              : // linkedSpan はマスの中で板が占める範囲。northSouth なら x=0.5 の線を北から南へ、そうでなければ z=0.5 の線を西から東へ、</span>
+<span id="L521"><span class="lineNum">     521</span>              : // from から to までを占める。絵も同じ割合で切り出す</span>
+<span id="L522"><span class="lineNum">     522</span>              : type linkedSpan struct {</span>
+<span id="L523"><span class="lineNum">     523</span>              :         northSouth bool</span>
+<span id="L524"><span class="lineNum">     524</span>              :         from, to   float64</span>
+<span id="L525"><span class="lineNum">     525</span>              : }</span>
+<span id="L526"><span class="lineNum">     526</span>              : </span>
+<span id="L527"><span class="lineNum">     527</span>              : // linkedSpans はマス c の格子の板を返す。東西と南北の両方につなぐ隣 linked があれば、隣のある方向へだけ中心から端まで伸ばす。</span>
+<span id="L528"><span class="lineNum">     528</span>              : // 片方の軸だけなら、その軸に沿ってマスの端から端まで渡す。隣が無ければ東西に渡す</span>
+<span id="L529"><span class="lineNum">     529</span>              : func linkedSpans(c consts.Coord[consts.Tile], linked func(consts.Coord[consts.Tile]) bool) []linkedSpan {</span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">           1 :         east, west := linked(c.Add(consts.East.Delta())), linked(c.Add(consts.West.Delta()))</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">           1 :         north, south := linked(c.Add(consts.North.Delta())), linked(c.Add(consts.South.Delta()))</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           1 :         ew, ns := east || west, north || south</span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L534"><span class="lineNum">     534</span>              :         case ew &amp;&amp; ns:</span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :                 var spans []linkedSpan</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           1 :                 if west {</span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :                         spans = append(spans, linkedSpan{from: 0, to: 0.5})</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">           1 :                 if east {</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">           1 :                         spans = append(spans, linkedSpan{from: 0.5, to: 1})</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">           1 :                 if north {</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :                         spans = append(spans, linkedSpan{northSouth: true, from: 0, to: 0.5})</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :                 if south {</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">           1 :                         spans = append(spans, linkedSpan{northSouth: true, from: 0.5, to: 1})</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">           1 :                 return spans</span></span>
+<span id="L549"><span class="lineNum">     549</span>              :         case ns:</span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC">           1 :                 return []linkedSpan{{northSouth: true, from: 0, to: 1}}</span></span>
+<span id="L551"><span class="lineNum">     551</span>              :         default:</span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC">           1 :                 return []linkedSpan{{from: 0, to: 1}}</span></span>
+<span id="L553"><span class="lineNum">     553</span>              :         }</span>
+<span id="L554"><span class="lineNum">     554</span>              : }</span>
+<span id="L555"><span class="lineNum">     555</span>              : </span>
+<span id="L556"><span class="lineNum">     556</span>              : // addLinkedSpan は格子の板を1枚積む。中身を塗らず絵だけを貼るので、絵の透けた所から向こうが見える</span>
+<span id="L557"><span class="lineNum">     557</span>              : func (sys *Render3DSystem) addLinkedSpan(out *[]r3quad, c consts.Coord[consts.Tile], s linkedSpan, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {</span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaGNC">           1 :         const h = render3d.WallHeight</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaGNC">           1 :         at := func(along, y float64) render3d.Vec {</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC">           1 :                 if s.northSouth {</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">           1 :                         return render3d.At(float64(c.X)+0.5, y, float64(c.Y)+along)</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 :                 return render3d.At(float64(c.X)+along, y, float64(c.Y)+0.5)</span></span>
+<span id="L564"><span class="lineNum">     564</span>              :         }</span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaGNC">           1 :         sys.addQuad(out, at(s.from, h), at(s.to, h), at(s.to, 0), at(s.from, 0), atlas, ux+uw*s.from, uy, uw*(s.to-s.from), uh, tint)</span></span>
+<span id="L566"><span class="lineNum">     566</span>              : }</span>
+<span id="L567"><span class="lineNum">     567</span>              : </span>
+<span id="L568"><span class="lineNum">     568</span>              : // insetThickness は壁にはめる置物の板の厚み</span>
+<span id="L569"><span class="lineNum">     569</span>              : const insetThickness = 0.2</span>
+<span id="L570"><span class="lineNum">     570</span>              : </span>
+<span id="L571"><span class="lineNum">     571</span>              : const (</span>
+<span id="L572"><span class="lineNum">     572</span>              :         // facingThickness は向きを決めた置物の板の厚み。扉の板とそろえる</span>
+<span id="L573"><span class="lineNum">     573</span>              :         facingThickness = insetThickness</span>
+<span id="L574"><span class="lineNum">     574</span>              :         // facingGap は背の塞がりに寄せた板と背のあいだ。壁の面と重なってちらつかないよう少し離す</span>
+<span id="L575"><span class="lineNum">     575</span>              :         facingGap = 0.02</span>
+<span id="L576"><span class="lineNum">     576</span>              :         // facingLift は板の正面と背面から絵を浮かせる距離。奥行きの並べ替えで絵を板の面より後に描かせる</span>
+<span id="L577"><span class="lineNum">     577</span>              :         facingLift = 0.01</span>
+<span id="L578"><span class="lineNum">     578</span>              : )</span>
+<span id="L579"><span class="lineNum">     579</span>              : </span>
+<span id="L580"><span class="lineNum">     580</span>              : // posesAt は置き方 Pose を持つエンティティの、座標ごとの置き方を返す。板の端を隣とつなぐのに使う</span>
+<span id="L581"><span class="lineNum">     581</span>              : func posesAt(world w.World) map[consts.Coord[consts.Tile]]gc.Pose {</span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaGNC">           1 :         poses := map[consts.Coord[consts.Tile]]gc.Pose{}</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.Pose, gc.GridElement](world).Query()</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">           1 :                 poses[world.Components.GridElement.Get(q.Entity()).Coord] = *world.Components.Pose.Get(q.Entity())</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           1 :         return poses</span></span>
+<span id="L588"><span class="lineNum">     588</span>              : }</span>
+<span id="L589"><span class="lineNum">     589</span>              : </span>
+<span id="L590"><span class="lineNum">     590</span>              : // facingFaces は置き方 f の置物の面を返す。平均色で塗った閉じた6面の板の正面と背面に、外向きに絵を貼る。</span>
+<span id="L591"><span class="lineNum">     591</span>              : // 同じ置き方の隣が描かれ drawn、接するときは、重なってちらつかないよう端を省く</span>
+<span id="L592"><span class="lineNum">     592</span>              : func facingFaces(c consts.Coord[consts.Tile], f gc.Pose, poses map[consts.Coord[consts.Tile]]gc.Pose, drawn func(consts.Coord[consts.Tile]) bool) []insetFace {</span>
+<span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC">           1 :         const h = render3d.WallHeight</span></span>
+<span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">           1 :         turns := quarterTurns(f.Facing)</span></span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           1 :         connected := func(side consts.Cardinal) bool {</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">           1 :                 local := side.Delta()</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           1 :                 for range turns {</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">           1 :                         local = consts.Coord[consts.Tile]{X: -local.Y, Y: local.X}</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           1 :                 n, ok := poses[c.Add(local)]</span></span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :                 return ok &amp;&amp; n.Facing == f.Facing &amp;&amp; n.Anchor == f.Anchor &amp;&amp; drawn(c.Add(local))</span></span>
+<span id="L602"><span class="lineNum">     602</span>              :         }</span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaGNC">           1 :         z0 := 0.5 - facingThickness/2</span></span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaGNC">           1 :         if f.Anchor == gc.AnchorBack {</span></span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaGNC">           1 :                 z0 = facingGap</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">           1 :         z1 := z0 + facingThickness</span></span>
+<span id="L608"><span class="lineNum">     608</span> <span class="tlaGNC">           1 :         faces := slab(z0, z1, !connected(consts.West), !connected(consts.East))</span></span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">           1 :         for i := range faces {</span></span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaGNC">           1 :                 faces[i].flat = true</span></span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L612"><span class="lineNum">     612</span> <span class="tlaGNC">           1 :         faces = append(faces,</span></span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaGNC">           1 :                 insetFace{p: [4]render3d.Vec{render3d.At(0, 0, z1), render3d.At(1, 0, z1), render3d.At(1, 0, z0), render3d.At(0, 0, z0)}, flat: true},</span></span>
+<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC">           1 :                 insetFace{p: [4]render3d.Vec{render3d.At(0, h, z1+facingLift), render3d.At(1, h, z1+facingLift), render3d.At(1, 0, z1+facingLift), render3d.At(0, 0, z1+facingLift)}},</span></span>
+<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :                 insetFace{p: [4]render3d.Vec{render3d.At(1, h, z0-facingLift), render3d.At(0, h, z0-facingLift), render3d.At(0, 0, z0-facingLift), render3d.At(1, 0, z0-facingLift)}},</span></span>
+<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           1 :         for i := range faces {</span></span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC">           1 :                 for j, v := range faces[i].p {</span></span>
+<span id="L619"><span class="lineNum">     619</span> <span class="tlaGNC">           1 :                         for range turns {</span></span>
+<span id="L620"><span class="lineNum">     620</span> <span class="tlaGNC">           1 :                                 v = turnQuarter(v)</span></span>
+<span id="L621"><span class="lineNum">     621</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L622"><span class="lineNum">     622</span> <span class="tlaGNC">           1 :                         faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))</span></span>
+<span id="L623"><span class="lineNum">     623</span>              :                 }</span>
+<span id="L624"><span class="lineNum">     624</span>              :         }</span>
+<span id="L625"><span class="lineNum">     625</span> <span class="tlaGNC">           1 :         return faces</span></span>
+<span id="L626"><span class="lineNum">     626</span>              : }</span>
+<span id="L627"><span class="lineNum">     627</span>              : </span>
+<span id="L628"><span class="lineNum">     628</span>              : // quarterTurns は南を向く板を向き dir へ回す90度の回数を返す</span>
+<span id="L629"><span class="lineNum">     629</span>              : func quarterTurns(dir consts.Cardinal) int {</span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           1 :         switch dir {</span></span>
+<span id="L631"><span class="lineNum">     631</span>              :         case consts.South:</span>
+<span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L633"><span class="lineNum">     633</span>              :         case consts.West:</span>
+<span id="L634"><span class="lineNum">     634</span> <span class="tlaGNC">           1 :                 return 1</span></span>
+<span id="L635"><span class="lineNum">     635</span>              :         case consts.North:</span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           1 :                 return 2</span></span>
+<span id="L637"><span class="lineNum">     637</span>              :         case consts.East:</span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">           1 :                 return 3</span></span>
+<span id="L639"><span class="lineNum">     639</span>              :         }</span>
+<span id="L640"><span class="lineNum">     640</span> <span class="tlaUNC">           0 :         panic(fmt.Sprintf(&quot;unknown cardinal: %d&quot;, int(dir)))</span></span>
+<span id="L641"><span class="lineNum">     641</span>              : }</span>
+<span id="L642"><span class="lineNum">     642</span>              : </span>
+<span id="L643"><span class="lineNum">     643</span>              : // insetFace は壁にはめる置物の1面。flat は絵を貼らず平均色で塗る面</span>
+<span id="L644"><span class="lineNum">     644</span>              : type insetFace struct {</span>
+<span id="L645"><span class="lineNum">     645</span>              :         p    [4]render3d.Vec</span>
+<span id="L646"><span class="lineNum">     646</span>              :         flat bool</span>
+<span id="L647"><span class="lineNum">     647</span>              : }</span>
+<span id="L648"><span class="lineNum">     648</span>              : </span>
+<span id="L649"><span class="lineNum">     649</span>              : // closedInsets は閉じている壁にはめる置物の座標の集合を返す</span>
+<span id="L650"><span class="lineNum">     650</span>              : func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {</span>
+<span id="L651"><span class="lineNum">     651</span> <span class="tlaGNC">           1 :         insets := map[consts.Coord[consts.Tile]]bool{}</span></span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">           1 :                 if world.Components.SpriteRender.Get(q.Entity()).Shape == rawschema.Inset {</span></span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">           1 :                         insets[world.Components.GridElement.Get(q.Entity()).Coord] = true</span></span>
+<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L657"><span class="lineNum">     657</span>              :         }</span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">           1 :         return insets</span></span>
+<span id="L659"><span class="lineNum">     659</span>              : }</span>
+<span id="L660"><span class="lineNum">     660</span>              : </span>
+<span id="L661"><span class="lineNum">     661</span>              : // connections は壁にはめる置物が、北・東・南・西の隣とつながるか</span>
+<span id="L662"><span class="lineNum">     662</span>              : type connections struct {</span>
+<span id="L663"><span class="lineNum">     663</span>              :         north, east, south, west bool</span>
+<span id="L664"><span class="lineNum">     664</span>              : }</span>
+<span id="L665"><span class="lineNum">     665</span>              : </span>
+<span id="L666"><span class="lineNum">     666</span>              : // insetConnections は c の置物が、隣の壁 walls か閉じている壁にはめる置物 insets とつながるかを返す</span>
+<span id="L667"><span class="lineNum">     667</span>              : func insetConnections(walls, insets map[consts.Coord[consts.Tile]]bool, c consts.Coord[consts.Tile]) connections {</span>
+<span id="L668"><span class="lineNum">     668</span> <span class="tlaGNC">           1 :         at := func(dx, dy consts.Tile) bool {</span></span>
+<span id="L669"><span class="lineNum">     669</span> <span class="tlaGNC">           1 :                 n := c.Add(consts.Coord[consts.Tile]{X: dx, Y: dy})</span></span>
+<span id="L670"><span class="lineNum">     670</span> <span class="tlaGNC">           1 :                 return walls[n] || insets[n]</span></span>
+<span id="L671"><span class="lineNum">     671</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L672"><span class="lineNum">     672</span> <span class="tlaGNC">           1 :         return connections{north: at(0, -1), east: at(1, 0), south: at(0, 1), west: at(-1, 0)}</span></span>
+<span id="L673"><span class="lineNum">     673</span>              : }</span>
+<span id="L674"><span class="lineNum">     674</span>              : </span>
+<span id="L675"><span class="lineNum">     675</span>              : // insetFaces は閉じた壁にはめる置物の面を返す。つながる向きに並ぶ板にし、つながりが無ければ東西に並べ、</span>
+<span id="L676"><span class="lineNum">     676</span>              : // つながる端を省く。南北の板は東西の板をタイルの中心で回して作る</span>
+<span id="L677"><span class="lineNum">     677</span>              : func insetFaces(c consts.Coord[consts.Tile], conn connections) []insetFace {</span>
+<span id="L678"><span class="lineNum">     678</span> <span class="tlaGNC">           1 :         alongX := conn.west || conn.east || (!conn.north &amp;&amp; !conn.south)</span></span>
+<span id="L679"><span class="lineNum">     679</span> <span class="tlaGNC">           1 :         var faces []insetFace</span></span>
+<span id="L680"><span class="lineNum">     680</span> <span class="tlaGNC">           1 :         if alongX {</span></span>
+<span id="L681"><span class="lineNum">     681</span> <span class="tlaGNC">           1 :                 faces = slab(0.5-insetThickness/2, 0.5+insetThickness/2, !conn.west, !conn.east)</span></span>
+<span id="L682"><span class="lineNum">     682</span> <span class="tlaGNC">           1 :         } else {</span></span>
+<span id="L683"><span class="lineNum">     683</span> <span class="tlaGNC">           1 :                 faces = slab(0.5-insetThickness/2, 0.5+insetThickness/2, !conn.north, !conn.south)</span></span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L685"><span class="lineNum">     685</span> <span class="tlaGNC">           1 :         for i := range faces {</span></span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">           1 :                 for j, v := range faces[i].p {</span></span>
+<span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">           1 :                         if !alongX {</span></span>
+<span id="L688"><span class="lineNum">     688</span> <span class="tlaGNC">           1 :                                 v = turnQuarter(v)</span></span>
+<span id="L689"><span class="lineNum">     689</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L690"><span class="lineNum">     690</span> <span class="tlaGNC">           1 :                         faces[i].p[j] = render3d.At(v.X+float64(c.X), v.Y, v.Z+float64(c.Y))</span></span>
+<span id="L691"><span class="lineNum">     691</span>              :                 }</span>
+<span id="L692"><span class="lineNum">     692</span>              :         }</span>
+<span id="L693"><span class="lineNum">     693</span> <span class="tlaGNC">           1 :         return faces</span></span>
+<span id="L694"><span class="lineNum">     694</span>              : }</span>
+<span id="L695"><span class="lineNum">     695</span>              : </span>
+<span id="L696"><span class="lineNum">     696</span>              : // slab は z0..z1 に東西に立つ板の面を、タイルの北西の角を原点に返す。南北の2面に絵を貼り、天面と東西の端は平均色で塗る。</span>
+<span id="L697"><span class="lineNum">     697</span>              : // westEnd と eastEnd は西と東の端を描くか。面は外から見て左上から時計回りに張る</span>
+<span id="L698"><span class="lineNum">     698</span>              : func slab(z0, z1 float64, westEnd, eastEnd bool) []insetFace {</span>
+<span id="L699"><span class="lineNum">     699</span> <span class="tlaGNC">           1 :         const h = render3d.WallHeight</span></span>
+<span id="L700"><span class="lineNum">     700</span> <span class="tlaGNC">           1 :         faces := []insetFace{</span></span>
+<span id="L701"><span class="lineNum">     701</span> <span class="tlaGNC">           1 :                 {p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(1, h, z0), render3d.At(1, h, z1), render3d.At(0, h, z1)}, flat: true},</span></span>
+<span id="L702"><span class="lineNum">     702</span> <span class="tlaGNC">           1 :                 {p: [4]render3d.Vec{render3d.At(1, h, z0), render3d.At(0, h, z0), render3d.At(0, 0, z0), render3d.At(1, 0, z0)}},</span></span>
+<span id="L703"><span class="lineNum">     703</span> <span class="tlaGNC">           1 :                 {p: [4]render3d.Vec{render3d.At(0, h, z1), render3d.At(1, h, z1), render3d.At(1, 0, z1), render3d.At(0, 0, z1)}},</span></span>
+<span id="L704"><span class="lineNum">     704</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L705"><span class="lineNum">     705</span> <span class="tlaGNC">           1 :         if westEnd {</span></span>
+<span id="L706"><span class="lineNum">     706</span> <span class="tlaGNC">           1 :                 faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(0, h, z0), render3d.At(0, h, z1), render3d.At(0, 0, z1), render3d.At(0, 0, z0)}, flat: true})</span></span>
+<span id="L707"><span class="lineNum">     707</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">           1 :         if eastEnd {</span></span>
+<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">           1 :                 faces = append(faces, insetFace{p: [4]render3d.Vec{render3d.At(1, h, z1), render3d.At(1, h, z0), render3d.At(1, 0, z0), render3d.At(1, 0, z1)}, flat: true})</span></span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L711"><span class="lineNum">     711</span> <span class="tlaGNC">           1 :         return faces</span></span>
+<span id="L712"><span class="lineNum">     712</span>              : }</span>
+<span id="L713"><span class="lineNum">     713</span>              : </span>
+<span id="L714"><span class="lineNum">     714</span>              : // turnQuarter はタイルの中の点を中心で90度回す。西の端が北へ、東の端が南へ来る。裏返らないので面の張り順が保たれる</span>
+<span id="L715"><span class="lineNum">     715</span>              : func turnQuarter(v render3d.Vec) render3d.Vec {</span>
+<span id="L716"><span class="lineNum">     716</span> <span class="tlaGNC">           1 :         return render3d.At(1-v.Z, v.Y, v.X)</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L718"><span class="lineNum">     718</span>              : </span>
+<span id="L719"><span class="lineNum">     719</span>              : // faceShade は面の向きから陰影を返す。天面0.95・東西0.78・南北0.6は壁の箱と同じ疑似方向光源</span>
+<span id="L720"><span class="lineNum">     720</span>              : func faceShade(p [4]render3d.Vec) float64 {</span>
+<span id="L721"><span class="lineNum">     721</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L722"><span class="lineNum">     722</span>              :         case p[0].Y == p[1].Y &amp;&amp; p[1].Y == p[2].Y:</span>
+<span id="L723"><span class="lineNum">     723</span> <span class="tlaGNC">           1 :                 return 0.95</span></span>
+<span id="L724"><span class="lineNum">     724</span>              :         case p[0].X == p[1].X &amp;&amp; p[1].X == p[2].X:</span>
+<span id="L725"><span class="lineNum">     725</span> <span class="tlaGNC">           1 :                 return 0.78</span></span>
+<span id="L726"><span class="lineNum">     726</span>              :         default:</span>
+<span id="L727"><span class="lineNum">     727</span> <span class="tlaGNC">           1 :                 return 0.6</span></span>
+<span id="L728"><span class="lineNum">     728</span>              :         }</span>
+<span id="L729"><span class="lineNum">     729</span>              : }</span>
+<span id="L730"><span class="lineNum">     730</span>              : </span>
+<span id="L731"><span class="lineNum">     731</span>              : // addSlab は板の面を積む</span>
+<span id="L732"><span class="lineNum">     732</span>              : func (sys *Render3DSystem) addSlab(out *[]r3quad, faces []insetFace, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {</span>
+<span id="L733"><span class="lineNum">     733</span> <span class="tlaUNC">           0 :         for _, f := range faces {</span></span>
+<span id="L734"><span class="lineNum">     734</span>              :                 // 絵を貼る面は立て板と同じ明るさにし、平均色の面にだけ陰影を付ける</span>
+<span id="L735"><span class="lineNum">     735</span> <span class="tlaUNC">           0 :                 if f.flat {</span></span>
+<span id="L736"><span class="lineNum">     736</span> <span class="tlaUNC">           0 :                         sys.addFlatQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, scaleCol(tint, faceShade(f.p)))</span></span>
+<span id="L737"><span class="lineNum">     737</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L738"><span class="lineNum">     738</span>              :                 }</span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaUNC">           0 :                 sys.addQuad(out, f.p[0], f.p[1], f.p[2], f.p[3], atlas, ux, uy, uw, uh, tint)</span></span>
+<span id="L740"><span class="lineNum">     740</span>              :         }</span>
+<span id="L741"><span class="lineNum">     741</span>              : }</span>
+<span id="L742"><span class="lineNum">     742</span>              : </span>
+<span id="L743"><span class="lineNum">     743</span>              : // sortQuadsByDepth はカメラ空間の奥行きでクアッドを安定ソートする。画家アルゴリズムの前段。</span>
+<span id="L744"><span class="lineNum">     744</span>              : // クアッドを物理的に並べ替えるので、続く emit は連続アクセスで辿れる。添字ソートは emit が</span>
+<span id="L745"><span class="lineNum">     745</span>              : // ランダムアクセスになりキャッシュミスで却って遅くなるため採らない。</span>
+<span id="L746"><span class="lineNum">     746</span>              : func sortQuadsByDepth(quads []r3quad, depth func(render3d.Vec) float64) {</span>
+<span id="L747"><span class="lineNum">     747</span> <span class="tlaGNC">           1 :         for i := range quads {</span></span>
+<span id="L748"><span class="lineNum">     748</span> <span class="tlaGNC">           1 :                 c := render3d.Vec{}</span></span>
+<span id="L749"><span class="lineNum">     749</span> <span class="tlaGNC">           1 :                 for _, p := range quads[i].p {</span></span>
+<span id="L750"><span class="lineNum">     750</span> <span class="tlaGNC">           1 :                         c = render3d.Add(c, p)</span></span>
+<span id="L751"><span class="lineNum">     751</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L752"><span class="lineNum">     752</span> <span class="tlaGNC">           1 :                 quads[i].key = depth(render3d.Scale(c, 0.25))</span></span>
+<span id="L753"><span class="lineNum">     753</span>              :         }</span>
+<span id="L754"><span class="lineNum">     754</span>              :         // 奥行きが同値のときは depth で割る。同一タイルの立て板はここで前後が確定する。</span>
+<span id="L755"><span class="lineNum">     755</span>              :         // 大きい depth を後に描いて手前にし、プレイヤーを足元のアイテムより必ず上へ出す</span>
+<span id="L756"><span class="lineNum">     756</span> <span class="tlaGNC">           1 :         sort.SliceStable(quads, func(i, j int) bool {</span></span>
+<span id="L757"><span class="lineNum">     757</span> <span class="tlaGNC">           1 :                 if quads[i].key != quads[j].key {</span></span>
+<span id="L758"><span class="lineNum">     758</span> <span class="tlaGNC">           1 :                         return quads[i].key &lt; quads[j].key</span></span>
+<span id="L759"><span class="lineNum">     759</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L760"><span class="lineNum">     760</span> <span class="tlaGNC">           1 :                 return quads[i].depth &lt; quads[j].depth</span></span>
+<span id="L761"><span class="lineNum">     761</span>              :         })</span>
+<span id="L762"><span class="lineNum">     762</span>              : }</span>
+<span id="L763"><span class="lineNum">     763</span>              : </span>
+<span id="L764"><span class="lineNum">     764</span>              : // emit はクアッドを奥行き順の添字で辿り、アトラスが変わる境目でバッチに分けて描く。</span>
+<span id="L765"><span class="lineNum">     765</span>              : // 頂点バッファはフレーム間で使い回す。</span>
+<span id="L766"><span class="lineNum">     766</span>              : func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, projector render3d.Projector) {</span>
+<span id="L767"><span class="lineNum">     767</span> <span class="tlaUNC">           0 :         sortQuadsByDepth(quads, projector.Depth)</span></span>
+<span id="L768"><span class="lineNum">     768</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L769"><span class="lineNum">     769</span> <span class="tlaUNC">           0 :         verts := sys.verts[:0]</span></span>
+<span id="L770"><span class="lineNum">     770</span> <span class="tlaUNC">           0 :         inds := sys.inds[:0]</span></span>
+<span id="L771"><span class="lineNum">     771</span> <span class="tlaUNC">           0 :         var curAtlas *ebiten.Image</span></span>
+<span id="L772"><span class="lineNum">     772</span> <span class="tlaUNC">           0 :         flush := func() {</span></span>
+<span id="L773"><span class="lineNum">     773</span> <span class="tlaUNC">           0 :                 if len(inds) == 0 || curAtlas == nil {</span></span>
+<span id="L774"><span class="lineNum">     774</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L775"><span class="lineNum">     775</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L776"><span class="lineNum">     776</span> <span class="tlaUNC">           0 :                 screen.DrawTriangles(verts, inds, curAtlas, &amp;ebiten.DrawTrianglesOptions{})</span></span>
+<span id="L777"><span class="lineNum">     777</span> <span class="tlaUNC">           0 :                 verts = verts[:0]</span></span>
+<span id="L778"><span class="lineNum">     778</span> <span class="tlaUNC">           0 :                 inds = inds[:0]</span></span>
+<span id="L779"><span class="lineNum">     779</span>              :         }</span>
+<span id="L780"><span class="lineNum">     780</span> <span class="tlaUNC">           0 :         for i := range quads {</span></span>
+<span id="L781"><span class="lineNum">     781</span> <span class="tlaUNC">           0 :                 q := &amp;quads[i]</span></span>
+<span id="L782"><span class="lineNum">     782</span> <span class="tlaUNC">           0 :                 // アトラス切り替え、または uint16 の頂点インデックス上限を跨ぐ前に flush する。</span></span>
+<span id="L783"><span class="lineNum">     783</span>              :                 // 同一スプライトシートのタイルが大量に積まれても 65535 を超えると黙って描画化けするため</span>
+<span id="L784"><span class="lineNum">     784</span> <span class="tlaUNC">           0 :                 if q.atlas != curAtlas || len(verts)+4 &gt; maxVertsPerBatch {</span></span>
+<span id="L785"><span class="lineNum">     785</span> <span class="tlaUNC">           0 :                         flush()</span></span>
+<span id="L786"><span class="lineNum">     786</span> <span class="tlaUNC">           0 :                         curAtlas = q.atlas</span></span>
+<span id="L787"><span class="lineNum">     787</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L788"><span class="lineNum">     788</span> <span class="tlaUNC">           0 :                 sys.emitQuad(&amp;verts, &amp;inds, q, projector.Point)</span></span>
+<span id="L789"><span class="lineNum">     789</span>              :         }</span>
+<span id="L790"><span class="lineNum">     790</span> <span class="tlaUNC">           0 :         flush()</span></span>
+<span id="L791"><span class="lineNum">     791</span> <span class="tlaUNC">           0 :         sys.verts = verts</span></span>
+<span id="L792"><span class="lineNum">     792</span> <span class="tlaUNC">           0 :         sys.inds = inds</span></span>
+<span id="L793"><span class="lineNum">     793</span>              : }</span>
+<span id="L794"><span class="lineNum">     794</span>              : </span>
+<span id="L795"><span class="lineNum">     795</span>              : // maxVertsPerBatch は1回の DrawTriangles へ積む頂点数の上限。インデックスが uint16 なので 65535 まで。</span>
+<span id="L796"><span class="lineNum">     796</span>              : const maxVertsPerBatch = 65535</span>
+<span id="L797"><span class="lineNum">     797</span>              : </span>
+<span id="L798"><span class="lineNum">     798</span>              : // emitQuad は1クアッドを三角形2枚として頂点バッファへ積む。画面外の頂点があれば捨てる。</span>
+<span id="L799"><span class="lineNum">     799</span>              : func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r3quad, project func(render3d.Vec) (consts.Coord[consts.ScreenPixel], bool)) {</span>
+<span id="L800"><span class="lineNum">     800</span> <span class="tlaUNC">           0 :         var sp [4]consts.Coord[consts.ScreenPixel]</span></span>
+<span id="L801"><span class="lineNum">     801</span> <span class="tlaUNC">           0 :         for k, p := range q.p {</span></span>
+<span id="L802"><span class="lineNum">     802</span> <span class="tlaUNC">           0 :                 screenPos, ok := project(p)</span></span>
+<span id="L803"><span class="lineNum">     803</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
+<span id="L804"><span class="lineNum">     804</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L805"><span class="lineNum">     805</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L806"><span class="lineNum">     806</span> <span class="tlaUNC">           0 :                 sp[k] = screenPos</span></span>
+<span id="L807"><span class="lineNum">     807</span>              :         }</span>
+<span id="L808"><span class="lineNum">     808</span> <span class="tlaUNC">           0 :         b := uint16(len(*verts))</span></span>
+<span id="L809"><span class="lineNum">     809</span> <span class="tlaUNC">           0 :         cr, cg, cb, ca := float32(q.col[0]), float32(q.col[1]), float32(q.col[2]), float32(q.alpha)</span></span>
+<span id="L810"><span class="lineNum">     810</span> <span class="tlaUNC">           0 :         for k := range 4 {</span></span>
+<span id="L811"><span class="lineNum">     811</span> <span class="tlaUNC">           0 :                 *verts = append(*verts, ebiten.Vertex{</span></span>
+<span id="L812"><span class="lineNum">     812</span> <span class="tlaUNC">           0 :                         DstX: float32(sp[k].X), DstY: float32(sp[k].Y),</span></span>
+<span id="L813"><span class="lineNum">     813</span> <span class="tlaUNC">           0 :                         SrcX: float32(q.uv[k][0]), SrcY: float32(q.uv[k][1]),</span></span>
+<span id="L814"><span class="lineNum">     814</span> <span class="tlaUNC">           0 :                         ColorR: cr, ColorG: cg, ColorB: cb, ColorA: ca,</span></span>
+<span id="L815"><span class="lineNum">     815</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L816"><span class="lineNum">     816</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L817"><span class="lineNum">     817</span> <span class="tlaUNC">           0 :         *inds = append(*inds, b, b+1, b+2, b, b+2, b+3)</span></span>
+<span id="L818"><span class="lineNum">     818</span>              : }</span>
         </pre>
               </td>
             </tr>
