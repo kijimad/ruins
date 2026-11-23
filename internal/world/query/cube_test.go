@@ -258,9 +258,11 @@ func TestDiscoveredChunks_北進ぶん絶対チャンク行をずらす(t *testi
 func TestCubeFuelTotal_キューブでなければ0(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	cube := world.ECS.NewEntity()
+	plain := world.ECS.NewEntity()
+	light := world.ECS.NewEntity()
+	world.Components.Charge.Add(light, &gc.Charge{Max: 1000, Current: 800})
 
-	assert.Equal(t, consts.Heat(0), query.CubeFuelTotal(world, cube))
+	assert.Equal(t, []consts.Heat{0, 0}, []consts.Heat{query.CubeFuelTotal(world, plain), query.CubeFuelTotal(world, light)}, "残量を持つ灯りも燃料ポイントとして数えない")
 }
 
 func TestCubeWeight_畳み込んだ貨物も合算する(t *testing.T) {

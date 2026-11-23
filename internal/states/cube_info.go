@@ -116,6 +116,6 @@ func cubeInfoItems(world w.World, cube ecs.Entity) []statusItemData {
 }
 
 // cubeFuelText はキューブの燃料ポイントを現在値と上限で整形する。
-func cubeFuelText(tank gc.Charge) string {
-	return fmt.Sprintf("%s / %d", consts.Heat(tank.Current).String(), tank.Max)
+func cubeFuelText(charge gc.Charge) string {
+	return fmt.Sprintf("%s / %d", consts.Heat(charge.Current).String(), charge.Max)
 }
