@@ -29,7 +29,7 @@ func landmarkKindAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.C
 type wildernessLandmarkFeature struct{}
 
 // landmarkMargin はランドマークの絵とチャンクの縁や道の間に空けるマス数
-const landmarkMargin consts.Tile = 2
+const landmarkMargin consts.Tile = 1
 
 // landmarkOrigins は幅 w 高さ h の絵の原点の候補を、チャンク内の座標で北西から順に返す。絵はチャンクの縁から
 // landmarkMargin 以上離し、道のマス roads からも landmarkMargin 以上離して、道を塞がず道の脇に置く

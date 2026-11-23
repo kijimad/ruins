@@ -159,10 +159,10 @@ func TestLandmarkOrigins_道から間を空けた位置だけを返す(t *testin
 
 	got := landmarkOrigins(5, 4, chunkW, chunkH, roads)
 
-	// 縁から2マス、道の6行目からも2マス空けるので、原点の行は南側の9から14、列は2から13になる
+	// 縁から1マス、道の6行目からも1マス空けるので、原点の行は北側の1と南側の8から15、列は1から14になる
 	var want []consts.Coord[consts.Tile]
-	for y := consts.Tile(9); y <= 14; y++ {
-		for x := consts.Tile(2); x <= 13; x++ {
+	for _, y := range []consts.Tile{1, 8, 9, 10, 11, 12, 13, 14, 15} {
+		for x := consts.Tile(1); x <= 14; x++ {
 			want = append(want, consts.Coord[consts.Tile]{X: x, Y: y})
 		}
 	}
@@ -172,10 +172,10 @@ func TestLandmarkOrigins_道から間を空けた位置だけを返す(t *testin
 func TestLandmarkOrigins_道で埋まれば置き場所が無い(t *testing.T) {
 	t.Parallel()
 
-	const chunkW, chunkH consts.Tile = 12, 12
+	const chunkW, chunkH consts.Tile = 10, 10
 	roads := map[consts.Coord[consts.Tile]]bool{}
 	for x := range chunkW {
-		roads[consts.Coord[consts.Tile]{X: x, Y: 6}] = true
+		roads[consts.Coord[consts.Tile]{X: x, Y: 5}] = true
 	}
 
 	assert.Empty(t, landmarkOrigins(5, 4, chunkW, chunkH, roads))
@@ -185,7 +185,7 @@ func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	chunkW, chunkH, _, _ := dungeon.DungeonOverworld.BandShape()
+	chunkW, chunkH, cols, _ := dungeon.DungeonOverworld.BandShape()
 	type found struct {
 		seed  uint64
 		c     consts.Coord[consts.Chunk]
@@ -194,16 +194,18 @@ func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *
 	var cases []found
 	for s := uint64(1); s < 2000 && len(cases) < 20; s++ {
 		for y := range consts.Chunk(30) {
-			c := consts.Coord[consts.Chunk]{Y: y}
-			if chunkTypeAt(raws, s, c, 1, 0) != chunkLandmark {
-				continue
-			}
-			if r := chunkRoadTiles(raws, s, c, 1, 0, chunkW, chunkH); len(r) > 0 {
-				cases = append(cases, found{s, c, r})
+			for x := range cols {
+				c := consts.Coord[consts.Chunk]{X: x, Y: y}
+				if chunkTypeAt(raws, s, c, cols, 0) != chunkLandmark {
+					continue
+				}
+				if r := chunkRoadTiles(raws, s, c, cols, 0, chunkW, chunkH); len(r) > 0 {
+					cases = append(cases, found{s, c, r})
+				}
 			}
 		}
 	}
-	require.Len(t, cases, 20, "前提: 道の通るランドマークのチャンクが見つかる")
+	require.GreaterOrEqual(t, len(cases), 20, "前提: 道の通るランドマークのチャンクが見つかる")
 
 	placed := 0
 	var blocked, covered []consts.Coord[consts.Tile]
@@ -216,7 +218,7 @@ func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *
 			}
 		}
 		g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: chunkW, chunkH: chunkH, tiles: &tileIndex{world: world, loX: 0, hiX: chunkW}}
-		require.NoError(t, wildernessLandmarkFeature{}.place(world, tc.seed, tc.c, 1, g))
+		require.NoError(t, wildernessLandmarkFeature{}.place(world, tc.seed, tc.c, cols, g))
 		q := ecs.NewFilter2[gc.GridElement, gc.Prop](world.ECS).Query()
 		for q.Next() {
 			placed++
@@ -235,4 +237,37 @@ func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *
 	require.Positive(t, placed, "前提: ランドマークが置かれる")
 	assert.Empty(t, blocked, "道のマスにランドマークの置物が無い")
 	assert.Empty(t, covered, "道のマスをランドマークの壁や床で塞がない")
+}
+
+func TestLandmarks_道が十字に通るチャンクでも全ての絵に置き場所がある(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	chunkW, chunkH, _, _ := dungeon.DungeonOverworld.BandShape()
+	width := 0
+	for _, f := range raw.PtrSlice(raws.PointFeatures) {
+		if f.Road != nil {
+			width = max(width, f.Road.Width)
+		}
+	}
+	require.Positive(t, width, "前提: 道を持つ地物がある")
+	roads := map[consts.Coord[consts.Tile]]bool{}
+	cross := []roadSeg{
+		span(orientHorizontal, chunkCenter(0, chunkH), 0, chunkW-1),
+		span(orientVertical, chunkCenter(0, chunkW), 0, chunkH-1),
+	}
+	for p := range roadBand(cross, width) {
+		roads[p] = true
+	}
+	for _, lm := range raw.PtrSlice(raws.Landmarks) {
+		for _, name := range loader.FacilityChunkNames(lm.Id) {
+			_, _, cells, err := loader.LoadTemplateByName(name, 1)
+			require.NoError(t, err, name)
+			// 絵は回転して置くので、幅と高さの大きい方で確かめる
+			side := consts.Tile(max(len(cells), len(cells[0])))
+			assert.NotEmpty(t, landmarkOrigins(side, side, chunkW, chunkH, roads), name)
+		}
+	}
 }

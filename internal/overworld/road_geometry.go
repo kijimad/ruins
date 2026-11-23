@@ -111,7 +111,7 @@ type roadLink struct {
 }
 
 // crossingRoads はチャンク c を横切りうる道を返す。道を持つ地物ごとに、c の行が属するリージョン r の
-// (r-1,r) と (r,r+1) の当選を結ぶ2本だけが c を横切りうる。road.go の舗装と scatter.go の回避が同じ結線を共有する
+// (r-1,r) と (r,r+1) の当選を結ぶ2本だけが c を横切りうる。road.go の舗装、scatter.go の回避、landmark.go の置き場所が同じ結線を共有する
 func crossingRoads(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) []roadLink {
 	var links []roadLink
 	for _, f := range raw.PtrSlice(raws.PointFeatures) {
