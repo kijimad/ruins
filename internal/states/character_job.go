@@ -95,9 +95,12 @@ type jobMenuItem struct {
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *CharacterJobState) Fetch(world w.World) (JobMenuProps, error) {
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
-	items := make([]jobMenuItem, len(professions))
+	items := make([]jobMenuItem, 0, len(professions))
 	for i := range professions {
-		items[i] = jobMenuItem{Profession: professions[i]}
+		if professions[i].Debug != nil && *professions[i].Debug && !world.Resources.Config.Debug {
+			continue
+		}
+		items = append(items, jobMenuItem{Profession: professions[i]})
 	}
 	return JobMenuProps{Items: items}, nil
 }

@@ -17,14 +17,14 @@ func TestProfessions(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 
-	assert.Len(t, professions, 6, "職業は6種類")
+	assert.Len(t, professions, 7, "職業は7種類")
 
-	expectedIDs := []string{"evacuee", "hunter", "mechanic", "medic", "sniper", "soldier"}
+	expectedIDs := []string{"evacuee", "hunter", "mechanic", "medic", "sniper", "soldier", "debug"}
 	for i, expectedID := range expectedIDs {
 		assert.Equal(t, expectedID, professions[i].Id, "職業ID[%d]", i)
 	}
 
-	expectedNames := []string{"Refugee", "Hunter", "Engineer", "Medic", "Sniper", "Soldier"}
+	expectedNames := []string{"Refugee", "Hunter", "Engineer", "Medic", "Sniper", "Soldier", "Debug"}
 	for i, expectedName := range expectedNames {
 		assert.Equal(t, expectedName, professions[i].Name, "職業名[%d]", i)
 	}
@@ -46,6 +46,7 @@ func TestProfessionItems(t *testing.T) {
 		{professionID: "mechanic", itemCount: 2},
 		{professionID: "hunter", itemCount: 3},
 		{professionID: "medic", itemCount: 4},
+		{professionID: "debug", itemCount: 23},
 	}
 
 	for _, tt := range tests {
@@ -80,6 +81,7 @@ func TestProfessionEquips(t *testing.T) {
 		{professionID: "mechanic", equipCount: 7},
 		{professionID: "hunter", equipCount: 7},
 		{professionID: "medic", equipCount: 6},
+		{professionID: "debug", equipCount: 7},
 	}
 
 	for _, tt := range tests {
@@ -110,20 +112,33 @@ func TestCharacterJobState_OnStart(t *testing.T) {
 func TestCharacterJobState_FetchProps(t *testing.T) {
 	t.Parallel()
 
-	state := &CharacterJobState{playerName: "TestPlayer"}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
+	tests := []struct {
+		name  string
+		debug bool
+		want  []string
+	}{
+		{name: "Debug でないとき", debug: false, want: []string{"evacuee", "hunter", "mechanic", "medic", "sniper", "soldier"}},
+		{name: "Debug のとき", debug: true, want: []string{"evacuee", "hunter", "mechanic", "medic", "sniper", "soldier", "debug"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	props, err := state.Fetch(world)
-	require.NoError(t, err)
+			state := &CharacterJobState{playerName: "TestPlayer"}
+			world := testutil.InitTestWorld(t)
+			world.Resources.Config.Debug = tt.debug
+			require.NoError(t, state.OnStart(world))
 
-	assert.Len(t, props.Items, 6, "職業は6つ")
-	assert.Equal(t, "Refugee", props.Items[0].Profession.Name)
-	assert.Equal(t, "Hunter", props.Items[1].Profession.Name)
-	assert.Equal(t, "Engineer", props.Items[2].Profession.Name)
-	assert.Equal(t, "Medic", props.Items[3].Profession.Name)
-	assert.Equal(t, "Sniper", props.Items[4].Profession.Name)
-	assert.Equal(t, "Soldier", props.Items[5].Profession.Name)
+			props, err := state.Fetch(world)
+			require.NoError(t, err)
+
+			ids := make([]string, len(props.Items))
+			for i, item := range props.Items {
+				ids[i] = item.Profession.Id
+			}
+			assert.Equal(t, tt.want, ids)
+		})
+	}
 }
 
 func TestCharacterJobState_DoAction_Cancel(t *testing.T) {

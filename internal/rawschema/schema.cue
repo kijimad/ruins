@@ -1282,6 +1282,9 @@ import (
 	skills?: [...#ProfessionSkill]
 	items!: [...#ProfessionItem]
 	equips!: [...#ProfessionEquip]
+
+	// 開発用の職業か。立てると Debug の設定のときだけ選べる
+	debug?: bool
 }
 
 // 職業初期装備
