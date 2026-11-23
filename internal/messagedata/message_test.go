@@ -16,6 +16,45 @@ func getMessageText(msg *MessageData) string {
 	return msg.TextSegmentLines[0][0].Text
 }
 
+func TestAddText(t *testing.T) {
+	t.Parallel()
+
+	t.Run("単一行はそのまま1行になる", func(t *testing.T) {
+		t.Parallel()
+		m := (&MessageData{}).AddText("こんにちは")
+		require.Len(t, m.TextSegmentLines, 1)
+		require.Len(t, m.TextSegmentLines[0], 1)
+		assert.Equal(t, "こんにちは", m.TextSegmentLines[0][0].Text)
+	})
+
+	t.Run("改行を含むテキストは複数行に分割する", func(t *testing.T) {
+		t.Parallel()
+		m := (&MessageData{}).AddText("一行目\n二行目\n三行目")
+		require.Len(t, m.TextSegmentLines, 3)
+		assert.Equal(t, "一行目", m.TextSegmentLines[0][0].Text)
+		assert.Equal(t, "二行目", m.TextSegmentLines[1][0].Text)
+		assert.Equal(t, "三行目", m.TextSegmentLines[2][0].Text)
+	})
+
+	t.Run("空文字でも1行作成する", func(t *testing.T) {
+		t.Parallel()
+		m := (&MessageData{}).AddText("")
+		require.Len(t, m.TextSegmentLines, 1)
+		require.Len(t, m.TextSegmentLines[0], 1)
+		assert.Empty(t, m.TextSegmentLines[0][0].Text)
+	})
+
+	t.Run("複数回呼ぶと改行が無ければ同じ行に積む", func(t *testing.T) {
+		t.Parallel()
+		m := (&MessageData{}).AddText("前半")
+		m.AddText("後半")
+		require.Len(t, m.TextSegmentLines, 1)
+		require.Len(t, m.TextSegmentLines[0], 2)
+		assert.Equal(t, "前半", m.TextSegmentLines[0][0].Text)
+		assert.Equal(t, "後半", m.TextSegmentLines[0][1].Text)
+	})
+}
+
 func TestNewDialogMessage(t *testing.T) {
 	t.Parallel()
 
