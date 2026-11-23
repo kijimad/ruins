@@ -10,22 +10,11 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
-	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-// namesInWorld は名前を持つエンティティの名前ごとの数を返す。
-func namesInWorld(world w.World) map[string]int {
-	counts := map[string]int{}
-	q := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
-	for q.Next() {
-		counts[string(world.Components.Name.Get(q.Entity()).Name)]++
-	}
-	return counts
-}
 
 func TestSettlementFeature_集落のチャンクに施設を置く(t *testing.T) {
 	t.Parallel()
@@ -81,9 +70,20 @@ func TestSettlementFeature_集落でないチャンクには何も置かない(t
 		c.Y++
 	}
 	world := testutil.InitTestWorld(t)
+	for y := range chunkH {
+		for x := range chunkW {
+			_, err := lifecycle.SpawnTile(world, "dirt_tundra", x, y, new(15))
+			require.NoError(t, err)
+		}
+	}
 	g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: chunkW, chunkH: chunkH, tiles: &tileIndex{world: world, loX: 0, hiX: chunkW}}
 	require.NoError(t, settlementFeature{}.place(world, 123, c, cols, g))
-	assert.Empty(t, namesInWorld(world), "集落でないチャンクに施設は出ない")
+	doors := 0
+	q := ecs.NewFilter1[gc.Door](world.ECS).Query()
+	for q.Next() {
+		doors++
+	}
+	assert.Equal(t, 0, doors, "集落でないチャンクには施設の扉が無い")
 }
 
 func TestSettlementAt_重みの比で種類を選ぶ(t *testing.T) {
@@ -100,7 +100,7 @@ func TestSettlementAt_重みの比で種類を選ぶ(t *testing.T) {
 	for x := range consts.Chunk(10) {
 		for y := range consts.Chunk(10) {
 			id := "hamlet"
-			if consts.Mix2D(7^placementOf(testutil.InitTestWorld(t).Resources.RawMaster, rawschema.PointFeatureKindSettlement).Salt, x, y)%10 < 6 {
+			if consts.Mix2D(7^placementOf(raws, rawschema.PointFeatureKindSettlement).Salt, x, y)%10 < 6 {
 				id = "village"
 			}
 			want[id]++
