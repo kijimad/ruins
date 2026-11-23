@@ -519,7 +519,7 @@
 				
 				<option value="file231">github.com/kijimaD/ruins/internal/save/compress.go (83.3%)</option>
 				
-				<option value="file232">github.com/kijimaD/ruins/internal/save/desktop.go (96.8%)</option>
+				<option value="file232">github.com/kijimaD/ruins/internal/save/desktop.go (91.4%)</option>
 				
 				<option value="file233">github.com/kijimaD/ruins/internal/save/manager.go (88.2%)</option>
 				
@@ -585,7 +585,7 @@
 				
 				<option value="file264">github.com/kijimaD/ruins/internal/states/main_menu.go (85.4%)</option>
 				
-				<option value="file265">github.com/kijimaD/ruins/internal/states/mapgen_visualizer.go (75.6%)</option>
+				<option value="file265">github.com/kijimaD/ruins/internal/states/mapgen_visualizer.go (91.2%)</option>
 				
 				<option value="file266">github.com/kijimaD/ruins/internal/states/message.go (46.2%)</option>
 				
@@ -15348,7 +15348,8 @@ func writeSettingsTo(path string, data []byte) error {
 </span>        }
         <span class="cov8" title="1">tmp := path + ".tmp"
         if err := os.WriteFile(tmp, data, 0o644); err != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("%w: %w", errWriteConfig, err)
+                <span class="cov8" title="1">_ = os.Remove(tmp)
+                return fmt.Errorf("%w: %w", errWriteConfig, err)
 </span>        }
         <span class="cov8" title="1">if err := os.Rename(tmp, path); err != nil </span>{
                 <span class="cov8" title="1">_ = os.Remove(tmp)
@@ -32123,6 +32124,7 @@ type EnemyTable struct {
 type EnemyTableEntry struct {
         Id EntityID `json:"id"`
 
+        // MaxDanger 下限より小さいと、どの危険度でも抽選されない
         MaxDanger DangerLevel `json:"maxDanger"`
 
         MinDanger DangerLevel `json:"minDanger"`
@@ -32795,6 +32797,7 @@ type ItemTableEntry struct {
         // Id 参照するアイテムグループかアイテムコレクションの id
         Id EntityID `json:"id"`
 
+        // MaxDanger 下限より小さいと、どの危険度でも抽選されない
         MaxDanger DangerLevel `json:"maxDanger"`
 
         MinDanger DangerLevel `json:"minDanger"`
@@ -35471,15 +35474,19 @@ func (sm *SerializationManager) initImpl() error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// saveDataImpl はデスクトップ環境でファイルシステムにデータを保存する
+// saveDataImpl はデスクトップ環境でファイルシステムにデータを保存する。一時ファイルに書いてから差し替え、
+// 書き込みの途中で止まっても既存のセーブを壊さない。一時ファイルは拡張子が saveFileExt で終わらないので一覧に出ない
 func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error {
-        // ファイルに書き込み
         <span class="cov8" title="1">fileName := filepath.Join(sm.saveDirectory, slotName+saveFileExt)
-        err := os.WriteFile(fileName, data, 0644)
-        if err != nil </span>{
-                <span class="cov8" title="1">return fmt.Errorf("failed to write save file: %w", err)
+        tmp := fileName + ".tmp"
+        if err := os.WriteFile(tmp, data, 0o644); err != nil </span>{
+                <span class="cov8" title="1">_ = os.Remove(tmp)
+                return fmt.Errorf("failed to write save file: %w", err)
 </span>        }
-
+        <span class="cov8" title="1">if err := os.Rename(tmp, fileName); err != nil </span>{
+                <span class="cov0" title="0">_ = os.Remove(tmp)
+                return fmt.Errorf("failed to replace save file: %w", err)
+</span>        }
         <span class="cov8" title="1">return nil</span>
 }
 
@@ -43097,6 +43104,7 @@ import (
         gs "github.com/kijimaD/ruins/internal/systems"
         w "github.com/kijimaD/ruins/internal/world"
 
+        "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
 )
@@ -43160,7 +43168,7 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error {
 
 // OnStop はエンティティを削除する
 func (st *MapGenVisualizerState) OnStop(world w.World) error {
-        <span class="cov0" title="0">st.clearEntities(world)
+        <span class="cov8" title="1">st.clearEntities(world)
         return nil
 </span>}
 
@@ -43289,26 +43297,33 @@ func (st *MapGenVisualizerState) hidePlayer(world w.World) {
 </span>        }
 }
 
-// clearEntities はスポーンしたエンティティを削除する
+// clearEntities はスポーンしたエンティティを削除する。クエリの反復中は world がロックされるので、集めてから消す
 func (st *MapGenVisualizerState) clearEntities(world w.World) {
-        <span class="cov0" title="0">spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).Query()
+        <span class="cov8" title="1">var toRemove []ecs.Entity
+        spriteRenderQuery := ecs.NewFilter1[gc.SpriteRender](world.ECS).Query()
         for spriteRenderQuery.Next() </span>{
-                <span class="cov0" title="0">entity := spriteRenderQuery.Entity()
+                <span class="cov8" title="1">entity := spriteRenderQuery.Entity()
                 if !world.Components.Player.Has(entity) &amp;&amp;
                         !world.Components.LocationInBackpack.Has(entity) &amp;&amp;
                         !world.Components.LocationEquipped.Has(entity) </span>{
-                        <span class="cov0" title="0">world.ECS.RemoveEntity(entity)
+                        <span class="cov8" title="1">toRemove = append(toRemove, entity)
 </span>                }
         }
-        <span class="cov0" title="0">gridElementQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
+        <span class="cov8" title="1">gridElementQuery := ecs.NewFilter1[gc.GridElement](world.ECS).Query()
         for gridElementQuery.Next() </span>{
-                <span class="cov0" title="0">entity := gridElementQuery.Entity()
+                <span class="cov8" title="1">entity := gridElementQuery.Entity()
                 if !world.Components.Player.Has(entity) </span>{
-                        <span class="cov0" title="0">world.ECS.RemoveEntity(entity)
+                        <span class="cov8" title="1">toRemove = append(toRemove, entity)
+</span>                }
+        }
+        <span class="cov8" title="1">lifecycle.RemoveOwnedEntities(world, toRemove)
+        for _, entity := range toRemove </span>{
+                <span class="cov8" title="1">if world.ECS.Alive(entity) </span>{
+                        <span class="cov8" title="1">world.ECS.RemoveEntity(entity)
 </span>                }
         }
 
-        <span class="cov0" title="0">query.InvalidateSpatialIndex(world)</span>
+        <span class="cov8" title="1">query.InvalidateSpatialIndex(world)</span>
 }
 </pre>
 		
