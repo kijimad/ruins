@@ -25268,7 +25268,7 @@
     spriteSheetName = "tile"
 
 [[timesOfDay]]
-  daylight = 0.65
+  daylight = 0.15
   id = "dawn"
   name = "Dawn"
   tempModifier = 0
@@ -25298,7 +25298,7 @@
     r = 1.0
 
 [[timesOfDay]]
-  daylight = 0.55
+  daylight = 0.4
   id = "evening"
   name = "Evening"
   tempModifier = 5
@@ -25308,7 +25308,7 @@
     r = 1.0
 
 [[timesOfDay]]
-  daylight = 0.14
+  daylight = 0.04
   id = "night"
   name = "Night"
   tempModifier = -5
@@ -25318,7 +25318,7 @@
     r = 0.55
 
 [[timesOfDay]]
-  daylight = 0.06
+  daylight = 0.03
   id = "midnight"
   name = "Midnight"
   tempModifier = -10
