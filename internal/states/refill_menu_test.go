@@ -174,24 +174,20 @@ func TestLightDrainSink_抜く先が満タンになって無くなれば閉じ�
 
 func TestRefillMenuState_Fetch(t *testing.T) {
 	t.Parallel()
-	// 選べない行は理由の msgid を、選べる行は移せる量を期待する
-	type want struct {
-		reason i18n.Msgid
-		amount int
-	}
+	// 選べない行は理由の msgid を期待し、空なら選べる行を期待する
 	tests := []struct {
 		name  string
 		light int
 		fuel  int
-		fill  want
-		drain want
+		fill  i18n.Msgid
+		drain i18n.Msgid
 	}{
-		{name: "燃料を持たなければどちらも選べない", light: 600, fuel: -1, fill: want{reason: "No fuel"}, drain: want{reason: "No container"}},
-		{name: "減っていて使いかけの燃料を持てばどちらも選べる", light: 600, fuel: 700, fill: want{amount: 900}, drain: want{amount: 600}},
-		{name: "満タンなら満たせず満タンでない燃料へ抜ける", light: 1500, fuel: 700, fill: want{reason: "Charge full"}, drain: want{amount: 1500}},
-		{name: "空の燃料では満たせないが抜ける", light: 600, fuel: 0, fill: want{reason: "No fuel"}, drain: want{amount: 600}},
-		{name: "満タンの燃料へは抜けない", light: 600, fuel: 1500, fill: want{amount: 900}, drain: want{reason: "No container"}},
-		{name: "残量0の灯りからは抜けない", light: 0, fuel: 0, fill: want{reason: "No fuel"}, drain: want{reason: "No charge"}},
+		{name: "燃料を持たなければどちらも選べない", light: 600, fuel: -1, fill: "No fuel", drain: "No container"},
+		{name: "減っていて使いかけの燃料を持てばどちらも選べる", light: 600, fuel: 700},
+		{name: "満タンなら満たせず満タンでない燃料へ抜ける", light: 1500, fuel: 700, fill: "Charge full"},
+		{name: "空の燃料では満たせないが抜ける", light: 600, fuel: 0, fill: "No fuel"},
+		{name: "満タンの燃料へは抜けない", light: 600, fuel: 1500, drain: "No container"},
+		{name: "残量0の灯りからは抜けない", light: 0, fuel: 0, fill: "No fuel", drain: "No charge"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -208,12 +204,12 @@ func TestRefillMenuState_Fetch(t *testing.T) {
 				world.Components.Charge.Get(oil).Current = tt.fuel
 			}
 			expected := make([]refillRow, 0, 2)
-			for _, wt := range []want{tt.fill, tt.drain} {
-				if wt.reason != "" {
-					expected = append(expected, refillRow{Entity: lantern, Value: query.T(world, wt.reason), Disabled: true})
+			for _, reason := range []i18n.Msgid{tt.fill, tt.drain} {
+				if reason != "" {
+					expected = append(expected, refillRow{Entity: lantern, Value: query.T(world, reason), Disabled: true})
 					continue
 				}
-				expected = append(expected, refillRow{Entity: lantern, Value: consts.Turn(wt.amount).String()})
+				expected = append(expected, refillRow{Entity: lantern})
 			}
 
 			props, err := (&RefillMenuState{}).Fetch(world)

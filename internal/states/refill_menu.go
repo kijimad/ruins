@@ -5,7 +5,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
@@ -47,7 +46,7 @@ type refillTab struct {
 }
 
 // refillTabSpec は補充メニューの1タブの振る舞い。タブの番号で引く。sinkOf は灯りを選んだときに開く給油メニューのくべ先を作り、
-// amount は灯りの側で移せる量の上限を返す。灯りの残量はターン数なので、量はターンとして出す
+// amount は灯りの側で移せる量の上限を返し、0なら選べない
 type refillTabSpec struct {
 	sinkOf func(world w.World, light ecs.Entity) FuelSink
 	amount func(charge gc.Charge) int
@@ -78,7 +77,7 @@ var refillTabSpecs = []refillTabSpec{
 	},
 }
 
-// refillRow は補充メニューの1行。Disabled なら Value に選べない理由を、選べるなら移せる量を入れる。
+// refillRow は補充メニューの1行。Disabled なら Value に選べない理由を入れる。
 // 選べない行もほかの物の一覧と同じ色で描き、理由の文とカーソルを止めないことで見分けさせる
 type refillRow struct {
 	Entity   ecs.Entity
@@ -145,7 +144,7 @@ func (st *RefillMenuState) Fetch(world w.World) (RefillProps, error) {
 	return RefillProps{Tabs: tabs}, nil
 }
 
-// row は灯りの light の1行を組む。選べなければ理由を出し、選べるなら移せる量の上限を出す
+// row は灯りの light の1行を組む。選べなければ理由を出す。選べる行の量は名前に添えた残量から分かるので出さない
 func (spec refillTabSpec) row(world w.World, light ecs.Entity, text refillTabText) refillRow {
 	amount := spec.amount(*world.Components.Charge.Get(light))
 	switch {
@@ -154,7 +153,7 @@ func (spec refillTabSpec) row(world w.World, light ecs.Entity, text refillTabTex
 	case !carriesAccepted(world, spec.sinkOf(world, light)):
 		return refillRow{Entity: light, Value: text.noneReason, Disabled: true}
 	}
-	return refillRow{Entity: light, Value: consts.Turn(amount).String()}
+	return refillRow{Entity: light}
 }
 
 // Menu はタブごとの一覧の構成を返す。選べない行はカーソルを飛ばす
