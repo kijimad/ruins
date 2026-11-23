@@ -6,6 +6,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
+	"github.com/kijimaD/ruins/internal/maptemplate"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -105,4 +107,23 @@ func TestSettlementAt_重みの比で種類を選ぶ(t *testing.T) {
 		}
 	}
 	assert.Equal(t, want, got, "村6と一軒家4の重みは、ハッシュを10で割った余りが6未満なら村になる")
+}
+
+func TestSettlements_全ての施設の絵がチャンクに収まる(t *testing.T) {
+	t.Parallel()
+
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	chunkW, chunkH, _, _ := dungeon.DungeonOverworld.BandShape()
+	for _, s := range raw.PtrSlice(raws.Settlements) {
+		names := loader.FacilityChunkNames(s.Facility)
+		require.NotEmpty(t, names, s.Id)
+		for _, name := range names {
+			_, _, cells, err := loader.LoadTemplateByName(name, 1)
+			require.NoError(t, err, name)
+			// 絵は回転して置くので、幅と高さの大きい方が短い辺に収まる必要がある
+			assert.LessOrEqual(t, max(len(cells), len(cells[0])), int(min(chunkW, chunkH)), name)
+		}
+	}
 }

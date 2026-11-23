@@ -140,9 +140,9 @@ func TestShiftNorth_実チャンク生成との統合(t *testing.T) {
 	}
 }
 
-// TestNewChunkGen_小集落はリージョンにちょうど1つ生成される は、小集落がリージョン方式の当選チャンクにだけ
+// TestChunkType_小集落はリージョンにちょうど1つ は、小集落がリージョン方式の当選チャンクにだけ
 // 分類されることを固定する。集落のチャンクに施設を置くことは settlementFeature のテストが固定する。
-func TestNewChunkGen_小集落はリージョンにちょうど1つ生成される(t *testing.T) {
+func TestChunkType_小集落はリージョンにちょうど1つ(t *testing.T) {
 	t.Parallel()
 
 	const regionSpan = 5 // settlementPlacement の Spacing

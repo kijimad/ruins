@@ -243,16 +243,16 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 	gen := NewChunkGen(world, seed, chunkW, chunkH, cols, mapplanner.PlannerTypeOverworldField)
 	require.NoError(t, gen(c, 0, 0))
 
-	// 集落の施設の置物が置かれ、オーバーワールド帯へ束縛される
-	props := 0
-	q := ecs.NewFilter1[gc.Prop](world.ECS).Query()
+	// 集落の施設の扉が置かれ、オーバーワールド帯へ束縛される。原野の散布は扉を置かないので、扉で施設を見分ける
+	doors := 0
+	q := ecs.NewFilter1[gc.Door](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		props++
-		require.True(t, world.Components.StageBound.Has(e), "置物はステージへ束縛される")
-		assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(e).Key, "置物はオーバーワールド帯へ束縛される")
+		doors++
+		require.True(t, world.Components.StageBound.Has(e), "扉はステージへ束縛される")
+		assert.Equal(t, gc.NewOverworldStage(), world.Components.StageBound.Get(e).Key, "扉はオーバーワールド帯へ束縛される")
 	}
-	assert.Positive(t, props, "集落と分類されるチャンクに施設の置物が置かれる")
+	assert.Positive(t, doors, "集落と分類されるチャンクに施設の扉が置かれる")
 }
 
 // TestDriver_Rowsの書き込みと正規化 は、新規開始が Rows をセーブ対象へ書き込み、
