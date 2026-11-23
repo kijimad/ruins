@@ -106,7 +106,7 @@ func TestSettlementAt_重みの比で種類を選ぶ(t *testing.T) {
 			want[id]++
 		}
 	}
-	assert.Equal(t, want, got, "村6と一軒家4の重みは、ハッシュを10で割った余りが6未満なら村になる")
+	assert.Equal(t, want, got, "村6と小村4の重みは、ハッシュを10で割った余りが6未満なら村になる")
 }
 
 func TestSettlements_全ての施設の絵がチャンクに収まる(t *testing.T) {
@@ -124,6 +124,43 @@ func TestSettlements_全ての施設の絵がチャンクに収まる(t *testing
 			require.NoError(t, err, name)
 			// 絵は回転して置くので、幅と高さの大きい方が短い辺に収まる必要がある
 			assert.LessOrEqual(t, max(len(cells), len(cells[0])), int(min(chunkW, chunkH)), name)
+			// 集落の施設は扉を持つ。チャンクの生成のテストは原野の散布が置かない扉で施設を見分ける
+			doors := 0
+			for _, row := range cells {
+				for _, cell := range row {
+					if cell.Prop == "door" {
+						doors++
+					}
+				}
+			}
+			assert.Positive(t, doors, name)
 		}
+	}
+}
+
+func TestCenterOrigin(t *testing.T) {
+	t.Parallel()
+
+	cellsOf := func(w, h int) [][]maptemplate.MapCell {
+		cells := make([][]maptemplate.MapCell, h)
+		for y := range cells {
+			cells[y] = make([]maptemplate.MapCell, w)
+		}
+		return cells
+	}
+	g := chunkGeom{chunkW: 24, chunkH: 24}
+	tests := []struct {
+		name string
+		w, h int
+		want consts.Coord[consts.Tile]
+	}{
+		{name: "偶数の幅は左右に同じだけ空ける", w: 20, h: 20, want: consts.Coord[consts.Tile]{X: 2, Y: 2}},
+		{name: "奇数の幅は半分を切り捨てて西と北に1マス多く空ける", w: 13, h: 11, want: consts.Coord[consts.Tile]{X: 6, Y: 7}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, centerOrigin(g, cellsOf(tt.w, tt.h)))
+		})
 	}
 }

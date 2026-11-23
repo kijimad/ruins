@@ -102,7 +102,7 @@ func TestChunkPlace_集落が地物の文字で出る(t *testing.T) {
 		}
 	}
 	assert.True(t, foundVillage, "村の集落が村の文字で出る")
-	assert.True(t, foundHamlet, "一軒家の集落が一軒家の文字で出る。開始特例で常に村になる退行の検知")
+	assert.True(t, foundHamlet, "小村の集落が小村の文字で出る。開始特例で常に村になる退行の検知")
 }
 
 func TestSchematicLegend_全ての記号を含む(t *testing.T) {

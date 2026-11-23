@@ -82,7 +82,7 @@ type chunkType string
 
 const (
 	chunkWasteland  chunkType = "wasteland"  // 荒れ地。特徴的な地物が無い開けた地形
-	chunkSettlement chunkType = "settlement" // 集落。村・一軒家
+	chunkSettlement chunkType = "settlement" // 集落。村・小村
 	chunkUrban      chunkType = "urban"      // 市街地。建物チャンク
 	chunkLandmark   chunkType = "landmark"   // 自然の点在ランドマーク
 	chunkCrashSite  chunkType = "crash_site" // 宇宙船が墜落した開始の現場

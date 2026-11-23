@@ -29,11 +29,6 @@ func crashSiteAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chun
 // crashSiteFeature は宇宙船が墜落した開始の現場の feature 実装
 type crashSiteFeature struct{}
 
-// centerOrigin は絵 cells をチャンクの真ん中に置く原点を、チャンク内の座標で返す
-func centerOrigin(g chunkGeom, cells [][]maptemplate.MapCell) consts.Coord[consts.Tile] {
-	return consts.Coord[consts.Tile]{X: g.chunkW/2 - consts.Tile(len(cells[0]))/2, Y: g.chunkH/2 - consts.Tile(len(cells))/2}
-}
-
 // place は開始チャンクに墜落現場の絵を1枚、回転も反転もせずにチャンクの真ん中へ置く。
 // 絵の東側をキューブの置き場所として空けているので、向きを変えない
 func (crashSiteFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
