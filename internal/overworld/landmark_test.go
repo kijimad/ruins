@@ -211,8 +211,14 @@ func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *
 	}
 	require.GreaterOrEqual(t, len(cases), 20, "前提: 道の通るランドマークのチャンクが見つかる")
 
+	roadTiles := map[string]bool{}
+	for _, f := range raw.PtrSlice(raws.PointFeatures) {
+		if f.Road != nil {
+			roadTiles[f.Road.Tile] = true
+		}
+	}
 	placed := 0
-	var blocked, covered []consts.Coord[consts.Tile]
+	var blocked, unpaved []consts.Coord[consts.Tile]
 	for _, tc := range cases {
 		world := testutil.InitTestWorld(t)
 		for y := range chunkH {
@@ -223,24 +229,25 @@ func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *
 		}
 		g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: chunkW, chunkH: chunkH, tiles: &tileIndex{world: world, loX: 0, hiX: chunkW}}
 		require.NoError(t, wildernessLandmarkFeature{}.place(world, tc.seed, tc.c, cols, g))
+		require.NoError(t, roadFeature{}.place(world, tc.seed, tc.c, cols, g))
+		// 計算した道でなく実際に舗装されたマスを見る。舗装されないマスは、ランドマークの壁や床が道を途切れさせている
+		tiles := g.tiles.get()
+		for p := range tc.roads {
+			if !roadTiles[tileIDAt(world, tiles, p)] {
+				unpaved = append(unpaved, p)
+			}
+		}
 		q := ecs.NewFilter2[gc.GridElement, gc.Prop](world.ECS).Query()
 		for q.Next() {
 			placed++
-			if p := world.Components.GridElement.Get(q.Entity()).Coord; tc.roads[p] {
+			if p := world.Components.GridElement.Get(q.Entity()).Coord; roadTiles[tileIDAt(world, tiles, p)] {
 				blocked = append(blocked, p)
-			}
-		}
-		// ランドマークは道より先に置くので、道のマスが土のままなら壁や床でも道を塞いでいない
-		tiles := g.tiles.get()
-		for p := range tc.roads {
-			if id := tileIDAt(world, tiles, p); id != "dirt_tundra" {
-				covered = append(covered, p)
 			}
 		}
 	}
 	require.Positive(t, placed, "前提: ランドマークが置かれる")
-	assert.Empty(t, blocked, "道のマスにランドマークの置物が無い")
-	assert.Empty(t, covered, "道のマスをランドマークの壁や床で塞がない")
+	assert.Empty(t, unpaved, "道は途切れずに舗装される")
+	assert.Empty(t, blocked, "舗装された道のマスにランドマークの置物が無い")
 }
 
 func TestLandmarks_道が十字や迂回で通るチャンクでも全ての絵に置き場所がある(t *testing.T) {

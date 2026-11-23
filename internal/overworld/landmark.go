@@ -61,7 +61,8 @@ func touchesRoad(x0, y0, x1, y1 consts.Tile, roads map[consts.Coord[consts.Tile]
 // 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が
 // ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。
 func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world)) != chunkLandmark {
+	spawnRow := spawnRowOf(world)
+	if chunkTypeAt(world.Resources.RawMaster, runSeed, c, cols, spawnRow) != chunkLandmark {
 		return nil
 	}
 	loader, err := maptemplate.FacilityTemplates()
@@ -76,7 +77,7 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 	if err != nil {
 		return fmt.Errorf("failed to plan landmark %q: %w", fac, err)
 	}
-	roads := chunkRoadTiles(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world), g.chunkW, g.chunkH)
+	roads := chunkRoadTiles(world.Resources.RawMaster, runSeed, c, cols, spawnRow, g.chunkW, g.chunkH)
 	origins := landmarkOrigins(consts.Tile(len(cells[0])), consts.Tile(len(cells)), g.chunkW, g.chunkH, roads)
 	// 道を塞がない置き場所が無ければ、このチャンクには置かない
 	if len(origins) == 0 {
