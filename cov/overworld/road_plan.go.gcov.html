@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">93.3&nbsp;%</td>
-            <td class="headerCovTableEntry">253</td>
-            <td class="headerCovTableEntry">236</td>
+            <td class="headerCovTableEntryHi">93.4&nbsp;%</td>
+            <td class="headerCovTableEntry">258</td>
+            <td class="headerCovTableEntry">241</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-23 13:43:38</td>
+            <td class="headerValue">2026-11-23 13:48:45</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -145,7 +145,7 @@
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         if found {</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 return p</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         p = planSpan(raws, runSeed, road, key.span, cols, spawnRow)</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         p = planSpan(raws, runSeed, road, key.span, cols, spawnRow, nil)</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         planMu.Lock()</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         if len(planCache) &gt;= planCacheLimit {</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :                 clear(planCache)</span></span>
@@ -268,281 +268,288 @@
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L207"><span class="lineNum">     207</span>              : }</span>
 <span id="L208"><span class="lineNum">     208</span>              : </span>
-<span id="L209"><span class="lineNum">     209</span>              : // planSpan は道の表 road の行数で区切った計画区間 k の道と集落を計画する</span>
-<span id="L210"><span class="lineNum">     210</span>              : func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols, spawnRow consts.Chunk) *roadPlan {</span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         plan := &amp;roadPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}, reserved: map[consts.Coord[consts.Chunk]]bool{}}</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         g := newSpanGrid(raws, runSeed, k, consts.Chunk(road.SpanRows), cols, spawnRow)</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         var start, nodes []planNode</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         if x, ok := crossingAt(raws, runSeed, g.top, cols, spawnRow); ok {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 start = append(start, planNode{terms: []planTerminal{{c: consts.Coord[consts.Chunk]{X: x, Y: g.top}, port: roadPort{dir: RoadN}}}})</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         districtStart, districtNodes := districtNodes(raws, runSeed, g, spawnRow)</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         start = append(start, districtStart...)</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         nodes = append(nodes, districtNodes...)</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         if s := spawnChunkOf(cols, spawnRow); s.Y &gt;= g.top &amp;&amp; s.Y &lt;= g.bottom {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 if n, ok := g.nodeOf(</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                         planTerminal{c: consts.Coord[consts.Chunk]{X: s.X, Y: s.Y - 1}, port: roadPort{dir: RoadS}},</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                         planTerminal{c: consts.Coord[consts.Chunk]{X: s.X, Y: s.Y + 1}, port: roadPort{dir: RoadN}},</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 ); ok {</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                         nodes = append(nodes, n)</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L227"><span class="lineNum">     227</span>              :         }</span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         if x, ok := crossingAt(raws, runSeed, g.bottom+1, cols, spawnRow); ok {</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 nodes = append(nodes, planNode{terms: []planTerminal{{c: consts.Coord[consts.Chunk]{X: x, Y: g.bottom}, port: roadPort{dir: RoadS}}}})</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L231"><span class="lineNum">     231</span>              :         // 網の始まりは1つにし、残りの始まりも行き先として経路でつなぐ。始まりのままだと、経路の出発点に使われなかった門の先に道が届かない</span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         if len(start) &gt; 1 {</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 start, nodes = start[:1], append(start[1:], nodes...)</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L235"><span class="lineNum">     235</span>              :         // 北の境目から網を始められなければ、最初の行き先から始める</span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         if len(start) == 0 &amp;&amp; len(nodes) &gt; 0 {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 start, nodes = nodes[:1], nodes[1:]</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L239"><span class="lineNum">     239</span>              :         // 網の始まりは、経路の出発点に使われなくても道にする。北の計画区間から来た道や通りがここで途切れない</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         for _, n := range start {</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 for _, t := range n.terms {</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                         plan.addPort(t.c, t.port)</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L244"><span class="lineNum">     244</span>              :         }</span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         for _, n := range append(slices.Clone(start), nodes...) {</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 for _, t := range n.terms {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                         plan.reserved[t.c] = true</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L249"><span class="lineNum">     249</span>              :         }</span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         connectNodes(plan, g, start, nodes)</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         placeSettlements(raws, runSeed, plan, g)</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         return plan</span></span>
-<span id="L253"><span class="lineNum">     253</span>              : }</span>
-<span id="L254"><span class="lineNum">     254</span>              : </span>
-<span id="L255"><span class="lineNum">     255</span>              : // districtNodes は門の外のチャンクが計画区間の中にある区域を行き先にする。計画区間の北の境目をまたぐ区域は、北の計画区間の網から</span>
-<span id="L256"><span class="lineNum">     256</span>              : // 通りを通ってつながっているので網の始まり start にする</span>
-<span id="L257"><span class="lineNum">     257</span>              : func districtNodes(raws rawschema.Raws, runSeed uint64, g spanGrid, spawnRow consts.Chunk) (start, nodes []planNode) {</span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         cat := zoneCatalogFrom(raws)</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         for _, r := range districtsBetween(raws, runSeed, g.top-1, g.bottom+1, g.cols, spawnRow) {</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 north, south := gateColumns(r, lotsOf(raws, cat, r, spawnRow))</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 n, ok := g.nodeOf(</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                         planTerminal{c: consts.Coord[consts.Chunk]{X: north, Y: r.anchor.Y - 1}, port: roadPort{dir: RoadS, lane: laneGate}},</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                         planTerminal{c: consts.Coord[consts.Chunk]{X: south, Y: r.anchor.Y + r.h}, port: roadPort{dir: RoadN, lane: laneGate}},</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 )</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 switch {</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                 case !ok:</span></span>
-<span id="L267"><span class="lineNum">     267</span>              :                 case r.anchor.Y &lt; g.top &amp;&amp; r.anchor.Y+r.h-1 &gt;= g.top:</span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                         start = append(start, n)</span></span>
-<span id="L269"><span class="lineNum">     269</span>              :                 default:</span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                         nodes = append(nodes, n)</span></span>
-<span id="L271"><span class="lineNum">     271</span>              :                 }</span>
-<span id="L272"><span class="lineNum">     272</span>              :         }</span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         return start, nodes</span></span>
-<span id="L274"><span class="lineNum">     274</span>              : }</span>
-<span id="L275"><span class="lineNum">     275</span>              : </span>
-<span id="L276"><span class="lineNum">     276</span>              : // connectNodes は網 start に、行き先 nodes を網に近い順に経路でつなぐ。経路が無い行き先は残して戻る。区域の間に隙間を空けるので</span>
-<span id="L277"><span class="lineNum">     277</span>              : // 区域の外はひと続きになり、どの行き先にも経路がある前提にする。道の網のつながりのテストが確かめる</span>
-<span id="L278"><span class="lineNum">     278</span>              : func connectNodes(plan *roadPlan, g spanGrid, start, nodes []planNode) {</span>
-<span id="L279"><span class="lineNum">     279</span>              :         // attach は網につながった所。値は、そこを道のチャンクにするときに足す行き先の出入り口</span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         attach := map[consts.Coord[consts.Chunk]][]roadPort{}</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         join := func(n planNode) {</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                 for _, t := range n.terms {</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                         attach[t.c] = append(attach[t.c], t.port)</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L285"><span class="lineNum">     285</span>              :         }</span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         for _, n := range start {</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                 join(n)</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         for len(nodes) &gt; 0 {</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 targets := map[consts.Coord[consts.Chunk]]int{}</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                 for i, n := range nodes {</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                         for _, t := range n.terms {</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :                                 if _, ok := targets[t.c]; !ok {</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                                         targets[t.c] = i</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L296"><span class="lineNum">     296</span>              :                         }</span>
-<span id="L297"><span class="lineNum">     297</span>              :                 }</span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                 path := shortestRoad(attach, targets, g.passable)</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                 if path == nil {</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                         return</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                 for _, p := range attach[path[0]] {</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                         plan.addPort(path[0], p)</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                 for i := 0; i+1 &lt; len(path); i++ {</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                         plan.addPort(path[i], roadPort{dir: roadDirToward(path[i], path[i+1])})</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                         plan.addPort(path[i+1], roadPort{dir: roadDirToward(path[i+1], path[i])})</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 end := path[len(path)-1]</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 i := targets[end]</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 for _, t := range nodes[i].terms {</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                         if t.c == end {</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                                 plan.addPort(end, t.port)</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L315"><span class="lineNum">     315</span>              :                 }</span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 join(nodes[i])</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                 for _, c := range path {</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                         if _, ok := attach[c]; !ok {</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                                 attach[c] = nil</span></span>
+<span id="L209"><span class="lineNum">     209</span>              : // planSpan は道の表 road の行数で区切った計画区間 k の道と集落を計画する。行き先を予約する、経路を1本ずつ足す、集落を置く、の順に</span>
+<span id="L210"><span class="lineNum">     210</span>              : // 計画を書き換える。記録係 rec が nil でなければ段階ごとの写しを残す。墜落現場と区域は計画を書き換えず、</span>
+<span id="L211"><span class="lineNum">     211</span>              : // 写しに見せる種類を足す段階にする</span>
+<span id="L212"><span class="lineNum">     212</span>              : func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols, spawnRow consts.Chunk, rec *mapRecorder) *roadPlan {</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         plan := &amp;roadPlan{roads: map[consts.Coord[consts.Chunk]][]roadPort{}, settlements: map[consts.Coord[consts.Chunk]]RoadDir{}, reserved: map[consts.Coord[consts.Chunk]]bool{}}</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         g := newSpanGrid(raws, runSeed, k, consts.Chunk(road.SpanRows), cols, spawnRow)</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         rec.place(&quot;crash site&quot;, plan, chunkCrashSite)</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         rec.place(&quot;districts&quot;, plan, chunkUrban)</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         var start, nodes []planNode</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         if x, ok := crossingAt(raws, runSeed, g.top, cols, spawnRow); ok {</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                 start = append(start, planNode{terms: []planTerminal{{c: consts.Coord[consts.Chunk]{X: x, Y: g.top}, port: roadPort{dir: RoadN}}}})</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         districtStart, districtNodes := districtNodes(raws, runSeed, g, spawnRow)</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         start = append(start, districtStart...)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         nodes = append(nodes, districtNodes...)</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         if s := spawnChunkOf(cols, spawnRow); s.Y &gt;= g.top &amp;&amp; s.Y &lt;= g.bottom {</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 if n, ok := g.nodeOf(</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                         planTerminal{c: consts.Coord[consts.Chunk]{X: s.X, Y: s.Y - 1}, port: roadPort{dir: RoadS}},</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                         planTerminal{c: consts.Coord[consts.Chunk]{X: s.X, Y: s.Y + 1}, port: roadPort{dir: RoadN}},</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 ); ok {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                         nodes = append(nodes, n)</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L231"><span class="lineNum">     231</span>              :         }</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         if x, ok := crossingAt(raws, runSeed, g.bottom+1, cols, spawnRow); ok {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 nodes = append(nodes, planNode{terms: []planTerminal{{c: consts.Coord[consts.Chunk]{X: x, Y: g.bottom}, port: roadPort{dir: RoadS}}}})</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L235"><span class="lineNum">     235</span>              :         // 網の始まりは1つにし、残りの始まりも行き先として経路でつなぐ。始まりのままだと、経路の出発点に使われなかった門の先に道が届かない</span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         if len(start) &gt; 1 {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                 start, nodes = start[:1], append(start[1:], nodes...)</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L239"><span class="lineNum">     239</span>              :         // 北の境目から網を始められなければ、最初の行き先から始める</span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         if len(start) == 0 &amp;&amp; len(nodes) &gt; 0 {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 start, nodes = nodes[:1], nodes[1:]</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L243"><span class="lineNum">     243</span>              :         // 網の始まりは、経路の出発点に使われなくても道にする。北の計画区間から来た道や通りがここで途切れない</span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         for _, n := range start {</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 for _, t := range n.terms {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                         plan.addPort(t.c, t.port)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L248"><span class="lineNum">     248</span>              :         }</span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         for _, n := range append(slices.Clone(start), nodes...) {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                 for _, t := range n.terms {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                         plan.reserved[t.c] = true</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L253"><span class="lineNum">     253</span>              :         }</span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         rec.snapshot(&quot;destinations&quot;, plan)</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         connectNodes(plan, g, start, nodes, rec)</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         placeSettlements(raws, runSeed, plan, g)</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         rec.place(&quot;settlements&quot;, plan, chunkSettlement)</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         return plan</span></span>
+<span id="L259"><span class="lineNum">     259</span>              : }</span>
+<span id="L260"><span class="lineNum">     260</span>              : </span>
+<span id="L261"><span class="lineNum">     261</span>              : // districtNodes は門の外のチャンクが計画区間の中にある区域を行き先にする。計画区間の北の境目をまたぐ区域は、北の計画区間の網から</span>
+<span id="L262"><span class="lineNum">     262</span>              : // 通りを通ってつながっているので網の始まり start にする</span>
+<span id="L263"><span class="lineNum">     263</span>              : func districtNodes(raws rawschema.Raws, runSeed uint64, g spanGrid, spawnRow consts.Chunk) (start, nodes []planNode) {</span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         cat := zoneCatalogFrom(raws)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         for _, r := range districtsBetween(raws, runSeed, g.top-1, g.bottom+1, g.cols, spawnRow) {</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 north, south := gateColumns(r, lotsOf(raws, cat, r, spawnRow))</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 n, ok := g.nodeOf(</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                         planTerminal{c: consts.Coord[consts.Chunk]{X: north, Y: r.anchor.Y - 1}, port: roadPort{dir: RoadS, lane: laneGate}},</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                         planTerminal{c: consts.Coord[consts.Chunk]{X: south, Y: r.anchor.Y + r.h}, port: roadPort{dir: RoadN, lane: laneGate}},</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 )</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 switch {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :                 case !ok:</span></span>
+<span id="L273"><span class="lineNum">     273</span>              :                 case r.anchor.Y &lt; g.top &amp;&amp; r.anchor.Y+r.h-1 &gt;= g.top:</span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                         start = append(start, n)</span></span>
+<span id="L275"><span class="lineNum">     275</span>              :                 default:</span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                         nodes = append(nodes, n)</span></span>
+<span id="L277"><span class="lineNum">     277</span>              :                 }</span>
+<span id="L278"><span class="lineNum">     278</span>              :         }</span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         return start, nodes</span></span>
+<span id="L280"><span class="lineNum">     280</span>              : }</span>
+<span id="L281"><span class="lineNum">     281</span>              : </span>
+<span id="L282"><span class="lineNum">     282</span>              : // connectNodes は網 start に、行き先 nodes を網に近い順に経路でつなぐ。経路が無い行き先は残して戻る。区域の間に隙間を空けるので</span>
+<span id="L283"><span class="lineNum">     283</span>              : // 区域の外はひと続きになり、どの行き先にも経路がある前提にする。道の網のつながりのテストが確かめる。記録係 rec には経路を1本足すたびに写しを残す</span>
+<span id="L284"><span class="lineNum">     284</span>              : func connectNodes(plan *roadPlan, g spanGrid, start, nodes []planNode, rec *mapRecorder) {</span>
+<span id="L285"><span class="lineNum">     285</span>              :         // attach は網につながった所。値は、そこを道のチャンクにするときに足す行き先の出入り口</span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         attach := map[consts.Coord[consts.Chunk]][]roadPort{}</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         join := func(n planNode) {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 for _, t := range n.terms {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                         attach[t.c] = append(attach[t.c], t.port)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L291"><span class="lineNum">     291</span>              :         }</span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :         for _, n := range start {</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :                 join(n)</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         for step := 1; len(nodes) &gt; 0; step++ {</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 targets := map[consts.Coord[consts.Chunk]]int{}</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                 for i, n := range nodes {</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                         for _, t := range n.terms {</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                                 if _, ok := targets[t.c]; !ok {</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                                         targets[t.c] = i</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L302"><span class="lineNum">     302</span>              :                         }</span>
+<span id="L303"><span class="lineNum">     303</span>              :                 }</span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 path := shortestRoad(attach, targets, g.passable)</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                 if path == nil {</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 for _, p := range attach[path[0]] {</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                         plan.addPort(path[0], p)</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 for i := 0; i+1 &lt; len(path); i++ {</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                         plan.addPort(path[i], roadPort{dir: roadDirToward(path[i], path[i+1])})</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                         plan.addPort(path[i+1], roadPort{dir: roadDirToward(path[i+1], path[i])})</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 end := path[len(path)-1]</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 i := targets[end]</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                 for _, t := range nodes[i].terms {</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                         if t.c == end {</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                                 plan.addPort(end, t.port)</span></span>
 <span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L321"><span class="lineNum">     321</span>              :                 }</span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 nodes = slices.Delete(nodes, i, i+1)</span></span>
-<span id="L323"><span class="lineNum">     323</span>              :         }</span>
-<span id="L324"><span class="lineNum">     324</span>              : }</span>
-<span id="L325"><span class="lineNum">     325</span>              : </span>
-<span id="L326"><span class="lineNum">     326</span>              : // placeSettlements は集落のリージョンごとに、道のチャンクに接する空いたチャンクから集落を1つ引き、道から集落の側へ出入り口を足す</span>
-<span id="L327"><span class="lineNum">     327</span>              : func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *roadPlan, g spanGrid) {</span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         p := placementOf(raws, rawschema.PointFeatureKindSettlement)</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :         for ry := consts.FloorDiv(g.top, p.Spacing); ry &lt;= consts.FloorDiv(g.bottom, p.Spacing); ry++ {</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 type site struct {</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                         c, road consts.Coord[consts.Chunk]</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L333"><span class="lineNum">     333</span>              :                 // 1つのチャンクは、接する道が何本でも候補に1回だけ入れる。道は roadDirs の順で最初に接するものにする</span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                 var sites []site</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                 for y := max(ry*p.Spacing, g.top); y &lt;= min((ry+1)*p.Spacing-1, g.bottom); y++ {</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                         for x := range g.cols {</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :                                 c := consts.Coord[consts.Chunk]{X: x, Y: y}</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :                                 if _, road := plan.roads[c]; road || g.blocked[c] || plan.reserved[c] {</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :                                         continue</span></span>
-<span id="L340"><span class="lineNum">     340</span>              :                                 }</span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :                                 for _, d := range roadDirs {</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                                         n := c.Add(stepOf(d))</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :                                         if _, road := plan.roads[n]; road {</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :                                                 sites = append(sites, site{c: c, road: n})</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :                                                 break</span></span>
-<span id="L346"><span class="lineNum">     346</span>              :                                         }</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 join(nodes[i])</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                 rec.road(step, plan)</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                 for _, c := range path {</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :                         if _, ok := attach[c]; !ok {</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :                                 attach[c] = nil</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L328"><span class="lineNum">     328</span>              :                 }</span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 nodes = slices.Delete(nodes, i, i+1)</span></span>
+<span id="L330"><span class="lineNum">     330</span>              :         }</span>
+<span id="L331"><span class="lineNum">     331</span>              : }</span>
+<span id="L332"><span class="lineNum">     332</span>              : </span>
+<span id="L333"><span class="lineNum">     333</span>              : // placeSettlements は集落のリージョンごとに、道のチャンクに接する空いたチャンクから集落を1つ引き、道から集落の側へ出入り口を足す</span>
+<span id="L334"><span class="lineNum">     334</span>              : func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *roadPlan, g spanGrid) {</span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :         p := placementOf(raws, rawschema.PointFeatureKindSettlement)</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         for ry := consts.FloorDiv(g.top, p.Spacing); ry &lt;= consts.FloorDiv(g.bottom, p.Spacing); ry++ {</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :                 type site struct {</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :                         c, road consts.Coord[consts.Chunk]</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L340"><span class="lineNum">     340</span>              :                 // 1つのチャンクは、接する道が何本でも候補に1回だけ入れる。道は roadDirs の順で最初に接するものにする</span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :                 var sites []site</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                 for y := max(ry*p.Spacing, g.top); y &lt;= min((ry+1)*p.Spacing-1, g.bottom); y++ {</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :                         for x := range g.cols {</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :                                 c := consts.Coord[consts.Chunk]{X: x, Y: y}</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :                                 if _, road := plan.roads[c]; road || g.blocked[c] || plan.reserved[c] {</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :                                         continue</span></span>
 <span id="L347"><span class="lineNum">     347</span>              :                                 }</span>
-<span id="L348"><span class="lineNum">     348</span>              :                         }</span>
-<span id="L349"><span class="lineNum">     349</span>              :                 }</span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 if len(sites) == 0 {</span></span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L352"><span class="lineNum">     352</span>              :                 }</span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 :                 s := sites[consts.Mix2D(runSeed^settlementSiteSalt, ry, 0)%uint64(len(sites))]</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :                 plan.settlements[s.c] = roadDirToward(s.c, s.road)</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :                 plan.addPort(s.road, roadPort{dir: roadDirToward(s.road, s.c), lane: laneEntrance})</span></span>
-<span id="L356"><span class="lineNum">     356</span>              :         }</span>
-<span id="L357"><span class="lineNum">     357</span>              : }</span>
-<span id="L358"><span class="lineNum">     358</span>              : </span>
-<span id="L359"><span class="lineNum">     359</span>              : // roadState は経路探索の状態。曲がる費用を数えるため、来た向きを持つ</span>
-<span id="L360"><span class="lineNum">     360</span>              : type roadState struct {</span>
-<span id="L361"><span class="lineNum">     361</span>              :         c   consts.Coord[consts.Chunk]</span>
-<span id="L362"><span class="lineNum">     362</span>              :         dir RoadDir // 来た向き。0 は出発点</span>
-<span id="L363"><span class="lineNum">     363</span>              : }</span>
-<span id="L364"><span class="lineNum">     364</span>              : </span>
-<span id="L365"><span class="lineNum">     365</span>              : type roadItem struct {</span>
-<span id="L366"><span class="lineNum">     366</span>              :         s    roadState</span>
-<span id="L367"><span class="lineNum">     367</span>              :         cost int</span>
-<span id="L368"><span class="lineNum">     368</span>              :         seq  int</span>
-<span id="L369"><span class="lineNum">     369</span>              : }</span>
-<span id="L370"><span class="lineNum">     370</span>              : </span>
-<span id="L371"><span class="lineNum">     371</span>              : type roadQueue []roadItem</span>
-<span id="L372"><span class="lineNum">     372</span>              : </span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 : func (q roadQueue) Len() int { return len(q) }</span></span>
-<span id="L374"><span class="lineNum">     374</span>              : func (q roadQueue) Less(i, j int) bool {</span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         return cmp.Or(cmp.Compare(q[i].cost, q[j].cost), cmp.Compare(q[i].seq, q[j].seq)) &lt; 0</span></span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 : func (q roadQueue) Swap(i, j int) { q[i], q[j] = q[j], q[i] }</span></span>
-<span id="L378"><span class="lineNum">     378</span>              : func (q *roadQueue) Push(x any) {</span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :         it, ok := x.(roadItem)</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :                 panic(&quot;roadQueue: not a roadItem&quot;)</span></span>
-<span id="L382"><span class="lineNum">     382</span>              :         }</span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :         *q = append(*q, it)</span></span>
-<span id="L384"><span class="lineNum">     384</span>              : }</span>
-<span id="L385"><span class="lineNum">     385</span>              : </span>
-<span id="L386"><span class="lineNum">     386</span>              : func (q *roadQueue) Pop() any {</span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         old := *q</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         it := old[len(old)-1]</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :         *q = old[:len(old)-1]</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :         return it</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :                                 for _, d := range roadDirs {</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :                                         n := c.Add(stepOf(d))</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                                         if _, road := plan.roads[n]; road {</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :                                                 sites = append(sites, site{c: c, road: n})</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           1 :                                                 break</span></span>
+<span id="L353"><span class="lineNum">     353</span>              :                                         }</span>
+<span id="L354"><span class="lineNum">     354</span>              :                                 }</span>
+<span id="L355"><span class="lineNum">     355</span>              :                         }</span>
+<span id="L356"><span class="lineNum">     356</span>              :                 }</span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :                 if len(sites) == 0 {</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L359"><span class="lineNum">     359</span>              :                 }</span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :                 s := sites[consts.Mix2D(runSeed^settlementSiteSalt, ry, 0)%uint64(len(sites))]</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 :                 plan.settlements[s.c] = roadDirToward(s.c, s.road)</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 :                 plan.addPort(s.road, roadPort{dir: roadDirToward(s.road, s.c), lane: laneEntrance})</span></span>
+<span id="L363"><span class="lineNum">     363</span>              :         }</span>
+<span id="L364"><span class="lineNum">     364</span>              : }</span>
+<span id="L365"><span class="lineNum">     365</span>              : </span>
+<span id="L366"><span class="lineNum">     366</span>              : // roadState は経路探索の状態。曲がる費用を数えるため、来た向きを持つ</span>
+<span id="L367"><span class="lineNum">     367</span>              : type roadState struct {</span>
+<span id="L368"><span class="lineNum">     368</span>              :         c   consts.Coord[consts.Chunk]</span>
+<span id="L369"><span class="lineNum">     369</span>              :         dir RoadDir // 来た向き。0 は出発点</span>
+<span id="L370"><span class="lineNum">     370</span>              : }</span>
+<span id="L371"><span class="lineNum">     371</span>              : </span>
+<span id="L372"><span class="lineNum">     372</span>              : type roadItem struct {</span>
+<span id="L373"><span class="lineNum">     373</span>              :         s    roadState</span>
+<span id="L374"><span class="lineNum">     374</span>              :         cost int</span>
+<span id="L375"><span class="lineNum">     375</span>              :         seq  int</span>
+<span id="L376"><span class="lineNum">     376</span>              : }</span>
+<span id="L377"><span class="lineNum">     377</span>              : </span>
+<span id="L378"><span class="lineNum">     378</span>              : type roadQueue []roadItem</span>
+<span id="L379"><span class="lineNum">     379</span>              : </span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 : func (q roadQueue) Len() int { return len(q) }</span></span>
+<span id="L381"><span class="lineNum">     381</span>              : func (q roadQueue) Less(i, j int) bool {</span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :         return cmp.Or(cmp.Compare(q[i].cost, q[j].cost), cmp.Compare(q[i].seq, q[j].seq)) &lt; 0</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 : func (q roadQueue) Swap(i, j int) { q[i], q[j] = q[j], q[i] }</span></span>
+<span id="L385"><span class="lineNum">     385</span>              : func (q *roadQueue) Push(x any) {</span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         it, ok := x.(roadItem)</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                 panic(&quot;roadQueue: not a roadItem&quot;)</span></span>
+<span id="L389"><span class="lineNum">     389</span>              :         }</span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :         *q = append(*q, it)</span></span>
+<span id="L391"><span class="lineNum">     391</span>              : }</span>
 <span id="L392"><span class="lineNum">     392</span>              : </span>
-<span id="L393"><span class="lineNum">     393</span>              : // roadDirs は経路が隣へ進む方角を、探索で試す順に並べる</span>
-<span id="L394"><span class="lineNum">     394</span>              : var roadDirs = [4]RoadDir{RoadN, RoadE, RoadS, RoadW}</span>
-<span id="L395"><span class="lineNum">     395</span>              : </span>
-<span id="L396"><span class="lineNum">     396</span>              : // stepOf は方角 d の隣への差を返す</span>
-<span id="L397"><span class="lineNum">     397</span>              : func stepOf(d RoadDir) consts.Coord[consts.Chunk] {</span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :         switch d {</span></span>
-<span id="L399"><span class="lineNum">     399</span>              :         case RoadN:</span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Chunk]{X: 0, Y: -1}</span></span>
-<span id="L401"><span class="lineNum">     401</span>              :         case RoadE:</span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Chunk]{X: 1, Y: 0}</span></span>
-<span id="L403"><span class="lineNum">     403</span>              :         case RoadS:</span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Chunk]{X: 0, Y: 1}</span></span>
-<span id="L405"><span class="lineNum">     405</span>              :         case RoadW:</span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Chunk]{X: -1, Y: 0}</span></span>
-<span id="L407"><span class="lineNum">     407</span>              :         }</span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :         panic(&quot;stepOf: not a single direction&quot;)</span></span>
-<span id="L409"><span class="lineNum">     409</span>              : }</span>
-<span id="L410"><span class="lineNum">     410</span>              : </span>
-<span id="L411"><span class="lineNum">     411</span>              : // shortestRoad は網 from のどれかから行き先 targets のどれかまでの、費用の最も小さい経路を出発点から順に返す。</span>
-<span id="L412"><span class="lineNum">     412</span>              : // passable なチャンクだけを通る。経路が無ければ nil</span>
-<span id="L413"><span class="lineNum">     413</span>              : func shortestRoad(from map[consts.Coord[consts.Chunk]][]roadPort, targets map[consts.Coord[consts.Chunk]]int, passable func(consts.Coord[consts.Chunk]) bool) []consts.Coord[consts.Chunk] {</span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :         starts := make([]consts.Coord[consts.Chunk], 0, len(from))</span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :         for c := range from {</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :                 starts = append(starts, c)</span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           2 :         slices.SortFunc(starts, func(a, b consts.Coord[consts.Chunk]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) })</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :         dist := map[roadState]int{}</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :         prev := map[roadState]roadState{}</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :         q := &amp;roadQueue{}</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :         seq := 0</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :         for _, c := range starts {</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :                 s := roadState{c: c}</span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :                 dist[s] = 0</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :                 heap.Push(q, roadItem{s: s, seq: seq})</span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :                 seq++</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :         for q.Len() &gt; 0 {</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :                 it, ok := heap.Pop(q).(roadItem)</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :                         panic(&quot;roadQueue: not a roadItem&quot;)</span></span>
-<span id="L433"><span class="lineNum">     433</span>              :                 }</span>
-<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">           1 :                 if it.cost &gt; dist[it.s] {</span></span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L436"><span class="lineNum">     436</span>              :                 }</span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :                 if _, ok := targets[it.s.c]; ok {</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                         var path []consts.Coord[consts.Chunk]</span></span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :                         for s := it.s; ; s = prev[s] {</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                                 path = append(path, s.c)</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :                                 if s.dir == 0 {</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :                                         break</span></span>
-<span id="L443"><span class="lineNum">     443</span>              :                                 }</span>
-<span id="L444"><span class="lineNum">     444</span>              :                         }</span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                         slices.Reverse(path)</span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                         return path</span></span>
-<span id="L447"><span class="lineNum">     447</span>              :                 }</span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                 for _, d := range roadDirs {</span></span>
-<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :                         n := it.s.c.Add(stepOf(d))</span></span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           1 :                         if !passable(n) {</span></span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L452"><span class="lineNum">     452</span>              :                         }</span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                         cost := it.cost + roadStepCost</span></span>
-<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 :                         if it.s.dir != 0 &amp;&amp; it.s.dir != d {</span></span>
-<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 :                                 cost += roadTurnCost</span></span>
-<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :                         ns := roadState{c: n, dir: d}</span></span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :                         if old, ok := dist[ns]; ok &amp;&amp; old &lt;= cost {</span></span>
-<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L460"><span class="lineNum">     460</span>              :                         }</span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :                         dist[ns] = cost</span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :                         prev[ns] = it.s</span></span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :                         heap.Push(q, roadItem{s: ns, cost: cost, seq: seq})</span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :                         seq++</span></span>
-<span id="L465"><span class="lineNum">     465</span>              :                 }</span>
-<span id="L466"><span class="lineNum">     466</span>              :         }</span>
-<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L468"><span class="lineNum">     468</span>              : }</span>
-<span id="L469"><span class="lineNum">     469</span>              : </span>
-<span id="L470"><span class="lineNum">     470</span>              : // roadAt は c が道のチャンクなら出入り口と道の行を返す</span>
-<span id="L471"><span class="lineNum">     471</span>              : func roadAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) ([]roadPort, rawschema.Road, bool) {</span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :         road, ok := roadRow(raws)</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :                 return nil, rawschema.Road{}, false</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 :         ports, ok := planAt(raws, runSeed, c.Y, cols, spawnRow).roads[c]</span></span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">           1 :         return ports, road, ok</span></span>
-<span id="L478"><span class="lineNum">     478</span>              : }</span>
-<span id="L479"><span class="lineNum">     479</span>              : </span>
-<span id="L480"><span class="lineNum">     480</span>              : // settlementFacing は集落 c から見て道のある側を返す。集落でなければ0</span>
-<span id="L481"><span class="lineNum">     481</span>              : func settlementFacing(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) RoadDir {</span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           1 :         return planAt(raws, runSeed, c.Y, cols, spawnRow).settlements[c]</span></span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L393"><span class="lineNum">     393</span>              : func (q *roadQueue) Pop() any {</span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :         old := *q</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :         it := old[len(old)-1]</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         *q = old[:len(old)-1]</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :         return it</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span>              : // roadDirs は経路が隣へ進む方角を、探索で試す順に並べる</span>
+<span id="L401"><span class="lineNum">     401</span>              : var roadDirs = [4]RoadDir{RoadN, RoadE, RoadS, RoadW}</span>
+<span id="L402"><span class="lineNum">     402</span>              : </span>
+<span id="L403"><span class="lineNum">     403</span>              : // stepOf は方角 d の隣への差を返す</span>
+<span id="L404"><span class="lineNum">     404</span>              : func stepOf(d RoadDir) consts.Coord[consts.Chunk] {</span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :         switch d {</span></span>
+<span id="L406"><span class="lineNum">     406</span>              :         case RoadN:</span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Chunk]{X: 0, Y: -1}</span></span>
+<span id="L408"><span class="lineNum">     408</span>              :         case RoadE:</span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Chunk]{X: 1, Y: 0}</span></span>
+<span id="L410"><span class="lineNum">     410</span>              :         case RoadS:</span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Chunk]{X: 0, Y: 1}</span></span>
+<span id="L412"><span class="lineNum">     412</span>              :         case RoadW:</span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Chunk]{X: -1, Y: 0}</span></span>
+<span id="L414"><span class="lineNum">     414</span>              :         }</span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :         panic(&quot;stepOf: not a single direction&quot;)</span></span>
+<span id="L416"><span class="lineNum">     416</span>              : }</span>
+<span id="L417"><span class="lineNum">     417</span>              : </span>
+<span id="L418"><span class="lineNum">     418</span>              : // shortestRoad は網 from のどれかから行き先 targets のどれかまでの、費用の最も小さい経路を出発点から順に返す。</span>
+<span id="L419"><span class="lineNum">     419</span>              : // passable なチャンクだけを通る。経路が無ければ nil</span>
+<span id="L420"><span class="lineNum">     420</span>              : func shortestRoad(from map[consts.Coord[consts.Chunk]][]roadPort, targets map[consts.Coord[consts.Chunk]]int, passable func(consts.Coord[consts.Chunk]) bool) []consts.Coord[consts.Chunk] {</span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :         starts := make([]consts.Coord[consts.Chunk], 0, len(from))</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :         for c := range from {</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                 starts = append(starts, c)</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           2 :         slices.SortFunc(starts, func(a, b consts.Coord[consts.Chunk]) int { return cmp.Or(cmp.Compare(a.Y, b.Y), cmp.Compare(a.X, b.X)) })</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :         dist := map[roadState]int{}</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :         prev := map[roadState]roadState{}</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         q := &amp;roadQueue{}</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :         seq := 0</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :         for _, c := range starts {</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                 s := roadState{c: c}</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :                 dist[s] = 0</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :                 heap.Push(q, roadItem{s: s, seq: seq})</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">           1 :                 seq++</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 :         for q.Len() &gt; 0 {</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :                 it, ok := heap.Pop(q).(roadItem)</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :                         panic(&quot;roadQueue: not a roadItem&quot;)</span></span>
+<span id="L440"><span class="lineNum">     440</span>              :                 }</span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :                 if it.cost &gt; dist[it.s] {</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L443"><span class="lineNum">     443</span>              :                 }</span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :                 if _, ok := targets[it.s.c]; ok {</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                         var path []consts.Coord[consts.Chunk]</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                         for s := it.s; ; s = prev[s] {</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :                                 path = append(path, s.c)</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                                 if s.dir == 0 {</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :                                         break</span></span>
+<span id="L450"><span class="lineNum">     450</span>              :                                 }</span>
+<span id="L451"><span class="lineNum">     451</span>              :                         }</span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :                         slices.Reverse(path)</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                         return path</span></span>
+<span id="L454"><span class="lineNum">     454</span>              :                 }</span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 :                 for _, d := range roadDirs {</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :                         n := it.s.c.Add(stepOf(d))</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :                         if !passable(n) {</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L459"><span class="lineNum">     459</span>              :                         }</span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :                         cost := it.cost + roadStepCost</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :                         if it.s.dir != 0 &amp;&amp; it.s.dir != d {</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :                                 cost += roadTurnCost</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :                         ns := roadState{c: n, dir: d}</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 :                         if old, ok := dist[ns]; ok &amp;&amp; old &lt;= cost {</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L467"><span class="lineNum">     467</span>              :                         }</span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 :                         dist[ns] = cost</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :                         prev[ns] = it.s</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :                         heap.Push(q, roadItem{s: ns, cost: cost, seq: seq})</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                         seq++</span></span>
+<span id="L472"><span class="lineNum">     472</span>              :                 }</span>
+<span id="L473"><span class="lineNum">     473</span>              :         }</span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L475"><span class="lineNum">     475</span>              : }</span>
+<span id="L476"><span class="lineNum">     476</span>              : </span>
+<span id="L477"><span class="lineNum">     477</span>              : // roadAt は c が道のチャンクなら出入り口と道の行を返す</span>
+<span id="L478"><span class="lineNum">     478</span>              : func roadAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) ([]roadPort, rawschema.Road, bool) {</span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :         road, ok := roadRow(raws)</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                 return nil, rawschema.Road{}, false</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 :         ports, ok := planAt(raws, runSeed, c.Y, cols, spawnRow).roads[c]</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 :         return ports, road, ok</span></span>
+<span id="L485"><span class="lineNum">     485</span>              : }</span>
+<span id="L486"><span class="lineNum">     486</span>              : </span>
+<span id="L487"><span class="lineNum">     487</span>              : // settlementFacing は集落 c から見て道のある側を返す。集落でなければ0</span>
+<span id="L488"><span class="lineNum">     488</span>              : func settlementFacing(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) RoadDir {</span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">           1 :         return planAt(raws, runSeed, c.Y, cols, spawnRow).settlements[c]</span></span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
