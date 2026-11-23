@@ -94,6 +94,7 @@ func FormatNameCount(name string, count int) string {
 }
 
 // ItemLabel は entity の名前に個数と、残量・鮮度・スイッチの印を添えた表示を返す。印は残量を先にし、数が名前のすぐ後ろに来るようにする。
+// 残量の違う物は別の束になり、ゲージだけでは近い残量の束を見分けにくいので数を添える。
 // 腐敗食は新鮮以外のとき鮮度を添え、状態を見て食べるか捨てるか判断できるようにする
 func ItemLabel(world w.World, entity ecs.Entity, count int) string {
 	var label strings.Builder

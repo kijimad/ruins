@@ -88,7 +88,7 @@ func ChargeKindOf(world w.World, item ecs.Entity) (rawschema.FuelKindId, bool) {
 	return FuelKindOf(world, item)
 }
 
-// ChargeMarker は名前に添える残量の数を返す。残量を持たない物は空文字を返す。束の中の物は同じ残量なので、ゲージだけでは見分けにくい束どうしを数で見分けさせる
+// ChargeMarker は名前に添える残量の数を返す。残量を持たない物は空文字を返す
 func ChargeMarker(world w.World, entity ecs.Entity) string {
 	if !world.Components.Charge.Has(entity) {
 		return ""
