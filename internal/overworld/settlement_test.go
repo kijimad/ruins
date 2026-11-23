@@ -27,7 +27,7 @@ func namesInWorld(world w.World) map[string]int {
 	return counts
 }
 
-func TestSettlementFeature_集落のチャンクの中央に施設を置く(t *testing.T) {
+func TestSettlementFeature_集落のチャンクに施設を置く(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
@@ -61,12 +61,12 @@ func TestSettlementFeature_集落のチャンクの中央に施設を置く(t *t
 			g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: chunkW, chunkH: chunkH, tiles: &tileIndex{world: world, loX: 0, hiX: chunkW}}
 			require.NoError(t, settlementFeature{}.place(world, seed, c, cols, g))
 
-			props := 0
-			q := ecs.NewFilter2[gc.GridElement, gc.Prop](world.ECS).Query()
+			doors := 0
+			q := ecs.NewFilter1[gc.Door](world.ECS).Query()
 			for q.Next() {
-				props++
+				doors++
 			}
-			assert.Positive(t, props, "施設の家具が置かれる")
+			assert.Positive(t, doors, "施設の扉が置かれる")
 		})
 	}
 }

@@ -25,7 +25,7 @@ func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[con
 	}
 	fac := settlementAt(world.Resources.RawMaster, runSeed, c).Facility
 	seed := consts.Mix2D(runSeed^placementOf(world.Resources.RawMaster, rawschema.PointFeatureKindSettlement).Salt, c.X, c.Y)
-	// ストリーム 0 は絵の抽選。spawnFacility が戦利品と敵に使う 0x4 と 0x5 と分ける
+	// seed は settlementAt が種類を選ぶ値と同じだが、ストリーム 0 で絵の抽選に分ける。spawnFacility は戦利品と敵に 0x4 と 0x5 を使う
 	rng := rand.New(rand.NewPCG(seed, 0))
 	cells, err := planFacility(loader, fac, rng.Uint64(), rng)
 	if err != nil {
