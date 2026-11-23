@@ -206,7 +206,7 @@ func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *
 	require.Len(t, cases, 20, "前提: 道の通るランドマークのチャンクが見つかる")
 
 	placed := 0
-	var blocked []consts.Coord[consts.Tile]
+	var blocked, covered []consts.Coord[consts.Tile]
 	for _, tc := range cases {
 		world := testutil.InitTestWorld(t)
 		for y := range chunkH {
@@ -224,7 +224,15 @@ func TestWildernessLandmark_道の通るチャンクでも道を塞がない(t *
 				blocked = append(blocked, p)
 			}
 		}
+		// ランドマークは道より先に置くので、道のマスが土のままなら壁や床でも道を塞いでいない
+		tiles := g.tiles.get()
+		for p := range tc.roads {
+			if id := tileIDAt(world, tiles, p); id != "dirt_tundra" {
+				covered = append(covered, p)
+			}
+		}
 	}
 	require.Positive(t, placed, "前提: ランドマークが置かれる")
 	assert.Empty(t, blocked, "道のマスにランドマークの置物が無い")
+	assert.Empty(t, covered, "道のマスをランドマークの壁や床で塞がない")
 }

@@ -47,9 +47,11 @@ func landmarkOrigins(w, h, chunkW, chunkH consts.Tile, roads map[consts.Coord[co
 
 // touchesRoad は半開区間の矩形 [x0,x1)×[y0,y1) に道のマスがあるかを返す
 func touchesRoad(x0, y0, x1, y1 consts.Tile, roads map[consts.Coord[consts.Tile]]bool) bool {
-	for p := range roads {
-		if p.X >= x0 && p.X < x1 && p.Y >= y0 && p.Y < y1 {
-			return true
+	for y := y0; y < y1; y++ {
+		for x := x0; x < x1; x++ {
+			if roads[consts.Coord[consts.Tile]{X: x, Y: y}] {
+				return true
+			}
 		}
 	}
 	return false
