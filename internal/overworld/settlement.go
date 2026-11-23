@@ -94,18 +94,12 @@ func (l settlementLayout) drivewaySegs(c consts.Coord[consts.Chunk], chunkW, chu
 	return []roadSeg{seg}
 }
 
-// entranceOf は絵 cells の side の側の縁に沿った玄関の位置を、絵の中の座標で返す。玄関はその縁の柵の切れ目の真ん中にする。
-// 縁に柵が無ければ、その側に最も近い扉の並びの真ん中にする。偶数の幅の道が切れ目の真ん中に来るよう、真ん中は大きい側へ寄せる
+// entranceOf は絵 cells の side の側の縁に沿った玄関の位置を、絵の中の座標で返す。玄関はその縁の両側を柵に挟まれた切れ目の真ん中にする。
+// 切れ目が無ければ、その側に最も近い扉の並びの真ん中にする。偶数の幅の道が切れ目の真ん中に来るよう、真ん中は大きい側へ寄せる
 func entranceOf(cells [][]maptemplate.MapCell, side RoadDir) consts.Tile {
 	middle := func(r [2]int) consts.Tile { return consts.Tile((r[0] + r[1] + 1) / 2) }
 	if r, ok := fenceGap(cells, side); ok {
 		return middle(r)
-	}
-	edge := edgeLine(cells, side, 0)
-	if slices.ContainsFunc(edge, isFence) {
-		if gaps := runsOf(edge, func(c maptemplate.MapCell) bool { return !isFence(c) }); len(gaps) > 0 {
-			return middle(gaps[0])
-		}
 	}
 	depthMax := len(cells)
 	if side == RoadW || side == RoadE {
@@ -116,7 +110,7 @@ func entranceOf(cells [][]maptemplate.MapCell, side RoadDir) consts.Tile {
 			return middle(doors[0])
 		}
 	}
-	return consts.Tile(len(edge) / 2)
+	return consts.Tile(len(edgeLine(cells, side, 0)) / 2)
 }
 
 // entranceSide は絵の玄関がある側を返す。縁に柵がある絵では、両側を柵に挟まれた切れ目がある縁の側にする。柵の無い絵では、
@@ -151,7 +145,7 @@ func edgeLine(cells [][]maptemplate.MapCell, side RoadDir, depth int) []maptempl
 	h, w := len(cells), len(cells[0])
 	switch side {
 	case RoadS:
-		return cells[h-1-depth]
+		return slices.Clone(cells[h-1-depth])
 	case RoadW, RoadE:
 		x := depth
 		if side == RoadE {
@@ -163,7 +157,7 @@ func edgeLine(cells [][]maptemplate.MapCell, side RoadDir, depth int) []maptempl
 		}
 		return line
 	default:
-		return cells[depth]
+		return slices.Clone(cells[depth])
 	}
 }
 

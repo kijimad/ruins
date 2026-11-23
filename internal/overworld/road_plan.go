@@ -233,8 +233,13 @@ func planSpan(raws rawschema.Raws, runSeed uint64, road rawschema.Road, k, cols,
 	if len(start) > 1 {
 		start, nodes = start[:1], append(start[1:], nodes...)
 	}
+	// 北の境目から網を始められなければ、最初の行き先から始める。経路の出発点に使われなくても道になるよう、境目の通り道と同じく
+	// 初めから出入り口を足す
 	if len(start) == 0 && len(nodes) > 0 {
 		start, nodes = nodes[:1], nodes[1:]
+		for _, t := range start[0].terms {
+			plan.addPort(t.c, t.port)
+		}
 	}
 	for _, n := range append(slices.Clone(start), nodes...) {
 		for _, t := range n.terms {
@@ -267,7 +272,8 @@ func districtNodes(raws rawschema.Raws, runSeed uint64, g spanGrid, spawnRow con
 	return start, nodes
 }
 
-// connectNodes は網 start に、行き先 nodes を網に近い順に経路でつなぐ。つながらない行き先は残す
+// connectNodes は網 start に、行き先 nodes を網に近い順に経路でつなぐ。経路が無い行き先は残して戻る。区域の間に隙間を空けるので
+// 区域の外はひと続きになり、どの行き先にも経路がある前提にする。TestPlanAt_道の網は区域の門と墜落現場を通ってひとつながり が確かめる
 func connectNodes(plan *roadPlan, g spanGrid, start, nodes []planNode) {
 	// attach は網につながった所。値は、そこを道のチャンクにするときに足す行き先の出入り口
 	attach := map[consts.Coord[consts.Chunk]][]roadPort{}
