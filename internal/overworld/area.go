@@ -39,7 +39,7 @@ func AreaAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], c
 		return Area{Name: glyphName(raws, settlementAt(raws, runSeed, c).Id)}
 	case chunkLandmark:
 		return Area{Name: glyphName(raws, landmarkKindAt(raws, runSeed, c))}
-	case chunkWasteland:
+	case chunkWasteland, chunkRoad:
 		return Area{Name: chunkGlyphName(raws, rawschema.Wasteland)}
 	}
 	panic("unknown chunk type: " + string(kind))

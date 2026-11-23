@@ -222,18 +222,19 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 24, 24
-	const cols consts.Chunk = 1
-	// chunkTypeAt が集落と分類するチャンクを探す。集落は Y リージョンなので Y を振る
+	// 集落は道の脇に置くので、道の脇が空く3列で探す
+	const cols consts.Chunk = 3
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	var seed uint64
 	var c consts.Coord[consts.Chunk]
 	found := false
 	for s := uint64(1); s < 500 && !found; s++ {
 		for y := range consts.Chunk(12) {
-			// 帯を作らずに生成するので、生成の側は開始の行を0とみなす
-			if chunkTypeAt(raws, s, consts.Coord[consts.Chunk]{Y: y}, cols, 0) == chunkSettlement {
-				seed, c, found = s, consts.Coord[consts.Chunk]{Y: y}, true
-				break
+			for x := range cols {
+				// 帯を作らずに生成するので、生成の側は開始の行を0とみなす
+				if !found && chunkTypeAt(raws, s, consts.Coord[consts.Chunk]{X: x, Y: y}, cols, 0) == chunkSettlement {
+					seed, c, found = s, consts.Coord[consts.Chunk]{X: x, Y: y}, true
+				}
 			}
 		}
 	}
@@ -352,16 +353,16 @@ func TestDriver_3行帯の通し(t *testing.T) {
 func TestDriver_シフト後もタイルは座標ごとに1枚(t *testing.T) {
 	t.Parallel()
 
-	// 初期帯の視界内に市街地の断片が入る seed を選ぶ。市街地は Y リージョンに並ぶ。開始チャンク(行1)は避ける
+	// 北へ3行流した帯に市街地の断片が入る seed を選ぶ。3回目に生成する行 -3 で探す
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	var seed uint64
 	for s := uint64(1); s < 500; s++ {
-		if _, ok := districtAt(raws, s, consts.Coord[consts.Chunk]{Y: 2}, testCols, gc.SeamlessBand{Rows: testRows}.SpawnChunkY()); ok {
+		if _, ok := districtAt(raws, s, consts.Coord[consts.Chunk]{Y: -3}, testCols, gc.SeamlessBand{Rows: testRows}.SpawnChunkY()); ok {
 			seed = s
 			break
 		}
 	}
-	require.NotZero(t, seed, "前提: 市街地が行2に当たる seed がある")
+	require.NotZero(t, seed, "前提: 市街地が行 -3 に当たる seed がある")
 
 	world := testutil.InitTestWorld(t)
 	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: seed})

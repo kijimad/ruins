@@ -140,20 +140,26 @@ func TestShiftNorth_実チャンク生成との統合(t *testing.T) {
 	}
 }
 
-// TestChunkType_小集落はリージョンにちょうど1つ は、小集落がリージョン方式の当選チャンクにだけ
+// TestChunkType_集落はリージョンに1つまで は、集落が集落のリージョンごとに高々1つだけ
 // 分類されることを固定する。集落のチャンクに施設を置くことは settlementFeature のテストが固定する。
-func TestChunkType_小集落はリージョンにちょうど1つ(t *testing.T) {
+func TestChunkType_集落はリージョンに1つまで(t *testing.T) {
 	t.Parallel()
 
-	const regionSpan = 5 // settlementPlacement の Spacing
+	const regionSpan = 5 // 集落の地物の Spacing
+	const cols consts.Chunk = 9
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	count := 0
-	for i := range regionSpan {
-		if overworld.IsSettlementChunk(raws, 123, consts.Coord[consts.Chunk]{Y: consts.Chunk(i)}, 1) {
-			count++
+	counts := map[consts.Chunk]int{}
+	for y := consts.Chunk(-40); y < 40; y++ {
+		for x := range cols {
+			if overworld.IsSettlementChunk(raws, 123, consts.Coord[consts.Chunk]{X: x, Y: y}, cols) {
+				counts[consts.FloorDiv(y, regionSpan)]++
+			}
 		}
 	}
-	assert.Equal(t, 1, count, "1リージョンに小集落はちょうど1つ")
+	require.NotEmpty(t, counts, "前提: 集落がある")
+	for r, n := range counts {
+		assert.Equal(t, 1, n, "リージョン %d の集落", r)
+	}
 }
 
 // TestNewChunkGen_生成は時間に依存しない は、GameTime が進んでいても同じ (runSeed, 座標) から

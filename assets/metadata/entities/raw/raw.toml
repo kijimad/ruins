@@ -18255,7 +18255,7 @@
 
 [[mapGlyphs]]
   glyph = "T"
-  id = "village"
+  id = "dwelling"
   name = "Dwelling"
   order = 1
   [mapGlyphs.color]
@@ -18266,7 +18266,7 @@
 
 [[mapGlyphs]]
   glyph = "t"
-  id = "hamlet"
+  id = "farmstead"
   name = "Farmhouse"
   order = 2
   [mapGlyphs.color]
@@ -20303,9 +20303,6 @@
   salt = 1
   separation = 1
   spacing = 5
-  [pointFeatures.road]
-    tile = "road"
-    width = 4
 
 [[pointFeatures]]
   id = "landmark"
@@ -23299,6 +23296,11 @@
   spriteKeys = ["cloth_scraps_a", "cloth_scraps_b", "cloth_scraps_c", "cloth_scraps_d", "cloth_scraps_e"]
   spriteSheetName = "field"
 
+[road]
+  spanRows = 40
+  tile = "road"
+  width = 4
+
 [[ruinedPathSteps]]
   chance = 0.3
   id = "ruined_paths"
@@ -23547,12 +23549,12 @@
 
 [[settlements]]
   facility = "house"
-  id = "village"
+  id = "dwelling"
   weight = 6
 
 [[settlements]]
   facility = "farmhouse"
-  id = "hamlet"
+  id = "farmstead"
   weight = 4
 
 [[shelterEffects]]

@@ -65,8 +65,9 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		Remains: &[]rawschema.Remains{{Id: "splinters", Name: "Splinters", SpriteSheetName: "field", SpriteKeys: []rawschema.SpriteKey{"debris"}}},
 		Decors:  &[]rawschema.Decor{{Id: "moss", Name: "Moss", SpriteRender: render("moss")}},
 		PointFeatures: &[]rawschema.PointFeature{
-			{Id: rawschema.PointFeatureKindSettlement, Spacing: 3, Separation: 1, Salt: 1, Road: &rawschema.Road{Tile: "floor", Width: 2}},
+			{Id: rawschema.PointFeatureKindSettlement, Spacing: 3, Separation: 1, Salt: 1},
 		},
+		Road: &rawschema.Road{Tile: "floor", Width: 2, SpanRows: 6},
 		ScatterZones: &[]rawschema.ScatterZone{{
 			Id: "meadow", Ground: "floor", LootGroup: "junk",
 			Entries: []rawschema.ScatterEntry{
@@ -108,7 +109,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			Planners:   []rawschema.DungeonPlannerWeight{{Id: "cave", Weight: 1}},
 			EnemyCount: rawschema.RandInt{Base: 1, Spread: 1}, ItemCount: rawschema.RandInt{Base: 1, Spread: 1},
 		}},
-		Settlements: &[]rawschema.Settlement{{Id: "village", Weight: 1, Facility: "house"}},
+		Settlements: &[]rawschema.Settlement{{Id: "dwelling", Weight: 1, Facility: "house"}},
 		Dialogues:   &[]rawschema.Dialogue{{Id: "greeting", Pages: []rawschema.DialoguePage{"Hi."}}},
 		Tiles:       &[]rawschema.Tile{tile("floor", &rawschema.TileSpawn{Tile: new("wall")}), tile("wall", nil)},
 		Layouts: &[]rawschema.Layout{{
@@ -168,7 +169,8 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"施設の敵テーブル", func(r *rawschema.Raws) { (*r.Facilities)[0].EnemyTable = "none" }, "facilities.0.enemyTable_ref"},
 		{"ランドマークの施設", func(r *rawschema.Raws) { (*r.Landmarks)[0].Id = "none" }, "landmarks.0.id_ref"},
 		{"区域の塀の家具", func(r *rawschema.Raws) { (*r.Districts)[0].Fence = new(rawschema.EntityID("none")) }, "districts.0.fence_ref"},
-		{"地物の道のタイル", func(r *rawschema.Raws) { (*r.PointFeatures)[0].Road.Tile = "none" }, "pointFeatures.0.road.tile_ref"},
+		{"道のタイル", func(r *rawschema.Raws) { r.Road.Tile = "none" }, "road.tile_ref"},
+		{"計画区間の行数が集落のリージョンの行数で割り切れない", func(r *rawschema.Raws) { r.Road.SpanRows = 4 }, "roadSpanRows_divisible.settlement"},
 		{"散布ゾーンの下地のタイル", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Ground = "none" }, "scatterZones.0.ground_ref"},
 		{"散布ゾーンの戦利品グループ", func(r *rawschema.Raws) { (*r.ScatterZones)[0].LootGroup = "none" }, "scatterZones.0.lootGroup_ref"},
 		{"区域の目玉の施設", func(r *rawschema.Raws) { (*r.Districts)[0].Landmark = new(rawschema.EntityID("none")) }, "districts.0.landmark_ref"},
@@ -255,7 +257,7 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 		{"植生", func(r *rawschema.Raws) { *r.FoliageEffects = append(*r.FoliageEffects, (*r.FoliageEffects)[0]) }, "foliageEffectIds_unique.grass"},
 		{"道具の分類", func(r *rawschema.Raws) { *r.ToolCategories = append(*r.ToolCategories, (*r.ToolCategories)[0]) }, "toolCategoryIds_unique.mining"},
 		{"弾の口径", func(r *rawschema.Raws) { *r.AmmoKinds = append(*r.AmmoKinds, (*r.AmmoKinds)[0]) }, `ammoKindIds_unique."9mm"`},
-		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.village"},
+		{"集落", func(r *rawschema.Raws) { *r.Settlements = append(*r.Settlements, (*r.Settlements)[0]) }, "settlementIds_unique.dwelling"},
 		{"部位", func(r *rawschema.Raws) { *r.BodyParts = append(*r.BodyParts, (*r.BodyParts)[0]) }, "bodyPartIds_unique.arm"},
 		{"不調", func(r *rawschema.Raws) { *r.Conditions = append(*r.Conditions, (*r.Conditions)[0]) }, "conditionIds_unique.fracture"},
 		{"攻撃種別", func(r *rawschema.Raws) { *r.AttackTypes = append(*r.AttackTypes, (*r.AttackTypes)[0]) }, "attackTypeIds_unique.sword"},

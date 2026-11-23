@@ -19,7 +19,7 @@ import (
 // cols は帯の列数で当選列の抽選に使う。
 func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, cols consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {
 	return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error {
-		zone, ok := raw.GetScatterZone(world.Resources.RawMaster, string(outdoorZoneAt(world.Resources.RawMaster, runSeed, c, cols)))
+		zone, ok := raw.GetScatterZone(world.Resources.RawMaster, string(outdoorZoneAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world))))
 		if !ok {
 			return fmt.Errorf("chunk (x=%d, y=%d): %w", c.X, c.Y, errScatterZoneMissing)
 		}
@@ -32,7 +32,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, cols
 		if _, err := mapspawner.SpawnAt(world, plan, offsetX, offsetY); err != nil {
 			return fmt.Errorf("failed to place chunk (x=%d, y=%d): %w", c.X, c.Y, err)
 		}
-		// 地形の上に地物の層を重ねる。小集落などの当選判定は (runSeed, 座標) の純関数
+		// 地形の上に地物の層を重ねる。集落などの当選判定は (runSeed, 座標) の純関数
 		if err := PlaceFeatures(world, runSeed, c, cols, offsetX, offsetY, chunkW, chunkH); err != nil {
 			return err
 		}

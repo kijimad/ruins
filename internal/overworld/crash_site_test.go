@@ -37,24 +37,6 @@ func TestChunkTypeAt_開始チャンクは墜落現場で区域が重ならな�
 	}
 }
 
-func TestBuildRoadOverlay_墜落現場のチャンクに道を印さない(t *testing.T) {
-	t.Parallel()
-
-	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	const cols, spawnRow consts.Chunk = 7, 4
-	start := spawnChunkOf(cols, spawnRow)
-	area := MacroRange{OriginX: 0, OriginY: spawnRow - 20, Cols: cols, Rows: 41}
-	reached := 0
-	for seed := range uint64(200) {
-		overlay := buildRoadOverlay(raws, seed, area, cols, spawnRow, 24, 24)
-		assert.Zero(t, overlay[start], "seed=%d", seed)
-		if overlay[consts.Coord[consts.Chunk]{X: start.X, Y: start.Y - 1}]&RoadS != 0 {
-			reached++
-		}
-	}
-	require.Positive(t, reached, "前提: 北の隣から開始チャンクへ向かう道がある seed がある")
-}
-
 func TestCrashSites_全ての絵は奇数の大きさでチャンクに収まる(t *testing.T) {
 	t.Parallel()
 

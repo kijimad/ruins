@@ -73,13 +73,13 @@ func TestNewChunkGen_市街地の断片は生成順に依存しない(t *testing
 	t.Parallel()
 
 	const chunkW, chunkH consts.Tile = 24, 24
-	const window = 16 // 市街地リージョン1つぶん
+	const window = 16 // 区域のリージョン1つぶん
 	const runSeed uint64 = 77
 
 	build := func(reverse bool) (map[gc.GridElement]string, []consts.Coord[consts.Tile], []string) {
 		world := testutil.InitTestWorld(t)
 		gen := overworld.NewChunkGen(world, runSeed, chunkW, chunkH, 1, mapplanner.PlannerTypeOverworldField)
-		// 市街地は Y 方向のリージョンに並ぶので Y 方向に生成する
+		// 区域は Y 方向のリージョンに並ぶので Y 方向に生成する
 		for i := range window {
 			y := i
 			if reverse {

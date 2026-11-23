@@ -78,13 +78,13 @@ func TestChunkPlace_集落が地物の文字で出る(t *testing.T) {
 	cat := zoneCatalogFrom(raws)
 	const rows consts.Chunk = 9
 
-	village, ok := glyphByID(raws, "village")
+	dwelling, ok := glyphByID(raws, "dwelling")
 	require.True(t, ok)
-	hamlet, ok := glyphByID(raws, "hamlet")
+	farmstead, ok := glyphByID(raws, "farmstead")
 	require.True(t, ok)
-	villageGlyph, hamletGlyph := village.Label, hamlet.Label
-	foundVillage, foundHamlet := false, false
-	for s := uint64(1); s < 400 && (!foundVillage || !foundHamlet); s++ {
+	dwellingGlyph, farmsteadGlyph := dwelling.Label, farmstead.Label
+	foundDwelling, foundFarmstead := false, false
+	for s := uint64(1); s < 400 && (!foundDwelling || !foundFarmstead); s++ {
 		for y := range rows {
 			for x := range consts.Chunk(8) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
@@ -93,16 +93,16 @@ func TestChunkPlace_集落が地物の文字で出る(t *testing.T) {
 					continue
 				}
 				switch chunkPlace(raws, cat, s, c, rows, 0) {
-				case villageGlyph:
-					foundVillage = true
-				case hamletGlyph:
-					foundHamlet = true
+				case dwellingGlyph:
+					foundDwelling = true
+				case farmsteadGlyph:
+					foundFarmstead = true
 				}
 			}
 		}
 	}
-	assert.True(t, foundVillage, "民家の集落が民家の文字で出る")
-	assert.True(t, foundHamlet, "農家の集落が農家の文字で出る。開始特例で常に民家になる退行の検知")
+	assert.True(t, foundDwelling, "民家の集落が民家の文字で出る")
+	assert.True(t, foundFarmstead, "農家の集落が農家の文字で出る。開始特例で常に民家になる退行の検知")
 }
 
 func TestSchematicLegend_全ての記号を含む(t *testing.T) {

@@ -344,10 +344,12 @@ import (
 	name!: #EntityName
 	// 当選の間隔。チャンク数
 	spacing!: int & >=1
-	// 隣のリージョンの区域との最小の空き。チャンク数
-	separation!: int & >=0
+	// 隣のリージョンの区域との最小の空き。チャンク数。同じ種類の区域どうしも南北に接しないよう1以上にし、区域の外をひと続きに保つ
+	separation!: int & >=1
 	// 大きさの候補。区域ごとに重みで1つ選ぶ
 	sizes!: [...#DistrictSize] & [_, ...]
+	// 区域の高さはリージョンの縦の範囲 spacing - separation に収まる。収まらないと位置を引く範囲が空になる
+	sizes_fit: [for s in sizes {s.h & <=(spacing - separation)}] @rawgen(-)
 	// 地区の並べ方
 	pattern!: #DistrictPattern
 	// 地区の層。プレイヤーが入ってくる側から順に並べる。rings は外から内へ、rows は南から北へ
@@ -376,30 +378,32 @@ import (
 	}
 }
 
-// 区域でない地物の置き方。南北に spacing チャンクの帯ごとに1つの当選を置き、隣の帯の当選と separation チャンク以上離す
+// 区域でない地物の置き方。南北に spacing チャンクのリージョンごとに1つの当選を置き、隣のリージョンの当選と separation チャンク以上離す。
+// 集落は spacing をリージョンの行数にだけ使い、置く所は道の計画が決める
 #PointFeature: {
 	// 地物の種類
 	id!: #PointFeatureKind
 	// 当選の間隔。チャンク数
 	spacing!: int & >=2
-	// 隣の帯の当選との最小の空き。チャンク数
+	// 隣のリージョンの当選との最小の空き。チャンク数。集落では使わない
 	separation!: int & >=0 & <spacing
 	// 乱数の種を地物ごとにずらす値。行ごとに違う値にする。変えると同じ run の seed でも別の世界になる
 	salt!: int & >=1
-	// この地物の当選どうしを結ぶ道。省けば道を引かない
-	road?: #Road
 }
 
 // 区域でない地物の種類
 #PointFeatureKind: "settlement" | "landmark" @rawgen(prefix)
 
-// 地物の当選どうしを結ぶ道
+// 地上の道。地上を南北に spanRows 行ずつの計画区間に分け、計画区間ごとに区域・集落・墜落現場を道でつなぐ。
+// 集落は道に接するチャンクに置く
 #Road: {
 	// 道のタイル
 	tile!:    #EntityID
 	tile_ref: _tileIDs[tile] @rawgen(-)
 	// 道の幅。タイル数
 	width!: int & >=1
+	// 計画区間の行数。チャンク数。集落のリージョンの行数で割り切れる値にし、集落のリージョンが計画区間の境目をまたがないようにする
+	spanRows!: int & >=1
 }
 
 // 区域の大きさの候補。w が帯の列数を超えるときは帯の全幅に詰める
@@ -734,7 +738,7 @@ import (
 // 装備部位
 #EquipmentCategory: "HEAD" | "TORSO" | "ARMS" | "HANDS" | "LEGS" | "FEET" | "JEWELRY" @rawgen(prefix)
 
-// 市街地の施設1種
+// 施設1種。区域の建物、集落、点在ランドマーク、墜落現場が、施設の絵をこの id で引く
 #Facility: {
 	// 施設の id。施設の絵の facility が指す
 	id!: #EntityID
@@ -1463,6 +1467,10 @@ import (
 	simpleSteps?: [...#SimpleStep]
 	settlements?: [...#Settlement]
 	dialogues?: [...#Dialogue]
+	road?: #Road
+
+	// 計画区間の行数は集落のリージョンの行数で割り切れる。割り切れないと、境目をまたぐリージョンに両側の計画区間が集落を1つずつ置く
+	roadSpanRows_divisible: {if road != _|_ && pointFeatures != _|_ for f in pointFeatures if f.id == "settlement" {(f.id): 0 & mod(road.spanRows, f.spacing)}} @rawgen(-)
 
 	// id は表ごとに一意にする。重複すると同じ id に別の行番号が入り、値が食い違う
 	bodyAttackIds_unique: {if bodyAttacks != _|_ for i, x in bodyAttacks {(x.id): i}} @rawgen(-)
@@ -1635,8 +1643,8 @@ import (
 // 感覚。命中率と回避率に影響する
 #Sensation: int & >=-100 & <=100
 
-// 原野の小集落1種。当選したチャンクで weight の比で種類を選び、チャンクの中央に施設 facility の絵を置く。
-// 道は集落どうしを結ぶ。id は地図の記号の id を兼ねる。行の順に重みを積む
+// 道の脇に建つ集落1種。道の計画が集落のリージョンごとに道に接するチャンクを1つ選び、そこで weight の比で種類を選んで、
+// チャンクの中央に施設 facility の絵を扉が道の側を向く向きで置く。id は地図の記号の id を兼ねる。行の順に重みを積む
 #Settlement: {
 	id!:          #EntityID
 	weight!:      int32 & >=1
