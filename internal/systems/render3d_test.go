@@ -483,6 +483,35 @@ func TestCollectBillboards_開いた扉は描かない(t *testing.T) {
 	assert.Empty(t, sys.collectBillboards(world, nil, projector, visible, nil, closedInsets(world), nil, nil))
 }
 
+func TestCollectBillboards_前後方向に沿うfacingの置物は表の絵だけを積む(t *testing.T) {
+	t.Parallel()
+	center := consts.Coord[consts.Tile]{X: 25, Y: 25}
+	projector := render3d.NewProjector(gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}, center, 960, 720)
+	visible := func(*gc.GridElement) ([3]float64, bool, bool) { return [3]float64{1, 1, 1}, true, true }
+
+	world := testutil.InitTestWorld(t)
+	sheet := ebiten.NewImage(32, 32)
+	world.Resources.SetSpriteSheets(map[string]gc.SpriteSheet{
+		"field": {Texture: gc.Texture{Image: sheet}, Sprites: map[string]gc.Sprite{"closet": {Width: 32, Height: 32}}},
+	})
+	// 平均色は画素を読むので、ゲームの開始前のテストでは先に置いておく
+	r3flatColor.Store(flatColorKey{sheet, 0, 0, 32, 32}, [3]float64{0.5, 0.5, 0.5})
+	// 北を見るカメラの左に、東を向いた押し入れを置く
+	closet := world.ECS.NewEntity()
+	world.Components.GridElement.Add(closet, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 22, Y: 22}})
+	world.Components.SpriteRender.Add(closet, &gc.SpriteRender{SpriteSheetName: "field", SpriteKey: "closet", Shape: rawschema.Facing})
+	world.Components.Pose.Add(closet, &gc.Pose{Facing: consts.East})
+	sys := &Render3DSystem{}
+
+	pictures := 0
+	for _, q := range sys.collectBillboards(world, nil, projector, visible, nil, nil, posesAt(world), nil) {
+		if q.atlas == sheet {
+			pictures++
+		}
+	}
+	assert.Equal(t, 1, pictures)
+}
+
 func TestFacingFaces_閉じた板の正面と背面に絵を貼る(t *testing.T) {
 	t.Parallel()
 

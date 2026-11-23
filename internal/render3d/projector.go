@@ -55,8 +55,7 @@ func NewProjector(orbit gc.Camera, center consts.Coord[consts.Tile], sw, sh int)
 	}
 }
 
-// FacesCamera は外から見て時計回りに張った面 q が、カメラに表を向けているかを返す。
-// 奥行きの並べ替えでは前後が決まらない、カメラの前後方向に沿う面の表と裏を見分けるのに使う
+// FacesCamera は外から見て時計回りに張った面 q が、カメラに表を向けているかを返す
 func (p Projector) FacesCamera(q [4]Vec) bool {
 	return dot(cross(sub(q[1], q[0]), sub(q[2], q[0])), sub(p.eye, q[0])) < 0
 }
