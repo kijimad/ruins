@@ -246,7 +246,11 @@ func (sc scatterChunk) scatterDecors(runSeed uint64) error {
 func (sc scatterChunk) scatterProps(runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) error {
 	selSeed := consts.Mix2D(runSeed^scatterSalt, c.X, c.Y)
 	propCount := int(math.Round(float64(sc.g.chunkW) * float64(sc.g.chunkH) * sc.cat.PropDensity))
-	route := scatterRoute(sc.world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(sc.world), sc.g)
+	// 道のチャンクなら、その中の道の辺の近くに大物を置かない
+	route, _, _, err := roadSegsAt(sc.world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(sc.world), sc.g.chunkW, sc.g.chunkH)
+	if err != nil {
+		return err
+	}
 	for _, rel := range scatterTiles(sc.g.chunkW, sc.g.chunkH, sc.accept, selSeed, propCount) {
 		bigAllowed := onBigPhase(rel) && !onScatterRoute(route, sc.absTile(rel))
 		roll := consts.Mix2D(selSeed, rel.X, rel.Y)
@@ -336,16 +340,6 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 		m += scatterBigPhaseMod
 	}
 	return m == 0
-}
-
-// scatterRoute はチャンク c が道のチャンクなら、その中に描く道の辺を返す。実際の道タイルを読まず経路から算出し、
-// 散布はタイルごとに onScatterRoute でこの辺と比べる。チャンクにつき1回だけ作る
-func scatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, g chunkGeom) []roadSeg {
-	ports, road, ok := roadAt(raws, runSeed, c, cols, spawnRow)
-	if !ok {
-		return nil
-	}
-	return roadChunkSegs(c, ports, road.Width, g.chunkW, g.chunkH)
 }
 
 // onScatterRoute は絶対タイル pos が道の辺 route からバッファ以内かを返す

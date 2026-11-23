@@ -27,10 +27,19 @@ const (
 	roadTurnCost = 2
 )
 
-// roadPort は道のチャンクの縁を道が越える所。gate なら区域の門に面し、縁の中央でなく門の通りの位置を通る
+// portLane は出入り口が縁に沿って通る位置の決め方
+type portLane string
+
+const (
+	laneCenter   portLane = ""         // 縁の中央。ゼロ値
+	laneGate     portLane = "gate"     // 区域の門の通り
+	laneEntrance portLane = "entrance" // 隣の集落の施設の玄関
+)
+
+// roadPort は道のチャンクの縁を道が越える所
 type roadPort struct {
 	dir  RoadDir
-	gate bool
+	lane portLane
 }
 
 // regionPlan は区画1つの計画
@@ -231,8 +240,8 @@ func districtNodes(raws rawschema.Raws, runSeed uint64, g regionGrid, spawnRow c
 	for _, r := range districtsBetween(raws, runSeed, g.top-1, g.bottom+1, g.cols, spawnRow) {
 		north, south := gateColumns(r, lotsOf(raws, cat, r, spawnRow))
 		n, ok := g.nodeOf(
-			planTerminal{c: consts.Coord[consts.Chunk]{X: north, Y: r.anchor.Y - 1}, port: roadPort{dir: RoadS, gate: true}},
-			planTerminal{c: consts.Coord[consts.Chunk]{X: south, Y: r.anchor.Y + r.h}, port: roadPort{dir: RoadN, gate: true}},
+			planTerminal{c: consts.Coord[consts.Chunk]{X: north, Y: r.anchor.Y - 1}, port: roadPort{dir: RoadS, lane: laneGate}},
+			planTerminal{c: consts.Coord[consts.Chunk]{X: south, Y: r.anchor.Y + r.h}, port: roadPort{dir: RoadN, lane: laneGate}},
 		)
 		switch {
 		case !ok:
@@ -321,7 +330,7 @@ func placeSettlements(raws rawschema.Raws, runSeed uint64, plan *regionPlan, g r
 		}
 		s := sites[consts.Mix2D(runSeed^p.Salt^roadSalt, ry, 0)%uint64(len(sites))]
 		plan.settlements[s.c] = roadDirToward(s.c, s.road)
-		plan.addPort(s.road, roadPort{dir: roadDirToward(s.road, s.c)})
+		plan.addPort(s.road, roadPort{dir: roadDirToward(s.road, s.c), lane: laneEntrance})
 	}
 }
 

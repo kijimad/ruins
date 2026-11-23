@@ -13,14 +13,14 @@ func TestRoadChunkSegs(t *testing.T) {
 	c := consts.Coord[consts.Chunk]{X: 1, Y: 2}
 	tests := []struct {
 		name  string
-		ports []roadPort
+		ports []lanedPort
 		want  []roadSeg
 	}{
-		{"縁の中央の出入り口は中心の四角を含めて縁まで伸ばす", []roadPort{{dir: RoadN}, {dir: RoadE}}, []roadSeg{
+		{"縁の中央の出入り口は中心の四角を含めて縁まで伸ばす", []lanedPort{{dir: RoadN, at: 12}, {dir: RoadE, at: 12}}, []roadSeg{
 			{orient: orientVertical, fixed: 36, lo: 48, hi: 61},
 			{orient: orientHorizontal, fixed: 60, lo: 34, hi: 47},
 		}},
-		{"区域の門に面する出入り口は門の通りの位置から中心へ折れる", []roadPort{{dir: RoadS, gate: true}}, []roadSeg{
+		{"縁の中央から外れた出入り口はその位置から中心へ折れる", []lanedPort{{dir: RoadS, at: urbanStreetW / 2}}, []roadSeg{
 			{orient: orientVertical, fixed: 24 + urbanStreetW/2, lo: 58, hi: 71},
 			{orient: orientHorizontal, fixed: 60, lo: 24 + urbanStreetW/2 - 2, hi: 37},
 		}},

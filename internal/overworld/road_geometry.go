@@ -2,6 +2,7 @@ package overworld
 
 import (
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/rawschema"
 )
 
 // 道のチャンクの中の道の形。道がどのチャンクを通りどの縁へ抜けるかは区画の計画 road_plan.go が決め、ここは出入り口から
@@ -41,18 +42,46 @@ func roadDirToward(c, n consts.Coord[consts.Chunk]) RoadDir {
 	}
 }
 
-// portLane は出入り口が縁に沿って通る位置を、縁の長さ size のチャンクの中の座標で返す。区域の門に面する出入り口は、
-// 門が開く区域の西の通りの帯の真ん中を通る
-func portLane(p roadPort, size consts.Tile) consts.Tile {
-	if p.gate {
-		return urbanStreetW / 2
+// lanedPort は縁に沿った位置を決めた出入り口。at はチャンクの中の座標
+type lanedPort struct {
+	dir RoadDir
+	at  consts.Tile
+}
+
+// roadSegsAt は c が道のチャンクなら、チャンクの中に描く道の辺と道の行を返す。出入り口の位置は、縁の中央、区域の門の通りの真ん中、
+// 隣の集落の施設の玄関のどれかにする
+func roadSegsAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, chunkW, chunkH consts.Tile) ([]roadSeg, rawschema.Road, bool, error) {
+	ports, road, ok := roadAt(raws, runSeed, c, cols, spawnRow)
+	if !ok {
+		return nil, rawschema.Road{}, false, nil
 	}
-	return size / 2
+	laned := make([]lanedPort, 0, len(ports))
+	for _, p := range ports {
+		size := chunkW
+		if p.dir == RoadW || p.dir == RoadE {
+			size = chunkH
+		}
+		at := size / 2
+		switch p.lane {
+		case laneCenter:
+		case laneGate:
+			// 門は区域の西の通りの帯に開く
+			at = urbanStreetW / 2
+		case laneEntrance:
+			l, err := settlementLayoutAt(raws, runSeed, c.Add(stepOf(p.dir)), cols, spawnRow, chunkW, chunkH)
+			if err != nil {
+				return nil, rawschema.Road{}, false, err
+			}
+			at = l.entrance
+		}
+		laned = append(laned, lanedPort{dir: p.dir, at: at})
+	}
+	return roadChunkSegs(c, laned, road.Width, chunkW, chunkH), road, true, nil
 }
 
 // roadChunkSegs は道のチャンク c の中に描く道の辺を、絶対タイル座標で返す。各出入り口の位置から縁に垂直に中心の行か列まで進み、
 // 中心まで折れる。各辺は中心にある幅 width の四角まで含めるので、折れる所や交わる所が欠けない
-func roadChunkSegs(c consts.Coord[consts.Chunk], ports []roadPort, width int, chunkW, chunkH consts.Tile) []roadSeg {
+func roadChunkSegs(c consts.Coord[consts.Chunk], ports []lanedPort, width int, chunkW, chunkH consts.Tile) []roadSeg {
 	wd := consts.Tile(width)
 	lo, hi := wd/2, wd-wd/2-1
 	x0, y0 := c.X.Tiles(chunkW), c.Y.Tiles(chunkH)
@@ -61,7 +90,7 @@ func roadChunkSegs(c consts.Coord[consts.Chunk], ports []roadPort, width int, ch
 	for _, p := range ports {
 		switch p.dir {
 		case RoadN, RoadS:
-			x := x0 + portLane(p, chunkW)
+			x := x0 + p.at
 			if p.dir == RoadN {
 				segs = append(segs, span(orientVertical, x, y0, cy+hi))
 			} else {
@@ -71,7 +100,7 @@ func roadChunkSegs(c consts.Coord[consts.Chunk], ports []roadPort, width int, ch
 				segs = append(segs, span(orientHorizontal, cy, min(x, cx)-lo, max(x, cx)+hi))
 			}
 		case RoadW, RoadE:
-			y := y0 + portLane(p, chunkH)
+			y := y0 + p.at
 			if p.dir == RoadW {
 				segs = append(segs, span(orientHorizontal, y, x0, cx+hi))
 			} else {

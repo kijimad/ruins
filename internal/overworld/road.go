@@ -17,11 +17,11 @@ type roadFeature struct{}
 
 // place は道のチャンクに、各出入り口から中心まで道を舗装する
 func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	ports, road, ok := roadAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world))
-	if !ok {
-		return nil
+	segs, road, ok, err := roadSegsAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world), g.chunkW, g.chunkH)
+	if err != nil || !ok {
+		return err
 	}
-	return drawRoadSegments(world, g.tiles.get(), roadChunkSegs(c, ports, road.Width, g.chunkW, g.chunkH), road, c, g)
+	return drawRoadSegments(world, g.tiles.get(), segs, road, c, g)
 }
 
 // drawRoadSegments は道の辺 segs のうち、チャンク c に含まれるマスだけを道 road のタイルで舗装する。既存タイルが土のマスだけを
