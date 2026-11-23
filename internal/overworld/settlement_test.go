@@ -106,7 +106,7 @@ func TestSettlementAt_重みの比で種類を選ぶ(t *testing.T) {
 			want[id]++
 		}
 	}
-	assert.Equal(t, want, got, "村6と小村4の重みは、ハッシュを10で割った余りが6未満なら村になる")
+	assert.Equal(t, want, got, "民家6と農家4の重みは、ハッシュを10で割った余りが6未満なら民家になる")
 }
 
 func TestSettlements_全ての施設の絵がチャンクに収まる(t *testing.T) {

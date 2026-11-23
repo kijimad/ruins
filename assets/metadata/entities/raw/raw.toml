@@ -18256,7 +18256,7 @@
 [[mapGlyphs]]
   glyph = "T"
   id = "village"
-  name = "Village"
+  name = "Dwelling"
   order = 1
   [mapGlyphs.color]
     a = 255
@@ -18267,7 +18267,7 @@
 [[mapGlyphs]]
   glyph = "t"
   id = "hamlet"
-  name = "Lone House"
+  name = "Farmhouse"
   order = 2
   [mapGlyphs.color]
     a = 255
