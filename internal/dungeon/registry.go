@@ -23,7 +23,7 @@ var (
 	// 1建物=24タイル四方を基準にし、建物・部屋を1棟まるごと歩けるサイズまで広げる。
 	// 縦9レーンで北/中央/南のルート選択が生まれる。
 	// この形状はマスタの設定で、RunSeed だけがプレイごとに変わる。
-	DungeonOverworld = NewOverworldDefinition("Overworld", 0, 24, 24, 7, 9)
+	DungeonOverworld = NewOverworldDefinition("Overworld", 0, 24, 24, 9, 9)
 )
 
 // GetAllDungeons は raw の dungeons の行から、遺跡の入口から入れる全ダンジョン定義を行の順に返す。

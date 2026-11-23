@@ -19,7 +19,7 @@ import (
 // cols は帯の列数で当選列の抽選に使う。
 func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, cols consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {
 	return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error {
-		zone, ok := raw.GetScatterZone(world.Resources.RawMaster, string(outdoorZoneAt(world.Resources.RawMaster, runSeed, c, cols)))
+		zone, ok := raw.GetScatterZone(world.Resources.RawMaster, string(outdoorZoneAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world))))
 		if !ok {
 			return fmt.Errorf("chunk (x=%d, y=%d): %w", c.X, c.Y, errScatterZoneMissing)
 		}

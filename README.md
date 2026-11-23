@@ -113,7 +113,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
-| draft | [道を先に通し、場所を道につなぐ](docs/design/261123164141.md) | 0/8 | worldgen |
+| | No open documents | | |
 
 
 ## References

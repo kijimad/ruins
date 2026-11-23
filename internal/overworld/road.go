@@ -11,18 +11,17 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 道は隣接リージョンの小集落どうしを結ぶ舗装路。
-// 集落の位置は Placement.WinnerOf で生成せずに算出できるため、各チャンクは自分が道のチャンクかと
-// 道がどの隣へつながるかを独立に求められ、どのチャンクから生成しても同じ道になる。
+// 道は区域・集落・墜落現場をつなぐ舗装路。区画の計画 road_plan.go が道のチャンクと出入り口を決め、
+// 各チャンクは自分の出入り口だけを舗装する。
 type roadFeature struct{}
 
-// place は道のチャンクに、中心からつながる隣の方角の縁まで道を舗装する
+// place は道のチャンクに、各出入り口から中心まで道を舗装する
 func (roadFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk, g chunkGeom) error {
-	dirs, road, ok := roadDirsAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world))
+	ports, road, ok := roadAt(world.Resources.RawMaster, runSeed, c, cols, spawnRowOf(world))
 	if !ok {
 		return nil
 	}
-	return drawRoadSegments(world, g.tiles.get(), roadChunkSegs(c, dirs, road.Width, g.chunkW, g.chunkH), road, c, g)
+	return drawRoadSegments(world, g.tiles.get(), roadChunkSegs(c, ports, road.Width, g.chunkW, g.chunkH), road, c, g)
 }
 
 // drawRoadSegments は道の辺 segs のうち、チャンク c に含まれるマスだけを道 road のタイルで舗装する。既存タイルが土のマスだけを

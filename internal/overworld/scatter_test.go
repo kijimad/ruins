@@ -306,21 +306,29 @@ func TestOnBigPhase_位相0のタイルだけ真(t *testing.T) {
 	assert.False(t, onBigPhase(consts.Coord[consts.Tile]{X: -1, Y: 0}))
 }
 
-// TestOutdoorZoneAt_集落近傍は道沿い は、集落の当選チャンクが道沿いゾーンになり、奥地の
+// TestOutdoorZoneAt_道と集落の近傍は道沿い は、道と集落のチャンクが道沿いゾーンになり、奥地の
 // wasteland が別ゾーンになることを固定する。
-func TestOutdoorZoneAt_集落近傍は道沿い(t *testing.T) {
+func TestOutdoorZoneAt_道と集落の近傍は道沿い(t *testing.T) {
 	t.Parallel()
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
-	// 集落の当選チャンクそのものは距離0で必ず道沿い
-	winner := placementOf(testutil.InitTestWorld(t).Resources.RawMaster, rawschema.PointFeatureKindSettlement).WinnerOf(scatterTestSeed, 2, scatterTestRows)
-	assert.Equal(t, zoneRoadside, outdoorZoneAt(raws, scatterTestSeed, winner, scatterTestRows), "集落の当選チャンクは道沿い")
+	plan := planAt(raws, scatterTestSeed, 0, scatterTestRows, 0)
+	require.NotEmpty(t, plan.roads, "前提: 区画に道がある")
+	require.NotEmpty(t, plan.settlements, "前提: 区画に集落がある")
+	for c := range plan.roads {
+		assert.Equal(t, zoneRoadside, outdoorZoneAt(raws, scatterTestSeed, c, scatterTestRows, 0), "道のチャンクは道沿い %v", c)
+	}
+	for c := range plan.settlements {
+		assert.Equal(t, zoneRoadside, outdoorZoneAt(raws, scatterTestSeed, c, scatterTestRows, 0), "集落のチャンクは道沿い %v", c)
+	}
 
-	// 奥地ゾーンのチャンクが少なくとも1つ存在し、関数がゾーンを識別できる。奥地は北へ進んだ Y に現れる
+	// 奥地ゾーンのチャンクが少なくとも1つ存在し、関数がゾーンを識別できる。3列の帯はどこも道に近いので、9列で探す
+	const wideCols consts.Chunk = 9
 	foundWild := false
 	for cy := range consts.Chunk(100) {
-		if outdoorZoneAt(raws, scatterTestSeed, consts.Coord[consts.Chunk]{X: 0, Y: cy}, scatterTestRows) == zoneWild {
-			foundWild = true
-			break
+		for cx := range wideCols {
+			if outdoorZoneAt(raws, scatterTestSeed, consts.Coord[consts.Chunk]{X: cx, Y: cy}, wideCols, 0) == zoneWild {
+				foundWild = true
+			}
 		}
 	}
 	assert.True(t, foundWild, "奥地ゾーンのチャンクが存在する")

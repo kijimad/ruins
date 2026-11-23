@@ -28,14 +28,14 @@ func (d RoadDir) Any() bool {
 }
 
 // buildRoadOverlay は表示範囲の道のチャンクが道でつながる方角を、絶対チャンク座標をキーに算出する。舗装 road.go と同じく
-// roadDirsAt を引くので、地図に出る道と舗装される道が一致する。生成を伴わない純関数。
+// 区画の計画を引くので、地図に出る道と舗装される道が一致する。生成を伴わない純関数。
 func buildRoadOverlay(raws rawschema.Raws, runSeed uint64, area MacroRange, cols, spawnRow consts.Chunk) map[consts.Coord[consts.Chunk]]RoadDir {
 	overlay := map[consts.Coord[consts.Chunk]]RoadDir{}
 	for y := area.OriginY; y < area.OriginY+area.Rows; y++ {
 		for x := area.OriginX; x < area.OriginX+area.Cols; x++ {
 			c := consts.Coord[consts.Chunk]{X: x, Y: y}
-			if dirs, _, ok := roadDirsAt(raws, runSeed, c, cols, spawnRow); ok && dirs.Any() {
-				overlay[c] = dirs
+			if ports, _, ok := roadAt(raws, runSeed, c, cols, spawnRow); ok {
+				overlay[c] = portDirs(ports)
 			}
 		}
 	}

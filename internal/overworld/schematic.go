@@ -83,15 +83,15 @@ type chunkType string
 const (
 	chunkWasteland  chunkType = "wasteland"  // 荒れ地。特徴的な地物が無い開けた地形
 	chunkSettlement chunkType = "settlement" // 集落。民家・農家
-	chunkRoad       chunkType = "road"       // 道。集落どうしを結ぶ道が通り、他の地物を置かない
+	chunkRoad       chunkType = "road"       // 道。区域・集落・墜落現場をつなぐ道が通り、他の地物を置かない
 	chunkUrban      chunkType = "urban"      // 市街地。建物チャンク
 	chunkLandmark   chunkType = "landmark"   // 自然の点在ランドマーク
 	chunkCrashSite  chunkType = "crash_site" // 宇宙船が墜落した開始の現場
 )
 
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
-// 荒れ地を返す。優先度は墜落現場 > 市街地 > 集落 > 道 > 点在ランドマーク > 荒れ地。地図も生成もこの
-// 分類を唯一の源にするので、地図の記号と実体が食い違わない。spawnRow は開始の行で、開始チャンクを決める
+// 荒れ地を返す。優先度は墜落現場 > 市街地 > 道 > 集落 > 点在ランドマーク > 荒れ地。道と集落は区画の計画から引き、重ならない。
+// 地図も生成もこの分類を唯一の源にするので、地図の記号と実体が食い違わない。spawnRow は開始の行で、開始チャンクを決める
 func chunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) chunkType {
 	kind, _ := classifyChunk(raws, runSeed, c, cols, spawnRow)
 	return kind
@@ -105,21 +105,17 @@ func classifyChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Ch
 	if r, ok := districtAt(raws, runSeed, c, cols, spawnRow); ok {
 		return chunkUrban, r
 	}
-	return openChunkTypeAt(raws, runSeed, c, cols), districtRegion{}
-}
-
-// openChunkTypeAt は市街地でない c の種別を返す
-func openChunkTypeAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) chunkType {
-	if placementOf(raws, rawschema.PointFeatureKindSettlement).At(runSeed, c, cols) {
-		return chunkSettlement
+	plan := planAt(raws, runSeed, c.Y, cols, spawnRow)
+	if _, ok := plan.roads[c]; ok {
+		return chunkRoad, districtRegion{}
 	}
-	if onRoad(raws, runSeed, c, cols) {
-		return chunkRoad
+	if plan.settlements[c] != 0 {
+		return chunkSettlement, districtRegion{}
 	}
 	if placementOf(raws, rawschema.PointFeatureKindLandmark).At(runSeed, c, cols) {
-		return chunkLandmark
+		return chunkLandmark, districtRegion{}
 	}
-	return chunkWasteland
+	return chunkWasteland, districtRegion{}
 }
 
 // chunkPlace は1チャンクの種別を地図記号で返す純関数。

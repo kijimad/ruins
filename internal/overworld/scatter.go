@@ -148,7 +148,7 @@ func groundCoverEntries(rows []rawschema.GroundCoverEntry) []scatterEntry {
 func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) (scatterCatalog, bool, error) {
 	switch chunkTypeAt(raws, runSeed, c, cols, spawnRow) {
 	case chunkWasteland, chunkCrashSite, chunkRoad:
-		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(raws, runSeed, c, cols))
+		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(raws, runSeed, c, cols, spawnRow))
 		return cat, err == nil, err
 	default:
 		return scatterCatalog{}, false, nil
@@ -303,23 +303,19 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 	return entries[i]
 }
 
-// outdoorZoneAt は wasteland チャンクのゾーンを返す。道を持つ地物の当選チャンクと市街の近傍を道沿いにし、
-// それ以外を奥地にする。道は道を持つ地物の当選どうしを結ぶので、その近傍が道沿いの帯を兼ねる。近傍地物の
-// 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。
-func outdoorZoneAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols consts.Chunk) outdoorZone {
-	// 地物と市街は Y 方向のリージョンに並ぶので region は c.Y から引く
-	for _, f := range raw.PtrSlice(raws.PointFeatures) {
-		if f.Road == nil {
-			continue
-		}
-		p := placementFrom(f)
-		r := consts.FloorDiv(c.Y, p.Spacing)
-		for _, pr := range []consts.Chunk{r - 1, r, r + 1} {
-			if chunkChebyshev(c, p.WinnerOf(runSeed, pr, cols)) <= scatterRoadsideRange {
+// outdoorZoneAt は wasteland チャンクのゾーンを返す。道・集落・市街の近傍を道沿いにし、それ以外を奥地にする。
+// 道と集落は区画の計画から生成せずに引く
+func outdoorZoneAt(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) outdoorZone {
+	for dy := -scatterRoadsideRange; dy <= scatterRoadsideRange; dy++ {
+		for dx := -scatterRoadsideRange; dx <= scatterRoadsideRange; dx++ {
+			n := c.Add(consts.Coord[consts.Chunk]{X: dx, Y: dy})
+			plan := planAt(raws, runSeed, n.Y, cols, spawnRow)
+			if _, road := plan.roads[n]; road || plan.settlements[n] != 0 {
 				return zoneRoadside
 			}
 		}
 	}
+	// 市街は Y 方向のリージョンに並ぶので region は c.Y から引く
 	for _, d := range districtsFrom(raws) {
 		ry := consts.FloorDiv(c.Y, consts.Chunk(d.row.Spacing))
 		for _, pr := range []consts.Chunk{ry - 1, ry, ry + 1} {
@@ -345,11 +341,11 @@ func onBigPhase(rel consts.Coord[consts.Tile]) bool {
 // scatterRoute はチャンク c が道のチャンクなら、その中に描く道の辺を返す。実際の道タイルを読まず経路から算出し、
 // 散布はタイルごとに onScatterRoute でこの辺と比べる。チャンクにつき1回だけ作る
 func scatterRoute(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk, g chunkGeom) []roadSeg {
-	dirs, road, ok := roadDirsAt(raws, runSeed, c, cols, spawnRow)
+	ports, road, ok := roadAt(raws, runSeed, c, cols, spawnRow)
 	if !ok {
 		return nil
 	}
-	return roadChunkSegs(c, dirs, road.Width, g.chunkW, g.chunkH)
+	return roadChunkSegs(c, ports, road.Width, g.chunkW, g.chunkH)
 }
 
 // onScatterRoute は絶対タイル pos が道の辺 route からバッファ以内かを返す
@@ -396,11 +392,6 @@ func tileIDAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coo
 		return ""
 	}
 	return world.Components.RawID.Get(e).ID
-}
-
-// chunkChebyshev は2チャンク座標のチェビシェフ距離を返す。ゾーン判定の近接度に使う。
-func chunkChebyshev(a, b consts.Coord[consts.Chunk]) consts.Chunk {
-	return max(geometry.Abs(a.X-b.X), geometry.Abs(a.Y-b.Y))
 }
 
 // chebToHSeg は点 p から水平線分、y=segY で x が [x0, x1]、までのチェビシェフ距離を返す。

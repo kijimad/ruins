@@ -16,16 +16,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// landmarkTestCols は点在ランドマークのテストの列数。1列だと道が全ての行を通り、ランドマークが当たらない
+const landmarkTestCols consts.Chunk = 3
+
 // findLandmarkChunk は点在ランドマークが当選し、他の地物に譲らないチャンクと seed を探す。
 func findLandmarkChunk(t *testing.T) (uint64, consts.Coord[consts.Chunk]) {
 	t.Helper()
-	const rows = 1
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	for s := uint64(1); s < 200; s++ {
 		for y := range consts.Chunk(30) {
 			c := consts.Coord[consts.Chunk]{Y: y}
 			// 帯を作らずに置くので、生成の側は開始の行を0とみなし、チャンク (0,0) は墜落現場になる
-			if chunkTypeAt(raws, s, c, rows, 0) != chunkLandmark {
+			if chunkTypeAt(raws, s, c, landmarkTestCols, 0) != chunkLandmark {
 				continue
 			}
 			return s, c
@@ -61,7 +63,7 @@ func TestWildernessLandmark_原野の当選チャンクに小構造物が決定�
 			}
 		}
 		g := chunkGeom{offsetX: 0, offsetY: 0, chunkW: 50, chunkH: 50, tiles: &tileIndex{world: world, loX: 0, hiX: 50}}
-		require.NoError(t, wildernessLandmarkFeature{}.place(world, seed, c, 1, g))
+		require.NoError(t, wildernessLandmarkFeature{}.place(world, seed, c, landmarkTestCols, g))
 		return landmarkEntities(world)
 	}
 	a := build()

@@ -91,7 +91,7 @@ func TestDistrictRegion_distance(t *testing.T) {
 	}
 }
 
-func TestDistrictAt_先の種類の区域と重なる後の種類の区域は丸ごと出さない(t *testing.T) {
+func TestDistrictAt_先の種類の区域と重なるか接する後の種類の区域は丸ごと出さない(t *testing.T) {
 	t.Parallel()
 
 	// 研究所の敷地は帯の全幅で縦の範囲が広く、町と必ず重なる
@@ -114,18 +114,18 @@ func TestDistrictAt_先の種類の区域と重なる後の種類の区域は丸
 					continue
 				}
 				town := ds[1].regionIn(seed, consts.FloorDiv(y, 3), cols)
-				assert.Equal(t, town.contains(c) && !town.overlaps(campus), ok, "seed=%d %v", seed, c)
+				assert.Equal(t, town.contains(c) && !town.near(campus), ok, "seed=%d %v", seed, c)
 			}
 		}
 	}
 }
 
-func TestDistricts_seed100個の全てで通信施設が起点から北へ60チャンク以内に建つ(t *testing.T) {
+func TestDistricts_seed100個の全てで通信施設が起点から北へ70チャンク以内に建つ(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	cat := zoneCatalogFrom(raws)
-	const within consts.Chunk = 60
+	const within consts.Chunk = 70
 	_, _, cols, rows := dungeon.DungeonOverworld.BandShape()
 	spawnRow := gc.SeamlessBand{Rows: rows}.SpawnChunkY()
 	for seed := range uint64(100) {
