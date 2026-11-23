@@ -291,10 +291,12 @@ func TestExecuteMoveAction_背の低い家具には移動コストを払って�
 	_, err = lifecycle.SpawnProp(world, "chair", 11, 10)
 	require.NoError(t, err)
 
+	// Execute は構造変更を伴うので TurnBased は都度取り直す
+	apBefore := world.Components.TurnBased.Get(player).AP.Current
 	require.NoError(t, ExecuteMoveAction(world, gc.DirectionRight))
 
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 11, Y: 10}, world.Components.GridElement.Get(player).Coord)
-	assert.Equal(t, 100, getPassCostAt(world, 11, 10))
+	assert.Equal(t, consts.StandardActionCost+100, apBefore-world.Components.TurnBased.Get(player).AP.Current)
 	assert.Equal(t, []string{"Chair is here."}, query.GetGameLog(world).GetHistory())
 }
 
