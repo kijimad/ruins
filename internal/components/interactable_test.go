@@ -21,7 +21,7 @@ func TestInteractionKind_Config(t *testing.T) {
 		{InteractionMelee, ActivationRangeAdjacent, ActivationWayOnCollision},
 		{InteractionItem, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionPortalNext, ActivationRangeSameTile, ActivationWayManual},
-		{InteractionStorage, ActivationRangeSameTileOrAdjacent, ActivationWayManual},
+		{InteractionStorage, ActivationRangeAdjacent, ActivationWayManual},
 		{InteractionOpenCubeMenu, ActivationRangeAdjacent, ActivationWayManual},
 		{InteractionSwap, ActivationRangeAdjacent, ActivationWayOnCollision},
 	}
@@ -62,11 +62,6 @@ func TestActivationRange_Valid(t *testing.T) {
 		{
 			name:            "Adjacent は有効",
 			activationRange: ActivationRangeAdjacent,
-			expectValid:     true,
-		},
-		{
-			name:            "SameTileOrAdjacent は有効",
-			activationRange: ActivationRangeSameTileOrAdjacent,
 			expectValid:     true,
 		},
 		{

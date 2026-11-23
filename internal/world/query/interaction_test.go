@@ -292,25 +292,3 @@ func TestIsInActivationRange_8Neighbors(t *testing.T) {
 	centerResult := IsInActivationRange(playerGrid, playerGrid, gc.ActivationRangeAdjacent)
 	assert.False(t, centerResult, "中心タイル(5,5)は8近傍に含まれないべき")
 }
-
-func TestIsInActivationRange_SameTileOrAdjacent(t *testing.T) {
-	t.Parallel()
-
-	player := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}}
-	tests := []struct {
-		name    string
-		trigger consts.Coord[consts.Tile]
-		want    bool
-	}{
-		{"同じタイル", consts.Coord[consts.Tile]{X: 5, Y: 5}, true},
-		{"右隣", consts.Coord[consts.Tile]{X: 6, Y: 5}, true},
-		{"右下", consts.Coord[consts.Tile]{X: 6, Y: 6}, true},
-		{"2マス先", consts.Coord[consts.Tile]{X: 7, Y: 5}, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, IsInActivationRange(player, &gc.GridElement{Coord: tt.trigger}, gc.ActivationRangeSameTileOrAdjacent))
-		})
-	}
-}

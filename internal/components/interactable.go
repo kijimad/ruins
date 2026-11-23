@@ -69,10 +69,7 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionSwap:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
-	case InteractionStorage:
-		// 箱や机は上に乗れるので、足元の収納も探せるようにする
-		return InteractionConfig{ActivationRange: ActivationRangeSameTileOrAdjacent, ActivationWay: ActivationWayManual}
-	case InteractionIgnite, InteractionFeedFuel, InteractionOpenCubeMenu:
+	case InteractionStorage, InteractionIgnite, InteractionFeedFuel, InteractionOpenCubeMenu:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
 	}
 	return InteractionConfig{}
@@ -86,14 +83,12 @@ const (
 	ActivationRangeSameTile ActivationRange = "SAME_TILE"
 	// ActivationRangeAdjacent は隣接タイルで発動
 	ActivationRangeAdjacent ActivationRange = "ADJACENT"
-	// ActivationRangeSameTileOrAdjacent は同じタイルか隣接タイルで発動
-	ActivationRangeSameTileOrAdjacent ActivationRange = "SAME_TILE_OR_ADJACENT"
 )
 
 // Valid はActivationRangeの値が有効かを検証する
 func (enum ActivationRange) Valid() error {
 	switch enum {
-	case ActivationRangeSameTile, ActivationRangeAdjacent, ActivationRangeSameTileOrAdjacent:
+	case ActivationRangeSameTile, ActivationRangeAdjacent:
 		return nil
 	default:
 		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
