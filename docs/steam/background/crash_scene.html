@@ -328,6 +328,43 @@ for (let i = 0; i < 26; i++) {
 const cam = new THREE.PerspectiveCamera(V.fov, W / H, 0.1, 2000);
 cam.position.set(...V.cam);
 cam.lookAt(...V.look);
+// camp を与えると、雪原に浮かぶ動く家のキューブと、そばの小さな焚き火を置く。値はカメラから見た前と右への距離。
+// 焚き火の形は構図の乱数を使わず決めた形にし、ほかの物の形を変えない
+if (q.has('camp')) {
+  const [ahead, right] = q.get('camp').split(',').map(Number);
+  const fx0 = V.look[0] - V.cam[0], fz0 = V.look[2] - V.cam[2], fl = Math.hypot(fx0, fz0);
+  const ux = fx0 / fl, uz = fz0 / fl;
+  const cx = V.cam[0] + ux * ahead - uz * right, cz = V.cam[2] + uz * ahead + ux * right;
+  const gy = craterH(cx, cz);
+  const size = 2.6;
+  const cube = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), new THREE.MeshStandardMaterial({ color: '#2b4aa0', flatShading: true, roughness: 0.45, metalness: 0.25 }));
+  cube.position.set(cx, gy + 0.9 + size / 2, cz);
+  cube.rotation.y = 0.6;
+  cube.castShadow = true;
+  scene.add(cube);
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(cube.geometry), new THREE.LineBasicMaterial({ color: '#a8e6ff' }));
+  edges.position.copy(cube.position);
+  edges.rotation.copy(cube.rotation);
+  scene.add(edges);
+  const fx = cx + 2.6, fz = cz + 1.4, fy = craterH(fx, fz);
+  const shapes = [[0.32, 1.3, 0, 0], [0.26, 1.0, 0.18, 0.1], [0.22, 0.8, -0.16, 0.12], [0.2, 0.7, 0.05, -0.18]];
+  shapes.forEach(([r, h, ox, oz], k) => {
+    const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 5), new THREE.MeshBasicMaterial({ color: k % 2 ? '#ffb347' : '#ff6a1f', transparent: true, opacity: 0.95 }));
+    m.position.set(fx + ox, fy + h / 2, fz + oz);
+    m.rotation.y = k * 1.3;
+    scene.add(m);
+  });
+  for (let k = 0; k < 5; k++) {
+    const log = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.14, 0.18), new THREE.MeshStandardMaterial({ color: '#3a2a22', flatShading: true }));
+    log.position.set(fx, fy + 0.07, fz);
+    log.rotation.y = k * Math.PI / 5;
+    scene.add(log);
+  }
+  const campLight = new THREE.PointLight('#ff8a3a', 26, 16, 1.5);
+  campLight.position.set(fx, fy + 1.2, fz);
+  scene.add(campLight);
+}
+
 renderer.render(scene, cam);
 </script>
 </body></html>
