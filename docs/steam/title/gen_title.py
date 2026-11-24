@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
-# タイトル画面の背景を決定的に描く。凍った惑星のシーン planet_scene.html を、タイトル画面のピクセル絵の大きさ
-# 320x240 で描いて色を減らし、title_master.png に書く。compose.sh がこれを3倍に広げてロゴを重ねる。
-# 空の seed を変えると星雲と星の並びが変わる。構図を探すときは SKY を変えて見比べ、決めた seed を書く。
-# 描いた絵は Chrome の版で画素が変わりうるので、コミットした title_master.png を正とする。
-#
-# 使い方: nix-shell ../shell.nix 内で python3 gen_title.py
-# 依存: google-chrome
+# タイトル画面の背景 title_master.png を、planet_scene.html を 320x240 で描いて減色して作る。
+# Chrome の版で画素が変わりうるので、コミットした title_master.png を正とする。
+# 使い方: nix-shell ../shell.nix 内で python3 gen_title.py  依存: google-chrome
 
 import os
 import subprocess

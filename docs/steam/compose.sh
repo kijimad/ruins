@@ -15,7 +15,6 @@ MASTER="${STEAM_MASTER:-docs/steam/background/master_3840x2560.png}"
 OUT="${STEAM_OUT:-docs/steam/generated}"
 # 完成品ロゴ。副題を含み、文字と罫にぴったりの大きさ。加工せずそのまま重ねる
 LOGO_PNG="docs/steam/logo/logo.png"
-# タイトル画面の背景。ストアの絵と別に、宇宙から見た凍った惑星を 320x240 のピクセル絵で描いたもの
 TITLE_MASTER="${STEAM_TITLE_MASTER:-docs/steam/title/title_master.png}"
 
 # 入力が無ければ magick のエラーを待たず、先に何を実行すべきか示して止める
@@ -111,8 +110,7 @@ generate_capsule 748 896 vertical_capsule.png 2137 2560 north southwest 120
 generate_capsule 600 900 library_capsule.png 1707 2560 north southwest 120
 
 # --- ゲームタイトル用画像 960x720 ---
-# タイトル画面はストアの絵と別に、宇宙から見た凍った惑星を使う。何度も開いて眺める画面なので、止まっていて自然な場面にする。
-# title/gen_title.py が 320x240 のピクセル絵で描くので、3倍に広げてロゴを左上へ重ねる。メニューは右下の夜の側にゲームが描く
+# タイトル画面はストアの絵と別の、title/gen_title.py が描く惑星の絵を3倍に広げてロゴを重ねる
 TITLE_OUT="${STEAM_TITLE_OUT:-assets/file/textures/bg/title1_.png}"
 magick "$TITLE_MASTER" -scale 300% "$TMP/title_bg.png"
 magick "$LOGO_PNG" -resize 500x "$TMP/title_logo.png"
