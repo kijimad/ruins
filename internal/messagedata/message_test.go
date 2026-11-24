@@ -16,6 +16,33 @@ func getMessageText(msg *MessageData) string {
 	return msg.TextSegmentLines[0][0].Text
 }
 
+func TestAddText(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		calls []string
+		want  [][]TextSegment
+	}{
+		{"単一行はそのまま1行になる", []string{"こんにちは"}, [][]TextSegment{{{Text: "こんにちは"}}}},
+		{"改行を含むテキストは複数行に分割する", []string{"一行目\n二行目\n三行目"}, [][]TextSegment{{{Text: "一行目"}}, {{Text: "二行目"}}, {{Text: "三行目"}}}},
+		{"空文字でも1行作成する", []string{""}, [][]TextSegment{{{Text: ""}}}},
+		{"複数回呼ぶと改行が無ければ同じ行に積む", []string{"前半", "後半"}, [][]TextSegment{{{Text: "前半"}, {Text: "後半"}}}},
+		{"末尾の改行は空の断片だけの行を作る", []string{"a\n"}, [][]TextSegment{{{Text: "a"}}, {{Text: ""}}}},
+		{"改行で終えた後に呼ぶと次の行に積む", []string{"前半\n", "後半"}, [][]TextSegment{{{Text: "前半"}}, {{Text: ""}, {Text: "後半"}}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			m := &MessageData{}
+			for _, text := range tt.calls {
+				m.AddText(text)
+			}
+			assert.Equal(t, tt.want, m.TextSegmentLines)
+		})
+	}
+}
+
 func TestNewDialogMessage(t *testing.T) {
 	t.Parallel()
 

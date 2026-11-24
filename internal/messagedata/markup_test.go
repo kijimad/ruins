@@ -1,6 +1,7 @@
 package messagedata
 
 import (
+	"image/color"
 	"strings"
 	"testing"
 
@@ -70,4 +71,55 @@ func TestAddMarkup(t *testing.T) {
 		}
 		assert.Equal(t, "a<unknown>b</unknown>c", got.String())
 	})
+}
+
+func TestTagStyle(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		tag  string
+		want markupStyle
+		ok   bool
+	}{
+		{"意味タグは前景色だけを持つ", "item", fg(gamelog.ColorCyan), true},
+		{"keywordは前景色と背景色を持つ", "keyword", markupStyle{fg: &color.RGBA{R: 255, G: 100, B: 100, A: 255}, bg: &color.RGBA{R: 80, G: 20, B: 20, A: 180}}, true},
+		{"color_接頭辞は既知の色名を前景色にする", "color_red", fg(gamelog.ColorRed), true},
+		{"color_接頭辞でも未知の色名は解決しない", "color_unknown", markupStyle{}, false},
+		{"接頭辞の無い未知タグは解決しない", "unknown", markupStyle{}, false},
+		{"color_接頭辞だけで色名が無ければ解決しない", "color_", markupStyle{}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, ok := tagStyle(tt.tag)
+			assert.Equal(t, tt.ok, ok)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestParseMarkupSegments(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		in   string
+		want []markupSegment
+	}{
+		{"閉じ括弧が無いマークは地の文として残す", "<item タグ", []markupSegment{{text: "<item タグ"}}},
+		{"既知タグでも閉じタグが無ければタグ自体を地の文として残す", "<item>薬", []markupSegment{{text: "<item>"}, {text: "薬"}}},
+		{"タグ無しは既定スタイル1断片になる", "ただの文", []markupSegment{{text: "ただの文"}}},
+		{"空文字は空の断片列を返す", "", nil},
+		{"中身の無い既知タグは断片を残さない", "<item></item>", nil},
+		{"閉じタグが対応しないマークはすべて地の文になる", "<item>a</npc>", []markupSegment{{text: "<item>"}, {text: "a"}, {text: "</npc>"}}},
+		{"入れ子のタグには対応せず、外側のタグの中身を文字のまま色付けする", "<item><keyword>x</keyword></item>", []markupSegment{{text: "<keyword>x</keyword>", style: fg(gamelog.ColorCyan)}}},
+		{"空タグは未知タグとして地の文に残る", "<>", []markupSegment{{text: "<>"}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, parseMarkupSegments(tt.in))
+		})
+	}
 }
