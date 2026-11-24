@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 13:59:28</td>
+            <td class="headerValue">2026-11-24 14:43:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -117,7 +117,7 @@
 <span id="L55"><span class="lineNum">      55</span>              :         LightSource        *LightSource</span>
 <span id="L56"><span class="lineNum">      56</span>              :         Charge             *Charge</span>
 <span id="L57"><span class="lineNum">      57</span>              :         Interactable       *Interactable</span>
-<span id="L58"><span class="lineNum">      58</span>              :         Unsearched         *Unsearched</span>
+<span id="L58"><span class="lineNum">      58</span>              :         Searched           *Searched</span>
 <span id="L59"><span class="lineNum">      59</span>              :         VisualEffects      *VisualEffects</span>
 <span id="L60"><span class="lineNum">      60</span>              :         TileEnvironment    *TileEnvironment</span>
 <span id="L61"><span class="lineNum">      61</span>              :         HeatSource         *HeatSource</span>
@@ -218,7 +218,7 @@
 <span id="L156"><span class="lineNum">     156</span>              :         LightSource        *ecs.Map[LightSource]</span>
 <span id="L157"><span class="lineNum">     157</span>              :         Charge             *ecs.Map[Charge]</span>
 <span id="L158"><span class="lineNum">     158</span>              :         Interactable       *ecs.Map[Interactable]</span>
-<span id="L159"><span class="lineNum">     159</span>              :         Unsearched         *ecs.Map[Unsearched]</span>
+<span id="L159"><span class="lineNum">     159</span>              :         Searched           *ecs.Map[Searched]</span>
 <span id="L160"><span class="lineNum">     160</span>              :         VisualEffects      *ecs.Map[VisualEffects]</span>
 <span id="L161"><span class="lineNum">     161</span>              :         TileEnvironment    *ecs.Map[TileEnvironment]</span>
 <span id="L162"><span class="lineNum">     162</span>              :         HeatSource         *ecs.Map[HeatSource]</span>
@@ -319,7 +319,7 @@
 <span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         c.LightSource = ecs.NewMap[LightSource](world)</span></span>
 <span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         c.Charge = ecs.NewMap[Charge](world)</span></span>
 <span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         c.Interactable = ecs.NewMap[Interactable](world)</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         c.Unsearched = ecs.NewMap[Unsearched](world)</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         c.Searched = ecs.NewMap[Searched](world)</span></span>
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         c.VisualEffects = ecs.NewMap[VisualEffects](world)</span></span>
 <span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         c.TileEnvironment = ecs.NewMap[TileEnvironment](world)</span></span>
 <span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         c.HeatSource = ecs.NewMap[HeatSource](world)</span></span>
@@ -422,7 +422,7 @@
 <span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :         addComp(c.LightSource, entity, spec.LightSource)</span></span>
 <span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 :         addComp(c.Charge, entity, spec.Charge)</span></span>
 <span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 :         addComp(c.Interactable, entity, spec.Interactable)</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         addComp(c.Unsearched, entity, spec.Unsearched)</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         addComp(c.Searched, entity, spec.Searched)</span></span>
 <span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :         addComp(c.VisualEffects, entity, spec.VisualEffects)</span></span>
 <span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :         addComp(c.TileEnvironment, entity, spec.TileEnvironment)</span></span>
 <span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         addComp(c.HeatSource, entity, spec.HeatSource)</span></span>

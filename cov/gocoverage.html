@@ -113,7 +113,7 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -2775,7 +2775,7 @@ func executeFeedFuel(fire ecs.Entity, world w.World) (*ActionResult, error) {
 
 // executeStorage はまだ探していない収納なら探すアクティビティを始め、探し終えた収納なら収納画面を開く
 func executeStorage(actor, storageEntity ecs.Entity, world w.World) (*ActionResult, error) {
-        <span class="cov8" title="1">if world.Components.Unsearched.Has(storageEntity) </span>{
+        <span class="cov8" title="1">if !world.Components.Searched.Has(storageEntity) </span>{
                 <span class="cov8" title="1">return Execute(NewSearchActivity(storageEntity, world), actor, world)
 </span>        }
         <span class="cov8" title="1">if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(storageEntity)); err != nil </span>{
@@ -4294,6 +4294,7 @@ func skillValueOf(actor ecs.Entity, world w.World, skillID rawschema.SkillId) in
 
 import (
         "fmt"
+        "slices"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
@@ -4343,7 +4344,7 @@ func (b *SearchBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
         if !ok </span>{
                 <span class="cov0" title="0">return ErrParamsTypeMismatch
 </span>        }
-        <span class="cov8" title="1">if !world.ECS.Alive(p.Target) || !world.Components.Unsearched.Has(p.Target) </span>{
+        <span class="cov8" title="1">if !world.ECS.Alive(p.Target) || !isStorage(world, p.Target) || world.Components.Searched.Has(p.Target) </span>{
                 <span class="cov8" title="1">return &amp;UserError{Msg: query.T(world, "there is nothing to search")}
 </span>        }
         <span class="cov8" title="1">if !query.IsAreaSafe(world, actor) </span>{
@@ -4394,10 +4395,8 @@ func (b *SearchBehavior) Finish(comp *gc.Activity, _ ecs.Entity, world w.World) 
         <span class="cov8" title="1">if !world.ECS.Alive(p.Target) </span>{
                 <span class="cov0" title="0">return nil
 </span>        }
-        <span class="cov8" title="1">if world.Components.Unsearched.Has(p.Target) </span>{
-                <span class="cov8" title="1">world.Components.Unsearched.Remove(p.Target)
-</span>        }
-        <span class="cov8" title="1">if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(p.Target)); err != nil </span>{
+        <span class="cov8" title="1">lifecycle.EnsureMarker(world, world.Components.Searched, p.Target, &amp;gc.Searched{})
+        if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(p.Target)); err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("storage menu state change request error: %w", err)
 </span>        }
         <span class="cov8" title="1">return nil</span>
@@ -4417,6 +4416,12 @@ func (b *SearchBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.W
                 Log()
         return nil</span>
 }
+
+// isStorage は e が収納かを返す。Searched を持たないことだけでは、収納でない置物や敵まで探す対象になるため
+func isStorage(world w.World, e ecs.Entity) bool {
+        <span class="cov8" title="1">return world.Components.Interactable.Has(e) &amp;&amp;
+                slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionStorage)
+</span>}
 </pre>
 		
 		<pre class="file" id="file18" style="display: none">package activity
@@ -6168,7 +6173,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -11460,7 +11465,7 @@ type EntitySpec struct {
         LightSource        *LightSource
         Charge             *Charge
         Interactable       *Interactable
-        Unsearched         *Unsearched
+        Searched           *Searched
         VisualEffects      *VisualEffects
         TileEnvironment    *TileEnvironment
         HeatSource         *HeatSource
@@ -11561,7 +11566,7 @@ type Components struct {
         LightSource        *ecs.Map[LightSource]
         Charge             *ecs.Map[Charge]
         Interactable       *ecs.Map[Interactable]
-        Unsearched         *ecs.Map[Unsearched]
+        Searched           *ecs.Map[Searched]
         VisualEffects      *ecs.Map[VisualEffects]
         TileEnvironment    *ecs.Map[TileEnvironment]
         HeatSource         *ecs.Map[HeatSource]
@@ -11662,7 +11667,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
         c.LightSource = ecs.NewMap[LightSource](world)
         c.Charge = ecs.NewMap[Charge](world)
         c.Interactable = ecs.NewMap[Interactable](world)
-        c.Unsearched = ecs.NewMap[Unsearched](world)
+        c.Searched = ecs.NewMap[Searched](world)
         c.VisualEffects = ecs.NewMap[VisualEffects](world)
         c.TileEnvironment = ecs.NewMap[TileEnvironment](world)
         c.HeatSource = ecs.NewMap[HeatSource](world)
@@ -11765,7 +11770,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
         addComp(c.LightSource, entity, spec.LightSource)
         addComp(c.Charge, entity, spec.Charge)
         addComp(c.Interactable, entity, spec.Interactable)
-        addComp(c.Unsearched, entity, spec.Unsearched)
+        addComp(c.Searched, entity, spec.Searched)
         addComp(c.VisualEffects, entity, spec.VisualEffects)
         addComp(c.TileEnvironment, entity, spec.TileEnvironment)
         addComp(c.HeatSource, entity, spec.HeatSource)
@@ -13256,8 +13261,9 @@ type Interactable struct {
         Interactions []InteractionKind
 }
 
-// Unsearched はまだ探していない収納を示すマーカー。世界に生成された収納だけが持ち、探し終えると外れる
-type Unsearched struct{}
+// Searched は探し終えた収納を示すマーカー。世界に生成された収納は持たずに生まれ、探し終えると付く。
+// プレイヤーが置く設備の収納は最初から持つ
+type Searched struct{}
 
 // InteractionConfig は相互作用の設定
 type InteractionConfig struct {
@@ -30975,7 +30981,9 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name 
                         <span class="cov8" title="1">return fmt.Errorf("item '%s' deployable storage: %w", name, err)
 </span>                }
                 <span class="cov8" title="1">entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: mg}
-                entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}</span>
+                entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}
+</span>                // プレイヤーが置く収納なので、中身を探す手間は要らない
+                <span class="cov8" title="1">entitySpec.Searched = &amp;gc.Searched{}</span>
         }
         <span class="cov8" title="1">if dep.Bedding != nil </span>{
                 <span class="cov8" title="1">entitySpec.Bedding = toGCBedding(dep.Bedding)
@@ -31456,7 +31464,6 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
                         <span class="cov8" title="1">return gc.EntitySpec{}, fmt.Errorf("container '%s' max weight: %w", name, err)
 </span>                }
                 <span class="cov8" title="1">entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: mg}
-                entitySpec.Unsearched = &amp;gc.Unsearched{}
                 interactions = append(interactions, gc.InteractionStorage)</span>
         }
 
@@ -36680,7 +36687,7 @@ import (
         "github.com/kijimaD/ruins/internal/world/query"
 )
 
-const saveDataVersion = "3.0.0"
+const saveDataVersion = "3.1.0"
 
 const maxAutoSaves = 4
 
@@ -37686,7 +37693,7 @@ func nearbyPickupActions(world w.World) []InteractionAction {
 func storageLabel(world w.World, storage ecs.Entity, dirLabel string) string {
         <span class="cov8" title="1">name := query.GetEntityName(storage, world)
         switch </span>{
-        case world.Components.Unsearched.Has(storage):
+        case !world.Components.Searched.Has(storage):
                 <span class="cov8" title="1">return query.T(world, "Search %s (%s)", name, dirLabel)</span>
         case !query.HasStorageItems(world, storage):
                 <span class="cov8" title="1">return query.T(world, "Open %s (empty) (%s)", name, dirLabel)</span>
@@ -47281,7 +47288,7 @@ func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool)
                 <span class="cov8" title="1">if !slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionStorage) </span>{
                         <span class="cov8" title="1">continue</span>
                 }
-                <span class="cov8" title="1">if world.Components.Unsearched.Has(e) || query.HasStorageItems(world, e) </span>{
+                <span class="cov8" title="1">if !world.Components.Searched.Has(e) || query.HasStorageItems(world, e) </span>{
                         <span class="cov8" title="1">markers[c] = true
 </span>                }
         }

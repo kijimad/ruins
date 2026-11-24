@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 13:59:28</td>
+            <td class="headerValue">2026-11-24 14:43:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -319,7 +319,7 @@
 <span id="L257"><span class="lineNum">     257</span>              : func storageLabel(world w.World, storage ecs.Entity, dirLabel string) string {</span>
 <span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         name := query.GetEntityName(storage, world)</span></span>
 <span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L260"><span class="lineNum">     260</span>              :         case world.Components.Unsearched.Has(storage):</span>
+<span id="L260"><span class="lineNum">     260</span>              :         case !world.Components.Searched.Has(storage):</span>
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 return query.T(world, &quot;Search %s (%s)&quot;, name, dirLabel)</span></span>
 <span id="L262"><span class="lineNum">     262</span>              :         case !query.HasStorageItems(world, storage):</span>
 <span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 return query.T(world, &quot;Open %s (empty) (%s)&quot;, name, dirLabel)</span></span>
