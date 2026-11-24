@@ -1329,6 +1329,10 @@ import (
 	blockPass!: #BlocksPassage
 	blockView!: #BlocksView
 	passCost?:  #PassCost
+	// 通れない置物は移動コストを持たない
+	if blockPass {
+		passCostAbsent: true & passCost == _|_ @rawgen(-)
+	}
 
 	// 耐久。省略した prop は殴れない
 	hp?:              #HitPoints
@@ -1795,6 +1799,13 @@ import (
 
 	// 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける
 	water?: bool
+
+	// 上へ移るときに足す移動コスト
+	passCost?: #PassCost
+	// 通れないタイルは移動コストを持たない
+	if blockPass {
+		passCostAbsent: true & passCost == _|_ @rawgen(-)
+	}
 
 	// 植生。省くと植生なし
 	foliage?: #FoliageId

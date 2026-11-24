@@ -6647,6 +6647,12 @@ msgstr "赤土"
 msgid "Frozen Soil"
 msgstr "凍土"
 
+msgid "Shallow Water"
+msgstr "浅瀬"
+
+msgid "Deep Water"
+msgstr "深い水"
+
 msgid "Peat"
 msgstr "泥炭"
 

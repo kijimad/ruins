@@ -2814,6 +2814,9 @@ type Tile struct {
 
 	Name EntityName `json:"name"`
 
+	// PassCost 上へ移るときに足す移動コスト
+	PassCost *PassCost `json:"passCost,omitempty"`
+
 	// Shelter 囲われの度合い。省くと屋外
 	Shelter *Shelter `json:"shelter,omitempty"`
 

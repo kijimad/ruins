@@ -24025,6 +24025,32 @@
 [[tiles]]
   blockPass = false
   blockView = false
+  description = "膝ほどの浅い水。通れるが足を取られ、水の冷たさを受ける"
+  id = "water_shallow"
+  name = "Shallow Water"
+  passCost = 100
+  water = true
+  [tiles.spriteRender]
+    depth = "floor"
+    spriteKey = "water_shallow"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
+  description = "胸まで浸かる深い水。渡れるが進みは遅く、水の冷たさを受ける"
+  id = "water_deep"
+  name = "Deep Water"
+  passCost = 300
+  water = true
+  [tiles.spriteRender]
+    depth = "floor"
+    spriteKey = "water_deep"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  blockPass = false
+  blockView = false
   description = "橙の赤土のオートタイル床。屋外の歩行可能タイル"
   earth = true
   id = "dirt_orange"
