@@ -272,8 +272,6 @@ func TestSerde_Weatherが往復する(t *testing.T) {
 	assert.Equal(t, consts.Turn(4321), restored.UntilTurn, "スペルの残り終端が復元される")
 }
 
-// TestSerde_Perishableが往復する は腐敗食の鮮度がセーブ・ロードで保たれることを検証する。
-// RotAccrued と RotUpdatedTurn が失われると復元後に鮮度が狂うため、往復で保たれる必要がある。
 func TestSerde_Searchedが往復する(t *testing.T) {
 	t.Parallel()
 	testDir := t.TempDir()
@@ -304,6 +302,8 @@ func TestSerde_Searchedが往復する(t *testing.T) {
 	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: false, {X: 4, Y: 3}: true}, got)
 }
 
+// TestSerde_Perishableが往復する は腐敗食の鮮度がセーブ・ロードで保たれることを検証する。
+// RotAccrued と RotUpdatedTurn が失われると復元後に鮮度が狂うため、往復で保たれる必要がある。
 func TestSerde_Perishableが往復する(t *testing.T) {
 	t.Parallel()
 	testDir := t.TempDir()
