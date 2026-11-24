@@ -230,11 +230,36 @@ for (let i = 0; i < 46; i++) {
   scene.add(m);
 }
 
-// 炎: 外側の赤橙、中の橙、芯の黄白の錐を内側ほど細く短く重ね、細い舌を足して風に少し傾ける。根元には光をにじませる。
-// 外側の錐は構図の乱数で形を決める。中の層と芯と舌と光は別の乱数で作り、構図の乱数の回数を変えない
+// 炎: カメラへ向く板に、シェーダで炎を描く。根元が丸く上へ細るしずく形に、上ほど大きく揺らすノイズを重ね、
+// 輪郭を舌に分ける。色は濃さに応じて白黄から赤へ変える。1つの炎に形の違う板を4枚重ねて厚みを出す。
+// 板の大きさと位置は構図の乱数を前と同じ回数で引いて決め、板ごとのノイズの種は別の乱数で決める
 let fls = (seed ^ 0x6c8e9cf5) | 0;
 const F = (a, b) => { fls = fls + 0x6D2B79F5 | 0; let t = Math.imul(fls ^ fls >>> 15, 1 | fls); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return a + (b - a) * (((t ^ t >>> 14) >>> 0) / 4294967296); };
-const flameMat = (color, order) => new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.94, depthWrite: false });
+const flameShader = (fseed) => new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, depthTest: false,
+  uniforms: { uSeed: { value: fseed } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+  fragmentShader: `
+    varying vec2 vUv; uniform float uSeed;
+    float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+      return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }
+    float fbm(vec2 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++){ v += a * n(p); p *= 2.1; a *= 0.5; } return v; }
+    void main(){
+      vec2 p = vec2(vUv.x - 0.5, vUv.y);
+      p.x += (fbm(vec2(p.y * 2.5 + uSeed, uSeed * 0.7)) - 0.5) * 0.35 * p.y;
+      float w = 0.46 * pow(max(0.0, 1.0 - p.y), 0.45) * sqrt(clamp(p.y / 0.14, 0.0, 1.0));
+      float v = 1.0 - abs(p.x) / max(w, 0.001);
+      v += (fbm(vec2(p.x * 4.0 + uSeed * 1.3, p.y * 3.0 - uSeed)) - 0.5) * 0.7 * (0.3 + p.y);
+      v *= 1.0 - smoothstep(0.6, 1.0, p.y) * 0.6;
+      if (v < 0.04) discard;
+      vec3 c = mix(vec3(0.55, 0.16, 0.06), vec3(1.0, 0.42, 0.12), smoothstep(0.04, 0.3, v));
+      c = mix(c, vec3(1.0, 0.70, 0.28), smoothstep(0.3, 0.55, v));
+      c = mix(c, vec3(1.0, 0.88, 0.55), smoothstep(0.55, 0.8, v));
+      c = mix(c, vec3(1.0, 0.97, 0.85), smoothstep(0.85, 1.1, v));
+      gl_FragColor = vec4(c, smoothstep(0.04, 0.18, v));
+    }`,
+});
 const glowTex = (() => {
   const c = document.createElement('canvas');
   c.width = c.height = 64;
@@ -247,30 +272,19 @@ const glowTex = (() => {
   g.fillRect(0, 0, 64, 64);
   return new THREE.CanvasTexture(c);
 })();
+// 炎の板。カメラを置いた後に、カメラへ向ける
+const FLAMES = [];
 const flame = (x, y, z, s) => {
-  const wl = Math.hypot(V.wind[0], V.wind[1]) || 1;
-  const tiltX = (V.wind[1] / wl) * 0.2, tiltZ = -(V.wind[0] / wl) * 0.2;
-  const cone = (r, h, px, pz, rot, color, order) => {
-    const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 7), flameMat(color));
-    m.position.set(px, y + h / 2, pz);
-    m.rotation.set(rot[0] + tiltX, rot[1], rot[2] + tiltZ);
-    m.renderOrder = order;
-    scene.add(m);
-  };
   for (let k = 0; k < 4; k++) {
-    const h = s * R(1.2, 2.2);
-    const r = s * R(0.35, 0.55);
+    const h = s * R(1.2, 2.2) * 1.25;
+    const w = s * R(0.35, 0.55) * 2.6;
     const px = x + R(-0.4, 0.4) * s, pz = z + R(-0.4, 0.4) * s;
-    cone(r, h, px, pz, [R(-0.2, 0.2), R(0, 3), R(-0.2, 0.2)], k % 2 ? '#ff6a1f' : '#c0441a', 1);
-  }
-  for (let k = 0; k < 3; k++) {
-    cone(s * F(0.24, 0.34), s * F(0.9, 1.5), x + F(-0.25, 0.25) * s, z + F(-0.25, 0.25) * s, [F(-0.15, 0.15), F(0, 3), F(-0.15, 0.15)], '#ffb347', 2);
-  }
-  for (let k = 0; k < 2; k++) {
-    cone(s * F(0.14, 0.2), s * F(0.5, 0.8), x + F(-0.15, 0.15) * s, z + F(-0.15, 0.15) * s, [0, F(0, 3), 0], '#ffe08a', 3);
-  }
-  for (let k = 0; k < 4; k++) {
-    cone(s * F(0.08, 0.14), s * F(1.3, 2.0), x + F(-0.5, 0.5) * s, z + F(-0.5, 0.5) * s, [F(-0.35, 0.35), F(0, 3), F(-0.35, 0.35)], k % 2 ? '#ffb347' : '#ff6a1f', 1);
+    R(-0.2, 0.2); R(0, 3); R(-0.2, 0.2);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), flameShader(F(0, 100)));
+    m.position.set(px, y + h / 2 + s * 0.15, pz);
+    m.renderOrder = k;
+    FLAMES.push(m);
+    scene.add(m);
   }
   const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
   glow.position.set(x, y + s * 0.7, z);
@@ -391,6 +405,7 @@ for (let i = 0; i < 26; i++) {
 const cam = new THREE.PerspectiveCamera(V.fov, W / H, 0.1, 2000);
 cam.position.set(...V.cam);
 cam.lookAt(...V.look);
+for (const m of FLAMES) m.quaternion.copy(cam.quaternion);
 renderer.render(scene, cam);
 </script>
 </body></html>
