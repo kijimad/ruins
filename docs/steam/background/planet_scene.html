@@ -55,8 +55,7 @@ scene.add(new THREE.Mesh(new THREE.SphereGeometry(1500, 64, 48), new THREE.Shade
     }`,
 })));
 
-// 星。暗い星を多く明るい星を少なくし、天の川の近くほど密にする。ほとんどは青白く、いくつかを暖色にする
-const STARS = [];
+// 星。どれもピクセル絵の1画素の点にし、明るさで大小を出す。暗い星を多く明るい星を少なくし、天の川の近くほど密にする。ほとんどは青白く、いくつかを暖色にする
 {
   const pos = [], col = [];
   for (let i = 0; i < 20000 && pos.length < 2600 * 3; i++) {
@@ -70,23 +69,11 @@ const STARS = [];
     const lv = 0.25 + b * 0.75;
     pos.push(d.x * 1400, d.y * 1400, d.z * 1400);
     col.push(c[0] * lv, c[1] * lv, c[2] * lv);
-    if (b > 0.7) STARS.push(d.clone().multiplyScalar(1400));
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
   scene.add(new THREE.Points(g, new THREE.PointsMaterial({ size: 1, sizeAttenuation: false, vertexColors: true })));
-
-  // 明るい星は、ピクセル絵らしい 3x3 の十字の光にする
-  const plus = new THREE.DataTexture(new Uint8Array([
-    0, 0, 0, 0, 255, 255, 255, 140, 0, 0, 0, 0,
-    255, 255, 255, 140, 255, 255, 255, 255, 255, 255, 255, 140,
-    0, 0, 0, 0, 255, 255, 255, 140, 0, 0, 0, 0,
-  ]), 3, 3);
-  plus.magFilter = plus.minFilter = THREE.NearestFilter;
-  plus.needsUpdate = true;
-  const bg = new THREE.BufferGeometry().setFromPoints(STARS);
-  scene.add(new THREE.Points(bg, new THREE.PointsMaterial({ size: 3, sizeAttenuation: false, map: plus, transparent: true, color: '#dfe8ff' })));
 }
 
 // 惑星。面を荒く分けた球の頂点を、重ねた波で凹凸にする。高い所は雪の白、低い所は氷の青にする
