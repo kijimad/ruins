@@ -103,9 +103,7 @@ func (b *SearchBehavior) Finish(comp *gc.Activity, _ ecs.Entity, world w.World) 
 	if !world.ECS.Alive(p.Target) {
 		return nil
 	}
-	if !world.Components.Searched.Has(p.Target) {
-		world.Components.Searched.Add(p.Target, &gc.Searched{})
-	}
+	lifecycle.EnsureMarker(world, world.Components.Searched, p.Target, &gc.Searched{})
 	if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(p.Target)); err != nil {
 		return fmt.Errorf("storage menu state change request error: %w", err)
 	}
