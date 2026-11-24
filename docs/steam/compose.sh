@@ -12,6 +12,8 @@ trap 'rm -rf "$TMP"' EXIT
 
 # マスターは横1枚だけ。縦カプセルもこの1枚をポートレートに切り出す。
 MASTER="${STEAM_MASTER:-docs/steam/background/master_3840x2560.png}"
+# タイトル画面だけは、同じ構図で炎が消えて時間がたった後のマスターを使う。何度も開いて眺める画面なので静かな場面にする
+TITLE_MASTER="${STEAM_TITLE_MASTER:-docs/steam/background/title_master_3840x2560.png}"
 OUT="${STEAM_OUT:-docs/steam/generated}"
 # 完成品ロゴ。副題を含み、文字と罫にぴったりの大きさ。加工せずそのまま重ねる
 LOGO_PNG="docs/steam/logo/logo.png"
@@ -19,6 +21,10 @@ LOGO_PNG="docs/steam/logo/logo.png"
 # 入力が無ければ magick のエラーを待たず、先に何を実行すべきか示して止める
 [ -f "$MASTER" ] || {
 	echo "ERROR: $MASTER が無い。先に background/gen_master.py を実行する" >&2
+	exit 1
+}
+[ -f "$TITLE_MASTER" ] || {
+	echo "ERROR: $TITLE_MASTER が無い。先に background/gen_master.py を実行する" >&2
 	exit 1
 }
 [ -f "$LOGO_PNG" ] || {
@@ -105,8 +111,8 @@ generate_capsule 748 896 vertical_capsule.png 2137 2560 north southwest 120
 generate_capsule 600 900 library_capsule.png 1707 2560 north southwest 120
 
 # --- ゲームタイトル用画像 960x720 ---
-# シネマ配置。ロゴを左上、メニューは右下(ゲーム側で描画)に置く。炎はマスターの左下にあり、メニューと重ならない。
-magick "$MASTER" -gravity southwest -crop 2560x1920+120+0 +repage -resize 960x720! "$TMP/title_bg.png"
+# シネマ配置。ロゴを左上、メニューは右下(ゲーム側で描画)に置く。
+magick "$TITLE_MASTER" -gravity southwest -crop 2560x1920+120+0 +repage -resize 960x720! "$TMP/title_bg.png"
 TITLE_OUT="${STEAM_TITLE_OUT:-assets/file/textures/bg/title1_.png}"
 # ロゴを左上へ。幅は500px。メニューはゲームのタイトル画面が右下へ描く。
 magick "$LOGO_PNG" -resize 500x "$TMP/title_logo.png"

@@ -63,6 +63,13 @@ if (q.has('j')) {
   V.smokeH = J(V.smokeH, 10);
   V.fire = J(V.fire, 0.2);
 }
+// after を与えると、墜落から時間がたった後の場面にする。炎は消えて明かりも落ち、煙は細く低く残る。
+// 炎の大きさを0にするだけで炎を作る処理は通すので、構図の乱数の回数は変わらず、山と都市の形は保たれる
+const AFTER = q.has('after');
+if (AFTER) {
+  V.fire = 0;
+  V.smokeH *= 0.6;
+}
 const T = TIMES[V.time];
 
 const renderer = new THREE.WebGLRenderer({ antialias: !q.has("px"), preserveDrawingBuffer: true });
@@ -70,7 +77,7 @@ renderer.setSize(W, H);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = T.exp;
+renderer.toneMappingExposure = T.exp * (AFTER ? 1.6 : 1);
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -208,7 +215,7 @@ const pod = new THREE.Group();
   ring.rotation.y = Math.PI / 2; ring.position.x = 0.6; pod.add(ring);
   const win = new THREE.Mesh(new THREE.CircleGeometry(0.5, 6), glow);
   win.position.set(-0.4, 0.35, 1.25); win.rotation.x = -0.25; pod.add(win);
-  const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.95, 0.9, 7, 1, true), hot);
+  const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.95, 0.9, 7, 1, true), AFTER ? metal : hot);
   nozzle.rotation.z = Math.PI / 2; nozzle.position.x = 2.5; pod.add(nozzle);
   const fin = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 1.0), metal);
   fin.position.set(1.4, 1.2, 0); fin.rotation.z = 0.5; fin.castShadow = true; pod.add(fin);
@@ -268,12 +275,12 @@ for (let i = 0; i < 720; i++) rnd();
     for (let k = 0; k < 5; k++) {
       const s = (0.35 + t * 3.6) * S(0.5, 1.1);
       const col = new THREE.Color('#2e2c33').lerp(new THREE.Color('#9aa0b0'), t * 0.8 + S(0, 0.15));
-      const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, flatShading: true, transparent: true, opacity: (0.6 - t * 0.5) * S(0.6, 1), roughness: 1, depthWrite: false }));
+      const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, flatShading: true, transparent: true, opacity: (0.6 - t * 0.5) * S(0.6, 1) * (AFTER ? 0.3 : 1), roughness: 1, depthWrite: false }));
       const spread = 0.6 + t * 6;
       m.scale.setScalar(s);
       m.position.set(2 + t * t * V.wind[0] + S(-1, 1) * spread, 0.5 + t * V.smokeH + S(-1, 1) * spread * 0.4, t * V.wind[1] + S(-1, 1) * spread);
       m.rotation.set(S(0, 3), S(0, 3), S(0, 3));
-      scene.add(m);
+      if (!AFTER || t < 0.5) scene.add(m);
     }
   }
 }

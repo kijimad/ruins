@@ -31,11 +31,13 @@ WARM = [
 ]
 
 
-def render(key, path):
-    """シーンを描いて path に書く。three.js の読み込みやシェーダが失敗すると Chrome は
-    ほぼ単色の画面を書いて正常に終わるので、色の数で描き損じを見分けて止める。"""
+def render(key, path, after=False):
+    """シーンを描いて path に書く。after が立っていれば、炎が消えて時間がたった後の場面にする。three.js の読み込みや
+    シェーダが失敗すると Chrome はほぼ単色の画面を書いて正常に終わるので、色の数で描き損じを見分けて止める。"""
     seed, _, j = str(key).partition(":")
     extra = f"&j={j}" if j else ""
+    if after:
+        extra += "&after=1"
     env = {k: v for k, v in os.environ.items() if k != "LD_LIBRARY_PATH"}
     try:
         subprocess.run(
