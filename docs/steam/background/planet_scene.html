@@ -31,7 +31,7 @@ const scene = new THREE.Scene();
 const bandN = new THREE.Vector3(S(-1, 1), S(-1, 1), S(-1, 1)).normalize();
 
 // 空。遠くの球の裏面に、方向から求めたノイズで星雲と天の川を描く
-scene.add(new THREE.Mesh(new THREE.SphereGeometry(1500, 64, 48), new THREE.ShaderMaterial({
+const sky = new THREE.Mesh(new THREE.SphereGeometry(1500, 64, 48), new THREE.ShaderMaterial({
   side: THREE.BackSide, depthWrite: false,
   uniforms: { uSeed: { value: S(0, 100) }, uBand: { value: bandN } },
   vertexShader: 'varying vec3 vDir; void main(){ vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
@@ -53,7 +53,10 @@ scene.add(new THREE.Mesh(new THREE.SphereGeometry(1500, 64, 48), new THREE.Shade
       col += vec3(0.16, 0.18, 0.26) * band * smoothstep(0.3, 0.75, b) * 1.4;
       gl_FragColor = vec4(col, 1.0);
     }`,
-})));
+}));
+// 空は背景なので、ほかの物より先に描く
+sky.renderOrder = -1;
+scene.add(sky);
 
 // 星。どれもピクセル絵の1画素の点にし、明るさで大小を出す。暗い星を多く明るい星を少なくし、天の川の近くほど密にする。ほとんどは青白く、いくつかを暖色にする
 {

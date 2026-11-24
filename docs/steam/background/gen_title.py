@@ -12,13 +12,12 @@ import tempfile
 
 from PIL import Image
 
-import gen_crash
-
 SKY = 16
 W, H = 320, 240
 COLORS = 32
-SCENE = "file://" + os.path.join(gen_crash.HERE, "planet_scene.html")
-OUT = os.path.join(gen_crash.HERE, "title_master.png")
+HERE = os.path.dirname(os.path.abspath(__file__))
+SCENE = "file://" + os.path.join(HERE, "planet_scene.html")
+OUT = os.path.join(HERE, "title_master.png")
 
 
 def main():

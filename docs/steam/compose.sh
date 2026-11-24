@@ -1,6 +1,6 @@
 #!/bin/bash
 # Steam アセットの最終合成。背景マスタを各カプセルサイズへ切り出し、ロゴを重ねて generated/ へ出す。
-# パーツは各ディレクトリに同居する: background/(gen_master.py) と logo/(gen_logo.sh)。
+# パーツは各ディレクトリに同居する: background/(gen_master.py, gen_title.py) と logo/(gen_logo.sh)。
 # 使い方: nix-shell docs/steam/shell.nix 内で bash docs/steam/compose.sh  依存: ImageMagick
 
 set -euo pipefail
@@ -15,14 +15,16 @@ MASTER="${STEAM_MASTER:-docs/steam/background/master_3840x2560.png}"
 OUT="${STEAM_OUT:-docs/steam/generated}"
 # 完成品ロゴ。副題を含み、文字と罫にぴったりの大きさ。加工せずそのまま重ねる
 LOGO_PNG="docs/steam/logo/logo.png"
+# タイトル画面の背景。ストアの絵と別に、宇宙から見た凍った惑星を 320x240 のピクセル絵で描いたもの
+TITLE_MASTER="${STEAM_TITLE_MASTER:-docs/steam/background/title_master.png}"
 
 # 入力が無ければ magick のエラーを待たず、先に何を実行すべきか示して止める
 [ -f "$MASTER" ] || {
 	echo "ERROR: $MASTER が無い。先に background/gen_master.py を実行する" >&2
 	exit 1
 }
-[ -f "docs/steam/background/title_master.png" ] || {
-	echo "ERROR: docs/steam/background/title_master.png が無い。先に background/gen_title.py を実行する" >&2
+[ -f "$TITLE_MASTER" ] || {
+	echo "ERROR: $TITLE_MASTER が無い。先に background/gen_title.py を実行する" >&2
 	exit 1
 }
 [ -f "$LOGO_PNG" ] || {
@@ -111,9 +113,8 @@ generate_capsule 600 900 library_capsule.png 1707 2560 north southwest 120
 # --- ゲームタイトル用画像 960x720 ---
 # タイトル画面はストアの絵と別に、宇宙から見た凍った惑星を使う。何度も開いて眺める画面なので、止まっていて自然な場面にする。
 # background/gen_title.py が 320x240 のピクセル絵で描くので、3倍に広げてロゴを左上へ重ねる。メニューは右下の夜の側にゲームが描く
-TITLE_MASTER="docs/steam/background/title_master.png"
 TITLE_OUT="${STEAM_TITLE_OUT:-assets/file/textures/bg/title1_.png}"
-magick "$TITLE_MASTER" -filter point -resize 960x720 "$TMP/title_bg.png"
+magick "$TITLE_MASTER" -scale 300% "$TMP/title_bg.png"
 magick "$LOGO_PNG" -resize 500x "$TMP/title_logo.png"
 magick "$TMP/title_bg.png" "$TMP/title_logo.png" -gravity NorthWest -geometry +80+88 -compose over -composite "$TMP/title_merged.png"
 mv "$TMP/title_merged.png" "$TITLE_OUT"
