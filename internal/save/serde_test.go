@@ -302,7 +302,7 @@ func TestSerde_Searchedが往復する(t *testing.T) {
 	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: false, {X: 4, Y: 3}: true}, got)
 }
 
-func TestSerde_Passableが往復する(t *testing.T) {
+func TestSerde_PassableとSeeThroughが往復する(t *testing.T) {
 	t.Parallel()
 	testDir := t.TempDir()
 	manager, err := NewSerializationManager(WithSaveDir(testDir))
@@ -311,7 +311,7 @@ func TestSerde_Passableが往復する(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	for i, id := range []string{"moving_stone", "fence"} {
+	for i, id := range []string{"moving_stone", "fence", "bookshelf"} {
 		_, err = lifecycle.SpawnProp(world, id, consts.Tile(3+i), 3)
 		require.NoError(t, err)
 	}
@@ -320,17 +320,26 @@ func TestSerde_Passableが往復する(t *testing.T) {
 	newWorld := testutil.InitTestWorld(t)
 	require.NoError(t, manager.LoadWorld(newWorld, "passable"))
 
-	got := map[string]*gc.Passable{}
+	type marks struct {
+		passable   *gc.Passable
+		seeThrough bool
+	}
+	got := map[string]marks{}
 	q := ecs.NewFilter2[gc.RawID, gc.Prop](newWorld.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		var p *gc.Passable
+		var m marks
 		if newWorld.Components.Passable.Has(e) {
-			p = newWorld.Components.Passable.Get(e)
+			m.passable = newWorld.Components.Passable.Get(e)
 		}
-		got[newWorld.Components.RawID.Get(e).ID] = p
+		m.seeThrough = newWorld.Components.SeeThrough.Has(e)
+		got[newWorld.Components.RawID.Get(e).ID] = m
 	}
-	assert.Equal(t, map[string]*gc.Passable{"moving_stone": {Cost: 50}, "fence": nil}, got)
+	assert.Equal(t, map[string]marks{
+		"moving_stone": {passable: &gc.Passable{Cost: 50}, seeThrough: true},
+		"fence":        {seeThrough: true},
+		"bookshelf":    {},
+	}, got)
 }
 
 // TestSerde_Perishableが往復する は腐敗食の鮮度がセーブ・ロードで保たれることを検証する。

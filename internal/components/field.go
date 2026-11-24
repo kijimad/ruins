@@ -61,9 +61,9 @@ type Passable struct {
 	Cost int
 }
 
-// BlockView はフィールド上で視界を遮る
-// TODO: 能動態のほうがわかりやすそう
-type BlockView struct{}
+// SeeThrough は見通せる地形と置物の印。持たない地形と置物があるマスは見通せない。
+// キャラクターやアイテムの見通しには使わない。置く設備は、置物へ変えたときに視線を遮らないよう、アイテムのうちから持つ
+type SeeThrough struct{}
 
 // Renderable はフィールド上で描画できる
 type Renderable struct{}

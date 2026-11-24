@@ -235,28 +235,36 @@ func TestIsInMapBounds_範囲内は真で範囲外と負座標は偽(t *testing.
 func TestBuildBlockViewIndex(t *testing.T) {
 	t.Parallel()
 
-	t.Run("BlockViewを持つエンティティがインデックスに含まれる", func(t *testing.T) {
+	t.Run("見通しを持たない地形と置物だけがインデックスに含まれる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// BlockView付きの壁タイルを生成する
 		wallGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}}
 		wallEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wallEntity, &wallGrid)
-		world.Components.BlockView.Add(wallEntity, &gc.BlockView{})
+		world.Components.Tile.Add(wallEntity, &gc.Tile{})
 
-		// BlockViewなしの床タイルを生成する
+		shelfGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}}
+		shelfEntity := world.ECS.NewEntity()
+		world.Components.GridElement.Add(shelfEntity, &shelfGrid)
+		world.Components.Prop.Add(shelfEntity, &gc.Prop{})
+
 		floorGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 6}}
 		floorEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(floorEntity, &floorGrid)
+		world.Components.Tile.Add(floorEntity, &gc.Tile{})
+		world.Components.SeeThrough.Add(floorEntity, &gc.SeeThrough{})
+
+		// キャラクターは見通しの印を持たないが視界を遮らない
+		character := world.ECS.NewEntity()
+		world.Components.GridElement.Add(character, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 6}})
 
 		index := buildBlockViewIndex(world)
 
-		assert.True(t, index[wallGrid], "壁タイルがインデックスに含まれる")
-		assert.False(t, index[floorGrid], "床タイルはインデックスに含まれない")
+		assert.Equal(t, map[gc.GridElement]bool{wallGrid: true, shelfGrid: true}, index)
 	})
 
-	t.Run("BlockViewエンティティがない場合は空マップを返す", func(t *testing.T) {
+	t.Run("見通せない地形と置物がない場合は空マップを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 

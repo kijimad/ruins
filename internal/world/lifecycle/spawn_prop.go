@@ -59,14 +59,10 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 
 	if isOpen {
 		EnsureMarker(world, world.Components.Passable, doorEntity, &gc.Passable{})
-		if world.Components.BlockView.Has(doorEntity) {
-			world.Components.BlockView.Remove(doorEntity)
-		}
+		EnsureMarker(world, world.Components.SeeThrough, doorEntity, &gc.SeeThrough{})
 	} else {
 		ensureRemoved(world.Components.Passable, doorEntity)
-		if !world.Components.BlockView.Has(doorEntity) {
-			world.Components.BlockView.Add(doorEntity, &gc.BlockView{})
-		}
+		ensureRemoved(world.Components.SeeThrough, doorEntity)
 	}
 
 	return nil

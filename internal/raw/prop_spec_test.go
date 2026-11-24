@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewPropSpec_視界を遮るPropにはBlockViewが設定される(t *testing.T) {
+func TestNewPropSpec_見通せないPropはSeeThroughを持たない(t *testing.T) {
 	t.Parallel()
 	str := `
 [[Props]]
@@ -18,7 +18,7 @@ Name = "壁"
 id = "壁"
 Description = "視界を遮る壁"
 Passable = {}
-BlockView = true
+SeeThrough = false
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
@@ -31,7 +31,7 @@ Depth = "decal"
 	entitySpec, err := NewPropSpec(raws, "壁")
 	require.NoError(t, err)
 
-	require.NotNil(t, entitySpec.BlockView, "BlockView=trueのPropにはBlockViewコンポーネントが設定されるべき")
+	assert.Nil(t, entitySpec.SeeThrough)
 }
 
 func TestNewPropSpec_通行不可を伴わない通行コストが設定される(t *testing.T) {
@@ -42,7 +42,7 @@ Name = "泥濘"
 id = "泥濘"
 Description = "移動に時間がかかる地面"
 Passable = { Cost = 50 }
-BlockView = false
+SeeThrough = true
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
@@ -66,7 +66,7 @@ Name = "木の扉"
 id = "木の扉"
 Description = "開閉できる扉"
 Passable = {}
-BlockView = false
+SeeThrough = true
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
@@ -96,7 +96,7 @@ Name = "下り階段"
 id = "下り階段"
 Description = "1つ下の階層へ進むポータル"
 Passable = {}
-BlockView = false
+SeeThrough = true
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
@@ -123,7 +123,7 @@ Name = "壊れた収納"
 id = "壊れた収納"
 Description = "重量表記が壊れている"
 Passable = {}
-BlockView = false
+SeeThrough = true
 
 [Props.SpriteRender]
 SpriteSheetName = "field"

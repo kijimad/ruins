@@ -510,7 +510,7 @@ Name = "アニメーションProp"
 id = "アニメーションProp"
 Description = "2フレームアニメーションする置物"
 Passable = {}
-BlockView = false
+SeeThrough = true
 AnimKeys = ["fire_0_", "fire_1_"]
 
 [Props.SpriteRender]
@@ -541,7 +541,7 @@ func TestPropWithoutAnimKeys(t *testing.T) {
 Name = "静的Prop"
 id = "静的Prop"
 Description = "アニメーションしない置物"
-BlockView = false
+SeeThrough = true
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
@@ -570,7 +570,7 @@ id = "浅瀬"
 Name = "浅瀬"
 Description = "通れるが移動コストがある"
 Passable = { Cost = 100 }
-BlockView = false
+SeeThrough = true
 
 [Tiles.SpriteRender]
 SpriteSheetName = "tile"
@@ -582,7 +582,7 @@ id = "床"
 Name = "床"
 Description = "移動コストが無い"
 Passable = {}
-BlockView = false
+SeeThrough = true
 
 [Tiles.SpriteRender]
 SpriteSheetName = "tile"
@@ -608,7 +608,7 @@ func TestPropWithHP(t *testing.T) {
 Name = "壊れるProp"
 id = "壊れるProp"
 Description = "破壊可能な置物"
-BlockView = false
+SeeThrough = true
 Hp = 20
 
 [Props.SpriteRender]
@@ -637,7 +637,7 @@ func TestPropFromHP(t *testing.T) {
 Name = "木の机"
 id = "木の机"
 Description = "殴れば壊れる机"
-BlockView = false
+SeeThrough = true
 hp = 30
 
 [Props.SpriteRender]
@@ -663,7 +663,7 @@ func TestPropWithStorage(t *testing.T) {
 Name = "木箱"
 id = "木箱"
 Description = "古びた木箱"
-BlockView = false
+SeeThrough = true
 hp = 30
 
 [Props.SpriteRender]
@@ -696,7 +696,7 @@ Name = "上り階段"
 id = "上り階段"
 Description = "1つ上の階層へ戻るポータル"
 Passable = {}
-BlockView = false
+SeeThrough = true
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
@@ -723,7 +723,7 @@ func TestPropWithoutStorage(t *testing.T) {
 Name = "テーブル"
 id = "テーブル"
 Description = "普通のテーブル"
-BlockView = false
+SeeThrough = true
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
@@ -891,7 +891,7 @@ Name = "test_floor"
 id = "test_floor"
 Description = "テスト床"
 Passable = {}
-BlockView = false
+SeeThrough = true
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -901,7 +901,7 @@ BlockView = false
 	assert.Equal(t, i18n.Msgid("test_floor"), spec.Name.Name)
 	assert.NotNil(t, spec.GridElement)
 	assert.Equal(t, &gc.Passable{}, spec.Passable, "通行可能なタイルは素通りの通り方を持つ")
-	assert.Nil(t, spec.BlockView, "視界を遮らないタイルにはBlockViewがない")
+	assert.Equal(t, &gc.SeeThrough{}, spec.SeeThrough, "視界を遮らないタイルは見通しの印を持つ")
 }
 
 func TestNewTileSpec_通り方を省いた壁(t *testing.T) {
@@ -912,7 +912,7 @@ func TestNewTileSpec_通り方を省いた壁(t *testing.T) {
 Name = "test_wall"
 id = "test_wall"
 Description = "テスト壁"
-BlockView = true
+SeeThrough = false
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -920,7 +920,7 @@ BlockView = true
 	spec, err := NewTileSpec(raws, "test_wall", 3, 7, nil)
 	require.NoError(t, err)
 	assert.Nil(t, spec.Passable, "壁タイルは通り方を持たない")
-	assert.NotNil(t, spec.BlockView, "壁タイルにはBlockViewがある")
+	assert.Nil(t, spec.SeeThrough, "壁タイルは見通しの印を持たない")
 }
 
 func TestTileIsTall_実データで描画順が高さのあるタイルだけが高い(t *testing.T) {
@@ -1318,14 +1318,14 @@ func TestWallMaterialTiles_dwallと同じ描画順と通れなさと視界で並
 	dwall, err := GetTile(raws, "dwall")
 	require.NoError(t, err)
 	type traits struct {
-		depth                 rawschema.SpriteDepth
-		impassable, blockView bool
+		depth              rawschema.SpriteDepth
+		impassable, opaque bool
 	}
-	want := traits{dwall.SpriteRender.Depth, dwall.Passable == nil, dwall.BlockView}
+	want := traits{dwall.SpriteRender.Depth, dwall.Passable == nil, !dwall.SeeThrough}
 	for _, id := range wallMaterialTiles() {
 		tile, err := GetTile(raws, id)
 		require.NoError(t, err, id)
-		assert.Equal(t, want, traits{tile.SpriteRender.Depth, tile.Passable == nil, tile.BlockView}, id)
+		assert.Equal(t, want, traits{tile.SpriteRender.Depth, tile.Passable == nil, !tile.SeeThrough}, id)
 	}
 }
 
@@ -1443,7 +1443,7 @@ func TestNewPropSpec_行から作る収納は探していない状態で生ま�
 	assert.Nil(t, spec.Searched)
 }
 
-func TestNewItemSpec_置く設備は素通りの通り方を持つ(t *testing.T) {
+func TestNewItemSpec_置く設備は素通りの通り方と見通しを持つ(t *testing.T) {
 	t.Parallel()
 	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
@@ -1451,6 +1451,7 @@ func TestNewItemSpec_置く設備は素通りの通り方を持つ(t *testing.T)
 	spec, err := NewItemSpec(raws, "deployable_storage")
 	require.NoError(t, err)
 	assert.Equal(t, &gc.Passable{}, spec.Passable)
+	assert.Equal(t, &gc.SeeThrough{}, spec.SeeThrough)
 }
 
 func TestTiles_実データで床の高さのタイルだけが通れる(t *testing.T) {

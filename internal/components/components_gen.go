@@ -41,7 +41,7 @@ type EntitySpec struct {
 	Position           *Position
 	GridElement        *GridElement
 	SpriteRender       *SpriteRender
-	BlockView          *BlockView
+	SeeThrough         *SeeThrough
 	Passable           *Passable
 	Door               *Door
 	Pose               *Pose
@@ -141,7 +141,7 @@ type Components struct {
 	Position           *ecs.Map[Position]
 	GridElement        *ecs.Map[GridElement]
 	SpriteRender       *ecs.Map[SpriteRender]
-	BlockView          *ecs.Map[BlockView]
+	SeeThrough         *ecs.Map[SeeThrough]
 	Passable           *ecs.Map[Passable]
 	Door               *ecs.Map[Door]
 	Pose               *ecs.Map[Pose]
@@ -241,7 +241,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Position = ecs.NewMap[Position](world)
 	c.GridElement = ecs.NewMap[GridElement](world)
 	c.SpriteRender = ecs.NewMap[SpriteRender](world)
-	c.BlockView = ecs.NewMap[BlockView](world)
+	c.SeeThrough = ecs.NewMap[SeeThrough](world)
 	c.Passable = ecs.NewMap[Passable](world)
 	c.Door = ecs.NewMap[Door](world)
 	c.Pose = ecs.NewMap[Pose](world)
@@ -343,7 +343,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Position, entity, spec.Position)
 	addComp(c.GridElement, entity, spec.GridElement)
 	addComp(c.SpriteRender, entity, spec.SpriteRender)
-	addComp(c.BlockView, entity, spec.BlockView)
+	addComp(c.SeeThrough, entity, spec.SeeThrough)
 	addComp(c.Passable, entity, spec.Passable)
 	addComp(c.Door, entity, spec.Door)
 	addComp(c.Pose, entity, spec.Pose)

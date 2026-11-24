@@ -415,8 +415,9 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name string) error {
 	entitySpec.Deployable = &gc.Deployable{}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{}}
-	// 置くと置物になり、通り方を持たない置物は塞ぐ。置いた設備の上は歩けるので、素通りの通り方を持たせる
+	// 置くと置物になり、通り方と見通しを持たない置物は塞ぐ。置いた設備の上は歩けて見通せるので、両方を持たせる
 	entitySpec.Passable = &gc.Passable{}
+	entitySpec.SeeThrough = &gc.SeeThrough{}
 	if dep.Storage != nil {
 		mg, err := consts.ParseWeight(dep.Storage.MaxWeight)
 		if err != nil {
@@ -747,9 +748,8 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 
 	entitySpec.Passable = toGCPassable(tileRaw.Passable)
 
-	// BlockViewがtrueの場合は視界を遮断
-	if tileRaw.BlockView {
-		entitySpec.BlockView = &gc.BlockView{}
+	if tileRaw.SeeThrough {
+		entitySpec.SeeThrough = &gc.SeeThrough{}
 	}
 
 	entitySpec.Tile = &gc.Tile{}
@@ -856,8 +856,8 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.SpriteRender = &spriteRender
 
 	entitySpec.Passable = toGCPassable(propRaw.Passable)
-	if propRaw.BlockView {
-		entitySpec.BlockView = &gc.BlockView{}
+	if propRaw.SeeThrough {
+		entitySpec.SeeThrough = &gc.SeeThrough{}
 	}
 	// 各条件に対応するインタラクションを蓄積する。
 	// 1つのPropが複数のインタラクションを持てる

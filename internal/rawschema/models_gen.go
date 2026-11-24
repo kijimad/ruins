@@ -250,9 +250,6 @@ type Blast struct {
 // BlastRadius 爆風の半径。マス数
 type BlastRadius = int
 
-// BlocksView 視線を遮るかどうか
-type BlocksView = bool
-
 // BodyAttack 体の攻撃。体に備わり、拾えない攻撃
 type BodyAttack struct {
 	Id EntityID `json:"id"`
@@ -1969,8 +1966,6 @@ type Prop struct {
 
 	Bedding *Bedding `json:"bedding,omitempty"`
 
-	BlockView BlocksView `json:"blockView"`
-
 	// BurnoutItem 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
 	BurnoutItem *EntityID `json:"burnoutItem,omitempty"`
 
@@ -1996,6 +1991,9 @@ type Prop struct {
 
 	// RemainsId 壊れたときに足元へ残す跡。省くと何も残さない
 	RemainsId *EntityID `json:"remainsId,omitempty"`
+
+	// SeeThrough 見通せるか
+	SeeThrough bool `json:"seeThrough"`
 
 	SpriteRender SpriteRender `json:"spriteRender"`
 
@@ -2799,8 +2797,6 @@ type Throw struct {
 
 // Tile タイル
 type Tile struct {
-	BlockView BlocksView `json:"blockView"`
-
 	Description EntityDescription `json:"description"`
 
 	// Earth 草や木を立てられ、道で上書きしてよい土の地面か
@@ -2816,6 +2812,9 @@ type Tile struct {
 
 	// Passable 省くと通れない
 	Passable *Passable `json:"passable,omitempty"`
+
+	// SeeThrough 見通せるか
+	SeeThrough bool `json:"seeThrough"`
 
 	// Shelter 囲われの度合い。省くと屋外
 	Shelter *Shelter `json:"shelter,omitempty"`

@@ -509,15 +509,15 @@ func smoothstep(edge0, edge1, x float64) float64 {
 	return t * t * (3 - 2*t)
 }
 
-// buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
+// buildBlockViewIndex は見通せない地形と置物のタイル座標をインデックス化する
 func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
 	index := make(map[gc.GridElement]bool)
 	// 退避中ステージの遮蔽物は現ステージの視界を遮らない
-	blockViewQuery := query.ActiveFilter2[gc.GridElement, gc.BlockView](world).Query()
-	for blockViewQuery.Next() {
-		entity := blockViewQuery.Entity()
-		grid := world.Components.GridElement.Get(entity)
-		index[*grid] = true
+	for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {
+		q := query.ActiveFilter1[gc.GridElement](world).With(kind).Without(ecs.C[gc.SeeThrough]()).Query()
+		for q.Next() {
+			index[*world.Components.GridElement.Get(q.Entity())] = true
+		}
 	}
 	return index
 }

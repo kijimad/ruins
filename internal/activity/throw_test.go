@@ -42,7 +42,7 @@ func TestThrowBehavior_Validate(t *testing.T) {
 			setup: func(world iw.World, _, _ ecs.Entity) {
 				wall := world.ECS.NewEntity()
 				world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-				world.Components.BlockView.Add(wall, &gc.BlockView{})
+				world.Components.Tile.Add(wall, &gc.Tile{})
 			},
 			wantErr: errThrowLineBlocked,
 		},

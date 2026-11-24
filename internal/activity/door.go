@@ -217,7 +217,7 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 
 		log.Debug("door closed", "door", targetEntity)
 
-		// 視界の更新が必要であることをマーク（BlockViewが変更されたため）
+		// 視界の更新が必要であることをマーク。見通しの印が変わったため
 		query.GetVisionState(world).RequestUpdate()
 	}
 

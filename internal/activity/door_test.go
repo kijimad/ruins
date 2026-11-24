@@ -39,7 +39,7 @@ func TestOpenDoorBehavior(t *testing.T) {
 
 		// 通れて見通せるようになっていることを確認
 		assert.Equal(t, &gc.Passable{}, world.Components.Passable.Get(door), "開いた扉は移動コスト無しで通れる")
-		assert.False(t, world.Components.BlockView.Has(door), "BlockViewが削除されているべき")
+		assert.True(t, world.Components.SeeThrough.Has(door), "開いた扉は見通せる")
 	})
 
 	t.Run("Doorコンポーネントがない場合はエラー", func(t *testing.T) {

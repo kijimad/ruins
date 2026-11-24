@@ -162,7 +162,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		// 射線上に壁を配置
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.BlockView.Add(wall, &gc.BlockView{})
+		world.Components.Tile.Add(wall, &gc.Tile{})
 
 		sa := &ShootBehavior{}
 		activity := NewActivity(gc.BehaviorShoot, 0)
@@ -330,7 +330,7 @@ func TestCanShootTarget(t *testing.T) {
 
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.BlockView.Add(wall, &gc.BlockView{})
+		world.Components.Tile.Add(wall, &gc.Tile{})
 
 		assert.False(t, CanShootTarget(player, enemy, world))
 	})
@@ -426,7 +426,7 @@ func TestCheckLineOfSight(t *testing.T) {
 
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
-		world.Components.BlockView.Add(wall, &gc.BlockView{})
+		world.Components.Tile.Add(wall, &gc.Tile{})
 
 		blocked, _ := checkLineOfSight(actor, target, world)
 		assert.True(t, blocked)
@@ -445,6 +445,7 @@ func TestCheckLineOfSight(t *testing.T) {
 		cover := world.ECS.NewEntity()
 		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
 		world.Components.Prop.Add(cover, &gc.Prop{})
+		world.Components.SeeThrough.Add(cover, &gc.SeeThrough{})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
 		assert.False(t, blocked)
@@ -469,6 +470,7 @@ func TestCheckLineOfSight(t *testing.T) {
 		world.Components.GridElement.Add(floor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 		world.Components.Tile.Add(floor, &gc.Tile{})
 		world.Components.Passable.Add(floor, &gc.Passable{})
+		world.Components.SeeThrough.Add(floor, &gc.SeeThrough{})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
 		assert.False(t, blocked)
@@ -522,6 +524,7 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		cover := world.ECS.NewEntity()
 		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
 		world.Components.Prop.Add(cover, &gc.Prop{})
+		world.Components.SeeThrough.Add(cover, &gc.SeeThrough{})
 
 		fire := &gc.Fire{AttackCategory: rawschema.AttackCategoryHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)
