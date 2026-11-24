@@ -1800,8 +1800,9 @@ import (
 	// 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける
 	water?: bool
 
-	// 上へ移るときに足す移動コスト。通れないタイルには書かない
+	// 上へ移るときに足す移動コスト
 	passCost?: #PassCost
+	// 通れないタイルは移動コストを持たない
 	if blockPass {
 		passCostAbsent: true & passCost == _|_ @rawgen(-)
 	}
