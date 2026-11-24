@@ -1318,8 +1318,8 @@ func TestWallMaterialTiles_dwallと同じ描画順と通れなさと視界で並
 	dwall, err := GetTile(raws, "dwall")
 	require.NoError(t, err)
 	type traits struct {
-		depth                rawschema.SpriteDepth
-		blockPass, blockView bool
+		depth                 rawschema.SpriteDepth
+		impassable, blockView bool
 	}
 	want := traits{dwall.SpriteRender.Depth, dwall.Passable == nil, dwall.BlockView}
 	for _, id := range wallMaterialTiles() {

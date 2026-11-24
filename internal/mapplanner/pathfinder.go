@@ -186,7 +186,7 @@ func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool {
 	}
 
 	// 隣接4方向のうち少なくとも1つは移動可能なタイルが必要。
-	// 敵エンティティは通れない扱いになるため、全隣接タイルが占有されるとプレイヤーが移動不能になる
+	// キャラクターのいるマスへは入れないため、全隣接タイルが占有されるとプレイヤーが移動不能になる
 	if !pf.hasAdjacentFreeTile(pos) {
 		return false
 	}
