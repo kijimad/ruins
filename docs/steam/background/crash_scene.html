@@ -230,15 +230,53 @@ for (let i = 0; i < 46; i++) {
   scene.add(m);
 }
 
-// 炎: 低いポリゴンの錐を重ねる
+// 炎: 外側の赤橙、中の橙、芯の黄白の錐を内側ほど細く短く重ね、細い舌を足して風に少し傾ける。根元には光をにじませる。
+// 外側の錐は構図の乱数で形を決める。中の層と芯と舌と光は別の乱数で作り、構図の乱数の回数を変えない
+let fls = (seed ^ 0x6c8e9cf5) | 0;
+const F = (a, b) => { fls = fls + 0x6D2B79F5 | 0; let t = Math.imul(fls ^ fls >>> 15, 1 | fls); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return a + (b - a) * (((t ^ t >>> 14) >>> 0) / 4294967296); };
+const flameMat = (color, order) => new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.94, depthWrite: false });
+const glowTex = (() => {
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const g = c.getContext('2d');
+  const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, 'rgba(255,150,60,0.35)');
+  gr.addColorStop(0.5, 'rgba(255,100,40,0.12)');
+  gr.addColorStop(1, 'rgba(255,90,30,0)');
+  g.fillStyle = gr;
+  g.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(c);
+})();
 const flame = (x, y, z, s) => {
+  const wl = Math.hypot(V.wind[0], V.wind[1]) || 1;
+  const tiltX = (V.wind[1] / wl) * 0.2, tiltZ = -(V.wind[0] / wl) * 0.2;
+  const cone = (r, h, px, pz, rot, color, order) => {
+    const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 7), flameMat(color));
+    m.position.set(px, y + h / 2, pz);
+    m.rotation.set(rot[0] + tiltX, rot[1], rot[2] + tiltZ);
+    m.renderOrder = order;
+    scene.add(m);
+  };
   for (let k = 0; k < 4; k++) {
     const h = s * R(1.2, 2.2);
-    const m = new THREE.Mesh(new THREE.ConeGeometry(s * R(0.35, 0.55), h, 5), new THREE.MeshBasicMaterial({ color: k % 2 ? '#ffb347' : '#ff6a1f', transparent: true, opacity: 0.92 }));
-    m.position.set(x + R(-0.4, 0.4) * s, y + h / 2, z + R(-0.4, 0.4) * s);
-    m.rotation.set(R(-0.2, 0.2), R(0, 3), R(-0.2, 0.2));
-    scene.add(m);
+    const r = s * R(0.35, 0.55);
+    const px = x + R(-0.4, 0.4) * s, pz = z + R(-0.4, 0.4) * s;
+    cone(r, h, px, pz, [R(-0.2, 0.2), R(0, 3), R(-0.2, 0.2)], k % 2 ? '#ff6a1f' : '#c0441a', 1);
   }
+  for (let k = 0; k < 3; k++) {
+    cone(s * F(0.24, 0.34), s * F(0.9, 1.5), x + F(-0.25, 0.25) * s, z + F(-0.25, 0.25) * s, [F(-0.15, 0.15), F(0, 3), F(-0.15, 0.15)], '#ffb347', 2);
+  }
+  for (let k = 0; k < 2; k++) {
+    cone(s * F(0.14, 0.2), s * F(0.5, 0.8), x + F(-0.15, 0.15) * s, z + F(-0.15, 0.15) * s, [0, F(0, 3), 0], '#ffe08a', 3);
+  }
+  for (let k = 0; k < 4; k++) {
+    cone(s * F(0.08, 0.14), s * F(1.3, 2.0), x + F(-0.5, 0.5) * s, z + F(-0.5, 0.5) * s, [F(-0.35, 0.35), F(0, 3), F(-0.35, 0.35)], k % 2 ? '#ffb347' : '#ff6a1f', 1);
+  }
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
+  glow.position.set(x, y + s * 0.7, z);
+  glow.scale.setScalar(s * 3);
+  glow.renderOrder = 4;
+  scene.add(glow);
   const l = new THREE.PointLight('#ff7a30', 30 * s, 13, 1.6);
   l.position.set(x, y + s, z);
   scene.add(l);
