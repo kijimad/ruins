@@ -10,9 +10,11 @@ import (
 	"strings"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -139,6 +141,31 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 			g.Assert(t, t.Name(), text)
 		})
 	}
+	// 地上の地図の生成の途中経過も、同じ置き場に生成方式の1つとして並べる
+	t.Run("OverworldMap", func(t *testing.T) {
+		t.Parallel()
+		raws := testutil.InitTestWorld(t).Resources.RawMaster
+		_, _, cols, rows := dungeon.DungeonOverworld.BandShape()
+		spawnRow := gc.SeamlessBand{Rows: rows}.SpawnChunkY()
+		snaps := overworld.MapSnapshots(raws, overworldMapSeed, spawnRow, cols, spawnRow)
+		require.NotEmpty(t, snaps)
+		var b strings.Builder
+		for _, snap := range snaps {
+			b.WriteString(overworldMapText(snap))
+			b.WriteString("\n")
+		}
+		text := []byte(b.String())
+		g := goldie.New(t, goldie.WithNameSuffix(".txt"))
+		img := goldie.New(t, goldie.WithNameSuffix(".png"))
+		if goldenUpdating() && imgNeedsUpdate(img.GoldenFileName(t, t.Name()), g.GoldenFileName(t, t.Name()), text) {
+			frames := make([][]byte, len(snaps))
+			for i := range frames {
+				frames[i] = vrt.RenderPNG(t, vrt.States(&gs.OverworldMapVisualizerState{Seed: overworldMapSeed, SnapshotIndex: i}))
+			}
+			require.NoError(t, img.Update(t, t.Name(), phaseStrip(t, frames, 1)))
+		}
+		g.Assert(t, t.Name(), text)
+	})
 }
 
 func TestMapGenVisualizerState_空のタイルと収納の中身を描ける(t *testing.T) {
