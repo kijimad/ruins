@@ -80,9 +80,11 @@ func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: 7}, 0, 0))
 
 		var walls []gc.GridElement
-		q := ecs.NewFilter2[gc.GridElement, gc.BlockPass](world.ECS).Query()
-		for q.Next() {
-			walls = append(walls, *world.Components.GridElement.Get(q.Entity()))
+		for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {
+			q := ecs.NewFilter1[gc.GridElement](world.ECS).With(kind).Without(ecs.C[gc.Passable]()).Query()
+			for q.Next() {
+				walls = append(walls, *world.Components.GridElement.Get(q.Entity()))
+			}
 		}
 		sort.Slice(walls, func(i, j int) bool {
 			if walls[i].X != walls[j].X {
@@ -178,9 +180,11 @@ func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 		require.NoError(t, gen(c, 0, 0))
 
 		var walls []gc.GridElement
-		q := ecs.NewFilter2[gc.GridElement, gc.BlockPass](world.ECS).Query()
-		for q.Next() {
-			walls = append(walls, *world.Components.GridElement.Get(q.Entity()))
+		for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {
+			q := ecs.NewFilter1[gc.GridElement](world.ECS).With(kind).Without(ecs.C[gc.Passable]()).Query()
+			for q.Next() {
+				walls = append(walls, *world.Components.GridElement.Get(q.Entity()))
+			}
 		}
 		sort.Slice(walls, func(i, j int) bool {
 			if walls[i].X != walls[j].X {

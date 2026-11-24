@@ -441,14 +441,38 @@ func TestCheckLineOfSight(t *testing.T) {
 		target := world.ECS.NewEntity()
 		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 0}})
 
-		// BlockPassだけ（BlockViewなし）→ 遮蔽物
+		// 通れないが見通せる置物 → 遮蔽物
 		cover := world.ECS.NewEntity()
 		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
-		world.Components.BlockPass.Add(cover, &gc.BlockPass{})
+		world.Components.Prop.Add(cover, &gc.Prop{})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
 		assert.False(t, blocked)
 		assert.Equal(t, 1, coverCount)
+	})
+
+	t.Run("射線上のキャラクターとアイテムと通れる床は遮蔽物にならない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+		target := world.ECS.NewEntity()
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 0}})
+
+		character := world.ECS.NewEntity()
+		world.Components.GridElement.Add(character, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 0}})
+		item := world.ECS.NewEntity()
+		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
+		world.Components.Item.Add(item, &gc.Item{})
+		floor := world.ECS.NewEntity()
+		world.Components.GridElement.Add(floor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
+		world.Components.Tile.Add(floor, &gc.Tile{})
+		world.Components.Passable.Add(floor, &gc.Passable{})
+
+		blocked, coverCount := checkLineOfSight(actor, target, world)
+		assert.False(t, blocked)
+		assert.Equal(t, 0, coverCount)
 	})
 }
 
@@ -497,7 +521,7 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 
 		cover := world.ECS.NewEntity()
 		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
-		world.Components.BlockPass.Add(cover, &gc.BlockPass{})
+		world.Components.Prop.Add(cover, &gc.Prop{})
 
 		fire := &gc.Fire{AttackCategory: rawschema.AttackCategoryHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)

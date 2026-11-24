@@ -14,12 +14,12 @@ func TestNewSpatialIndex_未構築の空インデックスを返す(t *testing.T
 	si := NewSpatialIndex()
 
 	assert.False(t, si.Built)
-	assert.Nil(t, si.BlockPass)
+	assert.Nil(t, si.Blocked)
 	assert.Nil(t, si.Characters)
 	assert.Nil(t, si.PlayerEntity)
 }
 
-func TestSpatialIndex_IsBlockPass(t *testing.T) {
+func TestSpatialIndex_IsBlocked(t *testing.T) {
 	t.Parallel()
 
 	pos := consts.Coord[consts.Tile]{X: 1, Y: 2}
@@ -27,25 +27,25 @@ func TestSpatialIndex_IsBlockPass(t *testing.T) {
 	t.Run("未構築ならfalseを返す", func(t *testing.T) {
 		t.Parallel()
 		si := NewSpatialIndex()
-		assert.False(t, si.IsBlockPass(pos))
+		assert.False(t, si.IsBlocked(pos))
 	})
 
 	t.Run("構築済みで登録されたタイルはtrueを返す", func(t *testing.T) {
 		t.Parallel()
 		si := &SpatialIndex{
-			Built:     true,
-			BlockPass: map[GridElement]bool{{Coord: pos}: true},
+			Built:   true,
+			Blocked: map[GridElement]bool{{Coord: pos}: true},
 		}
-		assert.True(t, si.IsBlockPass(pos))
+		assert.True(t, si.IsBlocked(pos))
 	})
 
 	t.Run("構築済みでも未登録のタイルはfalseを返す", func(t *testing.T) {
 		t.Parallel()
 		si := &SpatialIndex{
-			Built:     true,
-			BlockPass: map[GridElement]bool{},
+			Built:   true,
+			Blocked: map[GridElement]bool{},
 		}
-		assert.False(t, si.IsBlockPass(pos))
+		assert.False(t, si.IsBlocked(pos))
 	})
 }
 
@@ -131,7 +131,7 @@ func TestSpatialIndex_Invalidate(t *testing.T) {
 	player := world.NewEntity()
 	si := &SpatialIndex{
 		Built:        true,
-		BlockPass:    map[GridElement]bool{{}: true},
+		Blocked:      map[GridElement]bool{{}: true},
 		Characters:   map[GridElement]ecs.Entity{{}: player},
 		PlayerEntity: &player,
 		BuildCount:   3,
@@ -140,7 +140,7 @@ func TestSpatialIndex_Invalidate(t *testing.T) {
 	si.Invalidate()
 
 	assert.False(t, si.Built)
-	assert.Nil(t, si.BlockPass)
+	assert.Nil(t, si.Blocked)
 	assert.Nil(t, si.Characters)
 	assert.Nil(t, si.PlayerEntity)
 	assert.Equal(t, 3, si.BuildCount, "BuildCountはリセットしない")

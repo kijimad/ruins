@@ -85,7 +85,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 			return false
 		}
 		t, err := tileOf(cells[y][x].Terrain)
-		return err == nil && t.BlockPass
+		return err == nil && t.Passable == nil
 	}
 
 	propOf := cachedPropRows(world.Resources.RawMaster)
@@ -97,7 +97,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
 		if err != nil {
 			return false, err
 		}
-		return prop.BlockPass, nil
+		return prop.Passable == nil, nil
 	}
 
 	// 扉の隣には扉や窓が並ぶので、通行を塞ぐ置物も壁と同じく向きを決める側に数える
@@ -251,7 +251,7 @@ func cellPoses(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool, propOf
 			if isFacing {
 				facers[c] = true
 			}
-			blockers[c] = blockers[c] || isFacing || prop.BlockPass
+			blockers[c] = blockers[c] || isFacing || prop.Passable == nil
 		}
 	}
 	poses := map[consts.Coord[consts.Tile]]*gc.Pose{}
@@ -309,7 +309,7 @@ func tileBlocksPass(raws rawschema.Raws) func(terrain string) bool {
 	blocks := map[string]bool{}
 	tiles := raw.PtrSlice(raws.Tiles)
 	for i := range tiles {
-		blocks[tiles[i].Id] = tiles[i].BlockPass
+		blocks[tiles[i].Id] = tiles[i].Passable == nil
 	}
 	return func(terrain string) bool {
 		if terrain == maptemplate.GroundTerrain {

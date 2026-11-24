@@ -63,7 +63,7 @@ func TestTileNameCompares(t *testing.T) {
 		{"case に並べると違反", "switch id {\ncase consts.TileNameWall, consts.TileNameVoid:\n}", 2},
 		{"タイルを置くのは適合", `cell = Cell{Terrain: consts.TileNameWall}`, 0},
 		{"タイルを引くのは適合", `_ = get(consts.TileNameVoid)`, 0},
-		{"性質で判定するのは適合", `_ = tile.BlockPass`, 0},
+		{"性質で判定するのは適合", `_ = tile.Passable == nil`, 0},
 		{"タイル以外の定数は適合", `_ = n == consts.MapTileWidth`, 0},
 		{"間取りの行が指すタイルと比べるのは適合", `_ = tile.Id == r.Tiles.Wall`, 0},
 	}

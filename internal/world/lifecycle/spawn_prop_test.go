@@ -72,13 +72,13 @@ func TestOpenDoor_開くと通行と視界を遮らなくなる(t *testing.T) {
 
 	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 3, Y: 4}, gc.DoorOrientationHorizontal)
 	require.NoError(t, err)
-	require.True(t, world.Components.BlockPass.Has(door), "生成直後は通行不可")
+	require.False(t, world.Components.Passable.Has(door), "生成直後は通行不可")
 	require.True(t, world.Components.BlockView.Has(door), "生成直後は視界を遮る")
 
 	require.NoError(t, lifecycle.OpenDoor(world, door))
 
 	assert.True(t, world.Components.Door.Get(door).IsOpen, "開いた状態になる")
-	assert.False(t, world.Components.BlockPass.Has(door), "通行可能になる")
+	assert.True(t, world.Components.Passable.Has(door), "通行可能になる")
 	assert.False(t, world.Components.BlockView.Has(door), "視界を遮らなくなる")
 	assert.Equal(t, "door_vertical_closed", world.Components.SpriteRender.Get(door).SpriteKey)
 }
@@ -116,7 +116,7 @@ func TestCloseDoor_閉じると通行不可と視界遮断に戻る(t *testing.T
 	require.NoError(t, lifecycle.CloseDoor(world, door))
 
 	assert.False(t, world.Components.Door.Get(door).IsOpen, "閉じた状態になる")
-	assert.True(t, world.Components.BlockPass.Has(door), "通行不可に戻る")
+	assert.False(t, world.Components.Passable.Has(door), "通行不可に戻る")
 	assert.True(t, world.Components.BlockView.Has(door), "視界を遮るようになる")
 	assert.Equal(t, "door_vertical_closed", world.Components.SpriteRender.Get(door).SpriteKey)
 }

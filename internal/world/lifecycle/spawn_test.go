@@ -345,8 +345,8 @@ func TestSpawnDoor(t *testing.T) {
 		assert.False(t, doorComp.IsOpen)
 		assert.Equal(t, gc.DoorOrientationVertical, doorComp.Orientation)
 
-		// BlockPass/BlockViewを確認
-		assert.True(t, world.Components.BlockPass.Has(door))
+		// 通れなさと BlockView を確認
+		assert.False(t, world.Components.Passable.Has(door))
 		assert.True(t, world.Components.BlockView.Has(door))
 	})
 
@@ -535,7 +535,7 @@ func TestMoveToBackpack_1個1エンティティなので合流しない(t *testi
 func TestSpawnTile(t *testing.T) {
 	t.Parallel()
 
-	t.Run("通行不可タイルはBlockPassを持つ", func(t *testing.T) {
+	t.Run("通行不可タイルはPassableを持たない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -546,7 +546,7 @@ func TestSpawnTile(t *testing.T) {
 		grid := world.Components.GridElement.Get(entity)
 		assert.Equal(t, consts.Tile(3), grid.X)
 		assert.Equal(t, consts.Tile(4), grid.Y)
-		assert.True(t, world.Components.BlockPass.Has(entity), "壁は通行不可")
+		assert.False(t, world.Components.Passable.Has(entity), "壁は通行不可")
 	})
 
 	t.Run("autoTileIndex指定でスプライトキーにインデックスが付く", func(t *testing.T) {

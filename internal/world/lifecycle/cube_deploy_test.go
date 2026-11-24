@@ -33,7 +33,7 @@ func TestDeployCube(t *testing.T) {
 		// 隣の1マスを壁にすると全か無かで展開が拒否される
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}})
-		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
+		world.Components.Tile.Add(wall, &gc.Tile{})
 		query.InvalidateSpatialIndex(world)
 
 		assert.False(t, DeployCube(world, cube))

@@ -57,18 +57,13 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 		}
 	}
 
-	// BlockPass / BlockView を更新
 	if isOpen {
-		if world.Components.BlockPass.Has(doorEntity) {
-			world.Components.BlockPass.Remove(doorEntity)
-		}
+		EnsureMarker(world, world.Components.Passable, doorEntity, &gc.Passable{})
 		if world.Components.BlockView.Has(doorEntity) {
 			world.Components.BlockView.Remove(doorEntity)
 		}
 	} else {
-		if !world.Components.BlockPass.Has(doorEntity) {
-			world.Components.BlockPass.Add(doorEntity, &gc.BlockPass{})
-		}
+		ensureRemoved(world.Components.Passable, doorEntity)
 		if !world.Components.BlockView.Has(doorEntity) {
 			world.Components.BlockView.Add(doorEntity, &gc.BlockView{})
 		}

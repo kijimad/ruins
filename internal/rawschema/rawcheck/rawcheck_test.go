@@ -282,7 +282,7 @@ func TestValidate_危険度の範囲が逆転すると位置で返す(t *testing
 	}
 }
 
-func TestValidate_通れない行に移動コストを書くと位置で返す(t *testing.T) {
+func TestValidate_移動コストを0で書くと位置で返す(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name   string
@@ -290,11 +290,11 @@ func TestValidate_通れない行に移動コストを書くと位置で返す(t
 		want   string
 	}{
 		{name: "置物", mutate: func(r *rawschema.Raws) {
-			(*r.Props)[0].BlockPass, (*r.Props)[0].PassCost = true, new(100)
-		}, want: "props.0.passCostAbsent"},
+			(*r.Props)[0].Passable = &rawschema.Passable{Cost: new(0)}
+		}, want: "props.0.passable.cost"},
 		{name: "タイル", mutate: func(r *rawschema.Raws) {
-			(*r.Tiles)[0].BlockPass, (*r.Tiles)[0].PassCost = true, new(100)
-		}, want: "tiles.0.passCostAbsent"},
+			(*r.Tiles)[0].Passable = &rawschema.Passable{Cost: new(0)}
+		}, want: "tiles.0.passable.cost"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

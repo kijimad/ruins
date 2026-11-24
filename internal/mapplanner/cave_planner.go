@@ -87,7 +87,7 @@ func (c CaveCellularAutomata) countWallsInRadius(planData *MetaPlan, centerX, ce
 			}
 
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-			if planData.Tiles[idx].BlockPass {
+			if planData.Tiles[idx].Passable == nil {
 				wallCount++
 			}
 		}
@@ -107,7 +107,7 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) {
 		for y := range height {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
-			if !planData.Tiles[idx].BlockPass && !visited[idx] {
+			if planData.Tiles[idx].Passable != nil && !visited[idx] {
 				// 洪水塗りつぶしで連結領域を見つける
 				floorTiles := c.floodFill(planData, x, y, visited)
 
@@ -172,7 +172,7 @@ func (c CaveCellularAutomata) floodFill(planData *MetaPlan, startX, startY int, 
 			if nx >= 0 && nx < width && ny >= 0 && ny < height {
 				nIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 
-				if !visited[nIdx] && !planData.Tiles[nIdx].BlockPass {
+				if !visited[nIdx] && planData.Tiles[nIdx].Passable != nil {
 					visited[nIdx] = true
 					queue = append(queue, [2]int{nx, ny})
 				}
@@ -203,7 +203,7 @@ func (c Widen) PlanMeta(planData *MetaPlan) error {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
 			// 現在が壁で、隣接に床がある場合
-			if planData.Tiles[idx].BlockPass {
+			if planData.Tiles[idx].Passable == nil {
 				adjacentFloorCount := c.countAdjacentFloors(planData, x, y)
 
 				if adjacentFloorCount >= 2 && planData.RNG.Float64() < c.Row.Chance {
@@ -231,7 +231,7 @@ func (c Widen) countAdjacentFloors(planData *MetaPlan, centerX, centerY int) int
 
 		if x >= 0 && x < width && y >= 0 && y < height {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-			if !planData.Tiles[idx].BlockPass {
+			if planData.Tiles[idx].Passable != nil {
 				count++
 			}
 		}
@@ -256,7 +256,7 @@ func (c ScatterWalls) PlanMeta(planData *MetaPlan) error {
 		for y := 2; y < height-2; y++ {
 			idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
-			if !planData.Tiles[idx].BlockPass {
+			if planData.Tiles[idx].Passable != nil {
 				if planData.RNG.Float64() < c.Row.Chance {
 					planData.Tiles[idx] = planData.GetTile(c.Tiles.Wall)
 				}

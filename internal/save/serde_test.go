@@ -302,6 +302,37 @@ func TestSerde_Searchedが往復する(t *testing.T) {
 	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: false, {X: 4, Y: 3}: true}, got)
 }
 
+func TestSerde_Passableが往復する(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	for i, id := range []string{"moving_stone", "fence"} {
+		_, err = lifecycle.SpawnProp(world, id, consts.Tile(3+i), 3)
+		require.NoError(t, err)
+	}
+
+	require.NoError(t, manager.SaveWorld(world, "passable"))
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "passable"))
+
+	got := map[string]*gc.Passable{}
+	q := ecs.NewFilter2[gc.RawID, gc.Prop](newWorld.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		var p *gc.Passable
+		if newWorld.Components.Passable.Has(e) {
+			p = newWorld.Components.Passable.Get(e)
+		}
+		got[newWorld.Components.RawID.Get(e).ID] = p
+	}
+	assert.Equal(t, map[string]*gc.Passable{"moving_stone": {Cost: 50}, "fence": nil}, got)
+}
+
 // TestSerde_Perishableが往復する は腐敗食の鮮度がセーブ・ロードで保たれることを検証する。
 // RotAccrued と RotUpdatedTurn が失われると復元後に鮮度が狂うため、往復で保たれる必要がある。
 func TestSerde_Perishableが往復する(t *testing.T) {

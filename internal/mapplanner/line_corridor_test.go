@@ -19,7 +19,7 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 		const width, height = 20, 20
 		tiles := make([]rawschema.Tile, width*height)
 		for i := range tiles {
-			tiles[i] = rawschema.Tile{Id: "wall", Name: "wall", BlockPass: true}
+			tiles[i] = rawschema.Tile{Id: "wall", Name: "wall"}
 		}
 
 		// 2つの部屋を縦に配置する。廊下が上下に接続される
@@ -31,7 +31,7 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 		for _, room := range rooms {
 			for x := int(room.Min.X); x <= int(room.Max.X); x++ {
 				for y := int(room.Min.Y); y <= int(room.Max.Y); y++ {
-					tiles[y*width+x] = rawschema.Tile{Id: "floor", Name: "floor", BlockPass: false}
+					tiles[y*width+x] = rawschema.Tile{Id: "floor", Name: "floor", Passable: &rawschema.Passable{}}
 				}
 			}
 		}
@@ -58,7 +58,7 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 		for x := int(centerX) - 1; x <= int(centerX)+1; x++ {
 			if x >= 0 && x < width {
 				idx := boundaryY*width + x
-				if !mp.Tiles[idx].BlockPass {
+				if mp.Tiles[idx].Passable != nil {
 					floorCount++
 				}
 			}
@@ -74,7 +74,7 @@ func TestLineCorridorPlanner_NarrowAtRoomBoundary(t *testing.T) {
 		for x := int(centerX) - 1; x <= int(centerX)+1; x++ {
 			if x >= 0 && x < width {
 				idx := midY*width + x
-				if !mp.Tiles[idx].BlockPass {
+				if mp.Tiles[idx].Passable != nil {
 					midFloorCount++
 				}
 			}

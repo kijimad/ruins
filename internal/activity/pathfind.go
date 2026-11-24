@@ -20,7 +20,7 @@ func (g *bfsGrid) isPassable(pos consts.Coord[consts.Tile]) bool {
 		return false
 	}
 	key := gc.GridElement{Coord: pos}
-	if g.si.BlockPass[key] {
+	if g.si.Blocked[key] {
 		return false
 	}
 	if _, ok := g.si.Characters[key]; ok {

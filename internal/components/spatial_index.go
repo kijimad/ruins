@@ -11,8 +11,8 @@ import (
 type SpatialIndex struct {
 	// マップの寸法。タイル数で表す。Level.TileWidth/TileHeight と同じ単位
 	MapWidth, MapHeight consts.Tile
-	// 静的障害物の位置。壁やドアなどBlockPassコンポーネントを持つ固定物が対象
-	BlockPass map[GridElement]bool
+	// 通れないマス。Passable を持たない地形と置物の位置
+	Blocked map[GridElement]bool
 	// キャラクター位置のインデックス。プレイヤー・敵・中立NPCの位置
 	Characters map[GridElement]ecs.Entity
 	// プレイヤーエンティティのキャッシュ。プレイヤーが存在しない場合はnil
@@ -29,13 +29,13 @@ func NewSpatialIndex() *SpatialIndex {
 	return &SpatialIndex{}
 }
 
-// IsBlockPass は指定タイルに静的障害物があるかをO(1)で判定する。
+// IsBlocked は指定タイルが通れない地形か置物を持つかをO(1)で判定する。
 // 未構築の場合はfalseを返す
-func (si *SpatialIndex) IsBlockPass(pos consts.Coord[consts.Tile]) bool {
+func (si *SpatialIndex) IsBlocked(pos consts.Coord[consts.Tile]) bool {
 	if !si.Built {
 		return false
 	}
-	return si.BlockPass[GridElement{Coord: pos}]
+	return si.Blocked[GridElement{Coord: pos}]
 }
 
 // CharacterAt は指定タイルのキャラクターを返す
@@ -63,7 +63,7 @@ func (si *SpatialIndex) MoveCharacter(from, to consts.Coord[consts.Tile], e ecs.
 // Invalidate はインデックスを無効化する。次回アクセス時に再構築させる
 func (si *SpatialIndex) Invalidate() {
 	si.Built = false
-	si.BlockPass = nil
+	si.Blocked = nil
 	si.Characters = nil
 	si.PlayerEntity = nil
 }

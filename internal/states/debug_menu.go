@@ -147,7 +147,7 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 		Choice{Label: "Spawn enemy: slime (swarm)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "slime") })},
 		Choice{Label: "Spawn enemy: skeleton soldier (patrol)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "skeleton_soldier") })},
 		Choice{Label: "Spawn enemy: stray dog (territorial)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "stray_dog") })},
-		Choice{Label: "Spawn prop: moving_stone (PassCost)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "moving_stone") })},
+		Choice{Label: "Spawn prop: moving_stone (move cost)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "moving_stone") })},
 		Choice{Label: "Spawn prop: hearth", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "hearth") })},
 		Choice{Label: "Spawn prop: barrel (destructible)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "barrel") })},
 		Choice{Label: "Spawn prop: construction_sign (impassable)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "construction_sign") })},

@@ -250,9 +250,6 @@ type Blast struct {
 // BlastRadius 爆風の半径。マス数
 type BlastRadius = int
 
-// BlocksPassage 通行を妨げるかどうか
-type BlocksPassage = bool
-
 // BlocksView 視線を遮るかどうか
 type BlocksView = bool
 
@@ -1746,8 +1743,14 @@ type NutritionAmount = int
 // NutritionPercent 食料から得る栄養の満額に対する割合。百分率
 type NutritionPercent = int
 
-// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
+// PassCost 上へ移るときに標準の移動に足す移動コスト
 type PassCost = int
+
+// Passable 通り方。持たない地形と置物は通れない
+type Passable struct {
+	// Cost 省くと素通り。0 と省略で同じ意味を2通りに書けないよう1以上にする
+	Cost *PassCost `json:"cost,omitempty"`
+}
 
 // PointFeature 区域でない地物の置き方。南北に spacing チャンクのリージョンごとに1つの当選を置き、隣のリージョンの当選と separation チャンク以上離す。
 // 集落は spacing をリージョンの行数にだけ使い、置く所は道の計画が決める
@@ -1966,8 +1969,6 @@ type Prop struct {
 
 	Bedding *Bedding `json:"bedding,omitempty"`
 
-	BlockPass BlocksPassage `json:"blockPass"`
-
 	BlockView BlocksView `json:"blockView"`
 
 	// BurnoutItem 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
@@ -1990,7 +1991,8 @@ type Prop struct {
 
 	Name EntityName `json:"name"`
 
-	PassCost *PassCost `json:"passCost,omitempty"`
+	// Passable 省くと通れない
+	Passable *Passable `json:"passable,omitempty"`
 
 	// RemainsId 壊れたときに足元へ残す跡。省くと何も残さない
 	RemainsId *EntityID `json:"remainsId,omitempty"`
@@ -2797,8 +2799,6 @@ type Throw struct {
 
 // Tile タイル
 type Tile struct {
-	BlockPass BlocksPassage `json:"blockPass"`
-
 	BlockView BlocksView `json:"blockView"`
 
 	Description EntityDescription `json:"description"`
@@ -2814,8 +2814,8 @@ type Tile struct {
 
 	Name EntityName `json:"name"`
 
-	// PassCost 上へ移るときに足す移動コスト
-	PassCost *PassCost `json:"passCost,omitempty"`
+	// Passable 省くと通れない
+	Passable *Passable `json:"passable,omitempty"`
 
 	// Shelter 囲われの度合い。省くと屋外
 	Shelter *Shelter `json:"shelter,omitempty"`

@@ -71,11 +71,11 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 
 		// 0,0は'#'なのでWall（通行不可）
 		tile00 := metaPlan.Tiles[0]
-		assert.True(t, tile00.BlockPass, "Wall should not be walkable")
+		assert.Nil(t, tile00.Passable, "Wall should not be walkable")
 
 		// 1,1は'.'なのでFloor（通行可能）
 		tile11 := metaPlan.Tiles[1*5+1]
-		assert.False(t, tile11.BlockPass, "Floor should be walkable")
+		assert.NotNil(t, tile11.Passable, "Floor should be walkable")
 	})
 }
 
@@ -198,10 +198,10 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 
 		// 中央は床で通行可能
 		centerIdx := 5*10 + 5
-		assert.False(t, metaPlan.Tiles[centerIdx].BlockPass)
+		assert.NotNil(t, metaPlan.Tiles[centerIdx].Passable)
 
 		// 外周は壁で通行不可
-		assert.True(t, metaPlan.Tiles[0].BlockPass)
+		assert.Nil(t, metaPlan.Tiles[0].Passable)
 	})
 
 	t.Run("セルの地形が未定義の場合はエラー", func(t *testing.T) {

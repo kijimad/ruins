@@ -78,7 +78,7 @@ func TestGolden_Inset_OpenDoor(t *testing.T) {
 	si := query.GetSpatialIndex(world)
 	moved := false
 	for _, d := range []consts.Coord[consts.Tile]{{Y: 2}, {Y: -2}, {X: 2}, {X: -2}} {
-		if c := at.Add(d); !si.IsBlockPass(c) {
+		if c := at.Add(d); !si.IsBlocked(c) {
 			require.NoError(t, lifecycle.MovePlayerToPosition(world, c))
 			moved = true
 			break

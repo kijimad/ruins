@@ -239,12 +239,13 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, pa
 	blocked := false
 	totalAdd := 0
 	for _, entity := range entities {
-		if world.Components.BlockPass.Has(entity) {
-			blocked = true
+		if world.Components.Passable.Has(entity) {
+			totalAdd += world.Components.Passable.Get(entity).Cost
+			continue
 		}
-		if world.Components.PassCost.Has(entity) {
-			mc := world.Components.PassCost.Get(entity)
-			totalAdd += mc.Value
+		// マスにはキャラクターやアイテムも乗るので、通れないのは地形と置物だけ
+		if world.Components.Tile.Has(entity) || world.Components.Prop.Has(entity) {
+			blocked = true
 		}
 	}
 	panel.Gap(5)

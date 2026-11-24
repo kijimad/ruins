@@ -147,6 +147,21 @@ func TestPlaceFacility_置いた収納は探し終えた印を往復でも保つ
 	assert.True(t, world.Components.Searched.Has(placed), "置き直しても印は残る")
 }
 
+func TestPlaceFacility_置いた設備のマスは塞がない(t *testing.T) {
+	t.Parallel()
+	world, cube := deployedCubeWithPlayer(t)
+
+	item, err := SpawnBackpackItem(world, "deployable_storage", 1)
+	require.NoError(t, err)
+	query.InvalidateSpatialIndex(world)
+	coord := consts.Coord[consts.Tile]{X: 11, Y: 10}
+	_, err = PlaceFacility(world, cube, item, coord)
+	require.NoError(t, err)
+
+	query.InvalidateSpatialIndex(world)
+	assert.False(t, query.GetSpatialIndex(world).IsBlocked(coord))
+}
+
 func TestRemoveFacility_中身が残ると撤去しない(t *testing.T) {
 	t.Parallel()
 	world, cube := deployedCubeWithPlayer(t)

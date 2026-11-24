@@ -24,9 +24,9 @@ import (
 func newTestDoorPlan(world w.World) *mapplanner.MetaPlan {
 	tiles := make([]rawschema.Tile, 9)
 	for i := range tiles {
-		tiles[i] = rawschema.Tile{BlockPass: true}
+		tiles[i] = rawschema.Tile{}
 	}
-	tiles[4] = rawschema.Tile{BlockPass: false}
+	tiles[4] = rawschema.Tile{Passable: &rawschema.Passable{}}
 
 	return &mapplanner.MetaPlan{
 		Level:     gc.Level{TileWidth: 3, TileHeight: 3},
@@ -114,7 +114,7 @@ func TestSpawnProps_扉は向きを設定して閉じた状態で生成される
 		door := world.Components.Door.Get(entity)
 		assert.Equal(t, gc.DoorOrientationVertical, door.Orientation, "左右が壁なら縦向きになる")
 		assert.False(t, door.IsOpen, "生成直後は閉じている")
-		assert.True(t, world.Components.BlockPass.Has(entity), "閉じた扉はBlockPassを持つ")
+		assert.False(t, world.Components.Passable.Has(entity), "閉じた扉は通れない")
 		found = true
 	}
 	assert.True(t, found, "扉エンティティが生成される")
@@ -147,8 +147,8 @@ func TestSpawnProps_棚の向きを地図を作るときに決めて付ける(t 
 
 	world := testutil.InitTestWorld(t)
 	tiles := make([]rawschema.Tile, 12)
-	for i := range tiles {
-		tiles[i] = rawschema.Tile{BlockPass: i < 4}
+	for i := range tiles[4:] {
+		tiles[4+i] = rawschema.Tile{Passable: &rawschema.Passable{}}
 	}
 	plan := &mapplanner.MetaPlan{
 		Level:     gc.Level{TileWidth: 4, TileHeight: 3},

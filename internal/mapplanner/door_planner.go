@@ -19,7 +19,7 @@ func (p DoorPlanner) PlanMeta(mp *MetaPlan) error {
 	for y := 1; y < height-1; y++ {
 		for x := 1; x < width-1; x++ {
 			idx := y*width + x
-			if mp.Tiles[idx].BlockPass {
+			if mp.Tiles[idx].Passable == nil {
 				continue
 			}
 
@@ -50,11 +50,11 @@ func isDoorPattern(mp *MetaPlan, x, y, width int) bool {
 	bottom := mp.Tiles[idx+width]
 
 	// 左右が壁、上下が床 → 縦向きドア
-	if left.BlockPass && right.BlockPass && !top.BlockPass && !bottom.BlockPass {
+	if left.Passable == nil && right.Passable == nil && top.Passable != nil && bottom.Passable != nil {
 		return true
 	}
 	// 上下が壁、左右が床 → 横向きドア
-	if top.BlockPass && bottom.BlockPass && !left.BlockPass && !right.BlockPass {
+	if top.Passable == nil && bottom.Passable == nil && left.Passable != nil && right.Passable != nil {
 		return true
 	}
 
@@ -64,7 +64,7 @@ func isDoorPattern(mp *MetaPlan, x, y, width int) bool {
 // doorOrientation はドア位置の隣接タイルから向きを判定する
 func doorOrientation(mp *MetaPlan, x, y, width int) gc.DoorOrientation {
 	idx := y*width + x
-	if mp.Tiles[idx-1].BlockPass && mp.Tiles[idx+1].BlockPass {
+	if mp.Tiles[idx-1].Passable == nil && mp.Tiles[idx+1].Passable == nil {
 		return gc.DoorOrientationVertical
 	}
 	return gc.DoorOrientationHorizontal

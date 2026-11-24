@@ -23,7 +23,7 @@ func FacilityCellFree(world w.World, cube ecs.Entity, coord consts.Coord[consts.
 	if si == nil {
 		return false
 	}
-	if si.IsBlockPass(coord) {
+	if si.IsBlocked(coord) {
 		return false
 	}
 	// 取得失敗時は InvalidEntity になるが実キャラと一致しないので、誰も除外しないだけで安全側に倒れる

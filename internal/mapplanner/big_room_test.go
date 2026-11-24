@@ -40,7 +40,7 @@ func TestBigRoomPlanner(t *testing.T) {
 	floorCount := 0
 	wallCount := 0
 	for _, tile := range chain.PlanData.Tiles {
-		if !tile.BlockPass {
+		if tile.Passable != nil {
 			floorCount++
 		} else {
 			wallCount++
@@ -76,7 +76,7 @@ func TestBigRoomVariations(t *testing.T) {
 		floorCount := 0
 
 		for _, tile := range chain.PlanData.Tiles {
-			if !tile.BlockPass {
+			if tile.Passable != nil {
 				floorCount++
 			} else {
 				wallCount++

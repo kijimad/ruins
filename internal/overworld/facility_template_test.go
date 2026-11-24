@@ -58,11 +58,11 @@ func newCellRules(raws rawschema.Raws) cellRules {
 	r := cellRules{blockedTile: map[string]bool{}, blockedProp: map[string]bool{}, costly: map[string]bool{}, door: map[string]bool{}, storage: map[string]bool{}}
 	tiles, props := raw.PtrSlice(raws.Tiles), raw.PtrSlice(raws.Props)
 	for i := range tiles {
-		r.blockedTile[tiles[i].Id] = tiles[i].BlockPass
+		r.blockedTile[tiles[i].Id] = tiles[i].Passable == nil
 	}
 	for i := range props {
-		r.blockedProp[props[i].Id] = props[i].BlockPass
-		r.costly[props[i].Id] = props[i].PassCost != nil
+		r.blockedProp[props[i].Id] = props[i].Passable == nil
+		r.costly[props[i].Id] = props[i].Passable != nil && props[i].Passable.Cost != nil
 		r.door[props[i].Id] = props[i].Door != nil
 		r.storage[props[i].Id] = props[i].Storage != nil
 	}
@@ -301,7 +301,7 @@ func TestSpawnFacility_窓は通れず視線を通し下の床も塞がない(t 
 		if world.Components.Prop.Has(e) {
 			kind = "prop"
 		}
-		got[kind] = traits{pass: world.Components.BlockPass.Has(e), view: world.Components.BlockView.Has(e)}
+		got[kind] = traits{pass: !world.Components.Passable.Has(e), view: world.Components.BlockView.Has(e)}
 	}
 	assert.Equal(t, map[string]traits{
 		"prop": {pass: true, view: false},
@@ -462,8 +462,9 @@ func TestFacilityTemplates_置物の下の地形は置物より塞がない(t *t
 					if !ok {
 						continue
 					}
-					tl := tiles[c.Terrain]
-					if (p.BlockPass && tl.BlockPass) || (!p.BlockView && tl.BlockView) {
+					// ground は下地を残す予約語で行が無く、通れる地面として扱う
+					tl, known := tiles[c.Terrain]
+					if (p.Passable == nil && known && tl.Passable == nil) || (!p.BlockView && tl.BlockView) {
 						bad = append(bad, fmt.Sprintf("%s %d,%d %s on %s", name, x, y, c.Prop, c.Terrain))
 					}
 				}
@@ -486,10 +487,15 @@ func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing
 	for _, tl := range raw.PtrSlice(raws.Tiles) {
 		rows[tl.Id] = tl
 	}
+	// ground は下地を残す予約語で行が無く、通れる地面として扱う
+	terrainBlocks := func(id string) bool {
+		tl, ok := rows[id]
+		return ok && tl.Passable == nil
+	}
 	// 扉や窓のように通行を塞ぐ置物は、壁と同じく囲いになる
 	propBlocks := map[string]bool{}
 	for _, p := range raw.PtrSlice(raws.Props) {
-		propBlocks[p.Id] = p.BlockPass
+		propBlocks[p.Id] = p.Passable == nil
 	}
 
 	for _, fac := range loader.Facilities() {
@@ -501,13 +507,13 @@ func TestFacilityTemplates_囲いの外の床は屋外で内は屋内(t *testing
 				outside := map[[2]int]bool{}
 				if chunk.Edges == nil {
 					outside = reachableFromEdge(cells, func(x, y int) bool {
-						return rows[cells[y][x].Terrain].BlockPass || propBlocks[cells[y][x].Prop]
+						return terrainBlocks(cells[y][x].Terrain) || propBlocks[cells[y][x].Prop]
 					})
 				}
 				var bad []string
 				for y, row := range cells {
 					for x, c := range row {
-						if rows[c.Terrain].BlockPass || propBlocks[c.Prop] {
+						if terrainBlocks(c.Terrain) || propBlocks[c.Prop] {
 							continue
 						}
 						want := rawschema.Indoor

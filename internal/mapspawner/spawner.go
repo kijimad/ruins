@@ -93,7 +93,7 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile rawschema.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {
 	if tile.Spawn == nil {
 		category := "walkable"
-		if tile.BlockPass {
+		if tile.Passable == nil {
 			category = "impassable"
 		}
 		return gc.InvalidEntity, fmt.Errorf("%w: %s %s (%d, %d)", errUnsupportedTile, category, tile.Id, int(tileX), int(tileY))
@@ -241,11 +241,11 @@ func planPoses(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]gc.
 		if isFacing {
 			facers[c] = true
 		}
-		blockers[c] = blockers[c] || isFacing || propRaw.BlockPass
+		blockers[c] = blockers[c] || isFacing || propRaw.Passable == nil
 	}
 	width, height := metaPlan.Level.TileWidth, metaPlan.Level.TileHeight
 	wall := func(c consts.Coord[consts.Tile]) bool {
-		return c.X >= 0 && c.Y >= 0 && c.X < width && c.Y < height && metaPlan.Tiles[int(c.Y*width+c.X)].BlockPass
+		return c.X >= 0 && c.Y >= 0 && c.X < width && c.Y < height && metaPlan.Tiles[int(c.Y*width+c.X)].Passable == nil
 	}
 	return mapplanner.RowPoses(facers, blockers, wall), nil
 }
@@ -261,7 +261,7 @@ func detectPropDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorO
 	}
 
 	idx := y*width + x
-	if metaPlan.Tiles[idx-1].BlockPass && metaPlan.Tiles[idx+1].BlockPass {
+	if metaPlan.Tiles[idx-1].Passable == nil && metaPlan.Tiles[idx+1].Passable == nil {
 		return gc.DoorOrientationVertical
 	}
 

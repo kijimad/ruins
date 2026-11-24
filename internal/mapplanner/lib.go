@@ -85,7 +85,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 	idx := bm.Level.CoordToIndex(pos)
 	tile := bm.Tiles[idx]
 	// 通行不可なのでスポーン不可
-	if tile.BlockPass {
+	if tile.Passable == nil {
 		return false
 	}
 
@@ -107,7 +107,7 @@ func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool 
 }
 
 // outsideTile は地図の外を表すタイル。id を持たず、通れない
-var outsideTile = rawschema.Tile{BlockPass: true}
+var outsideTile = rawschema.Tile{}
 
 // UpTile は上にあるタイルを調べる。地図の外は outsideTile を返す
 func (bm MetaPlan) UpTile(idx gc.TileIdx) rawschema.Tile {
@@ -186,7 +186,7 @@ func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {
 		tile := bm.Tiles[neighborIdx]
 
 		// 歩行可能
-		if !tile.BlockPass {
+		if tile.Passable != nil {
 			return true
 		}
 	}

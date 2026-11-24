@@ -23,7 +23,7 @@ func spawnCharacterAt(world w.World, x, y consts.Tile) ecs.Entity {
 	return e
 }
 
-func TestGetSpatialIndex_キャラクターはBlockPassに含まれない(t *testing.T) {
+func TestGetSpatialIndex_キャラクターは通れないマスに含まれない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -39,8 +39,8 @@ func TestGetSpatialIndex_キャラクターはBlockPassに含まれない(t *tes
 	otherGrid := world.Components.GridElement.Get(other)
 	playerGrid := world.Components.GridElement.Get(player)
 
-	assert.False(t, si.BlockPass[*playerGrid], "プレイヤーはBlockPassに含まれない")
-	assert.False(t, si.BlockPass[*otherGrid], "他キャラはBlockPassに含まれない")
+	assert.False(t, si.Blocked[*playerGrid], "プレイヤーは通れないマスに含まれない")
+	assert.False(t, si.Blocked[*otherGrid], "他キャラは通れないマスに含まれない")
 
 	_, playerInChars := si.Characters[*playerGrid]
 	assert.True(t, playerInChars, "プレイヤーはCharactersに含まれる")
@@ -66,11 +66,11 @@ func TestBuildSpatialIndex_退避中エンティティは索引に含まれな�
 	world.Components.SoloAI.Add(suspendedChar, &gc.SoloAI{})
 	world.Components.Suspended.Add(suspendedChar, &gc.Suspended{})
 
-	// 退避中の障害物。BlockPass 索引に載らないべき
+	// 退避中の障害物。通れないマスの索引に載らないべき
 	wallPos := consts.Coord[consts.Tile]{X: 7, Y: 7}
 	wall := world.ECS.NewEntity()
 	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: wallPos})
-	world.Components.BlockPass.Add(wall, &gc.BlockPass{})
+	world.Components.Tile.Add(wall, &gc.Tile{})
 	world.Components.Suspended.Add(wall, &gc.Suspended{})
 
 	query.InvalidateSpatialIndex(world)
@@ -81,7 +81,7 @@ func TestBuildSpatialIndex_退避中エンティティは索引に含まれな�
 	assert.True(t, activeIn, "現ステージの敵は索引に含まれる")
 	_, suspendedIn := si.Characters[gc.GridElement{Coord: suspendedPos}]
 	assert.False(t, suspendedIn, "退避中の敵は索引に含まれない")
-	assert.False(t, si.BlockPass[gc.GridElement{Coord: wallPos}], "退避中の障害物は BlockPass に含まれない")
+	assert.False(t, si.Blocked[gc.GridElement{Coord: wallPos}], "退避中の障害物は通れないマスに含まれない")
 }
 
 func TestBuildSpatialIndex_障害物とDeadの除外(t *testing.T) {
@@ -91,12 +91,12 @@ func TestBuildSpatialIndex_障害物とDeadの除外(t *testing.T) {
 	wallPos := consts.Coord[consts.Tile]{X: 3, Y: 3}
 	wall := world.ECS.NewEntity()
 	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: wallPos})
-	world.Components.BlockPass.Add(wall, &gc.BlockPass{})
+	world.Components.Tile.Add(wall, &gc.Tile{})
 
 	deadWallPos := consts.Coord[consts.Tile]{X: 4, Y: 4}
 	deadWall := world.ECS.NewEntity()
 	world.Components.GridElement.Add(deadWall, &gc.GridElement{Coord: deadWallPos})
-	world.Components.BlockPass.Add(deadWall, &gc.BlockPass{})
+	world.Components.Tile.Add(deadWall, &gc.Tile{})
 	world.Components.Dead.Add(deadWall, &gc.Dead{})
 
 	deadCharPos := consts.Coord[consts.Tile]{X: 5, Y: 5}
@@ -107,8 +107,8 @@ func TestBuildSpatialIndex_障害物とDeadの除外(t *testing.T) {
 	si := query.GetSpatialIndex(world)
 	require.NotNil(t, si)
 
-	assert.True(t, si.BlockPass[gc.GridElement{Coord: wallPos}], "生存中の障害物はBlockPassに入る")
-	assert.False(t, si.BlockPass[gc.GridElement{Coord: deadWallPos}], "Deadの障害物はBlockPassに入らない")
+	assert.True(t, si.Blocked[gc.GridElement{Coord: wallPos}], "生存中の障害物は通れないマスに入る")
+	assert.False(t, si.Blocked[gc.GridElement{Coord: deadWallPos}], "Deadの障害物は通れないマスに入らない")
 	_, deadCharIn := si.Characters[gc.GridElement{Coord: deadCharPos}]
 	assert.False(t, deadCharIn, "Deadのキャラクターは索引に入らない")
 }
@@ -214,6 +214,6 @@ func TestInvalidateSpatialIndex_全マップがクリアされる(t *testing.T) 
 	si2 := query.GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)
 	assert.False(t, si2.Built)
 	assert.Nil(t, si2.Characters)
-	assert.Nil(t, si2.BlockPass)
+	assert.Nil(t, si2.Blocked)
 	assert.Nil(t, si2.PlayerEntity)
 }

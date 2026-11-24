@@ -17,7 +17,7 @@ func TestNewPropSpec_視界を遮るPropにはBlockViewが設定される(t *tes
 Name = "壁"
 id = "壁"
 Description = "視界を遮る壁"
-BlockPass = false
+Passable = {}
 BlockView = true
 
 [Props.SpriteRender]
@@ -41,9 +41,8 @@ func TestNewPropSpec_通行不可を伴わない通行コストが設定され�
 Name = "泥濘"
 id = "泥濘"
 Description = "移動に時間がかかる地面"
-BlockPass = false
+Passable = { Cost = 50 }
 BlockView = false
-PassCost = 50
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
@@ -56,8 +55,7 @@ Depth = "decal"
 	entitySpec, err := NewPropSpec(raws, "泥濘")
 	require.NoError(t, err)
 
-	require.NotNil(t, entitySpec.PassCost)
-	assert.Equal(t, 50, entitySpec.PassCost.Value)
+	assert.Equal(t, &gc.Passable{Cost: 50}, entitySpec.Passable)
 }
 
 func TestNewPropSpec_扉が設定される(t *testing.T) {
@@ -67,7 +65,7 @@ func TestNewPropSpec_扉が設定される(t *testing.T) {
 Name = "木の扉"
 id = "木の扉"
 Description = "開閉できる扉"
-BlockPass = false
+Passable = {}
 BlockView = false
 
 [Props.SpriteRender]
@@ -97,7 +95,7 @@ func TestNewPropSpec_次階層ワープトリガーが設定される(t *testing
 Name = "下り階段"
 id = "下り階段"
 Description = "1つ下の階層へ進むポータル"
-BlockPass = false
+Passable = {}
 BlockView = false
 
 [Props.SpriteRender]
@@ -124,7 +122,7 @@ func TestNewPropSpec_収納の重量表記が不正だとエラー(t *testing.T)
 Name = "壊れた収納"
 id = "壊れた収納"
 Description = "重量表記が壊れている"
-BlockPass = false
+Passable = {}
 BlockView = false
 
 [Props.SpriteRender]

@@ -288,7 +288,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		tileMap[*ge] = e
 	}
 
-	wallShadowQuery := query.ActiveFilter4[gc.SpriteRender, gc.GridElement, gc.BlockView, gc.BlockPass](world).Query()
+	wallShadowQuery := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockView](world).Without(ecs.C[gc.Passable]()).Query()
 	for wallShadowQuery.Next() {
 		entity := wallShadowQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
@@ -324,7 +324,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		}
 
 		// 下のタイルが壁でないことも確認（壁->床->壁の場合は影を描画しない）
-		if world.Components.BlockView.Has(belowTileEntity) && world.Components.BlockPass.Has(belowTileEntity) {
+		if world.Components.BlockView.Has(belowTileEntity) && !world.Components.Passable.Has(belowTileEntity) {
 			continue
 		}
 

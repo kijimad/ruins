@@ -193,7 +193,6 @@ Description = "テスト用床タイル"
 Name = "TestWall"
 id = "TestWall"
 Description = "テスト用壁タイル"
-BlockPass = true
 
 [[Items]]
 Name = "テストアイテム"
@@ -220,12 +219,12 @@ func TestGenerateTileFromRaw(t *testing.T) {
 Name = "GenerateTestFloor"
 id = "GenerateTestFloor"
 Description = "生成テスト用床タイル"
+Passable = {}
 
 [[Tiles]]
 Name = "GenerateTestWall"
 id = "GenerateTestWall"
 Description = "生成テスト用壁タイル"
-BlockPass = true
 `
 
 	raws, err := DecodeRaws(tomlData)
@@ -234,12 +233,12 @@ BlockPass = true
 	// 床タイルの取得をテスト
 	floorTile, err := GetTile(raws, "GenerateTestFloor")
 	require.NoError(t, err, "床タイルの取得に失敗")
-	assert.False(t, floorTile.BlockPass)
+	assert.NotNil(t, floorTile.Passable)
 
 	// 壁タイルの取得をテスト
 	wallTile, err := GetTile(raws, "GenerateTestWall")
 	require.NoError(t, err, "壁タイルの取得に失敗")
-	assert.True(t, wallTile.BlockPass)
+	assert.Nil(t, wallTile.Passable)
 
 	// 存在しないタイルのテスト（エラーが発生する）
 	_, err = GetTile(raws, "NonExistent")
@@ -256,12 +255,12 @@ func TestTileHelperFunctionsFromRaw(t *testing.T) {
 Name = "Helper1"
 id = "Helper1"
 Description = "ヘルパー関数テスト1"
+Passable = {}
 
 [[Tiles]]
 Name = "Helper2"
 id = "Helper2"
 Description = "ヘルパー関数テスト2"
-BlockPass = true
 `
 
 	raws, err := DecodeRaws(tomlData)
@@ -270,7 +269,7 @@ BlockPass = true
 	// GetTile のテスト（存在するタイル）
 	tileRaw, err := GetTile(raws, "Helper1")
 	require.NoError(t, err, "タイル取得に失敗")
-	assert.False(t, tileRaw.BlockPass)
+	assert.NotNil(t, tileRaw.Passable)
 
 	// GetTile のテスト（存在しないタイル）
 	_, err = GetTile(raws, "NonExistent")
@@ -286,18 +285,17 @@ func TestTilePropertiesFromRaw(t *testing.T) {
 Name = "EmptyLike"
 id = "EmptyLike"
 Description = "空のような性質"
-BlockPass = true
 
 [[Tiles]]
 Name = "FloorLike"
 id = "FloorLike"
 Description = "床のような性質"
+Passable = {}
 
 [[Tiles]]
 Name = "WallLike"
 id = "WallLike"
 Description = "壁のような性質"
-BlockPass = true
 `
 
 	raws, err := DecodeRaws(tomlData)
@@ -315,7 +313,7 @@ BlockPass = true
 	for _, tc := range testCases {
 		tile, err := GetTile(raws, tc.name)
 		require.NoError(t, err, "タイル取得に失敗: %s", tc.name)
-		actualWalk := !tile.BlockPass
+		actualWalk := tile.Passable != nil
 		assert.Equal(t, tc.expectedWalk, actualWalk, "Walkableが期待値と一致しない: %s", tc.name)
 	}
 }
@@ -337,12 +335,12 @@ func TestLoadFromRealTileFile(t *testing.T) {
 	// 実際のタイル取得テスト
 	floorTile, err := GetTile(raws, "floor")
 	require.NoError(t, err, "床タイル取得に失敗")
-	assert.False(t, floorTile.BlockPass)
+	assert.NotNil(t, floorTile.Passable)
 
 	// 壁タイルテスト
 	wallTile, err := GetTile(raws, "wall")
 	require.NoError(t, err, "壁タイル取得に失敗")
-	assert.True(t, wallTile.BlockPass)
+	assert.Nil(t, wallTile.Passable)
 }
 
 func TestLoadWithUnknownFields(t *testing.T) {
@@ -511,7 +509,7 @@ func TestPropWithAnimKeys(t *testing.T) {
 Name = "アニメーションProp"
 id = "アニメーションProp"
 Description = "2フレームアニメーションする置物"
-BlockPass = false
+Passable = {}
 BlockView = false
 AnimKeys = ["fire_0_", "fire_1_"]
 
@@ -543,7 +541,6 @@ func TestPropWithoutAnimKeys(t *testing.T) {
 Name = "静的Prop"
 id = "静的Prop"
 Description = "アニメーションしない置物"
-BlockPass = true
 BlockView = false
 
 [Props.SpriteRender]
@@ -572,9 +569,8 @@ func TestNewTileSpec_移動コスト(t *testing.T) {
 id = "浅瀬"
 Name = "浅瀬"
 Description = "通れるが移動コストがある"
-BlockPass = false
+Passable = { Cost = 100 }
 BlockView = false
-PassCost = 100
 
 [Tiles.SpriteRender]
 SpriteSheetName = "tile"
@@ -585,7 +581,7 @@ Depth = "floor"
 id = "床"
 Name = "床"
 Description = "移動コストが無い"
-BlockPass = false
+Passable = {}
 BlockView = false
 
 [Tiles.SpriteRender]
@@ -598,11 +594,11 @@ Depth = "floor"
 
 	spec, err := NewTileSpec(raws, "浅瀬", 0, 0, nil)
 	require.NoError(t, err)
-	assert.Equal(t, &gc.PassCost{Value: 100}, spec.PassCost)
+	assert.Equal(t, &gc.Passable{Cost: 100}, spec.Passable)
 
 	spec, err = NewTileSpec(raws, "床", 0, 0, nil)
 	require.NoError(t, err)
-	assert.Nil(t, spec.PassCost)
+	assert.Equal(t, &gc.Passable{}, spec.Passable)
 }
 
 func TestPropWithHP(t *testing.T) {
@@ -612,7 +608,6 @@ func TestPropWithHP(t *testing.T) {
 Name = "壊れるProp"
 id = "壊れるProp"
 Description = "破壊可能な置物"
-BlockPass = true
 BlockView = false
 Hp = 20
 
@@ -642,7 +637,6 @@ func TestPropFromHP(t *testing.T) {
 Name = "木の机"
 id = "木の机"
 Description = "殴れば壊れる机"
-BlockPass = true
 BlockView = false
 hp = 30
 
@@ -669,7 +663,6 @@ func TestPropWithStorage(t *testing.T) {
 Name = "木箱"
 id = "木箱"
 Description = "古びた木箱"
-BlockPass = true
 BlockView = false
 hp = 30
 
@@ -702,7 +695,7 @@ func TestPropWithWarpPrev(t *testing.T) {
 Name = "上り階段"
 id = "上り階段"
 Description = "1つ上の階層へ戻るポータル"
-BlockPass = false
+Passable = {}
 BlockView = false
 
 [Props.SpriteRender]
@@ -730,7 +723,6 @@ func TestPropWithoutStorage(t *testing.T) {
 Name = "テーブル"
 id = "テーブル"
 Description = "普通のテーブル"
-BlockPass = true
 BlockView = false
 
 [Props.SpriteRender]
@@ -898,7 +890,7 @@ func TestNewTileSpec(t *testing.T) {
 Name = "test_floor"
 id = "test_floor"
 Description = "テスト床"
-BlockPass = false
+Passable = {}
 BlockView = false
 `
 	raws, err := DecodeRaws(str)
@@ -908,11 +900,11 @@ BlockView = false
 	require.NoError(t, err)
 	assert.Equal(t, i18n.Msgid("test_floor"), spec.Name.Name)
 	assert.NotNil(t, spec.GridElement)
-	assert.Nil(t, spec.BlockPass, "通行可能なタイルにはBlockPassがない")
+	assert.Equal(t, &gc.Passable{}, spec.Passable, "通行可能なタイルは素通りの通り方を持つ")
 	assert.Nil(t, spec.BlockView, "視界を遮らないタイルにはBlockViewがない")
 }
 
-func TestNewTileSpec_WithBlockPass(t *testing.T) {
+func TestNewTileSpec_通り方を省いた壁(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -920,7 +912,6 @@ func TestNewTileSpec_WithBlockPass(t *testing.T) {
 Name = "test_wall"
 id = "test_wall"
 Description = "テスト壁"
-BlockPass = true
 BlockView = true
 `
 	raws, err := DecodeRaws(str)
@@ -928,7 +919,7 @@ BlockView = true
 
 	spec, err := NewTileSpec(raws, "test_wall", 3, 7, nil)
 	require.NoError(t, err)
-	assert.NotNil(t, spec.BlockPass, "壁タイルにはBlockPassがある")
+	assert.Nil(t, spec.Passable, "壁タイルは通り方を持たない")
 	assert.NotNil(t, spec.BlockView, "壁タイルにはBlockViewがある")
 }
 
@@ -1330,11 +1321,11 @@ func TestWallMaterialTiles_dwallと同じ描画順と通れなさと視界で並
 		depth                rawschema.SpriteDepth
 		blockPass, blockView bool
 	}
-	want := traits{dwall.SpriteRender.Depth, dwall.BlockPass, dwall.BlockView}
+	want := traits{dwall.SpriteRender.Depth, dwall.Passable == nil, dwall.BlockView}
 	for _, id := range wallMaterialTiles() {
 		tile, err := GetTile(raws, id)
 		require.NoError(t, err, id)
-		assert.Equal(t, want, traits{tile.SpriteRender.Depth, tile.BlockPass, tile.BlockView}, id)
+		assert.Equal(t, want, traits{tile.SpriteRender.Depth, tile.Passable == nil, tile.BlockView}, id)
 	}
 }
 
@@ -1450,4 +1441,25 @@ func TestNewPropSpec_行から作る収納は探していない状態で生ま�
 	spec, err := NewPropSpec(raws, "wooden_crate")
 	require.NoError(t, err)
 	assert.Nil(t, spec.Searched)
+}
+
+func TestNewItemSpec_置く設備は素通りの通り方を持つ(t *testing.T) {
+	t.Parallel()
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "deployable_storage")
+	require.NoError(t, err)
+	assert.Equal(t, &gc.Passable{}, spec.Passable)
+}
+
+func TestTiles_実データで床の高さのタイルだけが通れる(t *testing.T) {
+	t.Parallel()
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+
+	for _, tile := range PtrSlice(raws.Tiles) {
+		isFloor := tile.SpriteRender.Depth == rawschema.SpriteDepthFloor
+		assert.Equal(t, isFloor, tile.Passable != nil, tile.Id)
+	}
 }

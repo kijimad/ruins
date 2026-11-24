@@ -52,19 +52,16 @@ func (r *Rect) Height() consts.Tile { return r.Max.Y - r.Min.Y + 1 }
 // Tile はタイルエンティティであることを示すタグコンポーネント
 type Tile struct{}
 
-// BlockPass は壁やドアなどの静的障害物に付与する。このコンポーネントを持つタイルは常に通行不可になる。
-// キャラクター（プレイヤー・敵）には付与しない。キャラクターの通行可否は関係性で判定する
-type BlockPass struct{}
+// Passable は通れる地形と置物の印。持たない地形と置物があるマスは通れない。
+// キャラクターやアイテムの通行可否には使わない。キャラクターの通行可否は関係性で判定する
+type Passable struct {
+	// Cost は上へ移るときに標準の移動に足す移動コスト。0 なら素通り
+	Cost int
+}
 
 // BlockView はフィールド上で視界を遮る
 // TODO: 能動態のほうがわかりやすそう
 type BlockView struct{}
-
-// PassCost はフィールド上のタイルの移動コストを修正する。
-// ベースコストへの加算値で表現する
-type PassCost struct {
-	Value int // 移動コスト加算値。0で変化なし、50でコスト+50
-}
 
 // Renderable はフィールド上で描画できる
 type Renderable struct{}

@@ -26,12 +26,12 @@ func CanMoveTo(world w.World, to, from consts.Coord[consts.Tile], _ ecs.Entity) 
 	// 斜め移動の場合、隣接する直交2方向が両方ブロックされていれば通行不可
 	d := to.Sub(from)
 	if d.X != 0 && d.Y != 0 {
-		if si.IsBlockPass(from.Add(consts.Coord[consts.Tile]{X: d.X})) && si.IsBlockPass(from.Add(consts.Coord[consts.Tile]{Y: d.Y})) {
+		if si.IsBlocked(from.Add(consts.Coord[consts.Tile]{X: d.X})) && si.IsBlocked(from.Add(consts.Coord[consts.Tile]{Y: d.Y})) {
 			return false
 		}
 	}
 
-	if si.IsBlockPass(to) {
+	if si.IsBlocked(to) {
 		return false
 	}
 
