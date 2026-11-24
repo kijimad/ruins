@@ -74,7 +74,7 @@ var (
 	errUnknownTOMLKeys = errors.New("unknown keys found in TOML")
 	// errBookSkillMissing は本にスキルが指定されていないときに返す
 	errBookSkillMissing = errors.New("book requires a Skill")
-	// errBlockPassWithPassCost は通行不可の prop に移動コストが指定されているときに返す
+	// errBlockPassWithPassCost は通行不可の prop やタイルに移動コストが指定されているときに返す
 	errBlockPassWithPassCost = errors.New("blockPass and passCost cannot both be set; passCost is unnecessary when impassable")
 )
 
@@ -728,6 +728,9 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	if err != nil {
 		return gc.EntitySpec{}, err
 	}
+	if tileRaw.BlockPass && tileRaw.PassCost != nil {
+		return gc.EntitySpec{}, fmt.Errorf("tile '%s': %w", name, errBlockPassWithPassCost)
+	}
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: i18n.Msgid(tileRaw.Name)}
@@ -751,6 +754,10 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	// BlockViewがtrueの場合は視界を遮断
 	if tileRaw.BlockView {
 		entitySpec.BlockView = &gc.BlockView{}
+	}
+
+	if tileRaw.PassCost != nil {
+		entitySpec.PassCost = &gc.PassCost{Value: *tileRaw.PassCost}
 	}
 
 	entitySpec.Tile = &gc.Tile{}

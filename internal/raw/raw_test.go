@@ -588,6 +588,46 @@ Depth = "decal"
 	require.ErrorIs(t, err, errBlockPassWithPassCost)
 }
 
+func TestNewTileSpec_移動コスト(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Tiles]]
+id = "浅瀬"
+Name = "浅瀬"
+Description = "通れるが移動コストがある"
+BlockPass = false
+BlockView = false
+PassCost = 100
+
+[Tiles.SpriteRender]
+SpriteSheetName = "tile"
+SpriteKey = "water_shallow"
+Depth = "floor"
+
+[[Tiles]]
+id = "矛盾タイル"
+Name = "矛盾タイル"
+Description = "通行不可なのに移動コストがある"
+BlockPass = true
+BlockView = false
+PassCost = 100
+
+[Tiles.SpriteRender]
+SpriteSheetName = "tile"
+SpriteKey = "wall"
+Depth = "taller"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewTileSpec(raws, "浅瀬", 0, 0, nil)
+	require.NoError(t, err)
+	assert.Equal(t, &gc.PassCost{Value: 100}, spec.PassCost)
+
+	_, err = NewTileSpec(raws, "矛盾タイル", 0, 0, nil)
+	require.ErrorIs(t, err, errBlockPassWithPassCost)
+}
+
 func TestPropWithHP(t *testing.T) {
 	t.Parallel()
 	str := `
