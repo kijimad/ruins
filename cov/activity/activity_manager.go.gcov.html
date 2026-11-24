@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryMed">88.7&nbsp;%</td>
-            <td class="headerCovTableEntry">222</td>
-            <td class="headerCovTableEntry">197</td>
+            <td class="headerCovTableEntry">221</td>
+            <td class="headerCovTableEntry">196</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -394,7 +394,7 @@
 <span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         cost := behavior.Info().ActionPointCost</span></span>
 <span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L335"><span class="lineNum">     335</span>              :         // 移動行動の場合、移動先タイルのPassCostを加算する。MoveParams を持つのは移動だけ</span>
+<span id="L335"><span class="lineNum">     335</span>              :         // 移動行動の場合、移動先タイルの移動コストを加算する。MoveParams を持つのは移動だけ</span>
 <span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         if mp, ok := comp.Params.(*gc.MoveParams); ok {</span></span>
 <span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :                 cost += getPassCostAt(world, int(mp.Destination.X), int(mp.Destination.Y))</span></span>
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -404,31 +404,30 @@
 <span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L343"><span class="lineNum">     343</span>              : }</span>
 <span id="L344"><span class="lineNum">     344</span>              : </span>
-<span id="L345"><span class="lineNum">     345</span>              : // getPassCostAt は指定座標にある固定物のPassCostを合算して返す</span>
+<span id="L345"><span class="lineNum">     345</span>              : // getPassCostAt は指定座標にある地形と置物の移動コストを合算して返す</span>
 <span id="L346"><span class="lineNum">     346</span>              : func getPassCostAt(world w.World, x, y int) int {</span>
 <span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         total := 0</span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         passCostQuery := query.ActiveFilter2[gc.GridElement, gc.PassCost](world).Query()</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :         for passCostQuery.Next() {</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 entity := passCostQuery.Entity()</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         passableQuery := query.ActiveFilter2[gc.GridElement, gc.Passable](world).Query()</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :         for passableQuery.Next() {</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 entity := passableQuery.Entity()</span></span>
 <span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
 <span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           1 :                 if int(grid.X) == x &amp;&amp; int(grid.Y) == y {</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 :                         mc := world.Components.PassCost.Get(entity)</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :                         total += mc.Value</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L356"><span class="lineNum">     356</span>              :         }</span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :         return total</span></span>
-<span id="L358"><span class="lineNum">     358</span>              : }</span>
-<span id="L359"><span class="lineNum">     359</span>              : </span>
-<span id="L360"><span class="lineNum">     360</span>              : // errNoTurnBased はエンティティがTurnBasedを持たないときに返す</span>
-<span id="L361"><span class="lineNum">     361</span>              : var errNoTurnBased = errors.New(&quot;TurnBased component not found&quot;)</span>
-<span id="L362"><span class="lineNum">     362</span>              : </span>
-<span id="L363"><span class="lineNum">     363</span>              : // getEntityMaxAP はエンティティの最大AP値を取得する</span>
-<span id="L364"><span class="lineNum">     364</span>              : func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {</span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :         if !world.Components.TurnBased.Has(entity) {</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;%w: entity=%v&quot;, errNoTurnBased, entity)</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :         return world.Components.TurnBased.Get(entity).AP.Max, nil</span></span>
-<span id="L369"><span class="lineNum">     369</span>              : }</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 :                         total += world.Components.Passable.Get(entity).Cost</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L355"><span class="lineNum">     355</span>              :         }</span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           1 :         return total</span></span>
+<span id="L357"><span class="lineNum">     357</span>              : }</span>
+<span id="L358"><span class="lineNum">     358</span>              : </span>
+<span id="L359"><span class="lineNum">     359</span>              : // errNoTurnBased はエンティティがTurnBasedを持たないときに返す</span>
+<span id="L360"><span class="lineNum">     360</span>              : var errNoTurnBased = errors.New(&quot;TurnBased component not found&quot;)</span>
+<span id="L361"><span class="lineNum">     361</span>              : </span>
+<span id="L362"><span class="lineNum">     362</span>              : // getEntityMaxAP はエンティティの最大AP値を取得する</span>
+<span id="L363"><span class="lineNum">     363</span>              : func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {</span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :         if !world.Components.TurnBased.Has(entity) {</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;%w: entity=%v&quot;, errNoTurnBased, entity)</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         return world.Components.TurnBased.Get(entity).AP.Max, nil</span></span>
+<span id="L368"><span class="lineNum">     368</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -122,7 +122,7 @@
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L61"><span class="lineNum">      61</span>              :                         }</span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                         t := base.Add(consts.Coord[consts.Tile]{X: dx, Y: dy})</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                         if si.IsBlockPass(t) {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                         if si.IsBlocked(t) {</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                                 return false</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                         if e, ok := si.CharacterAt(t); ok &amp;&amp; e != player {</span></span>
@@ -130,7 +130,7 @@
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L69"><span class="lineNum">      69</span>              :                 }</span>
 <span id="L70"><span class="lineNum">      70</span>              :         }</span>
-<span id="L71"><span class="lineNum">      71</span>              :         // 空間索引は BlockPass と character しか持たないのでアイテム・prop は LocationOnField を走査する</span>
+<span id="L71"><span class="lineNum">      71</span>              :         // 空間索引は通れないマスと character しか持たないのでアイテム・prop は LocationOnField を走査する</span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter1[gc.LocationOnField](world).Query()</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         defer q.Close()</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>

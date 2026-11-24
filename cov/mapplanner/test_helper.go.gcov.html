@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,16 +74,16 @@
 <span id="L12"><span class="lineNum">      12</span>              :         // テスト用の基本的なタイルデータを定義</span>
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         autotile := &amp;rawschema.TileSpawn{Autotile: true}</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         testTiles := []rawschema.Tile{</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                 {Id: &quot;wall&quot;, Name: &quot;wall&quot;, BlockPass: true, SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &amp;rawschema.TileSpawn{Tile: new(&quot;dwall&quot;), Autotile: true}},</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 {Id: &quot;floor&quot;, Name: &quot;floor&quot;, BlockPass: false, Spawn: autotile},</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 {Id: &quot;road&quot;, Name: &quot;road&quot;, BlockPass: false, Spawn: autotile},</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 {Id: &quot;dirt&quot;, Name: &quot;dirt&quot;, BlockPass: false, Spawn: autotile},</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 {Id: &quot;void&quot;, Name: &quot;void&quot;, BlockPass: true, SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &amp;rawschema.TileSpawn{}},</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 {Id: &quot;deep_water&quot;, Name: &quot;deep_water&quot;, BlockPass: true, Spawn: &amp;rawschema.TileSpawn{}},</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 {Id: &quot;bridge_a&quot;, Name: &quot;bridge_a&quot;, BlockPass: false, Spawn: autotile},</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 {Id: &quot;bridge_b&quot;, Name: &quot;bridge_b&quot;, BlockPass: false, Spawn: autotile},</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 {Id: &quot;bridge_c&quot;, Name: &quot;bridge_c&quot;, BlockPass: false, Spawn: autotile},</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 {Id: &quot;bridge_d&quot;, Name: &quot;bridge_d&quot;, BlockPass: false, Spawn: autotile},</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                 {Id: &quot;wall&quot;, Name: &quot;wall&quot;, SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &amp;rawschema.TileSpawn{Tile: new(&quot;dwall&quot;), Autotile: true}},</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 {Id: &quot;floor&quot;, Name: &quot;floor&quot;, Passable: &amp;rawschema.Passable{}, Spawn: autotile},</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 {Id: &quot;road&quot;, Name: &quot;road&quot;, Passable: &amp;rawschema.Passable{}, Spawn: autotile},</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 {Id: &quot;dirt&quot;, Name: &quot;dirt&quot;, Passable: &amp;rawschema.Passable{}, Spawn: autotile},</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 {Id: &quot;void&quot;, Name: &quot;void&quot;, SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &amp;rawschema.TileSpawn{}},</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 {Id: &quot;deep_water&quot;, Name: &quot;deep_water&quot;, Spawn: &amp;rawschema.TileSpawn{}},</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 {Id: &quot;bridge_a&quot;, Name: &quot;bridge_a&quot;, Passable: &amp;rawschema.Passable{}, Spawn: autotile},</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 {Id: &quot;bridge_b&quot;, Name: &quot;bridge_b&quot;, Passable: &amp;rawschema.Passable{}, Spawn: autotile},</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 {Id: &quot;bridge_c&quot;, Name: &quot;bridge_c&quot;, Passable: &amp;rawschema.Passable{}, Spawn: autotile},</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 {Id: &quot;bridge_d&quot;, Name: &quot;bridge_d&quot;, Passable: &amp;rawschema.Passable{}, Spawn: autotile},</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
 <span id="L27"><span class="lineNum">      27</span>              :         // テスト用のアイテムテーブルを定義</span>

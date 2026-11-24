@@ -57,7 +57,7 @@
 				
 				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (95.2%)</option>
 				
-				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (89.9%)</option>
+				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (89.8%)</option>
 				
 				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.6%)</option>
 				
@@ -91,7 +91,7 @@
 				
 				<option value="file17">github.com/kijimaD/ruins/internal/activity/search.go (86.3%)</option>
 				
-				<option value="file18">github.com/kijimaD/ruins/internal/activity/shoot.go (92.3%)</option>
+				<option value="file18">github.com/kijimaD/ruins/internal/activity/shoot.go (92.4%)</option>
 				
 				<option value="file19">github.com/kijimaD/ruins/internal/activity/sleep.go (93.2%)</option>
 				
@@ -113,7 +113,7 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -449,7 +449,7 @@
 				
 				<option value="file196">github.com/kijimaD/ruins/internal/overworld/district_jump.go (92.2%)</option>
 				
-				<option value="file197">github.com/kijimaD/ruins/internal/overworld/driver.go (84.6%)</option>
+				<option value="file197">github.com/kijimaD/ruins/internal/overworld/driver.go (84.5%)</option>
 				
 				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_loot.go (83.3%)</option>
 				
@@ -479,7 +479,7 @@
 				
 				<option value="file211">github.com/kijimaD/ruins/internal/overworld/road_plan.go (95.3%)</option>
 				
-				<option value="file212">github.com/kijimaD/ruins/internal/overworld/scatter.go (93.6%)</option>
+				<option value="file212">github.com/kijimaD/ruins/internal/overworld/scatter.go (93.7%)</option>
 				
 				<option value="file213">github.com/kijimaD/ruins/internal/overworld/scatter_tiles.go (89.3%)</option>
 				
@@ -591,7 +591,7 @@
 				
 				<option value="file267">github.com/kijimaD/ruins/internal/states/lib.go (100.0%)</option>
 				
-				<option value="file268">github.com/kijimaD/ruins/internal/states/look_around.go (75.4%)</option>
+				<option value="file268">github.com/kijimaD/ruins/internal/states/look_around.go (77.2%)</option>
 				
 				<option value="file269">github.com/kijimaD/ruins/internal/states/main_menu.go (85.4%)</option>
 				
@@ -805,7 +805,7 @@
 				
 				<option value="file374">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (84.2%)</option>
 				
-				<option value="file375">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (90.7%)</option>
+				<option value="file375">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (90.5%)</option>
 				
 				<option value="file376">github.com/kijimaD/ruins/internal/world/lifecycle/state_event.go (100.0%)</option>
 				
@@ -857,7 +857,7 @@
 				
 				<option value="file400">github.com/kijimaD/ruins/internal/world/query/shop.go (100.0%)</option>
 				
-				<option value="file401">github.com/kijimaD/ruins/internal/world/query/singleton.go (100.0%)</option>
+				<option value="file401">github.com/kijimaD/ruins/internal/world/query/singleton.go (99.0%)</option>
 				
 				<option value="file402">github.com/kijimaD/ruins/internal/world/query/sort.go (100.0%)</option>
 				
@@ -1454,7 +1454,7 @@ func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
 </span>        }
         <span class="cov8" title="1">cost := behavior.Info().ActionPointCost
 </span>
-        // 移動行動の場合、移動先タイルのPassCostを加算する。MoveParams を持つのは移動だけ
+        // 移動行動の場合、移動先タイルの移動コストを加算する。MoveParams を持つのは移動だけ
         <span class="cov8" title="1">if mp, ok := comp.Params.(*gc.MoveParams); ok </span>{
                 <span class="cov8" title="1">cost += getPassCostAt(world, int(mp.Destination.X), int(mp.Destination.Y))
 </span>        }
@@ -1464,16 +1464,15 @@ func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
 </span>        }
 }
 
-// getPassCostAt は指定座標にある固定物のPassCostを合算して返す
+// getPassCostAt は指定座標にある地形と置物の移動コストを合算して返す
 func getPassCostAt(world w.World, x, y int) int {
         <span class="cov8" title="1">total := 0
-        passCostQuery := query.ActiveFilter2[gc.GridElement, gc.PassCost](world).Query()
-        for passCostQuery.Next() </span>{
-                <span class="cov8" title="1">entity := passCostQuery.Entity()
+        passableQuery := query.ActiveFilter2[gc.GridElement, gc.Passable](world).Query()
+        for passableQuery.Next() </span>{
+                <span class="cov8" title="1">entity := passableQuery.Entity()
                 grid := world.Components.GridElement.Get(entity)
                 if int(grid.X) == x &amp;&amp; int(grid.Y) == y </span>{
-                        <span class="cov8" title="1">mc := world.Components.PassCost.Get(entity)
-                        total += mc.Value
+                        <span class="cov8" title="1">total += world.Components.Passable.Get(entity).Cost
 </span>                }
         }
         <span class="cov8" title="1">return total</span>
@@ -2904,12 +2903,12 @@ func CanMoveTo(world w.World, to, from consts.Coord[consts.Tile], _ ecs.Entity) 
         // 斜め移動の場合、隣接する直交2方向が両方ブロックされていれば通行不可
         <span class="cov8" title="1">d := to.Sub(from)
         if d.X != 0 &amp;&amp; d.Y != 0 </span>{
-                <span class="cov8" title="1">if si.IsBlockPass(from.Add(consts.Coord[consts.Tile]{X: d.X})) &amp;&amp; si.IsBlockPass(from.Add(consts.Coord[consts.Tile]{Y: d.Y})) </span>{
+                <span class="cov8" title="1">if si.IsBlocked(from.Add(consts.Coord[consts.Tile]{X: d.X})) &amp;&amp; si.IsBlocked(from.Add(consts.Coord[consts.Tile]{Y: d.Y})) </span>{
                         <span class="cov8" title="1">return false
 </span>                }
         }
 
-        <span class="cov8" title="1">if si.IsBlockPass(to) </span>{
+        <span class="cov8" title="1">if si.IsBlocked(to) </span>{
                 <span class="cov8" title="1">return false
 </span>        }
 
@@ -3083,7 +3082,7 @@ func (g *bfsGrid) isPassable(pos consts.Coord[consts.Tile]) bool {
                 <span class="cov8" title="1">return false
 </span>        }
         <span class="cov8" title="1">key := gc.GridElement{Coord: pos}
-        if g.si.BlockPass[key] </span>{
+        if g.si.Blocked[key] </span>{
                 <span class="cov8" title="1">return false
 </span>        }
         <span class="cov8" title="1">if _, ok := g.si.Characters[key]; ok </span>{
@@ -3414,12 +3413,14 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 // 移動キーは押し続けるとリピートし、止まってもターンが進まないので、前の歩き込みで出した文が最新の行なら重ねない
 func logBlockers(world w.World, c consts.Coord[consts.Tile]) {
         <span class="cov8" title="1">var msgs []string
-        q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Dead]()).Query()
-        for q.Next() </span>{
-                <span class="cov8" title="1">e := q.Entity()
-                if world.Components.GridElement.Get(e).Coord == c </span>{
-                        <span class="cov8" title="1">msgs = append(msgs, query.T(world, "%s is here.", query.GetEntityName(e, world)))
-</span>                }
+        for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} </span>{
+                <span class="cov8" title="1">q := query.ActiveFilter1[gc.GridElement](world).With(kind).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()
+                for q.Next() </span>{
+                        <span class="cov8" title="1">e := q.Entity()
+                        if world.Components.GridElement.Get(e).Coord == c </span>{
+                                <span class="cov8" title="1">msgs = append(msgs, query.T(world, "%s is here.", query.GetEntityName(e, world)))
+</span>                        }
+                }
         }
         <span class="cov8" title="1">if len(msgs) == 0 </span>{
                 <span class="cov8" title="1">return
@@ -4614,7 +4615,7 @@ func EntityDistance(a, b ecs.Entity, world w.World) float64 {
 }
 
 // checkLineOfSight は射線上の壁と遮蔽物を1パスでチェックする。
-// 壁（BlockView=true）があればblocked=true、遮蔽物（BlockPass=true, BlockView=false）の数をcoverCountで返す
+// 見通せない物があればblocked=true、見通せるが通れない地形と置物の数を遮蔽物としてcoverCountで返す
 func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, coverCount int) {
         <span class="cov8" title="1">if !world.Components.GridElement.Has(actor) || !world.Components.GridElement.Has(target) </span>{
                 <span class="cov0" title="0">return true, 0
@@ -4629,7 +4630,9 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
                         <span class="cov8" title="1">if world.Components.BlockView.Has(e) </span>{
                                 <span class="cov8" title="1">return true, coverCount
 </span>                        }
-                        <span class="cov8" title="1">if world.Components.BlockPass.Has(e) </span>{
+                        // マスにはキャラクターやアイテムも乗るので、地形と置物だけを遮蔽物にする
+                        <span class="cov8" title="1">isTerrainOrProp := world.Components.Tile.Has(e) || world.Components.Prop.Has(e)
+                        if isTerrainOrProp &amp;&amp; !world.Components.Passable.Has(e) </span>{
                                 <span class="cov8" title="1">coverCount++
 </span>                        }
                 }
@@ -6173,7 +6176,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov8" title="1">moveY = -1
+                        <span class="cov0" title="0">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -6503,7 +6506,7 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 
                 <span class="cov8" title="1">wallCount := 0
                 for _, adj := range []consts.Coord[consts.Tile]{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}} </span>{
-                        <span class="cov8" title="1">if si.IsBlockPass(dest.Add(adj)) </span>{
+                        <span class="cov8" title="1">if si.IsBlocked(dest.Add(adj)) </span>{
                                 <span class="cov8" title="1">wallCount++
 </span>                        }
                 }
@@ -11452,8 +11455,7 @@ type EntitySpec struct {
         GridElement        *GridElement
         SpriteRender       *SpriteRender
         BlockView          *BlockView
-        BlockPass          *BlockPass
-        PassCost           *PassCost
+        Passable           *Passable
         Door               *Door
         Pose               *Pose
         Item               *Item
@@ -11553,8 +11555,7 @@ type Components struct {
         GridElement        *ecs.Map[GridElement]
         SpriteRender       *ecs.Map[SpriteRender]
         BlockView          *ecs.Map[BlockView]
-        BlockPass          *ecs.Map[BlockPass]
-        PassCost           *ecs.Map[PassCost]
+        Passable           *ecs.Map[Passable]
         Door               *ecs.Map[Door]
         Pose               *ecs.Map[Pose]
         Item               *ecs.Map[Item]
@@ -11654,8 +11655,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
         c.GridElement = ecs.NewMap[GridElement](world)
         c.SpriteRender = ecs.NewMap[SpriteRender](world)
         c.BlockView = ecs.NewMap[BlockView](world)
-        c.BlockPass = ecs.NewMap[BlockPass](world)
-        c.PassCost = ecs.NewMap[PassCost](world)
+        c.Passable = ecs.NewMap[Passable](world)
         c.Door = ecs.NewMap[Door](world)
         c.Pose = ecs.NewMap[Pose](world)
         c.Item = ecs.NewMap[Item](world)
@@ -11757,8 +11757,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
         addComp(c.GridElement, entity, spec.GridElement)
         addComp(c.SpriteRender, entity, spec.SpriteRender)
         addComp(c.BlockView, entity, spec.BlockView)
-        addComp(c.BlockPass, entity, spec.BlockPass)
-        addComp(c.PassCost, entity, spec.PassCost)
+        addComp(c.Passable, entity, spec.Passable)
         addComp(c.Door, entity, spec.Door)
         addComp(c.Pose, entity, spec.Pose)
         addComp(c.Item, entity, spec.Item)
@@ -12360,19 +12359,18 @@ func (r *Rect) Height() consts.Tile { <span class="cov8" title="1">return r.Max.
 // Tile はタイルエンティティであることを示すタグコンポーネント
 type Tile struct{}
 
-// BlockPass は壁やドアなどの静的障害物に付与する。このコンポーネントを持つタイルは常に通行不可になる。
-// キャラクター（プレイヤー・敵）には付与しない。キャラクターの通行可否は関係性で判定する
-type BlockPass struct{}
+// Passable は通れる地形と置物の印。持たない地形と置物があるマスは通れない。
+// キャラクターやアイテムの通行可否には使わない。キャラクターの通行可否は関係性で判定する。
+// 置く設備は、置物へ変えたときに塞がないよう、アイテムのうちから持つ。
+// 扉は開くと移動コスト無しで付き、閉じると外れるので、扉の行に書いた移動コストは開閉で失われる
+type Passable struct {
+        // Cost は上へ移るときに標準の移動に足す移動コスト。0 なら素通り
+        Cost int
+}
 
 // BlockView はフィールド上で視界を遮る
 // TODO: 能動態のほうがわかりやすそう
 type BlockView struct{}
-
-// PassCost はフィールド上のタイルの移動コストを修正する。
-// ベースコストへの加算値で表現する
-type PassCost struct {
-        Value int // 移動コスト加算値。0で変化なし、50でコスト+50
-}
 
 // Renderable はフィールド上で描画できる
 type Renderable struct{}
@@ -14127,8 +14125,8 @@ import (
 type SpatialIndex struct {
         // マップの寸法。タイル数で表す。Level.TileWidth/TileHeight と同じ単位
         MapWidth, MapHeight consts.Tile
-        // 静的障害物の位置。壁やドアなどBlockPassコンポーネントを持つ固定物が対象
-        BlockPass map[GridElement]bool
+        // 通れないマス。Passable を持たない地形と置物の位置
+        Blocked map[GridElement]bool
         // キャラクター位置のインデックス。プレイヤー・敵・中立NPCの位置
         Characters map[GridElement]ecs.Entity
         // プレイヤーエンティティのキャッシュ。プレイヤーが存在しない場合はnil
@@ -14145,13 +14143,13 @@ func NewSpatialIndex() *SpatialIndex {
         <span class="cov8" title="1">return &amp;SpatialIndex{}
 </span>}
 
-// IsBlockPass は指定タイルに静的障害物があるかをO(1)で判定する。
+// IsBlocked は指定タイルが通れない地形か置物を持つかをO(1)で判定する。
 // 未構築の場合はfalseを返す
-func (si *SpatialIndex) IsBlockPass(pos consts.Coord[consts.Tile]) bool {
+func (si *SpatialIndex) IsBlocked(pos consts.Coord[consts.Tile]) bool {
         <span class="cov8" title="1">if !si.Built </span>{
                 <span class="cov8" title="1">return false
 </span>        }
-        <span class="cov8" title="1">return si.BlockPass[GridElement{Coord: pos}]</span>
+        <span class="cov8" title="1">return si.Blocked[GridElement{Coord: pos}]</span>
 }
 
 // CharacterAt は指定タイルのキャラクターを返す
@@ -14179,7 +14177,7 @@ func (si *SpatialIndex) MoveCharacter(from, to consts.Coord[consts.Tile], e ecs.
 // Invalidate はインデックスを無効化する。次回アクセス時に再構築させる
 func (si *SpatialIndex) Invalidate() {
         <span class="cov8" title="1">si.Built = false
-        si.BlockPass = nil
+        si.Blocked = nil
         si.Characters = nil
         si.PlayerEntity = nil
 </span>}
@@ -19919,14 +19917,14 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
                         // 左辺
                         <span class="cov8" title="1">if x := room.Min.X - 1; x &gt;= 0 </span>{
                                 <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].BlockPass </span>{
+                                if planData.Tiles[idx].Passable == nil </span>{
                                         <span class="cov0" title="0">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 </span>                                }
                         }
                         // 右辺
                         <span class="cov8" title="1">if x := room.Max.X + 1; int(x) &lt; int(planData.Level.TileWidth) </span>{
                                 <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].BlockPass </span>{
+                                if planData.Tiles[idx].Passable == nil </span>{
                                         <span class="cov8" title="1">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 </span>                                }
                         }
@@ -19936,14 +19934,14 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
                         // 上辺
                         <span class="cov8" title="1">if y := room.Min.Y - 1; y &gt;= 0 </span>{
                                 <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].BlockPass </span>{
+                                if planData.Tiles[idx].Passable == nil </span>{
                                         <span class="cov8" title="1">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 </span>                                }
                         }
                         // 下辺
                         <span class="cov8" title="1">if y := room.Max.Y + 1; int(y) &lt; int(planData.Level.TileHeight) </span>{
                                 <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].BlockPass </span>{
+                                if planData.Tiles[idx].Passable == nil </span>{
                                         <span class="cov8" title="1">planData.Tiles[idx] = planData.GetTile(b.Tiles.Wall)
 </span>                                }
                         }
@@ -20141,7 +20139,7 @@ func (c CaveCellularAutomata) countWallsInRadius(planData *MetaPlan, centerX, ce
                         }
 
                         <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-                        if planData.Tiles[idx].BlockPass </span>{
+                        if planData.Tiles[idx].Passable == nil </span>{
                                 <span class="cov8" title="1">wallCount++
 </span>                        }
                 }
@@ -20161,7 +20159,7 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) {
                 <span class="cov8" title="1">for y := range height </span>{
                         <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 </span>
-                        <span class="cov8" title="1">if !planData.Tiles[idx].BlockPass &amp;&amp; !visited[idx] </span>{
+                        <span class="cov8" title="1">if planData.Tiles[idx].Passable != nil &amp;&amp; !visited[idx] </span>{
                                 // 洪水塗りつぶしで連結領域を見つける
                                 <span class="cov8" title="1">floorTiles := c.floodFill(planData, x, y, visited)
 </span>
@@ -20226,7 +20224,7 @@ func (c CaveCellularAutomata) floodFill(planData *MetaPlan, startX, startY int, 
                         <span class="cov8" title="1">if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; height </span>{
                                 <span class="cov8" title="1">nIdx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(nx), Y: consts.Tile(ny)})
 </span>
-                                <span class="cov8" title="1">if !visited[nIdx] &amp;&amp; !planData.Tiles[nIdx].BlockPass </span>{
+                                <span class="cov8" title="1">if !visited[nIdx] &amp;&amp; planData.Tiles[nIdx].Passable != nil </span>{
                                         <span class="cov8" title="1">visited[nIdx] = true
                                         queue = append(queue, [2]int{nx, ny})
 </span>                                }
@@ -20257,7 +20255,7 @@ func (c Widen) PlanMeta(planData *MetaPlan) error {
                         <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 </span>
                         // 現在が壁で、隣接に床がある場合
-                        <span class="cov8" title="1">if planData.Tiles[idx].BlockPass </span>{
+                        <span class="cov8" title="1">if planData.Tiles[idx].Passable == nil </span>{
                                 <span class="cov8" title="1">adjacentFloorCount := c.countAdjacentFloors(planData, x, y)
 </span>
                                 <span class="cov8" title="1">if adjacentFloorCount &gt;= 2 &amp;&amp; planData.RNG.Float64() &lt; c.Row.Chance </span>{
@@ -20285,7 +20283,7 @@ func (c Widen) countAdjacentFloors(planData *MetaPlan, centerX, centerY int) int
 </span>
                 <span class="cov8" title="1">if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height </span>{
                         <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-                        if !planData.Tiles[idx].BlockPass </span>{
+                        if planData.Tiles[idx].Passable != nil </span>{
                                 <span class="cov8" title="1">count++
 </span>                        }
                 }
@@ -20310,7 +20308,7 @@ func (c ScatterWalls) PlanMeta(planData *MetaPlan) error {
                 <span class="cov8" title="1">for y := 2; y &lt; height-2; y++ </span>{
                         <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 </span>
-                        <span class="cov8" title="1">if !planData.Tiles[idx].BlockPass </span>{
+                        <span class="cov8" title="1">if planData.Tiles[idx].Passable != nil </span>{
                                 <span class="cov8" title="1">if planData.RNG.Float64() &lt; c.Row.Chance </span>{
                                         <span class="cov8" title="1">planData.Tiles[idx] = planData.GetTile(c.Tiles.Wall)
 </span>                                }
@@ -20457,7 +20455,7 @@ func (p DoorPlanner) PlanMeta(mp *MetaPlan) error {
         <span class="cov8" title="1">for y := 1; y &lt; height-1; y++ </span>{
                 <span class="cov8" title="1">for x := 1; x &lt; width-1; x++ </span>{
                         <span class="cov8" title="1">idx := y*width + x
-                        if mp.Tiles[idx].BlockPass </span>{
+                        if mp.Tiles[idx].Passable == nil </span>{
                                 <span class="cov8" title="1">continue</span>
                         }
 
@@ -20488,11 +20486,11 @@ func isDoorPattern(mp *MetaPlan, x, y, width int) bool {
         bottom := mp.Tiles[idx+width]
 </span>
         // 左右が壁、上下が床 → 縦向きドア
-        <span class="cov8" title="1">if left.BlockPass &amp;&amp; right.BlockPass &amp;&amp; !top.BlockPass &amp;&amp; !bottom.BlockPass </span>{
+        <span class="cov8" title="1">if left.Passable == nil &amp;&amp; right.Passable == nil &amp;&amp; top.Passable != nil &amp;&amp; bottom.Passable != nil </span>{
                 <span class="cov8" title="1">return true
 </span>        }
         // 上下が壁、左右が床 → 横向きドア
-        <span class="cov8" title="1">if top.BlockPass &amp;&amp; bottom.BlockPass &amp;&amp; !left.BlockPass &amp;&amp; !right.BlockPass </span>{
+        <span class="cov8" title="1">if top.Passable == nil &amp;&amp; bottom.Passable == nil &amp;&amp; left.Passable != nil &amp;&amp; right.Passable != nil </span>{
                 <span class="cov8" title="1">return true
 </span>        }
 
@@ -20502,7 +20500,7 @@ func isDoorPattern(mp *MetaPlan, x, y, width int) bool {
 // doorOrientation はドア位置の隣接タイルから向きを判定する
 func doorOrientation(mp *MetaPlan, x, y, width int) gc.DoorOrientation {
         <span class="cov8" title="1">idx := y*width + x
-        if mp.Tiles[idx-1].BlockPass &amp;&amp; mp.Tiles[idx+1].BlockPass </span>{
+        if mp.Tiles[idx-1].Passable == nil &amp;&amp; mp.Tiles[idx+1].Passable == nil </span>{
                 <span class="cov8" title="1">return gc.DoorOrientationVertical
 </span>        }
         <span class="cov8" title="1">return gc.DoorOrientationHorizontal</span>
@@ -20809,7 +20807,7 @@ func (f ForestTrees) PlanMeta(planData *MetaPlan) error {
                 <span class="cov8" title="1">for y := 1; y &lt; height-1; y++ </span>{
                         <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 </span>
-                        <span class="cov8" title="1">if !planData.Tiles[idx].BlockPass </span>{
+                        <span class="cov8" title="1">if planData.Tiles[idx].Passable != nil </span>{
                                 // 空き地の近くでは木の密度を下げる
                                 <span class="cov8" title="1">treeDensity := f.calculateTreeDensity(planData, x, y)
 </span>
@@ -20870,7 +20868,7 @@ func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {
                         <span class="cov8" title="1">if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height </span>{
                                 <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 </span>
-                                <span class="cov8" title="1">if !planData.Tiles[idx].BlockPass &amp;&amp; planData.RNG.Float64() &lt; 0.7 </span>{
+                                <span class="cov8" title="1">if planData.Tiles[idx].Passable != nil &amp;&amp; planData.RNG.Float64() &lt; 0.7 </span>{
                                         <span class="cov8" title="1">planData.Tiles[idx] = planData.GetTile(f.Tiles.Wall)
 </span>                                }
                         }
@@ -21639,7 +21637,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
         idx := bm.Level.CoordToIndex(pos)
         tile := bm.Tiles[idx]
 </span>        // 通行不可なのでスポーン不可
-        <span class="cov8" title="1">if tile.BlockPass </span>{
+        <span class="cov8" title="1">if tile.Passable == nil </span>{
                 <span class="cov8" title="1">return false
 </span>        }
 
@@ -21661,7 +21659,7 @@ func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool 
 }
 
 // outsideTile は地図の外を表すタイル。id を持たず、通れない
-var outsideTile = rawschema.Tile{BlockPass: true}
+var outsideTile = rawschema.Tile{}
 
 // UpTile は上にあるタイルを調べる。地図の外は outsideTile を返す
 func (bm MetaPlan) UpTile(idx gc.TileIdx) rawschema.Tile {
@@ -21740,7 +21738,7 @@ func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {
                 tile := bm.Tiles[neighborIdx]
 </span>
                 // 歩行可能
-                <span class="cov8" title="1">if !tile.BlockPass </span>{
+                <span class="cov8" title="1">if tile.Passable != nil </span>{
                         <span class="cov8" title="1">return true
 </span>                }
         }
@@ -22235,7 +22233,7 @@ func (pf *PathFinder) IsWalkable(pos consts.Coord[consts.Tile]) bool {
 </span>        }
 
         <span class="cov8" title="1">idx := pf.planData.Level.CoordToIndex(pos)
-        return !pf.planData.Tiles[idx].BlockPass</span>
+        return pf.planData.Tiles[idx].Passable != nil</span>
 }
 
 // FindPath はBFSでスタート地点からゴールまでのパスを探索する。
@@ -22368,7 +22366,7 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], erro
 
         // 見つからない場合は全体をスキャン
         <span class="cov8" title="1">for _i := range planData.Tiles </span>{
-                <span class="cov8" title="1">if !planData.Tiles[_i].BlockPass </span>{
+                <span class="cov8" title="1">if planData.Tiles[_i].Passable != nil </span>{
                         <span class="cov8" title="1">pos := planData.Level.IndexToCoord(gc.TileIdx(_i))
                         if pf.isValidSpawnPosition(pos) </span>{
                                 <span class="cov8" title="1">return pos, nil
@@ -22383,7 +22381,7 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], erro
 func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool {
         <span class="cov8" title="1">planData := pf.planData
         idx := planData.Level.CoordToIndex(pos)
-        if int(idx) &gt;= len(planData.Tiles) || planData.Tiles[idx].BlockPass </span>{
+        if int(idx) &gt;= len(planData.Tiles) || planData.Tiles[idx].Passable == nil </span>{
                 <span class="cov8" title="1">return false
 </span>        }
 
@@ -22393,7 +22391,7 @@ func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool {
 </span>        }
 
         // 隣接4方向のうち少なくとも1つは移動可能なタイルが必要。
-        // 敵エンティティはBlockPassを持つため、全隣接タイルが占有されるとプレイヤーが移動不能になる
+        // キャラクターのいるマスへは入れないため、全隣接タイルが占有されるとプレイヤーが移動不能になる
         <span class="cov8" title="1">if !pf.hasAdjacentFreeTile(pos) </span>{
                 <span class="cov8" title="1">return false
 </span>        }
@@ -22917,7 +22915,7 @@ func (r RuinsDebris) PlanMeta(planData *MetaPlan) error {
                 <span class="cov8" title="1">for y := 1; y &lt; height-1; y++ </span>{
                         <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 </span>
-                        <span class="cov8" title="1">if !planData.Tiles[idx].BlockPass </span>{
+                        <span class="cov8" title="1">if planData.Tiles[idx].Passable != nil </span>{
                                 // 建物から離れた場所ほど瓦礫が少ない
                                 <span class="cov8" title="1">debrisChance := r.calculateDebrisChance(planData, x, y)
 </span>
@@ -23267,16 +23265,16 @@ func CreateTestRawMaster() *rawschema.Raws {
         // テスト用の基本的なタイルデータを定義
         <span class="cov8" title="1">autotile := &amp;rawschema.TileSpawn{Autotile: true}
         testTiles := []rawschema.Tile{
-                {Id: "wall", Name: "wall", BlockPass: true, SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &amp;rawschema.TileSpawn{Tile: new("dwall"), Autotile: true}},
-                {Id: "floor", Name: "floor", BlockPass: false, Spawn: autotile},
-                {Id: "road", Name: "road", BlockPass: false, Spawn: autotile},
-                {Id: "dirt", Name: "dirt", BlockPass: false, Spawn: autotile},
-                {Id: "void", Name: "void", BlockPass: true, SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &amp;rawschema.TileSpawn{}},
-                {Id: "deep_water", Name: "deep_water", BlockPass: true, Spawn: &amp;rawschema.TileSpawn{}},
-                {Id: "bridge_a", Name: "bridge_a", BlockPass: false, Spawn: autotile},
-                {Id: "bridge_b", Name: "bridge_b", BlockPass: false, Spawn: autotile},
-                {Id: "bridge_c", Name: "bridge_c", BlockPass: false, Spawn: autotile},
-                {Id: "bridge_d", Name: "bridge_d", BlockPass: false, Spawn: autotile},
+                {Id: "wall", Name: "wall", SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &amp;rawschema.TileSpawn{Tile: new("dwall"), Autotile: true}},
+                {Id: "floor", Name: "floor", Passable: &amp;rawschema.Passable{}, Spawn: autotile},
+                {Id: "road", Name: "road", Passable: &amp;rawschema.Passable{}, Spawn: autotile},
+                {Id: "dirt", Name: "dirt", Passable: &amp;rawschema.Passable{}, Spawn: autotile},
+                {Id: "void", Name: "void", SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &amp;rawschema.TileSpawn{}},
+                {Id: "deep_water", Name: "deep_water", Spawn: &amp;rawschema.TileSpawn{}},
+                {Id: "bridge_a", Name: "bridge_a", Passable: &amp;rawschema.Passable{}, Spawn: autotile},
+                {Id: "bridge_b", Name: "bridge_b", Passable: &amp;rawschema.Passable{}, Spawn: autotile},
+                {Id: "bridge_c", Name: "bridge_c", Passable: &amp;rawschema.Passable{}, Spawn: autotile},
+                {Id: "bridge_d", Name: "bridge_d", Passable: &amp;rawschema.Passable{}, Spawn: autotile},
 </span>        }
 
         // テスト用のアイテムテーブルを定義
@@ -23585,7 +23583,7 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile rawschema.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {
         <span class="cov8" title="1">if tile.Spawn == nil </span>{
                 <span class="cov8" title="1">category := "walkable"
-                if tile.BlockPass </span>{
+                if tile.Passable == nil </span>{
                         <span class="cov0" title="0">category = "impassable"
 </span>                }
                 <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("%w: %s %s (%d, %d)", errUnsupportedTile, category, tile.Id, int(tileX), int(tileY))</span>
@@ -23733,11 +23731,11 @@ func planPoses(metaPlan *mapplanner.MetaPlan) (map[consts.Coord[consts.Tile]]gc.
                 if isFacing </span>{
                         <span class="cov8" title="1">facers[c] = true
 </span>                }
-                <span class="cov8" title="1">blockers[c] = blockers[c] || isFacing || propRaw.BlockPass</span>
+                <span class="cov8" title="1">blockers[c] = blockers[c] || isFacing || propRaw.Passable == nil</span>
         }
         <span class="cov8" title="1">width, height := metaPlan.Level.TileWidth, metaPlan.Level.TileHeight
         wall := func(c consts.Coord[consts.Tile]) bool </span>{
-                <span class="cov8" title="1">return c.X &gt;= 0 &amp;&amp; c.Y &gt;= 0 &amp;&amp; c.X &lt; width &amp;&amp; c.Y &lt; height &amp;&amp; metaPlan.Tiles[int(c.Y*width+c.X)].BlockPass
+                <span class="cov8" title="1">return c.X &gt;= 0 &amp;&amp; c.Y &gt;= 0 &amp;&amp; c.X &lt; width &amp;&amp; c.Y &lt; height &amp;&amp; metaPlan.Tiles[int(c.Y*width+c.X)].Passable == nil
 </span>        }
         <span class="cov8" title="1">return mapplanner.RowPoses(facers, blockers, wall), nil</span>
 }
@@ -23753,7 +23751,7 @@ func detectPropDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorO
 </span>        }
 
         <span class="cov8" title="1">idx := y*width + x
-        if metaPlan.Tiles[idx-1].BlockPass &amp;&amp; metaPlan.Tiles[idx+1].BlockPass </span>{
+        if metaPlan.Tiles[idx-1].Passable == nil &amp;&amp; metaPlan.Tiles[idx+1].Passable == nil </span>{
                 <span class="cov8" title="1">return gc.DoorOrientationVertical
 </span>        }
 
@@ -26888,16 +26886,13 @@ func (dr *Driver) startInitialBand(world w.World) error {
         return nil</span>
 }
 
-// walkableSpawnNear は center から外側のリングへ順に探し、BlockPass が無く taken にも無い最初のタイル座標を返す。
-// キューブは BlockPass を持たないので、先に置いたプレイヤーやキューブの座標は taken で避ける。
+// walkableSpawnNear は center から外側のリングへ順に探し、通れて taken にも無い最初のタイル座標を返す。
+// キューブは通れる置物なので、先に置いたプレイヤーやキューブの座標は taken で避ける。
 // 開始チャンクが荒れ地でなく建物でも、プレイヤーを壁の中へ湧かせないための安全策。
 // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。
 func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile], taken map[consts.Coord[consts.Tile]]bool) consts.Coord[consts.Tile] {
         <span class="cov8" title="1">blocked := make(map[gc.GridElement]bool)
-        q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
-        for q.Next() </span>{
-                <span class="cov8" title="1">blocked[*world.Components.GridElement.Get(q.Entity())] = true
-</span>        }
+        forEachImpassable(world, func(ge gc.GridElement) </span>{ <span class="cov8" title="1">blocked[ge] = true }</span>)
         <span class="cov8" title="1">x0, y0 := int(center.X), int(center.Y)
         at := func(x, y int) consts.Coord[consts.Tile] </span>{
                 <span class="cov8" title="1">return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
@@ -27187,7 +27182,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
                         <span class="cov8" title="1">return false
 </span>                }
                 <span class="cov8" title="1">t, err := tileOf(cells[y][x].Terrain)
-                return err == nil &amp;&amp; t.BlockPass</span>
+                return err == nil &amp;&amp; t.Passable == nil</span>
         }
 
         <span class="cov8" title="1">propOf := cachedPropRows(world.Resources.RawMaster)
@@ -27199,7 +27194,7 @@ func spawnFacility(world w.World, g chunkGeom, cells [][]maptemplate.MapCell, ox
                 if err != nil </span>{
                         <span class="cov0" title="0">return false, err
 </span>                }
-                <span class="cov8" title="1">return prop.BlockPass, nil</span>
+                <span class="cov8" title="1">return prop.Passable == nil, nil</span>
         }
 
         // 扉の隣には扉や窓が並ぶので、通行を塞ぐ置物も壁と同じく向きを決める側に数える
@@ -27353,7 +27348,7 @@ func cellPoses(cells [][]maptemplate.MapCell, wallAt func(x, y int) bool, propOf
                         if isFacing </span>{
                                 <span class="cov8" title="1">facers[c] = true
 </span>                        }
-                        <span class="cov8" title="1">blockers[c] = blockers[c] || isFacing || prop.BlockPass</span>
+                        <span class="cov8" title="1">blockers[c] = blockers[c] || isFacing || prop.Passable == nil</span>
                 }
         }
         <span class="cov8" title="1">poses := map[consts.Coord[consts.Tile]]*gc.Pose{}
@@ -27411,7 +27406,7 @@ func tileBlocksPass(raws rawschema.Raws) func(terrain string) bool {
         <span class="cov8" title="1">blocks := map[string]bool{}
         tiles := raw.PtrSlice(raws.Tiles)
         for i := range tiles </span>{
-                <span class="cov8" title="1">blocks[tiles[i].Id] = tiles[i].BlockPass
+                <span class="cov8" title="1">blocks[tiles[i].Id] = tiles[i].Passable == nil
 </span>        }
         <span class="cov8" title="1">return func(terrain string) bool </span>{
                 <span class="cov8" title="1">if terrain == maptemplate.GroundTerrain </span>{
@@ -29211,7 +29206,7 @@ func (sc scatterChunk) absTile(rel consts.Coord[consts.Tile]) consts.Coord[const
         <span class="cov8" title="1">return consts.Coord[consts.Tile]{X: sc.lo.X + rel.X, Y: sc.lo.Y + rel.Y}
 </span>}
 
-// accept はチャンク相対の rel が土系の地面かつ非占有かを返す。占有は BlockPass の壁と、先に撒いた草・置物を含む
+// accept はチャンク相対の rel が土系の地面かつ非占有かを返す。占有は通れない壁と、先に撒いた草・置物を含む
 func (sc scatterChunk) accept(rel consts.Coord[consts.Tile]) bool {
         <span class="cov8" title="1">bl := sc.bandLocal(rel)
         return sc.earth.at(sc.world, sc.tiles, bl) &amp;&amp; !sc.occupied[gc.GridElement{Coord: bl}]
@@ -29363,20 +29358,28 @@ func onScatterRoute(route []roadSeg, pos consts.Coord[consts.Tile]) bool {
         <span class="cov8" title="1">return false</span>
 }
 
-// blockedTilesInChunk はチャンク g の範囲で BlockPass を持つエンティティの占有タイルを集める。
+// blockedTilesInChunk はチャンク g の範囲で通れない地形と置物の占有タイルを集める。
 // 散布はこの占有を避けて空きにだけ置く。フィーチャ間で共有される占有索引は持たない。
 func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
         <span class="cov8" title="1">blocked := make(map[gc.GridElement]bool)
         loX, hiX := g.offsetX, g.offsetX+g.chunkW
         loY, hiY := g.offsetY, g.offsetY+g.chunkH
-        q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
-        for q.Next() </span>{
-                <span class="cov8" title="1">ge := *world.Components.GridElement.Get(q.Entity())
-                if ge.X &gt;= loX &amp;&amp; ge.X &lt; hiX &amp;&amp; ge.Y &gt;= loY &amp;&amp; ge.Y &lt; hiY </span>{
+        forEachImpassable(world, func(ge gc.GridElement) </span>{
+                <span class="cov8" title="1">if ge.X &gt;= loX &amp;&amp; ge.X &lt; hiX &amp;&amp; ge.Y &gt;= loY &amp;&amp; ge.Y &lt; hiY </span>{
                         <span class="cov8" title="1">blocked[ge] = true
 </span>                }
-        }
+        })
         <span class="cov8" title="1">return blocked</span>
+}
+
+// forEachImpassable は Passable を持たない地形と置物の位置ごとに fn を呼ぶ。壊れて掃除を待つ置物も含める
+func forEachImpassable(world w.World, fn func(gc.GridElement)) {
+        <span class="cov8" title="1">for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} </span>{
+                <span class="cov8" title="1">q := query.ActiveFilter1[gc.GridElement](world).With(kind).Without(ecs.C[gc.Passable]()).Query()
+                for q.Next() </span>{
+                        <span class="cov8" title="1">fn(*world.Components.GridElement.Get(q.Entity()))
+</span>                }
+        }
 }
 
 // at は帯ローカル座標 pos のタイルが土の地面かを返す。道や壁、他の地物が置いたタイルは土でない
@@ -30975,6 +30978,8 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name string) error {
         <span class="cov8" title="1">entitySpec.Deployable = &amp;gc.Deployable{}
         entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{}}
+</span>        // 置くと置物になり、通り方を持たない置物は塞ぐ。置いた設備の上は歩けるので、素通りの通り方を持たせる
+        <span class="cov8" title="1">entitySpec.Passable = &amp;gc.Passable{}
         if dep.Storage != nil </span>{
                 <span class="cov8" title="1">mg, err := consts.ParseWeight(dep.Storage.MaxWeight)
                 if err != nil </span>{
@@ -31303,18 +31308,11 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 </span>        }
         <span class="cov8" title="1">entitySpec.SpriteRender = &amp;sprite
 </span>
-        // BlockPassがtrueの場合は通行を遮断
-        <span class="cov8" title="1">if tileRaw.BlockPass </span>{
-                <span class="cov8" title="1">entitySpec.BlockPass = &amp;gc.BlockPass{}
-</span>        }
-
+        <span class="cov8" title="1">entitySpec.Passable = toGCPassable(tileRaw.Passable)
+</span>
         // BlockViewがtrueの場合は視界を遮断
         <span class="cov8" title="1">if tileRaw.BlockView </span>{
                 <span class="cov8" title="1">entitySpec.BlockView = &amp;gc.BlockView{}
-</span>        }
-
-        <span class="cov8" title="1">if tileRaw.PassCost != nil </span>{
-                <span class="cov8" title="1">entitySpec.PassCost = &amp;gc.PassCost{Value: *tileRaw.PassCost}
 </span>        }
 
         <span class="cov8" title="1">entitySpec.Tile = &amp;gc.Tile{}
@@ -31420,14 +31418,9 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 </span>        }
         <span class="cov8" title="1">entitySpec.SpriteRender = &amp;spriteRender
 </span>
-        <span class="cov8" title="1">if propRaw.BlockPass </span>{
-                <span class="cov8" title="1">entitySpec.BlockPass = &amp;gc.BlockPass{}
-</span>        }
-        <span class="cov8" title="1">if propRaw.BlockView </span>{
+        <span class="cov8" title="1">entitySpec.Passable = toGCPassable(propRaw.Passable)
+        if propRaw.BlockView </span>{
                 <span class="cov8" title="1">entitySpec.BlockView = &amp;gc.BlockView{}
-</span>        }
-        <span class="cov8" title="1">if propRaw.PassCost != nil </span>{
-                <span class="cov8" title="1">entitySpec.PassCost = &amp;gc.PassCost{Value: *propRaw.PassCost}
 </span>        }
         // 各条件に対応するインタラクションを蓄積する。
         // 1つのPropが複数のインタラクションを持てる
@@ -31927,6 +31920,17 @@ func NewNeedDefs(raws rawschema.Raws) gc.NeedDefs {
                 })
 </span>        }
         <span class="cov8" title="1">return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}</span>
+}
+
+// toGCPassable は raw の通り方をコンポーネントに写す。省いた行は通れないので nil を返す
+func toGCPassable(p *rawschema.Passable) *gc.Passable {
+        <span class="cov8" title="1">if p == nil </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+        <span class="cov8" title="1">if p.Cost == nil </span>{
+                <span class="cov8" title="1">return &amp;gc.Passable{}
+</span>        }
+        <span class="cov8" title="1">return &amp;gc.Passable{Cost: *p.Cost}</span>
 }
 </pre>
 		
@@ -32666,9 +32670,6 @@ type Blast struct {
 
 // BlastRadius 爆風の半径。マス数
 type BlastRadius = int
-
-// BlocksPassage 通行を妨げるかどうか
-type BlocksPassage = bool
 
 // BlocksView 視線を遮るかどうか
 type BlocksView = bool
@@ -34163,8 +34164,14 @@ type NutritionAmount = int
 // NutritionPercent 食料から得る栄養の満額に対する割合。百分率
 type NutritionPercent = int
 
-// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
+// PassCost 上へ移るときに標準の移動に足す移動コスト
 type PassCost = int
+
+// Passable 通り方。持たない地形と置物は通れない
+type Passable struct {
+        // Cost 省くと素通り。0 と省略で同じ意味を2通りに書けないよう1以上にする
+        Cost *PassCost `json:"cost,omitempty"`
+}
 
 // PointFeature 区域でない地物の置き方。南北に spacing チャンクのリージョンごとに1つの当選を置き、隣のリージョンの当選と separation チャンク以上離す。
 // 集落は spacing をリージョンの行数にだけ使い、置く所は道の計画が決める
@@ -34383,8 +34390,6 @@ type Prop struct {
 
         Bedding *Bedding `json:"bedding,omitempty"`
 
-        BlockPass BlocksPassage `json:"blockPass"`
-
         BlockView BlocksView `json:"blockView"`
 
         // BurnoutItem 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
@@ -34407,7 +34412,8 @@ type Prop struct {
 
         Name EntityName `json:"name"`
 
-        PassCost *PassCost `json:"passCost,omitempty"`
+        // Passable 省くと通れない
+        Passable *Passable `json:"passable,omitempty"`
 
         // RemainsId 壊れたときに足元へ残す跡。省くと何も残さない
         RemainsId *EntityID `json:"remainsId,omitempty"`
@@ -35214,8 +35220,6 @@ type Throw struct {
 
 // Tile タイル
 type Tile struct {
-        BlockPass BlocksPassage `json:"blockPass"`
-
         BlockView BlocksView `json:"blockView"`
 
         Description EntityDescription `json:"description"`
@@ -35231,8 +35235,8 @@ type Tile struct {
 
         Name EntityName `json:"name"`
 
-        // PassCost 上へ移るときに足す移動コスト
-        PassCost *PassCost `json:"passCost,omitempty"`
+        // Passable 省くと通れない
+        Passable *Passable `json:"passable,omitempty"`
 
         // Shelter 囲われの度合い。省くと屋外
         Shelter *Shelter `json:"shelter,omitempty"`
@@ -36687,7 +36691,7 @@ import (
         "github.com/kijimaD/ruins/internal/world/query"
 )
 
-const saveDataVersion = "3.1.0"
+const saveDataVersion = "3.2.0"
 
 const maxAutoSaves = 4
 
@@ -40732,7 +40736,7 @@ func debugMenuChoices(world w.World) (string, []Choice) {
                 Choice{Label: "Spawn enemy: slime (swarm)", Run: stayAfter(func(world w.World) error { <span class="cov0" title="0">return spawnEnemyNearPlayer(world, "slime") }</span>)},
                 Choice{Label: "Spawn enemy: skeleton soldier (patrol)", Run: stayAfter(func(world w.World) error { <span class="cov0" title="0">return spawnEnemyNearPlayer(world, "skeleton_soldier") }</span>)},
                 Choice{Label: "Spawn enemy: stray dog (territorial)", Run: stayAfter(func(world w.World) error { <span class="cov0" title="0">return spawnEnemyNearPlayer(world, "stray_dog") }</span>)},
-                Choice{Label: "Spawn prop: moving_stone (PassCost)", Run: stayAfter(func(world w.World) error { <span class="cov0" title="0">return spawnPropNearPlayer(world, "moving_stone") }</span>)},
+                Choice{Label: "Spawn prop: moving_stone (move cost)", Run: stayAfter(func(world w.World) error { <span class="cov0" title="0">return spawnPropNearPlayer(world, "moving_stone") }</span>)},
                 Choice{Label: "Spawn prop: hearth", Run: stayAfter(func(world w.World) error { <span class="cov0" title="0">return spawnPropNearPlayer(world, "hearth") }</span>)},
                 Choice{Label: "Spawn prop: barrel (destructible)", Run: stayAfter(func(world w.World) error { <span class="cov0" title="0">return spawnPropNearPlayer(world, "barrel") }</span>)},
                 Choice{Label: "Spawn prop: construction_sign (impassable)", Run: stayAfter(func(world w.World) error { <span class="cov0" title="0">return spawnPropNearPlayer(world, "construction_sign") }</span>)},
@@ -44006,12 +44010,13 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, pa
         <span class="cov8" title="1">blocked := false
         totalAdd := 0
         for _, entity := range entities </span>{
-                <span class="cov8" title="1">if world.Components.BlockPass.Has(entity) </span>{
+                <span class="cov8" title="1">if world.Components.Passable.Has(entity) </span>{
+                        <span class="cov8" title="1">totalAdd += world.Components.Passable.Get(entity).Cost
+                        continue</span>
+                }
+                // マスにはキャラクターやアイテムも乗るので、通れないのは地形と置物だけ
+                <span class="cov8" title="1">if world.Components.Tile.Has(entity) || world.Components.Prop.Has(entity) </span>{
                         <span class="cov0" title="0">blocked = true
-</span>                }
-                <span class="cov8" title="1">if world.Components.PassCost.Has(entity) </span>{
-                        <span class="cov0" title="0">mc := world.Components.PassCost.Get(entity)
-                        totalAdd += mc.Value
 </span>                }
         }
         <span class="cov8" title="1">panel.Gap(5)
@@ -48653,7 +48658,7 @@ func (sys *Render3DSystem) newSnowLayer(world w.World) *snowLayer {
 
 // amount は地面 e に積もる雪の量を返す。通れて屋根の無い地面のときだけ正になり、タイルの解けやすさの分だけ減る
 func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Tile]) float64 {
-        <span class="cov8" title="1">if world.Components.BlockPass.Has(e) || !world.Components.TileEnvironment.Has(e) </span>{
+        <span class="cov8" title="1">if !world.Components.Passable.Has(e) || !world.Components.TileEnvironment.Has(e) </span>{
                 <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">env := world.Components.TileEnvironment.Get(e)
@@ -48759,7 +48764,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
                 }
                 <span class="cov8" title="1">if sr.Shape == rawschema.Inset </span>{
                         // 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする
-                        <span class="cov8" title="1">if !vis || world.Components.BlockPass.Has(e) </span>{
+                        <span class="cov8" title="1">if !vis || !world.Components.Passable.Has(e) </span>{
                                 <span class="cov8" title="1">sys.addSlab(&amp;quads, projector, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
                                 continue</span>
                         }
@@ -48940,7 +48945,7 @@ type insetFace struct {
 // closedInsets は閉じている壁にはめる置物の座標の集合を返す
 func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {
         <span class="cov8" title="1">insets := map[consts.Coord[consts.Tile]]bool{}
-        q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Tile]()).Query()
+        q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Prop](world).Without(ecs.C[gc.Passable]()).Query()
         for q.Next() </span>{
                 <span class="cov8" title="1">if world.Components.SpriteRender.Get(q.Entity()).Shape == rawschema.Inset </span>{
                         <span class="cov8" title="1">insets[world.Components.GridElement.Get(q.Entity()).Coord] = true
@@ -49437,7 +49442,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
                 <span class="cov0" title="0">tileMap[*ge] = e</span>
         }
 
-        <span class="cov0" title="0">wallShadowQuery := query.ActiveFilter4[gc.SpriteRender, gc.GridElement, gc.BlockView, gc.BlockPass](world).Query()
+        <span class="cov0" title="0">wallShadowQuery := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockView](world).Without(ecs.C[gc.Passable]()).Query()
         for wallShadowQuery.Next() </span>{
                 <span class="cov0" title="0">entity := wallShadowQuery.Entity()
                 grid := world.Components.GridElement.Get(entity)
@@ -49473,7 +49478,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
                 }
 
                 // 下のタイルが壁でないことも確認（壁-&gt;床-&gt;壁の場合は影を描画しない）
-                <span class="cov0" title="0">if world.Components.BlockView.Has(belowTileEntity) &amp;&amp; world.Components.BlockPass.Has(belowTileEntity) </span>{
+                <span class="cov0" title="0">if world.Components.BlockView.Has(belowTileEntity) &amp;&amp; !world.Components.Passable.Has(belowTileEntity) </span>{
                         <span class="cov0" title="0">continue</span>
                 }
 
@@ -57682,7 +57687,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity, r consts.Coord[consts.Tile]
                                 <span class="cov8" title="1">continue</span>
                         }
                         <span class="cov8" title="1">t := base.Add(consts.Coord[consts.Tile]{X: dx, Y: dy})
-                        if si.IsBlockPass(t) </span>{
+                        if si.IsBlocked(t) </span>{
                                 <span class="cov8" title="1">return false
 </span>                        }
                         <span class="cov8" title="1">if e, ok := si.CharacterAt(t); ok &amp;&amp; e != player </span>{
@@ -57690,7 +57695,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity, r consts.Coord[consts.Tile]
 </span>                        }
                 }
         }
-        // 空間索引は BlockPass と character しか持たないのでアイテム・prop は LocationOnField を走査する
+        // 空間索引は通れないマスと character しか持たないのでアイテム・prop は LocationOnField を走査する
         <span class="cov8" title="1">q := query.ActiveFilter1[gc.LocationOnField](world).Query()
         defer q.Close()
         for q.Next() </span>{
@@ -57883,7 +57888,7 @@ func FacilityCellFree(world w.World, cube ecs.Entity, coord consts.Coord[consts.
         if si == nil </span>{
                 <span class="cov0" title="0">return false
 </span>        }
-        <span class="cov8" title="1">if si.IsBlockPass(coord) </span>{
+        <span class="cov8" title="1">if si.IsBlocked(coord) </span>{
                 <span class="cov0" title="0">return false
 </span>        }
         // 取得失敗時は InvalidEntity になるが実キャラと一致しないので、誰も除外しないだけで安全側に倒れる
@@ -58996,19 +59001,14 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 </span>                }
         }
 
-        // BlockPass / BlockView を更新
         <span class="cov8" title="1">if isOpen </span>{
-                <span class="cov8" title="1">if world.Components.BlockPass.Has(doorEntity) </span>{
-                        <span class="cov8" title="1">world.Components.BlockPass.Remove(doorEntity)
-</span>                }
-                <span class="cov8" title="1">if world.Components.BlockView.Has(doorEntity) </span>{
+                <span class="cov8" title="1">EnsureMarker(world, world.Components.Passable, doorEntity, &amp;gc.Passable{})
+                if world.Components.BlockView.Has(doorEntity) </span>{
                         <span class="cov8" title="1">world.Components.BlockView.Remove(doorEntity)
 </span>                }
         } else {
-                <span class="cov8" title="1">if !world.Components.BlockPass.Has(doorEntity) </span>{
-                        <span class="cov8" title="1">world.Components.BlockPass.Add(doorEntity, &amp;gc.BlockPass{})
-</span>                }
-                <span class="cov8" title="1">if !world.Components.BlockView.Has(doorEntity) </span>{
+                <span class="cov8" title="1">ensureRemoved(world.Components.Passable, doorEntity)
+                if !world.Components.BlockView.Has(doorEntity) </span>{
                         <span class="cov8" title="1">world.Components.BlockView.Add(doorEntity, &amp;gc.BlockView{})
 </span>                }
         }
@@ -61135,20 +61135,20 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 </span>        }
         <span class="cov8" title="1">si.MapWidth = field.Level.TileWidth
         si.MapHeight = field.Level.TileHeight
-        si.BlockPass = make(map[gc.GridElement]bool)
+        si.Blocked = make(map[gc.GridElement]bool)
         si.Characters = make(map[gc.GridElement]ecs.Entity)
         si.PlayerEntity = nil
 </span>
-        // 静的障害物のインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない
-        <span class="cov8" title="1">blockPassQuery := ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
-        for blockPassQuery.Next() </span>{
-                <span class="cov8" title="1">entity := blockPassQuery.Entity()
-                if world.Components.Dead.Has(entity) </span>{
-                        <span class="cov8" title="1">continue</span>
-                }
-                <span class="cov8" title="1">grid := world.Components.GridElement.Get(entity)
-                si.BlockPass[*grid] = true</span>
-        }
+        // 通れないマスのインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない。
+        // 壊れて掃除を待つ置物は塞がない
+        <span class="cov8" title="1">blockedTileQuery := ActiveFilter2[gc.GridElement, gc.Tile](world).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()
+        for blockedTileQuery.Next() </span>{
+                <span class="cov8" title="1">si.Blocked[*world.Components.GridElement.Get(blockedTileQuery.Entity())] = true
+</span>        }
+        <span class="cov8" title="1">blockedPropQuery := ActiveFilter2[gc.GridElement, gc.Prop](world).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()
+        for blockedPropQuery.Next() </span>{
+                <span class="cov0" title="0">si.Blocked[*world.Components.GridElement.Get(blockedPropQuery.Entity())] = true
+</span>        }
 
         // キャラクター位置のインデックス構築。退避中ステージのキャラクターは現ステージに混ぜない
         <span class="cov8" title="1">characterQuery := ActiveFilter1[gc.GridElement](world).Query()

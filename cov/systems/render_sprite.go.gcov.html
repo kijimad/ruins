@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -350,7 +350,7 @@
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 tileMap[*ge] = e</span></span>
 <span id="L289"><span class="lineNum">     289</span>              :         }</span>
 <span id="L290"><span class="lineNum">     290</span>              : </span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         wallShadowQuery := query.ActiveFilter4[gc.SpriteRender, gc.GridElement, gc.BlockView, gc.BlockPass](world).Query()</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         wallShadowQuery := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockView](world).Without(ecs.C[gc.Passable]()).Query()</span></span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :         for wallShadowQuery.Next() {</span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 entity := wallShadowQuery.Entity()</span></span>
 <span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 grid := world.Components.GridElement.Get(entity)</span></span>
@@ -386,7 +386,7 @@
 <span id="L324"><span class="lineNum">     324</span>              :                 }</span>
 <span id="L325"><span class="lineNum">     325</span>              : </span>
 <span id="L326"><span class="lineNum">     326</span>              :                 // 下のタイルが壁でないことも確認（壁-&gt;床-&gt;壁の場合は影を描画しない）</span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :                 if world.Components.BlockView.Has(belowTileEntity) &amp;&amp; world.Components.BlockPass.Has(belowTileEntity) {</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :                 if world.Components.BlockView.Has(belowTileEntity) &amp;&amp; !world.Components.Passable.Has(belowTileEntity) {</span></span>
 <span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L329"><span class="lineNum">     329</span>              :                 }</span>
 <span id="L330"><span class="lineNum">     330</span>              : </span>

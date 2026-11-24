@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,8 +73,8 @@
 <span id="L11"><span class="lineNum">      11</span>              : type SpatialIndex struct {</span>
 <span id="L12"><span class="lineNum">      12</span>              :         // マップの寸法。タイル数で表す。Level.TileWidth/TileHeight と同じ単位</span>
 <span id="L13"><span class="lineNum">      13</span>              :         MapWidth, MapHeight consts.Tile</span>
-<span id="L14"><span class="lineNum">      14</span>              :         // 静的障害物の位置。壁やドアなどBlockPassコンポーネントを持つ固定物が対象</span>
-<span id="L15"><span class="lineNum">      15</span>              :         BlockPass map[GridElement]bool</span>
+<span id="L14"><span class="lineNum">      14</span>              :         // 通れないマス。Passable を持たない地形と置物の位置</span>
+<span id="L15"><span class="lineNum">      15</span>              :         Blocked map[GridElement]bool</span>
 <span id="L16"><span class="lineNum">      16</span>              :         // キャラクター位置のインデックス。プレイヤー・敵・中立NPCの位置</span>
 <span id="L17"><span class="lineNum">      17</span>              :         Characters map[GridElement]ecs.Entity</span>
 <span id="L18"><span class="lineNum">      18</span>              :         // プレイヤーエンティティのキャッシュ。プレイヤーが存在しない場合はnil</span>
@@ -91,13 +91,13 @@
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         return &amp;SpatialIndex{}</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span>              : // IsBlockPass は指定タイルに静的障害物があるかをO(1)で判定する。</span>
+<span id="L32"><span class="lineNum">      32</span>              : // IsBlocked は指定タイルが通れない地形か置物を持つかをO(1)で判定する。</span>
 <span id="L33"><span class="lineNum">      33</span>              : // 未構築の場合はfalseを返す</span>
-<span id="L34"><span class="lineNum">      34</span>              : func (si *SpatialIndex) IsBlockPass(pos consts.Coord[consts.Tile]) bool {</span>
+<span id="L34"><span class="lineNum">      34</span>              : func (si *SpatialIndex) IsBlocked(pos consts.Coord[consts.Tile]) bool {</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         if !si.Built {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return si.BlockPass[GridElement{Coord: pos}]</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return si.Blocked[GridElement{Coord: pos}]</span></span>
 <span id="L39"><span class="lineNum">      39</span>              : }</span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span>              : // CharacterAt は指定タイルのキャラクターを返す</span>
@@ -125,7 +125,7 @@
 <span id="L63"><span class="lineNum">      63</span>              : // Invalidate はインデックスを無効化する。次回アクセス時に再構築させる</span>
 <span id="L64"><span class="lineNum">      64</span>              : func (si *SpatialIndex) Invalidate() {</span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         si.Built = false</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         si.BlockPass = nil</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         si.Blocked = nil</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         si.Characters = nil</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         si.PlayerEntity = nil</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : }</span></span>

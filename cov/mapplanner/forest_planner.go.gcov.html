@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -158,7 +158,7 @@
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 for y := 1; y &lt; height-1; y++ {</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                         if !planData.Tiles[idx].BlockPass {</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                         if planData.Tiles[idx].Passable != nil {</span></span>
 <span id="L100"><span class="lineNum">     100</span>              :                                 // 空き地の近くでは木の密度を下げる</span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                                 treeDensity := f.calculateTreeDensity(planData, x, y)</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 : </span></span>
@@ -219,7 +219,7 @@
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                         if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height {</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                                 if !planData.Tiles[idx].BlockPass &amp;&amp; planData.RNG.Float64() &lt; 0.7 {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                                 if planData.Tiles[idx].Passable != nil &amp;&amp; planData.RNG.Float64() &lt; 0.7 {</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                                         planData.Tiles[idx] = planData.GetTile(f.Tiles.Wall)</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                                 }</span></span>
 <span id="L163"><span class="lineNum">     163</span>              :                         }</span>

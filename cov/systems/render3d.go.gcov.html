@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -431,7 +431,7 @@
 <span id="L369"><span class="lineNum">     369</span>              : </span>
 <span id="L370"><span class="lineNum">     370</span>              : // amount は地面 e に積もる雪の量を返す。通れて屋根の無い地面のときだけ正になり、タイルの解けやすさの分だけ減る</span>
 <span id="L371"><span class="lineNum">     371</span>              : func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Tile]) float64 {</span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         if world.Components.BlockPass.Has(e) || !world.Components.TileEnvironment.Has(e) {</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         if !world.Components.Passable.Has(e) || !world.Components.TileEnvironment.Has(e) {</span></span>
 <span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         env := world.Components.TileEnvironment.Get(e)</span></span>
@@ -537,7 +537,7 @@
 <span id="L475"><span class="lineNum">     475</span>              :                 }</span>
 <span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 :                 if sr.Shape == rawschema.Inset {</span></span>
 <span id="L477"><span class="lineNum">     477</span>              :                         // 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする</span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           1 :                         if !vis || world.Components.BlockPass.Has(e) {</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           1 :                         if !vis || !world.Components.Passable.Has(e) {</span></span>
 <span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :                                 sys.addSlab(&amp;quads, projector, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)</span></span>
 <span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L481"><span class="lineNum">     481</span>              :                         }</span>
@@ -718,7 +718,7 @@
 <span id="L656"><span class="lineNum">     656</span>              : // closedInsets は閉じている壁にはめる置物の座標の集合を返す</span>
 <span id="L657"><span class="lineNum">     657</span>              : func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {</span>
 <span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">           1 :         insets := map[consts.Coord[consts.Tile]]bool{}</span></span>
-<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Prop](world).Without(ecs.C[gc.Passable]()).Query()</span></span>
 <span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L661"><span class="lineNum">     661</span> <span class="tlaGNC">           1 :                 if world.Components.SpriteRender.Get(q.Entity()).Shape == rawschema.Inset {</span></span>
 <span id="L662"><span class="lineNum">     662</span> <span class="tlaGNC">           1 :                         insets[world.Components.GridElement.Get(q.Entity()).Coord] = true</span></span>

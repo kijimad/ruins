@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,7 +81,7 @@
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         for y := 1; y &lt; height-1; y++ {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 for x := 1; x &lt; width-1; x++ {</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                         idx := y*width + x</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                         if mp.Tiles[idx].BlockPass {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                         if mp.Tiles[idx].Passable == nil {</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L24"><span class="lineNum">      24</span>              :                         }</span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
@@ -112,11 +112,11 @@
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         bottom := mp.Tiles[idx+width]</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L52"><span class="lineNum">      52</span>              :         // 左右が壁、上下が床 → 縦向きドア</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         if left.BlockPass &amp;&amp; right.BlockPass &amp;&amp; !top.BlockPass &amp;&amp; !bottom.BlockPass {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         if left.Passable == nil &amp;&amp; right.Passable == nil &amp;&amp; top.Passable != nil &amp;&amp; bottom.Passable != nil {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 return true</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              :         // 上下が壁、左右が床 → 横向きドア</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         if top.BlockPass &amp;&amp; bottom.BlockPass &amp;&amp; !left.BlockPass &amp;&amp; !right.BlockPass {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         if top.Passable == nil &amp;&amp; bottom.Passable == nil &amp;&amp; left.Passable != nil &amp;&amp; right.Passable != nil {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return true</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L60"><span class="lineNum">      60</span>              : </span>
@@ -126,7 +126,7 @@
 <span id="L64"><span class="lineNum">      64</span>              : // doorOrientation はドア位置の隣接タイルから向きを判定する</span>
 <span id="L65"><span class="lineNum">      65</span>              : func doorOrientation(mp *MetaPlan, x, y, width int) gc.DoorOrientation {</span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         idx := y*width + x</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         if mp.Tiles[idx-1].BlockPass &amp;&amp; mp.Tiles[idx+1].BlockPass {</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         if mp.Tiles[idx-1].Passable == nil &amp;&amp; mp.Tiles[idx+1].Passable == nil {</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 return gc.DoorOrientationVertical</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         return gc.DoorOrientationHorizontal</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">134</td>
-            <td class="headerCovTableEntry">134</td>
+            <td class="headerCovTableEntryHi">98.5&nbsp;%</td>
+            <td class="headerCovTableEntry">135</td>
+            <td class="headerCovTableEntry">133</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -282,20 +282,20 @@
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         si.MapWidth = field.Level.TileWidth</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         si.MapHeight = field.Level.TileHeight</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         si.BlockPass = make(map[gc.GridElement]bool)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         si.Blocked = make(map[gc.GridElement]bool)</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         si.Characters = make(map[gc.GridElement]ecs.Entity)</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         si.PlayerEntity = nil</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L227"><span class="lineNum">     227</span>              :         // 静的障害物のインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない</span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         blockPassQuery := ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         for blockPassQuery.Next() {</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 entity := blockPassQuery.Entity()</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 if world.Components.Dead.Has(entity) {</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L233"><span class="lineNum">     233</span>              :                 }</span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 si.BlockPass[*grid] = true</span></span>
-<span id="L236"><span class="lineNum">     236</span>              :         }</span>
+<span id="L227"><span class="lineNum">     227</span>              :         // 通れないマスのインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない。</span>
+<span id="L228"><span class="lineNum">     228</span>              :         // 壊れて掃除を待つ置物は塞がない</span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         blockedTileQuery := ActiveFilter2[gc.GridElement, gc.Tile](world).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         for blockedTileQuery.Next() {</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 si.Blocked[*world.Components.GridElement.Get(blockedTileQuery.Entity())] = true</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         blockedPropQuery := ActiveFilter2[gc.GridElement, gc.Prop](world).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         for blockedPropQuery.Next() {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 si.Blocked[*world.Components.GridElement.Get(blockedPropQuery.Entity())] = true</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L237"><span class="lineNum">     237</span>              : </span>
 <span id="L238"><span class="lineNum">     238</span>              :         // キャラクター位置のインデックス構築。退避中ステージのキャラクターは現ステージに混ぜない</span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         characterQuery := ActiveFilter1[gc.GridElement](world).Query()</span></span>

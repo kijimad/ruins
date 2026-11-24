@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,7 +90,7 @@
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         idx := pf.planData.Level.CoordToIndex(pos)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return !pf.planData.Tiles[idx].BlockPass</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return pf.planData.Tiles[idx].Passable != nil</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : }</span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // FindPath はBFSでスタート地点からゴールまでのパスを探索する。</span>
@@ -223,7 +223,7 @@
 <span id="L161"><span class="lineNum">     161</span>              : </span>
 <span id="L162"><span class="lineNum">     162</span>              :         // 見つからない場合は全体をスキャン</span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         for _i := range planData.Tiles {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 if !planData.Tiles[_i].BlockPass {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 if planData.Tiles[_i].Passable != nil {</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                         pos := planData.Level.IndexToCoord(gc.TileIdx(_i))</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                         if pf.isValidSpawnPosition(pos) {</span></span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                                 return pos, nil</span></span>
@@ -238,7 +238,7 @@
 <span id="L176"><span class="lineNum">     176</span>              : func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool {</span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         planData := pf.planData</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         idx := planData.Level.CoordToIndex(pos)</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         if int(idx) &gt;= len(planData.Tiles) || planData.Tiles[idx].BlockPass {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         if int(idx) &gt;= len(planData.Tiles) || planData.Tiles[idx].Passable == nil {</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L182"><span class="lineNum">     182</span>              : </span>
@@ -248,7 +248,7 @@
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L187"><span class="lineNum">     187</span>              : </span>
 <span id="L188"><span class="lineNum">     188</span>              :         // 隣接4方向のうち少なくとも1つは移動可能なタイルが必要。</span>
-<span id="L189"><span class="lineNum">     189</span>              :         // 敵エンティティはBlockPassを持つため、全隣接タイルが占有されるとプレイヤーが移動不能になる</span>
+<span id="L189"><span class="lineNum">     189</span>              :         // キャラクターのいるマスへは入れないため、全隣接タイルが占有されるとプレイヤーが移動不能になる</span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         if !pf.hasAdjacentFreeTile(pos) {</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         }</span></span>

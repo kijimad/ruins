@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -195,7 +195,7 @@
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 for y := 1; y &lt; height-1; y++ {</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         if !planData.Tiles[idx].BlockPass {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         if planData.Tiles[idx].Passable != nil {</span></span>
 <span id="L137"><span class="lineNum">     137</span>              :                                 // 建物から離れた場所ほど瓦礫が少ない</span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                                 debrisChance := r.calculateDebrisChance(planData, x, y)</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 : </span></span>

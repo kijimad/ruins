@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 14:43:21</td>
+            <td class="headerValue">2026-11-24 16:15:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -341,7 +341,7 @@
 <span id="L279"><span class="lineNum">     279</span>              : </span>
 <span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 wallCount := 0</span></span>
 <span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                 for _, adj := range []consts.Coord[consts.Tile]{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}} {</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                         if si.IsBlockPass(dest.Add(adj)) {</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                         if si.IsBlocked(dest.Add(adj)) {</span></span>
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                                 wallCount++</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L285"><span class="lineNum">     285</span>              :                 }</span>
