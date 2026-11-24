@@ -31,11 +31,11 @@ WARM = [
 ]
 
 
-def render(key, path, query=""):
-    """シーンを描いて path に書く。query はシーンへ足す引数で、&after=1 のように書く。three.js の読み込みや
-    シェーダが失敗すると Chrome はほぼ単色の画面を書いて正常に終わるので、色の数で描き損じを見分けて止める。"""
+def render(key, path):
+    """シーンを描いて path に書く。three.js の読み込みやシェーダが失敗すると Chrome は
+    ほぼ単色の画面を書いて正常に終わるので、色の数で描き損じを見分けて止める。"""
     seed, _, j = str(key).partition(":")
-    extra = (f"&j={j}" if j else "") + query
+    extra = f"&j={j}" if j else ""
     env = {k: v for k, v in os.environ.items() if k != "LD_LIBRARY_PATH"}
     try:
         subprocess.run(

@@ -63,13 +63,6 @@ if (q.has('j')) {
   V.smokeH = J(V.smokeH, 10);
   V.fire = J(V.fire, 0.2);
 }
-// after を与えると、墜落から時間がたった後の場面にする。炎は消えて明かりも落ち、煙は細く低く残る。
-// 炎の大きさを0にするだけで炎を作る処理は通すので、構図の乱数の回数は変わらず、山と都市の形は保たれる
-const AFTER = q.has('after');
-if (AFTER) {
-  V.fire = 0;
-  V.smokeH *= 0.6;
-}
 const T = TIMES[V.time];
 
 const renderer = new THREE.WebGLRenderer({ antialias: !q.has("px"), preserveDrawingBuffer: true });
@@ -77,7 +70,7 @@ renderer.setSize(W, H);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = T.exp * (AFTER ? 1.6 : 1);
+renderer.toneMappingExposure = T.exp;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -215,7 +208,7 @@ const pod = new THREE.Group();
   ring.rotation.y = Math.PI / 2; ring.position.x = 0.6; pod.add(ring);
   const win = new THREE.Mesh(new THREE.CircleGeometry(0.5, 6), glow);
   win.position.set(-0.4, 0.35, 1.25); win.rotation.x = -0.25; pod.add(win);
-  const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.95, 0.9, 7, 1, true), AFTER ? metal : hot);
+  const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.95, 0.9, 7, 1, true), hot);
   nozzle.rotation.z = Math.PI / 2; nozzle.position.x = 2.5; pod.add(nozzle);
   const fin = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 1.0), metal);
   fin.position.set(1.4, 1.2, 0); fin.rotation.z = 0.5; fin.castShadow = true; pod.add(fin);
@@ -275,12 +268,12 @@ for (let i = 0; i < 720; i++) rnd();
     for (let k = 0; k < 5; k++) {
       const s = (0.35 + t * 3.6) * S(0.5, 1.1);
       const col = new THREE.Color('#2e2c33').lerp(new THREE.Color('#9aa0b0'), t * 0.8 + S(0, 0.15));
-      const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, flatShading: true, transparent: true, opacity: (0.6 - t * 0.5) * S(0.6, 1) * (AFTER ? 0.3 : 1), roughness: 1, depthWrite: false }));
+      const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, flatShading: true, transparent: true, opacity: (0.6 - t * 0.5) * S(0.6, 1), roughness: 1, depthWrite: false }));
       const spread = 0.6 + t * 6;
       m.scale.setScalar(s);
       m.position.set(2 + t * t * V.wind[0] + S(-1, 1) * spread, 0.5 + t * V.smokeH + S(-1, 1) * spread * 0.4, t * V.wind[1] + S(-1, 1) * spread);
       m.rotation.set(S(0, 3), S(0, 3), S(0, 3));
-      if (!AFTER || t < 0.5) scene.add(m);
+      scene.add(m);
     }
   }
 }
@@ -328,43 +321,6 @@ for (let i = 0; i < 26; i++) {
 const cam = new THREE.PerspectiveCamera(V.fov, W / H, 0.1, 2000);
 cam.position.set(...V.cam);
 cam.lookAt(...V.look);
-// camp を与えると、雪原に浮かぶ動く家のキューブと、そばの小さな焚き火を置く。値はカメラから見た前と右への距離。
-// 焚き火の形は構図の乱数を使わず決めた形にし、ほかの物の形を変えない
-if (q.has('camp')) {
-  const [ahead, right] = q.get('camp').split(',').map(Number);
-  const fx0 = V.look[0] - V.cam[0], fz0 = V.look[2] - V.cam[2], fl = Math.hypot(fx0, fz0);
-  const ux = fx0 / fl, uz = fz0 / fl;
-  const cx = V.cam[0] + ux * ahead - uz * right, cz = V.cam[2] + uz * ahead + ux * right;
-  const gy = craterH(cx, cz);
-  const size = 2.6;
-  const cube = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), new THREE.MeshStandardMaterial({ color: '#2b4aa0', flatShading: true, roughness: 0.45, metalness: 0.25 }));
-  cube.position.set(cx, gy + 0.9 + size / 2, cz);
-  cube.rotation.y = 0.6;
-  cube.castShadow = true;
-  scene.add(cube);
-  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(cube.geometry), new THREE.LineBasicMaterial({ color: '#a8e6ff' }));
-  edges.position.copy(cube.position);
-  edges.rotation.copy(cube.rotation);
-  scene.add(edges);
-  const fx = cx + 2.6, fz = cz + 1.4, fy = craterH(fx, fz);
-  const shapes = [[0.32, 1.3, 0, 0], [0.26, 1.0, 0.18, 0.1], [0.22, 0.8, -0.16, 0.12], [0.2, 0.7, 0.05, -0.18]];
-  shapes.forEach(([r, h, ox, oz], k) => {
-    const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 5), new THREE.MeshBasicMaterial({ color: k % 2 ? '#ffb347' : '#ff6a1f', transparent: true, opacity: 0.95 }));
-    m.position.set(fx + ox, fy + h / 2, fz + oz);
-    m.rotation.y = k * 1.3;
-    scene.add(m);
-  });
-  for (let k = 0; k < 5; k++) {
-    const log = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.14, 0.18), new THREE.MeshStandardMaterial({ color: '#3a2a22', flatShading: true }));
-    log.position.set(fx, fy + 0.07, fz);
-    log.rotation.y = k * Math.PI / 5;
-    scene.add(log);
-  }
-  const campLight = new THREE.PointLight('#ff8a3a', 26, 16, 1.5);
-  campLight.position.set(fx, fy + 1.2, fz);
-  scene.add(campLight);
-}
-
 renderer.render(scene, cam);
 </script>
 </body></html>

@@ -23,7 +23,6 @@ import (
 type SettingsMenuState struct {
 	es.BaseState[w.World]
 	screen *menuloop.Screen[SettingsMenuProps]
-	bg     titleBackground
 }
 
 // State interface ================
@@ -38,15 +37,16 @@ func (st *SettingsMenuState) OnStart(_ w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *SettingsMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	st.bg.Update()
 	return st.screen.Update(world)
 }
 
 // Draw はスクリーンに描画する
 func (st *SettingsMenuState) Draw(world w.World, screen *ebiten.Image) error {
-	if err := st.bg.Draw(world, screen); err != nil {
+	bgImage, err := loadBackgroundImage(world, "title1")
+	if err != nil {
 		return err
 	}
+	screen.DrawImage(bgImage, nil)
 
 	st.screen.Draw(screen)
 	return nil
