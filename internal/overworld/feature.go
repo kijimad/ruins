@@ -63,10 +63,10 @@ type feature interface {
 // 先に置かれたタイルを残すので、施設を置く地物より前の地物は土の地面以外を置かない
 func features() []feature {
 	// 点在ランドマークは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に
-	// 評価する。水面は道の舗装を残して土だけを沈めるよう道の後に、散布は占有と道と水面の実状態を読むため最後に評価する
+	// 評価する。散布は占有と道の実状態を読むため最後に評価する
 	return []feature{
 		settlementFeature{}, urbanFeature{}, crashSiteFeature{}, wildernessLandmarkFeature{},
-		roadFeature{}, waterFeature{}, openTerrainFeature{},
+		roadFeature{}, openTerrainFeature{},
 	}
 }
 
@@ -79,7 +79,6 @@ const (
 	scatterSalt     uint64 = 5
 	outdoorLootSalt uint64 = 6
 	crashSiteSalt   uint64 = 7
-	waterSalt       uint64 = 8
 )
 
 // pointFeatureOf は地物の種類 kind の raw の行を返す。全ての種類に行があることを raw の検証が保証する

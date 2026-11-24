@@ -14,22 +14,16 @@ const (
 
 // grassPatchFactor は絶対タイル座標 p の草の密度倍率を返す。値ノイズ n の 3n² で、平均はおよそ0.9
 func grassPatchFactor(seed uint64, p consts.Coord[consts.Tile]) float64 {
-	n := valueNoise(seed, p, grassPatchCell)
-	return 3 * n * n
-}
-
-// valueNoise は絶対タイル座標 p の値ノイズを 0..1 で返す。間隔 cell の格子点に seed から値を置き、間を滑らかに補間する。
-// 座標の純関数なので、チャンクの境目でも途切れない
-func valueNoise(seed uint64, p consts.Coord[consts.Tile], cell consts.Tile) float64 {
-	cx, cy := consts.FloorDiv(p.X, cell), consts.FloorDiv(p.Y, cell)
-	fx := smoothstep(float64(p.X-cx*cell) / float64(cell))
-	fy := smoothstep(float64(p.Y-cy*cell) / float64(cell))
+	cx, cy := consts.FloorDiv(p.X, grassPatchCell), consts.FloorDiv(p.Y, grassPatchCell)
+	fx := smoothstep(float64(p.X-cx*grassPatchCell) / float64(grassPatchCell))
+	fy := smoothstep(float64(p.Y-cy*grassPatchCell) / float64(grassPatchCell))
 	corner := func(dx, dy consts.Tile) float64 {
 		return consts.HashRoll(consts.Mix2D(seed, cx+dx, cy+dy)).Float64()
 	}
 	top := lerp(corner(0, 0), corner(1, 0), fx)
 	bottom := lerp(corner(0, 1), corner(1, 1), fx)
-	return lerp(top, bottom, fy)
+	n := lerp(top, bottom, fy)
+	return 3 * n * n
 }
 
 // placesGrass は絶対タイル座標 p に草を置くかを、密度 density と茂みの倍率から決める
