@@ -291,10 +291,10 @@ func TestValidate_通れない行に移動コストを書くと位置で返す(t
 	}{
 		{name: "置物", mutate: func(r *rawschema.Raws) {
 			(*r.Props)[0].BlockPass, (*r.Props)[0].PassCost = true, new(100)
-		}, want: "props.0.passCost_passable"},
+		}, want: "props.0.passCostAbsent"},
 		{name: "タイル", mutate: func(r *rawschema.Raws) {
 			(*r.Tiles)[0].BlockPass, (*r.Tiles)[0].PassCost = true, new(100)
-		}, want: "tiles.0.passCost_passable"},
+		}, want: "tiles.0.passCostAbsent"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
