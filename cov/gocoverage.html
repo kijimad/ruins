@@ -30628,8 +30628,6 @@ var (
         errUnknownTOMLKeys = errors.New("unknown keys found in TOML")
         // errBookSkillMissing は本にスキルが指定されていないときに返す
         errBookSkillMissing = errors.New("book requires a Skill")
-        // errBlockPassWithPassCost は通行不可の prop に移動コストが指定されているときに返す
-        errBlockPassWithPassCost = errors.New("blockPass and passCost cannot both be set; passCost is unnecessary when impassable")
 )
 
 // DecodeRaws はTOML文字列をrawschema.Raws構造体にデコードする
@@ -31307,6 +31305,10 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
                 <span class="cov8" title="1">entitySpec.BlockView = &amp;gc.BlockView{}
 </span>        }
 
+        <span class="cov8" title="1">if tileRaw.PassCost != nil </span>{
+                <span class="cov8" title="1">entitySpec.PassCost = &amp;gc.PassCost{Value: *tileRaw.PassCost}
+</span>        }
+
         <span class="cov8" title="1">entitySpec.Tile = &amp;gc.Tile{}
 </span>
         <span class="cov8" title="1">env := TileEnvironmentOf(tileRaw)
@@ -31410,9 +31412,6 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 </span>        }
         <span class="cov8" title="1">entitySpec.SpriteRender = &amp;spriteRender
 </span>
-        <span class="cov8" title="1">if propRaw.BlockPass &amp;&amp; propRaw.PassCost != nil </span>{
-                <span class="cov8" title="1">return gc.EntitySpec{}, fmt.Errorf("prop '%s': %w", name, errBlockPassWithPassCost)
-</span>        }
         <span class="cov8" title="1">if propRaw.BlockPass </span>{
                 <span class="cov8" title="1">entitySpec.BlockPass = &amp;gc.BlockPass{}
 </span>        }
@@ -35224,6 +35223,9 @@ type Tile struct {
         Id EntityID `json:"id"`
 
         Name EntityName `json:"name"`
+
+        // PassCost 上へ移るときに足す移動コスト
+        PassCost *PassCost `json:"passCost,omitempty"`
 
         // Shelter 囲われの度合い。省くと屋外
         Shelter *Shelter `json:"shelter,omitempty"`
