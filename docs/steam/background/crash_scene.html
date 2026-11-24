@@ -247,6 +247,38 @@ flame(2.2, craterH(2.2, 0.9) - 0.1, 0.9, 1.1 * V.fire);
 flame(-1.6, craterH(-1.6, 1.6) - 0.1, 1.6, 0.7 * V.fire);
 flame(5.5, craterH(5.5, -3.5) - 0.1, -3.5, 0.5 * V.fire);
 
+// 炎から舞い上がる火の粉。炎の近くほど密で明るく、上ほどまばらに赤く暗くし、風に少し流す。
+// 構図の乱数と別の乱数で置くので、ほかの物の形は変わらない
+{
+  let ps = (seed ^ 0x2c1b3c6d) | 0;
+  const pr = () => { ps = ps + 0x6D2B79F5 | 0; let t = Math.imul(ps ^ ps >>> 15, 1 | ps); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const P = (a, b) => a + (b - a) * pr();
+  const wl = Math.hypot(V.wind[0], V.wind[1]) || 1;
+  const wx = V.wind[0] / wl, wz = V.wind[1] / wl;
+  const hot = [new THREE.Color('#ffe08a'), new THREE.Color('#ffb347'), new THREE.Color('#ff6a1f'), new THREE.Color('#c0441a')];
+  const small = { pos: [], col: [] }, big = { pos: [], col: [] };
+  for (const [x, z, s] of [[2.2, 0.9, 1.1], [-1.6, 1.6, 0.7], [5.5, -3.5, 0.5]]) {
+    const n = Math.round(70 * s * V.fire);
+    for (let i = 0; i < n; i++) {
+      const k = pr() ** 1.6;
+      const h = s * (1.5 + k * 16);
+      const spread = s * (0.4 + k * 3);
+      const drift = h * 0.35;
+      const px = x + P(-1, 1) * spread + wx * drift, pz = z + P(-1, 1) * spread + wz * drift;
+      const c = hot[Math.min(hot.length - 1, Math.floor(k * hot.length + P(0, 0.8)))];
+      const to = k < 0.15 && pr() < 0.4 ? big : small;
+      to.pos.push(px, craterH(x, z) + h, pz);
+      to.col.push(c.r, c.g, c.b);
+    }
+  }
+  for (const [g, size] of [[small, 1], [big, 2]]) {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(g.pos, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(g.col, 3));
+    scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ size, sizeAttenuation: false, vertexColors: true, fog: false })));
+  }
+}
+
 // クレーターの底を照らす。穴の形が暗がりに沈まないよう、低く広い灯りで内側の斜面と縁を浮かせる
 {
   const glowLight = new THREE.PointLight('#ff6a2a', 18 * V.fire, CR * 1.6, 1.4);
