@@ -114,6 +114,8 @@ func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 func TestGolden_MapGenSnapshot(t *testing.T) {
 	t.Parallel()
 
+	// buildMapGenChain が親を skip しても走るよう、生成方式のループより先に登録する
+	t.Run("OverworldMap", overworldMapSnapshotGolden)
 	for _, pt := range collectPlannerTypes(t) {
 		result := buildMapGenChain(t, pt)
 		if result == nil {
@@ -140,7 +142,6 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 			g.Assert(t, t.Name(), text)
 		})
 	}
-	t.Run("OverworldMap", overworldMapSnapshotGolden)
 }
 
 func TestMapGenVisualizerState_空のタイルと収納の中身を描ける(t *testing.T) {
