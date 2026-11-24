@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">21</td>
-            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">22</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 04:01:34</td>
+            <td class="headerValue">2026-11-24 10:35:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,14 +74,14 @@
 <span id="L12"><span class="lineNum">      12</span>              : </span>
 <span id="L13"><span class="lineNum">      13</span>              : // 背景を透かすタイトル画面の寸法。画面はこれらを知らない</span>
 <span id="L14"><span class="lineNum">      14</span>              : const (</span>
-<span id="L15"><span class="lineNum">      15</span>              :         titleMenuLeft   = 64  // メニューの左端</span>
+<span id="L15"><span class="lineNum">      15</span>              :         titleMenuRight  = 64  // メニューの右端から画面右端までの幅</span>
 <span id="L16"><span class="lineNum">      16</span>              :         titleMenuBottom = 72  // メニュー下端から画面下端までの高さ</span>
 <span id="L17"><span class="lineNum">      17</span>              :         titleNoteW      = 232 // 右下の注記の幅</span>
 <span id="L18"><span class="lineNum">      18</span>              :         titleNoteMargin = 8   // 注記と画面端の余白</span>
 <span id="L19"><span class="lineNum">      19</span>              : )</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
-<span id="L21"><span class="lineNum">      21</span>              : // TitleScreen は背景を透かすタイトル画面を組む。メニューを左下へ左寄せで置き、</span>
-<span id="L22"><span class="lineNum">      22</span>              : // 版などの注記を右下へ右寄せで積む。パネル背景は付けない。</span>
+<span id="L21"><span class="lineNum">      21</span>              : // TitleScreen は背景を透かすタイトル画面を組む。メニューを右下へ置き、その下に版などの注記を右寄せで積む。</span>
+<span id="L22"><span class="lineNum">      22</span>              : // 背景の左下に炎があるので、メニューは右へ寄せる。パネル背景は付けない。</span>
 <span id="L23"><span class="lineNum">      23</span>              : // 寸法と余白は部品が持ち、画面は項目と注記の文言だけを渡す。</span>
 <span id="L24"><span class="lineNum">      24</span>              : func TitleScreen(world w.World, res resources.UIResources, itemIndex int, rows []Row, notes []string) uicore.Widget {</span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         sd := world.Resources.ScreenDimensions</span></span>
@@ -91,23 +91,24 @@
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         menu := uicore.VBox(theme.MenuPanelRowH, uicore.Placeable(listRows)...)</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         menuH := len(listRows) * theme.MenuPanelRowH</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         menuTop := sd.Height - titleMenuBottom - menuH</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         menu.Layout(image.Rect(titleMenuLeft, menuTop, titleMenuLeft+theme.MenuRowWidth, menuTop+menuH))</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         children := make([]uicore.Widget, 0, 1+len(notes))</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         children = append(children, menu)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         // 注記は下端から上へ積む。行数が変わっても最終行の位置は動かない</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         for i, line := range notes {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 t := uicore.NewText(line, res.Text.SmallFace, theme.TextAccent)</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 t.Align = uicore.AlignRight</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 y := sd.Height - noteRowH*(len(notes)-i) - titleNoteMargin</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 t.Layout(image.Rect(sd.Width-titleNoteW-titleNoteMargin, y, sd.Width-titleNoteMargin, y+noteRowH))</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 children = append(children, t)</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L44"><span class="lineNum">      44</span>              : </span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         root := uicore.NewGroup(children...)</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         root.Layout(image.Rect(0, 0, sd.Width, sd.Height))</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         return root</span></span>
-<span id="L48"><span class="lineNum">      48</span>              : }</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         menuRight := sd.Width - titleMenuRight</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         menu.Layout(image.Rect(menuRight-theme.MenuRowWidth, menuTop, menuRight, menuTop+menuH))</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         children := make([]uicore.Widget, 0, 1+len(notes))</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         children = append(children, menu)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         // 注記は下端から上へ積む。行数が変わっても最終行の位置は動かない</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         for i, line := range notes {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 t := uicore.NewText(line, res.Text.SmallFace, theme.TextAccent)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 t.Align = uicore.AlignRight</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 y := sd.Height - noteRowH*(len(notes)-i) - titleNoteMargin</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 t.Layout(image.Rect(sd.Width-titleNoteW-titleNoteMargin, y, sd.Width-titleNoteMargin, y+noteRowH))</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 children = append(children, t)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         root := uicore.NewGroup(children...)</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         root.Layout(image.Rect(0, 0, sd.Width, sd.Height))</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         return root</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : }</span>
         </pre>
               </td>
             </tr>
