@@ -22,6 +22,7 @@ const overworldMapSeed = 12345
 // overworldMapSnapshotGolden は地上の地図の生成の全ての段階を、1つの文字の地図で検証する。TestGolden_MapGenSnapshot のサブテストとして走る
 func overworldMapSnapshotGolden(t *testing.T) {
 	t.Parallel()
+
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	_, _, cols, rows := dungeon.DungeonOverworld.BandShape()
 	spawnRow := gc.SeamlessBand{Rows: rows}.SpawnChunkY()
@@ -42,7 +43,6 @@ func overworldMapSnapshotGolden(t *testing.T) {
 		}
 		require.NoError(t, img.Update(t, t.Name(), phaseStrip(t, frames, 1)))
 	}
-	g.Assert(t, t.Name(), text)
 	g.Assert(t, t.Name(), text)
 }
 
