@@ -76,51 +76,27 @@ func TestAddMarkup(t *testing.T) {
 func TestTagStyle(t *testing.T) {
 	t.Parallel()
 
-	t.Run("意味タグは前景色のみ解決する", func(t *testing.T) {
-		t.Parallel()
-		style, ok := tagStyle("item")
-		require.True(t, ok)
-		require.NotNil(t, style.fg)
-		assert.Equal(t, gamelog.ColorCyan, *style.fg)
-		assert.Nil(t, style.bg, "意味タグは背景を持たない")
-	})
-
-	t.Run("keywordは前景色と背景色を両方解決する", func(t *testing.T) {
-		t.Parallel()
-		style, ok := tagStyle("keyword")
-		require.True(t, ok)
-		require.NotNil(t, style.fg)
-		require.NotNil(t, style.bg)
-		assert.Equal(t, color.RGBA{R: 255, G: 100, B: 100, A: 255}, *style.fg)
-		assert.Equal(t, color.RGBA{R: 80, G: 20, B: 20, A: 180}, *style.bg)
-	})
-
-	t.Run("color_接頭辞は既知の色名を解決する", func(t *testing.T) {
-		t.Parallel()
-		style, ok := tagStyle("color_red")
-		require.True(t, ok)
-		require.NotNil(t, style.fg)
-		assert.Equal(t, gamelog.ColorRed, *style.fg)
-		assert.Nil(t, style.bg)
-	})
-
-	t.Run("color_接頭辞でも未知の色名は解決しない", func(t *testing.T) {
-		t.Parallel()
-		_, ok := tagStyle("color_unknown")
-		assert.False(t, ok)
-	})
-
-	t.Run("接頭辞の無い未知タグは解決しない", func(t *testing.T) {
-		t.Parallel()
-		_, ok := tagStyle("unknown")
-		assert.False(t, ok)
-	})
-
-	t.Run("color_接頭辞のみで色名が無ければ解決しない", func(t *testing.T) {
-		t.Parallel()
-		_, ok := tagStyle("color_")
-		assert.False(t, ok)
-	})
+	tests := []struct {
+		name string
+		tag  string
+		want markupStyle
+		ok   bool
+	}{
+		{"意味タグは前景色だけを持つ", "item", fg(gamelog.ColorCyan), true},
+		{"keywordは前景色と背景色を持つ", "keyword", markupStyle{fg: &color.RGBA{R: 255, G: 100, B: 100, A: 255}, bg: &color.RGBA{R: 80, G: 20, B: 20, A: 180}}, true},
+		{"color_接頭辞は既知の色名を前景色にする", "color_red", fg(gamelog.ColorRed), true},
+		{"color_接頭辞でも未知の色名は解決しない", "color_unknown", markupStyle{}, false},
+		{"接頭辞の無い未知タグは解決しない", "unknown", markupStyle{}, false},
+		{"color_接頭辞だけで色名が無ければ解決しない", "color_", markupStyle{}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, ok := tagStyle(tt.tag)
+			assert.Equal(t, tt.ok, ok)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }
 
 func TestParseMarkupSegments(t *testing.T) {
@@ -137,7 +113,7 @@ func TestParseMarkupSegments(t *testing.T) {
 		{"空文字は空の断片列を返す", "", nil},
 		{"中身の無い既知タグは断片を残さない", "<item></item>", nil},
 		{"閉じタグが対応しないマークはすべて地の文になる", "<item>a</npc>", []markupSegment{{text: "<item>"}, {text: "a"}, {text: "</npc>"}}},
-		{"入れ子タグは解釈されず外側タグの中身としてそのまま残る", "<item><keyword>x</keyword></item>", []markupSegment{{text: "<keyword>x</keyword>", style: fg(gamelog.ColorCyan)}}},
+		{"入れ子のタグには対応せず、外側のタグの中身を文字のまま色付けする", "<item><keyword>x</keyword></item>", []markupSegment{{text: "<keyword>x</keyword>", style: fg(gamelog.ColorCyan)}}},
 		{"空タグは未知タグとして地の文に残る", "<>", []markupSegment{{text: "<>"}}},
 	}
 	for _, tt := range tests {
