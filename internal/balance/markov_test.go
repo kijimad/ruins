@@ -6,9 +6,93 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestPoolCombatRisk(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	player, err := LoadCombatantFromMember(master, BaselinePlayer)
+	require.NoError(t, err)
+	weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
+	require.NoError(t, err)
+
+	t.Run("存在しない敵テーブルはエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		_, _, ok, err := PoolCombatRisk(master, player, weapon, "no_such_table", 1, consts.PercentBase)
+		var notFound raw.KeyNotFoundError
+		require.ErrorAs(t, err, &notFound)
+		assert.Equal(t, raw.KeyNotFoundError{Key: "no_such_table", Collection: "EnemyTables"}, notFound)
+		assert.False(t, ok, "エラー時はokもfalse")
+	})
+
+	t.Run("危険度帯に敵がいなければokはfalse", func(t *testing.T) {
+		t.Parallel()
+		// ruins_areaの全entryはminDanger>=0なので、負の危険度ならどのentryも該当しない
+		deathProb, expTurns, ok, err := PoolCombatRisk(master, player, weapon, BaselineAreaTable, -1, consts.PercentBase)
+		require.NoError(t, err)
+		assert.False(t, ok)
+		assert.Zero(t, deathProb)
+		assert.Zero(t, expTurns)
+	})
+
+	t.Run("entryが存在しないメンバーを指すとエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		master := loadTestMaster(t)
+		master.EnemyTables = &[]rawschema.EnemyTable{{
+			Id: "test_broken_member",
+			Entries: []rawschema.EnemyTableEntry{
+				{Id: "no_such_member", MinDanger: 1, MaxDanger: 20, Pack: "1", Weight: 1},
+			},
+		}}
+
+		_, _, ok, err := PoolCombatRisk(master, player, weapon, "test_broken_member", 1, consts.PercentBase)
+		var notFound raw.KeyNotFoundError
+		require.ErrorAs(t, err, &notFound)
+		assert.Equal(t, raw.KeyNotFoundError{Key: "no_such_member", Collection: "Members"}, notFound)
+		assert.False(t, ok)
+	})
+}
+
+func TestCombatRiskCurve_危険度帯に敵がいない日は空のDayRiskを置く(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	player, err := LoadCombatantFromMember(master, BaselinePlayer)
+	require.NoError(t, err)
+	weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
+	require.NoError(t, err)
+
+	// day1の危険度はどのentryのminDanger(100)にも届かないので、1日目はentryが無い帯になる
+	gapTable := rawschema.EnemyTable{
+		Id: "test_gap",
+		Entries: []rawschema.EnemyTableEntry{
+			{Id: "unreachable", MinDanger: 100, MaxDanger: 200, Pack: "1", Weight: 1},
+		},
+	}
+	master.EnemyTables = &[]rawschema.EnemyTable{gapTable}
+
+	curve, err := CombatRiskCurve(master, player, weapon, "test_gap", 1)
+	require.NoError(t, err)
+	require.Len(t, curve, 1)
+	assert.Zero(t, curve[0].DeathProb, "敵がいない帯はDeathProbが0")
+	assert.Zero(t, curve[0].ExpTurns, "敵がいない帯はExpTurnsが0")
+}
+
+func TestCombatRiskCurve_存在しない敵テーブルはエラーを返す(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+	player, err := LoadCombatantFromMember(master, BaselinePlayer)
+	require.NoError(t, err)
+	weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
+	require.NoError(t, err)
+
+	_, err = CombatRiskCurve(master, player, weapon, "no_such_table", BaselineDays)
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: "no_such_table", Collection: "EnemyTables"}, notFound)
+}
 
 func TestAttackDamagePMF_命中は0ダメージにならない(t *testing.T) {
 	t.Parallel()

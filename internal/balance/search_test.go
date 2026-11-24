@@ -4,9 +4,33 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestRuinsDay20PowerRatio(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤーメンバーが存在しないと0を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Zero(t, ruinsDay20PowerRatio(rawschema.Raws{}))
+	})
+
+	t.Run("素手の体の攻撃が存在しないと0を返す", func(t *testing.T) {
+		t.Parallel()
+		master := loadTestMaster(t)
+		master.BodyAttacks = nil
+		assert.Zero(t, ruinsDay20PowerRatio(master))
+	})
+
+	t.Run("敵テーブルが存在せず難易度カーブ計算に失敗すると0を返す", func(t *testing.T) {
+		t.Parallel()
+		master := loadTestMaster(t)
+		master.EnemyTables = nil
+		assert.Zero(t, ruinsDay20PowerRatio(master))
+	})
+}
 
 func TestSolveScalar_単調関数の解を挟んで返す(t *testing.T) {
 	t.Parallel()
