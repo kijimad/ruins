@@ -55,7 +55,7 @@ type EntitySpec struct {
 	LightSource        *LightSource
 	Charge             *Charge
 	Interactable       *Interactable
-	Unsearched         *Unsearched
+	Searched           *Searched
 	VisualEffects      *VisualEffects
 	TileEnvironment    *TileEnvironment
 	HeatSource         *HeatSource
@@ -156,7 +156,7 @@ type Components struct {
 	LightSource        *ecs.Map[LightSource]
 	Charge             *ecs.Map[Charge]
 	Interactable       *ecs.Map[Interactable]
-	Unsearched         *ecs.Map[Unsearched]
+	Searched           *ecs.Map[Searched]
 	VisualEffects      *ecs.Map[VisualEffects]
 	TileEnvironment    *ecs.Map[TileEnvironment]
 	HeatSource         *ecs.Map[HeatSource]
@@ -257,7 +257,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.LightSource = ecs.NewMap[LightSource](world)
 	c.Charge = ecs.NewMap[Charge](world)
 	c.Interactable = ecs.NewMap[Interactable](world)
-	c.Unsearched = ecs.NewMap[Unsearched](world)
+	c.Searched = ecs.NewMap[Searched](world)
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
 	c.TileEnvironment = ecs.NewMap[TileEnvironment](world)
 	c.HeatSource = ecs.NewMap[HeatSource](world)
@@ -360,7 +360,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.LightSource, entity, spec.LightSource)
 	addComp(c.Charge, entity, spec.Charge)
 	addComp(c.Interactable, entity, spec.Interactable)
-	addComp(c.Unsearched, entity, spec.Unsearched)
+	addComp(c.Searched, entity, spec.Searched)
 	addComp(c.VisualEffects, entity, spec.VisualEffects)
 	addComp(c.TileEnvironment, entity, spec.TileEnvironment)
 	addComp(c.HeatSource, entity, spec.HeatSource)

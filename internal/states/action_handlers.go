@@ -257,7 +257,7 @@ func nearbyPickupActions(world w.World) []InteractionAction {
 func storageLabel(world w.World, storage ecs.Entity, dirLabel string) string {
 	name := query.GetEntityName(storage, world)
 	switch {
-	case world.Components.Unsearched.Has(storage):
+	case !world.Components.Searched.Has(storage):
 		return query.T(world, "Search %s (%s)", name, dirLabel)
 	case !query.HasStorageItems(world, storage):
 		return query.T(world, "Open %s (empty) (%s)", name, dirLabel)

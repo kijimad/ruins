@@ -17,8 +17,9 @@ type Interactable struct {
 	Interactions []InteractionKind
 }
 
-// Unsearched はまだ探していない収納を示すマーカー。世界に生成された収納だけが持ち、探し終えると外れる
-type Unsearched struct{}
+// Searched は探し終えた収納を示すマーカー。世界に生成された収納は持たずに生まれ、探し終えると付く。
+// プレイヤーが置く設備の収納は最初から持つ
+type Searched struct{}
 
 // InteractionConfig は相互作用の設定
 type InteractionConfig struct {

@@ -101,7 +101,7 @@ func itemMarkerTiles(world w.World, within func(consts.Coord[consts.Tile]) bool)
 		if !slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionStorage) {
 			continue
 		}
-		if world.Components.Unsearched.Has(e) || query.HasStorageItems(world, e) {
+		if !world.Components.Searched.Has(e) || query.HasStorageItems(world, e) {
 			markers[c] = true
 		}
 	}

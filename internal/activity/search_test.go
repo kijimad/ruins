@@ -20,7 +20,7 @@ func TestSearchBehavior_容量10kgごとに1ターンかけて探し終えると
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
 	require.NoError(t, err)
-	require.True(t, world.Components.Unsearched.Has(crate), "前提: 生成した収納はまだ探していない")
+	require.False(t, world.Components.Searched.Has(crate), "前提: 生成した収納はまだ探していない")
 
 	b := &SearchBehavior{}
 	comp := NewSearchActivity(crate, world)
@@ -33,7 +33,7 @@ func TestSearchBehavior_容量10kgごとに1ターンかけて探し終えると
 	assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 	require.NoError(t, b.Finish(comp, player, world))
 
-	assert.False(t, world.Components.Unsearched.Has(crate))
+	assert.True(t, world.Components.Searched.Has(crate))
 	req := lifecycle.ConsumeStateChange(world)
 	require.NotNil(t, req)
 	assert.Equal(t, gc.OpenStorage{StorageEntity: crate}, req.Payload)
@@ -46,10 +46,23 @@ func TestSearchBehavior_Validate_探し終えた収納は探せない(t *testing
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
 	require.NoError(t, err)
-	world.Components.Unsearched.Remove(crate)
+	world.Components.Searched.Add(crate, &gc.Searched{})
 
 	var ue *UserError
 	require.ErrorAs(t, (&SearchBehavior{}).Validate(NewSearchActivity(crate, world), player, world), &ue)
+}
+
+func TestSearchBehavior_Validate_収納でない対象は探せない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	chair, err := lifecycle.SpawnProp(world, "chair", 10, 9)
+	require.NoError(t, err)
+
+	var ue *UserError
+	require.ErrorAs(t, (&SearchBehavior{}).Validate(NewSearchActivity(chair, world), player, world), &ue)
+	assert.Equal(t, "there is nothing to search", ue.Msg)
 }
 
 func TestExecuteInteraction_まだ探していない収納は探すアクティビティを始める(t *testing.T) {
@@ -65,7 +78,7 @@ func TestExecuteInteraction_まだ探していない収納は探すアクティ�
 
 	assert.Equal(t, gc.BehaviorSearch, result.ActivityName)
 	assert.Nil(t, lifecycle.ConsumeStateChange(world), "探し終えるまで収納画面は開かない")
-	assert.True(t, world.Components.Unsearched.Has(crate))
+	assert.False(t, world.Components.Searched.Has(crate))
 }
 
 func TestSearchBehavior_Validate_敵が近いと探せない(t *testing.T) {
@@ -101,7 +114,7 @@ func TestSearchBehavior_DoTurn_敵が近づくと中断し収納はまだ探し�
 
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	assert.Equal(t, i18n.Msgid("searching interrupted because enemies are nearby"), comp.CancelReason)
-	assert.True(t, world.Components.Unsearched.Has(crate), "中断すると探し直しになる")
+	assert.False(t, world.Components.Searched.Has(crate), "中断すると探し直しになる")
 }
 
 func TestSearchBehavior_DoTurn_収納が消えると中断する(t *testing.T) {
@@ -163,7 +176,7 @@ func TestExecuteInteraction_1ターンで探し終える収納はその場で開
 	require.NoError(t, err)
 
 	assert.Equal(t, gc.ActivityStateCompleted, result.State)
-	assert.False(t, world.Components.Unsearched.Has(crate))
+	assert.True(t, world.Components.Searched.Has(crate))
 	req := lifecycle.ConsumeStateChange(world)
 	require.NotNil(t, req)
 	assert.Equal(t, gc.OpenStorage{StorageEntity: crate}, req.Payload)
@@ -184,7 +197,7 @@ func TestExecuteInteraction_複数ターンかけて探し終えると開く要�
 
 	require.NoError(t, ProcessContinuousActivities(world))
 
-	assert.False(t, world.Components.Unsearched.Has(crate))
+	assert.True(t, world.Components.Searched.Has(crate))
 	req := lifecycle.ConsumeStateChange(world)
 	require.NotNil(t, req)
 	assert.Equal(t, gc.OpenStorage{StorageEntity: crate}, req.Payload)

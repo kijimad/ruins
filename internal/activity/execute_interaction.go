@@ -192,7 +192,7 @@ func executeFeedFuel(fire ecs.Entity, world w.World) (*ActionResult, error) {
 
 // executeStorage はまだ探していない収納なら探すアクティビティを始め、探し終えた収納なら収納画面を開く
 func executeStorage(actor, storageEntity ecs.Entity, world w.World) (*ActionResult, error) {
-	if world.Components.Unsearched.Has(storageEntity) {
+	if !world.Components.Searched.Has(storageEntity) {
 		return Execute(NewSearchActivity(storageEntity, world), actor, world)
 	}
 	if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(storageEntity)); err != nil {
