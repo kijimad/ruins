@@ -23,6 +23,7 @@ import (
 type MainMenuState struct {
 	es.BaseState[w.World]
 	screen *menuloop.Screen[MainMenuProps]
+	bg     titleBackground
 	// loadFailed は、セーブを読めずにメインメニューへ戻ったことを表す。最初の更新で知らせのモーダルを重ねる
 	loadFailed bool
 }
@@ -45,6 +46,7 @@ func (st *MainMenuState) OnStart(_ w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
+	st.bg.Update()
 	// 知らせの下にメニューの項目を描くため、先に画面を組んでから知らせを積む。入力による遷移があれば先に通す
 	tr, err := st.screen.Update(world)
 	if err != nil || !st.loadFailed || tr.Type != es.TransNone {
@@ -63,12 +65,9 @@ func newLoadFailedMessageState() (es.State[w.World], error) {
 
 // Draw はスクリーンに描画する
 func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error {
-	// 背景画像を描画
-	bgImage, err := loadBackgroundImage(world, "title1")
-	if err != nil {
+	if err := st.bg.Draw(world, screen); err != nil {
 		return err
 	}
-	screen.DrawImage(bgImage, nil)
 
 	st.screen.Draw(screen)
 	return nil
