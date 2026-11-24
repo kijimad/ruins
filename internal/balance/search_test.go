@@ -4,9 +4,40 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestRuinsDay20PowerRatio(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+
+	t.Run("実データでは正の戦力比を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Positive(t, ruinsDay20PowerRatio(master))
+	})
+
+	t.Run("プレイヤーメンバーが存在しないと0を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Zero(t, ruinsDay20PowerRatio(rawschema.Raws{}))
+	})
+
+	t.Run("素手の体の攻撃が存在しないと0を返す", func(t *testing.T) {
+		t.Parallel()
+		// master はフィールドを丸ごと差し替えるだけなので、値の写しを使っても共有の master は変わらない
+		m := master
+		m.BodyAttacks = nil
+		assert.Zero(t, ruinsDay20PowerRatio(m))
+	})
+
+	t.Run("敵テーブルが存在せず難易度カーブ計算に失敗すると0を返す", func(t *testing.T) {
+		t.Parallel()
+		m := master
+		m.EnemyTables = nil
+		assert.Zero(t, ruinsDay20PowerRatio(m))
+	})
+}
 
 func TestSolveScalar_単調関数の解を挟んで返す(t *testing.T) {
 	t.Parallel()
