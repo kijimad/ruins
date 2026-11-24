@@ -11,10 +11,11 @@ import (
 
 func TestRuinsDay20PowerRatio(t *testing.T) {
 	t.Parallel()
+	master := loadTestMaster(t)
 
 	t.Run("実データでは正の戦力比を返す", func(t *testing.T) {
 		t.Parallel()
-		assert.Positive(t, ruinsDay20PowerRatio(loadTestMaster(t)))
+		assert.Positive(t, ruinsDay20PowerRatio(master))
 	})
 
 	t.Run("プレイヤーメンバーが存在しないと0を返す", func(t *testing.T) {
@@ -24,16 +25,17 @@ func TestRuinsDay20PowerRatio(t *testing.T) {
 
 	t.Run("素手の体の攻撃が存在しないと0を返す", func(t *testing.T) {
 		t.Parallel()
-		master := loadTestMaster(t)
-		master.BodyAttacks = nil
-		assert.Zero(t, ruinsDay20PowerRatio(master))
+		// master はフィールドを丸ごと差し替えるだけなので、値の写しを使っても共有の master は変わらない
+		m := master
+		m.BodyAttacks = nil
+		assert.Zero(t, ruinsDay20PowerRatio(m))
 	})
 
 	t.Run("敵テーブルが存在せず難易度カーブ計算に失敗すると0を返す", func(t *testing.T) {
 		t.Parallel()
-		master := loadTestMaster(t)
-		master.EnemyTables = nil
-		assert.Zero(t, ruinsDay20PowerRatio(master))
+		m := master
+		m.EnemyTables = nil
+		assert.Zero(t, ruinsDay20PowerRatio(m))
 	})
 }
 
