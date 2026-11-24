@@ -12,6 +12,11 @@ import (
 func TestRuinsDay20PowerRatio(t *testing.T) {
 	t.Parallel()
 
+	t.Run("実データでは正の戦力比を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Positive(t, ruinsDay20PowerRatio(loadTestMaster(t)))
+	})
+
 	t.Run("プレイヤーメンバーが存在しないと0を返す", func(t *testing.T) {
 		t.Parallel()
 		assert.Zero(t, ruinsDay20PowerRatio(rawschema.Raws{}))

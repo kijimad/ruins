@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -64,7 +65,7 @@ func TestCombatRiskCurve_危険度帯に敵がいない日は空のDayRiskを置
 	weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
 	require.NoError(t, err)
 
-	// day1の危険度はどのentryのminDanger(100)にも届かないので、1日目はentryが無い帯になる
+	// day1の危険度はどのentryのminDangerにも届かないので、1日目はentryが無い帯になる
 	gapTable := rawschema.EnemyTable{
 		Id: "test_gap",
 		Entries: []rawschema.EnemyTableEntry{
@@ -76,8 +77,7 @@ func TestCombatRiskCurve_危険度帯に敵がいない日は空のDayRiskを置
 	curve, err := CombatRiskCurve(master, player, weapon, "test_gap", 1)
 	require.NoError(t, err)
 	require.Len(t, curve, 1)
-	assert.Zero(t, curve[0].DeathProb, "敵がいない帯はDeathProbが0")
-	assert.Zero(t, curve[0].ExpTurns, "敵がいない帯はExpTurnsが0")
+	assert.Equal(t, DayRisk{Day: 1, Danger: int(query.DangerLevelForDay(1))}, curve[0], "敵がいない帯はDay・Dangerのみ埋めて死亡確率・決着ターンは0")
 }
 
 func TestCombatRiskCurve_存在しない敵テーブルはエラーを返す(t *testing.T) {
