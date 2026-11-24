@@ -126,68 +126,24 @@ func TestTagStyle(t *testing.T) {
 func TestParseMarkupSegments(t *testing.T) {
 	t.Parallel()
 
-	t.Run("閉じ括弧が無いマークは地の文として残す", func(t *testing.T) {
-		t.Parallel()
-		segs := parseMarkupSegments("<item タグ")
-		require.Len(t, segs, 1)
-		assert.Equal(t, "<item タグ", segs[0].text)
-		assert.Nil(t, segs[0].style.fg)
-	})
-
-	t.Run("既知タグでも閉じタグが無ければタグ自体を地の文として残す", func(t *testing.T) {
-		t.Parallel()
-		segs := parseMarkupSegments("<item>薬")
-		require.Len(t, segs, 2)
-		assert.Equal(t, "<item>", segs[0].text)
-		assert.Nil(t, segs[0].style.fg)
-		assert.Equal(t, "薬", segs[1].text)
-		assert.Nil(t, segs[1].style.fg)
-	})
-
-	t.Run("タグ無しは既定スタイル1断片になる", func(t *testing.T) {
-		t.Parallel()
-		segs := parseMarkupSegments("ただの文")
-		require.Len(t, segs, 1)
-		assert.Equal(t, "ただの文", segs[0].text)
-		assert.Nil(t, segs[0].style.fg)
-	})
-
-	t.Run("空文字は空の断片列を返す", func(t *testing.T) {
-		t.Parallel()
-		segs := parseMarkupSegments("")
-		assert.Empty(t, segs)
-	})
-
-	t.Run("中身の無い既知タグは断片を残さない", func(t *testing.T) {
-		t.Parallel()
-		segs := parseMarkupSegments("<item></item>")
-		assert.Empty(t, segs)
-	})
-
-	t.Run("閉じタグが対応しないマークはすべて地の文になる", func(t *testing.T) {
-		t.Parallel()
-		segs := parseMarkupSegments("<item>a</npc>")
-		var got strings.Builder
-		for _, seg := range segs {
-			assert.Nil(t, seg.style.fg, "対応しない閉じタグは地の文として残る")
-			got.WriteString(seg.text)
-		}
-		assert.Equal(t, "<item>a</npc>", got.String())
-	})
-
-	t.Run("入れ子タグは解釈されず外側タグの中身としてそのまま残る", func(t *testing.T) {
-		t.Parallel()
-		segs := parseMarkupSegments("<item><keyword>x</keyword></item>")
-		require.Len(t, segs, 1)
-		assert.Equal(t, "<keyword>x</keyword>", segs[0].text)
-		assert.NotNil(t, segs[0].style.fg, "内側のタグは解釈されず外側 item のスタイルが適用される")
-	})
-
-	t.Run("空タグは未知タグとして地の文に残る", func(t *testing.T) {
-		t.Parallel()
-		segs := parseMarkupSegments("<>")
-		require.Len(t, segs, 1)
-		assert.Equal(t, "<>", segs[0].text)
-		assert.Nil(t, segs[0].style.fg)
-	})
+	tests := []struct {
+		name string
+		in   string
+		want []markupSegment
+	}{
+		{"閉じ括弧が無いマークは地の文として残す", "<item タグ", []markupSegment{{text: "<item タグ"}}},
+		{"既知タグでも閉じタグが無ければタグ自体を地の文として残す", "<item>薬", []markupSegment{{text: "<item>"}, {text: "薬"}}},
+		{"タグ無しは既定スタイル1断片になる", "ただの文", []markupSegment{{text: "ただの文"}}},
+		{"空文字は空の断片列を返す", "", nil},
+		{"中身の無い既知タグは断片を残さない", "<item></item>", nil},
+		{"閉じタグが対応しないマークはすべて地の文になる", "<item>a</npc>", []markupSegment{{text: "<item>"}, {text: "a"}, {text: "</npc>"}}},
+		{"入れ子タグは解釈されず外側タグの中身としてそのまま残る", "<item><keyword>x</keyword></item>", []markupSegment{{text: "<keyword>x</keyword>", style: fg(gamelog.ColorCyan)}}},
+		{"空タグは未知タグとして地の文に残る", "<>", []markupSegment{{text: "<>"}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, parseMarkupSegments(tt.in))
+		})
+	}
 }
