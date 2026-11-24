@@ -19,8 +19,12 @@ import (
 // overworldMapSeed は地上の地図の生成の途中経過を撮る seed
 const overworldMapSeed = 12345
 
-// overworldMapSnapshotGolden は地上の地図の生成の全ての段階を、1つの文字の地図で検証する。TestGolden_MapGenSnapshot のサブテストとして走る
-func overworldMapSnapshotGolden(t *testing.T) {
+// overworldMapFixtureDir は地上の地図の途中経過の golden の置き場。マップ生成の途中経過と並べる
+const overworldMapFixtureDir = "testdata/TestGolden_MapGenSnapshot"
+
+// TestGolden_OverworldMapSnapshot は地上の地図の生成の全ての段階を、1つの文字の地図で検証する。
+// golden はマップ生成の途中経過と同じ置き場に OverworldMap として置く
+func TestGolden_OverworldMapSnapshot(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
@@ -34,16 +38,17 @@ func overworldMapSnapshotGolden(t *testing.T) {
 		b.WriteString("\n")
 	}
 	text := []byte(b.String())
-	g := goldie.New(t, goldie.WithNameSuffix(".txt"))
-	img := goldie.New(t, goldie.WithNameSuffix(".png"))
-	if goldenUpdating() && imgNeedsUpdate(img.GoldenFileName(t, t.Name()), g.GoldenFileName(t, t.Name()), text) {
+	const name = "OverworldMap"
+	g := goldie.New(t, goldie.WithFixtureDir(overworldMapFixtureDir), goldie.WithNameSuffix(".txt"))
+	img := goldie.New(t, goldie.WithFixtureDir(overworldMapFixtureDir), goldie.WithNameSuffix(".png"))
+	if goldenUpdating() && imgNeedsUpdate(img.GoldenFileName(t, name), g.GoldenFileName(t, name), text) {
 		frames := make([][]byte, len(snaps))
 		for i := range frames {
 			frames[i] = vrt.RenderPNG(t, vrt.States(&gs.OverworldMapVisualizerState{Seed: overworldMapSeed, SnapshotIndex: i}))
 		}
-		require.NoError(t, img.Update(t, t.Name(), phaseStrip(t, frames, 1)))
+		require.NoError(t, img.Update(t, name, phaseStrip(t, frames, 1)))
 	}
-	g.Assert(t, t.Name(), text)
+	g.Assert(t, name, text)
 }
 
 // roadLines は道の出入り口の方角の組を罫線の文字にする。北1・南2・東4・西8

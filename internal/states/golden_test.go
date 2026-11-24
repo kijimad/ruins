@@ -108,14 +108,11 @@ func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 }
 
 // TestGolden_MapGenSnapshot は全PlannerTypeの全フェーズのスナップショットを、PlannerTypeごとに1つの文字の地図で検証する。
-// 地上の地図の生成の途中経過も、サブテスト OverworldMap として同じ置き場に並べる。
 // 目視用の参照画像は比較せず、更新の実行で地図が変わったときだけ、全フェーズを横一列に並べた1枚に描き直す。
 // 変わったかは golden を書き換える前に比べる
 func TestGolden_MapGenSnapshot(t *testing.T) {
 	t.Parallel()
 
-	// buildMapGenChain が親を skip しても走るよう、生成方式のループより先に登録する
-	t.Run("OverworldMap", overworldMapSnapshotGolden)
 	for _, pt := range collectPlannerTypes(t) {
 		result := buildMapGenChain(t, pt)
 		if result == nil {
