@@ -28,7 +28,7 @@ func (pf *PathFinder) IsWalkable(pos consts.Coord[consts.Tile]) bool {
 	}
 
 	idx := pf.planData.Level.CoordToIndex(pos)
-	return !pf.planData.Tiles[idx].BlockPass
+	return pf.planData.Tiles[idx].Passable != nil
 }
 
 // FindPath はBFSでスタート地点からゴールまでのパスを探索する。
@@ -161,7 +161,7 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], erro
 
 	// 見つからない場合は全体をスキャン
 	for _i := range planData.Tiles {
-		if !planData.Tiles[_i].BlockPass {
+		if planData.Tiles[_i].Passable != nil {
 			pos := planData.Level.IndexToCoord(gc.TileIdx(_i))
 			if pf.isValidSpawnPosition(pos) {
 				return pos, nil
@@ -176,7 +176,7 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], erro
 func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool {
 	planData := pf.planData
 	idx := planData.Level.CoordToIndex(pos)
-	if int(idx) >= len(planData.Tiles) || planData.Tiles[idx].BlockPass {
+	if int(idx) >= len(planData.Tiles) || planData.Tiles[idx].Passable == nil {
 		return false
 	}
 
@@ -186,7 +186,7 @@ func (pf *PathFinder) isValidSpawnPosition(pos consts.Coord[consts.Tile]) bool {
 	}
 
 	// 隣接4方向のうち少なくとも1つは移動可能なタイルが必要。
-	// 敵エンティティはBlockPassを持つため、全隣接タイルが占有されるとプレイヤーが移動不能になる
+	// キャラクターのいるマスへは入れないため、全隣接タイルが占有されるとプレイヤーが移動不能になる
 	if !pf.hasAdjacentFreeTile(pos) {
 		return false
 	}

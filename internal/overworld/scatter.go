@@ -205,7 +205,7 @@ func (sc scatterChunk) absTile(rel consts.Coord[consts.Tile]) consts.Coord[const
 	return consts.Coord[consts.Tile]{X: sc.lo.X + rel.X, Y: sc.lo.Y + rel.Y}
 }
 
-// accept はチャンク相対の rel が土系の地面かつ非占有かを返す。占有は BlockPass の壁と、先に撒いた草・置物を含む
+// accept はチャンク相対の rel が土系の地面かつ非占有かを返す。占有は通れない壁と、先に撒いた草・置物を含む
 func (sc scatterChunk) accept(rel consts.Coord[consts.Tile]) bool {
 	bl := sc.bandLocal(rel)
 	return sc.earth.at(sc.world, sc.tiles, bl) && !sc.occupied[gc.GridElement{Coord: bl}]
@@ -357,20 +357,28 @@ func onScatterRoute(route []roadSeg, pos consts.Coord[consts.Tile]) bool {
 	return false
 }
 
-// blockedTilesInChunk はチャンク g の範囲で BlockPass を持つエンティティの占有タイルを集める。
+// blockedTilesInChunk はチャンク g の範囲で通れない地形と置物の占有タイルを集める。
 // 散布はこの占有を避けて空きにだけ置く。フィーチャ間で共有される占有索引は持たない。
 func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
 	blocked := make(map[gc.GridElement]bool)
 	loX, hiX := g.offsetX, g.offsetX+g.chunkW
 	loY, hiY := g.offsetY, g.offsetY+g.chunkH
-	q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
-	for q.Next() {
-		ge := *world.Components.GridElement.Get(q.Entity())
+	forEachImpassable(world, func(ge gc.GridElement) {
 		if ge.X >= loX && ge.X < hiX && ge.Y >= loY && ge.Y < hiY {
 			blocked[ge] = true
 		}
-	}
+	})
 	return blocked
+}
+
+// forEachImpassable は Passable を持たない地形と置物の位置ごとに fn を呼ぶ。壊れて掃除を待つ置物も含める
+func forEachImpassable(world w.World, fn func(gc.GridElement)) {
+	for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {
+		q := query.ActiveFilter1[gc.GridElement](world).With(kind).Without(ecs.C[gc.Passable]()).Query()
+		for q.Next() {
+			fn(*world.Components.GridElement.Get(q.Entity()))
+		}
+	}
 }
 
 // at は帯ローカル座標 pos のタイルが土の地面かを返す。道や壁、他の地物が置いたタイルは土でない

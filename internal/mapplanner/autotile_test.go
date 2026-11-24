@@ -178,13 +178,11 @@ Description = "土タイル"
 Id = "wall"
 Name = "wall"
 Description = "壁タイル"
-BlockPass = true
 
 [[Tiles]]
 Id = "void"
 Name = "void"
 Description = "暗闇"
-BlockPass = true
 `
 
 	raws, err := raw.DecodeRaws(rawData)

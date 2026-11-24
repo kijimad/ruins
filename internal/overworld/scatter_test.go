@@ -107,14 +107,11 @@ func collectProps(world w.World) []propAt {
 	return out
 }
 
-// collectBlockingTiles は BlockPass を持つエンティティの占有タイルを集める。通行性の flood 判定で
+// collectBlockingTiles は通れない地形と置物の占有タイルを集める。通行性の flood 判定で
 // 壁として扱うのはこれだけで、歩行可能な草地や plant・moving_stone は含まない。
 func collectBlockingTiles(world w.World) map[consts.Coord[consts.Tile]]bool {
 	blocked := make(map[consts.Coord[consts.Tile]]bool)
-	q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
-	for q.Next() {
-		blocked[world.Components.GridElement.Get(q.Entity()).Coord] = true
-	}
+	forEachImpassable(world, func(ge gc.GridElement) { blocked[ge.Coord] = true })
 	return blocked
 }
 
@@ -202,7 +199,7 @@ func TestScatterFeature_外周は空けて横断できる(t *testing.T) {
 	g := newDirtChunk(t, world)
 	require.NoError(t, openTerrainFeature{}.place(world, scatterTestSeed, c, scatterTestRows, g))
 
-	// 壁として扱うのは BlockPass を持つ prop だけ。草地・plant・moving_stone は歩行可能
+	// 壁として扱うのは Passable を持たない地形と置物だけ。草地・plant・moving_stone は歩行可能
 	blocked := collectBlockingTiles(world)
 
 	// 外周1タイルの環は候補から外れるので常に空く。西端から東端、北端から南端の双方へ到達できる

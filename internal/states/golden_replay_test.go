@@ -105,7 +105,7 @@ func (s indoorOverworldState) OnStart(world w.World) error {
 	q := query.ActiveFilter2[gc.GridElement, gc.TileEnvironment](world).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.BlockPass.Has(e) || world.Components.TileEnvironment.Get(e).Shelter != rawschema.Indoor {
+		if !world.Components.Passable.Has(e) || world.Components.TileEnvironment.Get(e).Shelter != rawschema.Indoor {
 			continue
 		}
 		c := world.Components.GridElement.Get(e).Coord

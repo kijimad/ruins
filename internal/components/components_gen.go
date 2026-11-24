@@ -42,8 +42,7 @@ type EntitySpec struct {
 	GridElement        *GridElement
 	SpriteRender       *SpriteRender
 	BlockView          *BlockView
-	BlockPass          *BlockPass
-	PassCost           *PassCost
+	Passable           *Passable
 	Door               *Door
 	Pose               *Pose
 	Item               *Item
@@ -143,8 +142,7 @@ type Components struct {
 	GridElement        *ecs.Map[GridElement]
 	SpriteRender       *ecs.Map[SpriteRender]
 	BlockView          *ecs.Map[BlockView]
-	BlockPass          *ecs.Map[BlockPass]
-	PassCost           *ecs.Map[PassCost]
+	Passable           *ecs.Map[Passable]
 	Door               *ecs.Map[Door]
 	Pose               *ecs.Map[Pose]
 	Item               *ecs.Map[Item]
@@ -244,8 +242,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.GridElement = ecs.NewMap[GridElement](world)
 	c.SpriteRender = ecs.NewMap[SpriteRender](world)
 	c.BlockView = ecs.NewMap[BlockView](world)
-	c.BlockPass = ecs.NewMap[BlockPass](world)
-	c.PassCost = ecs.NewMap[PassCost](world)
+	c.Passable = ecs.NewMap[Passable](world)
 	c.Door = ecs.NewMap[Door](world)
 	c.Pose = ecs.NewMap[Pose](world)
 	c.Item = ecs.NewMap[Item](world)
@@ -347,8 +344,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.GridElement, entity, spec.GridElement)
 	addComp(c.SpriteRender, entity, spec.SpriteRender)
 	addComp(c.BlockView, entity, spec.BlockView)
-	addComp(c.BlockPass, entity, spec.BlockPass)
-	addComp(c.PassCost, entity, spec.PassCost)
+	addComp(c.Passable, entity, spec.Passable)
 	addComp(c.Door, entity, spec.Door)
 	addComp(c.Pose, entity, spec.Pose)
 	addComp(c.Item, entity, spec.Item)

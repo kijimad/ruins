@@ -363,7 +363,6 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
 		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
-		world.Components.BlockPass.Add(prop, &gc.BlockPass{})
 		world.Components.Interactable.Add(prop, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionMelee},
 		})

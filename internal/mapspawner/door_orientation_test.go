@@ -30,9 +30,9 @@ func TestDetectPropDoorOrientation_VerticalDoor(t *testing.T) {
 	// WWW
 	tiles := make([]rawschema.Tile, 9)
 	for i := range tiles {
-		tiles[i] = rawschema.Tile{BlockPass: true}
+		tiles[i] = rawschema.Tile{}
 	}
-	tiles[4] = rawschema.Tile{BlockPass: false} // 中央がドア
+	tiles[4] = rawschema.Tile{Passable: &rawschema.Passable{}} // 中央がドア
 
 	plan := newTestMetaPlan(3, 3, tiles)
 	result := detectPropDoorOrientation(plan, 1, 1)
@@ -47,8 +47,11 @@ func TestDetectPropDoorOrientation_HorizontalDoor(t *testing.T) {
 	// .D.
 	// .W.
 	tiles := make([]rawschema.Tile, 9)
-	tiles[1] = rawschema.Tile{BlockPass: true} // 上
-	tiles[7] = rawschema.Tile{BlockPass: true} // 下
+	for i := range tiles {
+		tiles[i] = rawschema.Tile{Passable: &rawschema.Passable{}}
+	}
+	tiles[1] = rawschema.Tile{} // 上
+	tiles[7] = rawschema.Tile{} // 下
 
 	plan := newTestMetaPlan(3, 3, tiles)
 	result := detectPropDoorOrientation(plan, 1, 1)

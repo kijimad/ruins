@@ -59,9 +59,9 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 			Tiles: make([]rawschema.Tile, 9),
 		}
 		for i := range 9 {
-			mp.Tiles[i] = rawschema.Tile{Id: "floor", Name: "floor", BlockPass: false}
+			mp.Tiles[i] = rawschema.Tile{Id: "floor", Name: "floor", Passable: &rawschema.Passable{}}
 		}
-		mp.Tiles[4] = rawschema.Tile{Id: "water", Name: "water", BlockPass: false, Water: new(true)}
+		mp.Tiles[4] = rawschema.Tile{Id: "water", Name: "water", Passable: &rawschema.Passable{}, Water: new(true)}
 
 		planner := EnvironmentPlanner{}
 		result := planner.calcWater(mp, 4)
@@ -77,9 +77,9 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 			Tiles: make([]rawschema.Tile, 9),
 		}
 		for i := range 9 {
-			mp.Tiles[i] = rawschema.Tile{Id: "floor", Name: "floor", BlockPass: false}
+			mp.Tiles[i] = rawschema.Tile{Id: "floor", Name: "floor", Passable: &rawschema.Passable{}}
 		}
-		mp.Tiles[4] = rawschema.Tile{Id: "water", Name: "water", BlockPass: false, Water: new(true)}
+		mp.Tiles[4] = rawschema.Tile{Id: "water", Name: "water", Passable: &rawschema.Passable{}, Water: new(true)}
 
 		planner := EnvironmentPlanner{}
 
@@ -98,7 +98,7 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 			Tiles: make([]rawschema.Tile, 9),
 		}
 		for i := range 9 {
-			mp.Tiles[i] = rawschema.Tile{Id: "floor", Name: "floor", BlockPass: false}
+			mp.Tiles[i] = rawschema.Tile{Id: "floor", Name: "floor", Passable: &rawschema.Passable{}}
 		}
 
 		planner := EnvironmentPlanner{}

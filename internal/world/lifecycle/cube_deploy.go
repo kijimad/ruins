@@ -60,7 +60,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity, r consts.Coord[consts.Tile]
 				continue
 			}
 			t := base.Add(consts.Coord[consts.Tile]{X: dx, Y: dy})
-			if si.IsBlockPass(t) {
+			if si.IsBlocked(t) {
 				return false
 			}
 			if e, ok := si.CharacterAt(t); ok && e != player {
@@ -68,7 +68,7 @@ func deploySpaceFree(world w.World, cube ecs.Entity, r consts.Coord[consts.Tile]
 			}
 		}
 	}
-	// 空間索引は BlockPass と character しか持たないのでアイテム・prop は LocationOnField を走査する
+	// 空間索引は通れないマスと character しか持たないのでアイテム・prop は LocationOnField を走査する
 	q := query.ActiveFilter1[gc.LocationOnField](world).Query()
 	defer q.Close()
 	for q.Next() {

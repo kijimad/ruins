@@ -369,7 +369,7 @@ func (sys *Render3DSystem) newSnowLayer(world w.World) *snowLayer {
 
 // amount は地面 e に積もる雪の量を返す。通れて屋根の無い地面のときだけ正になり、タイルの解けやすさの分だけ減る
 func (l *snowLayer) amount(world w.World, e ecs.Entity, c consts.Coord[consts.Tile]) float64 {
-	if world.Components.BlockPass.Has(e) || !world.Components.TileEnvironment.Has(e) {
+	if !world.Components.Passable.Has(e) || !world.Components.TileEnvironment.Has(e) {
 		return 0
 	}
 	env := world.Components.TileEnvironment.Get(e)
@@ -475,7 +475,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		}
 		if sr.Shape == rawschema.Inset {
 			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする
-			if !vis || world.Components.BlockPass.Has(e) {
+			if !vis || !world.Components.Passable.Has(e) {
 				sys.addSlab(&quads, projector, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
 				continue
 			}
@@ -656,7 +656,7 @@ type insetFace struct {
 // closedInsets は閉じている壁にはめる置物の座標の集合を返す
 func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {
 	insets := map[consts.Coord[consts.Tile]]bool{}
-	q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockPass](world).Without(ecs.C[gc.Tile]()).Query()
+	q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Prop](world).Without(ecs.C[gc.Passable]()).Query()
 	for q.Next() {
 		if world.Components.SpriteRender.Get(q.Entity()).Shape == rawschema.Inset {
 			insets[world.Components.GridElement.Get(q.Entity()).Coord] = true

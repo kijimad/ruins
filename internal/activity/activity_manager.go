@@ -332,7 +332,7 @@ func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
 	}
 	cost := behavior.Info().ActionPointCost
 
-	// 移動行動の場合、移動先タイルのPassCostを加算する。MoveParams を持つのは移動だけ
+	// 移動行動の場合、移動先タイルの移動コストを加算する。MoveParams を持つのは移動だけ
 	if mp, ok := comp.Params.(*gc.MoveParams); ok {
 		cost += getPassCostAt(world, int(mp.Destination.X), int(mp.Destination.Y))
 	}
@@ -342,16 +342,15 @@ func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
 	}
 }
 
-// getPassCostAt は指定座標にある固定物のPassCostを合算して返す
+// getPassCostAt は指定座標にある地形と置物の移動コストを合算して返す
 func getPassCostAt(world w.World, x, y int) int {
 	total := 0
-	passCostQuery := query.ActiveFilter2[gc.GridElement, gc.PassCost](world).Query()
-	for passCostQuery.Next() {
-		entity := passCostQuery.Entity()
+	passableQuery := query.ActiveFilter2[gc.GridElement, gc.Passable](world).Query()
+	for passableQuery.Next() {
+		entity := passableQuery.Entity()
 		grid := world.Components.GridElement.Get(entity)
 		if int(grid.X) == x && int(grid.Y) == y {
-			mc := world.Components.PassCost.Get(entity)
-			total += mc.Value
+			total += world.Components.Passable.Get(entity).Cost
 		}
 	}
 	return total

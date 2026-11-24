@@ -103,12 +103,12 @@ func TestTileTopHeight_壁は天面床は地面の高さになる(t *testing.T) 
 func TestIsBoxTile_通行を塞ぐだけの物は箱にならない(t *testing.T) {
 	t.Parallel()
 
-	// 扉は BlockPass を持つが Tile ではないので箱として描かれない。
+	// 閉じた扉は通れないが Tile ではないので箱として描かれない。
 	// 通行不能をそのまま壁とみなすと、箱の無い場所へカーソルが浮く
 	world := testutil.InitTestWorld(t)
 	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 25, Y: 24}, 0)
 	require.NoError(t, err)
-	require.True(t, world.Components.BlockPass.Has(door))
+	require.False(t, world.Components.Passable.Has(door))
 
 	assert.False(t, render3d.IsBoxTile(world, consts.Coord[consts.Tile]{X: 25, Y: 24}))
 }

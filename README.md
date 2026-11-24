@@ -113,7 +113,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
-| in-progress | [否定形のコンポーネントを肯定形にする](docs/design/261124220035.md) | 1/12 | refactor, ecs |
+| in-progress | [否定形のコンポーネントを肯定形にする](docs/design/261124220035.md) | 7/14 | refactor, ecs |
 | draft | [湖の区域](docs/design/261124195212.md) | 0/11 | worldgen, gamedesign |
 
 

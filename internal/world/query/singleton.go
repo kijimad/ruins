@@ -220,19 +220,19 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	}
 	si.MapWidth = field.Level.TileWidth
 	si.MapHeight = field.Level.TileHeight
-	si.BlockPass = make(map[gc.GridElement]bool)
+	si.Blocked = make(map[gc.GridElement]bool)
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil
 
-	// 静的障害物のインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない
-	blockPassQuery := ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()
-	for blockPassQuery.Next() {
-		entity := blockPassQuery.Entity()
-		if world.Components.Dead.Has(entity) {
-			continue
-		}
-		grid := world.Components.GridElement.Get(entity)
-		si.BlockPass[*grid] = true
+	// 通れないマスのインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない。
+	// 壊れて掃除を待つ置物は塞がない
+	blockedTileQuery := ActiveFilter2[gc.GridElement, gc.Tile](world).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()
+	for blockedTileQuery.Next() {
+		si.Blocked[*world.Components.GridElement.Get(blockedTileQuery.Entity())] = true
+	}
+	blockedPropQuery := ActiveFilter2[gc.GridElement, gc.Prop](world).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()
+	for blockedPropQuery.Next() {
+		si.Blocked[*world.Components.GridElement.Get(blockedPropQuery.Entity())] = true
 	}
 
 	// キャラクター位置のインデックス構築。退避中ステージのキャラクターは現ステージに混ぜない

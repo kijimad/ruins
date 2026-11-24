@@ -188,7 +188,7 @@ func EntityDistance(a, b ecs.Entity, world w.World) float64 {
 }
 
 // checkLineOfSight は射線上の壁と遮蔽物を1パスでチェックする。
-// 壁（BlockView=true）があればblocked=true、遮蔽物（BlockPass=true, BlockView=false）の数をcoverCountで返す
+// 見通せない物があればblocked=true、見通せるが通れない地形と置物の数を遮蔽物としてcoverCountで返す
 func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, coverCount int) {
 	if !world.Components.GridElement.Has(actor) || !world.Components.GridElement.Has(target) {
 		return true, 0
@@ -203,7 +203,9 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 			if world.Components.BlockView.Has(e) {
 				return true, coverCount
 			}
-			if world.Components.BlockPass.Has(e) {
+			// マスにはキャラクターやアイテムも乗るので、地形と置物だけを遮蔽物にする
+			isTerrainOrProp := world.Components.Tile.Has(e) || world.Components.Prop.Has(e)
+			if isTerrainOrProp && !world.Components.Passable.Has(e) {
 				coverCount++
 			}
 		}

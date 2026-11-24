@@ -12,16 +12,16 @@ func CreateTestRawMaster() *rawschema.Raws {
 	// テスト用の基本的なタイルデータを定義
 	autotile := &rawschema.TileSpawn{Autotile: true}
 	testTiles := []rawschema.Tile{
-		{Id: "wall", Name: "wall", BlockPass: true, SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &rawschema.TileSpawn{Tile: new("dwall"), Autotile: true}},
-		{Id: "floor", Name: "floor", BlockPass: false, Spawn: autotile},
-		{Id: "road", Name: "road", BlockPass: false, Spawn: autotile},
-		{Id: "dirt", Name: "dirt", BlockPass: false, Spawn: autotile},
-		{Id: "void", Name: "void", BlockPass: true, SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &rawschema.TileSpawn{}},
-		{Id: "deep_water", Name: "deep_water", BlockPass: true, Spawn: &rawschema.TileSpawn{}},
-		{Id: "bridge_a", Name: "bridge_a", BlockPass: false, Spawn: autotile},
-		{Id: "bridge_b", Name: "bridge_b", BlockPass: false, Spawn: autotile},
-		{Id: "bridge_c", Name: "bridge_c", BlockPass: false, Spawn: autotile},
-		{Id: "bridge_d", Name: "bridge_d", BlockPass: false, Spawn: autotile},
+		{Id: "wall", Name: "wall", SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &rawschema.TileSpawn{Tile: new("dwall"), Autotile: true}},
+		{Id: "floor", Name: "floor", Passable: &rawschema.Passable{}, Spawn: autotile},
+		{Id: "road", Name: "road", Passable: &rawschema.Passable{}, Spawn: autotile},
+		{Id: "dirt", Name: "dirt", Passable: &rawschema.Passable{}, Spawn: autotile},
+		{Id: "void", Name: "void", SpriteRender: rawschema.SpriteRender{Depth: rawschema.SpriteDepthTaller}, Spawn: &rawschema.TileSpawn{}},
+		{Id: "deep_water", Name: "deep_water", Spawn: &rawschema.TileSpawn{}},
+		{Id: "bridge_a", Name: "bridge_a", Passable: &rawschema.Passable{}, Spawn: autotile},
+		{Id: "bridge_b", Name: "bridge_b", Passable: &rawschema.Passable{}, Spawn: autotile},
+		{Id: "bridge_c", Name: "bridge_c", Passable: &rawschema.Passable{}, Spawn: autotile},
+		{Id: "bridge_d", Name: "bridge_d", Passable: &rawschema.Passable{}, Spawn: autotile},
 	}
 
 	// テスト用のアイテムテーブルを定義

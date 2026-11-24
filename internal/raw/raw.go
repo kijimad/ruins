@@ -415,6 +415,8 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name string) error {
 	entitySpec.Deployable = &gc.Deployable{}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{}}
+	// 置くと置物になり、通り方を持たない置物は塞ぐ。置いた設備の上は歩けるので、素通りの通り方を持たせる
+	entitySpec.Passable = &gc.Passable{}
 	if dep.Storage != nil {
 		mg, err := consts.ParseWeight(dep.Storage.MaxWeight)
 		if err != nil {
@@ -743,18 +745,11 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	}
 	entitySpec.SpriteRender = &sprite
 
-	// BlockPassがtrueの場合は通行を遮断
-	if tileRaw.BlockPass {
-		entitySpec.BlockPass = &gc.BlockPass{}
-	}
+	entitySpec.Passable = toGCPassable(tileRaw.Passable)
 
 	// BlockViewがtrueの場合は視界を遮断
 	if tileRaw.BlockView {
 		entitySpec.BlockView = &gc.BlockView{}
-	}
-
-	if tileRaw.PassCost != nil {
-		entitySpec.PassCost = &gc.PassCost{Value: *tileRaw.PassCost}
 	}
 
 	entitySpec.Tile = &gc.Tile{}
@@ -860,14 +855,9 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	}
 	entitySpec.SpriteRender = &spriteRender
 
-	if propRaw.BlockPass {
-		entitySpec.BlockPass = &gc.BlockPass{}
-	}
+	entitySpec.Passable = toGCPassable(propRaw.Passable)
 	if propRaw.BlockView {
 		entitySpec.BlockView = &gc.BlockView{}
-	}
-	if propRaw.PassCost != nil {
-		entitySpec.PassCost = &gc.PassCost{Value: *propRaw.PassCost}
 	}
 	// 各条件に対応するインタラクションを蓄積する。
 	// 1つのPropが複数のインタラクションを持てる
@@ -1367,4 +1357,15 @@ func NewNeedDefs(raws rawschema.Raws) gc.NeedDefs {
 		})
 	}
 	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}
+}
+
+// toGCPassable は raw の通り方をコンポーネントに写す。省いた行は通れないので nil を返す
+func toGCPassable(p *rawschema.Passable) *gc.Passable {
+	if p == nil {
+		return nil
+	}
+	if p.Cost == nil {
+		return &gc.Passable{}
+	}
+	return &gc.Passable{Cost: *p.Cost}
 }

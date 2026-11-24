@@ -16,7 +16,7 @@ import (
 )
 
 // TestNoTileNameCompare はタイルの名前の定数 consts.TileName* と比べることを禁止する。タイルが何かは
-// 名前でなく、描画順 spriteRender.depth や、行の欄 blockPass・earth などの性質で判定する。名前で比べると、同じ性質の別のタイルを
+// 名前でなく、描画順 spriteRender.depth や、行の欄 passable・earth などの性質で判定する。名前で比べると、同じ性質の別のタイルを
 // 足したときに Go を直す必要が出る。定数でタイルを置いたり引いたりするのは判定でないので対象外。
 func TestNoTileNameCompare(t *testing.T) {
 	t.Parallel()
@@ -63,7 +63,7 @@ func TestTileNameCompares(t *testing.T) {
 		{"case に並べると違反", "switch id {\ncase consts.TileNameWall, consts.TileNameVoid:\n}", 2},
 		{"タイルを置くのは適合", `cell = Cell{Terrain: consts.TileNameWall}`, 0},
 		{"タイルを引くのは適合", `_ = get(consts.TileNameVoid)`, 0},
-		{"性質で判定するのは適合", `_ = tile.BlockPass`, 0},
+		{"性質で判定するのは適合", `_ = tile.Passable == nil`, 0},
 		{"タイル以外の定数は適合", `_ = n == consts.MapTileWidth`, 0},
 		{"間取りの行が指すタイルと比べるのは適合", `_ = tile.Id == r.Tiles.Wall`, 0},
 	}

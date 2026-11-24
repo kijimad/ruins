@@ -349,7 +349,7 @@ func TestActivitySummary(t *testing.T) {
 func TestGetPassCostAt(t *testing.T) {
 	t.Parallel()
 
-	t.Run("PassCostがないタイルでは0を返す", func(t *testing.T) {
+	t.Run("移動コストがないタイルでは0を返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -357,39 +357,39 @@ func TestGetPassCostAt(t *testing.T) {
 		assert.Equal(t, 0, cost)
 	})
 
-	t.Run("PassCostがあるタイルではValue値を返す", func(t *testing.T) {
+	t.Run("移動コストがあるタイルではその値を返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		prop := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})
+		world.Components.Passable.Add(prop, &gc.Passable{Cost: 50})
 
 		cost := getPassCostAt(world, 5, 5)
 		assert.Equal(t, 50, cost)
 	})
 
-	t.Run("同一タイルに複数のPassCostがある場合は合算する", func(t *testing.T) {
+	t.Run("同一タイルに複数の移動コストがある場合は合算する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		prop1 := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.PassCost.Add(prop1, &gc.PassCost{Value: 30})
+		world.Components.Passable.Add(prop1, &gc.Passable{Cost: 30})
 
 		prop2 := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.PassCost.Add(prop2, &gc.PassCost{Value: 20})
+		world.Components.Passable.Add(prop2, &gc.Passable{Cost: 20})
 
 		cost := getPassCostAt(world, 5, 5)
 		assert.Equal(t, 50, cost)
 	})
 }
 
-func TestConsumePassCostWithPassCost(t *testing.T) {
+func TestConsumePassCost_移動コストのある移動先(t *testing.T) {
 	t.Parallel()
 
-	t.Run("PassCostがある移動先ではAPコストが増加する", func(t *testing.T) {
+	t.Run("移動コストがある移動先ではAPコストが増加する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -405,19 +405,19 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 
 		normalCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
 
-		// APをリセットしてPassCostありの移動をテスト
+		// APをリセットして移動コストありの移動をテスト
 		world.Components.TurnBased.Get(player).AP.Current = apBefore
 
-		// 移動先にPassCostを持つ固定物を配置
+		// 移動先に移動コストを持つ固定物を配置
 		prop := world.ECS.NewEntity()
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}})
-		world.Components.PassCost.Add(prop, &gc.PassCost{Value: 50})
+		world.Components.Passable.Add(prop, &gc.Passable{Cost: 50})
 
 		_, err = Execute(NewMoveActivity(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}}), player, world)
 		require.NoError(t, err)
 
 		modCost := apBefore - world.Components.TurnBased.Get(player).AP.Current
-		// PassCost 50加算: normalCost + 50
+		// 移動コスト 50加算: normalCost + 50
 		assert.Equal(t, normalCost+50, modCost)
 	})
 

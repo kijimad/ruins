@@ -37,8 +37,8 @@ func TestOpenDoorBehavior(t *testing.T) {
 		doorComp := world.Components.Door.Get(door)
 		assert.True(t, doorComp.IsOpen, "扉が開いているべき")
 
-		// BlockPassとBlockViewが削除されていることを確認
-		assert.False(t, world.Components.BlockPass.Has(door), "BlockPassが削除されているべき")
+		// 通れて見通せるようになっていることを確認
+		assert.Equal(t, &gc.Passable{}, world.Components.Passable.Get(door), "開いた扉は移動コスト無しで通れる")
 		assert.False(t, world.Components.BlockView.Has(door), "BlockViewが削除されているべき")
 	})
 
@@ -52,7 +52,7 @@ func TestOpenDoorBehavior(t *testing.T) {
 		// 扉でないエンティティを対象にする
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.BlockPass.Add(wall, &gc.BlockPass{})
+		world.Components.Tile.Add(wall, &gc.Tile{})
 
 		result, err := Execute(NewOpenDoorActivity(wall), player, world)
 

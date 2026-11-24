@@ -22,7 +22,7 @@ func TestFindNextStep(t *testing.T) {
 		si.Built = true
 		si.MapWidth = 10
 		si.MapHeight = 10
-		si.BlockPass = make(map[gc.GridElement]bool)
+		si.Blocked = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
 		mover := world.ECS.NewEntity()
@@ -41,14 +41,14 @@ func TestFindNextStep(t *testing.T) {
 		si.Built = true
 		si.MapWidth = 10
 		si.MapHeight = 10
-		si.BlockPass = make(map[gc.GridElement]bool)
+		si.Blocked = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
 		mover := world.ECS.NewEntity()
 		world.Components.Player.Add(mover, &gc.Player{})
 
 		for y := range 4 {
-			si.BlockPass[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(2), Y: consts.Tile(y)}}] = true
+			si.Blocked[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(2), Y: consts.Tile(y)}}] = true
 		}
 
 		next, ok := FindNextStep(world, mover, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 4, Y: 0})
@@ -63,7 +63,7 @@ func TestFindNextStep(t *testing.T) {
 		si.Built = true
 		si.MapWidth = 10
 		si.MapHeight = 10
-		si.BlockPass = make(map[gc.GridElement]bool)
+		si.Blocked = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
 		mover := world.ECS.NewEntity()
@@ -74,7 +74,7 @@ func TestFindNextStep(t *testing.T) {
 				if dx == 0 && dy == 0 {
 					continue
 				}
-				si.BlockPass[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(5 + dx), Y: consts.Tile(5 + dy)}}] = true
+				si.Blocked[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(5 + dx), Y: consts.Tile(5 + dy)}}] = true
 			}
 		}
 
@@ -89,7 +89,7 @@ func TestFindNextStep(t *testing.T) {
 		si.Built = true
 		si.MapWidth = 10
 		si.MapHeight = 10
-		si.BlockPass = make(map[gc.GridElement]bool)
+		si.Blocked = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
 		mover := world.ECS.NewEntity()
@@ -106,7 +106,7 @@ func TestFindNextStep(t *testing.T) {
 		si.Built = true
 		si.MapWidth = 10
 		si.MapHeight = 10
-		si.BlockPass = make(map[gc.GridElement]bool)
+		si.Blocked = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
 		player := world.ECS.NewEntity()
@@ -130,7 +130,7 @@ func TestFindNextStep(t *testing.T) {
 		si.Built = true
 		si.MapWidth = 10
 		si.MapHeight = 10
-		si.BlockPass = make(map[gc.GridElement]bool)
+		si.Blocked = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
 		other := world.ECS.NewEntity()
@@ -145,23 +145,23 @@ func TestFindNextStep(t *testing.T) {
 		assert.False(t, next.X == 1 && next.Y == 0, "他キャラのタイルは踏まない")
 	})
 
-	t.Run("BlockPassなゴールにも経路を見つける", func(t *testing.T) {
+	t.Run("通れないゴールにも経路を見つける", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		si := query.GetSpatialIndex(world)
 		si.Built = true
 		si.MapWidth = 10
 		si.MapHeight = 10
-		si.BlockPass = make(map[gc.GridElement]bool)
+		si.Blocked = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
 		mover := world.ECS.NewEntity()
 		world.Components.Player.Add(mover, &gc.Player{})
 
-		si.BlockPass[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(5), Y: consts.Tile(5)}}] = true
+		si.Blocked[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(5), Y: consts.Tile(5)}}] = true
 
 		next, ok := FindNextStep(world, mover, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 5, Y: 5})
-		require.True(t, ok, "BlockPassなゴールにも経路が見つかるべき")
+		require.True(t, ok, "通れないゴールにも経路が見つかるべき")
 		assert.True(t, next.X >= 0 && next.Y >= 0, "有効な座標が返る")
 	})
 
@@ -172,7 +172,7 @@ func TestFindNextStep(t *testing.T) {
 		si.Built = true
 		si.MapWidth = 10
 		si.MapHeight = 10
-		si.BlockPass = make(map[gc.GridElement]bool)
+		si.Blocked = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
 		player := world.ECS.NewEntity()

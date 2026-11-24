@@ -105,9 +105,6 @@ import (
 // 寝具の睡眠効率。100が基準で、高いほど短く深く眠れる
 #BeddingQuality: int & >=0
 
-// 通行を妨げるかどうか
-#BlocksPassage: bool
-
 // 視線を遮るかどうか
 #BlocksView: bool
 
@@ -1271,8 +1268,14 @@ import (
 // 食料から得る栄養の満額に対する割合。百分率
 #NutritionPercent: int & >=0 & <=100
 
-// 通行コスト加算値。0で変化なし、50でベースコスト+50
-#PassCost: int & >=0 & <=9999
+// 上へ移るときに標準の移動に足す移動コスト
+#PassCost: int & >=1 & <=9999
+
+// 通り方。持たない地形と置物は通れない
+#Passable: {
+	// 省くと素通り。0 と省略で同じ意味を2通りに書けないよう1以上にする
+	cost?: #PassCost
+}
 
 // 治療の質。基準100の倍率。100が標準、150で回復1.5倍
 #Potency: int & >=1 & <=9999
@@ -1326,13 +1329,9 @@ import (
 	description!:  #EntityDescription
 	spriteRender!: #SpriteRender
 	animKeys?: [...#SpriteKey]
-	blockPass!: #BlocksPassage
+	// 省くと通れない
+	passable?:  #Passable
 	blockView!: #BlocksView
-	passCost?:  #PassCost
-	// 通れない置物は移動コストを持たない
-	if blockPass {
-		passCostAbsent: true & passCost == _|_ @rawgen(-)
-	}
 
 	// 耐久。省略した prop は殴れない
 	hp?:              #HitPoints
@@ -1790,22 +1789,16 @@ import (
 // タイル
 #Tile: {
 	// ground は施設のパレットで下地を残す地形の予約語なので、タイルの id に使わない
-	id!:           #EntityID & !="ground"
-	name!:         #EntityName
-	description!:  #EntityDescription
-	blockPass!:    #BlocksPassage
+	id!:          #EntityID & !="ground"
+	name!:        #EntityName
+	description!: #EntityDescription
+	// 省くと通れない
+	passable?:     #Passable
 	blockView!:    #BlocksView
 	spriteRender!: #SpriteRender
 
 	// 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける
 	water?: bool
-
-	// 上へ移るときに足す移動コスト
-	passCost?: #PassCost
-	// 通れないタイルは移動コストを持たない
-	if blockPass {
-		passCostAbsent: true & passCost == _|_ @rawgen(-)
-	}
 
 	// 植生。省くと植生なし
 	foliage?: #FoliageId
