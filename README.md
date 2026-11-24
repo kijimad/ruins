@@ -113,7 +113,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
-| | No open documents | | |
+| draft | [湖の区域](docs/design/261124195212.md) | 0/10 | worldgen, gamedesign |
 
 
 ## References
