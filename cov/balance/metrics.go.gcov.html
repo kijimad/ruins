@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">83.7&nbsp;%</td>
+            <td class="headerCovTableEntryMed">87.8&nbsp;%</td>
             <td class="headerCovTableEntry">49</td>
-            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntry">43</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 16:15:09</td>
+            <td class="headerValue">2026-11-24 23:40:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -123,8 +123,8 @@
 <span id="L61"><span class="lineNum">      61</span>              : func DifficultyCurveWithSkill(master rawschema.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int, skillMult consts.Percent) ([]DayMetric, error) {</span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         table, err := raw.GetEnemyTable(master, enemyTableName)</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :                 return nil, err</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : </span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         out := make([]DayMetric, 0, days)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         for day := 1; day &lt;= days; day++ {</span></span>

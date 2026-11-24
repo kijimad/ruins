@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">87.4&nbsp;%</td>
+            <td class="headerCovTableEntryHi">92.4&nbsp;%</td>
             <td class="headerCovTableEntry">119</td>
-            <td class="headerCovTableEntry">104</td>
+            <td class="headerCovTableEntry">110</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 16:15:09</td>
+            <td class="headerValue">2026-11-24 23:40:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,16 +74,16 @@
 <span id="L12"><span class="lineNum">      12</span>              : func ruinsDay20PowerRatio(master rawschema.Raws) float64 {</span>
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, BaselinePlayer)</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :                 return 0</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :                 return 0</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         curve, err := DifficultyCurve(master, player, weapon, BaselineAreaTable, BaselineDays)</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         if err != nil || len(curve) == 0 {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 return 0</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         return curve[len(curve)-1].PowerRatio</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : }</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>

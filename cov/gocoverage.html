@@ -139,11 +139,11 @@
 				
 				<option value="file41">github.com/kijimaD/ruins/internal/balance/logistics.go (100.0%)</option>
 				
-				<option value="file42">github.com/kijimaD/ruins/internal/balance/markov.go (92.2%)</option>
+				<option value="file42">github.com/kijimaD/ruins/internal/balance/markov.go (96.6%)</option>
 				
 				<option value="file43">github.com/kijimaD/ruins/internal/balance/mdtable.go (100.0%)</option>
 				
-				<option value="file44">github.com/kijimaD/ruins/internal/balance/metrics.go (89.7%)</option>
+				<option value="file44">github.com/kijimaD/ruins/internal/balance/metrics.go (92.3%)</option>
 				
 				<option value="file45">github.com/kijimaD/ruins/internal/balance/params.go (100.0%)</option>
 				
@@ -151,7 +151,7 @@
 				
 				<option value="file47">github.com/kijimaD/ruins/internal/balance/restriction.go (80.6%)</option>
 				
-				<option value="file48">github.com/kijimaD/ruins/internal/balance/search.go (91.6%)</option>
+				<option value="file48">github.com/kijimaD/ruins/internal/balance/search.go (94.7%)</option>
 				
 				<option value="file49">github.com/kijimaD/ruins/internal/balance/sensitivity.go (93.3%)</option>
 				
@@ -8293,7 +8293,7 @@ func PoolCombatRisk(master rawschema.Raws, player CombatantStats, playerWeapon W
         for _, entry := range raw.EnemyEntriesAt(table, danger) </span>{
                 <span class="cov8" title="1">enemy, err := LoadCombatantFromMember(master, entry.Id)
                 if err != nil </span>{
-                        <span class="cov0" title="0">return 0, 0, false, err
+                        <span class="cov8" title="1">return 0, 0, false, err
 </span>                }
                 <span class="cov8" title="1">enemyWeapon, err := LoadWeaponFromMember(master, entry.Id)
                 if err != nil </span>{
@@ -8306,7 +8306,7 @@ func PoolCombatRisk(master rawschema.Raws, player CombatantStats, playerWeapon W
                 turnSum += w * o.ExpectedTurns</span>
         }
         <span class="cov8" title="1">if wSum == 0 </span>{
-                <span class="cov0" title="0">return 0, 0, false, nil
+                <span class="cov8" title="1">return 0, 0, false, nil
 </span>        }
         <span class="cov8" title="1">return deathSum / wSum, turnSum / wSum, true, nil</span>
 }
@@ -8319,10 +8319,10 @@ func CombatRiskCurve(master rawschema.Raws, player CombatantStats, playerWeapon 
                 <span class="cov8" title="1">danger := int(query.DangerLevelForDay(day))
                 death, turns, ok, err := PoolCombatRisk(master, player, playerWeapon, enemyTableName, danger, consts.PercentBase)
                 if err != nil </span>{
-                        <span class="cov0" title="0">return nil, err
+                        <span class="cov8" title="1">return nil, err
 </span>                }
                 <span class="cov8" title="1">if !ok </span>{
-                        <span class="cov0" title="0">out = append(out, DayRisk{Day: day, Danger: danger})
+                        <span class="cov8" title="1">out = append(out, DayRisk{Day: day, Danger: danger})
                         continue</span>
                 }
                 <span class="cov8" title="1">out = append(out, DayRisk{Day: day, Danger: danger, DeathProb: death, ExpTurns: turns})</span>
@@ -8429,7 +8429,7 @@ func DifficultyCurve(master rawschema.Raws, player CombatantStats, playerWeapon 
 func DifficultyCurveWithSkill(master rawschema.Raws, player CombatantStats, playerWeapon WeaponStats, enemyTableName string, days int, skillMult consts.Percent) ([]DayMetric, error) {
         <span class="cov8" title="1">table, err := raw.GetEnemyTable(master, enemyTableName)
         if err != nil </span>{
-                <span class="cov0" title="0">return nil, err
+                <span class="cov8" title="1">return nil, err
 </span>        }
 
         <span class="cov8" title="1">out := make([]DayMetric, 0, days)
@@ -8709,15 +8709,15 @@ import (
 func ruinsDay20PowerRatio(master rawschema.Raws) float64 {
         <span class="cov8" title="1">player, err := LoadCombatantFromMember(master, BaselinePlayer)
         if err != nil </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">weapon, err := LoadWeaponFromBodyAttack(master, raw.BareHands)
         if err != nil </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">curve, err := DifficultyCurve(master, player, weapon, BaselineAreaTable, BaselineDays)
         if err != nil || len(curve) == 0 </span>{
-                <span class="cov0" title="0">return 0
+                <span class="cov8" title="1">return 0
 </span>        }
         <span class="cov8" title="1">return curve[len(curve)-1].PowerRatio</span>
 }
