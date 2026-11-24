@@ -61,7 +61,7 @@ var Registry = []Def{
 	{Field: "LightSource"},     // 光源であることを表す
 	{Field: "Charge"},          // 使って減る残量を保持する。保存する
 	{Field: "Interactable"},    // 相互作用可能であることを示す
-	{Field: "Unsearched"},      // まだ探していない収納であることを表す
+	{Field: "Searched"},        // 探し終えた収納であることを表す
 	{Field: "VisualEffects"},   // 紐づくビジュアルエフェクトを管理する
 	{Field: "TileEnvironment"}, // タイルの環境属性。囲われ・水・植生・雪の解けやすさ
 	{Field: "HeatSource"},      // 近接するキャラの低体温を回復する熱源の設定を保持する

@@ -422,6 +422,8 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name 
 		}
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
 		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}
+		// プレイヤーが置く収納なので、中身を探す手間は要らない
+		entitySpec.Searched = &gc.Searched{}
 	}
 	if dep.Bedding != nil {
 		entitySpec.Bedding = toGCBedding(dep.Bedding)
@@ -902,7 +904,6 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 			return gc.EntitySpec{}, fmt.Errorf("container '%s' max weight: %w", name, err)
 		}
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
-		entitySpec.Unsearched = &gc.Unsearched{}
 		interactions = append(interactions, gc.InteractionStorage)
 	}
 

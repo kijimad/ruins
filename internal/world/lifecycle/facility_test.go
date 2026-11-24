@@ -125,6 +125,28 @@ func TestRemoveFacility(t *testing.T) {
 	assert.False(t, world.Components.Prop.Has(item), "造作ではなくなる")
 }
 
+func TestPlaceFacility_置いた収納は探し終えた印を往復でも保つ(t *testing.T) {
+	t.Parallel()
+	world, cube := deployedCubeWithPlayer(t)
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+
+	item, err := SpawnBackpackItem(world, "deployable_storage", 1)
+	require.NoError(t, err)
+	query.InvalidateSpatialIndex(world)
+	coord := consts.Coord[consts.Tile]{X: 11, Y: 10}
+	placed, err := PlaceFacility(world, cube, item, coord)
+	require.NoError(t, err)
+	assert.True(t, world.Components.Searched.Has(placed), "置いた収納は探さずに開ける")
+
+	require.NoError(t, RemoveFacility(world, placed, player))
+	assert.True(t, world.Components.Searched.Has(item), "バックパックへ戻しても印は残る")
+	query.InvalidateSpatialIndex(world)
+	placed, err = PlaceFacility(world, cube, item, coord)
+	require.NoError(t, err)
+	assert.True(t, world.Components.Searched.Has(placed), "置き直しても印は残る")
+}
+
 func TestRemoveFacility_中身が残ると撤去しない(t *testing.T) {
 	t.Parallel()
 	world, cube := deployedCubeWithPlayer(t)

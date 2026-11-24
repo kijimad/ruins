@@ -468,6 +468,7 @@ func TestExecuteInteraction_Storage(t *testing.T) {
 	world.Components.Interactable.Add(storageEntity, &gc.Interactable{
 		Interactions: []gc.InteractionKind{gc.InteractionStorage},
 	})
+	world.Components.Searched.Add(storageEntity, &gc.Searched{})
 
 	result, err := ExecuteInteraction(player, storageEntity, gc.InteractionStorage, world)
 

@@ -3,6 +3,7 @@ package systems
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -56,7 +57,7 @@ func TestItemMarkerTiles(t *testing.T) {
 		c := consts.Coord[consts.Tile]{X: 4, Y: 4}
 		closet, err := lifecycle.SpawnProp(world, "closet", c.X, c.Y)
 		require.NoError(t, err)
-		require.True(t, world.Components.Unsearched.Has(closet))
+		require.False(t, world.Components.Searched.Has(closet))
 
 		markers := itemMarkerTiles(world, all)
 		require.True(t, markers[c])
@@ -70,7 +71,7 @@ func TestItemMarkerTiles(t *testing.T) {
 		require.NoError(t, err)
 		_, err = lifecycle.SpawnStorageItem(world, "healing_potion", 1, closet)
 		require.NoError(t, err)
-		world.Components.Unsearched.Remove(closet)
+		world.Components.Searched.Add(closet, &gc.Searched{})
 
 		markers := itemMarkerTiles(world, all)
 		require.True(t, markers[c])
@@ -82,7 +83,7 @@ func TestItemMarkerTiles(t *testing.T) {
 		c := consts.Coord[consts.Tile]{X: 4, Y: 4}
 		closet, err := lifecycle.SpawnProp(world, "closet", c.X, c.Y)
 		require.NoError(t, err)
-		world.Components.Unsearched.Remove(closet)
+		world.Components.Searched.Add(closet, &gc.Searched{})
 
 		markers := itemMarkerTiles(world, all)
 		require.False(t, markers[c])

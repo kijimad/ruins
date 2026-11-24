@@ -723,7 +723,7 @@ func TestPickupChoices(t *testing.T) {
 		require.NoError(t, err)
 		crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
 		require.NoError(t, err)
-		world.Components.Unsearched.Remove(crate)
+		world.Components.Searched.Add(crate, &gc.Searched{})
 
 		_, choices := pickupChoices(world)
 		require.Len(t, choices, 1)
@@ -775,7 +775,7 @@ func TestStorageLabel(t *testing.T) {
 			crate, err := lifecycle.SpawnProp(world, "wooden_crate", 10, 9)
 			require.NoError(t, err)
 			if tt.searched {
-				world.Components.Unsearched.Remove(crate)
+				world.Components.Searched.Add(crate, &gc.Searched{})
 			}
 			if tt.item {
 				_, err := lifecycle.SpawnStorageItem(world, "bread", 1, crate)

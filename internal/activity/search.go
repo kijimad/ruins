@@ -2,6 +2,7 @@ package activity
 
 import (
 	"fmt"
+	"slices"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -51,7 +52,7 @@ func (b *SearchBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	if !ok {
 		return ErrParamsTypeMismatch
 	}
-	if !world.ECS.Alive(p.Target) || !world.Components.Unsearched.Has(p.Target) {
+	if !world.ECS.Alive(p.Target) || !isStorage(world, p.Target) || world.Components.Searched.Has(p.Target) {
 		return &UserError{Msg: query.T(world, "there is nothing to search")}
 	}
 	if !query.IsAreaSafe(world, actor) {
@@ -102,9 +103,7 @@ func (b *SearchBehavior) Finish(comp *gc.Activity, _ ecs.Entity, world w.World) 
 	if !world.ECS.Alive(p.Target) {
 		return nil
 	}
-	if world.Components.Unsearched.Has(p.Target) {
-		world.Components.Unsearched.Remove(p.Target)
-	}
+	lifecycle.EnsureMarker(world, world.Components.Searched, p.Target, &gc.Searched{})
 	if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(p.Target)); err != nil {
 		return fmt.Errorf("storage menu state change request error: %w", err)
 	}
@@ -124,4 +123,10 @@ func (b *SearchBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.W
 		Markup(message).
 		Log()
 	return nil
+}
+
+// isStorage は e が収納かを返す。Searched を持たないことだけでは、収納でない置物や敵まで探す対象になるため
+func isStorage(world w.World, e ecs.Entity) bool {
+	return world.Components.Interactable.Has(e) &&
+		slices.Contains(world.Components.Interactable.Get(e).Interactions, gc.InteractionStorage)
 }

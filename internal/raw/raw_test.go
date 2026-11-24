@@ -1431,3 +1431,23 @@ func TestFindAcceptedFuel(t *testing.T) {
 		})
 	}
 }
+
+func TestNewItemSpec_置く設備の収納は探し終えた状態で生まれる(t *testing.T) {
+	t.Parallel()
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+
+	spec, err := NewItemSpec(raws, "deployable_storage")
+	require.NoError(t, err)
+	assert.Equal(t, &gc.Searched{}, spec.Searched)
+}
+
+func TestNewPropSpec_行から作る収納は探していない状態で生まれる(t *testing.T) {
+	t.Parallel()
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+
+	spec, err := NewPropSpec(raws, "wooden_crate")
+	require.NoError(t, err)
+	assert.Nil(t, spec.Searched)
+}
