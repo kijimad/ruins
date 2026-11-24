@@ -433,9 +433,9 @@
 				
 				<option value="file188">github.com/kijimaD/ruins/internal/messagedata/dialogues.go (100.0%)</option>
 				
-				<option value="file189">github.com/kijimaD/ruins/internal/messagedata/markup.go (90.5%)</option>
+				<option value="file189">github.com/kijimaD/ruins/internal/messagedata/markup.go (100.0%)</option>
 				
-				<option value="file190">github.com/kijimaD/ruins/internal/messagedata/message.go (96.8%)</option>
+				<option value="file190">github.com/kijimaD/ruins/internal/messagedata/message.go (100.0%)</option>
 				
 				<option value="file191">github.com/kijimaD/ruins/internal/overworld/area.go (54.2%)</option>
 				
@@ -25765,8 +25765,8 @@ func tagStyle(tag string) (markupStyle, bool) {
                 <span class="cov8" title="1">return s, true
 </span>        }
         <span class="cov8" title="1">if name, ok := strings.CutPrefix(tag, "color_"); ok </span>{
-                <span class="cov0" title="0">if c, ok := namedColors[name]; ok </span>{
-                        <span class="cov0" title="0">return fg(c), true
+                <span class="cov8" title="1">if c, ok := namedColors[name]; ok </span>{
+                        <span class="cov8" title="1">return fg(c), true
 </span>                }
         }
         <span class="cov8" title="1">return markupStyle{}, false</span>
@@ -25820,7 +25820,7 @@ func parseMarkupSegments(s string) []markupSegment {
 </span>
                 <span class="cov8" title="1">gt := strings.IndexByte(s, '&gt;')
                 if gt &lt; 0 </span>{
-                        <span class="cov0" title="0">add(s, markupStyle{})
+                        <span class="cov8" title="1">add(s, markupStyle{})
                         break</span>
                 }
                 <span class="cov8" title="1">tag := s[1:gt]
@@ -25962,7 +25962,7 @@ func (m *MessageData) AddText(text string) *MessageData {
         <span class="cov8" title="1">for i, line := range lines </span>{
                 <span class="cov8" title="1">if i &gt; 0 </span>{
                         // 2行目以降は新しい行を作成
-                        <span class="cov0" title="0">m.TextSegmentLines = append(m.TextSegmentLines, []TextSegment{})
+                        <span class="cov8" title="1">m.TextSegmentLines = append(m.TextSegmentLines, []TextSegment{})
 </span>                }
 
                 <span class="cov8" title="1">currentLineIdx := len(m.TextSegmentLines) - 1
