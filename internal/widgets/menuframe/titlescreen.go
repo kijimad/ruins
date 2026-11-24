@@ -12,14 +12,14 @@ import (
 
 // 背景を透かすタイトル画面の寸法。画面はこれらを知らない
 const (
-	titleMenuLeft   = 64  // メニューの左端
+	titleMenuRight  = 64  // メニューの右端から画面右端までの幅
 	titleMenuBottom = 72  // メニュー下端から画面下端までの高さ
 	titleNoteW      = 232 // 右下の注記の幅
 	titleNoteMargin = 8   // 注記と画面端の余白
 )
 
-// TitleScreen は背景を透かすタイトル画面を組む。メニューを左下へ左寄せで置き、
-// 版などの注記を右下へ右寄せで積む。パネル背景は付けない。
+// TitleScreen は背景を透かすタイトル画面を組む。メニューを右下へ置き、その下に版などの注記を右寄せで積む。
+// 背景の左下に炎があるので、メニューは右へ寄せる。パネル背景は付けない。
 // 寸法と余白は部品が持ち、画面は項目と注記の文言だけを渡す。
 func TitleScreen(world w.World, res resources.UIResources, itemIndex int, rows []Row, notes []string) uicore.Widget {
 	sd := world.Resources.ScreenDimensions
@@ -29,7 +29,8 @@ func TitleScreen(world w.World, res resources.UIResources, itemIndex int, rows [
 	menu := uicore.VBox(theme.MenuPanelRowH, uicore.Placeable(listRows)...)
 	menuH := len(listRows) * theme.MenuPanelRowH
 	menuTop := sd.Height - titleMenuBottom - menuH
-	menu.Layout(image.Rect(titleMenuLeft, menuTop, titleMenuLeft+theme.MenuRowWidth, menuTop+menuH))
+	menuRight := sd.Width - titleMenuRight
+	menu.Layout(image.Rect(menuRight-theme.MenuRowWidth, menuTop, menuRight, menuTop+menuH))
 
 	children := make([]uicore.Widget, 0, 1+len(notes))
 	children = append(children, menu)
