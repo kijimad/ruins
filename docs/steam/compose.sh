@@ -41,15 +41,26 @@ echo "library_hero.png (3840x1240)"
 magick "$MASTER" -gravity south -crop 3840x2162+0+0 +repage -resize 1438x810! "$OUT/page_background.png"
 echo "page_background.png (1438x810)"
 
+# --- ロゴの拡縮 ---
+# ロゴはぼかした影のために文字の周りへ透明な余白を持つ。画像全体を箱に収めると余白のぶん文字が小さくなるので、
+# 文字と罫のある所、すなわち影より濃い所の大きさで倍率を決め、影ごと拡縮する
+read -r LOGO_CW LOGO_CH LOGO_CX LOGO_CY <<<"$(magick "$LOGO_PNG" -alpha extract -threshold 90% -format '%@' info: | tr 'x+' '  ')"
+
+# logo_scale は文字のある所が幅 max_w と高さ max_h の箱に収まる倍率を返す
+logo_scale() {
+	awk -v mw="$1" -v mh="$2" -v cw="$LOGO_CW" -v ch="$LOGO_CH" 'BEGIN { s = mw / cw; if (mh / ch < s) s = mh / ch; printf "%.6f", s }'
+}
+
 # --- ロゴ描画関数 ---
 # 完成品ロゴを背景に重ねる。ぼかした影を含むので加工しない。
-# 幅 max_w と 高さ logo_h の箱にアスペクト維持で収めてから合成する
+# 文字のある所が幅 max_w と 高さ logo_h の箱に収まるよう、アスペクトを保って拡縮してから合成する
 render_logo() {
 	local w=$1 h=$2 logo_h=$3 gravity=$4 y_off=$5 output=$6
 
 	local max_w=$((w * 82 / 100))
-	# ロゴはぼかした影を含む。ここでは寸法を合わせて重ねるだけ
-	magick "$LOGO_PNG" -resize "${max_w}x${logo_h}" "$TMP/logo.png"
+	local scale
+	scale=$(logo_scale "$max_w" "$logo_h")
+	magick "$LOGO_PNG" -resize "$(awk -v s="$scale" 'BEGIN { printf "%.4f%%", s * 100 }')" "$TMP/logo.png"
 
 	# 宛先を sRGB へ昇格してから合成する。透明ベース xc:none が Gray になり色が落ちるのを防ぐ。
 	# 入力と出力を同一ファイルにせず中間へ書いてから置き換える。読み書き競合を避ける
@@ -106,14 +117,15 @@ generate_capsule 748 896 vertical_capsule.png 2137 2560 north southwest 120
 generate_capsule 600 900 library_capsule.png 1707 2560 north southwest 120
 
 # --- ゲームタイトル用画像 960x720 ---
-# シネマ配置。ロゴを左上、メニューは左下(ゲーム側で描画)に置く。
-# 炎はマスターの左下にあり、左下のメニューとぶつかるので、左右を反転して炎を右下へ移す。
-magick "$MASTER" -flop -gravity southeast -crop 2560x1920+120+0 +repage -resize 960x720! "$TMP/title_bg.png"
+# シネマ配置。ロゴを左上、メニューは右下(ゲーム側で描画)に置く。炎はマスターの左下にあり、メニューと重ならない。
+magick "$MASTER" -gravity southwest -crop 2560x1920+120+0 +repage -resize 960x720! "$TMP/title_bg.png"
 TITLE_OUT="${STEAM_TITLE_OUT:-assets/file/textures/bg/title1_.png}"
-# ロゴを左上へ。幅は画面の約55%。メニューは main_menu.go が左下へ左寄せで描く。
-# ロゴはぼかした影を含む。寸法を合わせて重ねるだけ
-magick "$LOGO_PNG" -resize 500x "$TMP/title_logo.png"
-magick "$TMP/title_bg.png" "$TMP/title_logo.png" -gravity NorthWest -geometry +40+48 -compose over -composite "$TMP/title_merged.png"
+# ロゴを左上へ。文字の幅は500px、文字の左上を (80, 88) に置く。メニューはゲームのタイトル画面が右下へ描く。
+# ロゴはぼかした影を含む。影の余白のぶん画像の左上をずらして重ねる
+TITLE_SCALE=$(logo_scale 500 720)
+read -r TITLE_X TITLE_Y <<<"$(awk -v s="$TITLE_SCALE" -v cx="$LOGO_CX" -v cy="$LOGO_CY" 'BEGIN { printf "%d %d", 80 - cx * s, 88 - cy * s }')"
+magick "$LOGO_PNG" -resize "$(awk -v s="$TITLE_SCALE" 'BEGIN { printf "%.4f%%", s * 100 }')" "$TMP/title_logo.png"
+magick "$TMP/title_bg.png" "$TMP/title_logo.png" -gravity NorthWest -geometry "+${TITLE_X}+${TITLE_Y}" -compose over -composite "$TMP/title_merged.png"
 mv "$TMP/title_merged.png" "$TITLE_OUT"
 echo "title1_.png (960x720)"
 
