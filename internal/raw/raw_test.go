@@ -565,29 +565,6 @@ Depth = "decal"
 	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)
 }
 
-func TestPropBlockPassWithPassCostIsError(t *testing.T) {
-	t.Parallel()
-	str := `
-[[Props]]
-Name = "矛盾Prop"
-id = "矛盾Prop"
-Description = "通行不可なのに移動コストがある"
-BlockPass = true
-BlockView = false
-PassCost = 100
-
-[Props.SpriteRender]
-SpriteSheetName = "field"
-SpriteKey = "prop_table"
-Depth = "decal"
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	_, err = NewPropSpec(raws, "矛盾Prop")
-	require.ErrorIs(t, err, errBlockPassWithPassCost)
-}
-
 func TestNewTileSpec_移動コスト(t *testing.T) {
 	t.Parallel()
 	str := `
@@ -605,17 +582,16 @@ SpriteKey = "water_shallow"
 Depth = "floor"
 
 [[Tiles]]
-id = "矛盾タイル"
-Name = "矛盾タイル"
-Description = "通行不可なのに移動コストがある"
-BlockPass = true
+id = "床"
+Name = "床"
+Description = "移動コストが無い"
+BlockPass = false
 BlockView = false
-PassCost = 100
 
 [Tiles.SpriteRender]
 SpriteSheetName = "tile"
-SpriteKey = "wall"
-Depth = "taller"
+SpriteKey = "floor"
+Depth = "floor"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -624,8 +600,9 @@ Depth = "taller"
 	require.NoError(t, err)
 	assert.Equal(t, &gc.PassCost{Value: 100}, spec.PassCost)
 
-	_, err = NewTileSpec(raws, "矛盾タイル", 0, 0, nil)
-	require.ErrorIs(t, err, errBlockPassWithPassCost)
+	spec, err = NewTileSpec(raws, "床", 0, 0, nil)
+	require.NoError(t, err)
+	assert.Nil(t, spec.PassCost)
 }
 
 func TestPropWithHP(t *testing.T) {

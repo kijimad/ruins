@@ -281,3 +281,27 @@ func TestValidate_危険度の範囲が逆転すると位置で返す(t *testing
 		})
 	}
 }
+
+func TestValidate_通れない行に移動コストを書くと位置で返す(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		mutate func(*rawschema.Raws)
+		want   string
+	}{
+		{name: "置物", mutate: func(r *rawschema.Raws) {
+			(*r.Props)[0].BlockPass, (*r.Props)[0].PassCost = true, new(100)
+		}, want: "props.0.passCost_passable"},
+		{name: "タイル", mutate: func(r *rawschema.Raws) {
+			(*r.Tiles)[0].BlockPass, (*r.Tiles)[0].PassCost = true, new(100)
+		}, want: "tiles.0.passCost_passable"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var ce *rawcheck.Error
+			require.ErrorAs(t, rawcheck.Validate(makeRefRaws(tt.mutate)), &ce)
+			assert.Equal(t, []string{tt.want}, ce.Paths())
+		})
+	}
+}
