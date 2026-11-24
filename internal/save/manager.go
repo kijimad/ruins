@@ -13,7 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-const saveDataVersion = "3.1.0"
+const saveDataVersion = "3.2.0"
 
 const maxAutoSaves = 4
 
