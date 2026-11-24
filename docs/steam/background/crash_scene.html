@@ -146,7 +146,7 @@ const craterH = (x, z) => Math.sin(x * 0.05) * 0.6 + Math.cos(z * 0.043 + x * 0.
 
 // クレーター: 細かい網目で、すり鉢の底と盛り上がった縁と放射状に飛び散った跡を描く。
 // 山と都市の形を保つため、本の乱数は使わない。種はこの位置での本の乱数の状態から取るので、
-// ここより前で本の乱数の回数を変えると、クレーターと煙の形も変わる
+// ここより前で本の乱数の回数を変えると、クレーターと燠と煙の形も変わる
 {
   let cs = (seed ^ 0x1b873593) | 0;
   const cr = () => { cs = cs + 0x6D2B79F5 | 0; let t = Math.imul(cs ^ cs >>> 15, 1 | cs); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -218,79 +218,27 @@ const pod = new THREE.Group();
   scene.add(pod);
 }
 
-// 散らばった破片
+// 散らばった破片。一部はまだ熱い
 for (let i = 0; i < 46; i++) {
   const a = R(0, Math.PI * 2), d = R(CR * 0.6, CR * 3.2) * (i % 5 === 0 ? 1.6 : 1);
   const s = R(0.15, 0.7) * (d < CR * 1.5 ? 1.3 : 1);
   const geo = i % 3 === 0 ? new THREE.TetrahedronGeometry(s) : new THREE.BoxGeometry(s * R(1, 3), s * 0.12, s * R(0.6, 1.6));
-  const m = new THREE.Mesh(geo, metal);
+  const m = new THREE.Mesh(geo, i % 6 === 0 ? hot : metal);
   m.position.set(Math.cos(a) * d, craterH(Math.cos(a) * d, Math.sin(a) * d) + 0.1, Math.sin(a) * d);
   m.rotation.set(R(0, 3), R(0, 3), R(0, 3));
   m.castShadow = true;
   scene.add(m);
 }
 
-// 炎: カメラへ向く板に、シェーダで炎を描く。根元が丸く上へ細るしずく形に、上ほど大きく揺らすノイズを重ね、
-// 輪郭を舌に分ける。色は濃さに応じて白黄から赤へ変える。1つの炎に形の違う板を4枚重ねて厚みを出す。
-// 板の大きさと位置は構図の乱数を前と同じ回数で引いて決め、板ごとのノイズの種は別の乱数で決める
-let fls = (seed ^ 0x6c8e9cf5) | 0;
-const F = (a, b) => { fls = fls + 0x6D2B79F5 | 0; let t = Math.imul(fls ^ fls >>> 15, 1 | fls); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return a + (b - a) * (((t ^ t >>> 14) >>> 0) / 4294967296); };
-const flameShader = (fseed) => new THREE.ShaderMaterial({
-  transparent: true, depthWrite: false, depthTest: false,
-  uniforms: { uSeed: { value: fseed } },
-  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-  fragmentShader: `
-    varying vec2 vUv; uniform float uSeed;
-    float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-    float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
-      return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }
-    float fbm(vec2 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++){ v += a * n(p); p *= 2.1; a *= 0.5; } return v; }
-    void main(){
-      vec2 p = vec2(vUv.x - 0.5, vUv.y);
-      p.x += (fbm(vec2(p.y * 2.5 + uSeed, uSeed * 0.7)) - 0.5) * 0.35 * p.y;
-      float w = 0.46 * pow(max(0.0, 1.0 - p.y), 0.45) * sqrt(clamp(p.y / 0.14, 0.0, 1.0));
-      float v = 1.0 - abs(p.x) / max(w, 0.001);
-      v += (fbm(vec2(p.x * 4.0 + uSeed * 1.3, p.y * 3.0 - uSeed)) - 0.5) * 0.7 * (0.3 + p.y);
-      v *= 1.0 - smoothstep(0.6, 1.0, p.y) * 0.6;
-      if (v < 0.04) discard;
-      vec3 c = mix(vec3(0.55, 0.16, 0.06), vec3(1.0, 0.42, 0.12), smoothstep(0.04, 0.3, v));
-      c = mix(c, vec3(1.0, 0.70, 0.28), smoothstep(0.3, 0.55, v));
-      c = mix(c, vec3(1.0, 0.88, 0.55), smoothstep(0.55, 0.8, v));
-      c = mix(c, vec3(1.0, 0.97, 0.85), smoothstep(0.85, 1.1, v));
-      gl_FragColor = vec4(c, smoothstep(0.04, 0.18, v));
-    }`,
-});
-const glowTex = (() => {
-  const c = document.createElement('canvas');
-  c.width = c.height = 64;
-  const g = c.getContext('2d');
-  const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-  gr.addColorStop(0, 'rgba(255,150,60,0.35)');
-  gr.addColorStop(0.5, 'rgba(255,100,40,0.12)');
-  gr.addColorStop(1, 'rgba(255,90,30,0)');
-  g.fillStyle = gr;
-  g.fillRect(0, 0, 64, 64);
-  return new THREE.CanvasTexture(c);
-})();
-// 炎の板。カメラを置いた後に、カメラへ向ける
-const FLAMES = [];
+// 炎: 低いポリゴンの錐を重ねる
 const flame = (x, y, z, s) => {
   for (let k = 0; k < 4; k++) {
-    const h = s * R(1.2, 2.2) * 1.25;
-    const w = s * R(0.35, 0.55) * 2.6;
-    const px = x + R(-0.4, 0.4) * s, pz = z + R(-0.4, 0.4) * s;
-    R(-0.2, 0.2); R(0, 3); R(-0.2, 0.2);
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), flameShader(F(0, 100)));
-    m.position.set(px, y + h / 2 + s * 0.15, pz);
-    m.renderOrder = k;
-    FLAMES.push(m);
+    const h = s * R(1.2, 2.2);
+    const m = new THREE.Mesh(new THREE.ConeGeometry(s * R(0.35, 0.55), h, 5), new THREE.MeshBasicMaterial({ color: k % 2 ? '#ffb347' : '#ff6a1f', transparent: true, opacity: 0.92 }));
+    m.position.set(x + R(-0.4, 0.4) * s, y + h / 2, z + R(-0.4, 0.4) * s);
+    m.rotation.set(R(-0.2, 0.2), R(0, 3), R(-0.2, 0.2));
     scene.add(m);
   }
-  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
-  glow.position.set(x, y + s * 0.7, z);
-  glow.scale.setScalar(s * 3);
-  glow.renderOrder = 4;
-  scene.add(glow);
   const l = new THREE.PointLight('#ff7a30', 30 * s, 13, 1.6);
   l.position.set(x, y + s, z);
   scene.add(l);
@@ -299,43 +247,29 @@ flame(2.2, craterH(2.2, 0.9) - 0.1, 0.9, 1.1 * V.fire);
 flame(-1.6, craterH(-1.6, 1.6) - 0.1, 1.6, 0.7 * V.fire);
 flame(5.5, craterH(5.5, -3.5) - 0.1, -3.5, 0.5 * V.fire);
 
-// 炎から舞い上がる火の粉。炎の近くほど密で明るく、上ほどまばらに赤く暗くし、風に少し流す。
-// 構図の乱数と別の乱数で置くので、ほかの物の形は変わらない
-{
-  let ps = (seed ^ 0x2c1b3c6d) | 0;
-  const pr = () => { ps = ps + 0x6D2B79F5 | 0; let t = Math.imul(ps ^ ps >>> 15, 1 | ps); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
-  const P = (a, b) => a + (b - a) * pr();
-  const wl = Math.hypot(V.wind[0], V.wind[1]) || 1;
-  const wx = V.wind[0] / wl, wz = V.wind[1] / wl;
-  const hot = [new THREE.Color('#ffe08a'), new THREE.Color('#ffb347'), new THREE.Color('#ff6a1f'), new THREE.Color('#c0441a')];
-  const small = { pos: [], col: [] }, big = { pos: [], col: [] };
-  for (const [x, z, s] of [[2.2, 0.9, 1.1], [-1.6, 1.6, 0.7], [5.5, -3.5, 0.5]]) {
-    const n = Math.round(70 * s * V.fire);
-    for (let i = 0; i < n; i++) {
-      const k = pr() ** 1.6;
-      const h = s * (1.5 + k * 16);
-      const spread = s * (0.4 + k * 3);
-      const drift = h * 0.35;
-      const px = x + P(-1, 1) * spread + wx * drift, pz = z + P(-1, 1) * spread + wz * drift;
-      const c = hot[Math.min(hot.length - 1, Math.floor(k * hot.length + P(0, 0.8)))];
-      const to = k < 0.15 && pr() < 0.4 ? big : small;
-      to.pos.push(px, craterH(x, z) + h, pz);
-      to.col.push(c.r, c.g, c.b);
-    }
-  }
-  for (const [g, size] of [[small, 1], [big, 2]]) {
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(g.pos, 3));
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(g.col, 3));
-    scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ size, sizeAttenuation: false, vertexColors: true, fog: false })));
-  }
-}
-
 // クレーターの底を照らす。穴の形が暗がりに沈まないよう、低く広い灯りで内側の斜面と縁を浮かせる
 {
   const glowLight = new THREE.PointLight('#ff6a2a', 18 * V.fire, CR * 1.6, 1.4);
   glowLight.position.set(0, craterH(0, 0) + 1.5, 0);
   scene.add(glowLight);
+}
+
+// 底のくすぶる燠。山と都市の形を保つため、本の乱数は使わない
+{
+  let es = (seed ^ 0x2c1b3c6d) | 0;
+  const er = () => { es = es + 0x6D2B79F5 | 0; let t = Math.imul(es ^ es >>> 15, 1 | es); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const E = (a, b) => a + (b - a) * er();
+  const ember = new THREE.MeshBasicMaterial({ color: '#ff5a1a' });
+  const ember2 = new THREE.MeshBasicMaterial({ color: '#ffb347' });
+  for (let i = 0; i < 30; i++) {
+    const a = E(0, Math.PI * 2), d = Math.sqrt(er()) * CR * 0.6;
+    const x = Math.cos(a) * d, z = Math.sin(a) * d;
+    const y = craterH(x, z) + 0.08;
+    const m = new THREE.Mesh(new THREE.BoxGeometry(E(0.15, 0.6), 0.05, E(0.08, 0.25)), er() < 0.25 ? ember2 : ember);
+    m.position.set(x, y, z);
+    m.rotation.y = E(0, Math.PI);
+    scene.add(m);
+  }
 }
 
 // 煙の柱: 小さな塊を数多く重ね、上ほど大きく薄くして空に溶かす。
@@ -405,7 +339,6 @@ for (let i = 0; i < 26; i++) {
 const cam = new THREE.PerspectiveCamera(V.fov, W / H, 0.1, 2000);
 cam.position.set(...V.cam);
 cam.lookAt(...V.look);
-for (const m of FLAMES) m.quaternion.copy(cam.quaternion);
 renderer.render(scene, cam);
 </script>
 </body></html>
