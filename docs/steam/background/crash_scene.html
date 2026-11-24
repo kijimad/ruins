@@ -146,7 +146,7 @@ const craterH = (x, z) => Math.sin(x * 0.05) * 0.6 + Math.cos(z * 0.043 + x * 0.
 
 // クレーター: 細かい網目で、すり鉢の底と盛り上がった縁と放射状に飛び散った跡を描く。
 // 山と都市の形を保つため、本の乱数は使わない。種はこの位置での本の乱数の状態から取るので、
-// ここより前で本の乱数の回数を変えると、クレーターと燠と煙の形も変わる
+// ここより前で本の乱数の回数を変えると、クレーターと煙の形も変わる
 {
   let cs = (seed ^ 0x1b873593) | 0;
   const cr = () => { cs = cs + 0x6D2B79F5 | 0; let t = Math.imul(cs ^ cs >>> 15, 1 | cs); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -218,12 +218,12 @@ const pod = new THREE.Group();
   scene.add(pod);
 }
 
-// 散らばった破片。一部はまだ熱い
+// 散らばった破片
 for (let i = 0; i < 46; i++) {
   const a = R(0, Math.PI * 2), d = R(CR * 0.6, CR * 3.2) * (i % 5 === 0 ? 1.6 : 1);
   const s = R(0.15, 0.7) * (d < CR * 1.5 ? 1.3 : 1);
   const geo = i % 3 === 0 ? new THREE.TetrahedronGeometry(s) : new THREE.BoxGeometry(s * R(1, 3), s * 0.12, s * R(0.6, 1.6));
-  const m = new THREE.Mesh(geo, i % 6 === 0 ? hot : metal);
+  const m = new THREE.Mesh(geo, metal);
   m.position.set(Math.cos(a) * d, craterH(Math.cos(a) * d, Math.sin(a) * d) + 0.1, Math.sin(a) * d);
   m.rotation.set(R(0, 3), R(0, 3), R(0, 3));
   m.castShadow = true;
@@ -252,24 +252,6 @@ flame(5.5, craterH(5.5, -3.5) - 0.1, -3.5, 0.5 * V.fire);
   const glowLight = new THREE.PointLight('#ff6a2a', 18 * V.fire, CR * 1.6, 1.4);
   glowLight.position.set(0, craterH(0, 0) + 1.5, 0);
   scene.add(glowLight);
-}
-
-// 底のくすぶる燠。山と都市の形を保つため、本の乱数は使わない
-{
-  let es = (seed ^ 0x2c1b3c6d) | 0;
-  const er = () => { es = es + 0x6D2B79F5 | 0; let t = Math.imul(es ^ es >>> 15, 1 | es); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
-  const E = (a, b) => a + (b - a) * er();
-  const ember = new THREE.MeshBasicMaterial({ color: '#ff5a1a' });
-  const ember2 = new THREE.MeshBasicMaterial({ color: '#ffb347' });
-  for (let i = 0; i < 30; i++) {
-    const a = E(0, Math.PI * 2), d = Math.sqrt(er()) * CR * 0.6;
-    const x = Math.cos(a) * d, z = Math.sin(a) * d;
-    const y = craterH(x, z) + 0.08;
-    const m = new THREE.Mesh(new THREE.BoxGeometry(E(0.15, 0.6), 0.05, E(0.08, 0.25)), er() < 0.25 ? ember2 : ember);
-    m.position.set(x, y, z);
-    m.rotation.y = E(0, Math.PI);
-    scene.add(m);
-  }
 }
 
 // 煙の柱: 小さな塊を数多く重ね、上ほど大きく薄くして空に溶かす。
