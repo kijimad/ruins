@@ -1493,7 +1493,7 @@ func TestRaws_地形と置物の行は全て見通しを書く(t *testing.T) {
 	for table, rows := range map[string][]map[string]any{"tiles": doc.Tiles, "props": doc.Props} {
 		require.NotEmpty(t, rows, table)
 		for _, row := range rows {
-			assert.Contains(t, row, "seeThrough", "%s %v", table, row["id"])
+			assert.Contains(t, row, "seeThrough", "%s %v は seeThrough を書く。大文字小文字も合わせる", table, row["id"])
 		}
 	}
 }

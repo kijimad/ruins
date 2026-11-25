@@ -1992,7 +1992,7 @@ type Prop struct {
 	// RemainsId 壊れたときに足元へ残す跡。省くと何も残さない
 	RemainsId *EntityID `json:"remainsId,omitempty"`
 
-	// SeeThrough 見通せるか
+	// SeeThrough 偽か書き忘れだと見通せない
 	SeeThrough bool `json:"seeThrough"`
 
 	SpriteRender SpriteRender `json:"spriteRender"`
@@ -2813,7 +2813,7 @@ type Tile struct {
 	// Passable 省くと通れない
 	Passable *Passable `json:"passable,omitempty"`
 
-	// SeeThrough 見通せるか
+	// SeeThrough 偽か書き忘れだと見通せない
 	SeeThrough bool `json:"seeThrough"`
 
 	// Shelter 囲われの度合い。省くと屋外

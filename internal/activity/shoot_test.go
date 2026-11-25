@@ -452,6 +452,26 @@ func TestCheckLineOfSight(t *testing.T) {
 		assert.Equal(t, 1, coverCount)
 	})
 
+	t.Run("見通せないが通れる置物は遮蔽物に数えず遮る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+		target := world.ECS.NewEntity()
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 0}})
+
+		// 茂みやシャッターのように、通れるが視線は通らない置物
+		thicket := world.ECS.NewEntity()
+		world.Components.GridElement.Add(thicket, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
+		world.Components.Prop.Add(thicket, &gc.Prop{})
+		world.Components.Passable.Add(thicket, &gc.Passable{Cost: 60})
+
+		blocked, coverCount := checkLineOfSight(actor, target, world)
+		assert.True(t, blocked)
+		assert.Equal(t, 0, coverCount)
+	})
+
 	t.Run("射線上のキャラクターとアイテムと通れる床は遮蔽物にならない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

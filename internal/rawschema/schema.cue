@@ -1328,7 +1328,7 @@ import (
 	animKeys?: [...#SpriteKey]
 	// 省くと通れない
 	passable?: #Passable
-	// 見通せるか
+	// 偽か書き忘れだと見通せない
 	seeThrough!: bool
 
 	// 耐久。省略した prop は殴れない
@@ -1792,7 +1792,7 @@ import (
 	description!: #EntityDescription
 	// 省くと通れない
 	passable?: #Passable
-	// 見通せるか
+	// 偽か書き忘れだと見通せない
 	seeThrough!:   bool
 	spriteRender!: #SpriteRender
 
