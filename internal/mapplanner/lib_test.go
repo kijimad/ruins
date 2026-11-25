@@ -252,7 +252,7 @@ func TestMetaPlan_IsSpawnableTile(t *testing.T) {
 	}{
 		{"通行不可なタイルは偽", func(p *MetaPlan) {
 			idx := p.Level.CoordToIndex(pos)
-			p.Tiles[idx] = p.GetTile("wall")
+			p.Tiles[idx] = p.GetTile(consts.TileNameWall)
 		}, false},
 		{"計画済みエンティティがあれば偽", func(p *MetaPlan) {
 			p.NPCs = []NPCSpec{{Coord: pos}}
