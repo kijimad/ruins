@@ -227,10 +227,17 @@ func TestMetaPlan_existPlannedEntityOnTile_計画済みの種類ごとに座標�
 	}
 }
 
-func TestMetaPlan_existPlannedEntityOnTile_何も計画されていなければ偽を返す(t *testing.T) {
+func TestMetaPlan_existPlannedEntityOnTile_座標が重ならなければ偽を返す(t *testing.T) {
 	t.Parallel()
 
-	plan := MetaPlan{NPCs: []NPCSpec{{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}}}}
+	other := consts.Coord[consts.Tile]{X: 9, Y: 9}
+	plan := MetaPlan{
+		NextPortals: []consts.Coord[consts.Tile]{other},
+		NPCs:        []NPCSpec{{Coord: other}},
+		Items:       []ItemSpec{{Coord: other}},
+		Props:       []PropsSpec{{Coord: other}},
+		Doors:       []DoorSpec{{Coord: other}},
+	}
 	assert.False(t, plan.existPlannedEntityOnTile(consts.Coord[consts.Tile]{X: 2, Y: 3}))
 }
 
