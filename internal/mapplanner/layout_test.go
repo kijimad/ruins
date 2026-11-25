@@ -6,8 +6,25 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestLayoutPlannerTypes_行の順にプランナータイプを返す は、間取りの行の並びと名前がそのまま
+// プランナータイプに移ることを固定する
+func TestLayoutPlannerTypes_行の順にプランナータイプを返す(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	layouts := raw.PtrSlice(raws.Layouts)
+	require.NotEmpty(t, layouts)
+
+	pts := LayoutPlannerTypes(raws)
+
+	require.Len(t, pts, len(layouts))
+	for i, l := range layouts {
+		assert.Equal(t, l.Id, pts[i].Name, l.Id)
+	}
+}
 
 // TestNewStart_全ての最初の段の行から段を作れる は、raw に足した最初の段の行が Go の分岐に届くことを固定する。
 // 絵の最初の段は newLayoutChain が別に作るので除く
