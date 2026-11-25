@@ -1476,3 +1476,24 @@ func TestTiles_実データで床の高さのタイルは見通せる(t *testing
 		}
 	}
 }
+
+// TestRaws_地形と置物の行は全て見通しを書く は raw.toml の地形と置物の全ての行が seeThrough を書くことを確かめる。
+// Go の型へ読むと書き忘れは偽になり、CUE の必須でも落ちず、黙って視線を遮るため
+func TestRaws_地形と置物の行は全て見通しを書く(t *testing.T) {
+	t.Parallel()
+	bs, err := assets.FS.ReadFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+	var doc struct {
+		Tiles []map[string]any `toml:"tiles"`
+		Props []map[string]any `toml:"props"`
+	}
+	_, err = toml.Decode(string(bs), &doc)
+	require.NoError(t, err)
+
+	for table, rows := range map[string][]map[string]any{"tiles": doc.Tiles, "props": doc.Props} {
+		require.NotEmpty(t, rows, table)
+		for _, row := range rows {
+			assert.Contains(t, row, "seeThrough", "%s %v", table, row["id"])
+		}
+	}
+}
