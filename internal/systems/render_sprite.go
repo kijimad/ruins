@@ -325,7 +325,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 				continue // 下が床でなければ影を描画しない
 			}
 
-			// 下のタイルが壁でないことも確認（壁->床->壁の場合は影を描画しない）
+			// 下のマスも壁なら影を描かない。壁、床、壁と並ぶとき
 			if !world.Components.SeeThrough.Has(belowTileEntity) && !world.Components.Passable.Has(belowTileEntity) {
 				continue
 			}
