@@ -1464,3 +1464,15 @@ func TestTiles_実データで床の高さのタイルだけが通れる(t *test
 		assert.Equal(t, isFloor, tile.Passable != nil, tile.Id)
 	}
 }
+
+func TestTiles_実データで床の高さのタイルは見通せる(t *testing.T) {
+	t.Parallel()
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+
+	for _, tile := range PtrSlice(raws.Tiles) {
+		if tile.SpriteRender.Depth == rawschema.SpriteDepthFloor {
+			assert.True(t, tile.SeeThrough, tile.Id)
+		}
+	}
+}
