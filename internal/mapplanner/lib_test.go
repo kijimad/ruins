@@ -205,6 +205,70 @@ func TestMetaPlan_RightTile_境界外でなければ右のタイルを返す(t *
 	assert.Equal(t, plan.GetTile(consts.TileNameFloor), tile)
 }
 
+func TestMetaPlan_existPlannedEntityOnTile_計画済みの種類ごとに座標が重なれば真を返す(t *testing.T) {
+	t.Parallel()
+
+	pos := consts.Coord[consts.Tile]{X: 2, Y: 3}
+	tests := []struct {
+		name string
+		plan MetaPlan
+	}{
+		{"次のポータル", MetaPlan{NextPortals: []consts.Coord[consts.Tile]{pos}}},
+		{"NPC", MetaPlan{NPCs: []NPCSpec{{Coord: pos}}}},
+		{"アイテム", MetaPlan{Items: []ItemSpec{{Coord: pos}}}},
+		{"Prop", MetaPlan{Props: []PropsSpec{{Coord: pos}}}},
+		{"ドア", MetaPlan{Doors: []DoorSpec{{Coord: pos}}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.True(t, tt.plan.existPlannedEntityOnTile(pos))
+		})
+	}
+}
+
+func TestMetaPlan_existPlannedEntityOnTile_座標が重ならなければ偽を返す(t *testing.T) {
+	t.Parallel()
+
+	other := consts.Coord[consts.Tile]{X: 9, Y: 9}
+	plan := MetaPlan{
+		NextPortals: []consts.Coord[consts.Tile]{other},
+		NPCs:        []NPCSpec{{Coord: other}},
+		Items:       []ItemSpec{{Coord: other}},
+		Props:       []PropsSpec{{Coord: other}},
+		Doors:       []DoorSpec{{Coord: other}},
+	}
+	assert.False(t, plan.existPlannedEntityOnTile(consts.Coord[consts.Tile]{X: 2, Y: 3}))
+}
+
+func TestMetaPlan_IsSpawnableTile(t *testing.T) {
+	t.Parallel()
+
+	pos := consts.Coord[consts.Tile]{X: 1, Y: 1}
+	tests := []struct {
+		name  string
+		setup func(*MetaPlan)
+		want  bool
+	}{
+		{"通行不可なタイルは偽", func(p *MetaPlan) {
+			idx := p.Level.CoordToIndex(pos)
+			p.Tiles[idx] = p.GetTile(consts.TileNameWall)
+		}, false},
+		{"計画済みエンティティがあれば偽", func(p *MetaPlan) {
+			p.NPCs = []NPCSpec{{Coord: pos}}
+		}, false},
+		{"通行可能で計画済みエンティティが無ければ真", func(_ *MetaPlan) {}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			plan := newEdgeTileTestPlan()
+			tt.setup(plan)
+			assert.Equal(t, tt.want, plan.IsSpawnableTile(w.World{}, pos.X, pos.Y))
+		})
+	}
+}
+
 func TestMetaPlan_GetTile_RawMaster未設定ならpanicする(t *testing.T) {
 	t.Parallel()
 
