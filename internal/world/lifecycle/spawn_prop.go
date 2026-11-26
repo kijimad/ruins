@@ -57,7 +57,7 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 		}
 	}
 
-	// 開いた扉は移動コスト無しで通れて見通せる。扉の行に移動コストを書いても開閉で失われる
+	// 扉の行に書いた移動コストは開閉で失われる
 	if err := gc.Upsert(world.ECS, world.Components.Passage, doorEntity, &gc.Passage{Passable: isOpen}); err != nil {
 		return err
 	}

@@ -13,8 +13,7 @@ type SpatialIndex struct {
 	MapWidth, MapHeight consts.Tile
 	// 通れないマス。Passage.Passable が偽の、壊れていない実体の位置
 	Blocked map[GridElement]bool
-	// 移動コストの座標の表。壊れていない実体の Passage.Cost を足した値で、0 のマスは持たない。
-	// 床を全て回して作るので、通れないマスの集合と別に、引かれたときに初めて作る。nil は未構築
+	// 移動コストの座標の表。0 のマスは持たない。床を全て回すので引かれたときに作り、nil は未構築
 	PassCosts map[GridElement]int
 	// キャラクター位置のインデックス。プレイヤー・敵・中立NPCの位置
 	Characters map[GridElement]ecs.Entity

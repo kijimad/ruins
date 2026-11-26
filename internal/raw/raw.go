@@ -1355,8 +1355,7 @@ func NewNeedDefs(raws rawschema.Raws) gc.NeedDefs {
 	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}
 }
 
-// toGCPassage は raw の通り方をコンポーネントに写す。通り方を省いた行は通れない。
-// 移動コストは通れる行だけが持つので、通れないのに移動コストを持つ値はここでは作らない
+// toGCPassage は raw の通り方をコンポーネントに写す。通り方を省いた行は通れず、移動コストを持たない
 func toGCPassage(p *rawschema.Passable) *gc.Passage {
 	if p == nil {
 		return &gc.Passage{}

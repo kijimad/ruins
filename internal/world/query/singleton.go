@@ -191,8 +191,7 @@ func GetSpatialIndex(world w.World) *gc.SpatialIndex {
 	return si
 }
 
-// PassCostAt は c へ移るときに標準の移動に足す移動コストを返す。表は空間インデックスと一緒に無効になり、
-// 次に引かれたときに作り直す。空間インデックスが無いか、フィールドが無ければ 0 を返す
+// PassCostAt は c へ移るときに標準の移動に足す移動コストを返す。空間インデックスが無ければ 0 を返す
 func PassCostAt(world w.World, c consts.Coord[consts.Tile]) int {
 	si := GetSpatialIndex(world)
 	if si == nil {

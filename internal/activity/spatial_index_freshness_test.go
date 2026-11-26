@@ -13,8 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestSpatialIndex_地形と置物が変わるたびに全走査と同じ答えを返す は、扉の開閉・置物の生成と破壊・設備を置く・戻すの
-// キューブの畳み込みと展開の、それぞれの後で、ターンの終わりを待たずに、通れないマスと移動コストの表が全走査の答えと一致することを確かめる
 func TestSpatialIndex_地形と置物が変わるたびに全走査と同じ答えを返す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -26,7 +24,7 @@ func TestSpatialIndex_地形と置物が変わるたびに全走査と同じ答�
 
 	matchesFullScan := func(step string) {
 		t.Helper()
-		// 索引と別の道で求めるため、座標を持つ実体を全て回し、壊れていない通り方を持つ実体を1件ずつ見る
+		// 索引と別の道で求める
 		wantBlocked := map[gc.GridElement]bool{}
 		wantCosts := map[gc.GridElement]int{}
 		q := query.ActiveFilter1[gc.GridElement](world).Query()

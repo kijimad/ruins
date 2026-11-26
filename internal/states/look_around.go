@@ -239,7 +239,6 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, pa
 	blocked := false
 	totalAdd := 0
 	for _, entity := range entities {
-		// 通り方を持つのは地形と置物だけなので、キャラクターやアイテムは数えない
 		if world.Components.Dead.Has(entity) || !world.Components.Passage.Has(entity) {
 			continue
 		}
