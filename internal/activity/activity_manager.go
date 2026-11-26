@@ -345,10 +345,12 @@ func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
 // getPassCostAt は指定座標にある壊れていない地形と置物の移動コストを合算して返す
 func getPassCostAt(world w.World, x, y int) int {
 	total := 0
-	// 壊れて掃除を待つ置物の移動コストは数えない
-	passableQuery := query.ActiveFilter2[gc.GridElement, gc.Passable](world).Without(ecs.C[gc.Dead]()).Query()
+	passableQuery := query.ActiveFilter2[gc.GridElement, gc.Passable](world).Query()
 	for passableQuery.Next() {
 		entity := passableQuery.Entity()
+		if !query.IsStandingTerrainOrProp(world, entity) {
+			continue
+		}
 		grid := world.Components.GridElement.Get(entity)
 		if int(grid.X) == x && int(grid.Y) == y {
 			total += world.Components.Passable.Get(entity).Cost

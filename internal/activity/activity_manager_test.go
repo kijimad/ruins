@@ -362,6 +362,7 @@ func TestGetPassCostAt(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		prop := world.ECS.NewEntity()
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Passable.Add(prop, &gc.Passable{Cost: 50})
 
@@ -374,6 +375,7 @@ func TestGetPassCostAt(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		prop := world.ECS.NewEntity()
+		world.Components.Prop.Add(prop, &gc.Prop{})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Passable.Add(prop, &gc.Passable{Cost: 50})
 		world.Components.Dead.Add(prop, &gc.Dead{})
@@ -386,10 +388,12 @@ func TestGetPassCostAt(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		prop1 := world.ECS.NewEntity()
+		world.Components.Prop.Add(prop1, &gc.Prop{})
 		world.Components.GridElement.Add(prop1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Passable.Add(prop1, &gc.Passable{Cost: 30})
 
 		prop2 := world.ECS.NewEntity()
+		world.Components.Prop.Add(prop2, &gc.Prop{})
 		world.Components.GridElement.Add(prop2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Passable.Add(prop2, &gc.Passable{Cost: 20})
 
@@ -420,10 +424,9 @@ func TestConsumePassCost_移動コストのある移動先(t *testing.T) {
 		// APをリセットして移動コストありの移動をテスト
 		world.Components.TurnBased.Get(player).AP.Current = apBefore
 
-		// 移動先に移動コストを持つ固定物を配置
-		prop := world.ECS.NewEntity()
-		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}})
-		world.Components.Passable.Add(prop, &gc.Passable{Cost: 50})
+		// 移動先に移動コスト 50 の置物を生成する
+		_, err = lifecycle.SpawnProp(world, "moving_stone", 12, 10)
+		require.NoError(t, err)
 
 		_, err = Execute(NewMoveActivity(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 12, Y: 10}}), player, world)
 		require.NoError(t, err)
