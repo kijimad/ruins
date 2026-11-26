@@ -241,6 +241,7 @@ func runTurnEndSystems(world w.World) error {
 		&ConditionSystem{},
 		&FireSystem{},
 		&WhileOnChargeSystem{},
+		&AnchorFuelSystem{},
 		&DeadCleanupSystem{},
 		&DebugInvincibleSystem{},
 		&AreaEntrySystem{},

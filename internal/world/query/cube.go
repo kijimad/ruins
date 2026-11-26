@@ -178,3 +178,13 @@ func ActiveCube(world w.World) (ecs.Entity, bool) {
 	q.Close()
 	return cube, true
 }
+
+// IsAnchored は現ステージに展開中のキューブがあるかを返す。展開中のキューブが錨になり、地上の帯をずらさない
+func IsAnchored(world w.World) bool {
+	q := ActiveFilter2[gc.Cube, gc.Deployed](world).Query()
+	if !q.Next() {
+		return false
+	}
+	q.Close()
+	return true
+}
