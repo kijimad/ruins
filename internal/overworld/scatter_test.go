@@ -112,12 +112,9 @@ func collectProps(world w.World) []propAt {
 // 壁として扱うのはこれだけで、歩行可能な草地や plant・moving_stone は含まない。
 func collectBlockingTiles(world w.World) map[consts.Coord[consts.Tile]]bool {
 	blocked := make(map[consts.Coord[consts.Tile]]bool)
-	q := query.ActiveFilter2[gc.GridElement, gc.Passage](world).Without(ecs.C[gc.Dead]()).Query()
-	for q.Next() {
-		if !world.Components.Passage.Get(q.Entity()).Passable {
-			blocked[world.Components.GridElement.Get(q.Entity()).Coord] = true
-		}
-	}
+	query.ForEachImpassable(world, func(e ecs.Entity) {
+		blocked[world.Components.GridElement.Get(e).Coord] = true
+	})
 	return blocked
 }
 

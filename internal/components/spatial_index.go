@@ -11,9 +11,9 @@ import (
 type SpatialIndex struct {
 	// マップの寸法。タイル数で表す。Level.TileWidth/TileHeight と同じ単位
 	MapWidth, MapHeight consts.Tile
-	// 通れないマス。Passable を持たない地形と置物の位置
+	// 通れないマス。Passage.Passable が偽の、壊れていない実体の位置
 	Blocked map[GridElement]bool
-	// 移動コストの座標の表。壊れていない地形と置物の Passable.Cost を足した値で、0 のマスは持たない。
+	// 移動コストの座標の表。壊れていない実体の Passage.Cost を足した値で、0 のマスは持たない。
 	// 床を全て回して作るので、通れないマスの集合と別に、引かれたときに初めて作る。nil は未構築
 	PassCosts map[GridElement]int
 	// キャラクター位置のインデックス。プレイヤー・敵・中立NPCの位置

@@ -475,7 +475,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		}
 		if sr.Shape == rawschema.Inset {
 			// 壁と同じく記憶エリアにも描く。視界の外の開け閉めを見せないよう、記憶エリアでは閉じた形にする
-			if !vis || !world.Components.Passage.Get(e).Passable {
+			if !vis || !world.Components.Passage.Has(e) || !world.Components.Passage.Get(e).Passable {
 				sys.addSlab(&quads, projector, insetFaces(g.Coord, insetConnections(walls, insets, g.Coord)), atlas, ux, uy, uw, uh, tint)
 				continue
 			}
@@ -656,7 +656,7 @@ type insetFace struct {
 // closedInsets は閉じている壁にはめる置物の座標の集合を返す
 func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {
 	insets := map[consts.Coord[consts.Tile]]bool{}
-	q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Passage](world).With(ecs.C[gc.Prop]()).Query()
+	q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Passage](world).With(ecs.C[gc.Prop]()).Without(ecs.C[gc.Dead]()).Query()
 	for q.Next() {
 		if world.Components.Passage.Get(q.Entity()).Passable {
 			continue

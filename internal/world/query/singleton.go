@@ -244,12 +244,9 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil
 
-	blockedQuery := ActiveFilter2[gc.GridElement, gc.Passage](world).Without(ecs.C[gc.Dead]()).Query()
-	for blockedQuery.Next() {
-		if !world.Components.Passage.Get(blockedQuery.Entity()).Passable {
-			si.Blocked[*world.Components.GridElement.Get(blockedQuery.Entity())] = true
-		}
-	}
+	ForEachImpassable(world, func(e ecs.Entity) {
+		si.Blocked[*world.Components.GridElement.Get(e)] = true
+	})
 
 	// キャラクター位置のインデックス構築。退避中ステージのキャラクターは現ステージに混ぜない
 	characterQuery := ActiveFilter1[gc.GridElement](world).Query()

@@ -58,8 +58,12 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 	}
 
 	// 開いた扉は移動コスト無しで通れて見通せる。扉の行に移動コストを書いても開閉で失われる
-	*world.Components.Passage.Get(doorEntity) = gc.Passage{Passable: isOpen}
-	*world.Components.Visibility.Get(doorEntity) = gc.Visibility{SeeThrough: isOpen}
+	if err := gc.Upsert(world.ECS, world.Components.Passage, doorEntity, &gc.Passage{Passable: isOpen}); err != nil {
+		return err
+	}
+	if err := gc.Upsert(world.ECS, world.Components.Visibility, doorEntity, &gc.Visibility{SeeThrough: isOpen}); err != nil {
+		return err
+	}
 
 	query.InvalidateSpatialIndex(world)
 	return nil

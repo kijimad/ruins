@@ -157,13 +157,9 @@ func (dr *Driver) startInitialBand(world w.World) error {
 // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。
 func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile], taken map[consts.Coord[consts.Tile]]bool) consts.Coord[consts.Tile] {
 	blocked := make(map[gc.GridElement]bool)
-	q := query.ActiveFilter2[gc.GridElement, gc.Passage](world).Without(ecs.C[gc.Dead]()).Query()
-	for q.Next() {
-		if world.Components.Passage.Get(q.Entity()).Passable {
-			continue
-		}
-		blocked[*world.Components.GridElement.Get(q.Entity())] = true
-	}
+	query.ForEachImpassable(world, func(e ecs.Entity) {
+		blocked[*world.Components.GridElement.Get(e)] = true
+	})
 	x0, y0 := int(center.X), int(center.Y)
 	at := func(x, y int) consts.Coord[consts.Tile] {
 		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
