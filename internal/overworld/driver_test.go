@@ -3,6 +3,7 @@ package overworld
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
@@ -81,6 +82,35 @@ func TestDriver_MaybeShift_北へ進むとシフトする(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, shifted, "北へ踏み込むとシフトする")
 	assert.Equal(t, 1, int(s.NorthIndex()), "北シフトで northIndex が進む")
+	assert.Equal(t, testChunkH, world.Components.GridElement.Get(player).Y, "プレイヤーは中央へ戻る")
+}
+
+func TestDriver_MaybeShift_展開中はシフトせず畳むとシフトする(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, testRows), &NewGameParams{RunSeed: 777})
+	require.NoError(t, s.Start(world))
+	cube, ok := query.ActiveCube(world)
+	require.True(t, ok)
+	world.Components.Deployed.Add(cube, &gc.Deployed{})
+
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	world.Components.GridElement.Get(player).Y = 0
+
+	shifted, err := s.MaybeShift(world)
+	require.NoError(t, err)
+	assert.False(t, shifted, "展開中は北の端にいてもシフトしない")
+	assert.Equal(t, 0, int(s.NorthIndex()))
+	at := world.Components.GridElement.Get(player).Coord
+	assert.Equal(t, consts.Tile(0), at.Y)
+	assert.False(t, activity.CanMoveTo(world, consts.Coord[consts.Tile]{X: at.X, Y: -1}, at, player), "展開中は北の端から先へ進めない")
+
+	lifecycle.StowCube(world, cube)
+	shifted, err = s.MaybeShift(world)
+	require.NoError(t, err)
+	assert.True(t, shifted, "畳むと北へシフトする")
+	assert.Equal(t, 1, int(s.NorthIndex()))
 	assert.Equal(t, testChunkH, world.Components.GridElement.Get(player).Y, "プレイヤーは中央へ戻る")
 }
 
