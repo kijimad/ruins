@@ -52,14 +52,14 @@ func (r *Rect) Height() consts.Tile { return r.Max.Y - r.Min.Y + 1 }
 // Tile はタイルエンティティであることを示すタグコンポーネント
 type Tile struct{}
 
-// Passage は地形と置物の通り方。キャラクターとアイテムは持たない
+// Passage は地形と置物の通り方。キャラクターは持たない。置く設備は置物へ変わるときに備えてアイテムのうちから持つ
 type Passage struct {
 	Passable bool
 	// Cost は上へ移るときに標準の移動に足す移動コスト。通れないときは使わない
 	Cost int
 }
 
-// Visibility は地形と置物の見通し。キャラクターとアイテムは持たない
+// Visibility は地形と置物の見通し。キャラクターは持たない。置く設備は置物へ変わるときに備えてアイテムのうちから持つ
 type Visibility struct {
 	SeeThrough bool
 }

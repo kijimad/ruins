@@ -415,7 +415,7 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name string) error {
 	entitySpec.Deployable = &gc.Deployable{}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{}}
-	// 置くと置物になり、通り方と見通しを持たない置物は塞ぐ。置いた設備の上は歩けて見通せるので、両方を持たせる
+	// 置くと置物になる。通り方と見通しを持たない置物は判定から漏れるので、通れて見通せる値を持たせる
 	entitySpec.Passage = &gc.Passage{Passable: true}
 	entitySpec.Visibility = &gc.Visibility{SeeThrough: true}
 	if dep.Storage != nil {
