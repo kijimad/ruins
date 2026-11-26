@@ -32,12 +32,14 @@ func TestSpatialIndex_地形と置物が変わるたびに全走査と同じ答�
 			wantBlocked[*world.Components.GridElement.Get(e)] = true
 		}, ecs.C[gc.Passable]())
 		wantCosts := map[gc.GridElement]int{}
-		q := query.ActiveFilter2[gc.GridElement, gc.Passable](world).Without(ecs.C[gc.Dead]()).Query()
-		for q.Next() {
-			if cost := world.Components.Passable.Get(q.Entity()).Cost; cost > 0 {
-				wantCosts[*world.Components.GridElement.Get(q.Entity())] += cost
+		query.ForEachTerrainOrPropWithout(world, func(e ecs.Entity) {
+			if !world.Components.Passable.Has(e) {
+				return
 			}
-		}
+			if cost := world.Components.Passable.Get(e).Cost; cost > 0 {
+				wantCosts[*world.Components.GridElement.Get(e)] += cost
+			}
+		})
 
 		si := query.GetSpatialIndex(world)
 		require.NotNil(t, si, step)

@@ -192,15 +192,22 @@ func GetSpatialIndex(world w.World) *gc.SpatialIndex {
 }
 
 // PassCostAt は c へ移るときに標準の移動に足す移動コストを返す。表は空間インデックスと一緒に無効になり、
-// 次に引かれたときに作り直す
+// 次に引かれたときに作り直す。空間インデックスが無ければ 0 を返す
 func PassCostAt(world w.World, c consts.Coord[consts.Tile]) int {
 	si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)
+	if si == nil {
+		return 0
+	}
 	if si.PassCosts == nil {
 		si.PassCosts = map[gc.GridElement]int{}
-		q := ActiveFilter2[gc.GridElement, gc.Passable](world).Without(ecs.C[gc.Dead]()).Query()
+		q := ActiveFilter2[gc.GridElement, gc.Passable](world).Query()
 		for q.Next() {
-			if cost := world.Components.Passable.Get(q.Entity()).Cost; cost > 0 {
-				si.PassCosts[*world.Components.GridElement.Get(q.Entity())] += cost
+			e := q.Entity()
+			if !IsStandingTerrainOrProp(world, e) {
+				continue
+			}
+			if cost := world.Components.Passable.Get(e).Cost; cost > 0 {
+				si.PassCosts[*world.Components.GridElement.Get(e)] += cost
 			}
 		}
 	}
