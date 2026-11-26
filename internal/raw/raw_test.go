@@ -594,11 +594,11 @@ Depth = "floor"
 
 	spec, err := NewTileSpec(raws, "浅瀬", 0, 0, nil)
 	require.NoError(t, err)
-	assert.Equal(t, &gc.Passable{Cost: 100}, spec.Passable)
+	assert.Equal(t, &gc.Passage{Passable: true, Cost: 100}, spec.Passage)
 
 	spec, err = NewTileSpec(raws, "床", 0, 0, nil)
 	require.NoError(t, err)
-	assert.Equal(t, &gc.Passable{}, spec.Passable)
+	assert.Equal(t, &gc.Passage{Passable: true}, spec.Passage)
 }
 
 func TestPropWithHP(t *testing.T) {
@@ -900,8 +900,8 @@ SeeThrough = true
 	require.NoError(t, err)
 	assert.Equal(t, i18n.Msgid("test_floor"), spec.Name.Name)
 	assert.NotNil(t, spec.GridElement)
-	assert.Equal(t, &gc.Passable{}, spec.Passable, "通行可能なタイルは素通りの通り方を持つ")
-	assert.Equal(t, &gc.SeeThrough{}, spec.SeeThrough, "視界を遮らないタイルは見通しの印を持つ")
+	assert.Equal(t, &gc.Passage{Passable: true}, spec.Passage, "通行可能なタイルは素通りの通り方を持つ")
+	assert.Equal(t, &gc.Visibility{SeeThrough: true}, spec.Visibility, "視界を遮らないタイルは見通せる")
 }
 
 func TestNewTileSpec_通り方を省いた壁(t *testing.T) {
@@ -919,8 +919,8 @@ SeeThrough = false
 
 	spec, err := NewTileSpec(raws, "test_wall", 3, 7, nil)
 	require.NoError(t, err)
-	assert.Nil(t, spec.Passable, "壁タイルは通り方を持たない")
-	assert.Nil(t, spec.SeeThrough, "壁タイルは見通しの印を持たない")
+	assert.Equal(t, &gc.Passage{}, spec.Passage, "壁タイルは通れない")
+	assert.Equal(t, &gc.Visibility{}, spec.Visibility, "壁タイルは見通せない")
 }
 
 func TestTileIsTall_実データで描画順が高さのあるタイルだけが高い(t *testing.T) {
@@ -1450,8 +1450,8 @@ func TestNewItemSpec_置く設備は素通りの通り方と見通しを持つ(t
 
 	spec, err := NewItemSpec(raws, "deployable_storage")
 	require.NoError(t, err)
-	assert.Equal(t, &gc.Passable{}, spec.Passable)
-	assert.Equal(t, &gc.SeeThrough{}, spec.SeeThrough)
+	assert.Equal(t, &gc.Passage{Passable: true}, spec.Passage)
+	assert.Equal(t, &gc.Visibility{SeeThrough: true}, spec.Visibility)
 }
 
 func TestTiles_実データで床の高さのタイルだけが通れる(t *testing.T) {
@@ -1496,4 +1496,38 @@ func TestRaws_地形と置物の行は全て見通しを書く(t *testing.T) {
 			assert.Contains(t, row, "seeThrough", "%s %v は seeThrough を書く。大文字小文字も合わせる", table, row["id"])
 		}
 	}
+}
+
+// TestSpecs_地形と置物と置く設備は通り方と見通しを持つ は、生成の入口が全て通り方と見通しの値を持たせることを確かめる。
+// 値を持たない地形や置物はどの判定にも入らず、壁が通れて見通せる側に黙って倒れるため
+func TestSpecs_地形と置物と置く設備は通り方と見通しを持つ(t *testing.T) {
+	t.Parallel()
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+
+	var missing []string
+	check := func(kind, id string, spec gc.EntitySpec) {
+		if spec.Passage == nil || spec.Visibility == nil {
+			missing = append(missing, kind+" "+id)
+		}
+	}
+	for _, tile := range PtrSlice(raws.Tiles) {
+		spec, err := NewTileSpec(raws, tile.Id, 0, 0, nil)
+		require.NoError(t, err, tile.Id)
+		check("tile", tile.Id, spec)
+	}
+	for _, prop := range PtrSlice(raws.Props) {
+		spec, err := NewPropSpec(raws, prop.Id)
+		require.NoError(t, err, prop.Id)
+		check("prop", prop.Id, spec)
+	}
+	for _, item := range PtrSlice(raws.Items) {
+		if item.Deployable == nil {
+			continue
+		}
+		spec, err := NewItemSpec(raws, item.Id)
+		require.NoError(t, err, item.Id)
+		check("deployable", item.Id, spec)
+	}
+	assert.Empty(t, missing)
 }

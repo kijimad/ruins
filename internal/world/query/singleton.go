@@ -191,6 +191,25 @@ func GetSpatialIndex(world w.World) *gc.SpatialIndex {
 	return si
 }
 
+// PassCostAt は c へ移るときに標準の移動に足す移動コストを返す。空間インデックスが無ければ 0 を返す
+func PassCostAt(world w.World, c consts.Coord[consts.Tile]) int {
+	si := GetSpatialIndex(world)
+	if si == nil {
+		return 0
+	}
+	if si.PassCosts == nil {
+		si.PassCosts = map[gc.GridElement]int{}
+		q := ActiveFilter2[gc.GridElement, gc.Passage](world).Without(ecs.C[gc.Dead]()).Query()
+		for q.Next() {
+			passage := world.Components.Passage.Get(q.Entity())
+			if passage.Passable && passage.Cost > 0 {
+				si.PassCosts[*world.Components.GridElement.Get(q.Entity())] += passage.Cost
+			}
+		}
+	}
+	return si.PassCosts[gc.GridElement{Coord: c}]
+}
+
 // InvalidateSpatialIndex は空間インデックスを無効化する。次回アクセス時に再構築される
 func InvalidateSpatialIndex(world w.World) {
 	si := GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)
@@ -221,19 +240,13 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.MapWidth = field.Level.TileWidth
 	si.MapHeight = field.Level.TileHeight
 	si.Blocked = make(map[gc.GridElement]bool)
+	si.PassCosts = nil
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil
 
-	// 通れないマスのインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない。
-	// 壊れて掃除を待つ置物は塞がない
-	blockedTileQuery := ActiveFilter2[gc.GridElement, gc.Tile](world).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()
-	for blockedTileQuery.Next() {
-		si.Blocked[*world.Components.GridElement.Get(blockedTileQuery.Entity())] = true
-	}
-	blockedPropQuery := ActiveFilter2[gc.GridElement, gc.Prop](world).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()
-	for blockedPropQuery.Next() {
-		si.Blocked[*world.Components.GridElement.Get(blockedPropQuery.Entity())] = true
-	}
+	ForEachImpassable(world, func(e ecs.Entity) {
+		si.Blocked[*world.Components.GridElement.Get(e)] = true
+	})
 
 	// キャラクター位置のインデックス構築。退避中ステージのキャラクターは現ステージに混ぜない
 	characterQuery := ActiveFilter1[gc.GridElement](world).Query()

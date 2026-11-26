@@ -25,6 +25,8 @@ func TestActiveFilter_退避中を除外し追加除外も効く(t *testing.T) {
 	tile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(tile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 3}})
 	world.Components.Tile.Add(tile, &gc.Tile{})
+	world.Components.Passage.Add(tile, &gc.Passage{})
+	world.Components.Visibility.Add(tile, &gc.Visibility{})
 
 	// Suspended は除外される。追加除外なし
 	var got []ecs.Entity
@@ -55,11 +57,15 @@ func TestActiveFilter3_退避中を除外する(t *testing.T) {
 	world.Components.GridElement.Add(active, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
 	world.Components.Name.Add(active, &gc.Name{Name: "active"})
 	world.Components.Tile.Add(active, &gc.Tile{})
+	world.Components.Passage.Add(active, &gc.Passage{})
+	world.Components.Visibility.Add(active, &gc.Visibility{})
 
 	suspended := world.ECS.NewEntity()
 	world.Components.GridElement.Add(suspended, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}})
 	world.Components.Name.Add(suspended, &gc.Name{Name: "suspended"})
 	world.Components.Tile.Add(suspended, &gc.Tile{})
+	world.Components.Passage.Add(suspended, &gc.Passage{})
+	world.Components.Visibility.Add(suspended, &gc.Visibility{})
 	world.Components.Suspended.Add(suspended, &gc.Suspended{})
 
 	var got []ecs.Entity
@@ -79,12 +85,16 @@ func TestActiveFilter4_退避中を除外する(t *testing.T) {
 	world.Components.GridElement.Add(active, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}})
 	world.Components.Name.Add(active, &gc.Name{Name: "active"})
 	world.Components.Tile.Add(active, &gc.Tile{})
+	world.Components.Passage.Add(active, &gc.Passage{})
+	world.Components.Visibility.Add(active, &gc.Visibility{})
 	world.Components.FactionAlly.Add(active, &gc.FactionAlly{})
 
 	suspended := world.ECS.NewEntity()
 	world.Components.GridElement.Add(suspended, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}})
 	world.Components.Name.Add(suspended, &gc.Name{Name: "suspended"})
 	world.Components.Tile.Add(suspended, &gc.Tile{})
+	world.Components.Passage.Add(suspended, &gc.Passage{})
+	world.Components.Visibility.Add(suspended, &gc.Visibility{})
 	world.Components.FactionAlly.Add(suspended, &gc.FactionAlly{})
 	world.Components.Suspended.Add(suspended, &gc.Suspended{})
 

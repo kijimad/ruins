@@ -80,10 +80,10 @@ func TestNewChunkGen_決定的レイアウト(t *testing.T) {
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: 7}, 0, 0))
 
 		var walls []gc.GridElement
-		for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {
-			q := ecs.NewFilter1[gc.GridElement](world.ECS).With(kind).Without(ecs.C[gc.Passable]()).Query()
-			for q.Next() {
-				walls = append(walls, *world.Components.GridElement.Get(q.Entity()))
+		q := ecs.NewFilter2[gc.GridElement, gc.Passage](world.ECS).Query()
+		for q.Next() {
+			if grid, passage := q.Get(); !passage.Passable {
+				walls = append(walls, *grid)
 			}
 		}
 		sort.Slice(walls, func(i, j int) bool {
@@ -180,10 +180,10 @@ func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 		require.NoError(t, gen(c, 0, 0))
 
 		var walls []gc.GridElement
-		for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {
-			q := ecs.NewFilter1[gc.GridElement](world.ECS).With(kind).Without(ecs.C[gc.Passable]()).Query()
-			for q.Next() {
-				walls = append(walls, *world.Components.GridElement.Get(q.Entity()))
+		q := ecs.NewFilter2[gc.GridElement, gc.Passage](world.ECS).Query()
+		for q.Next() {
+			if grid, passage := q.Get(); !passage.Passable {
+				walls = append(walls, *grid)
 			}
 		}
 		sort.Slice(walls, func(i, j int) bool {
@@ -205,4 +205,24 @@ func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 	wallsB, namesB := collect(99999)
 	assert.Equal(t, wallsA, wallsB, "時間が進んでも壁配置は同一")
 	assert.Equal(t, namesA, namesB, "時間が進んでも置かれる物は同一")
+}
+
+func TestNewChunkGen_生成した地形と置物は全て通り方と見通しを持つ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	gen := overworld.NewChunkGen(world, 999, 24, 24, 1, mapplanner.PlannerTypeOverworldField)
+	for x := range consts.Chunk(8) {
+		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: x}, 0, 0))
+	}
+
+	var missing []gc.GridElement
+	for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {
+		for _, without := range []ecs.Comp{ecs.C[gc.Passage](), ecs.C[gc.Visibility]()} {
+			q := ecs.NewFilter1[gc.GridElement](world.ECS).With(kind).Without(without).Query()
+			for q.Next() {
+				missing = append(missing, *world.Components.GridElement.Get(q.Entity()))
+			}
+		}
+	}
+	assert.Empty(t, missing)
 }

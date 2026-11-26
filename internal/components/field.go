@@ -52,18 +52,17 @@ func (r *Rect) Height() consts.Tile { return r.Max.Y - r.Min.Y + 1 }
 // Tile はタイルエンティティであることを示すタグコンポーネント
 type Tile struct{}
 
-// Passable は通れる地形と置物の印。持たない地形と置物があるマスは通れない。
-// キャラクターやアイテムの通行可否には使わない。キャラクターの通行可否は関係性で判定する。
-// 置く設備は、置物へ変えたときに塞がないよう、アイテムのうちから持つ。
-// 扉は開くと移動コスト無しで付き、閉じると外れるので、扉の行に書いた移動コストは開閉で失われる
-type Passable struct {
-	// Cost は上へ移るときに標準の移動に足す移動コスト。0 なら素通り
+// Passage は地形と置物の通り方。キャラクターは持たない。置く設備は置物へ変わるときに備えてアイテムのうちから持つ
+type Passage struct {
+	Passable bool
+	// Cost は上へ移るときに標準の移動に足す移動コスト。通れないときは使わない
 	Cost int
 }
 
-// SeeThrough は見通せる地形と置物の印。持たない地形と置物があるマスは見通せない。
-// キャラクターやアイテムの見通しには使わない。置く設備は、置物へ変えたときに視線を遮らないよう、アイテムのうちから持つ
-type SeeThrough struct{}
+// Visibility は地形と置物の見通し。キャラクターは持たない。置く設備は置物へ変わるときに備えてアイテムのうちから持つ
+type Visibility struct {
+	SeeThrough bool
+}
 
 // Renderable はフィールド上で描画できる
 type Renderable struct{}

@@ -44,6 +44,7 @@ func (sys *FireSystem) Update(world w.World) error {
 			}
 			if !world.Components.Dead.Has(fire) {
 				world.Components.Dead.Add(fire, &gc.Dead{})
+				query.InvalidateSpatialIndex(world)
 			}
 		}
 	}

@@ -240,6 +240,8 @@ func TestRecalcChunkSeams_非オートタイルは再計算されない(t *testi
 	world.Components.GridElement.Add(voidE, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: boundaryX, Y: 5}})
 	world.Components.SpriteRender.Add(voidE, &gc.SpriteRender{SpriteKey: "void"})
 	world.Components.Tile.Add(voidE, &gc.Tile{})
+	world.Components.Passage.Add(voidE, &gc.Passage{})
+	world.Components.Visibility.Add(voidE, &gc.Visibility{})
 	world.Components.Name.Add(voidE, &gc.Name{Name: "void"})
 
 	overworld.RecalcChunkSeams(world, boundaryX, 0, 100, 100)

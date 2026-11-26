@@ -34,6 +34,8 @@ func TestDeployCube(t *testing.T) {
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}})
 		world.Components.Tile.Add(wall, &gc.Tile{})
+		world.Components.Passage.Add(wall, &gc.Passage{})
+		world.Components.Visibility.Add(wall, &gc.Visibility{})
 		query.InvalidateSpatialIndex(world)
 
 		assert.False(t, DeployCube(world, cube))

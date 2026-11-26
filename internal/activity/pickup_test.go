@@ -244,6 +244,8 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Passage.Add(prop, &gc.Passage{})
+		world.Components.Visibility.Add(prop, &gc.Visibility{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テスト設置物"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
@@ -269,6 +271,8 @@ func TestPickupBehavior_Validate_Prop(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Passage.Add(prop, &gc.Passage{})
+		world.Components.Visibility.Add(prop, &gc.Visibility{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テスト設置物"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
@@ -294,6 +298,8 @@ func TestPickupBehavior_Validate_Prop(t *testing.T) {
 		// Interactableを持つ設置物も同じタイルにある
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Passage.Add(prop, &gc.Passage{})
+		world.Components.Visibility.Add(prop, &gc.Visibility{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テスト設置物"})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionMelee}})
@@ -318,6 +324,8 @@ func TestPickupBehavior_DoTurn_Prop(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Passage.Add(prop, &gc.Passage{})
+		world.Components.Visibility.Add(prop, &gc.Visibility{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テスト設置物"})
 		world.Components.HP.Add(prop, &gc.HP{Max: 10, Current: 10})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 8, Y: 6}})

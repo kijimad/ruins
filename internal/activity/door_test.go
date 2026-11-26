@@ -38,8 +38,8 @@ func TestOpenDoorBehavior(t *testing.T) {
 		assert.True(t, doorComp.IsOpen, "扉が開いているべき")
 
 		// 通れて見通せるようになっていることを確認
-		assert.Equal(t, &gc.Passable{}, world.Components.Passable.Get(door), "開いた扉は移動コスト無しで通れる")
-		assert.True(t, world.Components.SeeThrough.Has(door), "開いた扉は見通せる")
+		assert.Equal(t, &gc.Passage{Passable: true}, world.Components.Passage.Get(door), "開いた扉は移動コスト無しで通れる")
+		assert.True(t, world.Components.Visibility.Get(door).SeeThrough, "開いた扉は見通せる")
 	})
 
 	t.Run("Doorコンポーネントがない場合はエラー", func(t *testing.T) {
@@ -53,6 +53,8 @@ func TestOpenDoorBehavior(t *testing.T) {
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.Tile.Add(wall, &gc.Tile{})
+		world.Components.Passage.Add(wall, &gc.Passage{})
+		world.Components.Visibility.Add(wall, &gc.Visibility{})
 
 		result, err := Execute(NewOpenDoorActivity(wall), player, world)
 

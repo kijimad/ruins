@@ -48,6 +48,7 @@ func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, aut
 	}
 
 	entity := world.Components.AddEntity(world.ECS, &entitySpec)
+	query.InvalidateSpatialIndex(world)
 	return entity, nil
 }
 

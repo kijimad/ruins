@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewPropSpec_見通せないPropはSeeThroughを持たない(t *testing.T) {
+func TestNewPropSpec_見通せないPropは見通せない値を持つ(t *testing.T) {
 	t.Parallel()
 	str := `
 [[Props]]
@@ -31,7 +31,7 @@ Depth = "decal"
 	entitySpec, err := NewPropSpec(raws, "壁")
 	require.NoError(t, err)
 
-	assert.Nil(t, entitySpec.SeeThrough)
+	assert.Equal(t, &gc.Visibility{}, entitySpec.Visibility)
 }
 
 func TestNewPropSpec_通行不可を伴わない通行コストが設定される(t *testing.T) {
@@ -55,7 +55,7 @@ Depth = "decal"
 	entitySpec, err := NewPropSpec(raws, "泥濘")
 	require.NoError(t, err)
 
-	assert.Equal(t, &gc.Passable{Cost: 50}, entitySpec.Passable)
+	assert.Equal(t, &gc.Passage{Passable: true, Cost: 50}, entitySpec.Passage)
 }
 
 func TestNewPropSpec_扉が設定される(t *testing.T) {

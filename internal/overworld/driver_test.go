@@ -434,6 +434,8 @@ func TestWalkableSpawnNear_壁に囲まれた中心でも歩行可能タイル�
 			e := world.ECS.NewEntity()
 			world.Components.GridElement.Add(e, &gc.GridElement{Coord: pos})
 			world.Components.Tile.Add(e, &gc.Tile{})
+			world.Components.Passage.Add(e, &gc.Passage{})
+			world.Components.Visibility.Add(e, &gc.Visibility{})
 			blockedCoords[pos] = true
 		}
 	}

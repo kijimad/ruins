@@ -151,6 +151,7 @@ func executeIgnite(actor, target ecs.Entity, world w.World) (*ActionResult, erro
 		// 呼び出し側が燃料のあるタイルだけを対象にするので通常は起きない
 		world.Components.Burning.Remove(fire)
 		world.ECS.RemoveEntity(fire)
+		query.InvalidateSpatialIndex(world)
 		return nil, fmt.Errorf("no fuel to ignite at tile")
 	}
 

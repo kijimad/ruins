@@ -336,8 +336,9 @@ func TestDropBehavior_FixtureDerivedItem(t *testing.T) {
 		// 設置物を拾った状態をシミュレート: Prop+Item+Passableがバックパックにある
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Visibility.Add(prop, &gc.Visibility{})
 		world.Components.Name.Add(prop, &gc.Name{Name: "テスト設置物"})
-		world.Components.Passable.Add(prop, &gc.Passable{Cost: 100})
+		world.Components.Passage.Add(prop, &gc.Passage{Passable: true, Cost: 100})
 		require.NoError(t, lifecycle.MoveToBackpack(world, prop, player))
 
 		// ドロップ実行
@@ -353,7 +354,7 @@ func TestDropBehavior_FixtureDerivedItem(t *testing.T) {
 		// Prop コンポーネントが保持されていることを確認
 		assert.True(t, world.Components.Prop.Has(prop))
 		// 通り方も保持されていることを確認
-		assert.Equal(t, &gc.Passable{Cost: 100}, world.Components.Passable.Get(prop))
+		assert.Equal(t, &gc.Passage{Passable: true, Cost: 100}, world.Components.Passage.Get(prop))
 		// フィールドに配置されていることを確認
 		assert.True(t, world.Components.LocationOnField.Has(prop))
 		assert.True(t, world.Components.GridElement.Has(prop))

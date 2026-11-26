@@ -22,6 +22,10 @@ func dealHP(world w.World, target ecs.Entity, damage int) (died bool) {
 
 	if hp.Current <= 0 && beforeHP > 0 {
 		world.Components.Dead.Add(target, &gc.Dead{})
+		// キャラクターの死は索引を変えないので作り直さない
+		if world.Components.Passage.Has(target) {
+			query.InvalidateSpatialIndex(world)
+		}
 		return true
 	}
 	return false

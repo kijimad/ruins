@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/kijimaD/ruins/internal/worldstream"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // NewGameParams は新規オーバーワールド開始時のプレイ固有パラメータ。
@@ -156,7 +157,9 @@ func (dr *Driver) startInitialBand(world w.World) error {
 // 帯は全域が dirt で埋まり歩行可能タイルが必ず近くにあるため、見つからなければ中央を返す。
 func walkableSpawnNear(world w.World, center consts.Coord[consts.Tile], taken map[consts.Coord[consts.Tile]]bool) consts.Coord[consts.Tile] {
 	blocked := make(map[gc.GridElement]bool)
-	forEachImpassable(world, func(ge gc.GridElement) { blocked[ge] = true })
+	query.ForEachImpassable(world, func(e ecs.Entity) {
+		blocked[*world.Components.GridElement.Get(e)] = true
+	})
 	x0, y0 := int(center.X), int(center.Y)
 	at := func(x, y int) consts.Coord[consts.Tile] {
 		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}

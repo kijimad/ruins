@@ -373,6 +373,8 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	wall := world.ECS.NewEntity()
 	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 21, Y: 20}})
 	world.Components.Tile.Add(wall, &gc.Tile{})
+	world.Components.Passage.Add(wall, &gc.Passage{})
+	world.Components.Visibility.Add(wall, &gc.Visibility{})
 
 	solo := &gc.SoloAI{
 		CombatDefault: rawschema.Attack,
@@ -407,6 +409,8 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: 20}})
 		world.Components.Tile.Add(wall, &gc.Tile{})
+		world.Components.Passage.Add(wall, &gc.Passage{})
+		world.Components.Visibility.Add(wall, &gc.Visibility{})
 	}
 
 	solo := &gc.SoloAI{
@@ -555,6 +559,8 @@ func TestPlanWallHugAction(t *testing.T) {
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: 19}})
 		world.Components.Tile.Add(wall, &gc.Tile{})
+		world.Components.Passage.Add(wall, &gc.Passage{})
+		world.Components.Visibility.Add(wall, &gc.Visibility{})
 	}
 
 	solo := &gc.SoloAI{

@@ -11,8 +11,10 @@ import (
 type SpatialIndex struct {
 	// マップの寸法。タイル数で表す。Level.TileWidth/TileHeight と同じ単位
 	MapWidth, MapHeight consts.Tile
-	// 通れないマス。Passable を持たない地形と置物の位置
+	// 通れないマス。Passage.Passable が偽の、壊れていない実体の位置
 	Blocked map[GridElement]bool
+	// 移動コストの座標の表。0 のマスは持たない。床を全て回すので引かれたときに作り、nil は未構築
+	PassCosts map[GridElement]int
 	// キャラクター位置のインデックス。プレイヤー・敵・中立NPCの位置
 	Characters map[GridElement]ecs.Entity
 	// プレイヤーエンティティのキャッシュ。プレイヤーが存在しない場合はnil
@@ -64,6 +66,7 @@ func (si *SpatialIndex) MoveCharacter(from, to consts.Coord[consts.Tile], e ecs.
 func (si *SpatialIndex) Invalidate() {
 	si.Built = false
 	si.Blocked = nil
+	si.PassCosts = nil
 	si.Characters = nil
 	si.PlayerEntity = nil
 }

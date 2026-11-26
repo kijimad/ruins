@@ -71,6 +71,8 @@ func TestBuildSpatialIndex_退避中エンティティは索引に含まれな�
 	wall := world.ECS.NewEntity()
 	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: wallPos})
 	world.Components.Tile.Add(wall, &gc.Tile{})
+	world.Components.Passage.Add(wall, &gc.Passage{})
+	world.Components.Visibility.Add(wall, &gc.Visibility{})
 	world.Components.Suspended.Add(wall, &gc.Suspended{})
 
 	query.InvalidateSpatialIndex(world)
@@ -92,11 +94,15 @@ func TestBuildSpatialIndex_障害物とDeadの除外(t *testing.T) {
 	wall := world.ECS.NewEntity()
 	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: wallPos})
 	world.Components.Tile.Add(wall, &gc.Tile{})
+	world.Components.Passage.Add(wall, &gc.Passage{})
+	world.Components.Visibility.Add(wall, &gc.Visibility{})
 
 	deadWallPos := consts.Coord[consts.Tile]{X: 4, Y: 4}
 	deadWall := world.ECS.NewEntity()
 	world.Components.GridElement.Add(deadWall, &gc.GridElement{Coord: deadWallPos})
 	world.Components.Tile.Add(deadWall, &gc.Tile{})
+	world.Components.Passage.Add(deadWall, &gc.Passage{})
+	world.Components.Visibility.Add(deadWall, &gc.Visibility{})
 	world.Components.Dead.Add(deadWall, &gc.Dead{})
 
 	deadCharPos := consts.Coord[consts.Tile]{X: 5, Y: 5}

@@ -114,7 +114,7 @@ func TestSpawnProps_扉は向きを設定して閉じた状態で生成される
 		door := world.Components.Door.Get(entity)
 		assert.Equal(t, gc.DoorOrientationVertical, door.Orientation, "左右が壁なら縦向きになる")
 		assert.False(t, door.IsOpen, "生成直後は閉じている")
-		assert.False(t, world.Components.Passable.Has(entity), "閉じた扉は通れない")
+		assert.False(t, world.Components.Passage.Get(entity).Passable, "閉じた扉は通れない")
 		found = true
 	}
 	assert.True(t, found, "扉エンティティが生成される")

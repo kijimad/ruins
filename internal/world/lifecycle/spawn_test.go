@@ -346,8 +346,8 @@ func TestSpawnDoor(t *testing.T) {
 		assert.Equal(t, gc.DoorOrientationVertical, doorComp.Orientation)
 
 		// 通れず見通せないことを確認
-		assert.False(t, world.Components.Passable.Has(door))
-		assert.False(t, world.Components.SeeThrough.Has(door))
+		assert.False(t, world.Components.Passage.Get(door).Passable)
+		assert.False(t, world.Components.Visibility.Get(door).SeeThrough)
 	})
 
 	t.Run("横向き扉のスポーン", func(t *testing.T) {
@@ -546,7 +546,7 @@ func TestSpawnTile(t *testing.T) {
 		grid := world.Components.GridElement.Get(entity)
 		assert.Equal(t, consts.Tile(3), grid.X)
 		assert.Equal(t, consts.Tile(4), grid.Y)
-		assert.False(t, world.Components.Passable.Has(entity), "壁は通行不可")
+		assert.False(t, world.Components.Passage.Get(entity).Passable, "壁は通行不可")
 	})
 
 	t.Run("autoTileIndex指定でスプライトキーにインデックスが付く", func(t *testing.T) {

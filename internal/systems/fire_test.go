@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -41,6 +42,22 @@ func TestFireSystem_Update(t *testing.T) {
 		require.NoError(t, sys.Update(world))
 		assert.Equal(t, consts.Turn(0), world.Components.Burning.Get(fire).Remaining, "残量が尽きる")
 		assert.True(t, world.Components.Dead.Has(fire), "燃え尽きた火は Dead になり dead_cleanup が消す")
+	})
+
+	t.Run("燃え尽きるとターンの終わりを待たずに火のマスを通れる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		sys := &FireSystem{}
+
+		fire, err := lifecycle.SpawnProp(world, "fire", 3, 3)
+		require.NoError(t, err)
+		lifecycle.EnsureMarker(world, world.Components.Burning, fire, &gc.Burning{})
+		world.Components.Burning.Get(fire).Remaining = 1
+		c := consts.Coord[consts.Tile]{X: 3, Y: 3}
+		require.True(t, query.GetSpatialIndex(world).IsBlocked(c), "燃えている火は塞ぐ")
+
+		require.NoError(t, sys.Update(world))
+		assert.False(t, query.GetSpatialIndex(world).IsBlocked(c))
 	})
 
 	t.Run("燃え尽きると火のあった場所に灰が残る", func(t *testing.T) {

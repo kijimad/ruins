@@ -39,6 +39,7 @@ func DeployCube(world w.World, cube ecs.Entity) bool {
 	}
 	world.Components.Deployed.Add(cube, &gc.Deployed{Range: r})
 	releaseStowedItems(world, cube)
+	query.InvalidateSpatialIndex(world)
 	return true
 }
 
@@ -90,6 +91,7 @@ func StowCube(world w.World, cube ecs.Entity) {
 	}
 	stowNearbyItems(world, cube)
 	world.Components.Deployed.Remove(cube)
+	query.InvalidateSpatialIndex(world)
 }
 
 // stowNearbyItems は野営内のアイテムと prop を LocationStowed へ畳み込み、燃料と

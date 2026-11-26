@@ -163,6 +163,8 @@ func TestShootBehavior_Validate(t *testing.T) {
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.Tile.Add(wall, &gc.Tile{})
+		world.Components.Passage.Add(wall, &gc.Passage{})
+		world.Components.Visibility.Add(wall, &gc.Visibility{})
 
 		sa := &ShootBehavior{}
 		activity := NewActivity(gc.BehaviorShoot, 0)
@@ -331,6 +333,8 @@ func TestCanShootTarget(t *testing.T) {
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
 		world.Components.Tile.Add(wall, &gc.Tile{})
+		world.Components.Passage.Add(wall, &gc.Passage{})
+		world.Components.Visibility.Add(wall, &gc.Visibility{})
 
 		assert.False(t, CanShootTarget(player, enemy, world))
 	})
@@ -427,6 +431,8 @@ func TestCheckLineOfSight(t *testing.T) {
 		wall := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 		world.Components.Tile.Add(wall, &gc.Tile{})
+		world.Components.Passage.Add(wall, &gc.Passage{})
+		world.Components.Visibility.Add(wall, &gc.Visibility{})
 
 		blocked, _ := checkLineOfSight(actor, target, world)
 		assert.True(t, blocked)
@@ -445,7 +451,8 @@ func TestCheckLineOfSight(t *testing.T) {
 		cover := world.ECS.NewEntity()
 		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
 		world.Components.Prop.Add(cover, &gc.Prop{})
-		world.Components.SeeThrough.Add(cover, &gc.SeeThrough{})
+		world.Components.Passage.Add(cover, &gc.Passage{})
+		world.Components.Visibility.Add(cover, &gc.Visibility{SeeThrough: true})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
 		assert.False(t, blocked)
@@ -465,10 +472,32 @@ func TestCheckLineOfSight(t *testing.T) {
 		thicket := world.ECS.NewEntity()
 		world.Components.GridElement.Add(thicket, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
 		world.Components.Prop.Add(thicket, &gc.Prop{})
-		world.Components.Passable.Add(thicket, &gc.Passable{Cost: 60})
+		world.Components.Visibility.Add(thicket, &gc.Visibility{})
+		world.Components.Passage.Add(thicket, &gc.Passage{Passable: true, Cost: 60})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
 		assert.True(t, blocked)
+		assert.Equal(t, 0, coverCount)
+	})
+
+	t.Run("壊れて掃除を待つ置物は遮らず遮蔽物にもならない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
+		target := world.ECS.NewEntity()
+		world.Components.GridElement.Add(target, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 0}})
+
+		shelf := world.ECS.NewEntity()
+		world.Components.GridElement.Add(shelf, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
+		world.Components.Prop.Add(shelf, &gc.Prop{})
+		world.Components.Passage.Add(shelf, &gc.Passage{})
+		world.Components.Visibility.Add(shelf, &gc.Visibility{})
+		world.Components.Dead.Add(shelf, &gc.Dead{})
+
+		blocked, coverCount := checkLineOfSight(actor, target, world)
+		assert.False(t, blocked)
 		assert.Equal(t, 0, coverCount)
 	})
 
@@ -489,8 +518,8 @@ func TestCheckLineOfSight(t *testing.T) {
 		floor := world.ECS.NewEntity()
 		world.Components.GridElement.Add(floor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 0}})
 		world.Components.Tile.Add(floor, &gc.Tile{})
-		world.Components.Passable.Add(floor, &gc.Passable{})
-		world.Components.SeeThrough.Add(floor, &gc.SeeThrough{})
+		world.Components.Passage.Add(floor, &gc.Passage{Passable: true})
+		world.Components.Visibility.Add(floor, &gc.Visibility{SeeThrough: true})
 
 		blocked, coverCount := checkLineOfSight(actor, target, world)
 		assert.False(t, blocked)
@@ -544,7 +573,8 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		cover := world.ECS.NewEntity()
 		world.Components.GridElement.Add(cover, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 0}})
 		world.Components.Prop.Add(cover, &gc.Prop{})
-		world.Components.SeeThrough.Add(cover, &gc.SeeThrough{})
+		world.Components.Passage.Add(cover, &gc.Passage{})
+		world.Components.Visibility.Add(cover, &gc.Visibility{SeeThrough: true})
 
 		fire := &gc.Fire{AttackCategory: rawschema.AttackCategoryHandgun}
 		mod := calculateRangedHitModifier(actor, target, fire, world)

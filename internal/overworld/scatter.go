@@ -363,22 +363,13 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
 	blocked := make(map[gc.GridElement]bool)
 	loX, hiX := g.offsetX, g.offsetX+g.chunkW
 	loY, hiY := g.offsetY, g.offsetY+g.chunkH
-	forEachImpassable(world, func(ge gc.GridElement) {
+	query.ForEachImpassable(world, func(e ecs.Entity) {
+		ge := *world.Components.GridElement.Get(e)
 		if ge.X >= loX && ge.X < hiX && ge.Y >= loY && ge.Y < hiY {
 			blocked[ge] = true
 		}
 	})
 	return blocked
-}
-
-// forEachImpassable は Passable を持たない地形と置物の位置ごとに fn を呼ぶ。壊れて掃除を待つ置物も含める
-func forEachImpassable(world w.World, fn func(gc.GridElement)) {
-	for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {
-		q := query.ActiveFilter1[gc.GridElement](world).With(kind).Without(ecs.C[gc.Passable]()).Query()
-		for q.Next() {
-			fn(*world.Components.GridElement.Get(q.Entity()))
-		}
-	}
 }
 
 // at は帯ローカル座標 pos のタイルが土の地面かを返す。道や壁、他の地物が置いたタイルは土でない

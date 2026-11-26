@@ -362,6 +362,8 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 9}})
 		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
 		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Passage.Add(prop, &gc.Passage{})
+		world.Components.Visibility.Add(prop, &gc.Visibility{})
 		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
 		world.Components.Interactable.Add(prop, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionMelee},
