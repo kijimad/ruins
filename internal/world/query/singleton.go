@@ -241,6 +241,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.MapWidth = field.Level.TileWidth
 	si.MapHeight = field.Level.TileHeight
 	si.Blocked = make(map[gc.GridElement]bool)
+	si.PassCosts = nil
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil
 
