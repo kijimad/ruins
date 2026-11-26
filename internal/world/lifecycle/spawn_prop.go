@@ -61,7 +61,6 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 	*world.Components.Passage.Get(doorEntity) = gc.Passage{Passable: isOpen}
 	*world.Components.Visibility.Get(doorEntity) = gc.Visibility{SeeThrough: isOpen}
 
-	// 開閉で通れないマスが変わる
 	query.InvalidateSpatialIndex(world)
 	return nil
 }
@@ -77,7 +76,6 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	entitySpec.LocationOnField = &gc.LocationOnField{}
 
 	e := world.Components.AddEntity(world.ECS, &entitySpec)
-	// 通れないマスと移動コストの表が変わる
 	query.InvalidateSpatialIndex(world)
 	return e, nil
 }
@@ -106,7 +104,6 @@ func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitio
 	entitySpec.StageBound = &gc.StageBound{Key: gc.NewOverworldStage()}
 
 	e := world.Components.AddEntity(world.ECS, &entitySpec)
-	// 通れないマスと移動コストの表が変わる
 	query.InvalidateSpatialIndex(world)
 	return e, nil
 }
@@ -127,7 +124,6 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 	entitySpec.SpriteRender.SpriteKey = doorSpriteKey(*prop.Door, orientation, false)
 
 	e := world.Components.AddEntity(world.ECS, &entitySpec)
-	// 通れないマスと移動コストの表が変わる
 	query.InvalidateSpatialIndex(world)
 	return e, nil
 }

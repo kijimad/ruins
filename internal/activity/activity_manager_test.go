@@ -428,7 +428,6 @@ func TestConsumePassCost_移動コストのある移動先(t *testing.T) {
 		// APをリセットして移動コストありの移動をテスト
 		world.Components.TurnBased.Get(player).AP.Current = apBefore
 
-		// 移動先に移動コスト 50 の置物を生成する
 		_, err = lifecycle.SpawnProp(world, "moving_stone", 12, 10)
 		require.NoError(t, err)
 

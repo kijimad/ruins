@@ -288,7 +288,6 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		tileMap[*ge] = e
 	}
 
-	// 見通せず通れない地形と置物だけが影を落とす。壊れて掃除を待つ置物は落とさない
 	wallShadowQuery := query.ActiveFilter4[gc.SpriteRender, gc.GridElement, gc.Passage, gc.Visibility](world).Without(ecs.C[gc.Dead]()).Query()
 	for wallShadowQuery.Next() {
 		entity := wallShadowQuery.Entity()

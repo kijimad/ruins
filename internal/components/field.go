@@ -56,7 +56,6 @@ type Tile struct{}
 // これを持つ実体だけになる。キャラクターの通行可否は関係性で判定する。
 // 置く設備は、置物へ変えたときに塞がないよう、アイテムのうちから通れる値で持つ
 type Passage struct {
-	// Passable は通れるか
 	Passable bool
 	// Cost は上へ移るときに標準の移動に足す移動コスト。0 なら素通り。通れないときは使わない
 	Cost int
@@ -65,7 +64,6 @@ type Passage struct {
 // Visibility は地形と置物の見通し。地形と置物は全て持ち、キャラクターとアイテムは持たないので、
 // 見通せるかを決めるのはこれを持つ実体だけになる
 type Visibility struct {
-	// SeeThrough は見通せるか
 	SeeThrough bool
 }
 

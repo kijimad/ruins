@@ -200,7 +200,6 @@ func PassCostAt(world w.World, c consts.Coord[consts.Tile]) int {
 	}
 	if si.PassCosts == nil {
 		si.PassCosts = map[gc.GridElement]int{}
-		// 壊れて掃除を待つ置物の移動コストは数えない
 		q := ActiveFilter2[gc.GridElement, gc.Passage](world).Without(ecs.C[gc.Dead]()).Query()
 		for q.Next() {
 			passage := world.Components.Passage.Get(q.Entity())
@@ -245,7 +244,6 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil
 
-	// 通れないマスのインデックス構築。壊れて掃除を待つ置物は塞がない
 	blockedQuery := ActiveFilter2[gc.GridElement, gc.Passage](world).Without(ecs.C[gc.Dead]()).Query()
 	for blockedQuery.Next() {
 		if !world.Components.Passage.Get(blockedQuery.Entity()).Passable {

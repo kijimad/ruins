@@ -74,7 +74,6 @@ func TestSpatialIndex_地形と置物が変わるたびに全走査と同じ答�
 	require.NoError(t, err)
 	matchesFullScan("設備を置く")
 
-	// 野営の中の置物は畳むと床から外れ、展開すると戻る
 	_, err = lifecycle.SpawnProp(world, "fence", 9, 10)
 	require.NoError(t, err)
 	_, err = lifecycle.SpawnProp(world, "moving_stone", 10, 11)
