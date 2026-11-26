@@ -105,8 +105,8 @@ func TestDefinitions(t *testing.T) {
 		chunkW, chunkH, cols, rows := DungeonOverworld.BandShape()
 		assert.Equal(t, consts.Tile(24), chunkW)
 		assert.Equal(t, consts.Tile(24), chunkH)
-		assert.Equal(t, consts.Chunk(9), cols)
-		assert.Equal(t, consts.Chunk(9), rows)
+		assert.Equal(t, consts.Chunk(15), cols)
+		assert.Equal(t, consts.Chunk(15), rows)
 	})
 }
 

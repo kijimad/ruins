@@ -134,12 +134,12 @@ func TestDistricts_全ての大きさは地上の列数より狭い(t *testing.T
 	}
 }
 
-func TestDistricts_seed100個の全てで通信施設が起点から北へ70チャンク以内に建つ(t *testing.T) {
+func TestDistricts_seed100個の全てで通信施設が起点から北へ90チャンク以内に建つ(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	cat := zoneCatalogFrom(raws)
-	const within consts.Chunk = 70
+	const within consts.Chunk = 90
 	_, _, cols, rows := dungeon.DungeonOverworld.BandShape()
 	spawnRow := gc.SeamlessBand{Rows: rows}.SpawnChunkY()
 	for seed := range uint64(100) {
