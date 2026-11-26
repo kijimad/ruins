@@ -10,8 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestLayoutPlannerTypes_行の順にプランナータイプを返す は、間取りの行の並びと名前がそのまま
-// プランナータイプに移ることを固定する
 func TestLayoutPlannerTypes_行の順にプランナータイプを返す(t *testing.T) {
 	t.Parallel()
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
