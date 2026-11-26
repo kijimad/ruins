@@ -14,27 +14,11 @@ const (
 
 // grassPatchFactor は絶対タイル座標 p の草の密度倍率を返す。値ノイズ n の 3n² で、平均はおよそ0.9
 func grassPatchFactor(seed uint64, p consts.Coord[consts.Tile]) float64 {
-	cx, cy := consts.FloorDiv(p.X, grassPatchCell), consts.FloorDiv(p.Y, grassPatchCell)
-	fx := smoothstep(float64(p.X-cx*grassPatchCell) / float64(grassPatchCell))
-	fy := smoothstep(float64(p.Y-cy*grassPatchCell) / float64(grassPatchCell))
-	corner := func(dx, dy consts.Tile) float64 {
-		return consts.HashRoll(consts.Mix2D(seed, cx+dx, cy+dy)).Float64()
-	}
-	top := lerp(corner(0, 0), corner(1, 0), fx)
-	bottom := lerp(corner(0, 1), corner(1, 1), fx)
-	n := lerp(top, bottom, fy)
+	n := valueNoise(seed, p, grassPatchCell)
 	return 3 * n * n
 }
 
 // placesGrass は絶対タイル座標 p に草を置くかを、密度 density と茂みの倍率から決める
 func placesGrass(seed uint64, density float64, p consts.Coord[consts.Tile]) bool {
 	return consts.HashRoll(consts.Mix2D(seed, p.X, p.Y)).Float64() < density*grassPatchFactor(seed^grassNoiseChannel, p)
-}
-
-func lerp(a, b, t float64) float64 {
-	return a + (b-a)*t
-}
-
-func smoothstep(t float64) float64 {
-	return t * t * (3 - 2*t)
 }

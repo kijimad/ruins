@@ -6614,6 +6614,15 @@ msgstr "制御棟"
 msgid "Coal Yard"
 msgstr "貯炭場"
 
+msgid "Lake"
+msgstr "湖"
+
+msgid "Lakeside Plaza"
+msgstr "湖畔の広場"
+
+msgid "Campsite"
+msgstr "キャンプ場"
+
 msgid "Barn"
 msgstr "納屋"
 
@@ -6640,6 +6649,9 @@ msgstr "軍基地"
 
 msgid "Power Plant"
 msgstr "発電所"
+
+msgid "Lakeside"
+msgstr "湖畔"
 
 msgid "Red Clay"
 msgstr "赤土"

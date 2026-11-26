@@ -71,7 +71,8 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 	for y := range r.h {
 		for x := range r.w {
 			l := consts.Coord[consts.Chunk]{X: x, Y: y}
-			if taken[l] {
+			// 水で満たすチャンクには区画を割り振らない
+			if taken[l] || r.waterAt(l) != nil {
 				continue
 			}
 			z := r.zoneAt(l)
@@ -129,7 +130,7 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
 	return consts.Coord[consts.Chunk]{}, 0, 0, false
 }
 
-// lotAt は区域の中の座標 l を含む区画を返す。lotsOf が区域を隙間なく埋めるので必ず見つかる
+// lotAt は区域の中の座標 l を含む区画を返す。lotsOf が水で満たすチャンクの外を隙間なく埋めるので、水で満たすチャンクでなければ必ず見つかる
 func lotAt(lots []buildingLot, l consts.Coord[consts.Chunk]) buildingLot {
 	for _, b := range lots {
 		if l.X >= b.anchor.X && l.X < b.anchor.X+b.w && l.Y >= b.anchor.Y && l.Y < b.anchor.Y+b.h {

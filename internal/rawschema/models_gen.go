@@ -658,13 +658,16 @@ type District struct {
 	Verge *EntityID `json:"verge,omitempty"`
 }
 
-// DistrictLayer 地区の層。候補の地区から区域の seed で1つ選ぶ
+// DistrictLayer 地区の層。候補の地区から区域の seed で1つ選ぶ。水で満たす層は地区を持たない
 type DistrictLayer struct {
 	// Rows rows の並べ方で、この層が占める行の数
 	Rows *int `json:"rows,omitempty"`
 
-	// Zones 候補の地区
-	Zones []ZoneId `json:"zones"`
+	// Water この層のチャンクを水で満たす。街路も施設も置かない
+	Water *DistrictWater `json:"water,omitempty"`
+
+	// Zones 候補の地区。水で満たす層では省く
+	Zones *[]ZoneId `json:"zones,omitempty"`
 }
 
 // DistrictPattern 地区の並べ方。rings は層を2つ持ち、1つ目を外側、2つ目を中心にする。
@@ -704,6 +707,27 @@ type DistrictSize struct {
 
 	// Weight 抽選の重み
 	Weight int `json:"weight"`
+}
+
+// DistrictWater 水で満たす層の水面。陸に面する辺に、外から浜と浅瀬を付け、その内側を深い水にする
+type DistrictWater struct {
+	// Beach 浜のタイル
+	Beach EntityID `json:"beach"`
+
+	// BeachWidth 浜の幅。タイル数。街路と水の間を必ずこの幅だけ空けるので揺らさない
+	BeachWidth int `json:"beachWidth"`
+
+	// Deep 深い水のタイル
+	Deep EntityID `json:"deep"`
+
+	// Shallow 浅瀬のタイル
+	Shallow EntityID `json:"shallow"`
+
+	// ShallowWidth 浅瀬の幅の基準。タイル数
+	ShallowWidth int `json:"shallowWidth"`
+
+	// Wobble 浅瀬の幅を揺らす量。浅瀬の幅をこの範囲で増減させ、岸の線をチャンクの格子からずらす。浅瀬が無くならないよう浅瀬の幅より小さくする
+	Wobble int `json:"wobble"`
 }
 
 // DoorRaw 扉ローデータ

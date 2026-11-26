@@ -65,9 +65,12 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 // zoneChoiceShift は層の候補から地区を選ぶ、区域の seed のビットの位置
 const zoneChoiceShift = 32
 
-// zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ
+// zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ。水で満たす層は地区を持たないので空
 func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.ZoneId {
-	zones := r.kind.Layers[r.layerAt(l)].Zones
+	zones := raw.PtrSlice(r.kind.Layers[r.layerAt(l)].Zones)
+	if len(zones) == 0 {
+		return ""
+	}
 	return zones[(r.seed>>zoneChoiceShift)%uint64(len(zones))]
 }
 
@@ -136,7 +139,11 @@ func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.ZoneId, spa
 }
 
 // urbanFacilityAt は区域 r の中のチャンク c に建つ施設 id を返す。地図表示と生成の両方が使う。
+// 水で満たすチャンクは施設を持たないので、湖の記号の id を返す
 func urbanFacilityAt(raws rawschema.Raws, cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk], spawnRow consts.Chunk) string {
+	if r.waterAt(r.local(c)) != nil {
+		return waterGlyphID(r)
+	}
 	return lotAt(lotsOf(raws, cat, r, spawnRow), r.local(c)).facility
 }
 
@@ -149,6 +156,10 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 		return nil
 	}
 	l := r.local(c)
+	// 水で満たすチャンクは街路も施設も置かず、敵も湧かせない
+	if r.waterAt(l) != nil {
+		return renderLakeChunk(world, g, r, c)
+	}
 	lots := lotsOf(raws, zoneCatalogFrom(raws), r, spawnRowOf(world))
 	lot := lotAt(lots, l)
 	var fence []consts.Coord[consts.Tile]

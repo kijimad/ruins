@@ -46,11 +46,11 @@ func TestGolden_Facing_SideOn(t *testing.T) {
 	}).AssertGolden(t, "TestGolden_Facing_SideOn")
 }
 
-// TestGolden_Inset_OpenDoor は開いた扉の見え方を固定する。市街地の扉を開くと、板を開口部と直角に立てて脇の壁へ寄せる
+// TestGolden_Inset_OpenDoor は開いた扉の見え方を固定する。扉を開くと、板を開口部と直角に立てて脇の壁へ寄せる
 func TestGolden_Inset_OpenDoor(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitReplayWorld(t)
-	// RunSeed 6 は開始チャンクのすぐ西が市街地になる
+	// RunSeed 6 は開始地点の近くに扉のある住まいがある
 	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{RunSeed: 6})()
 	require.NoError(t, err)
 	sm, err := es.Init(s, world)

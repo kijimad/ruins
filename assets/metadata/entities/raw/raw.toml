@@ -1618,6 +1618,32 @@
     weight = 1
 
 [[districts]]
+  id = "lakeside"
+  name = "Lakeside"
+  pattern = "rings"
+  separation = 4
+  spacing = 45
+  street = "dirt"
+  streetEnemies = "1d2"
+
+  [[districts.layers]]
+    zones = ["lake_shore"]
+
+  [[districts.layers]]
+    [districts.layers.water]
+      beach = "sand_slate"
+      beachWidth = 2
+      deep = "water_deep"
+      shallow = "water_shallow"
+      shallowWidth = 3
+      wobble = 2
+
+  [[districts.sizes]]
+    h = 7
+    w = 7
+    weight = 1
+
+[[districts]]
   id = "town"
   name = "Town"
   pattern = "rings"
@@ -4296,6 +4322,26 @@
   enemyTable = "ruins_area"
   id = "crash_site"
   zones = []
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "lakeside_plaza"
+  lootedChance = 30
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "lake_shore"
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "campsite"
+  lootedChance = 30
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "lake_shore"
 
 [[fatigueStages]]
   canSleep = false
@@ -18572,6 +18618,39 @@
     g = 120
     r = 255
 
+[[mapGlyphs]]
+  glyph = "w"
+  id = "lakeside_water"
+  name = "Lake"
+  order = 32
+  [mapGlyphs.color]
+    a = 255
+    b = 200
+    g = 120
+    r = 60
+
+[[mapGlyphs]]
+  glyph = "l"
+  id = "lakeside_plaza"
+  name = "Lakeside Plaza"
+  order = 33
+  [mapGlyphs.color]
+    a = 255
+    b = 170
+    g = 170
+    r = 170
+
+[[mapGlyphs]]
+  glyph = "c"
+  id = "campsite"
+  name = "Campsite"
+  order = 34
+  [mapGlyphs.color]
+    a = 255
+    b = 60
+    g = 140
+    r = 200
+
 [[materials]]
   heatPerKg = 200
   id = "wood"
@@ -25470,3 +25549,6 @@
 
 [[zones]]
   id = "farm_field"
+
+[[zones]]
+  id = "lake_shore"

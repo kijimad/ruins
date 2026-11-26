@@ -12,13 +12,13 @@ import (
 // ringsLayers と rowsLayers は、今の町と研究所の敷地と同じ層
 var (
 	ringsLayers = []rawschema.DistrictLayer{
-		{Zones: []rawschema.ZoneId{"residential", "industrial"}},
-		{Zones: []rawschema.ZoneId{"downtown"}},
+		{Zones: &[]rawschema.ZoneId{"residential", "industrial"}},
+		{Zones: &[]rawschema.ZoneId{"downtown"}},
 	}
 	rowsLayers = []rawschema.DistrictLayer{
-		{Zones: []rawschema.ZoneId{"campus_gate"}, Rows: new(1)},
-		{Zones: []rawschema.ZoneId{"campus_inner"}},
-		{Zones: []rawschema.ZoneId{"campus_quarantine"}, Rows: new(1)},
+		{Zones: &[]rawschema.ZoneId{"campus_gate"}, Rows: new(1)},
+		{Zones: &[]rawschema.ZoneId{"campus_inner"}},
+		{Zones: &[]rawschema.ZoneId{"campus_quarantine"}, Rows: new(1)},
 	}
 )
 
@@ -426,12 +426,16 @@ func TestValidateDistrictLayers(t *testing.T) {
 		wantErr error
 	}{
 		{"ringsは2層", rawschema.DistrictPatternRings, ringsLayers, nil},
-		{"ringsの層が3つ", rawschema.DistrictPatternRings, []rawschema.DistrictLayer{{Zones: zone}, {Zones: zone}, {Zones: zone}}, errDistrictLayers},
-		{"ringsが行の数を書く", rawschema.DistrictPatternRings, []rawschema.DistrictLayer{{Zones: zone, Rows: new(1)}, {Zones: zone}}, errDistrictLayers},
+		{"ringsの層が3つ", rawschema.DistrictPatternRings, []rawschema.DistrictLayer{{Zones: &zone}, {Zones: &zone}, {Zones: &zone}}, errDistrictLayers},
+		{"ringsが行の数を書く", rawschema.DistrictPatternRings, []rawschema.DistrictLayer{{Zones: &zone, Rows: new(1)}, {Zones: &zone}}, errDistrictLayers},
 		{"rowsは残りの層が1つ", rawschema.DistrictPatternRows, rowsLayers, nil},
-		{"rowsが1層", rawschema.DistrictPatternRows, []rawschema.DistrictLayer{{Zones: zone}}, errDistrictLayers},
-		{"rowsに残りの層が無い", rawschema.DistrictPatternRows, []rawschema.DistrictLayer{{Zones: zone, Rows: new(1)}, {Zones: zone, Rows: new(1)}}, errDistrictLayers},
-		{"rowsに残りの層が2つ", rawschema.DistrictPatternRows, []rawschema.DistrictLayer{{Zones: zone}, {Zones: zone}}, errDistrictLayers},
+		{"rowsが1層", rawschema.DistrictPatternRows, []rawschema.DistrictLayer{{Zones: &zone}}, errDistrictLayers},
+		{"rowsに残りの層が無い", rawschema.DistrictPatternRows, []rawschema.DistrictLayer{{Zones: &zone, Rows: new(1)}, {Zones: &zone, Rows: new(1)}}, errDistrictLayers},
+		{"rowsに残りの層が2つ", rawschema.DistrictPatternRows, []rawschema.DistrictLayer{{Zones: &zone}, {Zones: &zone}}, errDistrictLayers},
+		{"ringsの中心を水にする", rawschema.DistrictPatternRings, []rawschema.DistrictLayer{{Zones: &zone}, {Water: &rawschema.DistrictWater{}}}, nil},
+		{"ringsの外側を水にする", rawschema.DistrictPatternRings, []rawschema.DistrictLayer{{Water: &rawschema.DistrictWater{}}, {Zones: &zone}}, errDistrictWaterLayer},
+		{"層が地区も水も持たない", rawschema.DistrictPatternRings, []rawschema.DistrictLayer{{Zones: &zone}, {}}, errDistrictLayerEmpty},
+		{"rowsの層を水にする", rawschema.DistrictPatternRows, []rawschema.DistrictLayer{{Zones: &zone, Rows: new(1)}, {Water: &rawschema.DistrictWater{}}}, errDistrictWaterLayer},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -524,7 +528,7 @@ func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くと
 	t.Parallel()
 
 	landmark := rawschema.EntityID("armory")
-	layers := []rawschema.DistrictLayer{{Zones: []rawschema.ZoneId{"military_armory"}}}
+	layers := []rawschema.DistrictLayer{{Zones: &[]rawschema.ZoneId{"military_armory"}}}
 	raws := func(zone rawschema.ZoneId, minDanger *int) rawschema.Raws {
 		return rawschema.Raws{
 			Districts:  &[]rawschema.District{{Id: "base", Landmark: &landmark, Layers: layers}},

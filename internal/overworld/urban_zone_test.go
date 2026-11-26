@@ -108,8 +108,8 @@ func TestLotsOf_施設の深さは起点の行から測った区域の北の端�
 	t.Parallel()
 
 	town := &rawschema.District{Id: "town", Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{
-		{Zones: []rawschema.ZoneId{"residential"}},
-		{Zones: []rawschema.ZoneId{"downtown"}},
+		{Zones: &[]rawschema.ZoneId{"residential"}},
+		{Zones: &[]rawschema.ZoneId{"downtown"}},
 	}}
 	raws := rawschema.Raws{Facilities: &[]rawschema.Facility{
 		{Id: "house", Zones: []rawschema.FacilityZone{{Zone: "residential", Weight: 1, MinSpan: 1}, {Zone: "downtown", Weight: 1, MinSpan: 1}}},
@@ -243,7 +243,10 @@ func TestDistrictRegion_zoneAt_区域が割り振る地区はrawの地区の一�
 				r := districtRegion{kind: d.row, w: consts.Chunk(size.W), h: consts.Chunk(size.H), seed: seed << zoneChoiceShift}
 				for ly := range r.h {
 					for lx := range r.w {
-						got[r.zoneAt(consts.Coord[consts.Chunk]{X: lx, Y: ly})] = true
+						// 水で満たすチャンクは地区を持たない
+						if l := (consts.Coord[consts.Chunk]{X: lx, Y: ly}); r.waterAt(l) == nil {
+							got[r.zoneAt(l)] = true
+						}
 					}
 				}
 			}

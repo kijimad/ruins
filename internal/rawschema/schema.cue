@@ -414,13 +414,41 @@ import (
 // rows は層を行で分け、rows を省いた層がちょうど1つあって残りの行を占める
 #DistrictPattern: "rings" | "rows" @rawgen(prefix)
 
-// 地区の層。候補の地区から区域の seed で1つ選ぶ
+// 地区の層。候補の地区から区域の seed で1つ選ぶ。水で満たす層は地区を持たない
 #DistrictLayer: {
-	// 候補の地区
-	zones!: [...#ZoneId] & [_, ...]
-	zones_ref: [for x in zones {_zoneIDs[x]}] @rawgen(-)
+	// 候補の地区。水で満たす層では省く
+	zones?: [...#ZoneId] & [_, ...]
+	if zones != _|_ {
+		zones_ref: [for x in zones {_zoneIDs[x]}] @rawgen(-)
+	}
+
 	// rows の並べ方で、この層が占める行の数
 	rows?: int & >=1
+	// この層のチャンクを水で満たす。街路も施設も置かない
+	water?: #DistrictWater
+	// 地区と水を両方持たない。どちらも持たない層は raw の Go の検証が落とす
+	if water != _|_ {
+		zonesAbsent: true & zones == _|_ @rawgen(-)
+	}
+}
+
+// 水で満たす層の水面。陸に面する辺に、外から浜と浅瀬を付け、その内側を深い水にする
+#DistrictWater: {
+	// 深い水のタイル
+	deep!:    #EntityID
+	deep_ref: _tileIDs[deep] @rawgen(-)
+	// 浅瀬のタイル
+	shallow!:    #EntityID
+	shallow_ref: _tileIDs[shallow] @rawgen(-)
+	// 浜のタイル
+	beach!:    #EntityID
+	beach_ref: _tileIDs[beach] @rawgen(-)
+	// 浜の幅。タイル数。街路と水の間を必ずこの幅だけ空けるので揺らさない
+	beachWidth!: int & >=1
+	// 浅瀬の幅の基準。タイル数
+	shallowWidth!: int & >=1
+	// 浅瀬の幅を揺らす量。浅瀬の幅をこの範囲で増減させ、岸の線をチャンクの格子からずらす。浅瀬が無くならないよう浅瀬の幅より小さくする
+	wobble!: int & >=0 & <shallowWidth
 }
 
 // フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す
