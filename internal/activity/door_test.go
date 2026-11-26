@@ -132,6 +132,8 @@ func TestOpenDoorBehavior_DoTurn(t *testing.T) {
 		door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
 		require.NoError(t, lifecycle.OpenDoor(world, door))
+		// 準備で立った視界更新要求を捨て、DoTurn 自体が要求するかだけを見る
+		query.GetVisionState(world).ConsumePendingUpdate()
 
 		odb := &OpenDoorBehavior{}
 		comp := &gc.Activity{BehaviorName: gc.BehaviorOpenDoor, Params: &gc.OpenDoorParams{Target: door}}
@@ -141,6 +143,7 @@ func TestOpenDoorBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, world.Components.Door.Get(door).IsOpen, "既に開いた扉は開いたままであるべき")
 		assert.True(t, IsCompleted(comp), "二重に開く操作でも完了扱いになるべき")
+		assert.False(t, query.GetVisionState(world).ConsumePendingUpdate(), "状態が変わらなければ視界の再計算を要求しない")
 	})
 }
 
@@ -225,7 +228,7 @@ func TestCloseDoorBehavior(t *testing.T) {
 		require.ErrorIs(t, err, ErrParamsTypeMismatch)
 	})
 
-	t.Run("対象が死亡済みエンティティの場合はエラー", func(t *testing.T) {
+	t.Run("対象がゼロ値エンティティの場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -289,6 +292,8 @@ func TestCloseDoorBehavior_DoTurn(t *testing.T) {
 		// SpawnDoor は閉じた扉を作る
 		door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
+		// 準備で立った視界更新要求を捨て、DoTurn 自体が要求するかだけを見る
+		query.GetVisionState(world).ConsumePendingUpdate()
 
 		cdb := &CloseDoorBehavior{}
 		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor, Params: &gc.CloseDoorParams{Target: door}}
@@ -298,5 +303,6 @@ func TestCloseDoorBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 		assert.False(t, world.Components.Door.Get(door).IsOpen, "既に閉じた扉は閉じたままであるべき")
 		assert.True(t, IsCompleted(comp), "二重に閉じる操作でも完了扱いになるべき")
+		assert.False(t, query.GetVisionState(world).ConsumePendingUpdate(), "状態が変わらなければ視界の再計算を要求しない")
 	})
 }

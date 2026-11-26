@@ -261,6 +261,10 @@ func TestExecuteInteraction_Ignite_タイルに燃焼物が無ければ火が立
 	fires := ecs.NewFilter1[gc.Burning](world.ECS).Query()
 	assert.Zero(t, fires.Count(), "燃料が無ければ火は残らない")
 	fires.Close()
+	// Burning を外すだけでなく置物自体が消えたことを、置物専有のコンポーネントで確かめる
+	lightSources := ecs.NewFilter1[gc.LightSource](world.ECS).Query()
+	assert.Zero(t, lightSources.Count(), "火の置物エンティティ自体が削除される")
+	lightSources.Close()
 }
 
 // TestExecuteInteraction_UnknownKind は未知の種類が無効なConfigとして弾かれることを確認。
