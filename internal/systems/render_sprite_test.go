@@ -108,3 +108,33 @@ func TestInViewport(t *testing.T) {
 		})
 	}
 }
+
+func TestIsWall(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name       string
+		passage    *gc.Passage
+		visibility *gc.Visibility
+		want       bool
+	}{
+		{"見通せず通れない", &gc.Passage{}, &gc.Visibility{}, true},
+		{"通れる", &gc.Passage{Passable: true}, &gc.Visibility{}, false},
+		{"見通せる", &gc.Passage{}, &gc.Visibility{SeeThrough: true}, false},
+		{"見通しを持たない", &gc.Passage{}, nil, false},
+		{"通り方を持たない", nil, &gc.Visibility{}, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			e := world.ECS.NewEntity()
+			if tc.passage != nil {
+				world.Components.Passage.Add(e, tc.passage)
+			}
+			if tc.visibility != nil {
+				world.Components.Visibility.Add(e, tc.visibility)
+			}
+			assert.Equal(t, tc.want, isWall(world, e))
+		})
+	}
+}

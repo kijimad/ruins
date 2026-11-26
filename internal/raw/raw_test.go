@@ -1497,3 +1497,37 @@ func TestRaws_地形と置物の行は全て見通しを書く(t *testing.T) {
 		}
 	}
 }
+
+// TestSpecs_地形と置物と置く設備は通り方と見通しを持つ は、生成の入口が全て通り方と見通しの値を持たせることを確かめる。
+// 値を持たない地形や置物はどの判定にも入らず、壁が通れて見通せる側に黙って倒れるため
+func TestSpecs_地形と置物と置く設備は通り方と見通しを持つ(t *testing.T) {
+	t.Parallel()
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+
+	var missing []string
+	check := func(kind, id string, spec gc.EntitySpec) {
+		if spec.Passage == nil || spec.Visibility == nil {
+			missing = append(missing, kind+" "+id)
+		}
+	}
+	for _, tile := range PtrSlice(raws.Tiles) {
+		spec, err := NewTileSpec(raws, tile.Id, 0, 0, nil)
+		require.NoError(t, err, tile.Id)
+		check("tile", tile.Id, spec)
+	}
+	for _, prop := range PtrSlice(raws.Props) {
+		spec, err := NewPropSpec(raws, prop.Id)
+		require.NoError(t, err, prop.Id)
+		check("prop", prop.Id, spec)
+	}
+	for _, item := range PtrSlice(raws.Items) {
+		if item.Deployable == nil {
+			continue
+		}
+		spec, err := NewItemSpec(raws, item.Id)
+		require.NoError(t, err, item.Id)
+		check("deployable", item.Id, spec)
+	}
+	assert.Empty(t, missing)
+}
