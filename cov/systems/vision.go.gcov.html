@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">70.0&nbsp;%</td>
-            <td class="headerCovTableEntry">273</td>
-            <td class="headerCovTableEntry">191</td>
+            <td class="headerCovTableEntryLo">69.9&nbsp;%</td>
+            <td class="headerCovTableEntry">272</td>
+            <td class="headerCovTableEntry">190</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-26 15:15:28</td>
+            <td class="headerValue">2026-11-26 15:34:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -574,15 +574,14 @@
 <span id="L512"><span class="lineNum">     512</span>              : // buildBlockViewIndex は見通せない地形と置物のタイル座標をインデックス化する</span>
 <span id="L513"><span class="lineNum">     513</span>              : func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {</span>
 <span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           1 :         index := make(map[gc.GridElement]bool)</span></span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :         // 退避中ステージの遮蔽物は現ステージの視界を遮らない</span></span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :         for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {</span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :                 q := query.ActiveFilter1[gc.GridElement](world).With(kind).Without(ecs.C[gc.SeeThrough]()).Query()</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :                 for q.Next() {</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                         index[*world.Components.GridElement.Get(q.Entity())] = true</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L521"><span class="lineNum">     521</span>              :         }</span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           1 :         return index</span></span>
-<span id="L523"><span class="lineNum">     523</span>              : }</span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.GridElement, gc.Visibility](world).Without(ecs.C[gc.Dead]()).Query()</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :                 if !world.Components.Visibility.Get(q.Entity()).SeeThrough {</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :                         index[*world.Components.GridElement.Get(q.Entity())] = true</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L520"><span class="lineNum">     520</span>              :         }</span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :         return index</span></span>
+<span id="L522"><span class="lineNum">     522</span>              : }</span>
         </pre>
               </td>
             </tr>

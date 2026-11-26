@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-26 15:15:28</td>
+            <td class="headerValue">2026-11-26 15:34:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -103,8 +103,8 @@
 <span id="L41"><span class="lineNum">      41</span>              :         Position           *Position</span>
 <span id="L42"><span class="lineNum">      42</span>              :         GridElement        *GridElement</span>
 <span id="L43"><span class="lineNum">      43</span>              :         SpriteRender       *SpriteRender</span>
-<span id="L44"><span class="lineNum">      44</span>              :         SeeThrough         *SeeThrough</span>
-<span id="L45"><span class="lineNum">      45</span>              :         Passable           *Passable</span>
+<span id="L44"><span class="lineNum">      44</span>              :         Visibility         *Visibility</span>
+<span id="L45"><span class="lineNum">      45</span>              :         Passage            *Passage</span>
 <span id="L46"><span class="lineNum">      46</span>              :         Door               *Door</span>
 <span id="L47"><span class="lineNum">      47</span>              :         Pose               *Pose</span>
 <span id="L48"><span class="lineNum">      48</span>              :         Item               *Item</span>
@@ -203,8 +203,8 @@
 <span id="L141"><span class="lineNum">     141</span>              :         Position           *ecs.Map[Position]</span>
 <span id="L142"><span class="lineNum">     142</span>              :         GridElement        *ecs.Map[GridElement]</span>
 <span id="L143"><span class="lineNum">     143</span>              :         SpriteRender       *ecs.Map[SpriteRender]</span>
-<span id="L144"><span class="lineNum">     144</span>              :         SeeThrough         *ecs.Map[SeeThrough]</span>
-<span id="L145"><span class="lineNum">     145</span>              :         Passable           *ecs.Map[Passable]</span>
+<span id="L144"><span class="lineNum">     144</span>              :         Visibility         *ecs.Map[Visibility]</span>
+<span id="L145"><span class="lineNum">     145</span>              :         Passage            *ecs.Map[Passage]</span>
 <span id="L146"><span class="lineNum">     146</span>              :         Door               *ecs.Map[Door]</span>
 <span id="L147"><span class="lineNum">     147</span>              :         Pose               *ecs.Map[Pose]</span>
 <span id="L148"><span class="lineNum">     148</span>              :         Item               *ecs.Map[Item]</span>
@@ -303,8 +303,8 @@
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         c.Position = ecs.NewMap[Position](world)</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         c.GridElement = ecs.NewMap[GridElement](world)</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         c.SpriteRender = ecs.NewMap[SpriteRender](world)</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         c.SeeThrough = ecs.NewMap[SeeThrough](world)</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         c.Passable = ecs.NewMap[Passable](world)</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         c.Visibility = ecs.NewMap[Visibility](world)</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         c.Passage = ecs.NewMap[Passage](world)</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         c.Door = ecs.NewMap[Door](world)</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         c.Pose = ecs.NewMap[Pose](world)</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         c.Item = ecs.NewMap[Item](world)</span></span>
@@ -405,8 +405,8 @@
 <span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :         addComp(c.Position, entity, spec.Position)</span></span>
 <span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         addComp(c.GridElement, entity, spec.GridElement)</span></span>
 <span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         addComp(c.SpriteRender, entity, spec.SpriteRender)</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :         addComp(c.SeeThrough, entity, spec.SeeThrough)</span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         addComp(c.Passable, entity, spec.Passable)</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :         addComp(c.Visibility, entity, spec.Visibility)</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         addComp(c.Passage, entity, spec.Passage)</span></span>
 <span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         addComp(c.Door, entity, spec.Door)</span></span>
 <span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :         addComp(c.Pose, entity, spec.Pose)</span></span>
 <span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         addComp(c.Item, entity, spec.Item)</span></span>

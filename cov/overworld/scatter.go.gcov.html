@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.6&nbsp;%</td>
-            <td class="headerCovTableEntry">192</td>
-            <td class="headerCovTableEntry">174</td>
+            <td class="headerCovTableEntryHi">90.4&nbsp;%</td>
+            <td class="headerCovTableEntry">188</td>
+            <td class="headerCovTableEntry">170</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-26 15:15:28</td>
+            <td class="headerValue">2026-11-26 15:34:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -425,61 +425,52 @@
 <span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         blocked := make(map[gc.GridElement]bool)</span></span>
 <span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :         loX, hiX := g.offsetX, g.offsetX+g.chunkW</span></span>
 <span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :         loY, hiY := g.offsetY, g.offsetY+g.chunkH</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         forEachImpassable(world, func(ge gc.GridElement) {</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :                 if ge.X &gt;= loX &amp;&amp; ge.X &lt; hiX &amp;&amp; ge.Y &gt;= loY &amp;&amp; ge.Y &lt; hiY {</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :                         blocked[ge] = true</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L370"><span class="lineNum">     370</span>              :         })</span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :         return blocked</span></span>
-<span id="L372"><span class="lineNum">     372</span>              : }</span>
-<span id="L373"><span class="lineNum">     373</span>              : </span>
-<span id="L374"><span class="lineNum">     374</span>              : // forEachImpassable は Passable を持たない地形と置物の位置ごとに fn を呼ぶ。壊れて掃除を待つ置物も含める</span>
-<span id="L375"><span class="lineNum">     375</span>              : func forEachImpassable(world w.World, fn func(gc.GridElement)) {</span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 :         for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {</span></span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 :                 q := query.ActiveFilter1[gc.GridElement](world).With(kind).Without(ecs.C[gc.Passable]()).Query()</span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :                 for q.Next() {</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :                         fn(*world.Components.GridElement.Get(q.Entity()))</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L381"><span class="lineNum">     381</span>              :         }</span>
-<span id="L382"><span class="lineNum">     382</span>              : }</span>
-<span id="L383"><span class="lineNum">     383</span>              : </span>
-<span id="L384"><span class="lineNum">     384</span>              : // at は帯ローカル座標 pos のタイルが土の地面かを返す。道や壁、他の地物が置いたタイルは土でない</span>
-<span id="L385"><span class="lineNum">     385</span>              : func (e earthTiles) at(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {</span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         return e[tileIDAt(world, tiles, pos)]</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         query.ForEachImpassable(world, func(e ecs.Entity) {</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :                 ge := *world.Components.GridElement.Get(e)</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :                 if ge.X &gt;= loX &amp;&amp; ge.X &lt; hiX &amp;&amp; ge.Y &gt;= loY &amp;&amp; ge.Y &lt; hiY {</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :                         blocked[ge] = true</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L371"><span class="lineNum">     371</span>              :         })</span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         return blocked</span></span>
+<span id="L373"><span class="lineNum">     373</span>              : }</span>
+<span id="L374"><span class="lineNum">     374</span>              : </span>
+<span id="L375"><span class="lineNum">     375</span>              : // at は帯ローカル座標 pos のタイルが土の地面かを返す。道や壁、他の地物が置いたタイルは土でない</span>
+<span id="L376"><span class="lineNum">     376</span>              : func (e earthTiles) at(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {</span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 :         return e[tileIDAt(world, tiles, pos)]</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L379"><span class="lineNum">     379</span>              : </span>
+<span id="L380"><span class="lineNum">     380</span>              : // tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。</span>
+<span id="L381"><span class="lineNum">     381</span>              : func tileIDAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {</span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :         e, ok := tiles[gc.GridElement{Coord: pos}]</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :         if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                 return &quot;&quot;</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         return world.Components.RawID.Get(e).ID</span></span>
+<span id="L387"><span class="lineNum">     387</span>              : }</span>
 <span id="L388"><span class="lineNum">     388</span>              : </span>
-<span id="L389"><span class="lineNum">     389</span>              : // tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。</span>
-<span id="L390"><span class="lineNum">     390</span>              : func tileIDAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {</span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :         e, ok := tiles[gc.GridElement{Coord: pos}]</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :         if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                 return &quot;&quot;</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :         return world.Components.RawID.Get(e).ID</span></span>
-<span id="L396"><span class="lineNum">     396</span>              : }</span>
-<span id="L397"><span class="lineNum">     397</span>              : </span>
-<span id="L398"><span class="lineNum">     398</span>              : // chebToHSeg は点 p から水平線分、y=segY で x が [x0, x1]、までのチェビシェフ距離を返す。</span>
-<span id="L399"><span class="lineNum">     399</span>              : func chebToHSeg(p consts.Coord[consts.Tile], segY, x0, x1 consts.Tile) consts.Tile {</span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :         lo, hi := min(x0, x1), max(x0, x1)</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :         var dx consts.Tile</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :         if p.X &lt; lo {</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :                 dx = lo - p.X</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           2 :         } else if p.X &gt; hi {</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :                 dx = p.X - hi</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :         return max(dx, geometry.Abs(p.Y-segY))</span></span>
-<span id="L408"><span class="lineNum">     408</span>              : }</span>
-<span id="L409"><span class="lineNum">     409</span>              : </span>
-<span id="L410"><span class="lineNum">     410</span>              : // chebToVSeg は点 p から垂直線分、x=segX で y が [y0, y1]、までのチェビシェフ距離を返す。</span>
-<span id="L411"><span class="lineNum">     411</span>              : func chebToVSeg(p consts.Coord[consts.Tile], segX, y0, y1 consts.Tile) consts.Tile {</span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :         lo, hi := min(y0, y1), max(y0, y1)</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :         var dy consts.Tile</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :         if p.Y &lt; lo {</span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :                 dy = lo - p.Y</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           2 :         } else if p.Y &gt; hi {</span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :                 dy = p.Y - hi</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :         return max(dy, geometry.Abs(p.X-segX))</span></span>
-<span id="L420"><span class="lineNum">     420</span>              : }</span>
+<span id="L389"><span class="lineNum">     389</span>              : // chebToHSeg は点 p から水平線分、y=segY で x が [x0, x1]、までのチェビシェフ距離を返す。</span>
+<span id="L390"><span class="lineNum">     390</span>              : func chebToHSeg(p consts.Coord[consts.Tile], segY, x0, x1 consts.Tile) consts.Tile {</span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :         lo, hi := min(x0, x1), max(x0, x1)</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :         var dx consts.Tile</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :         if p.X &lt; lo {</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :                 dx = lo - p.X</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           2 :         } else if p.X &gt; hi {</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :                 dx = p.X - hi</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :         return max(dx, geometry.Abs(p.Y-segY))</span></span>
+<span id="L399"><span class="lineNum">     399</span>              : }</span>
+<span id="L400"><span class="lineNum">     400</span>              : </span>
+<span id="L401"><span class="lineNum">     401</span>              : // chebToVSeg は点 p から垂直線分、x=segX で y が [y0, y1]、までのチェビシェフ距離を返す。</span>
+<span id="L402"><span class="lineNum">     402</span>              : func chebToVSeg(p consts.Coord[consts.Tile], segX, y0, y1 consts.Tile) consts.Tile {</span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :         lo, hi := min(y0, y1), max(y0, y1)</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :         var dy consts.Tile</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :         if p.Y &lt; lo {</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :                 dy = lo - p.Y</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           2 :         } else if p.Y &gt; hi {</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :                 dy = p.Y - hi</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :         return max(dy, geometry.Abs(p.X-segX))</span></span>
+<span id="L411"><span class="lineNum">     411</span>              : }</span>
         </pre>
               </td>
             </tr>

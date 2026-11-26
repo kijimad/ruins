@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">8.5&nbsp;%</td>
-            <td class="headerCovTableEntry">281</td>
-            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryLo">9.8&nbsp;%</td>
+            <td class="headerCovTableEntry">286</td>
+            <td class="headerCovTableEntry">28</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-26 15:15:28</td>
+            <td class="headerValue">2026-11-26 15:34:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -350,55 +350,55 @@
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 tileMap[*ge] = e</span></span>
 <span id="L289"><span class="lineNum">     289</span>              :         }</span>
 <span id="L290"><span class="lineNum">     290</span>              : </span>
-<span id="L291"><span class="lineNum">     291</span>              :         // マスにはキャラクターも乗るので、地形と置物のうち見通せず通れないものだけが影を落とす</span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :         for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 wallShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).With(kind).Without(ecs.C[gc.SeeThrough](), ecs.C[gc.Passable]()).Query()</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 for wallShadowQuery.Next() {</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                         entity := wallShadowQuery.Entity()</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :                         grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :                         if !inViewport(grid, minX, maxX, minY, maxY) {</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :                                 continue</span></span>
-<span id="L300"><span class="lineNum">     300</span>              :                         }</span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :                         if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :                                 continue</span></span>
-<span id="L303"><span class="lineNum">     303</span>              :                         }</span>
-<span id="L304"><span class="lineNum">     304</span>              : </span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                         spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L307"><span class="lineNum">     307</span>              :                         // 高さのあるものだけが影を落とす</span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                         if spriteRender.Depth.Rank() &lt;= rawschema.SpriteDepthRug.Rank() {</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                                 continue</span></span>
-<span id="L310"><span class="lineNum">     310</span>              :                         }</span>
-<span id="L311"><span class="lineNum">     311</span>              : </span>
-<span id="L312"><span class="lineNum">     312</span>              :                         // 下のタイルを検索</span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                         belowPos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y + 1}}</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                         belowTileEntity, foundBelow := tileMap[belowPos]</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                         if !foundBelow {</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                                 continue</span></span>
-<span id="L318"><span class="lineNum">     318</span>              :                         }</span>
-<span id="L319"><span class="lineNum">     319</span>              : </span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                         if !world.Components.SpriteRender.Has(belowTileEntity) {</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                                 continue // 下が床でなければ影を描画しない</span></span>
-<span id="L322"><span class="lineNum">     322</span>              :                         }</span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                         belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                         if belowSpriteRender.Depth != rawschema.SpriteDepthFloor {</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                                 continue // 下が床でなければ影を描画しない</span></span>
-<span id="L326"><span class="lineNum">     326</span>              :                         }</span>
-<span id="L327"><span class="lineNum">     327</span>              : </span>
-<span id="L328"><span class="lineNum">     328</span>              :                         // 下のマスも壁なら影を描かない。壁、床、壁と並ぶとき</span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :                         if !world.Components.SeeThrough.Has(belowTileEntity) &amp;&amp; !world.Components.Passable.Has(belowTileEntity) {</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                                 continue</span></span>
-<span id="L331"><span class="lineNum">     331</span>              :                         }</span>
-<span id="L332"><span class="lineNum">     332</span>              : </span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                         op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                         op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                         setTranslate(world, op, camera)</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                         if wallShadowImage != nil {</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                                 screen.DrawImage(wallShadowImage, op)</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L339"><span class="lineNum">     339</span>              :                 }</span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         wallShadowQuery := query.ActiveFilter4[gc.SpriteRender, gc.GridElement, gc.Passage, gc.Visibility](world).Without(ecs.C[gc.Dead]()).Query()</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :         for wallShadowQuery.Next() {</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 entity := wallShadowQuery.Entity()</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 if world.Components.Passage.Get(entity).Passable || world.Components.Visibility.Get(entity).SeeThrough {</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L296"><span class="lineNum">     296</span>              :                 }</span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :                 if !inViewport(grid, minX, maxX, minY, maxY) {</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L301"><span class="lineNum">     301</span>              :                 }</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :                 if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L304"><span class="lineNum">     304</span>              :                 }</span>
+<span id="L305"><span class="lineNum">     305</span>              : </span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L308"><span class="lineNum">     308</span>              :                 // 高さのあるものだけが影を落とす</span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                 if spriteRender.Depth.Rank() &lt;= rawschema.SpriteDepthRug.Rank() {</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L311"><span class="lineNum">     311</span>              :                 }</span>
+<span id="L312"><span class="lineNum">     312</span>              : </span>
+<span id="L313"><span class="lineNum">     313</span>              :                 // 下のタイルを検索</span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                 belowPos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y + 1}}</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :                 belowTileEntity, foundBelow := tileMap[belowPos]</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                 if !foundBelow {</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L319"><span class="lineNum">     319</span>              :                 }</span>
+<span id="L320"><span class="lineNum">     320</span>              : </span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                 if !world.Components.SpriteRender.Has(belowTileEntity) {</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                         continue // 下が床でなければ影を描画しない</span></span>
+<span id="L323"><span class="lineNum">     323</span>              :                 }</span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 if belowSpriteRender.Depth != rawschema.SpriteDepthFloor {</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :                         continue // 下が床でなければ影を描画しない</span></span>
+<span id="L327"><span class="lineNum">     327</span>              :                 }</span>
+<span id="L328"><span class="lineNum">     328</span>              : </span>
+<span id="L329"><span class="lineNum">     329</span>              :                 // 下のマスも壁なら影を描かない。壁、床、壁と並ぶとき</span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                 if isWall(world, belowTileEntity) {</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L332"><span class="lineNum">     332</span>              :                 }</span>
+<span id="L333"><span class="lineNum">     333</span>              : </span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                 op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 setTranslate(world, op, camera)</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                 if wallShadowImage != nil {</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                         screen.DrawImage(wallShadowImage, op)</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L340"><span class="lineNum">     340</span>              :         }</span>
 <span id="L341"><span class="lineNum">     341</span>              : }</span>
 <span id="L342"><span class="lineNum">     342</span>              : </span>
@@ -535,6 +535,14 @@
 <span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :         sys.darknessMap = ebiten.NewImage(width, height)</span></span>
 <span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :         sys.darknessPix = make([]byte, width*height*4)</span></span>
 <span id="L475"><span class="lineNum">     475</span>              : }</span>
+<span id="L476"><span class="lineNum">     476</span>              : </span>
+<span id="L477"><span class="lineNum">     477</span>              : // isWall は e が見通せず通れない地形か置物かを返す</span>
+<span id="L478"><span class="lineNum">     478</span>              : func isWall(world w.World, e ecs.Entity) bool {</span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :         if !world.Components.Passage.Has(e) || !world.Components.Visibility.Has(e) {</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           1 :         return !world.Components.Passage.Get(e).Passable &amp;&amp; !world.Components.Visibility.Get(e).SeeThrough</span></span>
+<span id="L483"><span class="lineNum">     483</span>              : }</span>
         </pre>
               </td>
             </tr>
