@@ -38,6 +38,22 @@ func TestExecuteInteraction_DungeonEnter_進入先の遺跡名を要求に載せ
 	assert.Equal(t, "森", payload.DefinitionName, "進入先の遺跡名が要求に載る")
 }
 
+// TestExecuteInteraction_DungeonEnter_進入先定義が無ければエラー は、遺跡入口の相互作用が
+// DungeonEntrance コンポーネントを持たない対象では進入先が分からずエラーになることを確認する。
+func TestExecuteInteraction_DungeonEnter_進入先定義が無ければエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	actor := world.ECS.NewEntity()
+	// DungeonEntrance を持たないので進入先が分からない
+	entrance := world.ECS.NewEntity()
+
+	_, err := ExecuteInteraction(actor, entrance, gc.InteractionDungeonEnter, world)
+
+	require.Error(t, err)
+	assert.Equal(t, "dungeon entrance has no destination dungeon definition", err.Error())
+}
+
 // TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数へ畳み着火する は、着火が対象タイルの
 // 燃焼物をすべて残ターン数へ畳み込んで消費し、隣接タイルに火を立てることを確認する。
 func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数へ畳み着火する(t *testing.T) {
@@ -199,6 +215,51 @@ func TestExecuteInteraction_Ignite_火種が無ければ火を立てない(t *te
 	assert.True(t, world.ECS.Alive(fuel), "燃料は残る")
 	fires := ecs.NewFilter1[gc.Burning](world.ECS).Query()
 	assert.Zero(t, fires.Count(), "火は立たない")
+	fires.Close()
+}
+
+// TestExecuteInteraction_Ignite_対象が位置を持たない場合はエラー は、着火対象が GridElement を
+// 持たず座標が定まらないときに火を立てられずエラーになることを確認する。
+func TestExecuteInteraction_Ignite_対象が位置を持たない場合はエラー(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	actor := world.ECS.NewEntity()
+	starter := world.ECS.NewEntity()
+	world.Components.FireStarter.Add(starter, &gc.FireStarter{})
+	world.Components.LocationInBackpack.Add(starter, &gc.LocationInBackpack{Owner: actor})
+
+	// GridElement を持たないので座標が定まらない
+	target := world.ECS.NewEntity()
+
+	_, err := ExecuteInteraction(actor, target, gc.InteractionIgnite, world)
+
+	require.Error(t, err)
+	assert.Equal(t, "ignite target has no position", err.Error())
+}
+
+// TestExecuteInteraction_Ignite_タイルに燃焼物が無ければ火が立たない は、対象タイルに燃焼物が
+// 無いときに火を立てず後始末してエラーになることを確認する。
+func TestExecuteInteraction_Ignite_タイルに燃焼物が無ければ火が立たない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
+	actor := world.ECS.NewEntity()
+	starter := world.ECS.NewEntity()
+	world.Components.FireStarter.Add(starter, &gc.FireStarter{})
+	world.Components.LocationInBackpack.Add(starter, &gc.LocationInBackpack{Owner: actor})
+
+	// タイル上に位置はあるが燃焼物を持たない対象
+	target := world.ECS.NewEntity()
+	world.Components.GridElement.Add(target, &gc.GridElement{Coord: tile})
+
+	_, err := ExecuteInteraction(actor, target, gc.InteractionIgnite, world)
+
+	require.Error(t, err)
+	assert.Equal(t, "no fuel to ignite at tile", err.Error())
+	fires := ecs.NewFilter1[gc.Burning](world.ECS).Query()
+	assert.Zero(t, fires.Count(), "燃料が無ければ火は残らない")
 	fires.Close()
 }
 
@@ -479,6 +540,37 @@ func TestExecuteInteraction_Storage(t *testing.T) {
 
 	req := lifecycle.ConsumeStateChange(world)
 	require.NotNil(t, req, "状態変更要求が積まれる")
+	payload, ok := req.Payload.(gc.OpenStorage)
+	require.True(t, ok, "OpenStorageが要求される")
+	assert.Equal(t, storageEntity, payload.StorageEntity, "対象の収納エンティティが要求に載る")
+}
+
+// TestExecuteInteraction_Storage_未探索の収納は探索アクティビティを開始する は、収納相互作用が
+// 探索済みマーカーの無い収納では収納画面を開かず、まず探索アクティビティを始めることを確認する。
+func TestExecuteInteraction_Storage_未探索の収納は探索アクティビティを開始する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+
+	storageEntity := world.ECS.NewEntity()
+	world.Components.Interactable.Add(storageEntity, &gc.Interactable{
+		Interactions: []gc.InteractionKind{gc.InteractionStorage},
+	})
+	// Searched を持たないため未探索
+
+	result, err := ExecuteInteraction(player, storageEntity, gc.InteractionStorage, world)
+
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	assert.True(t, result.Success, "探索アクティビティの開始自体は成功するべき")
+	assert.Equal(t, gc.BehaviorSearch, result.ActivityName, "収納画面でなく探索が始まるべき")
+	assert.True(t, world.Components.Searched.Has(storageEntity), "探索を終えたら探索済みになる")
+
+	// 探索を終えたら収納画面を開くリクエストが積まれる
+	req := lifecycle.ConsumeStateChange(world)
+	require.NotNil(t, req, "探索完了で収納画面の状態変更要求が積まれる")
 	payload, ok := req.Payload.(gc.OpenStorage)
 	require.True(t, ok, "OpenStorageが要求される")
 	assert.Equal(t, storageEntity, payload.StorageEntity, "対象の収納エンティティが要求に載る")

@@ -81,6 +81,67 @@ func TestOpenDoorBehavior(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)
 		assert.NotEmpty(t, result.Message)
 	})
+
+	t.Run("Paramsの型が違う場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		odb := &OpenDoorBehavior{}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorOpenDoor}
+
+		err := odb.Validate(comp, gc.InvalidEntity, world)
+
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
+	})
+}
+
+func TestOpenDoorBehavior_DoTurn(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Paramsの型が違う場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		odb := &OpenDoorBehavior{}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorOpenDoor}
+
+		err := odb.DoTurn(comp, gc.InvalidEntity, world)
+
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
+	})
+
+	t.Run("対象がDoorコンポーネントを持たない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// Validate を経由せず、Door を持たない対象で直接呼ぶ
+		wall := world.ECS.NewEntity()
+		odb := &OpenDoorBehavior{}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorOpenDoor, Params: &gc.OpenDoorParams{Target: wall}}
+
+		err := odb.DoTurn(comp, gc.InvalidEntity, world)
+
+		require.Error(t, err)
+		assert.Equal(t, "cannot get door component", err.Error())
+	})
+
+	t.Run("既に開いている扉に対しては何もせず完了する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
+		require.NoError(t, lifecycle.OpenDoor(world, door))
+
+		odb := &OpenDoorBehavior{}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorOpenDoor, Params: &gc.OpenDoorParams{Target: door}}
+
+		err = odb.DoTurn(comp, gc.InvalidEntity, world)
+
+		require.NoError(t, err)
+		assert.True(t, world.Components.Door.Get(door).IsOpen, "既に開いた扉は開いたままであるべき")
+		assert.True(t, IsCompleted(comp), "二重に開く操作でも完了扱いになるべき")
+	})
 }
 
 func TestCloseDoorBehavior(t *testing.T) {
@@ -150,5 +211,92 @@ func TestCloseDoorBehavior(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)
 		assert.Equal(t, query.T(world, "Something is in the doorway."), result.Message, "占有理由のメッセージが出る")
 		assert.True(t, world.Components.Door.Get(door).IsOpen, "扉は開いたまま")
+	})
+
+	t.Run("Paramsの型が違う場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		cdb := &CloseDoorBehavior{}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor}
+
+		err := cdb.Validate(comp, gc.InvalidEntity, world)
+
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
+	})
+
+	t.Run("対象が死亡済みエンティティの場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		cdb := &CloseDoorBehavior{}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor, Params: &gc.CloseDoorParams{Target: gc.InvalidEntity}}
+
+		err := cdb.Validate(comp, gc.InvalidEntity, world)
+
+		require.Error(t, err)
+		assert.Equal(t, "target is not alive", err.Error())
+	})
+
+	t.Run("対象がDoorコンポーネントを持たない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		wall := world.ECS.NewEntity()
+		cdb := &CloseDoorBehavior{}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor, Params: &gc.CloseDoorParams{Target: wall}}
+
+		err := cdb.Validate(comp, gc.InvalidEntity, world)
+
+		require.Error(t, err)
+		assert.Equal(t, "target is not a door", err.Error())
+	})
+}
+
+func TestCloseDoorBehavior_DoTurn(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Paramsの型が違う場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		cdb := &CloseDoorBehavior{}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor}
+
+		err := cdb.DoTurn(comp, gc.InvalidEntity, world)
+
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
+	})
+
+	t.Run("対象がDoorコンポーネントを持たない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		wall := world.ECS.NewEntity()
+		cdb := &CloseDoorBehavior{}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor, Params: &gc.CloseDoorParams{Target: wall}}
+
+		err := cdb.DoTurn(comp, gc.InvalidEntity, world)
+
+		require.Error(t, err)
+		assert.Equal(t, "cannot get door component", err.Error())
+	})
+
+	t.Run("既に閉じている扉に対しては何もせず完了する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// SpawnDoor は閉じた扉を作る
+		door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
+
+		cdb := &CloseDoorBehavior{}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor, Params: &gc.CloseDoorParams{Target: door}}
+
+		err = cdb.DoTurn(comp, gc.InvalidEntity, world)
+
+		require.NoError(t, err)
+		assert.False(t, world.Components.Door.Get(door).IsOpen, "既に閉じた扉は閉じたままであるべき")
+		assert.True(t, IsCompleted(comp), "二重に閉じる操作でも完了扱いになるべき")
 	})
 }
