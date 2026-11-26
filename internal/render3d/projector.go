@@ -27,6 +27,10 @@ const (
 // maxStandHeight は TileOnScreen が映りうる範囲の矩形で落とす天面の高さの上限
 const maxStandHeight = max(WallHeight, BillboardHeight)
 
+// minDepth はカメラの前とみなす奥行きの下限。Point はこれより手前の点を投影せず、映りうる範囲の矩形も
+// この奥行きから視錐台を張る
+const minDepth = 0.001
+
 // visibleReach は映りうる範囲の矩形を求めるときの視錐台の奥行き。Point は遠平面で切らず far より遠い点も
 // 画面へ写すので、矩形も far で切らずに十分遠くまで伸ばす
 const visibleReach = 1e4
@@ -76,7 +80,7 @@ func visibleTileRect(eye, target Vec, aspect float64) (consts.Coord[consts.Tile]
 	u := cross(s, f)
 	tanHalf := math.Tan(fovDeg * math.Pi / 360)
 	var corners [8]Vec
-	for i, d := range [2]float64{near, visibleReach} {
+	for i, d := range [2]float64{minDepth, visibleReach} {
 		c := Add(eye, Scale(f, d))
 		h, w := d*tanHalf, d*tanHalf*aspect
 		corners[i*4+0] = Add(c, Add(Scale(s, -w), Scale(u, h)))
@@ -137,7 +141,7 @@ func (p Projector) Depth(v Vec) float64 {
 // Point は3D空間の点をスクリーン座標へ写す。カメラ後方なら ok=false
 func (p Projector) Point(v Vec) (consts.Coord[consts.ScreenPixel], bool) {
 	cx, cy, _, cw := apply(p.vp, v)
-	if cw <= 0.001 {
+	if cw <= minDepth {
 		return consts.Coord[consts.ScreenPixel]{}, false
 	}
 	return consts.Coord[consts.ScreenPixel]{

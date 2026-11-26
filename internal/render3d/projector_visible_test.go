@@ -59,3 +59,13 @@ func allCornersInFront(p Projector, c consts.Coord[consts.Tile]) bool {
 	}
 	return true
 }
+
+func TestVisibleTileRect_視錐台が層と重ならなければどのタイルも入らない(t *testing.T) {
+	t.Parallel()
+	eye := Vec{0, 50, 0}
+	visMin, visMax := visibleTileRect(eye, Vec{0, 100, -1}, 960.0/720.0)
+	p := Projector{visMin: visMin, visMax: visMax}
+	for _, c := range []consts.Coord[consts.Tile]{{}, {X: -1, Y: -1}, {X: 1, Y: 1}, {X: 0, Y: -100}} {
+		assert.False(t, p.inVisibleRect(c), "%v", c)
+	}
+}
