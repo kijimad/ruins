@@ -91,7 +91,7 @@
 				
 				<option value="file17">github.com/kijimaD/ruins/internal/activity/search.go (86.3%)</option>
 				
-				<option value="file18">github.com/kijimaD/ruins/internal/activity/shoot.go (92.4%)</option>
+				<option value="file18">github.com/kijimaD/ruins/internal/activity/shoot.go (92.5%)</option>
 				
 				<option value="file19">github.com/kijimaD/ruins/internal/activity/sleep.go (93.2%)</option>
 				
@@ -665,7 +665,7 @@
 				
 				<option value="file304">github.com/kijimaD/ruins/internal/systems/turn_system.go (88.7%)</option>
 				
-				<option value="file305">github.com/kijimaD/ruins/internal/systems/vision.go (70.2%)</option>
+				<option value="file305">github.com/kijimaD/ruins/internal/systems/vision.go (70.1%)</option>
 				
 				<option value="file306">github.com/kijimaD/ruins/internal/systems/visual_effect.go (27.7%)</option>
 				
@@ -803,9 +803,9 @@
 				
 				<option value="file373">github.com/kijimaD/ruins/internal/world/lifecycle/remains.go (85.7%)</option>
 				
-				<option value="file374">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (84.2%)</option>
+				<option value="file374">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (83.7%)</option>
 				
-				<option value="file375">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (90.5%)</option>
+				<option value="file375">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (90.2%)</option>
 				
 				<option value="file376">github.com/kijimaD/ruins/internal/world/lifecycle/state_event.go (100.0%)</option>
 				
@@ -2348,7 +2348,7 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 
                 <span class="cov8" title="1">log.Debug("door closed", "door", targetEntity)
 </span>
-                // 視界の更新が必要であることをマーク（BlockViewが変更されたため）
+                // 視界の更新が必要であることをマーク。見通しの印が変わったため
                 <span class="cov8" title="1">query.GetVisionState(world).RequestUpdate()</span>
         }
 
@@ -4627,12 +4627,14 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
         for _, p := range points </span>{
                 <span class="cov8" title="1">entities := query.GetEntitiesAt(world, consts.Tile(p.X), consts.Tile(p.Y))
                 for _, e := range entities </span>{
-                        <span class="cov8" title="1">if world.Components.BlockView.Has(e) </span>{
+                        // マスにはキャラクターやアイテムも乗るので、地形と置物だけが遮る
+                        <span class="cov8" title="1">if !world.Components.Tile.Has(e) &amp;&amp; !world.Components.Prop.Has(e) </span>{
+                                <span class="cov8" title="1">continue</span>
+                        }
+                        <span class="cov8" title="1">if !world.Components.SeeThrough.Has(e) </span>{
                                 <span class="cov8" title="1">return true, coverCount
 </span>                        }
-                        // マスにはキャラクターやアイテムも乗るので、地形と置物だけを遮蔽物にする
-                        <span class="cov8" title="1">isTerrainOrProp := world.Components.Tile.Has(e) || world.Components.Prop.Has(e)
-                        if isTerrainOrProp &amp;&amp; !world.Components.Passable.Has(e) </span>{
+                        <span class="cov8" title="1">if !world.Components.Passable.Has(e) </span>{
                                 <span class="cov8" title="1">coverCount++
 </span>                        }
                 }
@@ -11454,7 +11456,7 @@ type EntitySpec struct {
         Position           *Position
         GridElement        *GridElement
         SpriteRender       *SpriteRender
-        BlockView          *BlockView
+        SeeThrough         *SeeThrough
         Passable           *Passable
         Door               *Door
         Pose               *Pose
@@ -11554,7 +11556,7 @@ type Components struct {
         Position           *ecs.Map[Position]
         GridElement        *ecs.Map[GridElement]
         SpriteRender       *ecs.Map[SpriteRender]
-        BlockView          *ecs.Map[BlockView]
+        SeeThrough         *ecs.Map[SeeThrough]
         Passable           *ecs.Map[Passable]
         Door               *ecs.Map[Door]
         Pose               *ecs.Map[Pose]
@@ -11654,7 +11656,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
         c.Position = ecs.NewMap[Position](world)
         c.GridElement = ecs.NewMap[GridElement](world)
         c.SpriteRender = ecs.NewMap[SpriteRender](world)
-        c.BlockView = ecs.NewMap[BlockView](world)
+        c.SeeThrough = ecs.NewMap[SeeThrough](world)
         c.Passable = ecs.NewMap[Passable](world)
         c.Door = ecs.NewMap[Door](world)
         c.Pose = ecs.NewMap[Pose](world)
@@ -11756,7 +11758,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
         addComp(c.Position, entity, spec.Position)
         addComp(c.GridElement, entity, spec.GridElement)
         addComp(c.SpriteRender, entity, spec.SpriteRender)
-        addComp(c.BlockView, entity, spec.BlockView)
+        addComp(c.SeeThrough, entity, spec.SeeThrough)
         addComp(c.Passable, entity, spec.Passable)
         addComp(c.Door, entity, spec.Door)
         addComp(c.Pose, entity, spec.Pose)
@@ -12368,9 +12370,9 @@ type Passable struct {
         Cost int
 }
 
-// BlockView はフィールド上で視界を遮る
-// TODO: 能動態のほうがわかりやすそう
-type BlockView struct{}
+// SeeThrough は見通せる地形と置物の印。持たない地形と置物があるマスは見通せない。
+// キャラクターやアイテムの見通しには使わない。置く設備は、置物へ変えたときに視線を遮らないよう、アイテムのうちから持つ
+type SeeThrough struct{}
 
 // Renderable はフィールド上で描画できる
 type Renderable struct{}
@@ -30978,8 +30980,9 @@ func NewItemSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name string) error {
         <span class="cov8" title="1">entitySpec.Deployable = &amp;gc.Deployable{}
         entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{}}
-</span>        // 置くと置物になり、通り方を持たない置物は塞ぐ。置いた設備の上は歩けるので、素通りの通り方を持たせる
+</span>        // 置くと置物になり、通り方と見通しを持たない置物は塞ぐ。置いた設備の上は歩けて見通せるので、両方を持たせる
         <span class="cov8" title="1">entitySpec.Passable = &amp;gc.Passable{}
+        entitySpec.SeeThrough = &amp;gc.SeeThrough{}
         if dep.Storage != nil </span>{
                 <span class="cov8" title="1">mg, err := consts.ParseWeight(dep.Storage.MaxWeight)
                 if err != nil </span>{
@@ -31310,9 +31313,8 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 </span>
         <span class="cov8" title="1">entitySpec.Passable = toGCPassable(tileRaw.Passable)
 </span>
-        // BlockViewがtrueの場合は視界を遮断
-        <span class="cov8" title="1">if tileRaw.BlockView </span>{
-                <span class="cov8" title="1">entitySpec.BlockView = &amp;gc.BlockView{}
+        <span class="cov8" title="1">if tileRaw.SeeThrough </span>{
+                <span class="cov8" title="1">entitySpec.SeeThrough = &amp;gc.SeeThrough{}
 </span>        }
 
         <span class="cov8" title="1">entitySpec.Tile = &amp;gc.Tile{}
@@ -31419,8 +31421,8 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
         <span class="cov8" title="1">entitySpec.SpriteRender = &amp;spriteRender
 </span>
         <span class="cov8" title="1">entitySpec.Passable = toGCPassable(propRaw.Passable)
-        if propRaw.BlockView </span>{
-                <span class="cov8" title="1">entitySpec.BlockView = &amp;gc.BlockView{}
+        if propRaw.SeeThrough </span>{
+                <span class="cov8" title="1">entitySpec.SeeThrough = &amp;gc.SeeThrough{}
 </span>        }
         // 各条件に対応するインタラクションを蓄積する。
         // 1つのPropが複数のインタラクションを持てる
@@ -32670,9 +32672,6 @@ type Blast struct {
 
 // BlastRadius 爆風の半径。マス数
 type BlastRadius = int
-
-// BlocksView 視線を遮るかどうか
-type BlocksView = bool
 
 // BodyAttack 体の攻撃。体に備わり、拾えない攻撃
 type BodyAttack struct {
@@ -34390,8 +34389,6 @@ type Prop struct {
 
         Bedding *Bedding `json:"bedding,omitempty"`
 
-        BlockView BlocksView `json:"blockView"`
-
         // BurnoutItem 燃え尽きたときに残すアイテム。火のように燃え尽きる prop だけが持つ
         BurnoutItem *EntityID `json:"burnoutItem,omitempty"`
 
@@ -34417,6 +34414,9 @@ type Prop struct {
 
         // RemainsId 壊れたときに足元へ残す跡。省くと何も残さない
         RemainsId *EntityID `json:"remainsId,omitempty"`
+
+        // SeeThrough 偽か書き忘れだと見通せない
+        SeeThrough bool `json:"seeThrough"`
 
         SpriteRender SpriteRender `json:"spriteRender"`
 
@@ -35220,8 +35220,6 @@ type Throw struct {
 
 // Tile タイル
 type Tile struct {
-        BlockView BlocksView `json:"blockView"`
-
         Description EntityDescription `json:"description"`
 
         // Earth 草や木を立てられ、道で上書きしてよい土の地面か
@@ -35237,6 +35235,9 @@ type Tile struct {
 
         // Passable 省くと通れない
         Passable *Passable `json:"passable,omitempty"`
+
+        // SeeThrough 偽か書き忘れだと見通せない
+        SeeThrough bool `json:"seeThrough"`
 
         // Shelter 囲われの度合い。省くと屋外
         Shelter *Shelter `json:"shelter,omitempty"`
@@ -36691,7 +36692,7 @@ import (
         "github.com/kijimaD/ruins/internal/world/query"
 )
 
-const saveDataVersion = "3.2.0"
+const saveDataVersion = "3.3.0"
 
 const maxAutoSaves = 4
 
@@ -49442,52 +49443,55 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
                 <span class="cov0" title="0">tileMap[*ge] = e</span>
         }
 
-        <span class="cov0" title="0">wallShadowQuery := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.BlockView](world).Without(ecs.C[gc.Passable]()).Query()
-        for wallShadowQuery.Next() </span>{
-                <span class="cov0" title="0">entity := wallShadowQuery.Entity()
-                grid := world.Components.GridElement.Get(entity)
+        // マスにはキャラクターも乗るので、地形と置物のうち見通せず通れないものだけが影を落とす
+        <span class="cov0" title="0">for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} </span>{
+                <span class="cov0" title="0">wallShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).With(kind).Without(ecs.C[gc.SeeThrough](), ecs.C[gc.Passable]()).Query()
+                for wallShadowQuery.Next() </span>{
+                        <span class="cov0" title="0">entity := wallShadowQuery.Entity()
+                        grid := world.Components.GridElement.Get(entity)
 </span>
-                <span class="cov0" title="0">if !inViewport(grid, minX, maxX, minY, maxY) </span>{
-                        <span class="cov0" title="0">continue</span>
-                }
-                <span class="cov0" title="0">if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok </span>{
-                        <span class="cov0" title="0">continue</span>
-                }
+                        <span class="cov0" title="0">if !inViewport(grid, minX, maxX, minY, maxY) </span>{
+                                <span class="cov0" title="0">continue</span>
+                        }
+                        <span class="cov0" title="0">if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok </span>{
+                                <span class="cov0" title="0">continue</span>
+                        }
 
-                <span class="cov0" title="0">spriteRender := world.Components.SpriteRender.Get(entity)
+                        <span class="cov0" title="0">spriteRender := world.Components.SpriteRender.Get(entity)
 </span>
-                // 高さのあるものだけが影を落とす
-                <span class="cov0" title="0">if spriteRender.Depth.Rank() &lt;= rawschema.SpriteDepthRug.Rank() </span>{
-                        <span class="cov0" title="0">continue</span>
-                }
+                        // 高さのあるものだけが影を落とす
+                        <span class="cov0" title="0">if spriteRender.Depth.Rank() &lt;= rawschema.SpriteDepthRug.Rank() </span>{
+                                <span class="cov0" title="0">continue</span>
+                        }
 
-                // 下のタイルを検索
-                <span class="cov0" title="0">belowPos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y + 1}}
-                belowTileEntity, foundBelow := tileMap[belowPos]
+                        // 下のタイルを検索
+                        <span class="cov0" title="0">belowPos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y + 1}}
+                        belowTileEntity, foundBelow := tileMap[belowPos]
 </span>
-                <span class="cov0" title="0">if !foundBelow </span>{
-                        <span class="cov0" title="0">continue</span>
-                }
+                        <span class="cov0" title="0">if !foundBelow </span>{
+                                <span class="cov0" title="0">continue</span>
+                        }
 
-                <span class="cov0" title="0">if !world.Components.SpriteRender.Has(belowTileEntity) </span>{
-                        <span class="cov0" title="0">continue</span> // 下が床でなければ影を描画しない
-                }
-                <span class="cov0" title="0">belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)
-                if belowSpriteRender.Depth != rawschema.SpriteDepthFloor </span>{
-                        <span class="cov0" title="0">continue</span> // 下が床でなければ影を描画しない
-                }
+                        <span class="cov0" title="0">if !world.Components.SpriteRender.Has(belowTileEntity) </span>{
+                                <span class="cov0" title="0">continue</span> // 下が床でなければ影を描画しない
+                        }
+                        <span class="cov0" title="0">belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)
+                        if belowSpriteRender.Depth != rawschema.SpriteDepthFloor </span>{
+                                <span class="cov0" title="0">continue</span> // 下が床でなければ影を描画しない
+                        }
 
-                // 下のタイルが壁でないことも確認（壁-&gt;床-&gt;壁の場合は影を描画しない）
-                <span class="cov0" title="0">if world.Components.BlockView.Has(belowTileEntity) &amp;&amp; !world.Components.Passable.Has(belowTileEntity) </span>{
-                        <span class="cov0" title="0">continue</span>
-                }
+                        // 下のマスも壁なら影を描かない。壁、床、壁と並ぶとき
+                        <span class="cov0" title="0">if !world.Components.SeeThrough.Has(belowTileEntity) &amp;&amp; !world.Components.Passable.Has(belowTileEntity) </span>{
+                                <span class="cov0" title="0">continue</span>
+                        }
 
-                <span class="cov0" title="0">op := &amp;ebiten.DrawImageOptions{}
-                op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))
-                setTranslate(world, op, camera)
-                if wallShadowImage != nil </span>{
-                        <span class="cov0" title="0">screen.DrawImage(wallShadowImage, op)
-</span>                }
+                        <span class="cov0" title="0">op := &amp;ebiten.DrawImageOptions{}
+                        op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))
+                        setTranslate(world, op, camera)
+                        if wallShadowImage != nil </span>{
+                                <span class="cov0" title="0">screen.DrawImage(wallShadowImage, op)
+</span>                        }
+                }
         }
 }
 
@@ -50808,16 +50812,16 @@ func smoothstep(edge0, edge1, x float64) float64 {
         return t * t * (3 - 2*t)
 </span>}
 
-// buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
+// buildBlockViewIndex は見通せない地形と置物のタイル座標をインデックス化する
 func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
         <span class="cov8" title="1">index := make(map[gc.GridElement]bool)
 </span>        // 退避中ステージの遮蔽物は現ステージの視界を遮らない
-        <span class="cov8" title="1">blockViewQuery := query.ActiveFilter2[gc.GridElement, gc.BlockView](world).Query()
-        for blockViewQuery.Next() </span>{
-                <span class="cov8" title="1">entity := blockViewQuery.Entity()
-                grid := world.Components.GridElement.Get(entity)
-                index[*grid] = true
-</span>        }
+        <span class="cov8" title="1">for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} </span>{
+                <span class="cov8" title="1">q := query.ActiveFilter1[gc.GridElement](world).With(kind).Without(ecs.C[gc.SeeThrough]()).Query()
+                for q.Next() </span>{
+                        <span class="cov8" title="1">index[*world.Components.GridElement.Get(q.Entity())] = true
+</span>                }
+        }
         <span class="cov8" title="1">return index</span>
 }
 </pre>
@@ -58553,7 +58557,7 @@ func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
                 <span class="cov8" title="1">return 1
 </span>        }
-        <span class="cov8" title="1">return -1</span>
+        <span class="cov0" title="0">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
@@ -59003,15 +59007,11 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 
         <span class="cov8" title="1">if isOpen </span>{
                 <span class="cov8" title="1">EnsureMarker(world, world.Components.Passable, doorEntity, &amp;gc.Passable{})
-                if world.Components.BlockView.Has(doorEntity) </span>{
-                        <span class="cov8" title="1">world.Components.BlockView.Remove(doorEntity)
-</span>                }
-        } else {
+                EnsureMarker(world, world.Components.SeeThrough, doorEntity, &amp;gc.SeeThrough{})
+</span>        } else {
                 <span class="cov8" title="1">ensureRemoved(world.Components.Passable, doorEntity)
-                if !world.Components.BlockView.Has(doorEntity) </span>{
-                        <span class="cov8" title="1">world.Components.BlockView.Add(doorEntity, &amp;gc.BlockView{})
-</span>                }
-        }
+                ensureRemoved(world.Components.SeeThrough, doorEntity)
+</span>        }
 
         <span class="cov8" title="1">return nil</span>
 }

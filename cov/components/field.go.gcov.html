@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 23:40:24</td>
+            <td class="headerValue">2026-11-26 10:41:59</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -123,9 +123,9 @@
 <span id="L61"><span class="lineNum">      61</span>              :         Cost int</span>
 <span id="L62"><span class="lineNum">      62</span>              : }</span>
 <span id="L63"><span class="lineNum">      63</span>              : </span>
-<span id="L64"><span class="lineNum">      64</span>              : // BlockView はフィールド上で視界を遮る</span>
-<span id="L65"><span class="lineNum">      65</span>              : // TODO: 能動態のほうがわかりやすそう</span>
-<span id="L66"><span class="lineNum">      66</span>              : type BlockView struct{}</span>
+<span id="L64"><span class="lineNum">      64</span>              : // SeeThrough は見通せる地形と置物の印。持たない地形と置物があるマスは見通せない。</span>
+<span id="L65"><span class="lineNum">      65</span>              : // キャラクターやアイテムの見通しには使わない。置く設備は、置物へ変えたときに視線を遮らないよう、アイテムのうちから持つ</span>
+<span id="L66"><span class="lineNum">      66</span>              : type SeeThrough struct{}</span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
 <span id="L68"><span class="lineNum">      68</span>              : // Renderable はフィールド上で描画できる</span>
 <span id="L69"><span class="lineNum">      69</span>              : type Renderable struct{}</span>

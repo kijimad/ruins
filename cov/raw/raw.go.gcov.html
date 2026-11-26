@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">96.2&nbsp;%</td>
-            <td class="headerCovTableEntry">898</td>
-            <td class="headerCovTableEntry">864</td>
+            <td class="headerCovTableEntry">899</td>
+            <td class="headerCovTableEntry">865</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-24 23:40:24</td>
+            <td class="headerValue">2026-11-26 10:41:59</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -477,341 +477,341 @@
 <span id="L415"><span class="lineNum">     415</span>              : func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name string) error {</span>
 <span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :         entitySpec.Deployable = &amp;gc.Deployable{}</span></span>
 <span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :         entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{}}</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :         // 置くと置物になり、通り方を持たない置物は塞ぐ。置いた設備の上は歩けるので、素通りの通り方を持たせる</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :         // 置くと置物になり、通り方と見通しを持たない置物は塞ぐ。置いた設備の上は歩けて見通せるので、両方を持たせる</span></span>
 <span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :         entitySpec.Passable = &amp;gc.Passable{}</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :         if dep.Storage != nil {</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :                 mg, err := consts.ParseWeight(dep.Storage.MaxWeight)</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;item '%s' deployable storage: %w&quot;, name, err)</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :                 entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: mg}</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :                 entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}</span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :                 // プレイヤーが置く収納なので、中身を探す手間は要らない</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :                 entitySpec.Searched = &amp;gc.Searched{}</span></span>
-<span id="L429"><span class="lineNum">     429</span>              :         }</span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :         if dep.Bedding != nil {</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                 entitySpec.Bedding = toGCBedding(dep.Bedding)</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L434"><span class="lineNum">     434</span>              : }</span>
-<span id="L435"><span class="lineNum">     435</span>              : </span>
-<span id="L436"><span class="lineNum">     436</span>              : // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する</span>
-<span id="L437"><span class="lineNum">     437</span>              : func NewRecipeSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {</span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC">           2 :         recipe, ok := FindByKey(raws.Recipes, func(r rawschema.Recipe) string { return r.Id }, name)</span></span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, NewKeyNotFoundError(name, &quot;Recipes&quot;)</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L442"><span class="lineNum">     442</span>              : </span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           1 :         entitySpec := gc.EntitySpec{}</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :         entitySpec.Name = &amp;gc.Name{Name: i18n.Msgid(recipe.Name)}</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :         entitySpec.Recipe = &amp;gc.Recipe{}</span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :         for _, input := range recipe.Inputs {</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :                 entitySpec.Recipe.Inputs = append(entitySpec.Recipe.Inputs, gc.RecipeInput{ID: input.Id, Amount: input.Amount})</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L449"><span class="lineNum">     449</span>              : </span>
-<span id="L450"><span class="lineNum">     450</span>              :         // 説明文や分類のため、マッチしたitemの定義から持ってくる</span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :         itemSpec, err := NewItemSpec(raws, recipe.Id)</span></span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, fmt.Errorf(&quot;%s: %w&quot;, &quot;failed to generate item for recipe&quot;, err)</span></span>
-<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 :         entitySpec.Description = &amp;gc.Description{Description: itemSpec.Description.Description}</span></span>
-<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :         if itemSpec.Melee != nil {</span></span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :                 entitySpec.Melee = itemSpec.Melee</span></span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :         if itemSpec.Fire != nil {</span></span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :                 entitySpec.Fire = itemSpec.Fire</span></span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :         if itemSpec.Wearable != nil {</span></span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :                 entitySpec.Wearable = itemSpec.Wearable</span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 :         if itemSpec.Consumable != nil {</span></span>
-<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :                 entitySpec.Consumable = itemSpec.Consumable</span></span>
-<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 :         if itemSpec.Value != nil {</span></span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :                 entitySpec.Value = itemSpec.Value</span></span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :         if itemSpec.Weight != nil {</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :                 entitySpec.Weight = itemSpec.Weight</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L474"><span class="lineNum">     474</span>              : </span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
-<span id="L476"><span class="lineNum">     476</span>              : }</span>
-<span id="L477"><span class="lineNum">     477</span>              : </span>
-<span id="L478"><span class="lineNum">     478</span>              : // PlayerMemberID は player を持つ member の id を返す。読み込み時にちょうど1つあることを確かめる</span>
-<span id="L479"><span class="lineNum">     479</span>              : func PlayerMemberID(raws rawschema.Raws) (string, error) {</span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :         members := PtrSlice(raws.Members)</span></span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :         for i := range members {</span></span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           1 :                 if members[i].Player != nil &amp;&amp; *members[i].Player {</span></span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 :                         return members[i].Id, nil</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L485"><span class="lineNum">     485</span>              :         }</span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :         return &quot;&quot;, errPlayerMemberMissing</span></span>
-<span id="L487"><span class="lineNum">     487</span>              : }</span>
-<span id="L488"><span class="lineNum">     488</span>              : </span>
-<span id="L489"><span class="lineNum">     489</span>              : // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する</span>
-<span id="L490"><span class="lineNum">     490</span>              : func NewMemberSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {</span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           2 :         member, ok := FindByKey(raws.Members, func(m rawschema.Member) string { return m.Id }, name)</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, NewKeyNotFoundError(name, &quot;Members&quot;)</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L495"><span class="lineNum">     495</span>              : </span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :         entitySpec := gc.EntitySpec{}</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :         entitySpec.Name = &amp;gc.Name{Name: i18n.Msgid(member.Name)}</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :         entitySpec.RawID = &amp;gc.RawID{ID: member.Id}</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :         entitySpec.TurnBased = &amp;gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :         entitySpec.SpriteRender = &amp;gc.SpriteRender{</span></span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :                 SpriteSheetName: member.SpriteSheetName,</span></span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :                 SpriteKey:       member.SpriteKey,</span></span>
-<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :                 AnimKeys:        PtrSlice(member.AnimKeys),</span></span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :                 Depth:           rawschema.SpriteDepthPlayer,</span></span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :         entitySpec.Abilities = &amp;gc.Abilities{</span></span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :                 Vitality:  gc.Ability{Base: member.Abilities.Vitality},</span></span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :                 Strength:  gc.Ability{Base: member.Abilities.Strength},</span></span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :                 Sensation: gc.Ability{Base: member.Abilities.Sensation},</span></span>
-<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">           1 :                 Dexterity: gc.Ability{Base: member.Abilities.Dexterity},</span></span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :                 Agility:   gc.Ability{Base: member.Abilities.Agility},</span></span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">           1 :                 Defense:   gc.Ability{Base: member.Abilities.Defense},</span></span>
-<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           1 :         entitySpec.HP = &amp;gc.HP{}</span></span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :         entitySpec.WeightCapacity = &amp;gc.WeightCapacity{}</span></span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :         // 体重は能力値の体格から算出する。売買や運搬で member 自身の重量として扱う</span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :         entitySpec.Weight = &amp;gc.Weight{Milligram: entitySpec.Abilities.BodyWeight()}</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L519"><span class="lineNum">     519</span>              :         // 戦闘者共通の健康機構。不調が身体機能を下げ、命中や速度へ効く</span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :         entitySpec.Skills = gc.NewSkills()</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :         entitySpec.HealthStatus = &amp;gc.HealthStatus{}</span></span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           1 :         if member.Player != nil &amp;&amp; *member.Player {</span></span>
-<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 :                 entitySpec.Player = &amp;gc.Player{}</span></span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L525"><span class="lineNum">     525</span>              : </span>
-<span id="L526"><span class="lineNum">     526</span>              :         // テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ</span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">           1 :         if member.CommandTableId != nil {</span></span>
-<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           1 :                 ct, err := GetCommandTable(raws, *member.CommandTableId)</span></span>
-<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">           1 :                         return gc.EntitySpec{}, fmt.Errorf(&quot;failed to get command table for member '%s': %w&quot;, name, err)</span></span>
-<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           1 :                 entitySpec.CommandTable = &amp;gc.CommandTable{Name: ct.Id}</span></span>
-<span id="L533"><span class="lineNum">     533</span>              :         }</span>
-<span id="L534"><span class="lineNum">     534</span>              : </span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :         if member.DropTableId != nil {</span></span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           1 :                 dt, err := GetDropTable(raws, *member.DropTableId)</span></span>
-<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           1 :                         return gc.EntitySpec{}, fmt.Errorf(&quot;failed to get drop table for member '%s': %w&quot;, name, err)</span></span>
-<span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">           1 :                 entitySpec.DropTable = &amp;gc.DropTable{Name: dt.Id}</span></span>
-<span id="L541"><span class="lineNum">     541</span>              :         }</span>
-<span id="L542"><span class="lineNum">     542</span>              : </span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :         entitySpec.LightSource = toGCLightSource(member.LightSource)</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L545"><span class="lineNum">     545</span>              :         // 味方と敵の派閥は NewPlayerSpec と NewEnemySpec が付ける。raw が指せるのは中立だけ</span>
-<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">           1 :         if member.FactionType != nil &amp;&amp; *member.FactionType == rawschema.FactionNeutral {</span></span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           1 :                 entitySpec.FactionNeutral = &amp;gc.FactionNeutral{}</span></span>
-<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L549"><span class="lineNum">     549</span>              : </span>
-<span id="L550"><span class="lineNum">     550</span>              :         // AI の組み立て。SoloAIとして構築し、スポーン関数がそのまま使う</span>
-<span id="L551"><span class="lineNum">     551</span>              :         {</span>
-<span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC">           1 :                 solo := gc.SoloAI{</span></span>
-<span id="L553"><span class="lineNum">     553</span> <span class="tlaGNC">           1 :                         CombatDefault: rawschema.Attack,</span></span>
-<span id="L554"><span class="lineNum">     554</span> <span class="tlaGNC">           1 :                         CombatCurrent: rawschema.Attack,</span></span>
-<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           1 :                 if member.CombatPolicy != nil &amp;&amp; *member.CombatPolicy != &quot;&quot; {</span></span>
-<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           1 :                         solo.CombatDefault = *member.CombatPolicy</span></span>
-<span id="L558"><span class="lineNum">     558</span> <span class="tlaGNC">           1 :                         solo.CombatCurrent = *member.CombatPolicy</span></span>
-<span id="L559"><span class="lineNum">     559</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC">           1 :                 if member.MovementPattern != nil &amp;&amp; *member.MovementPattern != &quot;&quot; {</span></span>
-<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">           1 :                         solo.Movement = *member.MovementPattern</span></span>
-<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 :                 entitySpec.SoloAI = &amp;solo</span></span>
-<span id="L564"><span class="lineNum">     564</span>              :         }</span>
-<span id="L565"><span class="lineNum">     565</span>              : </span>
-<span id="L566"><span class="lineNum">     566</span> <span class="tlaGNC">           1 :         if member.Dialog != nil {</span></span>
-<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">           1 :                 entitySpec.Dialog = &amp;gc.Dialog{</span></span>
-<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           1 :                         MessageKey: member.Dialog.MessageKey,</span></span>
-<span id="L569"><span class="lineNum">     569</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC">           1 :                 entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionTalk}}</span></span>
-<span id="L571"><span class="lineNum">     571</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L572"><span class="lineNum">     572</span>              : </span>
-<span id="L573"><span class="lineNum">     573</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
-<span id="L574"><span class="lineNum">     574</span>              : }</span>
-<span id="L575"><span class="lineNum">     575</span>              : </span>
-<span id="L576"><span class="lineNum">     576</span>              : // NewPlayerSpec は指定された名前のプレイヤーのEntitySpecを生成する</span>
-<span id="L577"><span class="lineNum">     577</span>              : func NewPlayerSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {</span>
-<span id="L578"><span class="lineNum">     578</span> <span class="tlaGNC">           1 :         entitySpec, err := NewMemberSpec(raws, name)</span></span>
-<span id="L579"><span class="lineNum">     579</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, err</span></span>
-<span id="L581"><span class="lineNum">     581</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L582"><span class="lineNum">     582</span> <span class="tlaGNC">           1 :         entitySpec.FactionAlly = &amp;gc.FactionAlly{}</span></span>
-<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC">           1 :         entitySpec.Player = &amp;gc.Player{}</span></span>
-<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">           1 :         entitySpec.Hunger = gc.NewHunger()</span></span>
-<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">           1 :         entitySpec.Fatigue = gc.NewFatigue()</span></span>
-<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           1 :         // 装備した灯りを StatsChangedSystem が写す入れ物。装備するまで消えている</span></span>
-<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           1 :         entitySpec.LightSource = &amp;gc.LightSource{}</span></span>
-<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">           1 :         entitySpec.SoloAI = nil</span></span>
-<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
-<span id="L590"><span class="lineNum">     590</span>              : }</span>
-<span id="L591"><span class="lineNum">     591</span>              : </span>
-<span id="L592"><span class="lineNum">     592</span>              : // NewEnemySpec は指定された名前の敵のEntitySpecを生成する</span>
-<span id="L593"><span class="lineNum">     593</span>              : func NewEnemySpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {</span>
-<span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">           1 :         entitySpec, err := NewMemberSpec(raws, name)</span></span>
-<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, err</span></span>
-<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">           1 :         entitySpec.FactionEnemy = &amp;gc.FactionEnemy{}</span></span>
-<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
-<span id="L601"><span class="lineNum">     601</span>              : }</span>
-<span id="L602"><span class="lineNum">     602</span>              : </span>
-<span id="L603"><span class="lineNum">     603</span>              : // GetCommandTable は指定された名前のコマンドテーブルを取得する</span>
-<span id="L604"><span class="lineNum">     604</span>              : func GetCommandTable(raws rawschema.Raws, name string) (rawschema.CommandTable, error) {</span>
-<span id="L605"><span class="lineNum">     605</span> <span class="tlaGNC">           2 :         ct, ok := FindByKey(raws.CommandTables, func(c rawschema.CommandTable) string { return c.Id }, name)</span></span>
-<span id="L606"><span class="lineNum">     606</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">           1 :                 return rawschema.CommandTable{}, NewKeyNotFoundError(name, &quot;CommandTables&quot;)</span></span>
-<span id="L608"><span class="lineNum">     608</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">           1 :         return ct, nil</span></span>
-<span id="L610"><span class="lineNum">     610</span>              : }</span>
-<span id="L611"><span class="lineNum">     611</span>              : </span>
-<span id="L612"><span class="lineNum">     612</span>              : // GetDropTable は指定された名前のドロップテーブルを取得する</span>
-<span id="L613"><span class="lineNum">     613</span>              : func GetDropTable(raws rawschema.Raws, name string) (rawschema.DropTable, error) {</span>
-<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC">           2 :         dt, ok := FindByKey(raws.DropTables, func(d rawschema.DropTable) string { return d.Id }, name)</span></span>
-<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :                 return rawschema.DropTable{}, NewKeyNotFoundError(name, &quot;DropTables&quot;)</span></span>
-<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC">           1 :         return dt, nil</span></span>
-<span id="L619"><span class="lineNum">     619</span>              : }</span>
-<span id="L620"><span class="lineNum">     620</span>              : </span>
-<span id="L621"><span class="lineNum">     621</span>              : // errItemGroupNotExist は指定した ID のアイテムグループもアイテムコレクションも存在しないときに返す。</span>
-<span id="L622"><span class="lineNum">     622</span>              : var errItemGroupNotExist = errors.New(&quot;item group does not exist&quot;)</span>
-<span id="L623"><span class="lineNum">     623</span>              : </span>
-<span id="L624"><span class="lineNum">     624</span>              : // GetItemGroup は指定された名前のアイテムグループを取得する</span>
-<span id="L625"><span class="lineNum">     625</span>              : func GetItemGroup(raws rawschema.Raws, name string) (rawschema.ItemGroup, error) {</span>
-<span id="L626"><span class="lineNum">     626</span> <span class="tlaGNC">           2 :         ig, ok := FindByKey(raws.ItemGroups, func(g rawschema.ItemGroup) string { return g.Id }, name)</span></span>
-<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">           1 :                 return rawschema.ItemGroup{}, fmt.Errorf(&quot;%w: %s&quot;, errItemGroupNotExist, name)</span></span>
-<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           1 :         return ig, nil</span></span>
-<span id="L631"><span class="lineNum">     631</span>              : }</span>
-<span id="L632"><span class="lineNum">     632</span>              : </span>
-<span id="L633"><span class="lineNum">     633</span>              : // GetItemCollection は指定された id のアイテムコレクションを取得する</span>
-<span id="L634"><span class="lineNum">     634</span>              : func GetItemCollection(raws rawschema.Raws, id string) (rawschema.ItemCollection, error) {</span>
-<span id="L635"><span class="lineNum">     635</span> <span class="tlaGNC">           2 :         c, ok := FindByKey(raws.ItemCollections, func(c rawschema.ItemCollection) string { return c.Id }, id)</span></span>
-<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L637"><span class="lineNum">     637</span> <span class="tlaGNC">           1 :                 return rawschema.ItemCollection{}, NewKeyNotFoundError(id, &quot;ItemCollections&quot;)</span></span>
-<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L639"><span class="lineNum">     639</span> <span class="tlaGNC">           1 :         return c, nil</span></span>
-<span id="L640"><span class="lineNum">     640</span>              : }</span>
-<span id="L641"><span class="lineNum">     641</span>              : </span>
-<span id="L642"><span class="lineNum">     642</span>              : // GetItemTable は指定された名前のアイテムテーブルを取得する</span>
-<span id="L643"><span class="lineNum">     643</span>              : func GetItemTable(raws rawschema.Raws, name string) (rawschema.ItemTable, error) {</span>
-<span id="L644"><span class="lineNum">     644</span> <span class="tlaGNC">           2 :         it, ok := FindByKey(raws.ItemTables, func(t rawschema.ItemTable) string { return t.Id }, name)</span></span>
-<span id="L645"><span class="lineNum">     645</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">           1 :                 return rawschema.ItemTable{}, NewKeyNotFoundError(name, &quot;ItemTables&quot;)</span></span>
-<span id="L647"><span class="lineNum">     647</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L648"><span class="lineNum">     648</span> <span class="tlaGNC">           1 :         return it, nil</span></span>
-<span id="L649"><span class="lineNum">     649</span>              : }</span>
-<span id="L650"><span class="lineNum">     650</span>              : </span>
-<span id="L651"><span class="lineNum">     651</span>              : // GetEnemyTable は指定された名前の敵テーブルを取得する</span>
-<span id="L652"><span class="lineNum">     652</span>              : func GetEnemyTable(raws rawschema.Raws, name string) (rawschema.EnemyTable, error) {</span>
-<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">           2 :         et, ok := FindByKey(raws.EnemyTables, func(t rawschema.EnemyTable) string { return t.Id }, name)</span></span>
-<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">           1 :                 return rawschema.EnemyTable{}, NewKeyNotFoundError(name, &quot;EnemyTables&quot;)</span></span>
-<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">           1 :         return et, nil</span></span>
-<span id="L658"><span class="lineNum">     658</span>              : }</span>
-<span id="L659"><span class="lineNum">     659</span>              : </span>
-<span id="L660"><span class="lineNum">     660</span>              : // DungeonReachable はダンジョンの行を遺跡の入口から入れるダンジョンとして扱うかを返す。重み0の行はデバッグ用</span>
-<span id="L661"><span class="lineNum">     661</span>              : func DungeonReachable(d *rawschema.Dungeon) bool {</span>
-<span id="L662"><span class="lineNum">     662</span> <span class="tlaGNC">           1 :         return d.EntranceWeight &gt; 0</span></span>
-<span id="L663"><span class="lineNum">     663</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L664"><span class="lineNum">     664</span>              : </span>
-<span id="L665"><span class="lineNum">     665</span>              : // GetDungeon は id のダンジョンの行を返す</span>
-<span id="L666"><span class="lineNum">     666</span>              : func GetDungeon(raws rawschema.Raws, id string) (rawschema.Dungeon, error) {</span>
-<span id="L667"><span class="lineNum">     667</span> <span class="tlaGNC">           2 :         d, ok := FindByKey(raws.Dungeons, func(d rawschema.Dungeon) string { return d.Id }, id)</span></span>
-<span id="L668"><span class="lineNum">     668</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L669"><span class="lineNum">     669</span> <span class="tlaGNC">           1 :                 return rawschema.Dungeon{}, NewKeyNotFoundError(id, &quot;Dungeons&quot;)</span></span>
-<span id="L670"><span class="lineNum">     670</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L671"><span class="lineNum">     671</span> <span class="tlaGNC">           1 :         return d, nil</span></span>
-<span id="L672"><span class="lineNum">     672</span>              : }</span>
-<span id="L673"><span class="lineNum">     673</span>              : </span>
-<span id="L674"><span class="lineNum">     674</span>              : // GetFacility は id の施設宣言を返す。未登録は false。</span>
-<span id="L675"><span class="lineNum">     675</span>              : func GetFacility(raws rawschema.Raws, id string) (rawschema.Facility, bool) {</span>
-<span id="L676"><span class="lineNum">     676</span> <span class="tlaGNC">           2 :         return FindByKey(raws.Facilities, func(f rawschema.Facility) string { return f.Id }, id)</span></span>
-<span id="L677"><span class="lineNum">     677</span>              : }</span>
-<span id="L678"><span class="lineNum">     678</span>              : </span>
-<span id="L679"><span class="lineNum">     679</span>              : // FacilityLootedChance は施設 fac の収納家具が荒らされて空になっている確率を百分率で返す。省略は0。</span>
-<span id="L680"><span class="lineNum">     680</span>              : func FacilityLootedChance(raws rawschema.Raws, fac string) (int, error) {</span>
-<span id="L681"><span class="lineNum">     681</span> <span class="tlaGNC">           1 :         f, ok := GetFacility(raws, fac)</span></span>
-<span id="L682"><span class="lineNum">     682</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L683"><span class="lineNum">     683</span> <span class="tlaGNC">           1 :                 return 0, NewKeyNotFoundError(fac, &quot;Facilities&quot;)</span></span>
-<span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L685"><span class="lineNum">     685</span> <span class="tlaGNC">           1 :         if f.LootedChance == nil {</span></span>
-<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">           1 :                 return 0, nil</span></span>
-<span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L688"><span class="lineNum">     688</span> <span class="tlaGNC">           1 :         return int(*f.LootedChance), nil</span></span>
-<span id="L689"><span class="lineNum">     689</span>              : }</span>
-<span id="L690"><span class="lineNum">     690</span>              : </span>
-<span id="L691"><span class="lineNum">     691</span>              : // GetLandmark は id のランドマーク宣言を返す。未登録は false。</span>
-<span id="L692"><span class="lineNum">     692</span>              : func GetLandmark(raws rawschema.Raws, id string) (rawschema.Landmark, bool) {</span>
-<span id="L693"><span class="lineNum">     693</span> <span class="tlaGNC">           2 :         return FindByKey(raws.Landmarks, func(l rawschema.Landmark) string { return l.Id }, id)</span></span>
-<span id="L694"><span class="lineNum">     694</span>              : }</span>
-<span id="L695"><span class="lineNum">     695</span>              : </span>
-<span id="L696"><span class="lineNum">     696</span>              : // GetScatterZone は id の散布ゾーン宣言を返す。未登録は false。</span>
-<span id="L697"><span class="lineNum">     697</span>              : func GetScatterZone(raws rawschema.Raws, id string) (rawschema.ScatterZone, bool) {</span>
-<span id="L698"><span class="lineNum">     698</span> <span class="tlaGNC">           2 :         return FindByKey(raws.ScatterZones, func(z rawschema.ScatterZone) string { return z.Id }, id)</span></span>
-<span id="L699"><span class="lineNum">     699</span>              : }</span>
-<span id="L700"><span class="lineNum">     700</span>              : </span>
-<span id="L701"><span class="lineNum">     701</span>              : // GetMapGlyph は id の地図記号宣言を返す。未登録は false。</span>
-<span id="L702"><span class="lineNum">     702</span>              : func GetMapGlyph(raws rawschema.Raws, id string) (rawschema.MapGlyph, bool) {</span>
-<span id="L703"><span class="lineNum">     703</span> <span class="tlaGNC">           2 :         return FindByKey(raws.MapGlyphs, func(m rawschema.MapGlyph) string { return m.Id }, id)</span></span>
-<span id="L704"><span class="lineNum">     704</span>              : }</span>
-<span id="L705"><span class="lineNum">     705</span>              : </span>
-<span id="L706"><span class="lineNum">     706</span>              : // GetChunkGlyph は持ち主の行を持たないチャンクの種類 chunk を描く地図記号の行を返す</span>
-<span id="L707"><span class="lineNum">     707</span>              : func GetChunkGlyph(raws rawschema.Raws, chunk rawschema.GlyphChunk) (rawschema.MapGlyph, bool) {</span>
-<span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">           1 :         for _, g := range PtrSlice(raws.MapGlyphs) {</span></span>
-<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">           1 :                 if g.Chunk != nil &amp;&amp; *g.Chunk == chunk {</span></span>
-<span id="L710"><span class="lineNum">     710</span> <span class="tlaGNC">           1 :                         return g, true</span></span>
-<span id="L711"><span class="lineNum">     711</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L712"><span class="lineNum">     712</span>              :         }</span>
-<span id="L713"><span class="lineNum">     713</span> <span class="tlaGNC">           1 :         return rawschema.MapGlyph{}, false</span></span>
-<span id="L714"><span class="lineNum">     714</span>              : }</span>
-<span id="L715"><span class="lineNum">     715</span>              : </span>
-<span id="L716"><span class="lineNum">     716</span>              : // GetTile は指定された名前のタイルを取得する</span>
-<span id="L717"><span class="lineNum">     717</span>              : // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する</span>
-<span id="L718"><span class="lineNum">     718</span>              : func GetTile(raws rawschema.Raws, id string) (rawschema.Tile, error) {</span>
-<span id="L719"><span class="lineNum">     719</span> <span class="tlaGNC">           2 :         tile, ok := FindByKey(raws.Tiles, func(t rawschema.Tile) string { return t.Id }, id)</span></span>
-<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L721"><span class="lineNum">     721</span> <span class="tlaGNC">           1 :                 return rawschema.Tile{}, NewKeyNotFoundError(id, &quot;Tiles&quot;)</span></span>
-<span id="L722"><span class="lineNum">     722</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L723"><span class="lineNum">     723</span> <span class="tlaGNC">           1 :         return tile, nil</span></span>
-<span id="L724"><span class="lineNum">     724</span>              : }</span>
-<span id="L725"><span class="lineNum">     725</span>              : </span>
-<span id="L726"><span class="lineNum">     726</span>              : // NewTileSpec は指定された名前のタイルのEntitySpecを生成する</span>
-<span id="L727"><span class="lineNum">     727</span>              : // 実際にエンティティを生成する際に使用する</span>
-<span id="L728"><span class="lineNum">     728</span>              : func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileIndex *int) (gc.EntitySpec, error) {</span>
-<span id="L729"><span class="lineNum">     729</span> <span class="tlaGNC">           1 :         tileRaw, err := GetTile(raws, name)</span></span>
-<span id="L730"><span class="lineNum">     730</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L731"><span class="lineNum">     731</span> <span class="tlaUNC">           0 :                 return gc.EntitySpec{}, err</span></span>
-<span id="L732"><span class="lineNum">     732</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L733"><span class="lineNum">     733</span>              : </span>
-<span id="L734"><span class="lineNum">     734</span> <span class="tlaGNC">           1 :         entitySpec := gc.EntitySpec{}</span></span>
-<span id="L735"><span class="lineNum">     735</span> <span class="tlaGNC">           1 :         entitySpec.Name = &amp;gc.Name{Name: i18n.Msgid(tileRaw.Name)}</span></span>
-<span id="L736"><span class="lineNum">     736</span> <span class="tlaGNC">           1 :         entitySpec.RawID = &amp;gc.RawID{ID: tileRaw.Id}</span></span>
-<span id="L737"><span class="lineNum">     737</span> <span class="tlaGNC">           1 :         entitySpec.Description = &amp;gc.Description{Description: i18n.Msgid(tileRaw.Description)}</span></span>
-<span id="L738"><span class="lineNum">     738</span> <span class="tlaGNC">           1 :         entitySpec.GridElement = &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}</span></span>
-<span id="L739"><span class="lineNum">     739</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L740"><span class="lineNum">     740</span>              :         // SpriteRenderを設定</span>
-<span id="L741"><span class="lineNum">     741</span> <span class="tlaGNC">           1 :         sprite := toGCSpriteRender(tileRaw.SpriteRender)</span></span>
-<span id="L742"><span class="lineNum">     742</span> <span class="tlaGNC">           1 :         // オートタイルインデックスが指定されている場合はspriteKeyを動的に生成</span></span>
-<span id="L743"><span class="lineNum">     743</span> <span class="tlaGNC">           1 :         if autoTileIndex != nil {</span></span>
-<span id="L744"><span class="lineNum">     744</span> <span class="tlaGNC">           1 :                 sprite.SpriteKey = fmt.Sprintf(&quot;%s_%d&quot;, tileRaw.SpriteRender.SpriteKey, *autoTileIndex)</span></span>
-<span id="L745"><span class="lineNum">     745</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L746"><span class="lineNum">     746</span> <span class="tlaGNC">           1 :         entitySpec.SpriteRender = &amp;sprite</span></span>
-<span id="L747"><span class="lineNum">     747</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L748"><span class="lineNum">     748</span> <span class="tlaGNC">           1 :         entitySpec.Passable = toGCPassable(tileRaw.Passable)</span></span>
-<span id="L749"><span class="lineNum">     749</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L750"><span class="lineNum">     750</span>              :         // BlockViewがtrueの場合は視界を遮断</span>
-<span id="L751"><span class="lineNum">     751</span> <span class="tlaGNC">           1 :         if tileRaw.BlockView {</span></span>
-<span id="L752"><span class="lineNum">     752</span> <span class="tlaGNC">           1 :                 entitySpec.BlockView = &amp;gc.BlockView{}</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :         entitySpec.SeeThrough = &amp;gc.SeeThrough{}</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :         if dep.Storage != nil {</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :                 mg, err := consts.ParseWeight(dep.Storage.MaxWeight)</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;item '%s' deployable storage: %w&quot;, name, err)</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :                 entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: mg}</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :                 entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionStorage}}</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :                 // プレイヤーが置く収納なので、中身を探す手間は要らない</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :                 entitySpec.Searched = &amp;gc.Searched{}</span></span>
+<span id="L430"><span class="lineNum">     430</span>              :         }</span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :         if dep.Bedding != nil {</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :                 entitySpec.Bedding = toGCBedding(dep.Bedding)</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L435"><span class="lineNum">     435</span>              : }</span>
+<span id="L436"><span class="lineNum">     436</span>              : </span>
+<span id="L437"><span class="lineNum">     437</span>              : // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する</span>
+<span id="L438"><span class="lineNum">     438</span>              : func NewRecipeSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {</span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           2 :         recipe, ok := FindByKey(raws.Recipes, func(r rawschema.Recipe) string { return r.Id }, name)</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, NewKeyNotFoundError(name, &quot;Recipes&quot;)</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L443"><span class="lineNum">     443</span>              : </span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :         entitySpec := gc.EntitySpec{}</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :         entitySpec.Name = &amp;gc.Name{Name: i18n.Msgid(recipe.Name)}</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :         entitySpec.Recipe = &amp;gc.Recipe{}</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :         for _, input := range recipe.Inputs {</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                 entitySpec.Recipe.Inputs = append(entitySpec.Recipe.Inputs, gc.RecipeInput{ID: input.Id, Amount: input.Amount})</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L450"><span class="lineNum">     450</span>              : </span>
+<span id="L451"><span class="lineNum">     451</span>              :         // 説明文や分類のため、マッチしたitemの定義から持ってくる</span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :         itemSpec, err := NewItemSpec(raws, recipe.Id)</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, fmt.Errorf(&quot;%s: %w&quot;, &quot;failed to generate item for recipe&quot;, err)</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :         entitySpec.Description = &amp;gc.Description{Description: itemSpec.Description.Description}</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :         if itemSpec.Melee != nil {</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :                 entitySpec.Melee = itemSpec.Melee</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :         if itemSpec.Fire != nil {</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :                 entitySpec.Fire = itemSpec.Fire</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :         if itemSpec.Wearable != nil {</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :                 entitySpec.Wearable = itemSpec.Wearable</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :         if itemSpec.Consumable != nil {</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           1 :                 entitySpec.Consumable = itemSpec.Consumable</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :         if itemSpec.Value != nil {</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :                 entitySpec.Value = itemSpec.Value</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :         if itemSpec.Weight != nil {</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :                 entitySpec.Weight = itemSpec.Weight</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L475"><span class="lineNum">     475</span>              : </span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
+<span id="L477"><span class="lineNum">     477</span>              : }</span>
+<span id="L478"><span class="lineNum">     478</span>              : </span>
+<span id="L479"><span class="lineNum">     479</span>              : // PlayerMemberID は player を持つ member の id を返す。読み込み時にちょうど1つあることを確かめる</span>
+<span id="L480"><span class="lineNum">     480</span>              : func PlayerMemberID(raws rawschema.Raws) (string, error) {</span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :         members := PtrSlice(raws.Members)</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           1 :         for i := range members {</span></span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 :                 if members[i].Player != nil &amp;&amp; *members[i].Player {</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 :                         return members[i].Id, nil</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L486"><span class="lineNum">     486</span>              :         }</span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 :         return &quot;&quot;, errPlayerMemberMissing</span></span>
+<span id="L488"><span class="lineNum">     488</span>              : }</span>
+<span id="L489"><span class="lineNum">     489</span>              : </span>
+<span id="L490"><span class="lineNum">     490</span>              : // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する</span>
+<span id="L491"><span class="lineNum">     491</span>              : func NewMemberSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {</span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           2 :         member, ok := FindByKey(raws.Members, func(m rawschema.Member) string { return m.Id }, name)</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, NewKeyNotFoundError(name, &quot;Members&quot;)</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L496"><span class="lineNum">     496</span>              : </span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :         entitySpec := gc.EntitySpec{}</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :         entitySpec.Name = &amp;gc.Name{Name: i18n.Msgid(member.Name)}</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :         entitySpec.RawID = &amp;gc.RawID{ID: member.Id}</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :         entitySpec.TurnBased = &amp;gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :         entitySpec.SpriteRender = &amp;gc.SpriteRender{</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :                 SpriteSheetName: member.SpriteSheetName,</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :                 SpriteKey:       member.SpriteKey,</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :                 AnimKeys:        PtrSlice(member.AnimKeys),</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :                 Depth:           rawschema.SpriteDepthPlayer,</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :         entitySpec.Abilities = &amp;gc.Abilities{</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :                 Vitality:  gc.Ability{Base: member.Abilities.Vitality},</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :                 Strength:  gc.Ability{Base: member.Abilities.Strength},</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">           1 :                 Sensation: gc.Ability{Base: member.Abilities.Sensation},</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :                 Dexterity: gc.Ability{Base: member.Abilities.Dexterity},</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">           1 :                 Agility:   gc.Ability{Base: member.Abilities.Agility},</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :                 Defense:   gc.Ability{Base: member.Abilities.Defense},</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :         entitySpec.HP = &amp;gc.HP{}</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :         entitySpec.WeightCapacity = &amp;gc.WeightCapacity{}</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :         // 体重は能力値の体格から算出する。売買や運搬で member 自身の重量として扱う</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :         entitySpec.Weight = &amp;gc.Weight{Milligram: entitySpec.Abilities.BodyWeight()}</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L520"><span class="lineNum">     520</span>              :         // 戦闘者共通の健康機構。不調が身体機能を下げ、命中や速度へ効く</span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :         entitySpec.Skills = gc.NewSkills()</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           1 :         entitySpec.HealthStatus = &amp;gc.HealthStatus{}</span></span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 :         if member.Player != nil &amp;&amp; *member.Player {</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 :                 entitySpec.Player = &amp;gc.Player{}</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L526"><span class="lineNum">     526</span>              : </span>
+<span id="L527"><span class="lineNum">     527</span>              :         // テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ</span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           1 :         if member.CommandTableId != nil {</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           1 :                 ct, err := GetCommandTable(raws, *member.CommandTableId)</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">           1 :                         return gc.EntitySpec{}, fmt.Errorf(&quot;failed to get command table for member '%s': %w&quot;, name, err)</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 :                 entitySpec.CommandTable = &amp;gc.CommandTable{Name: ct.Id}</span></span>
+<span id="L534"><span class="lineNum">     534</span>              :         }</span>
+<span id="L535"><span class="lineNum">     535</span>              : </span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           1 :         if member.DropTableId != nil {</span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :                 dt, err := GetDropTable(raws, *member.DropTableId)</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">           1 :                         return gc.EntitySpec{}, fmt.Errorf(&quot;failed to get drop table for member '%s': %w&quot;, name, err)</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           1 :                 entitySpec.DropTable = &amp;gc.DropTable{Name: dt.Id}</span></span>
+<span id="L542"><span class="lineNum">     542</span>              :         }</span>
+<span id="L543"><span class="lineNum">     543</span>              : </span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 :         entitySpec.LightSource = toGCLightSource(member.LightSource)</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L546"><span class="lineNum">     546</span>              :         // 味方と敵の派閥は NewPlayerSpec と NewEnemySpec が付ける。raw が指せるのは中立だけ</span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           1 :         if member.FactionType != nil &amp;&amp; *member.FactionType == rawschema.FactionNeutral {</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">           1 :                 entitySpec.FactionNeutral = &amp;gc.FactionNeutral{}</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L550"><span class="lineNum">     550</span>              : </span>
+<span id="L551"><span class="lineNum">     551</span>              :         // AI の組み立て。SoloAIとして構築し、スポーン関数がそのまま使う</span>
+<span id="L552"><span class="lineNum">     552</span>              :         {</span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaGNC">           1 :                 solo := gc.SoloAI{</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaGNC">           1 :                         CombatDefault: rawschema.Attack,</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           1 :                         CombatCurrent: rawschema.Attack,</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           1 :                 if member.CombatPolicy != nil &amp;&amp; *member.CombatPolicy != &quot;&quot; {</span></span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaGNC">           1 :                         solo.CombatDefault = *member.CombatPolicy</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaGNC">           1 :                         solo.CombatCurrent = *member.CombatPolicy</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">           1 :                 if member.MovementPattern != nil &amp;&amp; *member.MovementPattern != &quot;&quot; {</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           1 :                         solo.Movement = *member.MovementPattern</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaGNC">           1 :                 entitySpec.SoloAI = &amp;solo</span></span>
+<span id="L565"><span class="lineNum">     565</span>              :         }</span>
+<span id="L566"><span class="lineNum">     566</span>              : </span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">           1 :         if member.Dialog != nil {</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           1 :                 entitySpec.Dialog = &amp;gc.Dialog{</span></span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaGNC">           1 :                         MessageKey: member.Dialog.MessageKey,</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaGNC">           1 :                 entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionTalk}}</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L573"><span class="lineNum">     573</span>              : </span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
+<span id="L575"><span class="lineNum">     575</span>              : }</span>
+<span id="L576"><span class="lineNum">     576</span>              : </span>
+<span id="L577"><span class="lineNum">     577</span>              : // NewPlayerSpec は指定された名前のプレイヤーのEntitySpecを生成する</span>
+<span id="L578"><span class="lineNum">     578</span>              : func NewPlayerSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {</span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaGNC">           1 :         entitySpec, err := NewMemberSpec(raws, name)</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, err</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC">           1 :         entitySpec.FactionAlly = &amp;gc.FactionAlly{}</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">           1 :         entitySpec.Player = &amp;gc.Player{}</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">           1 :         entitySpec.Hunger = gc.NewHunger()</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           1 :         entitySpec.Fatigue = gc.NewFatigue()</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           1 :         // 装備した灯りを StatsChangedSystem が写す入れ物。装備するまで消えている</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">           1 :         entitySpec.LightSource = &amp;gc.LightSource{}</span></span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           1 :         entitySpec.SoloAI = nil</span></span>
+<span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
+<span id="L591"><span class="lineNum">     591</span>              : }</span>
+<span id="L592"><span class="lineNum">     592</span>              : </span>
+<span id="L593"><span class="lineNum">     593</span>              : // NewEnemySpec は指定された名前の敵のEntitySpecを生成する</span>
+<span id="L594"><span class="lineNum">     594</span>              : func NewEnemySpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {</span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           1 :         entitySpec, err := NewMemberSpec(raws, name)</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, err</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           1 :         entitySpec.FactionEnemy = &amp;gc.FactionEnemy{}</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
+<span id="L602"><span class="lineNum">     602</span>              : }</span>
+<span id="L603"><span class="lineNum">     603</span>              : </span>
+<span id="L604"><span class="lineNum">     604</span>              : // GetCommandTable は指定された名前のコマンドテーブルを取得する</span>
+<span id="L605"><span class="lineNum">     605</span>              : func GetCommandTable(raws rawschema.Raws, name string) (rawschema.CommandTable, error) {</span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaGNC">           2 :         ct, ok := FindByKey(raws.CommandTables, func(c rawschema.CommandTable) string { return c.Id }, name)</span></span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L608"><span class="lineNum">     608</span> <span class="tlaGNC">           1 :                 return rawschema.CommandTable{}, NewKeyNotFoundError(name, &quot;CommandTables&quot;)</span></span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaGNC">           1 :         return ct, nil</span></span>
+<span id="L611"><span class="lineNum">     611</span>              : }</span>
+<span id="L612"><span class="lineNum">     612</span>              : </span>
+<span id="L613"><span class="lineNum">     613</span>              : // GetDropTable は指定された名前のドロップテーブルを取得する</span>
+<span id="L614"><span class="lineNum">     614</span>              : func GetDropTable(raws rawschema.Raws, name string) (rawschema.DropTable, error) {</span>
+<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           2 :         dt, ok := FindByKey(raws.DropTables, func(d rawschema.DropTable) string { return d.Id }, name)</span></span>
+<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           1 :                 return rawschema.DropTable{}, NewKeyNotFoundError(name, &quot;DropTables&quot;)</span></span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L619"><span class="lineNum">     619</span> <span class="tlaGNC">           1 :         return dt, nil</span></span>
+<span id="L620"><span class="lineNum">     620</span>              : }</span>
+<span id="L621"><span class="lineNum">     621</span>              : </span>
+<span id="L622"><span class="lineNum">     622</span>              : // errItemGroupNotExist は指定した ID のアイテムグループもアイテムコレクションも存在しないときに返す。</span>
+<span id="L623"><span class="lineNum">     623</span>              : var errItemGroupNotExist = errors.New(&quot;item group does not exist&quot;)</span>
+<span id="L624"><span class="lineNum">     624</span>              : </span>
+<span id="L625"><span class="lineNum">     625</span>              : // GetItemGroup は指定された名前のアイテムグループを取得する</span>
+<span id="L626"><span class="lineNum">     626</span>              : func GetItemGroup(raws rawschema.Raws, name string) (rawschema.ItemGroup, error) {</span>
+<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           2 :         ig, ok := FindByKey(raws.ItemGroups, func(g rawschema.ItemGroup) string { return g.Id }, name)</span></span>
+<span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           1 :                 return rawschema.ItemGroup{}, fmt.Errorf(&quot;%w: %s&quot;, errItemGroupNotExist, name)</span></span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">           1 :         return ig, nil</span></span>
+<span id="L632"><span class="lineNum">     632</span>              : }</span>
+<span id="L633"><span class="lineNum">     633</span>              : </span>
+<span id="L634"><span class="lineNum">     634</span>              : // GetItemCollection は指定された id のアイテムコレクションを取得する</span>
+<span id="L635"><span class="lineNum">     635</span>              : func GetItemCollection(raws rawschema.Raws, id string) (rawschema.ItemCollection, error) {</span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           2 :         c, ok := FindByKey(raws.ItemCollections, func(c rawschema.ItemCollection) string { return c.Id }, id)</span></span>
+<span id="L637"><span class="lineNum">     637</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">           1 :                 return rawschema.ItemCollection{}, NewKeyNotFoundError(id, &quot;ItemCollections&quot;)</span></span>
+<span id="L639"><span class="lineNum">     639</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L640"><span class="lineNum">     640</span> <span class="tlaGNC">           1 :         return c, nil</span></span>
+<span id="L641"><span class="lineNum">     641</span>              : }</span>
+<span id="L642"><span class="lineNum">     642</span>              : </span>
+<span id="L643"><span class="lineNum">     643</span>              : // GetItemTable は指定された名前のアイテムテーブルを取得する</span>
+<span id="L644"><span class="lineNum">     644</span>              : func GetItemTable(raws rawschema.Raws, name string) (rawschema.ItemTable, error) {</span>
+<span id="L645"><span class="lineNum">     645</span> <span class="tlaGNC">           2 :         it, ok := FindByKey(raws.ItemTables, func(t rawschema.ItemTable) string { return t.Id }, name)</span></span>
+<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L647"><span class="lineNum">     647</span> <span class="tlaGNC">           1 :                 return rawschema.ItemTable{}, NewKeyNotFoundError(name, &quot;ItemTables&quot;)</span></span>
+<span id="L648"><span class="lineNum">     648</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L649"><span class="lineNum">     649</span> <span class="tlaGNC">           1 :         return it, nil</span></span>
+<span id="L650"><span class="lineNum">     650</span>              : }</span>
+<span id="L651"><span class="lineNum">     651</span>              : </span>
+<span id="L652"><span class="lineNum">     652</span>              : // GetEnemyTable は指定された名前の敵テーブルを取得する</span>
+<span id="L653"><span class="lineNum">     653</span>              : func GetEnemyTable(raws rawschema.Raws, name string) (rawschema.EnemyTable, error) {</span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">           2 :         et, ok := FindByKey(raws.EnemyTables, func(t rawschema.EnemyTable) string { return t.Id }, name)</span></span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">           1 :                 return rawschema.EnemyTable{}, NewKeyNotFoundError(name, &quot;EnemyTables&quot;)</span></span>
+<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">           1 :         return et, nil</span></span>
+<span id="L659"><span class="lineNum">     659</span>              : }</span>
+<span id="L660"><span class="lineNum">     660</span>              : </span>
+<span id="L661"><span class="lineNum">     661</span>              : // DungeonReachable はダンジョンの行を遺跡の入口から入れるダンジョンとして扱うかを返す。重み0の行はデバッグ用</span>
+<span id="L662"><span class="lineNum">     662</span>              : func DungeonReachable(d *rawschema.Dungeon) bool {</span>
+<span id="L663"><span class="lineNum">     663</span> <span class="tlaGNC">           1 :         return d.EntranceWeight &gt; 0</span></span>
+<span id="L664"><span class="lineNum">     664</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L665"><span class="lineNum">     665</span>              : </span>
+<span id="L666"><span class="lineNum">     666</span>              : // GetDungeon は id のダンジョンの行を返す</span>
+<span id="L667"><span class="lineNum">     667</span>              : func GetDungeon(raws rawschema.Raws, id string) (rawschema.Dungeon, error) {</span>
+<span id="L668"><span class="lineNum">     668</span> <span class="tlaGNC">           2 :         d, ok := FindByKey(raws.Dungeons, func(d rawschema.Dungeon) string { return d.Id }, id)</span></span>
+<span id="L669"><span class="lineNum">     669</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L670"><span class="lineNum">     670</span> <span class="tlaGNC">           1 :                 return rawschema.Dungeon{}, NewKeyNotFoundError(id, &quot;Dungeons&quot;)</span></span>
+<span id="L671"><span class="lineNum">     671</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L672"><span class="lineNum">     672</span> <span class="tlaGNC">           1 :         return d, nil</span></span>
+<span id="L673"><span class="lineNum">     673</span>              : }</span>
+<span id="L674"><span class="lineNum">     674</span>              : </span>
+<span id="L675"><span class="lineNum">     675</span>              : // GetFacility は id の施設宣言を返す。未登録は false。</span>
+<span id="L676"><span class="lineNum">     676</span>              : func GetFacility(raws rawschema.Raws, id string) (rawschema.Facility, bool) {</span>
+<span id="L677"><span class="lineNum">     677</span> <span class="tlaGNC">           2 :         return FindByKey(raws.Facilities, func(f rawschema.Facility) string { return f.Id }, id)</span></span>
+<span id="L678"><span class="lineNum">     678</span>              : }</span>
+<span id="L679"><span class="lineNum">     679</span>              : </span>
+<span id="L680"><span class="lineNum">     680</span>              : // FacilityLootedChance は施設 fac の収納家具が荒らされて空になっている確率を百分率で返す。省略は0。</span>
+<span id="L681"><span class="lineNum">     681</span>              : func FacilityLootedChance(raws rawschema.Raws, fac string) (int, error) {</span>
+<span id="L682"><span class="lineNum">     682</span> <span class="tlaGNC">           1 :         f, ok := GetFacility(raws, fac)</span></span>
+<span id="L683"><span class="lineNum">     683</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaGNC">           1 :                 return 0, NewKeyNotFoundError(fac, &quot;Facilities&quot;)</span></span>
+<span id="L685"><span class="lineNum">     685</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaGNC">           1 :         if f.LootedChance == nil {</span></span>
+<span id="L687"><span class="lineNum">     687</span> <span class="tlaGNC">           1 :                 return 0, nil</span></span>
+<span id="L688"><span class="lineNum">     688</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L689"><span class="lineNum">     689</span> <span class="tlaGNC">           1 :         return int(*f.LootedChance), nil</span></span>
+<span id="L690"><span class="lineNum">     690</span>              : }</span>
+<span id="L691"><span class="lineNum">     691</span>              : </span>
+<span id="L692"><span class="lineNum">     692</span>              : // GetLandmark は id のランドマーク宣言を返す。未登録は false。</span>
+<span id="L693"><span class="lineNum">     693</span>              : func GetLandmark(raws rawschema.Raws, id string) (rawschema.Landmark, bool) {</span>
+<span id="L694"><span class="lineNum">     694</span> <span class="tlaGNC">           2 :         return FindByKey(raws.Landmarks, func(l rawschema.Landmark) string { return l.Id }, id)</span></span>
+<span id="L695"><span class="lineNum">     695</span>              : }</span>
+<span id="L696"><span class="lineNum">     696</span>              : </span>
+<span id="L697"><span class="lineNum">     697</span>              : // GetScatterZone は id の散布ゾーン宣言を返す。未登録は false。</span>
+<span id="L698"><span class="lineNum">     698</span>              : func GetScatterZone(raws rawschema.Raws, id string) (rawschema.ScatterZone, bool) {</span>
+<span id="L699"><span class="lineNum">     699</span> <span class="tlaGNC">           2 :         return FindByKey(raws.ScatterZones, func(z rawschema.ScatterZone) string { return z.Id }, id)</span></span>
+<span id="L700"><span class="lineNum">     700</span>              : }</span>
+<span id="L701"><span class="lineNum">     701</span>              : </span>
+<span id="L702"><span class="lineNum">     702</span>              : // GetMapGlyph は id の地図記号宣言を返す。未登録は false。</span>
+<span id="L703"><span class="lineNum">     703</span>              : func GetMapGlyph(raws rawschema.Raws, id string) (rawschema.MapGlyph, bool) {</span>
+<span id="L704"><span class="lineNum">     704</span> <span class="tlaGNC">           2 :         return FindByKey(raws.MapGlyphs, func(m rawschema.MapGlyph) string { return m.Id }, id)</span></span>
+<span id="L705"><span class="lineNum">     705</span>              : }</span>
+<span id="L706"><span class="lineNum">     706</span>              : </span>
+<span id="L707"><span class="lineNum">     707</span>              : // GetChunkGlyph は持ち主の行を持たないチャンクの種類 chunk を描く地図記号の行を返す</span>
+<span id="L708"><span class="lineNum">     708</span>              : func GetChunkGlyph(raws rawschema.Raws, chunk rawschema.GlyphChunk) (rawschema.MapGlyph, bool) {</span>
+<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">           1 :         for _, g := range PtrSlice(raws.MapGlyphs) {</span></span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaGNC">           1 :                 if g.Chunk != nil &amp;&amp; *g.Chunk == chunk {</span></span>
+<span id="L711"><span class="lineNum">     711</span> <span class="tlaGNC">           1 :                         return g, true</span></span>
+<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L713"><span class="lineNum">     713</span>              :         }</span>
+<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">           1 :         return rawschema.MapGlyph{}, false</span></span>
+<span id="L715"><span class="lineNum">     715</span>              : }</span>
+<span id="L716"><span class="lineNum">     716</span>              : </span>
+<span id="L717"><span class="lineNum">     717</span>              : // GetTile は指定された名前のタイルを取得する</span>
+<span id="L718"><span class="lineNum">     718</span>              : // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する</span>
+<span id="L719"><span class="lineNum">     719</span>              : func GetTile(raws rawschema.Raws, id string) (rawschema.Tile, error) {</span>
+<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">           2 :         tile, ok := FindByKey(raws.Tiles, func(t rawschema.Tile) string { return t.Id }, id)</span></span>
+<span id="L721"><span class="lineNum">     721</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L722"><span class="lineNum">     722</span> <span class="tlaGNC">           1 :                 return rawschema.Tile{}, NewKeyNotFoundError(id, &quot;Tiles&quot;)</span></span>
+<span id="L723"><span class="lineNum">     723</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L724"><span class="lineNum">     724</span> <span class="tlaGNC">           1 :         return tile, nil</span></span>
+<span id="L725"><span class="lineNum">     725</span>              : }</span>
+<span id="L726"><span class="lineNum">     726</span>              : </span>
+<span id="L727"><span class="lineNum">     727</span>              : // NewTileSpec は指定された名前のタイルのEntitySpecを生成する</span>
+<span id="L728"><span class="lineNum">     728</span>              : // 実際にエンティティを生成する際に使用する</span>
+<span id="L729"><span class="lineNum">     729</span>              : func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileIndex *int) (gc.EntitySpec, error) {</span>
+<span id="L730"><span class="lineNum">     730</span> <span class="tlaGNC">           1 :         tileRaw, err := GetTile(raws, name)</span></span>
+<span id="L731"><span class="lineNum">     731</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L732"><span class="lineNum">     732</span> <span class="tlaUNC">           0 :                 return gc.EntitySpec{}, err</span></span>
+<span id="L733"><span class="lineNum">     733</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L734"><span class="lineNum">     734</span>              : </span>
+<span id="L735"><span class="lineNum">     735</span> <span class="tlaGNC">           1 :         entitySpec := gc.EntitySpec{}</span></span>
+<span id="L736"><span class="lineNum">     736</span> <span class="tlaGNC">           1 :         entitySpec.Name = &amp;gc.Name{Name: i18n.Msgid(tileRaw.Name)}</span></span>
+<span id="L737"><span class="lineNum">     737</span> <span class="tlaGNC">           1 :         entitySpec.RawID = &amp;gc.RawID{ID: tileRaw.Id}</span></span>
+<span id="L738"><span class="lineNum">     738</span> <span class="tlaGNC">           1 :         entitySpec.Description = &amp;gc.Description{Description: i18n.Msgid(tileRaw.Description)}</span></span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaGNC">           1 :         entitySpec.GridElement = &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}</span></span>
+<span id="L740"><span class="lineNum">     740</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L741"><span class="lineNum">     741</span>              :         // SpriteRenderを設定</span>
+<span id="L742"><span class="lineNum">     742</span> <span class="tlaGNC">           1 :         sprite := toGCSpriteRender(tileRaw.SpriteRender)</span></span>
+<span id="L743"><span class="lineNum">     743</span> <span class="tlaGNC">           1 :         // オートタイルインデックスが指定されている場合はspriteKeyを動的に生成</span></span>
+<span id="L744"><span class="lineNum">     744</span> <span class="tlaGNC">           1 :         if autoTileIndex != nil {</span></span>
+<span id="L745"><span class="lineNum">     745</span> <span class="tlaGNC">           1 :                 sprite.SpriteKey = fmt.Sprintf(&quot;%s_%d&quot;, tileRaw.SpriteRender.SpriteKey, *autoTileIndex)</span></span>
+<span id="L746"><span class="lineNum">     746</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L747"><span class="lineNum">     747</span> <span class="tlaGNC">           1 :         entitySpec.SpriteRender = &amp;sprite</span></span>
+<span id="L748"><span class="lineNum">     748</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L749"><span class="lineNum">     749</span> <span class="tlaGNC">           1 :         entitySpec.Passable = toGCPassable(tileRaw.Passable)</span></span>
+<span id="L750"><span class="lineNum">     750</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L751"><span class="lineNum">     751</span> <span class="tlaGNC">           1 :         if tileRaw.SeeThrough {</span></span>
+<span id="L752"><span class="lineNum">     752</span> <span class="tlaGNC">           1 :                 entitySpec.SeeThrough = &amp;gc.SeeThrough{}</span></span>
 <span id="L753"><span class="lineNum">     753</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L754"><span class="lineNum">     754</span>              : </span>
 <span id="L755"><span class="lineNum">     755</span> <span class="tlaGNC">           1 :         entitySpec.Tile = &amp;gc.Tile{}</span></span>
@@ -918,8 +918,8 @@
 <span id="L856"><span class="lineNum">     856</span> <span class="tlaGNC">           1 :         entitySpec.SpriteRender = &amp;spriteRender</span></span>
 <span id="L857"><span class="lineNum">     857</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L858"><span class="lineNum">     858</span> <span class="tlaGNC">           1 :         entitySpec.Passable = toGCPassable(propRaw.Passable)</span></span>
-<span id="L859"><span class="lineNum">     859</span> <span class="tlaGNC">           1 :         if propRaw.BlockView {</span></span>
-<span id="L860"><span class="lineNum">     860</span> <span class="tlaGNC">           1 :                 entitySpec.BlockView = &amp;gc.BlockView{}</span></span>
+<span id="L859"><span class="lineNum">     859</span> <span class="tlaGNC">           1 :         if propRaw.SeeThrough {</span></span>
+<span id="L860"><span class="lineNum">     860</span> <span class="tlaGNC">           1 :                 entitySpec.SeeThrough = &amp;gc.SeeThrough{}</span></span>
 <span id="L861"><span class="lineNum">     861</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L862"><span class="lineNum">     862</span>              :         // 各条件に対応するインタラクションを蓄積する。</span>
 <span id="L863"><span class="lineNum">     863</span>              :         // 1つのPropが複数のインタラクションを持てる</span>
