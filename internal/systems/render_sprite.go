@@ -288,56 +288,55 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		tileMap[*ge] = e
 	}
 
-	// マスにはキャラクターも乗るので、地形と置物のうち見通せず通れないものだけが影を落とす
-	for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {
-		wallShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).With(kind).Without(ecs.C[gc.SeeThrough](), ecs.C[gc.Passable]()).Query()
-		for wallShadowQuery.Next() {
-			entity := wallShadowQuery.Entity()
-			grid := world.Components.GridElement.Get(entity)
-
-			if !inViewport(grid, minX, maxX, minY, maxY) {
-				continue
-			}
-			if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {
-				continue
-			}
-
-			spriteRender := world.Components.SpriteRender.Get(entity)
-
-			// 高さのあるものだけが影を落とす
-			if spriteRender.Depth.Rank() <= rawschema.SpriteDepthRug.Rank() {
-				continue
-			}
-
-			// 下のタイルを検索
-			belowPos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y + 1}}
-			belowTileEntity, foundBelow := tileMap[belowPos]
-
-			if !foundBelow {
-				continue
-			}
-
-			if !world.Components.SpriteRender.Has(belowTileEntity) {
-				continue // 下が床でなければ影を描画しない
-			}
-			belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)
-			if belowSpriteRender.Depth != rawschema.SpriteDepthFloor {
-				continue // 下が床でなければ影を描画しない
-			}
-
-			// 下のマスも壁なら影を描かない。壁、床、壁と並ぶとき
-			if !world.Components.SeeThrough.Has(belowTileEntity) && !world.Components.Passable.Has(belowTileEntity) {
-				continue
-			}
-
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))
-			setTranslate(world, op, camera)
-			if wallShadowImage != nil {
-				screen.DrawImage(wallShadowImage, op)
-			}
+	// 見通せず通れない地形と置物だけが影を落とす
+	query.ForEachTerrainOrPropWithout(world, func(entity ecs.Entity) {
+		if !world.Components.SpriteRender.Has(entity) {
+			return
 		}
-	}
+		grid := world.Components.GridElement.Get(entity)
+
+		if !inViewport(grid, minX, maxX, minY, maxY) {
+			return
+		}
+		if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {
+			return
+		}
+
+		spriteRender := world.Components.SpriteRender.Get(entity)
+
+		// 高さのあるものだけが影を落とす
+		if spriteRender.Depth.Rank() <= rawschema.SpriteDepthRug.Rank() {
+			return
+		}
+
+		// 下のタイルを検索
+		belowPos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y + 1}}
+		belowTileEntity, foundBelow := tileMap[belowPos]
+
+		if !foundBelow {
+			return
+		}
+
+		if !world.Components.SpriteRender.Has(belowTileEntity) {
+			return // 下が床でなければ影を描画しない
+		}
+		belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)
+		if belowSpriteRender.Depth != rawschema.SpriteDepthFloor {
+			return // 下が床でなければ影を描画しない
+		}
+
+		// 下のマスも壁なら影を描かない。壁、床、壁と並ぶとき
+		if !world.Components.SeeThrough.Has(belowTileEntity) && !world.Components.Passable.Has(belowTileEntity) {
+			return
+		}
+
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))
+		setTranslate(world, op, camera)
+		if wallShadowImage != nil {
+			screen.DrawImage(wallShadowImage, op)
+		}
+	}, ecs.C[gc.SeeThrough](), ecs.C[gc.Passable]())
 }
 
 func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera, desaturate bool) error {

@@ -11,6 +11,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -111,7 +112,9 @@ func collectProps(world w.World) []propAt {
 // 壁として扱うのはこれだけで、歩行可能な草地や plant・moving_stone は含まない。
 func collectBlockingTiles(world w.World) map[consts.Coord[consts.Tile]]bool {
 	blocked := make(map[consts.Coord[consts.Tile]]bool)
-	forEachImpassable(world, func(ge gc.GridElement) { blocked[ge.Coord] = true })
+	query.ForEachTerrainOrPropWithout(world, func(e ecs.Entity) {
+		blocked[world.Components.GridElement.Get(e).Coord] = true
+	}, ecs.C[gc.Passable]())
 	return blocked
 }
 

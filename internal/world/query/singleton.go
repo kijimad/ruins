@@ -224,16 +224,9 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil
 
-	// 通れないマスのインデックス構築。退避中ステージのタイルは現ステージの座標索引に混ぜない。
-	// 壊れて掃除を待つ置物は塞がない
-	blockedTileQuery := ActiveFilter2[gc.GridElement, gc.Tile](world).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()
-	for blockedTileQuery.Next() {
-		si.Blocked[*world.Components.GridElement.Get(blockedTileQuery.Entity())] = true
-	}
-	blockedPropQuery := ActiveFilter2[gc.GridElement, gc.Prop](world).Without(ecs.C[gc.Passable](), ecs.C[gc.Dead]()).Query()
-	for blockedPropQuery.Next() {
-		si.Blocked[*world.Components.GridElement.Get(blockedPropQuery.Entity())] = true
-	}
+	ForEachTerrainOrPropWithout(world, func(e ecs.Entity) {
+		si.Blocked[*world.Components.GridElement.Get(e)] = true
+	}, ecs.C[gc.Passable]())
 
 	// キャラクター位置のインデックス構築。退避中ステージのキャラクターは現ステージに混ぜない
 	characterQuery := ActiveFilter1[gc.GridElement](world).Query()
