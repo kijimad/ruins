@@ -105,9 +105,6 @@ import (
 // 寝具の睡眠効率。100が基準で、高いほど短く深く眠れる
 #BeddingQuality: int & >=0
 
-// 視線を遮るかどうか
-#BlocksView: bool
-
 // 部位。部位の集合と身体機能との対応は Go が持ち、raw は表示名と命中の重みを持つ
 #BodyPart: {
 	id!:   #BodyPartId
@@ -1330,8 +1327,9 @@ import (
 	spriteRender!: #SpriteRender
 	animKeys?: [...#SpriteKey]
 	// 省くと通れない
-	passable?:  #Passable
-	blockView!: #BlocksView
+	passable?: #Passable
+	// 偽か書き忘れだと見通せない
+	seeThrough!: bool
 
 	// 耐久。省略した prop は殴れない
 	hp?:              #HitPoints
@@ -1793,8 +1791,9 @@ import (
 	name!:        #EntityName
 	description!: #EntityDescription
 	// 省くと通れない
-	passable?:     #Passable
-	blockView!:    #BlocksView
+	passable?: #Passable
+	// 偽か書き忘れだと見通せない
+	seeThrough!:   bool
 	spriteRender!: #SpriteRender
 
 	// 水のタイル。上に立つと水中、隣に立つと水辺の気温の補正を受ける

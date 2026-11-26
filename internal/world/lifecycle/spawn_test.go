@@ -345,9 +345,9 @@ func TestSpawnDoor(t *testing.T) {
 		assert.False(t, doorComp.IsOpen)
 		assert.Equal(t, gc.DoorOrientationVertical, doorComp.Orientation)
 
-		// 通れなさと BlockView を確認
+		// 通れず見通せないことを確認
 		assert.False(t, world.Components.Passable.Has(door))
-		assert.True(t, world.Components.BlockView.Has(door))
+		assert.False(t, world.Components.SeeThrough.Has(door))
 	})
 
 	t.Run("横向き扉のスポーン", func(t *testing.T) {

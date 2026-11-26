@@ -301,7 +301,7 @@ func TestSpawnFacility_窓は通れず視線を通し下の床も塞がない(t 
 		if world.Components.Prop.Has(e) {
 			kind = "prop"
 		}
-		got[kind] = traits{pass: !world.Components.Passable.Has(e), view: world.Components.BlockView.Has(e)}
+		got[kind] = traits{pass: !world.Components.Passable.Has(e), view: !world.Components.SeeThrough.Has(e)}
 	}
 	assert.Equal(t, map[string]traits{
 		"prop": {pass: true, view: false},
@@ -464,7 +464,7 @@ func TestFacilityTemplates_置物の下の地形は置物より塞がない(t *t
 					}
 					// ground は下地を残す予約語で行が無く、通れる地面として扱う
 					tl, known := tiles[c.Terrain]
-					if (p.Passable == nil && known && tl.Passable == nil) || (!p.BlockView && tl.BlockView) {
+					if (p.Passable == nil && known && tl.Passable == nil) || (p.SeeThrough && known && !tl.SeeThrough) {
 						bad = append(bad, fmt.Sprintf("%s %d,%d %s on %s", name, x, y, c.Prop, c.Terrain))
 					}
 				}
