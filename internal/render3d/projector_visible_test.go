@@ -19,7 +19,7 @@ func TestVisibleTileRect_カメラの前にあって画面に掛かるタイル�
 				t.Run(fmt.Sprintf("pitch=%.2f/dist=%.0f/orient=%d", pitch, dist, orient), func(t *testing.T) {
 					t.Parallel()
 					p := NewProjector(gc.Camera{Orient: orient, Pitch: pitch, Dist: dist}, center, 960, 720)
-					missed := 0
+					var missed []consts.Coord[consts.Tile]
 					for y := consts.Tile(-reach); y <= reach; y++ {
 						for x := consts.Tile(-reach); x <= reach; x++ {
 							c := consts.Coord[consts.Tile]{X: x, Y: y}
@@ -27,11 +27,11 @@ func TestVisibleTileRect_カメラの前にあって画面に掛かるタイル�
 								continue
 							}
 							if !p.inVisibleRect(c) {
-								missed++
+								missed = append(missed, c)
 							}
 						}
 					}
-					assert.Equal(t, 0, missed)
+					assert.Empty(t, missed)
 				})
 			}
 		}
