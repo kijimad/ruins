@@ -11,7 +11,7 @@ import (
 const anchorFuelTurns consts.Turn = 10
 
 // AnchorFuelSystem は展開中のキューブの燃料を、anchorFuelTurns ターンごとに1ずつ容量まで戻す。
-// 錨の間に燃料が尽きて詰むのを防ぐためのもので、遠征で持ち帰る燃料よりずっと少ない
+// 錨の間に燃料が尽きて詰むのを防ぐ
 type AnchorFuelSystem struct{}
 
 // String はシステム名を返す
@@ -19,7 +19,7 @@ func (sys *AnchorFuelSystem) String() string {
 	return "AnchorFuelSystem"
 }
 
-// Update は経過ターンが間隔で割り切れるターンにだけ、現ステージの展開中のキューブの燃料を1戻す
+// Update は間隔のターンにだけ燃料を戻す
 func (sys *AnchorFuelSystem) Update(world w.World) error {
 	if query.GetGameTime(world).TotalTurns%anchorFuelTurns != 0 {
 		return nil
