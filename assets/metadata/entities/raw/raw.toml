@@ -1634,6 +1634,7 @@
       beach = "sand_slate"
       beachWidth = 2
       deep = "water_deep"
+      glyph = "lakeside_water"
       shallow = "water_shallow"
       shallowWidth = 3
       wobble = 2

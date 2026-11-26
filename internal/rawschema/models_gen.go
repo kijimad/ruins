@@ -714,11 +714,15 @@ type DistrictWater struct {
 	// Beach 浜のタイル
 	Beach EntityID `json:"beach"`
 
-	// BeachWidth 浜の幅。タイル数。街路と水の間を必ずこの幅だけ空けるので揺らさない
+	// BeachWidth 浜の幅。タイル数。街路と水の間を必ずこの幅だけ空けるので揺らさない。浜と浅瀬と揺れの合計はチャンクの短い辺より小さくする。
+	// 超えると、隣が水のチャンクの深い水との境目に段差が出る
 	BeachWidth int `json:"beachWidth"`
 
 	// Deep 深い水のタイル
 	Deep EntityID `json:"deep"`
+
+	// Glyph 俯瞰図に出す記号の行
+	Glyph EntityID `json:"glyph"`
 
 	// Shallow 浅瀬のタイル
 	Shallow EntityID `json:"shallow"`

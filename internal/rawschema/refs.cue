@@ -25,6 +25,7 @@ fuelKinds?:        _
 toolCategories?:   _
 ammoKinds?:        _
 zones?:            _
+mapGlyphs?:        _
 materials?:        _
 foliageEffects?:   _
 skills?:           _
@@ -57,6 +58,7 @@ _fuelKindIDs: {if fuelKinds != _|_ for x in fuelKinds {(x.id): true}}
 _toolCategoryIDs: {if toolCategories != _|_ for x in toolCategories {(x.id): true}}
 _ammoKindIDs: {if ammoKinds != _|_ for x in ammoKinds {(x.id): true}}
 _zoneIDs: {if zones != _|_ for x in zones {(x.id): true}}
+_mapGlyphIDs: {if mapGlyphs != _|_ for x in mapGlyphs {(x.id): true}}
 _materialIDs: {if materials != _|_ for x in materials {(x.id): true}}
 _foliageIDs: {if foliageEffects != _|_ for x in foliageEffects {(x.id): true}}
 _memberIDs: {if members != _|_ for x in members {(x.id): true}}

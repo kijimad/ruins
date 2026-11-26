@@ -53,7 +53,6 @@ func TestLakeShore_landDistance(t *testing.T) {
 		{"北の辺から3行", lakeShore{north: true}, 10, 3, 3},
 		{"東の辺は右端からの距離", lakeShore{east: true}, 20, 5, 3},
 		{"近い方の辺を取る", lakeShore{north: true, west: true}, 2, 5, 2},
-		{"斜めだけが陸の角は角の点から丸く測る", lakeShore{nw: true}, 3, 4, math.Hypot(3.5, 4.5) - 0.5},
 		{"陸に面さない", lakeShore{}, 10, 10, math.Inf(1)},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

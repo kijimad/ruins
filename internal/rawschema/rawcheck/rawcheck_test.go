@@ -282,6 +282,41 @@ func TestValidate_危険度の範囲が逆転すると位置で返す(t *testing
 	}
 }
 
+func TestValidate_水面の制約の違反を位置で返す(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		mutate func(*rawschema.Raws)
+		want   string
+	}{
+		{name: "地区と水を両方持つ", mutate: func(r *rawschema.Raws) {
+			w := validWater()
+			(*r.Districts)[0].Layers[1].Water = &w
+		}, want: "districts.0.layers.1.zonesAbsent"},
+		{name: "揺れが浅瀬の幅以上", mutate: func(r *rawschema.Raws) {
+			w := validWater()
+			w.Wobble = w.ShallowWidth
+			(*r.Districts)[0].Layers[1] = rawschema.DistrictLayer{Water: &w}
+		}, want: "districts.0.layers.1.water.wobble"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var ce *rawcheck.Error
+			require.ErrorAs(t, rawcheck.Validate(makeRefRaws(tt.mutate)), &ce)
+			assert.Equal(t, []string{tt.want}, ce.Paths())
+		})
+	}
+}
+
+func TestValidate_水面の層は通る(t *testing.T) {
+	t.Parallel()
+	assert.NoError(t, rawcheck.Validate(makeRefRaws(func(r *rawschema.Raws) {
+		w := validWater()
+		(*r.Districts)[0].Layers[1] = rawschema.DistrictLayer{Water: &w}
+	})))
+}
+
 func TestValidate_移動コストを0で書くと位置で返す(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

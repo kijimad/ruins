@@ -160,6 +160,16 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		}, "items.0.tool.categories_ref.0"},
 		{"施設の地区", func(r *rawschema.Raws) { (*r.Facilities)[0].Zones[0].Zone = "none" }, "facilities.0.zones.0.zone_ref"},
 		{"区域の層の地区", func(r *rawschema.Raws) { (*(*r.Districts)[0].Layers[1].Zones)[0] = "none" }, "districts.0.layers.1.zones_ref.0"},
+		{"水面の深い水のタイル", func(r *rawschema.Raws) {
+			w := validWater()
+			w.Deep = "none"
+			(*r.Districts)[0].Layers[1] = rawschema.DistrictLayer{Water: &w}
+		}, "districts.0.layers.1.water.deep_ref"},
+		{"水面の記号", func(r *rawschema.Raws) {
+			w := validWater()
+			w.Glyph = "none"
+			(*r.Districts)[0].Layers[1] = rawschema.DistrictLayer{Water: &w}
+		}, "districts.0.layers.1.water.glyph_ref"},
 		{"アイテムの材質", func(r *rawschema.Raws) { (*r.Items)[0].Material = new("none") }, "itemMaterials_ref.iron"},
 		{"タイルの植生", func(r *rawschema.Raws) { (*r.Tiles)[1].Foliage = new("none") }, "tiles.1.foliage_ref"},
 		{"分解の道具の分類", func(r *rawschema.Raws) { (*r.Props)[0].Disassembly.ToolCategory = new("none") }, "props.0.disassembly.toolCategory_ref"},
@@ -287,4 +297,9 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 			assert.Equal(t, []string{tt.wantPath}, ce.Paths())
 		})
 	}
+}
+
+// validWater は makeRefRaws の行だけを引く、検証を通る水面
+func validWater() rawschema.DistrictWater {
+	return rawschema.DistrictWater{Deep: "floor", Shallow: "floor", Beach: "floor", Glyph: "house", BeachWidth: 1, ShallowWidth: 2, Wobble: 1}
 }

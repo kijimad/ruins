@@ -443,7 +443,11 @@ import (
 	// 浜のタイル
 	beach!:    #EntityID
 	beach_ref: _tileIDs[beach] @rawgen(-)
-	// 浜の幅。タイル数。街路と水の間を必ずこの幅だけ空けるので揺らさない
+	// 俯瞰図に出す記号の行
+	glyph!:    #EntityID
+	glyph_ref: _mapGlyphIDs[glyph] @rawgen(-)
+	// 浜の幅。タイル数。街路と水の間を必ずこの幅だけ空けるので揺らさない。浜と浅瀬と揺れの合計はチャンクの短い辺より小さくする。
+	// 超えると、隣が水のチャンクの深い水との境目に段差が出る
 	beachWidth!: int & >=1
 	// 浅瀬の幅の基準。タイル数
 	shallowWidth!: int & >=1
