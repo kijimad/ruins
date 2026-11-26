@@ -656,6 +656,7 @@ type insetFace struct {
 // closedInsets は閉じている壁にはめる置物の座標の集合を返す
 func closedInsets(world w.World) map[consts.Coord[consts.Tile]]bool {
 	insets := map[consts.Coord[consts.Tile]]bool{}
+	// はめ込みは置物だけが持つ。種類で絞り、毎フレーム地面のタイルまで回さない
 	q := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Passage](world).With(ecs.C[gc.Prop]()).Without(ecs.C[gc.Dead]()).Query()
 	for q.Next() {
 		if world.Components.Passage.Get(q.Entity()).Passable {
