@@ -50,8 +50,7 @@ func TestExecuteInteraction_DungeonEnter_進入先定義が無ければエラー
 
 	_, err := ExecuteInteraction(actor, entrance, gc.InteractionDungeonEnter, world)
 
-	require.Error(t, err)
-	assert.Equal(t, "dungeon entrance has no destination dungeon definition", err.Error())
+	require.ErrorIs(t, err, errNoDungeonDestination)
 }
 
 // TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数へ畳み着火する は、着火が対象タイルの
@@ -234,8 +233,7 @@ func TestExecuteInteraction_Ignite_対象が位置を持たない場合はエラ
 
 	_, err := ExecuteInteraction(actor, target, gc.InteractionIgnite, world)
 
-	require.Error(t, err)
-	assert.Equal(t, "ignite target has no position", err.Error())
+	require.ErrorIs(t, err, errIgniteNoPosition)
 }
 
 // TestExecuteInteraction_Ignite_タイルに燃焼物が無ければ火が立たない は、対象タイルに燃焼物が
@@ -256,8 +254,7 @@ func TestExecuteInteraction_Ignite_タイルに燃焼物が無ければ火が立
 
 	_, err := ExecuteInteraction(actor, target, gc.InteractionIgnite, world)
 
-	require.Error(t, err)
-	assert.Equal(t, "no fuel to ignite at tile", err.Error())
+	require.ErrorIs(t, err, errNoFuelToIgnite)
 	fires := ecs.NewFilter1[gc.Burning](world.ECS).Query()
 	assert.Zero(t, fires.Count(), "燃料が無ければ火は残らない")
 	fires.Close()

@@ -121,8 +121,7 @@ func TestOpenDoorBehavior_DoTurn(t *testing.T) {
 
 		err := odb.DoTurn(comp, gc.InvalidEntity, world)
 
-		require.Error(t, err)
-		assert.Equal(t, "cannot get door component", err.Error())
+		require.ErrorIs(t, err, errNoDoorComponent)
 	})
 
 	t.Run("既に開いている扉に対しては何もせず完了する", func(t *testing.T) {
@@ -237,8 +236,7 @@ func TestCloseDoorBehavior(t *testing.T) {
 
 		err := cdb.Validate(comp, gc.InvalidEntity, world)
 
-		require.Error(t, err)
-		assert.Equal(t, "target is not alive", err.Error())
+		require.ErrorIs(t, err, errDoorTargetNotAlive)
 	})
 
 	t.Run("対象がDoorコンポーネントを持たない場合はエラー", func(t *testing.T) {
@@ -251,8 +249,7 @@ func TestCloseDoorBehavior(t *testing.T) {
 
 		err := cdb.Validate(comp, gc.InvalidEntity, world)
 
-		require.Error(t, err)
-		assert.Equal(t, "target is not a door", err.Error())
+		require.ErrorIs(t, err, errDoorTargetNotDoor)
 	})
 }
 
@@ -281,8 +278,7 @@ func TestCloseDoorBehavior_DoTurn(t *testing.T) {
 
 		err := cdb.DoTurn(comp, gc.InvalidEntity, world)
 
-		require.Error(t, err)
-		assert.Equal(t, "cannot get door component", err.Error())
+		require.ErrorIs(t, err, errNoDoorComponent)
 	})
 
 	t.Run("既に閉じている扉に対しては何もせず完了する", func(t *testing.T) {

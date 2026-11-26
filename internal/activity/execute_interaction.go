@@ -22,6 +22,12 @@ var (
 	errDoorInteractionNoDoor = errors.New("DoorInteraction but no Door component")
 	// errTalkInteractionNoDialog は会話の相互作用の対象がDialogを持たないときに返す
 	errTalkInteractionNoDialog = errors.New("TalkInteraction but no Dialog component")
+	// errNoDungeonDestination は遺跡の入口が行き先の遺跡を持たないときに返す
+	errNoDungeonDestination = errors.New("dungeon entrance has no destination dungeon definition")
+	// errIgniteNoPosition は着火の対象が位置を持たないときに返す
+	errIgniteNoPosition = errors.New("ignite target has no position")
+	// errNoFuelToIgnite は着火の対象のマスに燃える物が無いときに返す
+	errNoFuelToIgnite = errors.New("no fuel to ignite at tile")
 )
 
 // ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する。
@@ -81,7 +87,7 @@ func executePortal(world w.World, event gc.StateChangeRequest, failMsg, successM
 // 入口ごとに進入先が違うため、イベントに定義名を載せて運ぶ。
 func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error) {
 	if !world.Components.DungeonEntrance.Has(target) {
-		return nil, fmt.Errorf("dungeon entrance has no destination dungeon definition")
+		return nil, errNoDungeonDestination
 	}
 	defName := world.Components.DungeonEntrance.Get(target).DefinitionName
 	if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterEvent(defName)); err != nil {
@@ -126,7 +132,7 @@ func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRes
 // 足元でなく隣接タイルに火が立つのは、足元だと自分が燃えるため。使った火種が残量を持てば減らす。
 func executeIgnite(actor, target ecs.Entity, world w.World) (*ActionResult, error) {
 	if !world.Components.GridElement.Has(target) {
-		return nil, fmt.Errorf("ignite target has no position")
+		return nil, errIgniteNoPosition
 	}
 	starter, ok := query.FireStarterOf(world, actor)
 	if !ok {
@@ -152,7 +158,7 @@ func executeIgnite(actor, target ecs.Entity, world w.World) (*ActionResult, erro
 		world.Components.Burning.Remove(fire)
 		world.ECS.RemoveEntity(fire)
 		query.InvalidateSpatialIndex(world)
-		return nil, fmt.Errorf("no fuel to ignite at tile")
+		return nil, errNoFuelToIgnite
 	}
 
 	// 火は光源を持つ。灯りを即反映するため視界の再計算を要求する
