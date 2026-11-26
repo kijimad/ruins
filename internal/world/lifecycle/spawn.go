@@ -48,6 +48,8 @@ func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, aut
 	}
 
 	entity := world.Components.AddEntity(world.ECS, &entitySpec)
+	// 通れないマスと移動コストの表が変わる
+	query.InvalidateSpatialIndex(world)
 	return entity, nil
 }
 

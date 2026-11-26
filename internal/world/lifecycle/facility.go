@@ -68,6 +68,7 @@ func PlaceFacility(world w.World, cube ecs.Entity, item ecs.Entity, coord consts
 	ensureRemoved(world.Components.Item, item)
 	EnsureMarker(world, world.Components.Prop, item, &gc.Prop{})
 	MoveMembersToField(world, []ecs.Entity{item}, coord, owner)
+	query.InvalidateSpatialIndex(world)
 	return item, nil
 }
 
@@ -82,5 +83,6 @@ func RemoveFacility(world w.World, facility ecs.Entity, player ecs.Entity) error
 	}
 	ensureRemoved(world.Components.Prop, facility)
 	EnsureMarker(world, world.Components.Item, facility, &gc.Item{})
+	query.InvalidateSpatialIndex(world)
 	return MoveToBackpack(world, facility, player)
 }

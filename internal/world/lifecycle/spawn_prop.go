@@ -65,6 +65,8 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 		ensureRemoved(world.Components.SeeThrough, doorEntity)
 	}
 
+	// 開閉で通れないマスが変わる
+	query.InvalidateSpatialIndex(world)
 	return nil
 }
 
@@ -78,7 +80,10 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 	entitySpec.LocationOnField = &gc.LocationOnField{}
 
-	return world.Components.AddEntity(world.ECS, &entitySpec), nil
+	e := world.Components.AddEntity(world.ECS, &entitySpec)
+	// 通れないマスと移動コストの表が変わる
+	query.InvalidateSpatialIndex(world)
+	return e, nil
 }
 
 // SpawnDecor は地面の飾りを生成する。置物を数える処理に入らないよう LocationOnField を付けない
@@ -104,7 +109,10 @@ func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitio
 	entitySpec.DungeonEntrance = &gc.DungeonEntrance{DefinitionName: definitionName}
 	entitySpec.StageBound = &gc.StageBound{Key: gc.NewOverworldStage()}
 
-	return world.Components.AddEntity(world.ECS, &entitySpec), nil
+	e := world.Components.AddEntity(world.ECS, &entitySpec)
+	// 通れないマスと移動コストの表が変わる
+	query.InvalidateSpatialIndex(world)
+	return e, nil
 }
 
 // SpawnDoor は raw の door prop から扉を生成し、向きに合わせて閉じた姿にする
@@ -122,7 +130,10 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 	}
 	entitySpec.SpriteRender.SpriteKey = doorSpriteKey(*prop.Door, orientation, false)
 
-	return world.Components.AddEntity(world.ECS, &entitySpec), nil
+	e := world.Components.AddEntity(world.ECS, &entitySpec)
+	// 通れないマスと移動コストの表が変わる
+	query.InvalidateSpatialIndex(world)
+	return e, nil
 }
 
 // doorRaw は扉の prop の行から扉の見た目の定義を引く。raw の行を持たない扉は ok=false
@@ -173,6 +184,7 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 	entitySpec.WeightCapacity = &gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu, gc.InteractionSwap}}
 	cube := world.Components.AddEntity(world.ECS, &entitySpec)
+	query.InvalidateSpatialIndex(world)
 	maxAP := query.CalculateMaxActionPoints(world, cube)
 	world.Components.TurnBased.Get(cube).AP = gc.IntPool{Current: maxAP, Max: maxAP}
 	return cube, nil

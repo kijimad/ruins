@@ -346,14 +346,14 @@ func TestActivitySummary(t *testing.T) {
 	assert.Equal(t, 1, summary["paused"], "Expected 1 paused activity")
 }
 
-func TestGetPassCostAt(t *testing.T) {
+func TestPassCostAt(t *testing.T) {
 	t.Parallel()
 
 	t.Run("移動コストがないタイルでは0を返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		cost := getPassCostAt(world, 5, 5)
+		cost := query.PassCostAt(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 		assert.Equal(t, 0, cost)
 	})
 
@@ -366,7 +366,7 @@ func TestGetPassCostAt(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Passable.Add(prop, &gc.Passable{Cost: 50})
 
-		cost := getPassCostAt(world, 5, 5)
+		cost := query.PassCostAt(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 		assert.Equal(t, 50, cost)
 	})
 
@@ -380,7 +380,7 @@ func TestGetPassCostAt(t *testing.T) {
 		world.Components.Passable.Add(prop, &gc.Passable{Cost: 50})
 		world.Components.Dead.Add(prop, &gc.Dead{})
 
-		assert.Equal(t, 0, getPassCostAt(world, 5, 5))
+		assert.Equal(t, 0, query.PassCostAt(world, consts.Coord[consts.Tile]{X: 5, Y: 5}))
 	})
 
 	t.Run("同一タイルに複数の移動コストがある場合は合算する", func(t *testing.T) {
@@ -397,7 +397,7 @@ func TestGetPassCostAt(t *testing.T) {
 		world.Components.GridElement.Add(prop2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 		world.Components.Passable.Add(prop2, &gc.Passable{Cost: 20})
 
-		cost := getPassCostAt(world, 5, 5)
+		cost := query.PassCostAt(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 		assert.Equal(t, 50, cost)
 	})
 }

@@ -22,6 +22,8 @@ func dealHP(world w.World, target ecs.Entity, damage int) (died bool) {
 
 	if hp.Current <= 0 && beforeHP > 0 {
 		world.Components.Dead.Add(target, &gc.Dead{})
+		// 壊れた置物は塞がず移動コストも持たない
+		query.InvalidateSpatialIndex(world)
 		return true
 	}
 	return false

@@ -334,29 +334,12 @@ func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
 
 	// 移動行動の場合、移動先タイルの移動コストを加算する。MoveParams を持つのは移動だけ
 	if mp, ok := comp.Params.(*gc.MoveParams); ok {
-		cost += getPassCostAt(world, int(mp.Destination.X), int(mp.Destination.Y))
+		cost += query.PassCostAt(world, mp.Destination.Coord)
 	}
 
 	if !query.ConsumeActionPoints(world, actor, cost) {
 		log.Debug("no TurnBased component", "actor", actor)
 	}
-}
-
-// getPassCostAt は指定座標にある壊れていない地形と置物の移動コストを合算して返す
-func getPassCostAt(world w.World, x, y int) int {
-	total := 0
-	passableQuery := query.ActiveFilter2[gc.GridElement, gc.Passable](world).Query()
-	for passableQuery.Next() {
-		entity := passableQuery.Entity()
-		if !query.IsStandingTerrainOrProp(world, entity) {
-			continue
-		}
-		grid := world.Components.GridElement.Get(entity)
-		if int(grid.X) == x && int(grid.Y) == y {
-			total += world.Components.Passable.Get(entity).Cost
-		}
-	}
-	return total
 }
 
 // errNoTurnBased はエンティティがTurnBasedを持たないときに返す
