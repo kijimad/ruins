@@ -116,6 +116,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 | in-progress | [否定形のコンポーネントを肯定形にする](docs/design/261124220035.md) | 11/14 | refactor, ecs |
 | draft | [湖の区域](docs/design/261124195212.md) | 0/11 | worldgen, gamedesign |
 | draft | [錨を下ろして遠征を繰り返し、乗り切って北へ発つ](docs/design/261125003808.md) | 0/7 | gamedesign, combat, worldgen, movement |
+| draft | [キューブを展開している間は帯を止め、燃料をゆっくり戻す](docs/design/261126224751.md) | 0/4 | worldgen, movement, gamedesign |
 
 
 ## References
