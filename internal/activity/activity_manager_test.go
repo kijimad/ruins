@@ -369,6 +369,18 @@ func TestGetPassCostAt(t *testing.T) {
 		assert.Equal(t, 50, cost)
 	})
 
+	t.Run("壊れて掃除を待つ置物の移動コストは数えない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		prop := world.ECS.NewEntity()
+		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		world.Components.Passable.Add(prop, &gc.Passable{Cost: 50})
+		world.Components.Dead.Add(prop, &gc.Dead{})
+
+		assert.Equal(t, 0, getPassCostAt(world, 5, 5))
+	})
+
 	t.Run("同一タイルに複数の移動コストがある場合は合算する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

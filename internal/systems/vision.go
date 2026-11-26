@@ -513,11 +513,8 @@ func smoothstep(edge0, edge1, x float64) float64 {
 func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
 	index := make(map[gc.GridElement]bool)
 	// 退避中ステージの遮蔽物は現ステージの視界を遮らない
-	for _, kind := range []ecs.Comp{ecs.C[gc.Tile](), ecs.C[gc.Prop]()} {
-		q := query.ActiveFilter1[gc.GridElement](world).With(kind).Without(ecs.C[gc.SeeThrough]()).Query()
-		for q.Next() {
-			index[*world.Components.GridElement.Get(q.Entity())] = true
-		}
-	}
+	query.ForEachTerrainOrPropWithout(world, func(e ecs.Entity) {
+		index[*world.Components.GridElement.Get(e)] = true
+	}, ecs.C[gc.SeeThrough]())
 	return index
 }
