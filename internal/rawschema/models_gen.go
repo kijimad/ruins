@@ -648,8 +648,8 @@ type District struct {
 	// Spacing 当選の間隔。チャンク数
 	Spacing int `json:"spacing"`
 
-	// Street 街路のタイル
-	Street EntityID `json:"street"`
+	// Street 街路のタイル。省くと街路の格子を引かない
+	Street *EntityID `json:"street,omitempty"`
 
 	// StreetEnemies チャンクごとに街路へ湧かせる敵の数
 	StreetEnemies Dice `json:"streetEnemies"`
@@ -660,10 +660,16 @@ type District struct {
 
 // DistrictLayer 地区の層。候補の地区から区域の seed で1つ選ぶ。水で満たす層は地区を持たない
 type DistrictLayer struct {
+	// Lots この層で施設を建てるチャンクの数。省くと全てのチャンクに建てる。建てないチャンクは自然の地面にする
+	Lots *int `json:"lots,omitempty"`
+
 	// Rows rows の並べ方で、この層が占める行の数
 	Rows *int `json:"rows,omitempty"`
 
-	// Water この層のチャンクを水で満たす。街路も施設も置かない
+	// Scatter 施設を建てないチャンクと、湖の輪郭の外の地面に撒く散布の種類。省くと撒かない
+	Scatter *EntityID `json:"scatter,omitempty"`
+
+	// Water この層のチャンクに湖を描く。街路も施設も置かない
 	Water *DistrictWater `json:"water,omitempty"`
 
 	// Zones 候補の地区。水で満たす層では省く
@@ -709,13 +715,12 @@ type DistrictSize struct {
 	Weight int `json:"weight"`
 }
 
-// DistrictWater 水で満たす層の水面。陸に面する辺に、外から浜と浅瀬を付け、その内側を深い水にする
+// DistrictWater 湖の水面。層のチャンクを合わせた長方形に収まる楕円を基に、輪郭を値ノイズで出入りさせる。輪郭から内へ浜、浅瀬、深い水と並べる
 type DistrictWater struct {
 	// Beach 浜のタイル
 	Beach EntityID `json:"beach"`
 
-	// BeachWidth 浜の幅。タイル数。街路と水の間を必ずこの幅だけ空けるので揺らさない。浜と浅瀬と揺れの合計はチャンクの短い辺より小さくする。
-	// 超えると、隣が水のチャンクの深い水との境目に段差が出る
+	// BeachWidth 浜の幅。タイル数
 	BeachWidth int `json:"beachWidth"`
 
 	// Deep 深い水のタイル
@@ -727,11 +732,14 @@ type DistrictWater struct {
 	// Shallow 浅瀬のタイル
 	Shallow EntityID `json:"shallow"`
 
-	// ShallowWidth 浅瀬の幅の基準。タイル数
+	// ShallowWidth 浅瀬の幅。タイル数
 	ShallowWidth int `json:"shallowWidth"`
 
-	// Wobble 浅瀬の幅を揺らす量。浅瀬の幅をこの範囲で増減させ、岸の線をチャンクの格子からずらす。浅瀬が無くならないよう浅瀬の幅より小さくする
-	Wobble int `json:"wobble"`
+	// ShoreCell 輪郭の出入りの格子の間隔。大きいほどゆるい入り江になる。タイル数
+	ShoreCell int `json:"shoreCell"`
+
+	// ShoreWobble 輪郭を楕円から出入りさせる量。タイル数
+	ShoreWobble int `json:"shoreWobble"`
 }
 
 // DoorRaw 扉ローデータ

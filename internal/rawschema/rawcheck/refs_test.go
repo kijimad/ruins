@@ -56,7 +56,7 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 		}},
 		Districts: &[]rawschema.District{{
 			Id: "town", Name: "Town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{{Zones: &[]rawschema.ZoneId{"residential"}}, {Zones: &[]rawschema.ZoneId{"downtown"}}}, Landmark: new(rawschema.EntityID("house")),
-			Street: "floor", Verge: new(rawschema.EntityID("floor")), StreetEnemies: "1d2",
+			Street: new(rawschema.EntityID("floor")), Verge: new(rawschema.EntityID("floor")), StreetEnemies: "1d2",
 			Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}},
 		}},
 		Landmarks: &[]rawschema.Landmark{
@@ -165,6 +165,9 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 			w.Deep = "none"
 			(*r.Districts)[0].Layers[1] = rawschema.DistrictLayer{Water: &w}
 		}, "districts.0.layers.1.water.deep_ref"},
+		{"層の散布", func(r *rawschema.Raws) {
+			(*r.Districts)[0].Layers[0].Scatter = new(rawschema.EntityID("none"))
+		}, "districts.0.layers.0.scatter_ref"},
 		{"水面の記号", func(r *rawschema.Raws) {
 			w := validWater()
 			w.Glyph = "none"
@@ -184,7 +187,7 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"散布ゾーンの下地のタイル", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Ground = "none" }, "scatterZones.0.ground_ref"},
 		{"散布ゾーンの戦利品グループ", func(r *rawschema.Raws) { (*r.ScatterZones)[0].LootGroup = "none" }, "scatterZones.0.lootGroup_ref"},
 		{"区域の目玉の施設", func(r *rawschema.Raws) { (*r.Districts)[0].Landmark = new(rawschema.EntityID("none")) }, "districts.0.landmark_ref"},
-		{"区域の街路のタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Street = "none" }, "districts.0.street_ref"},
+		{"区域の街路のタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Street = new(rawschema.EntityID("none")) }, "districts.0.street_ref"},
 		{"区域の植え込みのタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Verge = new(rawschema.EntityID("none")) }, "districts.0.verge_ref"},
 		{"散布の prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Entries[1].Ref = "none" }, "scatterZones.0.entries.1.ref_ref"},
 		{"散布の衛星の prop", func(r *rawschema.Raws) { (*(*r.ScatterZones)[0].Entries[1].Satellites)[0].Name = "none" }, "scatterZones.0.entries.1.satellites_ref.0"},
@@ -301,5 +304,5 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 
 // validWater は makeRefRaws の行だけを引く、検証を通る水面
 func validWater() rawschema.DistrictWater {
-	return rawschema.DistrictWater{Deep: "floor", Shallow: "floor", Beach: "floor", Glyph: "house", BeachWidth: 1, ShallowWidth: 2, Wobble: 1}
+	return rawschema.DistrictWater{Deep: "floor", Shallow: "floor", Beach: "floor", Glyph: "house", BeachWidth: 1, ShallowWidth: 2, ShoreWobble: 1, ShoreCell: 8}
 }

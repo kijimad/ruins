@@ -50,7 +50,7 @@ func TestGolden_Facing_SideOn(t *testing.T) {
 func TestGolden_Inset_OpenDoor(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitReplayWorld(t)
-	// RunSeed 6 は開始地点の近くに扉のある住まいがある
+	// RunSeed 6 は開始チャンクの近くに扉のある建物がある
 	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{RunSeed: 6})()
 	require.NoError(t, err)
 	sm, err := es.Init(s, world)

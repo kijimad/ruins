@@ -139,10 +139,13 @@ func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.ZoneId, spa
 }
 
 // urbanFacilityAt は区域 r の中のチャンク c に建つ施設 id を返す。地図表示と生成の両方が使う。
-// 水で満たすチャンクは施設を持たないので、水面の行が指す記号の id を返す
+// 湖を描くチャンクは水面の行が指す記号の id を、施設を建てない自然の地面のチャンクは空を返す
 func urbanFacilityAt(raws rawschema.Raws, cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk], spawnRow consts.Chunk) string {
 	if water := r.waterAt(r.local(c)); water != nil {
 		return water.Glyph
+	}
+	if !r.builds(r.local(c)) {
+		return ""
 	}
 	return lotAt(lotsOf(raws, cat, r, spawnRow), r.local(c)).facility
 }
@@ -156,9 +159,12 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 		return nil
 	}
 	l := r.local(c)
-	// 水で満たすチャンクは街路も施設も置かず、敵も湧かせない
+	// 湖を描くチャンクと自然の地面のチャンクは街路も施設も置かず、敵も湧かせない。輪郭の外の地面は散布が撒く
 	if r.waterAt(l) != nil {
 		return renderLakeChunk(world, g, r, c)
+	}
+	if !r.builds(l) {
+		return nil
 	}
 	lots := lotsOf(raws, zoneCatalogFrom(raws), r, spawnRowOf(world))
 	lot := lotAt(lots, l)
@@ -179,9 +185,15 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 // gateColumns は塀を巡らせる区域 r の、北と南の門を開ける絶対チャンク列を、区域を埋めた区画 lots から返す。
 // 真ん中の列を覆う区画の西の端の列で、区画の西の帯は街路なので、門から区域の中の街路へ入れる
 func gateColumns(r districtRegion, lots []buildingLot) (north, south consts.Chunk) {
-	north = lotAt(lots, consts.Coord[consts.Chunk]{X: r.w / 2, Y: 0}).anchor.X
-	south = lotAt(lots, consts.Coord[consts.Chunk]{X: r.w / 2, Y: r.h - 1}).anchor.X
-	return r.anchor.X + north, r.anchor.X + south
+	column := func(y consts.Chunk) consts.Chunk {
+		l := consts.Coord[consts.Chunk]{X: r.w / 2, Y: y}
+		// 施設を建てない自然の地面なら、真ん中の列をそのまま門にする
+		if !r.builds(l) {
+			return r.anchor.X + l.X
+		}
+		return r.anchor.X + lotAt(lots, l).anchor.X
+	}
+	return column(0), column(r.h - 1)
 }
 
 // districtFence は区域の中のチャンク l に置く塀のマスを、チャンク内の座標で返す。塀は区域の外周を巡り、
@@ -235,7 +247,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Di
 	if err != nil {
 		return err
 	}
-	if origin != 0 {
+	if origin != 0 && streets.street != "" {
 		if err := drawUrbanStreets(world, g, streets); err != nil {
 			return err
 		}
@@ -300,7 +312,7 @@ func drawUrbanStreets(world w.World, g chunkGeom, streets streetTiles) error {
 	return nil
 }
 
-// streetTiles は区域の街路に置くタイル。verge が空なら植え込みを置かない
+// streetTiles は区域の街路に置くタイル。street が空なら街路を引かず、verge が空なら植え込みを置かない
 type streetTiles struct {
 	street string
 	verge  string
@@ -308,7 +320,10 @@ type streetTiles struct {
 
 // streetTilesOf は区域の行から街路に置くタイルを組む
 func streetTilesOf(d *rawschema.District) streetTiles {
-	s := streetTiles{street: d.Street}
+	var s streetTiles
+	if d.Street != nil {
+		s.street = *d.Street
+	}
 	if d.Verge != nil {
 		s.verge = *d.Verge
 	}

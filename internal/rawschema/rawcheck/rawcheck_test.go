@@ -293,11 +293,11 @@ func TestValidate_水面の制約の違反を位置で返す(t *testing.T) {
 			w := validWater()
 			(*r.Districts)[0].Layers[1].Water = &w
 		}, want: "districts.0.layers.1.zonesAbsent"},
-		{name: "揺れが浅瀬の幅以上", mutate: func(r *rawschema.Raws) {
+		{name: "揺れの格子の間隔が0", mutate: func(r *rawschema.Raws) {
 			w := validWater()
-			w.Wobble = w.ShallowWidth
+			w.ShoreCell = 0
 			(*r.Districts)[0].Layers[1] = rawschema.DistrictLayer{Water: &w}
-		}, want: "districts.0.layers.1.water.wobble"},
+		}, want: "districts.0.layers.1.water.shoreCell"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

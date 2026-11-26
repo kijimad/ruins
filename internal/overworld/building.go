@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"math/rand/v2"
@@ -37,7 +38,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 	taken := map[consts.Coord[consts.Chunk]]bool{}
 	free := func(x, y consts.Chunk, z rawschema.ZoneId) bool {
 		c := consts.Coord[consts.Chunk]{X: x, Y: y}
-		return x < r.w && y < r.h && !taken[c] && r.zoneAt(c) == z
+		return x < r.w && y < r.h && !taken[c] && r.builds(c) && r.zoneAt(c) == z
 	}
 	fits := func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool {
 		for dy := range h {
@@ -71,8 +72,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 	for y := range r.h {
 		for x := range r.w {
 			l := consts.Coord[consts.Chunk]{X: x, Y: y}
-			// 水で満たすチャンクには区画を割り振らない
-			if taken[l] || r.waterAt(l) != nil {
+			if taken[l] || !r.builds(l) {
 				continue
 			}
 			z := r.zoneAt(l)
@@ -130,7 +130,40 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
 	return consts.Coord[consts.Chunk]{}, 0, 0, false
 }
 
-// lotAt は区域の中の座標 l を含む区画を返す。lotsOf が水で満たすチャンクの外を隙間なく埋めるので、水で満たすチャンクでなければ必ず見つかる
+// builds は区域の中の座標 l に施設を建てるかを返す。湖を描く層と、施設の数を絞った層で選ばれなかったチャンクは建てず、自然の地面にする
+func (r districtRegion) builds(l consts.Coord[consts.Chunk]) bool {
+	if r.waterAt(l) != nil {
+		return false
+	}
+	i := r.layerAt(l)
+	lots := r.kind.Layers[i].Lots
+	return lots == nil || slices.Contains(r.lotChunks(i, *lots), l)
+}
+
+// lotChunks は層 i のチャンクのうち、施設を建てる n チャンクを返す。道の来る南の辺の中央に近い順に選び、同じ近さなら区域の seed で並べる
+func (r districtRegion) lotChunks(i, n int) []consts.Coord[consts.Chunk] {
+	var cs []consts.Coord[consts.Chunk]
+	for y := range r.h {
+		for x := range r.w {
+			if l := (consts.Coord[consts.Chunk]{X: x, Y: y}); r.layerAt(l) == i {
+				cs = append(cs, l)
+			}
+		}
+	}
+	gate := consts.Coord[consts.Chunk]{X: r.w / 2, Y: r.h - 1}
+	dist := func(l consts.Coord[consts.Chunk]) consts.Chunk {
+		return max(l.X-gate.X, gate.X-l.X) + gate.Y - l.Y
+	}
+	slices.SortFunc(cs, func(a, b consts.Coord[consts.Chunk]) int {
+		if d := dist(a) - dist(b); d != 0 {
+			return int(d)
+		}
+		return cmp.Compare(consts.Mix2D(r.seed, a.X, a.Y), consts.Mix2D(r.seed, b.X, b.Y))
+	})
+	return cs[:min(n, len(cs))]
+}
+
+// lotAt は区域の中の座標 l を含む区画を返す。lotsOf が施設を建てる全てのチャンクを隙間なく埋めるので、builds が真なら必ず見つかる
 func lotAt(lots []buildingLot, l consts.Coord[consts.Chunk]) buildingLot {
 	for _, b := range lots {
 		if l.X >= b.anchor.X && l.X < b.anchor.X+b.w && l.Y >= b.anchor.Y && l.Y < b.anchor.Y+b.h {

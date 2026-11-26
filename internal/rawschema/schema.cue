@@ -356,9 +356,12 @@ import (
 
 	// チャンクごとに街路へ湧かせる敵の数
 	streetEnemies!: #Dice
-	// 街路のタイル
-	street!:    #EntityID
-	street_ref: _tileIDs[street] @rawgen(-)
+	// 街路のタイル。省くと街路の格子を引かない
+	street?: #EntityID
+	if street != _|_ {
+		street_ref: _tileIDs[street] @rawgen(-)
+	}
+
 	// 街路の両端に置く植え込みのタイル。省くと植え込みを置かず、建物と道の間を空けない
 	verge?: #EntityID
 	if verge != _|_ {
@@ -424,15 +427,23 @@ import (
 
 	// rows の並べ方で、この層が占める行の数
 	rows?: int & >=1
-	// この層のチャンクを水で満たす。街路も施設も置かない
+	// この層のチャンクに湖を描く。街路も施設も置かない
 	water?: #DistrictWater
+	// この層で施設を建てるチャンクの数。省くと全てのチャンクに建てる。建てないチャンクは自然の地面にする
+	lots?: int & >=1
+	// 施設を建てないチャンクと、湖の輪郭の外の地面に撒く散布の種類。省くと撒かない
+	scatter?: #EntityID
+	if scatter != _|_ {
+		scatter_ref: _scatterZoneIDs[scatter] @rawgen(-)
+	}
+
 	// 地区と水を両方持たない。どちらも持たない層は raw の Go の検証が落とす
 	if water != _|_ {
 		zonesAbsent: true & zones == _|_ @rawgen(-)
 	}
 }
 
-// 水で満たす層の水面。陸に面する辺に、外から浜と浅瀬を付け、その内側を深い水にする
+// 湖の水面。層のチャンクを合わせた長方形に収まる楕円を基に、輪郭を値ノイズで出入りさせる。輪郭から内へ浜、浅瀬、深い水と並べる
 #DistrictWater: {
 	// 深い水のタイル
 	deep!:    #EntityID
@@ -446,13 +457,14 @@ import (
 	// 俯瞰図に出す記号の行
 	glyph!:    #EntityID
 	glyph_ref: _mapGlyphIDs[glyph] @rawgen(-)
-	// 浜の幅。タイル数。街路と水の間を必ずこの幅だけ空けるので揺らさない。浜と浅瀬と揺れの合計はチャンクの短い辺より小さくする。
-	// 超えると、隣が水のチャンクの深い水との境目に段差が出る
+	// 浜の幅。タイル数
 	beachWidth!: int & >=1
-	// 浅瀬の幅の基準。タイル数
+	// 浅瀬の幅。タイル数
 	shallowWidth!: int & >=1
-	// 浅瀬の幅を揺らす量。浅瀬の幅をこの範囲で増減させ、岸の線をチャンクの格子からずらす。浅瀬が無くならないよう浅瀬の幅より小さくする
-	wobble!: int & >=0 & <shallowWidth
+	// 輪郭を楕円から出入りさせる量。タイル数
+	shoreWobble!: int & >=0
+	// 輪郭の出入りの格子の間隔。大きいほどゆるい入り江になる。タイル数
+	shoreCell!: int & >=1
 }
 
 // フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す

@@ -26,6 +26,7 @@ toolCategories?:   _
 ammoKinds?:        _
 zones?:            _
 mapGlyphs?:        _
+scatterZones?:     _
 materials?:        _
 foliageEffects?:   _
 skills?:           _
@@ -59,6 +60,7 @@ _toolCategoryIDs: {if toolCategories != _|_ for x in toolCategories {(x.id): tru
 _ammoKindIDs: {if ammoKinds != _|_ for x in ammoKinds {(x.id): true}}
 _zoneIDs: {if zones != _|_ for x in zones {(x.id): true}}
 _mapGlyphIDs: {if mapGlyphs != _|_ for x in mapGlyphs {(x.id): true}}
+_scatterZoneIDs: {if scatterZones != _|_ for x in scatterZones {(x.id): true}}
 _materialIDs: {if materials != _|_ for x in materials {(x.id): true}}
 _foliageIDs: {if foliageEffects != _|_ for x in foliageEffects {(x.id): true}}
 _memberIDs: {if members != _|_ for x in members {(x.id): true}}

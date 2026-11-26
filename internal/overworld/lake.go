@@ -10,14 +10,10 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-const (
-	// lakeShoreCell は岸の線の揺れの格子の間隔。ノイズの値をこの間隔の格子点に置き、間を補間する
-	lakeShoreCell consts.Tile = 6
-	// lakeNoiseChannel は岸の揺れのノイズを他の抽選と無相関にするハッシュチャネル
-	lakeNoiseChannel uint64 = 0x6c616b655f6e7a // "lake_nz"
-)
+// lakeNoiseChannel は湖の輪郭のノイズを他の抽選と無相関にするハッシュチャネル
+const lakeNoiseChannel uint64 = 0x6c616b655f6e7a // "lake_nz"
 
-// waterAt は区域の中の座標 l の層が水で満たす層なら、その水面を返す。区域の外と、水で満たさない層は nil
+// waterAt は区域の中の座標 l の層が湖を描く層なら、その水面を返す。区域の外と、湖を描かない層は nil
 func (r districtRegion) waterAt(l consts.Coord[consts.Chunk]) *rawschema.DistrictWater {
 	if !r.contains(r.anchor.Add(l)) {
 		return nil
@@ -25,62 +21,88 @@ func (r districtRegion) waterAt(l consts.Coord[consts.Chunk]) *rawschema.Distric
 	return r.kind.Layers[r.layerAt(l)].Water
 }
 
-// lakeShore は水で満たすチャンクの、陸に面する辺。rings の中心は長方形なので、斜めだけが陸の角は生じない
-type lakeShore struct {
-	north, south, west, east bool
+// lakeShape は区域の湖の輪郭。湖を描く層のチャンクを合わせた長方形に収まる楕円を、絶対タイル座標で持つ
+type lakeShape struct {
+	water          *rawschema.DistrictWater
+	cx, cy, rx, ry float64
+	seed           uint64
 }
 
-// shoreOf は水で満たすチャンク l の陸に面する辺を、上下左右の隣のチャンクが水かどうかから導く
-func (r districtRegion) shoreOf(l consts.Coord[consts.Chunk]) lakeShore {
-	land := func(dx, dy consts.Chunk) bool {
-		return r.waterAt(l.Add(consts.Coord[consts.Chunk]{X: dx, Y: dy})) == nil
-	}
-	return lakeShore{north: land(0, -1), south: land(0, 1), west: land(-1, 0), east: land(1, 0)}
-}
-
-// landDistance はチャンクの中のマス (x, y) から、陸に面する辺までのマス数の一番小さい値を返す。陸に面さなければ無限大
-func (s lakeShore) landDistance(x, y, w, h consts.Tile) float64 {
-	d := math.Inf(1)
-	edge := func(on bool, v consts.Tile) {
-		if on {
-			d = min(d, float64(v))
+// lakeShapeOf は区域 r の湖の輪郭を返す。楕円は湖を描く層の長方形から、揺れの量と浜の幅だけ内側に取り、
+// 湖が隣の層のチャンクへはみ出さないようにする。湖を描く層が無ければ ok=false
+func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool) {
+	var water *rawschema.DistrictWater
+	lo := consts.Coord[consts.Chunk]{X: r.w, Y: r.h}
+	var hi consts.Coord[consts.Chunk]
+	for y := range r.h {
+		for x := range r.w {
+			if wt := r.waterAt(consts.Coord[consts.Chunk]{X: x, Y: y}); wt != nil {
+				water = wt
+				lo = consts.Coord[consts.Chunk]{X: min(lo.X, x), Y: min(lo.Y, y)}
+				hi = consts.Coord[consts.Chunk]{X: max(hi.X, x+1), Y: max(hi.Y, y+1)}
+			}
 		}
 	}
-	edge(s.north, y)
-	edge(s.south, h-1-y)
-	edge(s.west, x)
-	edge(s.east, w-1-x)
-	return d
+	if water == nil {
+		return lakeShape{}, false
+	}
+	x0, y0 := float64((r.anchor.X + lo.X).Tiles(chunkW)), float64((r.anchor.Y + lo.Y).Tiles(chunkH))
+	x1, y1 := float64((r.anchor.X + hi.X).Tiles(chunkW)), float64((r.anchor.Y + hi.Y).Tiles(chunkH))
+	margin := float64(water.ShoreWobble + water.BeachWidth)
+	return lakeShape{
+		water: water,
+		cx:    (x0 + x1) / 2,
+		cy:    (y0 + y1) / 2,
+		rx:    (x1-x0)/2 - margin,
+		ry:    (y1-y0)/2 - margin,
+		seed:  r.seed ^ lakeNoiseChannel,
+	}, true
 }
 
-// renderLakeChunk は区域 r の水で満たすチャンク c を描く。陸に面する辺から、浜、浅瀬、深い水の順に並べる。
-// 浅瀬の幅は絶対タイル座標の値ノイズで揺らし、区域の中のどのチャンクも同じ種で揺らすので、岸の線は境目で途切れない
+// depth は絶対タイル座標 p が湖の輪郭からどれだけ内側にあるかをマス数で返す。負なら輪郭の外の陸。
+// 楕円の内側への深さを短い半径でマス数に直し、値ノイズで揺れの量だけ増減させる
+func (s lakeShape) depth(p consts.Coord[consts.Tile]) float64 {
+	dx := (float64(p.X) + 0.5 - s.cx) / s.rx
+	dy := (float64(p.Y) + 0.5 - s.cy) / s.ry
+	inside := (1 - math.Hypot(dx, dy)) * min(s.rx, s.ry)
+	return inside + float64(s.water.ShoreWobble)*(2*valueNoise(s.seed, p, consts.Tile(s.water.ShoreCell))-1)
+}
+
+// tileAt は絶対タイル座標 p に置く水面のタイルを返す。輪郭の外の陸なら ok=false
+func (s lakeShape) tileAt(p consts.Coord[consts.Tile]) (string, bool) {
+	d := s.depth(p)
+	switch {
+	case d < 0:
+		return "", false
+	case d < float64(s.water.BeachWidth):
+		return s.water.Beach, true
+	case d < float64(s.water.BeachWidth+s.water.ShallowWidth):
+		return s.water.Shallow, true
+	}
+	return s.water.Deep, true
+}
+
+// renderLakeChunk は区域 r の湖を描く層のチャンク c に、湖の輪郭の内側のマスだけ水面を置く。輪郭の外は下地の土を残す
 func renderLakeChunk(world w.World, g chunkGeom, r districtRegion, c consts.Coord[consts.Chunk]) error {
-	l := r.local(c)
-	water := r.waterAt(l)
-	shore := r.shoreOf(l)
-	origin := consts.Coord[consts.Tile]{X: c.X.Tiles(g.chunkW), Y: c.Y.Tiles(g.chunkH)}
-	tiles := g.tiles.get()
+	shape, ok := r.lakeShapeOf(g.chunkW, g.chunkH)
+	if !ok {
+		return nil
+	}
 	rows := map[string]rawschema.Tile{}
-	for _, id := range []string{water.Deep, water.Shallow, water.Beach} {
+	for _, id := range []string{shape.water.Deep, shape.water.Shallow, shape.water.Beach} {
 		t, err := raw.GetTile(world.Resources.RawMaster, id)
 		if err != nil {
 			return fmt.Errorf("lake tile %q: %w", id, err)
 		}
 		rows[id] = t
 	}
+	origin := consts.Coord[consts.Tile]{X: c.X.Tiles(g.chunkW), Y: c.Y.Tiles(g.chunkH)}
+	tiles := g.tiles.get()
 	for y := range g.chunkH {
 		for x := range g.chunkW {
-			tile := water.Deep
-			if d := shore.landDistance(x, y, g.chunkW, g.chunkH); !math.IsInf(d, 1) {
-				abs := origin.Add(consts.Coord[consts.Tile]{X: x, Y: y})
-				shallow := float64(water.ShallowWidth) + float64(water.Wobble)*(2*valueNoise(r.seed^lakeNoiseChannel, abs, lakeShoreCell)-1)
-				switch {
-				case d < float64(water.BeachWidth):
-					tile = water.Beach
-				case d < float64(water.BeachWidth)+shallow:
-					tile = water.Shallow
-				}
+			tile, ok := shape.tileAt(origin.Add(consts.Coord[consts.Tile]{X: x, Y: y}))
+			if !ok {
+				continue
 			}
 			if err := spawnFacilityTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + x, Y: g.offsetY + y}, rows[tile]); err != nil {
 				return err

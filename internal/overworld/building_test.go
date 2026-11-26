@@ -173,12 +173,12 @@ func TestLotsOf_区域を同じ地区の中の区画で隙間なく埋める(t *
 			land := 0
 			for y := range r.h {
 				for x := range r.w {
-					if r.waterAt(consts.Coord[consts.Chunk]{X: x, Y: y}) == nil {
+					if r.builds(consts.Coord[consts.Chunk]{X: x, Y: y}) {
 						land++
 					}
 				}
 			}
-			assert.Len(t, covered, land, "区域の水で満たさない全てのチャンクを覆う")
+			assert.Len(t, covered, land, "区域の施設を建てる全てのチャンクを覆う")
 			for c, n := range covered {
 				assert.Equal(t, 1, n, "%v は1つの区画にだけ入る", c)
 			}

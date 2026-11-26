@@ -243,7 +243,7 @@ func TestDistrictRegion_zoneAt_区域が割り振る地区はrawの地区の一�
 				r := districtRegion{kind: d.row, w: consts.Chunk(size.W), h: consts.Chunk(size.H), seed: seed << zoneChoiceShift}
 				for ly := range r.h {
 					for lx := range r.w {
-						// 水で満たすチャンクは地区を持たない
+						// 湖を描くチャンクは地区を持たない
 						if l := (consts.Coord[consts.Chunk]{X: lx, Y: ly}); r.waterAt(l) == nil {
 							got[r.zoneAt(l)] = true
 						}
@@ -323,6 +323,7 @@ func TestStreetTerrain_植え込みは帯の両端で角は道(t *testing.T) {
 func TestStreetTilesOf_植え込みを省くと植え込みを置かない(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, streetTiles{street: "road"}, streetTilesOf(&rawschema.District{Street: "road"}))
-	assert.Equal(t, streetTiles{street: "road", verge: "grass_green"}, streetTilesOf(&rawschema.District{Street: "road", Verge: new(rawschema.EntityID("grass_green"))}))
+	assert.Equal(t, streetTiles{street: "road"}, streetTilesOf(&rawschema.District{Street: new(rawschema.EntityID("road"))}))
+	assert.Equal(t, streetTiles{street: "road", verge: "grass_green"}, streetTilesOf(&rawschema.District{Street: new(rawschema.EntityID("road")), Verge: new(rawschema.EntityID("grass_green"))}))
+	assert.Equal(t, streetTiles{}, streetTilesOf(&rawschema.District{}), "街路を省くと街路を引かない")
 }
