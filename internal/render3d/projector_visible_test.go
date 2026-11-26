@@ -13,7 +13,8 @@ func TestVisibleTileRect_カメラの前にあって画面に掛かるタイル�
 	t.Parallel()
 	const reach = 210
 	center := consts.Coord[consts.Tile]{}
-	for _, pitch := range []float64{gc.CameraMinPitch, gc.CameraDefaultPitch, gc.CameraMaxPitch} {
+	// 0.44 と 0.47 は、視錐台の上の辺が水平をまたぐ境目の両側
+	for _, pitch := range []float64{gc.CameraMinPitch, 0.44, 0.47, gc.CameraDefaultPitch, gc.CameraMaxPitch} {
 		for _, dist := range []float64{gc.CameraMinDist, gc.CameraDefaultDist, gc.CameraMaxDist} {
 			for orient := range gc.Orient(gc.CameraOrientCount) {
 				t.Run(fmt.Sprintf("pitch=%.2f/dist=%.0f/orient=%d", pitch, dist, orient), func(t *testing.T) {
