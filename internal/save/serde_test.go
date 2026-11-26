@@ -302,7 +302,7 @@ func TestSerde_Searchedが往復する(t *testing.T) {
 	assert.Equal(t, map[consts.Coord[consts.Tile]]bool{{X: 3, Y: 3}: false, {X: 4, Y: 3}: true}, got)
 }
 
-func TestSerde_PassableとSeeThroughが往復する(t *testing.T) {
+func TestSerde_PassageとVisibilityが往復する(t *testing.T) {
 	t.Parallel()
 	testDir := t.TempDir()
 	manager, err := NewSerializationManager(WithSaveDir(testDir))
@@ -321,24 +321,19 @@ func TestSerde_PassableとSeeThroughが往復する(t *testing.T) {
 	require.NoError(t, manager.LoadWorld(newWorld, "passable"))
 
 	type marks struct {
-		passable   *gc.Passable
-		seeThrough bool
+		passage    gc.Passage
+		visibility gc.Visibility
 	}
 	got := map[string]marks{}
-	q := ecs.NewFilter2[gc.RawID, gc.Prop](newWorld.ECS).Query()
+	q := ecs.NewFilter3[gc.RawID, gc.Passage, gc.Visibility](newWorld.ECS).With(ecs.C[gc.Prop]()).Query()
 	for q.Next() {
-		e := q.Entity()
-		var m marks
-		if newWorld.Components.Passable.Has(e) {
-			m.passable = newWorld.Components.Passable.Get(e)
-		}
-		m.seeThrough = newWorld.Components.SeeThrough.Has(e)
-		got[newWorld.Components.RawID.Get(e).ID] = m
+		_, passage, visibility := q.Get()
+		got[newWorld.Components.RawID.Get(q.Entity()).ID] = marks{*passage, *visibility}
 	}
 	assert.Equal(t, map[string]marks{
-		"moving_stone": {passable: &gc.Passable{Cost: 50}, seeThrough: true},
-		"fence":        {seeThrough: true},
-		"bookshelf":    {},
+		"moving_stone": {gc.Passage{Passable: true, Cost: 50}, gc.Visibility{SeeThrough: true}},
+		"fence":        {gc.Passage{}, gc.Visibility{SeeThrough: true}},
+		"bookshelf":    {gc.Passage{}, gc.Visibility{}},
 	}, got)
 }
 

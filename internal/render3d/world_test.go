@@ -108,7 +108,7 @@ func TestIsBoxTile_通行を塞ぐだけの物は箱にならない(t *testing.T
 	world := testutil.InitTestWorld(t)
 	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 25, Y: 24}, 0)
 	require.NoError(t, err)
-	require.False(t, world.Components.Passable.Has(door))
+	require.False(t, world.Components.Passage.Get(door).Passable)
 
 	assert.False(t, render3d.IsBoxTile(world, consts.Coord[consts.Tile]{X: 25, Y: 24}))
 }

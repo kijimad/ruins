@@ -363,8 +363,9 @@ func TestPassCostAt(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Visibility.Add(prop, &gc.Visibility{})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.Passable.Add(prop, &gc.Passable{Cost: 50})
+		world.Components.Passage.Add(prop, &gc.Passage{Passable: true, Cost: 50})
 
 		cost := query.PassCostAt(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 		assert.Equal(t, 50, cost)
@@ -376,8 +377,9 @@ func TestPassCostAt(t *testing.T) {
 
 		prop := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop, &gc.Prop{})
+		world.Components.Visibility.Add(prop, &gc.Visibility{})
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.Passable.Add(prop, &gc.Passable{Cost: 50})
+		world.Components.Passage.Add(prop, &gc.Passage{Passable: true, Cost: 50})
 		world.Components.Dead.Add(prop, &gc.Dead{})
 
 		assert.Equal(t, 0, query.PassCostAt(world, consts.Coord[consts.Tile]{X: 5, Y: 5}))
@@ -389,13 +391,15 @@ func TestPassCostAt(t *testing.T) {
 
 		prop1 := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop1, &gc.Prop{})
+		world.Components.Visibility.Add(prop1, &gc.Visibility{})
 		world.Components.GridElement.Add(prop1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.Passable.Add(prop1, &gc.Passable{Cost: 30})
+		world.Components.Passage.Add(prop1, &gc.Passage{Passable: true, Cost: 30})
 
 		prop2 := world.ECS.NewEntity()
 		world.Components.Prop.Add(prop2, &gc.Prop{})
+		world.Components.Visibility.Add(prop2, &gc.Visibility{})
 		world.Components.GridElement.Add(prop2, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.Passable.Add(prop2, &gc.Passable{Cost: 20})
+		world.Components.Passage.Add(prop2, &gc.Passage{Passable: true, Cost: 20})
 
 		cost := query.PassCostAt(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 		assert.Equal(t, 50, cost)

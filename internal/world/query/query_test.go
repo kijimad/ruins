@@ -152,6 +152,8 @@ func TestIsPickable(t *testing.T) {
 		entity := world.ECS.NewEntity()
 		world.Components.LocationOnField.Add(entity, &gc.LocationOnField{})
 		world.Components.Prop.Add(entity, &gc.Prop{})
+		world.Components.Passage.Add(entity, &gc.Passage{})
+		world.Components.Visibility.Add(entity, &gc.Visibility{})
 
 		assert.False(t, IsPickable(entity, world), "Propは設置物なので拾えない")
 	})
@@ -190,6 +192,8 @@ func TestPickablesAt_拾得可能なエンティティだけを返す(t *testing
 	world.Components.GridElement.Add(prop, &gc.GridElement{Coord: tile})
 	world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 	world.Components.Prop.Add(prop, &gc.Prop{})
+	world.Components.Passage.Add(prop, &gc.Passage{})
+	world.Components.Visibility.Add(prop, &gc.Visibility{})
 
 	otherTile := world.ECS.NewEntity()
 	world.Components.GridElement.Add(otherTile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}})

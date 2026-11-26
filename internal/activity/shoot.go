@@ -200,14 +200,14 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 	for _, p := range points {
 		entities := query.GetEntitiesAt(world, consts.Tile(p.X), consts.Tile(p.Y))
 		for _, e := range entities {
-			// マスにはキャラクターやアイテムも乗るので、地形と置物だけが遮る
-			if !query.IsStandingTerrainOrProp(world, e) {
+			// 見通しと通り方を持つのは地形と置物だけなので、キャラクターやアイテムは遮らない
+			if world.Components.Dead.Has(e) || !world.Components.Visibility.Has(e) || !world.Components.Passage.Has(e) {
 				continue
 			}
-			if !world.Components.SeeThrough.Has(e) {
+			if !world.Components.Visibility.Get(e).SeeThrough {
 				return true, coverCount
 			}
-			if !world.Components.Passable.Has(e) {
+			if !world.Components.Passage.Get(e).Passable {
 				coverCount++
 			}
 		}

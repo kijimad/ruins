@@ -363,12 +363,16 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
 	blocked := make(map[gc.GridElement]bool)
 	loX, hiX := g.offsetX, g.offsetX+g.chunkW
 	loY, hiY := g.offsetY, g.offsetY+g.chunkH
-	query.ForEachTerrainOrPropWithout(world, func(e ecs.Entity) {
-		ge := *world.Components.GridElement.Get(e)
+	q := query.ActiveFilter2[gc.GridElement, gc.Passage](world).Without(ecs.C[gc.Dead]()).Query()
+	for q.Next() {
+		if world.Components.Passage.Get(q.Entity()).Passable {
+			continue
+		}
+		ge := *world.Components.GridElement.Get(q.Entity())
 		if ge.X >= loX && ge.X < hiX && ge.Y >= loY && ge.Y < hiY {
 			blocked[ge] = true
 		}
-	}, ecs.C[gc.Passable]())
+	}
 	return blocked
 }
 

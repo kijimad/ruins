@@ -288,25 +288,27 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		tileMap[*ge] = e
 	}
 
-	// 見通せず通れない地形と置物だけが影を落とす
-	query.ForEachTerrainOrPropWithout(world, func(entity ecs.Entity) {
-		if !world.Components.SpriteRender.Has(entity) {
-			return
+	// 見通せず通れない地形と置物だけが影を落とす。壊れて掃除を待つ置物は落とさない
+	wallShadowQuery := query.ActiveFilter4[gc.SpriteRender, gc.GridElement, gc.Passage, gc.Visibility](world).Without(ecs.C[gc.Dead]()).Query()
+	for wallShadowQuery.Next() {
+		entity := wallShadowQuery.Entity()
+		if world.Components.Passage.Get(entity).Passable || world.Components.Visibility.Get(entity).SeeThrough {
+			continue
 		}
 		grid := world.Components.GridElement.Get(entity)
 
 		if !inViewport(grid, minX, maxX, minY, maxY) {
-			return
+			continue
 		}
 		if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {
-			return
+			continue
 		}
 
 		spriteRender := world.Components.SpriteRender.Get(entity)
 
 		// 高さのあるものだけが影を落とす
 		if spriteRender.Depth.Rank() <= rawschema.SpriteDepthRug.Rank() {
-			return
+			continue
 		}
 
 		// 下のタイルを検索
@@ -314,20 +316,20 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		belowTileEntity, foundBelow := tileMap[belowPos]
 
 		if !foundBelow {
-			return
+			continue
 		}
 
 		if !world.Components.SpriteRender.Has(belowTileEntity) {
-			return // 下が床でなければ影を描画しない
+			continue // 下が床でなければ影を描画しない
 		}
 		belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)
 		if belowSpriteRender.Depth != rawschema.SpriteDepthFloor {
-			return // 下が床でなければ影を描画しない
+			continue // 下が床でなければ影を描画しない
 		}
 
 		// 下のマスも壁なら影を描かない。壁、床、壁と並ぶとき
-		if !world.Components.SeeThrough.Has(belowTileEntity) && !world.Components.Passable.Has(belowTileEntity) {
-			return
+		if isWall(world, belowTileEntity) {
+			continue
 		}
 
 		op := &ebiten.DrawImageOptions{}
@@ -336,7 +338,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		if wallShadowImage != nil {
 			screen.DrawImage(wallShadowImage, op)
 		}
-	}, ecs.C[gc.SeeThrough](), ecs.C[gc.Passable]())
+	}
 }
 
 func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera, desaturate bool) error {
@@ -471,4 +473,12 @@ func (sys *RenderSpriteSystem) ensureDarknessMap(width, height int) {
 	}
 	sys.darknessMap = ebiten.NewImage(width, height)
 	sys.darknessPix = make([]byte, width*height*4)
+}
+
+// isWall は e が見通せず通れない地形か置物かを返す
+func isWall(world w.World, e ecs.Entity) bool {
+	if !world.Components.Passage.Has(e) || !world.Components.Visibility.Has(e) {
+		return false
+	}
+	return !world.Components.Passage.Get(e).Passable && !world.Components.Visibility.Get(e).SeeThrough
 }

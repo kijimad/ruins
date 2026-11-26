@@ -9,7 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,19 +26,23 @@ func TestSpatialIndex_地形と置物が変わるたびに全走査と同じ答�
 
 	matchesFullScan := func(step string) {
 		t.Helper()
+		// 索引と別の道で求めるため、座標を持つ実体を全て回し、壊れていない通り方を持つ実体を1件ずつ見る
 		wantBlocked := map[gc.GridElement]bool{}
-		query.ForEachTerrainOrPropWithout(world, func(e ecs.Entity) {
-			wantBlocked[*world.Components.GridElement.Get(e)] = true
-		}, ecs.C[gc.Passable]())
 		wantCosts := map[gc.GridElement]int{}
-		query.ForEachTerrainOrPropWithout(world, func(e ecs.Entity) {
-			if !world.Components.Passable.Has(e) {
-				return
+		q := query.ActiveFilter1[gc.GridElement](world).Query()
+		for q.Next() {
+			e := q.Entity()
+			if !world.Components.Passage.Has(e) || world.Components.Dead.Has(e) {
+				continue
 			}
-			if cost := world.Components.Passable.Get(e).Cost; cost > 0 {
-				wantCosts[*world.Components.GridElement.Get(e)] += cost
+			ge := *world.Components.GridElement.Get(e)
+			passage := world.Components.Passage.Get(e)
+			if !passage.Passable {
+				wantBlocked[ge] = true
+			} else if passage.Cost > 0 {
+				wantCosts[ge] += passage.Cost
 			}
-		})
+		}
 
 		si := query.GetSpatialIndex(world)
 		require.NotNil(t, si, step)

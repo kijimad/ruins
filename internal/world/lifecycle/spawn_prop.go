@@ -57,13 +57,9 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 		}
 	}
 
-	if isOpen {
-		EnsureMarker(world, world.Components.Passable, doorEntity, &gc.Passable{})
-		EnsureMarker(world, world.Components.SeeThrough, doorEntity, &gc.SeeThrough{})
-	} else {
-		ensureRemoved(world.Components.Passable, doorEntity)
-		ensureRemoved(world.Components.SeeThrough, doorEntity)
-	}
+	// 開いた扉は移動コスト無しで通れて見通せる。扉の行に移動コストを書いても開閉で失われる
+	*world.Components.Passage.Get(doorEntity) = gc.Passage{Passable: isOpen}
+	*world.Components.Visibility.Get(doorEntity) = gc.Visibility{SeeThrough: isOpen}
 
 	// 開閉で通れないマスが変わる
 	query.InvalidateSpatialIndex(world)

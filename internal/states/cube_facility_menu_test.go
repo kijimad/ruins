@@ -60,6 +60,8 @@ func TestCubeFacilityMenu_cellKindAtがマス種別を分ける(t *testing.T) {
 	wall := world.ECS.NewEntity()
 	world.Components.GridElement.Add(wall, &gc.GridElement{Coord: blocked})
 	world.Components.Tile.Add(wall, &gc.Tile{})
+	world.Components.Passage.Add(wall, &gc.Passage{})
+	world.Components.Visibility.Add(wall, &gc.Visibility{})
 	query.InvalidateSpatialIndex(world)
 	kind, _ = st.cellKindAt(world, blocked)
 	assert.Equal(t, hud.FacilityCellBlocked, kind)

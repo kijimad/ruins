@@ -416,8 +416,8 @@ func applyDeployable(entitySpec *gc.EntitySpec, dep *rawschema.Deployable, name 
 	entitySpec.Deployable = &gc.Deployable{}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{}}
 	// 置くと置物になり、通り方と見通しを持たない置物は塞ぐ。置いた設備の上は歩けて見通せるので、両方を持たせる
-	entitySpec.Passable = &gc.Passable{}
-	entitySpec.SeeThrough = &gc.SeeThrough{}
+	entitySpec.Passage = &gc.Passage{Passable: true}
+	entitySpec.Visibility = &gc.Visibility{SeeThrough: true}
 	if dep.Storage != nil {
 		mg, err := consts.ParseWeight(dep.Storage.MaxWeight)
 		if err != nil {
@@ -746,11 +746,9 @@ func NewTileSpec(raws rawschema.Raws, name string, x, y consts.Tile, autoTileInd
 	}
 	entitySpec.SpriteRender = &sprite
 
-	entitySpec.Passable = toGCPassable(tileRaw.Passable)
+	entitySpec.Passage = toGCPassage(tileRaw.Passable)
 
-	if tileRaw.SeeThrough {
-		entitySpec.SeeThrough = &gc.SeeThrough{}
-	}
+	entitySpec.Visibility = &gc.Visibility{SeeThrough: tileRaw.SeeThrough}
 
 	entitySpec.Tile = &gc.Tile{}
 
@@ -855,10 +853,8 @@ func NewPropSpec(raws rawschema.Raws, name string) (gc.EntitySpec, error) {
 	}
 	entitySpec.SpriteRender = &spriteRender
 
-	entitySpec.Passable = toGCPassable(propRaw.Passable)
-	if propRaw.SeeThrough {
-		entitySpec.SeeThrough = &gc.SeeThrough{}
-	}
+	entitySpec.Passage = toGCPassage(propRaw.Passable)
+	entitySpec.Visibility = &gc.Visibility{SeeThrough: propRaw.SeeThrough}
 	// 各条件に対応するインタラクションを蓄積する。
 	// 1つのPropが複数のインタラクションを持てる
 	var interactions []gc.InteractionKind
@@ -1359,13 +1355,15 @@ func NewNeedDefs(raws rawschema.Raws) gc.NeedDefs {
 	return gc.NeedDefs{Hunger: hunger, Fatigue: fatigue, Freshness: freshness}
 }
 
-// toGCPassable は raw の通り方をコンポーネントに写す。省いた行は通れないので nil を返す
-func toGCPassable(p *rawschema.Passable) *gc.Passable {
+// toGCPassage は raw の通り方をコンポーネントに写す。通り方を省いた行は通れない。
+// 移動コストは通れる行だけが持つので、通れないのに移動コストを持つ値はここでは作らない
+func toGCPassage(p *rawschema.Passable) *gc.Passage {
 	if p == nil {
-		return nil
+		return &gc.Passage{}
 	}
-	if p.Cost == nil {
-		return &gc.Passable{}
+	passage := &gc.Passage{Passable: true}
+	if p.Cost != nil {
+		passage.Cost = *p.Cost
 	}
-	return &gc.Passable{Cost: *p.Cost}
+	return passage
 }

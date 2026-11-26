@@ -243,17 +243,22 @@ func TestBuildBlockViewIndex(t *testing.T) {
 		wallEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(wallEntity, &wallGrid)
 		world.Components.Tile.Add(wallEntity, &gc.Tile{})
+		world.Components.Passage.Add(wallEntity, &gc.Passage{})
+		world.Components.Visibility.Add(wallEntity, &gc.Visibility{})
 
 		shelfGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}}
 		shelfEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(shelfEntity, &shelfGrid)
 		world.Components.Prop.Add(shelfEntity, &gc.Prop{})
+		world.Components.Passage.Add(shelfEntity, &gc.Passage{})
+		world.Components.Visibility.Add(shelfEntity, &gc.Visibility{})
 
 		floorGrid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 6}}
 		floorEntity := world.ECS.NewEntity()
 		world.Components.GridElement.Add(floorEntity, &floorGrid)
 		world.Components.Tile.Add(floorEntity, &gc.Tile{})
-		world.Components.SeeThrough.Add(floorEntity, &gc.SeeThrough{})
+		world.Components.Passage.Add(floorEntity, &gc.Passage{})
+		world.Components.Visibility.Add(floorEntity, &gc.Visibility{SeeThrough: true})
 
 		// キャラクターは見通しの印を持たないが視界を遮らない
 		character := world.ECS.NewEntity()

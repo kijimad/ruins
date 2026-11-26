@@ -47,8 +47,8 @@ var Registry = []Def{
 	{Field: "Position"},        // フィールド上のピクセル座標を保持する
 	{Field: "GridElement"},     // フィールド上のグリッド座標を保持する
 	{Field: "SpriteRender"},    // スプライト描画情報を保持する
-	{Field: "SeeThrough"},      // 見通せることを示す
-	{Field: "Passable"},        // 通れることと移動コストを示す
+	{Field: "Visibility"},      // 見通せるかを示す
+	{Field: "Passage"},         // 通れるかと移動コストを示す
 	{Field: "Door"},            // 開閉可能な扉であることを表す
 	{Field: "Pose"},            // マスの中での置き方として、向く方角と立つ位置を保持する
 	{Field: "Item"},            // 可搬アイテムであることを示す

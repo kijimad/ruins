@@ -301,7 +301,7 @@ func TestSpawnFacility_窓は通れず視線を通し下の床も塞がない(t 
 		if world.Components.Prop.Has(e) {
 			kind = "prop"
 		}
-		got[kind] = traits{pass: !world.Components.Passable.Has(e), view: !world.Components.SeeThrough.Has(e)}
+		got[kind] = traits{pass: !world.Components.Passage.Get(e).Passable, view: !world.Components.Visibility.Get(e).SeeThrough}
 	}
 	assert.Equal(t, map[string]traits{
 		"prop": {pass: true, view: false},

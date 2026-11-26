@@ -79,11 +79,13 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 // 移動キーは押し続けるとリピートし、止まってもターンが進まないので、前の歩き込みで出した文が最新の行なら重ねない
 func logBlockers(world w.World, c consts.Coord[consts.Tile]) {
 	var msgs []string
-	query.ForEachTerrainOrPropWithout(world, func(e ecs.Entity) {
-		if world.Components.GridElement.Get(e).Coord == c {
+	q := query.ActiveFilter2[gc.GridElement, gc.Passage](world).Without(ecs.C[gc.Dead]()).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.GridElement.Get(e).Coord == c && !world.Components.Passage.Get(e).Passable {
 			msgs = append(msgs, query.T(world, "%s is here.", query.GetEntityName(e, world)))
 		}
-	}, ecs.C[gc.Passable]())
+	}
 	if len(msgs) == 0 {
 		return
 	}

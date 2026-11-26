@@ -200,14 +200,12 @@ func PassCostAt(world w.World, c consts.Coord[consts.Tile]) int {
 	}
 	if si.PassCosts == nil {
 		si.PassCosts = map[gc.GridElement]int{}
-		q := ActiveFilter2[gc.GridElement, gc.Passable](world).Query()
+		// 壊れて掃除を待つ置物の移動コストは数えない
+		q := ActiveFilter2[gc.GridElement, gc.Passage](world).Without(ecs.C[gc.Dead]()).Query()
 		for q.Next() {
-			e := q.Entity()
-			if !IsStandingTerrainOrProp(world, e) {
-				continue
-			}
-			if cost := world.Components.Passable.Get(e).Cost; cost > 0 {
-				si.PassCosts[*world.Components.GridElement.Get(e)] += cost
+			passage := world.Components.Passage.Get(q.Entity())
+			if passage.Passable && passage.Cost > 0 {
+				si.PassCosts[*world.Components.GridElement.Get(q.Entity())] += passage.Cost
 			}
 		}
 	}
@@ -247,9 +245,13 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil
 
-	ForEachTerrainOrPropWithout(world, func(e ecs.Entity) {
-		si.Blocked[*world.Components.GridElement.Get(e)] = true
-	}, ecs.C[gc.Passable]())
+	// 通れないマスのインデックス構築。壊れて掃除を待つ置物は塞がない
+	blockedQuery := ActiveFilter2[gc.GridElement, gc.Passage](world).Without(ecs.C[gc.Dead]()).Query()
+	for blockedQuery.Next() {
+		if !world.Components.Passage.Get(blockedQuery.Entity()).Passable {
+			si.Blocked[*world.Components.GridElement.Get(blockedQuery.Entity())] = true
+		}
+	}
 
 	// キャラクター位置のインデックス構築。退避中ステージのキャラクターは現ステージに混ぜない
 	characterQuery := ActiveFilter1[gc.GridElement](world).Query()
