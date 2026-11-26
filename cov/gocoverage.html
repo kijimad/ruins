@@ -511,7 +511,7 @@
 				
 				<option value="file227">github.com/kijimaD/ruins/internal/render3d/geometry.go (100.0%)</option>
 				
-				<option value="file228">github.com/kijimaD/ruins/internal/render3d/projector.go (97.9%)</option>
+				<option value="file228">github.com/kijimaD/ruins/internal/render3d/projector.go (94.3%)</option>
 				
 				<option value="file229">github.com/kijimaD/ruins/internal/render3d/world.go (96.7%)</option>
 				
@@ -573,7 +573,7 @@
 				
 				<option value="file258">github.com/kijimaD/ruins/internal/states/direction_select.go (66.7%)</option>
 				
-				<option value="file259">github.com/kijimaD/ruins/internal/states/dungeon.go (76.5%)</option>
+				<option value="file259">github.com/kijimaD/ruins/internal/states/dungeon.go (77.6%)</option>
 				
 				<option value="file260">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
 				
@@ -16889,11 +16889,10 @@ const (
 var (
         // DungeonOverworld はオーバーワールド帯を表す定義。
         // フロアを作り直さず帯をスライドさせ続ける。ダンジョン専用フィールドを持たない別の型。
-        // 帯形状 24x24 のチャンクを横9枚・縦9枚並べる。1チャンク=1建物=地図の1マスの縮尺。
+        // 帯形状 24x24 のチャンクを横15枚・縦15枚並べる。1チャンク=1建物=地図の1マスの縮尺。
         // 1建物=24タイル四方を基準にし、建物・部屋を1棟まるごと歩けるサイズまで広げる。
-        // 縦9レーンで北/中央/南のルート選択が生まれる。
         // この形状はマスタの設定で、RunSeed だけがプレイごとに変わる。
-        DungeonOverworld = NewOverworldDefinition("Overworld", 0, 24, 24, 9, 9)
+        DungeonOverworld = NewOverworldDefinition("Overworld", 0, 24, 24, 15, 15)
 )
 
 // GetAllDungeons は raw の dungeons の行から、遺跡の入口から入れる全ダンジョン定義を行の順に返す。
@@ -35792,6 +35791,17 @@ const (
         far    = 200.0
 )
 
+// maxStandHeight は TileOnScreen が映りうる範囲の矩形で落とす天面の高さの上限
+const maxStandHeight = max(WallHeight, BillboardHeight)
+
+// minDepth はカメラの前とみなす奥行きの下限。Point はこれより手前の点を投影せず、映りうる範囲の矩形も
+// この奥行きから視錐台を張る
+const minDepth = 0.001
+
+// visibleReach は映りうる範囲の矩形を求めるときの視錐台の奥行き。Point は遠平面で切らず far より遠い点も
+// 画面へ写すので、矩形も far で切らずに十分遠くまで伸ばす
+const visibleReach = 1e4
+
 // Projector はタイル座標をスクリーン座標へ写す。
 // カメラと画面寸法から組んだ view-projection 行列を保持し、1回の描画のあいだ使い回す。
 type Projector struct {
@@ -35800,6 +35810,8 @@ type Projector struct {
         eye    Vec
         target Vec
         sw, sh int
+        // visMin と visMax は高さ 0 から maxStandHeight までの層のうち、視錐台に入りうるタイルを包む矩形。両端を含む
+        visMin, visMax consts.Coord[consts.Tile]
 }
 
 // NewProjector は視点からの投影を組む。
@@ -35813,14 +35825,68 @@ func NewProjector(orbit gc.Camera, center consts.Coord[consts.Tile], sw, sh int)
         eye := Add(target, Scale(dir, orbit.Dist))
         view := lookAt(eye, target, Vec{0, 1, 0})
 </span>
-        <span class="cov8" title="1">return Projector{
+        <span class="cov8" title="1">visMin, visMax := visibleTileRect(eye, target, float64(sw)/float64(sh))
+        return Projector{
                 vp:     mul(perspective(fovDeg, float64(sw)/float64(sh), near, far), view),
                 view:   view,
                 eye:    eye,
                 target: target,
                 sw:     sw,
                 sh:     sh,
+                visMin: visMin,
+                visMax: visMax,
 </span>        }
+}
+
+// visibleTileRect は視錐台と高さ 0 から maxStandHeight までの層の重なりを包むタイルの矩形を返す。
+// 重なりは凸なので、その頂点は層の中にある視錐台の隅か、視錐台の辺と層の面の交点のどちらかになる。
+// それらの点の範囲を外へ1タイル広げて包む。重ならなければ min が max を超える空の矩形を返す
+func visibleTileRect(eye, target Vec, aspect float64) (consts.Coord[consts.Tile], consts.Coord[consts.Tile]) {
+        <span class="cov8" title="1">f := norm(sub(target, eye))
+        s := norm(cross(f, Vec{0, 1, 0}))
+        u := cross(s, f)
+        tanHalf := math.Tan(fovDeg * math.Pi / 360)
+        var corners [8]Vec
+        for i, d := range [2]float64{minDepth, visibleReach} </span>{
+                <span class="cov8" title="1">c := Add(eye, Scale(f, d))
+                h, w := d*tanHalf, d*tanHalf*aspect
+                corners[i*4+0] = Add(c, Add(Scale(s, -w), Scale(u, h)))
+                corners[i*4+1] = Add(c, Add(Scale(s, w), Scale(u, h)))
+                corners[i*4+2] = Add(c, Add(Scale(s, w), Scale(u, -h)))
+                corners[i*4+3] = Add(c, Add(Scale(s, -w), Scale(u, -h)))
+</span>        }
+        <span class="cov8" title="1">var edges [12][2]int
+        for i := range 4 </span>{
+                <span class="cov8" title="1">edges[i] = [2]int{i, (i + 1) % 4}
+                edges[i+4] = [2]int{i + 4, (i+1)%4 + 4}
+                edges[i+8] = [2]int{i, i + 4}
+</span>        }
+
+        <span class="cov8" title="1">minX, minZ := math.Inf(1), math.Inf(1)
+        maxX, maxZ := math.Inf(-1), math.Inf(-1)
+        include := func(v Vec) </span>{
+                <span class="cov8" title="1">minX, maxX = min(minX, v.X), max(maxX, v.X)
+                minZ, maxZ = min(minZ, v.Z), max(maxZ, v.Z)
+</span>        }
+        <span class="cov8" title="1">for _, v := range corners </span>{
+                <span class="cov8" title="1">if v.Y &gt;= 0 &amp;&amp; v.Y &lt;= maxStandHeight </span>{
+                        <span class="cov8" title="1">include(v)
+</span>                }
+        }
+        <span class="cov8" title="1">for _, e := range edges </span>{
+                <span class="cov8" title="1">a, b := corners[e[0]], corners[e[1]]
+                for _, y := range [2]float64{0, maxStandHeight} </span>{
+                        <span class="cov8" title="1">if (a.Y-y)*(b.Y-y) &gt;= 0 </span>{
+                                <span class="cov8" title="1">continue</span>
+                        }
+                        <span class="cov8" title="1">include(Add(a, Scale(sub(b, a), (y-a.Y)/(b.Y-a.Y))))</span>
+                }
+        }
+        <span class="cov8" title="1">if minX &gt; maxX </span>{
+                <span class="cov8" title="1">return consts.Coord[consts.Tile]{X: 1, Y: 1}, consts.Coord[consts.Tile]{}
+</span>        }
+        <span class="cov8" title="1">return consts.Coord[consts.Tile]{X: consts.Tile(math.Floor(minX)) - 1, Y: consts.Tile(math.Floor(minZ)) - 1},
+                consts.Coord[consts.Tile]{X: consts.Tile(math.Floor(maxX)) + 1, Y: consts.Tile(math.Floor(maxZ)) + 1}</span>
 }
 
 // FacesCamera は外から見て時計回りに張った面 q が、カメラに表を向けているかを返す
@@ -35842,7 +35908,7 @@ func (p Projector) Depth(v Vec) float64 {
 // Point は3D空間の点をスクリーン座標へ写す。カメラ後方なら ok=false
 func (p Projector) Point(v Vec) (consts.Coord[consts.ScreenPixel], bool) {
         <span class="cov8" title="1">cx, cy, _, cw := apply(p.vp, v)
-        if cw &lt;= 0.001 </span>{
+        if cw &lt;= minDepth </span>{
                 <span class="cov8" title="1">return consts.Coord[consts.ScreenPixel]{}, false
 </span>        }
         <span class="cov8" title="1">return consts.Coord[consts.ScreenPixel]{
@@ -35879,14 +35945,28 @@ func (p Projector) TileCorners(c consts.Coord[consts.Tile], height float64) ([4]
         <span class="cov8" title="1">return out, true</span>
 }
 
-// TileOnScreen はタイル c が画面に掛かるかを返す視錐台カリングの判定。基底 y=0 と天面 y=topHeight の
+// TileOnScreen はタイル c が画面に掛かるかを返す。先に映りうる範囲の矩形の外を整数の比較で落とし、
+// 中のタイルだけ8隅を投影して確かめる。topHeight が maxStandHeight を超えるときは矩形で落とさない
+func (p Projector) TileOnScreen(c consts.Coord[consts.Tile], topHeight float64) bool {
+        <span class="cov8" title="1">if topHeight &lt;= maxStandHeight &amp;&amp; !p.inVisibleRect(c) </span>{
+                <span class="cov8" title="1">return false
+</span>        }
+        <span class="cov8" title="1">return p.boxOnScreen(c, topHeight)</span>
+}
+
+// inVisibleRect はタイル c が映りうる範囲の矩形に入るかを返す
+func (p Projector) inVisibleRect(c consts.Coord[consts.Tile]) bool {
+        <span class="cov8" title="1">return c.X &gt;= p.visMin.X &amp;&amp; c.X &lt;= p.visMax.X &amp;&amp; c.Y &gt;= p.visMin.Y &amp;&amp; c.Y &lt;= p.visMax.Y
+</span>}
+
+// boxOnScreen は視錐台カリングの判定。基底 y=0 と天面 y=topHeight の
 // 8隅を投影し、そのスクリーン bbox が画面矩形と重なるかを見る。壁やビルボードは上へ伸びるので、
 // 天面の高さ topHeight を渡して縦の広がりも含める。
 //
 // 近平面をまたぐタイルは一部の隅がカメラ後方で投影が破綻するため、bbox を信じず保守的に描く。
 // 全隅がカメラ後方のときだけ確実に落とす。bbox はタイルの実クアッドを必ず包むので、映るタイルを
 // 誤って落とすことはなく、映らないタイルを稀に残すだけ。ゆえに描画結果は変わらない。
-func (p Projector) TileOnScreen(c consts.Coord[consts.Tile], topHeight float64) bool {
+func (p Projector) boxOnScreen(c consts.Coord[consts.Tile], topHeight float64) bool {
         <span class="cov8" title="1">fx, fz := float64(c.X), float64(c.Y)
         corners := [8]Vec{
                 {fx, 0, fz}, {fx + 1, 0, fz}, {fx + 1, 0, fz + 1}, {fx, 0, fz + 1},
@@ -35898,7 +35978,7 @@ func (p Projector) TileOnScreen(c consts.Coord[consts.Tile], topHeight float64) 
         for _, v := range corners </span>{
                 <span class="cov8" title="1">sp, ok := p.Point(v)
                 if !ok </span>{
-                        <span class="cov8" title="1">behind++
+                        <span class="cov0" title="0">behind++
                         continue</span>
                 }
                 <span class="cov8" title="1">x, y := float64(sp.X), float64(sp.Y)
@@ -35911,10 +35991,10 @@ func (p Projector) TileOnScreen(c consts.Coord[consts.Tile], topHeight float64) 
                 minY, maxY = min(minY, y), max(maxY, y)</span>
         }
         <span class="cov8" title="1">if !front </span>{
-                <span class="cov8" title="1">return false // 全隅がカメラ後方。確実に映らない
+                <span class="cov0" title="0">return false // 全隅がカメラ後方。確実に映らない
 </span>        }
         <span class="cov8" title="1">if behind &gt; 0 </span>{
-                <span class="cov8" title="1">return true // 近平面をまたぐ。bbox が壊れるので保守的に描く
+                <span class="cov0" title="0">return true // 近平面をまたぐ。bbox が壊れるので保守的に描く
 </span>        }
         <span class="cov8" title="1">sw, sh := float64(p.sw), float64(p.sh)
         return maxX &gt;= 0 &amp;&amp; minX &lt;= sw &amp;&amp; maxY &gt;= 0 &amp;&amp; minY &lt;= sh</span>
@@ -41391,7 +41471,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
                 <span class="cov8" title="1">if shifted </span>{
                         // リベースでプレイヤーが中央へ動くが、カメラは Update 内で既に旧位置に合わせた後。
                         // カメラを再センタリングしないと、シフトしたフレームで視点がジャンプしてチラつく
-                        <span class="cov0" title="0">if err := (&amp;gs.CameraSystem{}).Update(world); err != nil </span>{
+                        <span class="cov8" title="1">if err := (&amp;gs.CameraSystem{}).Update(world); err != nil </span>{
                                 <span class="cov0" title="0">return es.Transition[w.World]{}, err
 </span>                        }
                 }
