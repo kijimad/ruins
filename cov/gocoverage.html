@@ -113,7 +113,7 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.9%)</option>
 				
@@ -389,9 +389,9 @@
 				
 				<option value="file166">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (63.6%)</option>
 				
-				<option value="file167">github.com/kijimaD/ruins/internal/mapplanner/layout.go (88.4%)</option>
+				<option value="file167">github.com/kijimaD/ruins/internal/mapplanner/layout.go (92.9%)</option>
 				
-				<option value="file168">github.com/kijimaD/ruins/internal/mapplanner/lib.go (89.1%)</option>
+				<option value="file168">github.com/kijimaD/ruins/internal/mapplanner/lib.go (90.6%)</option>
 				
 				<option value="file169">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -6178,7 +6178,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -21384,12 +21384,12 @@ func LayoutPlannerType(id string) PlannerType {
 
 // LayoutPlannerTypes は全ての間取りの行のプランナータイプを行の順に返す
 func LayoutPlannerTypes(raws rawschema.Raws) []PlannerType {
-        <span class="cov0" title="0">layouts := raw.PtrSlice(raws.Layouts)
+        <span class="cov8" title="1">layouts := raw.PtrSlice(raws.Layouts)
         out := make([]PlannerType, 0, len(layouts))
         for i := range layouts </span>{
-                <span class="cov0" title="0">out = append(out, LayoutPlannerType(layouts[i].Id))
+                <span class="cov8" title="1">out = append(out, LayoutPlannerType(layouts[i].Id))
 </span>        }
-        <span class="cov0" title="0">return out</span>
+        <span class="cov8" title="1">return out</span>
 }
 
 // ProceduralPlannerTypes は絵を使わない間取りの行のプランナータイプを行の順に返す
@@ -21645,7 +21645,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
         <span class="cov8" title="1">if bm.existPlannedEntityOnTile(pos) </span>{
-                <span class="cov0" title="0">return false
+                <span class="cov8" title="1">return false
 </span>        }
 
         <span class="cov8" title="1">return true</span>
@@ -21656,7 +21656,7 @@ func (bm MetaPlan) existPlannedEntityOnTile(pos consts.Coord[consts.Tile]) bool 
         <span class="cov8" title="1">return slices.Contains(bm.NextPortals, pos) ||
                 slices.ContainsFunc(bm.NPCs, func(npc NPCSpec) bool </span>{ <span class="cov8" title="1">return npc.Coord == pos }</span>) ||
                 slices.ContainsFunc(bm.Items, func(item ItemSpec) bool { <span class="cov8" title="1">return item.Coord == pos }</span>) ||
-                slices.ContainsFunc(bm.Props, func(prop PropsSpec) bool { <span class="cov0" title="0">return prop.Coord == pos }</span>) ||
+                slices.ContainsFunc(bm.Props, func(prop PropsSpec) bool { <span class="cov8" title="1">return prop.Coord == pos }</span>) ||
                 slices.ContainsFunc(bm.Doors, func(door DoorSpec) bool { <span class="cov8" title="1">return door.Coord == pos }</span>)
 }
 
@@ -58555,9 +58555,9 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov8" title="1">return 1
+                <span class="cov0" title="0">return 1
 </span>        }
-        <span class="cov0" title="0">return -1</span>
+        <span class="cov8" title="1">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
