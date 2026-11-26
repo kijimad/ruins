@@ -177,10 +177,15 @@ func (p Projector) TileCorners(c consts.Coord[consts.Tile], height float64) ([4]
 // TileOnScreen はタイル c が画面に掛かるかを返す。先に映りうる範囲の矩形の外を整数の比較で落とし、
 // 中のタイルだけ8隅を投影して確かめる。topHeight が maxStandHeight を超えるときは矩形で落とさない
 func (p Projector) TileOnScreen(c consts.Coord[consts.Tile], topHeight float64) bool {
-	if topHeight <= maxStandHeight && (c.X < p.visMin.X || c.X > p.visMax.X || c.Y < p.visMin.Y || c.Y > p.visMax.Y) {
+	if topHeight <= maxStandHeight && !p.inVisibleRect(c) {
 		return false
 	}
 	return p.boxOnScreen(c, topHeight)
+}
+
+// inVisibleRect はタイル c が映りうる範囲の矩形に入るかを返す
+func (p Projector) inVisibleRect(c consts.Coord[consts.Tile]) bool {
+	return c.X >= p.visMin.X && c.X <= p.visMax.X && c.Y >= p.visMin.Y && c.Y <= p.visMax.Y
 }
 
 // boxOnScreen は視錐台カリングの判定。基底 y=0 と天面 y=topHeight の

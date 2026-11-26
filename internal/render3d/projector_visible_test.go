@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestVisibleTileRect_投影で画面に掛かるタイルは矩形に入る(t *testing.T) {
+func TestVisibleTileRect_カメラの前にあって画面に掛かるタイルは矩形に入る(t *testing.T) {
 	t.Parallel()
 	const reach = 210
 	center := consts.Coord[consts.Tile]{}
 	for _, pitch := range []float64{gc.CameraMinPitch, gc.CameraDefaultPitch, gc.CameraMaxPitch} {
 		for _, dist := range []float64{gc.CameraMinDist, gc.CameraDefaultDist, gc.CameraMaxDist} {
-			for _, orient := range []gc.Orient{0, 1} {
+			for orient := range gc.Orient(gc.CameraOrientCount) {
 				t.Run(fmt.Sprintf("pitch=%.2f/dist=%.0f/orient=%d", pitch, dist, orient), func(t *testing.T) {
 					t.Parallel()
 					p := NewProjector(gc.Camera{Orient: orient, Pitch: pitch, Dist: dist}, center, 960, 720)
@@ -26,7 +26,7 @@ func TestVisibleTileRect_投影で画面に掛かるタイルは矩形に入る(
 							if !allCornersInFront(p, c) || !p.boxOnScreen(c, maxStandHeight) {
 								continue
 							}
-							if c.X < p.visMin.X || c.X > p.visMax.X || c.Y < p.visMin.Y || c.Y > p.visMax.Y {
+							if !p.inVisibleRect(c) {
 								missed++
 							}
 						}
