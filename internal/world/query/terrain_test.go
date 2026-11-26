@@ -50,6 +50,33 @@ func TestForEachTerrainOrPropWithout_印を持たず壊れていない現ステ�
 	assert.ElementsMatch(t, []ecs.Entity{wall, fence}, got)
 }
 
+func TestForEachTerrainOrPropWithout_印を複数渡すとどれか1つでも持てば除く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	at := func(x consts.Tile) *gc.GridElement {
+		return &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x}}
+	}
+
+	wall := world.ECS.NewEntity()
+	world.Components.GridElement.Add(wall, at(1))
+	world.Components.Tile.Add(wall, &gc.Tile{})
+
+	window := world.ECS.NewEntity()
+	world.Components.GridElement.Add(window, at(2))
+	world.Components.Tile.Add(window, &gc.Tile{})
+	world.Components.SeeThrough.Add(window, &gc.SeeThrough{})
+
+	thicket := world.ECS.NewEntity()
+	world.Components.GridElement.Add(thicket, at(3))
+	world.Components.Prop.Add(thicket, &gc.Prop{})
+	world.Components.Passable.Add(thicket, &gc.Passable{})
+
+	var got []ecs.Entity
+	query.ForEachTerrainOrPropWithout(world, func(e ecs.Entity) { got = append(got, e) }, ecs.C[gc.SeeThrough](), ecs.C[gc.Passable]())
+
+	assert.Equal(t, []ecs.Entity{wall}, got)
+}
+
 func TestIsStandingTerrainOrProp(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
