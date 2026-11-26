@@ -11,6 +11,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -102,6 +103,24 @@ func BenchmarkTurn(b *testing.B) {
 				}
 			}
 		})
+	}
+}
+
+// BenchmarkOverworldFrame は地上の帯を既定の視点で描く1フレームの実時間を測る。描画は帯のタイル数でなく
+// 画面に映りうる範囲の広さで重くなるので、帯の大きさを変えたときの見張りにする
+func BenchmarkOverworldFrame(b *testing.B) {
+	world := vrt.InitReplayWorld(b)
+	st, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{RunSeed: 6})()
+	require.NoError(b, err)
+	sm, err := es.Init(st, world)
+	require.NoError(b, err)
+	for range 5 {
+		require.NoError(b, sm.Update(world))
+	}
+	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+	b.ResetTimer()
+	for range b.N {
+		require.NoError(b, sm.Draw(world, screen))
 	}
 }
 

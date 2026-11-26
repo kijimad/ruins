@@ -545,7 +545,7 @@ var goldenCases = []struct {
 	{
 		name: "Overworld_Indoor",
 		build: func(world w.World) ([]es.State[w.World], error) {
-			// RunSeed 6 は開始チャンクのすぐ西が市街地になる
+			// RunSeed 6 は開始チャンクの近くに建物がある
 			s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{RunSeed: 6})()
 			if err != nil {
 				return nil, err

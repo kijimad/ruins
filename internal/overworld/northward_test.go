@@ -31,8 +31,8 @@ func TestRenderNorthward_地図の左と上に座標の余白を足す(t *testin
 
 	img, err := RenderNorthward(testutil.InitTestWorld(t), 7, 1, 0, 2)
 	require.NoError(t, err)
-	// 地上は 9 列 × 24 タイル、行は開始の行と北の1行の2行
-	assert.Equal(t, image.Rect(0, 0, gridMarginLeft+9*24*2, gridMarginTop+2*24*2), img.Bounds())
+	// 地上は 15 列 × 24 タイル、行は開始の行と北の1行の2行
+	assert.Equal(t, image.Rect(0, 0, gridMarginLeft+15*24*2, gridMarginTop+2*24*2), img.Bounds())
 }
 
 func TestGenerateNorthward_帯ローカルの上端と下端が北端と南端の絶対の行になる(t *testing.T) {
