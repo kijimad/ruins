@@ -74,7 +74,7 @@ func TestForEachTerrainOrPropWithout_印を複数渡すとどれか1つでも持
 	var got []ecs.Entity
 	query.ForEachTerrainOrPropWithout(world, func(e ecs.Entity) { got = append(got, e) }, ecs.C[gc.SeeThrough](), ecs.C[gc.Passable]())
 
-	assert.Equal(t, []ecs.Entity{wall}, got)
+	assert.ElementsMatch(t, []ecs.Entity{wall}, got)
 }
 
 func TestIsStandingTerrainOrProp(t *testing.T) {
