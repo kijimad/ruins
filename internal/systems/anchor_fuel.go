@@ -27,7 +27,9 @@ func (sys *AnchorFuelSystem) Update(world w.World) error {
 	q := query.ActiveFilter3[gc.Cube, gc.Deployed, gc.Charge](world).Query()
 	for q.Next() {
 		_, _, tank := q.Get()
-		tank.Current = min(tank.Max, tank.Current+1)
+		if tank.Current < tank.Max {
+			tank.Current++
+		}
 	}
 	return nil
 }

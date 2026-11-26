@@ -27,6 +27,7 @@ func TestAnchorFuelSystem(t *testing.T) {
 		{"経過ターン0も間隔のターンに数える", true, false, 0, 5, 1},
 		{"間隔でないターンは戻らない", true, false, 21, 5, 0},
 		{"容量を超えない", true, false, 20, 0, 0},
+		{"容量を超えていても減らさない", true, false, 20, -3, 0},
 		{"畳んだキューブは戻らない", false, false, 20, 5, 0},
 		{"退避中のステージのキューブは戻らない", true, true, 20, 5, 0},
 	}
