@@ -16,17 +16,19 @@ import (
 func TestAnchorFuelSystem(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		name     string
-		deployed bool
-		turn     consts.Turn
-		missing  int
-		want     int
+		name      string
+		deployed  bool
+		suspended bool
+		turn      consts.Turn
+		missing   int
+		want      int
 	}{
-		{"展開中は間隔のターンに1戻る", true, 20, 5, 1},
-		{"経過ターン0も間隔のターンに数える", true, 0, 5, 1},
-		{"間隔でないターンは戻らない", true, 21, 5, 0},
-		{"容量を超えない", true, 20, 0, 0},
-		{"畳んだキューブは戻らない", false, 20, 5, 0},
+		{"展開中は間隔のターンに1戻る", true, false, 20, 5, 1},
+		{"経過ターン0も間隔のターンに数える", true, false, 0, 5, 1},
+		{"間隔でないターンは戻らない", true, false, 21, 5, 0},
+		{"容量を超えない", true, false, 20, 0, 0},
+		{"畳んだキューブは戻らない", false, false, 20, 5, 0},
+		{"退避中のステージのキューブは戻らない", true, true, 20, 5, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -36,6 +38,9 @@ func TestAnchorFuelSystem(t *testing.T) {
 			require.NoError(t, err)
 			if tt.deployed {
 				world.Components.Deployed.Add(cube, &gc.Deployed{})
+			}
+			if tt.suspended {
+				world.Components.Suspended.Add(cube, &gc.Suspended{})
 			}
 			tank := world.Components.Charge.Get(cube)
 			tank.Current = tank.Max - tt.missing

@@ -370,4 +370,7 @@ func TestIsAnchored_展開中のキューブがあるときだけ真(t *testing.
 	world.Components.Deployed.Add(deployed, &gc.Deployed{})
 	assert.True(t, query.IsAnchored(world), "どれか1台が展開していれば真")
 	assert.False(t, world.Components.Deployed.Has(stowed))
+
+	world.Components.Suspended.Add(deployed, &gc.Suspended{})
+	assert.False(t, query.IsAnchored(world), "退避中のステージの展開中のキューブは数えない")
 }
