@@ -15,7 +15,7 @@ import (
 )
 
 // TestSpatialIndex_地形と置物が変わるたびに全走査と同じ答えを返す は、扉の開閉・置物の生成と破壊・設備を置く・戻すの
-// それぞれの後で、ターンの終わりを待たずに、通れないマスと移動コストの表が全走査の答えと一致することを確かめる
+// キューブの畳み込みと展開の、それぞれの後で、ターンの終わりを待たずに、通れないマスと移動コストの表が全走査の答えと一致することを確かめる
 func TestSpatialIndex_地形と置物が変わるたびに全走査と同じ答えを返す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -70,6 +70,17 @@ func TestSpatialIndex_地形と置物が変わるたびに全走査と同じ答�
 	_, err = lifecycle.PlaceFacility(world, cube, item, consts.Coord[consts.Tile]{X: 11, Y: 10})
 	require.NoError(t, err)
 	matchesFullScan("設備を置く")
+
+	// 野営の中の置物は畳むと床から外れ、展開すると戻る
+	_, err = lifecycle.SpawnProp(world, "fence", 9, 10)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "moving_stone", 10, 11)
+	require.NoError(t, err)
+	matchesFullScan("野営に置物を置く")
+	lifecycle.StowCube(world, cube)
+	matchesFullScan("キューブを畳む")
+	require.True(t, lifecycle.DeployCube(world, cube))
+	matchesFullScan("キューブを展開する")
 	require.NoError(t, lifecycle.RemoveFacility(world, item, player))
 	matchesFullScan("設備を戻す")
 }

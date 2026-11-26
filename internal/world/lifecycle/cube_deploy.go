@@ -39,6 +39,8 @@ func DeployCube(world w.World, cube ecs.Entity) bool {
 	}
 	world.Components.Deployed.Add(cube, &gc.Deployed{Range: r})
 	releaseStowedItems(world, cube)
+	// 畳んでいた置物が床へ戻り、通れないマスと移動コストの表が変わる
+	query.InvalidateSpatialIndex(world)
 	return true
 }
 
@@ -90,6 +92,8 @@ func StowCube(world w.World, cube ecs.Entity) {
 	}
 	stowNearbyItems(world, cube)
 	world.Components.Deployed.Remove(cube)
+	// 野営の置物が床から外れ、通れないマスと移動コストの表が変わる
+	query.InvalidateSpatialIndex(world)
 }
 
 // stowNearbyItems は野営内のアイテムと prop を LocationStowed へ畳み込み、燃料と
