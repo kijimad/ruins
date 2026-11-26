@@ -3,6 +3,7 @@ package overworld
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
@@ -101,7 +102,9 @@ func TestDriver_MaybeShift_展開中はシフトせず畳むとシフトする(t
 	require.NoError(t, err)
 	assert.False(t, shifted, "展開中は北の端にいてもシフトしない")
 	assert.Equal(t, 0, int(s.NorthIndex()))
-	assert.Equal(t, consts.Tile(0), world.Components.GridElement.Get(player).Y)
+	at := world.Components.GridElement.Get(player).Coord
+	assert.Equal(t, consts.Tile(0), at.Y)
+	assert.False(t, activity.CanMoveTo(world, consts.Coord[consts.Tile]{X: at.X, Y: -1}, at, player), "展開中は北の端から先へ進めない")
 
 	lifecycle.StowCube(world, cube)
 	shifted, err = s.MaybeShift(world)
