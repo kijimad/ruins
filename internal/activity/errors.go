@@ -38,15 +38,14 @@ var (
 
 	// 投げる関連エラー
 	errThrowItemNotInBackpack = errors.New("thrown item is not in the actor's backpack")
+	errThrowTooHeavy          = errors.New("item is too heavy to throw")
+	errThrowTargetInvalid     = errors.New("throw target is invalid")
+	errThrowOutOfRange        = errors.New("throw target is out of range")
+	errThrowLineBlocked       = errors.New("throw line is blocked")
 
-	// 扉の開け閉め関連エラー。どれも対象の選択で起きない不変条件違反
+	// 扉の開け閉め関連エラー。対象の選択は生きた扉だけを選ぶので、起きれば呼び出し側の不変条件違反
 	errDoorTargetNotAlive = errors.New("target is not alive")
 	errDoorTargetNotDoor  = errors.New("target is not a door")
-	errNoDoorComponent    = errors.New("cannot get door component")
-	errThrowTooHeavy      = errors.New("item is too heavy to throw")
-	errThrowTargetInvalid = errors.New("throw target is invalid")
-	errThrowOutOfRange    = errors.New("throw target is out of range")
-	errThrowLineBlocked   = errors.New("throw line is blocked")
 
 	// 移動関連エラー
 	ErrMoveTargetInvalid   = errors.New("move destination is invalid")

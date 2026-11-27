@@ -77,7 +77,7 @@ func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 	targetEntity := p.Target
 
 	if !world.Components.Door.Has(targetEntity) {
-		return errNoDoorComponent
+		return errDoorTargetNotDoor
 	}
 	raw := world.Components.Door.Get(targetEntity)
 	doorComp := raw
@@ -203,7 +203,7 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 	targetEntity := p.Target
 
 	if !world.Components.Door.Has(targetEntity) {
-		return errNoDoorComponent
+		return errDoorTargetNotDoor
 	}
 	raw := world.Components.Door.Get(targetEntity)
 	doorComp := raw

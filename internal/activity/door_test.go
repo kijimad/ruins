@@ -87,7 +87,7 @@ func TestOpenDoorBehavior(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		odb := &OpenDoorBehavior{}
-		comp := &gc.Activity{BehaviorName: gc.BehaviorOpenDoor}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorOpenDoor, Params: &gc.CloseDoorParams{}}
 
 		err := odb.Validate(comp, gc.InvalidEntity, world)
 
@@ -103,7 +103,7 @@ func TestOpenDoorBehavior_DoTurn(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		odb := &OpenDoorBehavior{}
-		comp := &gc.Activity{BehaviorName: gc.BehaviorOpenDoor}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorOpenDoor, Params: &gc.CloseDoorParams{}}
 
 		err := odb.DoTurn(comp, gc.InvalidEntity, world)
 
@@ -121,7 +121,7 @@ func TestOpenDoorBehavior_DoTurn(t *testing.T) {
 
 		err := odb.DoTurn(comp, gc.InvalidEntity, world)
 
-		require.ErrorIs(t, err, errNoDoorComponent)
+		require.ErrorIs(t, err, errDoorTargetNotDoor)
 	})
 
 	t.Run("既に開いている扉に対しては何もせず完了する", func(t *testing.T) {
@@ -220,7 +220,7 @@ func TestCloseDoorBehavior(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		cdb := &CloseDoorBehavior{}
-		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor, Params: &gc.OpenDoorParams{}}
 
 		err := cdb.Validate(comp, gc.InvalidEntity, world)
 
@@ -261,7 +261,7 @@ func TestCloseDoorBehavior_DoTurn(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		cdb := &CloseDoorBehavior{}
-		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor}
+		comp := &gc.Activity{BehaviorName: gc.BehaviorCloseDoor, Params: &gc.OpenDoorParams{}}
 
 		err := cdb.DoTurn(comp, gc.InvalidEntity, world)
 
@@ -278,7 +278,7 @@ func TestCloseDoorBehavior_DoTurn(t *testing.T) {
 
 		err := cdb.DoTurn(comp, gc.InvalidEntity, world)
 
-		require.ErrorIs(t, err, errNoDoorComponent)
+		require.ErrorIs(t, err, errDoorTargetNotDoor)
 	})
 
 	t.Run("既に閉じている扉に対しては何もせず完了する", func(t *testing.T) {
