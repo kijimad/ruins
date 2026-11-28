@@ -417,7 +417,7 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 }
 
 // planRaidAction は印のある敵の行動を決める。敵対する相手が見えていて、狙う的より近ければ追って殴る。キューブだけを
-// 狙う敵は相手を追わない。それ以外は距離の地図の下る隣を近い順に試す。狙う的か仲間でないキャラクターなら殴り、
+// 狙う敵は相手を追わない。それ以外は距離の地図で一番小さい隣を順に試す。狙う的か仲間でないキャラクターなら殴り、
 // HP を持つ置物なら壊し、空いていれば進む。仲間に塞がれた隣は飛ばし、試す隣が残らなければ待つ
 func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
 	var steps []consts.Coord[consts.Tile]

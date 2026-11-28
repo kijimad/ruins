@@ -112,6 +112,18 @@ func TestBuildRaidMap(t *testing.T) {
 		assert.Equal(t, []consts.Coord[consts.Tile]{at(1, 1), at(1, 0), at(1, 2)}, m.Steps(world, at(2, 1), nil), "横と後ろの列は、重さ5の自分のマスより近くても下る隣に入れない")
 	})
 
+	t.Run("Steps は細い通路では一番小さい隣の1つだけを返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		si := query.GetSpatialIndex(world)
+		si.Built, si.MapWidth, si.MapHeight = true, 5, 1
+		si.Blocked = map[gc.GridElement]bool{}
+		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: world.ECS.NewEntity()}
+
+		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
+		assert.Equal(t, []consts.Coord[consts.Tile]{at(1, 0)}, m.Steps(world, at(2, 0), nil), "塞がれていても替わりの隣は無く、呼ぶ側は待つ")
+	})
+
 	t.Run("的が無ければどのマスにも届かない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -125,7 +137,7 @@ func TestBuildRaidMap(t *testing.T) {
 		assert.False(t, ok)
 	})
 
-	t.Run("Steps は下る隣を距離の小さい順に返す", func(t *testing.T) {
+	t.Run("Steps は距離が一番小さい隣を全て向きの順に返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		si := query.GetSpatialIndex(world)

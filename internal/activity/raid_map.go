@@ -1,9 +1,6 @@
 package activity
 
 import (
-	"cmp"
-	"slices"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -125,8 +122,9 @@ func (m *RaidMap) Dist(c consts.Coord[consts.Tile]) (int32, bool) {
 	return d, d >= 0
 }
 
-// Steps は from の隣のうち、from に誰もいなかったときの距離より小さいマスを、距離の小さい順に buf へ足して返す。
-// 同じ距離なら raidMapDirs の順にする。斜めは CanMoveTo と同じ規則で選ぶ。下る隣が無ければ空を返す
+// Steps は from の隣のうち、距離が一番小さいマスを全て、raidMapDirs の順に buf へ足して返す。from の距離は隣の
+// 一番小さい値に from へ入る重さを足したものなので、from に誰もいなかったときの距離と比べれば、一番小さい隣だけが
+// 残る。斜めは CanMoveTo と同じ規則で選ぶ。下る隣が無ければ空を返す
 func (m *RaidMap) Steps(world w.World, from consts.Coord[consts.Tile], buf []consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
 	steps := buf[:0]
 	d, ok := m.Dist(from)
@@ -145,9 +143,6 @@ func (m *RaidMap) Steps(world w.World, from consts.Coord[consts.Tile], buf []con
 			steps = append(steps, next)
 		}
 	}
-	slices.SortStableFunc(steps, func(a, b consts.Coord[consts.Tile]) int {
-		return cmp.Compare(m.dist[m.index(a)], m.dist[m.index(b)])
-	})
 	return steps
 }
 
