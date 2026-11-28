@@ -40,18 +40,18 @@ func GenerateBandAt(world w.World, runSeed uint64, depth consts.Chunk) error {
 	return generateRows(world, runSeed, depth+rows/2, rows)
 }
 
-// generateRows は北端の行が開始の行から北へ north 行目にある、rows 行のチャンクを world に生成する。北端の行を帯ローカルの0行目に置き、
+// generateRows は北端の行が開始の行から北へ north 行目にある、count 行のチャンクを world に生成する。北端の行を帯ローカルの0行目に置き、
 // ゲームが北へ進んだときと同じく帯の NorthIndex で絶対の行と結ぶ。ゲームは帯の行を北へ1行ずつ足していくが、ここでは北端から
 // 一度に並べる。チャンクの生成が位置と seed だけで決まり、隣とのつながりをオートタイルの計算し直しで合わせる間は、順が違っても同じ地図になる
-func generateRows(world w.World, runSeed uint64, north, rows consts.Chunk) error {
-	chunkW, chunkH, cols, bandRows := dungeon.DungeonOverworld.BandShape()
+func generateRows(world w.World, runSeed uint64, north, count consts.Chunk) error {
+	chunkW, chunkH, cols, rows := dungeon.DungeonOverworld.BandShape()
 	sb := query.EnsureSeamlessBand(world)
-	*sb = gc.SeamlessBand{Active: true, RunSeed: runSeed, ChunkW: chunkW, ChunkH: chunkH, Cols: cols, Rows: bandRows}
+	*sb = gc.SeamlessBand{Active: true, RunSeed: runSeed, ChunkW: chunkW, ChunkH: chunkH, Cols: cols, Rows: rows}
 	top := sb.SpawnChunkY() - north
 	sb.NorthIndex = -top
 
 	gen := NewChunkGen(world, runSeed, chunkW, chunkH, cols, mapplanner.PlannerTypeOverworldField)
-	for cy := top; cy < top+rows; cy++ {
+	for cy := top; cy < top+count; cy++ {
 		for cx := range cols {
 			if err := gen(consts.Coord[consts.Chunk]{X: cx, Y: cy}, cx.Tiles(chunkW), (cy - top).Tiles(chunkH)); err != nil {
 				return err

@@ -22,8 +22,12 @@ func TestMeasureAreaSupply_食べ物の栄養と食べ物でない物の熱を�
 	require.NoError(t, err)
 	biscuit, err := lifecycle.SpawnFieldItem(world, "biscuit", 3, 1, 1)
 	require.NoError(t, err)
+	honey, err := lifecycle.SpawnFieldItem(world, "honey", 5, 1, 1)
+	require.NoError(t, err)
 	sword, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 4, 1, 1)
 	require.NoError(t, err)
+	honeyAmount := world.Components.ProvidesNutrition.Get(honey).Amount
+	require.False(t, world.Components.Perishable.Has(honey), "前提: 蜂蜜は傷まない")
 	breadAmount := world.Components.ProvidesNutrition.Get(bread).Amount
 	biscuitAmount := world.Components.ProvidesNutrition.Get(biscuit).Amount
 	require.Less(t, world.Components.Perishable.Get(bread).StageLength, consts.Turn(stayDays)*gc.TurnsPerDay, "前提: パンは留まる間に傷む")
@@ -33,8 +37,8 @@ func TestMeasureAreaSupply_食べ物の栄養と食べ物でない物の熱を�
 	got := MeasureAreaSupply(world)
 
 	assert.Equal(t, AreaSupply{
-		Nutrition:        2*breadAmount + biscuitAmount,
-		KeepingNutrition: biscuitAmount,
+		Nutrition:        2*breadAmount + biscuitAmount + honeyAmount,
+		KeepingNutrition: biscuitAmount + honeyAmount,
 		Heat:             query.HeatContent(world, sword),
 	}, got, "食べ物は燃料に数えない")
 }
