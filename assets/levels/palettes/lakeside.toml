@@ -6,6 +6,11 @@ description = "湖畔"
 "," = "grass_green"
 "=" = "pavement"
 "_" = "dirt"
+"#" = "wall_wood_1"
+"." = "floor_wood"
+"P" = "pier_plank"
+"W" = "wall_stone_3"
+":" = "floor_concrete"
 
 [palette.props."T"]
 tile = "grass_green"
@@ -49,3 +54,51 @@ id = "table"
 tile = "dirt"
 id = "barrel"
 lootTable = "pantry"
+
+[palette.props."+"]
+tile = "floor_wood"
+id = "door"
+
+[palette.props."e"]
+tile = "floor_wood"
+id = "bed"
+
+[palette.props."o"]
+tile = "floor_wood"
+id = "closet"
+lootTable = "house_closet"
+
+[palette.props."a"]
+tile = "floor_wood"
+id = "table"
+
+[palette.props."h"]
+tile = "floor_wood"
+id = "chair"
+
+[palette.props."x"]
+tile = "floor_wood"
+id = "wooden_crate"
+lootTable = "pantry"
+
+[palette.props."D"]
+tile = "floor_concrete"
+id = "door"
+
+[palette.props."G"]
+tile = "floor_concrete"
+id = "gauge_machine"
+
+[palette.props."C"]
+tile = "floor_concrete"
+id = "control_panel"
+lootTable = "power_control"
+
+[palette.props."O"]
+tile = "floor_concrete"
+id = "locker"
+lootTable = "power_fuel"
+
+[palette.props."g"]
+tile = "floor_concrete"
+candidates = [{ id = "generator_green", weight = 1 }, { id = "generator_yellow", weight = 1 }]

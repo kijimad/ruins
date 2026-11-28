@@ -1220,6 +1220,7 @@ func TestTileSpawn_実データ(t *testing.T) {
 		"smooth_bluegray":  {Autotile: true},
 		"plank_orange":     {Autotile: true},
 		"plank_brown":      {Autotile: true},
+		"pier_plank":       {Autotile: true},
 		"plank_navy":       {Autotile: true},
 		"plank_blue":       {Autotile: true},
 		"wall":             {Tile: new("dwall"), Autotile: true},

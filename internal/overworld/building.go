@@ -24,6 +24,9 @@ type buildingLot struct {
 	w, h     consts.Chunk
 	interior rawschema.FacilityInterior
 	seed     uint64
+	// facesWater なら施設の絵を左回りに turns 回だけ回し、北の辺を接する湖へ向ける
+	facesWater bool
+	turns      int
 }
 
 // lotsOf は区域 r を建物の区画で埋める。左上のチャンクから順に、未割り当てのチャンクの地区で施設を引き、
@@ -63,7 +66,11 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 				taken[anchor.Add(consts.Coord[consts.Chunk]{X: dx, Y: dy})] = true
 			}
 		}
-		lots = append(lots, buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: consts.Mix2D(r.seed, anchor.X, anchor.Y)})
+		lot := buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: consts.Mix2D(r.seed, anchor.X, anchor.Y)}
+		if d, ok := r.waterSide(anchor); ok {
+			lot.facesWater, lot.turns = true, quarterTurnsToward(d)
+		}
+		lots = append(lots, lot)
 	}
 	if f, ok := facilities[r.landmark()]; ok {
 		if anchor, w, h, ok := landmarkLot(r, f, fits); ok {
@@ -98,7 +105,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 }
 
 // landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、
-// 地区に収まるものを選ぶ。区域の作りがその地区を割り振らなければ置かない
+// 地区に収まるものを選ぶ。真ん中に建てられなければ真ん中に一番近い建てられるチャンクに置く。区域の作りがその地区を割り振らなければ置かない
 func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
 	for _, fz := range f.Zones {
 		var cells []consts.Coord[consts.Chunk]
@@ -126,6 +133,17 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
 			if x >= 0 && y >= 0 && fits(x, y, w, h, fz.Zone) {
 				return consts.Coord[consts.Chunk]{X: x, Y: y}, w, h, true
 			}
+		}
+		// 真ん中に建てられない区域は、真ん中に一番近い建てられるチャンクに 1×1 で置く。湖の区域では南の門の側の岸になる
+		best, bestDist := consts.Coord[consts.Chunk]{}, consts.Chunk(-1)
+		for _, c := range cells {
+			dx, dy := 2*c.X-minC.X-maxC.X, 2*c.Y-minC.Y-maxC.Y
+			if d := dx*dx + dy*dy; fits(c.X, c.Y, 1, 1, fz.Zone) && (bestDist < 0 || d < bestDist) {
+				best, bestDist = c, d
+			}
+		}
+		if bestDist >= 0 {
+			return best, 1, 1, true
 		}
 	}
 	return consts.Coord[consts.Chunk]{}, 0, 0, false

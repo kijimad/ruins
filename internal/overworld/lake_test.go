@@ -9,6 +9,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/sebdah/goldie/v2"
@@ -119,7 +120,7 @@ func TestLakeShape_施設を建てたチャンクの正面から浜を越えて�
 	}
 	planks := slices.Index(line, "water_deep")
 	require.Positive(t, planks)
-	want := append(slices.Repeat([]string{"plank_brown"}, planks), slices.Repeat([]string{"water_deep"}, len(line)-planks)...)
+	want := append(slices.Repeat([]string{"pier_plank"}, planks), slices.Repeat([]string{"water_deep"}, len(line)-planks)...)
 	assert.Equal(t, want, line)
 }
 
@@ -266,7 +267,7 @@ func TestLayPier_輪郭の揺れで水から陸へ出たらその先の水へ板
 	assert.Equal(t, ys[len(ys)-1]-ys[0]+1, consts.Tile(len(ys)), "板が途切れず1本につながる")
 }
 
-func TestChunkPlace_湖の区域は施設を建てない角を荒れ地に湖を湖の記号にする(t *testing.T) {
+func TestChunkPlace_湖の区域は施設を建てない角を荒れ地に湖を湖の記号に南の辺の中央を水力発電所にする(t *testing.T) {
 	t.Parallel()
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	cat := zoneCatalogFrom(raws)
@@ -275,5 +276,72 @@ func TestChunkPlace_湖の区域は施設を建てない角を荒れ地に湖を
 	for name, l := range map[string]consts.Coord[consts.Chunk]{"角": {}, "湖": {X: 3, Y: 3}, "施設": {X: 3, Y: 6}} {
 		got[name] = chunkPlace(raws, cat, lakeSeed, anchor.Add(l), 15, 0)
 	}
-	assert.Equal(t, map[string]rune{"角": '.', "湖": 'w', "施設": 'c'}, got)
+	assert.Equal(t, map[string]rune{"角": '.', "湖": 'w', "施設": 'H'}, got)
+}
+
+func TestQuarterTurnsToward_北の辺を向きの側へ回す(t *testing.T) {
+	t.Parallel()
+	cells := [][]maptemplate.MapCell{{{}, {Terrain: "n"}, {}}, {{}, {}, {}}, {{}, {}, {}}}
+	got := map[consts.Coord[consts.Chunk]][2]int{}
+	for _, d := range []consts.Coord[consts.Chunk]{{Y: -1}, {X: -1}, {Y: 1}, {X: 1}} {
+		for y, row := range maptemplate.TransformCells(cells, quarterTurnsToward(d), false) {
+			for x, c := range row {
+				if c.Terrain == "n" {
+					got[d] = [2]int{x, y}
+				}
+			}
+		}
+	}
+	assert.Equal(t, map[consts.Coord[consts.Chunk]][2]int{
+		{Y: -1}: {1, 0},
+		{X: -1}: {0, 1},
+		{Y: 1}:  {1, 2},
+		{X: 1}:  {2, 1},
+	}, got)
+}
+
+func TestLotsOf_湖の区域は南の辺の中央に水力発電所を置き施設を全て湖へ向ける(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+
+	type lotView struct {
+		facility   string
+		anchor     consts.Coord[consts.Chunk]
+		facesWater bool
+		turns      int
+	}
+	lots := lotsOf(raws, zoneCatalogFrom(raws), r, 0)
+	got := make([]lotView, 0, len(lots))
+	for _, l := range lots {
+		got = append(got, lotView{l.facility, l.anchor, l.facesWater, l.turns})
+	}
+	assert.Equal(t, []lotView{
+		{"hydro_plant", consts.Coord[consts.Chunk]{X: 3, Y: 6}, true, 0},
+		{"fishing_hut", consts.Coord[consts.Chunk]{X: 4, Y: 6}, true, 0},
+	}, got)
+}
+
+func TestRoadAt_道は湖の区域に入らず南の門の前まで来る(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+
+	var inside []consts.Coord[consts.Chunk]
+	for y := range r.h {
+		for x := range r.w {
+			c := r.anchor.Add(consts.Coord[consts.Chunk]{X: x, Y: y})
+			if _, _, ok := roadAt(raws, lakeSeed, c, 15, 0); ok {
+				inside = append(inside, c)
+			}
+		}
+	}
+	assert.Equal(t, []consts.Coord[consts.Chunk](nil), inside)
+
+	_, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, 0))
+	ports, _, ok := roadAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: south, Y: r.anchor.Y + r.h}, 15, 0)
+	require.True(t, ok)
+	assert.Contains(t, ports, roadPort{dir: RoadN, lane: laneGate})
 }

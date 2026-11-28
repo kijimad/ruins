@@ -6623,6 +6623,15 @@ msgstr "湖畔の広場"
 msgid "Campsite"
 msgstr "キャンプ場"
 
+msgid "Fishing Hut"
+msgstr "釣り小屋"
+
+msgid "Hydro Plant"
+msgstr "水力発電所"
+
+msgid "Pier"
+msgstr "桟橋"
+
 msgid "Barn"
 msgstr "納屋"
 

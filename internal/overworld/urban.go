@@ -286,7 +286,14 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
 		})
 		return cells, 0, nil
 	}
-	cells, err := planFacility(loader, lot.facility, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
+	artSeed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
+	var cells [][]maptemplate.MapCell
+	var err error
+	if lot.facesWater {
+		cells, err = planFacilityTurned(loader, lot.facility, artSeed, rng, lot.turns)
+	} else {
+		cells, err = planFacility(loader, lot.facility, artSeed, rng)
+	}
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to plan facility %q: %w", lot.facility, err)
 	}

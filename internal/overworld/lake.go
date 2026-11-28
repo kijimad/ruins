@@ -76,17 +76,38 @@ func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool
 	return s, true, nil
 }
 
+// waterSide は区域の中の座標 l に接する湖の向きを返す。湖が2方向に接するなら南北を東西より先にする
+func (r districtRegion) waterSide(l consts.Coord[consts.Chunk]) (consts.Coord[consts.Chunk], bool) {
+	for _, d := range []consts.Coord[consts.Chunk]{{Y: -1}, {Y: 1}, {X: -1}, {X: 1}} {
+		if r.waterAt(l.Add(d)) != nil {
+			return d, true
+		}
+	}
+	return consts.Coord[consts.Chunk]{}, false
+}
+
+// quarterTurnsToward は北を向いた絵を向き d へ向けるのに要る左回りの90度の回数を返す
+func quarterTurnsToward(d consts.Coord[consts.Chunk]) int {
+	switch d {
+	case consts.Coord[consts.Chunk]{X: -1}:
+		return 1
+	case consts.Coord[consts.Chunk]{Y: 1}:
+		return 2
+	case consts.Coord[consts.Chunk]{X: 1}:
+		return 3
+	}
+	return 0
+}
+
 // addPier は施設を建てたチャンク l の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める
 func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) {
-	for _, d := range []consts.Coord[consts.Chunk]{{Y: -1}, {Y: 1}, {X: -1}, {X: 1}} {
-		if r.waterAt(l.Add(d)) == nil {
-			continue
-		}
-		c := r.anchor.Add(l)
-		center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW) + chunkW/2, Y: c.Y.Tiles(chunkH) + chunkH/2}
-		s.layPier(center, consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}, max(r.w.Tiles(chunkW), r.h.Tiles(chunkH)))
+	d, ok := r.waterSide(l)
+	if !ok {
 		return
 	}
+	c := r.anchor.Add(l)
+	center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW) + chunkW/2, Y: c.Y.Tiles(chunkH) + chunkH/2}
+	s.layPier(center, consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}, max(r.w.Tiles(chunkW), r.h.Tiles(chunkH)))
 }
 
 // layPier は from から step の向きへ、輪郭の内側に幅2の板を張る。深い水へ pierLength だけ入るか、湖の中心を越えるか、
