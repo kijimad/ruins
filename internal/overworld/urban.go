@@ -138,7 +138,7 @@ func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.ZoneId, spa
 	return zc[i].kind
 }
 
-// urbanFacilityAt は区域 r の中のチャンク c に建つ施設 id を返す。地図表示と生成の両方が使う。
+// urbanFacilityAt は区域 r の中のチャンク c の記号の id を返す。施設を建てるチャンクは施設 id で、地図表示と生成の両方が使う。
 // 湖を描くチャンクは水面の行が指す記号の id を、施設を建てない自然の地面のチャンクは空を返す
 func urbanFacilityAt(raws rawschema.Raws, cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk], spawnRow consts.Chunk) string {
 	if water := r.waterAt(r.local(c)); water != nil {

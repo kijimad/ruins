@@ -22,6 +22,11 @@ func (r districtRegion) waterAt(l consts.Coord[consts.Chunk]) *rawschema.Distric
 	return r.kind.Layers[r.layerAt(l)].Water
 }
 
+// scatterAt は区域の中の座標 l の層が撒く散布の種類を返す。撒かない層は nil
+func (r districtRegion) scatterAt(l consts.Coord[consts.Chunk]) *rawschema.EntityID {
+	return r.kind.Layers[r.layerAt(l)].Scatter
+}
+
 // lakeShape は区域の湖の輪郭と桟橋。湖を描く層のチャンクを合わせた長方形に収まる楕円を、絶対タイル座標で持つ
 type lakeShape struct {
 	water          *rawschema.DistrictWater
@@ -85,7 +90,7 @@ func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chun
 }
 
 // layPier は from から step の向きへ、輪郭の内側に幅2の板を張る。浅瀬を越えて pierLength だけ深い水へ入ったか、
-// 湖の細い所で深さが浅くなり始めたら止める。limit マス歩いても止まらなければそこで止める
+// 湖の中心を越えて楕円の内側への深さが浅くなり始めたら止める。ノイズの揺れでは止めない。limit マス歩いても止まらなければそこで止める
 func (s *lakeShape) layPier(from, step consts.Coord[consts.Tile], limit consts.Tile) {
 	// 幅2の板を中心の列と負の向きの隣の列に張り、どの向きへ伸ばしても中心にそろえる
 	side := consts.Coord[consts.Tile]{X: -abs(step.Y), Y: -abs(step.X)}
@@ -93,10 +98,11 @@ func (s *lakeShape) layPier(from, step consts.Coord[consts.Tile], limit consts.T
 	prev := math.Inf(-1)
 	for p, n := from, consts.Tile(0); n < limit; p, n = p.Add(step), n+1 {
 		depth := s.depth(p)
-		if depth >= end || depth >= 0 && depth < prev {
+		inside := s.ellipseInside(p)
+		if depth >= end || depth >= 0 && inside < prev {
 			return
 		}
-		prev = depth
+		prev = inside
 		if depth >= 0 {
 			s.piers[p] = true
 			if s.depth(p.Add(side)) >= 0 {
@@ -108,10 +114,14 @@ func (s *lakeShape) layPier(from, step consts.Coord[consts.Tile], limit consts.T
 
 // depth は絶対タイル座標 p が湖の輪郭からどれだけ内側にあるかをマス数で返す。負なら輪郭の外の陸
 func (s lakeShape) depth(p consts.Coord[consts.Tile]) float64 {
+	return s.ellipseInside(p) + float64(s.water.ShoreWobble)*(2*valueNoise(s.seed, p, consts.Tile(s.water.ShoreCell))-1)
+}
+
+// ellipseInside は p が揺れの無い楕円の輪郭からどれだけ内側にあるかをマス数で返す
+func (s lakeShape) ellipseInside(p consts.Coord[consts.Tile]) float64 {
 	dx := (float64(p.X) + 0.5 - s.cx) / s.rx
 	dy := (float64(p.Y) + 0.5 - s.cy) / s.ry
-	inside := (1 - math.Hypot(dx, dy)) * min(s.rx, s.ry)
-	return inside + float64(s.water.ShoreWobble)*(2*valueNoise(s.seed, p, consts.Tile(s.water.ShoreCell))-1)
+	return (1 - math.Hypot(dx, dy)) * min(s.rx, s.ry)
 }
 
 // tileAt は絶対タイル座標 p に置く水面か桟橋のタイルを返す。輪郭の外の陸なら ok=false

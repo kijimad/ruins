@@ -3,6 +3,7 @@ package overworld
 import (
 	"bytes"
 	"image/png"
+	"math"
 	"slices"
 	"testing"
 
@@ -202,4 +203,23 @@ func TestLayPier_湖の細い所で深さが浅くなり始めたら対岸まで
 	}
 	slices.Sort(ys)
 	assert.Equal(t, []consts.Tile{9, 10, 11, 12, 13, 14}, ys)
+}
+
+func TestLayPier_輪郭の揺れで深さが浜の上で減っても浅瀬を越えて深い水まで張る(t *testing.T) {
+	t.Parallel()
+	// seed 5 は、南の岸から北へ歩くと浜の上で値ノイズの下り坂に当たり、揺れを含む深さが一度減る
+	s := lakeShape{
+		water: &rawschema.DistrictWater{BeachWidth: 2, ShallowWidth: 3, PierLength: 6, ShoreWobble: 10, ShoreCell: 24},
+		cx:    0, cy: 0, rx: 40, ry: 40, seed: 5,
+		piers: map[consts.Coord[consts.Tile]]bool{},
+	}
+	s.layPier(consts.Coord[consts.Tile]{Y: 60}, consts.Coord[consts.Tile]{Y: -1}, 120)
+
+	deepest := math.Inf(-1)
+	for p := range s.piers {
+		if p.X == 0 {
+			deepest = max(deepest, s.depth(p))
+		}
+	}
+	assert.GreaterOrEqual(t, deepest, float64(s.water.BeachWidth+s.water.ShallowWidth))
 }

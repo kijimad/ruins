@@ -152,7 +152,7 @@ func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[
 		return cat, err == nil, err
 	case chunkUrban:
 		l := r.local(c)
-		zone := r.kind.Layers[r.layerAt(l)].Scatter
+		zone := r.scatterAt(l)
 		if r.builds(l) || zone == nil {
 			return scatterCatalog{}, false, nil
 		}
