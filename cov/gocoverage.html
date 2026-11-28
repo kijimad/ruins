@@ -335,7 +335,7 @@
 				
 				<option value="file139">github.com/kijimaD/ruins/internal/hooks/store.go (100.0%)</option>
 				
-				<option value="file140">github.com/kijimaD/ruins/internal/hooks/tabmenu.go (94.8%)</option>
+				<option value="file140">github.com/kijimaD/ruins/internal/hooks/tabmenu.go (95.5%)</option>
 				
 				<option value="file141">github.com/kijimaD/ruins/internal/hooks/timer.go (100.0%)</option>
 				
@@ -347,7 +347,7 @@
 				
 				<option value="file145">github.com/kijimaD/ruins/internal/input/mock_keyboard.go (100.0%)</option>
 				
-				<option value="file146">github.com/kijimaD/ruins/internal/keybind/hint.go (96.3%)</option>
+				<option value="file146">github.com/kijimaD/ruins/internal/keybind/hint.go (98.1%)</option>
 				
 				<option value="file147">github.com/kijimaD/ruins/internal/keybind/keybind.go (100.0%)</option>
 				
@@ -429,7 +429,7 @@
 				
 				<option value="file186">github.com/kijimaD/ruins/internal/menuloop/key_help.go (100.0%)</option>
 				
-				<option value="file187">github.com/kijimaD/ruins/internal/menuloop/screen.go (83.6%)</option>
+				<option value="file187">github.com/kijimaD/ruins/internal/menuloop/screen.go (87.8%)</option>
 				
 				<option value="file188">github.com/kijimaD/ruins/internal/messagedata/dialogues.go (100.0%)</option>
 				
@@ -567,7 +567,7 @@
 				
 				<option value="file255">github.com/kijimaD/ruins/internal/states/cube_facility_menu.go (47.6%)</option>
 				
-				<option value="file256">github.com/kijimaD/ruins/internal/states/cube_info.go (24.1%)</option>
+				<option value="file256">github.com/kijimaD/ruins/internal/states/cube_info.go (34.5%)</option>
 				
 				<option value="file257">github.com/kijimaD/ruins/internal/states/cube_menu.go (72.0%)</option>
 				
@@ -18190,18 +18190,18 @@ func (n *tabMenuNav) reduce(s TabMenuState, a inputmapper.ActionID) TabMenuState
         <span class="cov8" title="1">return s</span>
 }
 
-// tabPrev は前のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く
+// tabPrev は前のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く。タブが1つ以下なら何もしない
 func (n *tabMenuNav) tabPrev(s TabMenuState) TabMenuState {
-        <span class="cov8" title="1">if n.config.TabCount == 0 </span>{
+        <span class="cov8" title="1">if n.config.TabCount &lt;= 1 </span>{
                 <span class="cov8" title="1">return s
 </span>        }
         <span class="cov8" title="1">newTab := (s.TabIndex - 1 + n.config.TabCount) % n.config.TabCount
         return TabMenuState{TabIndex: newTab, ItemIndex: n.firstSelectable(newTab)}</span>
 }
 
-// tabNext は次のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く
+// tabNext は次のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く。タブが1つ以下なら何もしない
 func (n *tabMenuNav) tabNext(s TabMenuState) TabMenuState {
-        <span class="cov8" title="1">if n.config.TabCount == 0 </span>{
+        <span class="cov8" title="1">if n.config.TabCount &lt;= 1 </span>{
                 <span class="cov8" title="1">return s
 </span>        }
         <span class="cov8" title="1">newTab := (s.TabIndex + 1) % n.config.TabCount
@@ -18230,18 +18230,40 @@ func (n *tabMenuNav) down(s TabMenuState) TabMenuState {
 
 // left はページを1つ前へ繰る。ページ送りが無効か先頭ページなら何もしない
 func (n *tabMenuNav) left(s TabMenuState) TabMenuState {
-        <span class="cov8" title="1">if n.config.ItemsPerPage &gt; 0 &amp;&amp; s.ItemIndex &gt;= n.config.ItemsPerPage </span>{
-                <span class="cov8" title="1">return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.skipNext(s.TabIndex, s.ItemIndex-n.config.ItemsPerPage, 1)}
+        <span class="cov8" title="1">per := n.config.ItemsPerPage
+        if per &lt;= 0 || s.ItemIndex &lt; per </span>{
+                <span class="cov8" title="1">return s
 </span>        }
-        <span class="cov8" title="1">return s</span>
+        <span class="cov8" title="1">return n.turnPage(s, s.ItemIndex-per)</span>
 }
 
-// right はページを1つ次へ繰る。ページ送りが無効か末尾ページなら何もしない
+// right はページを1つ次へ繰る。ページ送りが無効か末尾ページなら何もしない。
+// 次のページが短ければその末尾の行へ寄せる
 func (n *tabMenuNav) right(s TabMenuState) TabMenuState {
         <span class="cov8" title="1">count := n.itemCountForTab(s.TabIndex)
-        if n.config.ItemsPerPage &gt; 0 &amp;&amp; s.ItemIndex+n.config.ItemsPerPage &lt; count </span>{
-                <span class="cov8" title="1">return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.skipNext(s.TabIndex, s.ItemIndex+n.config.ItemsPerPage, 1)}
+        per := n.config.ItemsPerPage
+        if per &lt;= 0 || (s.ItemIndex/per+1)*per &gt;= count </span>{
+                <span class="cov8" title="1">return s
 </span>        }
+        <span class="cov8" title="1">return n.turnPage(s, min(s.ItemIndex+per, count-1))</span>
+}
+
+// turnPage は target のページの中で target から下へ、無ければ上へ探した最初の選べる行へ移る。
+// ページの行がどれも選べなければ繰らずに s を返す
+func (n *tabMenuNav) turnPage(s TabMenuState, target int) TabMenuState {
+        <span class="cov8" title="1">per := n.config.ItemsPerPage
+        start := target / per * per
+        end := min(start+per, n.itemCountForTab(s.TabIndex))
+        for i := target; i &lt; end; i++ </span>{
+                <span class="cov8" title="1">if !n.isSkip(s.TabIndex, i) </span>{
+                        <span class="cov8" title="1">return TabMenuState{TabIndex: s.TabIndex, ItemIndex: i}
+</span>                }
+        }
+        <span class="cov8" title="1">for i := target - 1; i &gt;= start; i-- </span>{
+                <span class="cov8" title="1">if !n.isSkip(s.TabIndex, i) </span>{
+                        <span class="cov8" title="1">return TabMenuState{TabIndex: s.TabIndex, ItemIndex: i}
+</span>                }
+        }
         <span class="cov8" title="1">return s</span>
 }
 
@@ -18747,7 +18769,7 @@ func HintEntries(world w.World, table []Binding) []HintEntry {
         <span class="cov8" title="1">var entries []HintEntry
         for i := 0; i &lt; len(labeled); </span>{
                 // i から同じ Label が続く範囲が1項目。j が範囲の終端に進む。
-                // 同ラベルのキーは区切りなしで連結する。左右キーの Tab なら Keys は "←→" になる
+                // 同ラベルのキーは区切りなしで連結する。左右キーの Page なら Keys は "←→" になる
                 <span class="cov8" title="1">var keys strings.Builder
                 var tokens []string
                 j := i
@@ -18828,7 +18850,7 @@ func KeyTokens(b Binding) []string {
         case ebiten.KeySpace:
                 <span class="cov8" title="1">return []string{consts.IconKeySpace}</span>
         case ebiten.KeyTab:
-                <span class="cov0" title="0">return []string{consts.IconKeyTab}</span>
+                <span class="cov8" title="1">return []string{consts.IconKeyTab}</span>
         case ebiten.KeyPeriod:
                 <span class="cov8" title="1">return []string{consts.IconKeyDot}</span>
         default:
@@ -18900,17 +18922,17 @@ type Binding struct {
 }
 
 // MenuCommon はメニュー共通のキー束縛。画面固有の断片と MustMerge で1枚に合成して使う。
-// 左右キーはタブ切替に固定する。全メニューで意味を揃え、ページ送りには使わない。
-// 長い一覧は上下でカーソルがページ境界を越えると自動でページが繰られる。
+// 左右キーはページ送り、Tab キーはタブ切替に固定し、全メニューで意味を揃える。
+// 長い一覧は上下でカーソルがページ境界を越えても自動でページが繰られる。
 // 全行の条件が互いに素なので、行の順序に意味は無い。
-// Tab キーは左右の別名なので Label を持たせずヒントに出さない
+// Shift+Tab は Tab の逆向きなので Label を持たせずヒントに出さない
 var MenuCommon = []Binding{
-        {Key: ebiten.KeyArrowLeft, Press: PressRepeat, Action: inputmapper.ActionMenuTabPrev, Label: "Tab"},
-        {Key: ebiten.KeyArrowRight, Press: PressRepeat, Action: inputmapper.ActionMenuTabNext, Label: "Tab"},
+        {Key: ebiten.KeyArrowLeft, Press: PressRepeat, Action: inputmapper.ActionMenuLeft, Label: "Page"},
+        {Key: ebiten.KeyArrowRight, Press: PressRepeat, Action: inputmapper.ActionMenuRight, Label: "Page"},
         {Key: ebiten.KeyArrowUp, Press: PressRepeat, Action: inputmapper.ActionMenuUp, Label: "Select"},
         {Key: ebiten.KeyArrowDown, Press: PressRepeat, Action: inputmapper.ActionMenuDown, Label: "Select"},
         {Key: ebiten.KeyTab, Shift: ShiftRequired, Press: PressJust, Action: inputmapper.ActionMenuTabPrev},
-        {Key: ebiten.KeyTab, Shift: ShiftForbidden, Press: PressJust, Action: inputmapper.ActionMenuTabNext},
+        {Key: ebiten.KeyTab, Shift: ShiftForbidden, Press: PressJust, Action: inputmapper.ActionMenuTabNext, Label: "Tab"},
         {Key: ebiten.KeyEnter, Press: PressJust, Action: inputmapper.ActionMenuSelect, Label: "Confirm"},
         {Key: ebiten.KeySlash, Shift: ShiftRequired, Press: PressJust, Action: inputmapper.ActionOpenKeyHelp, Label: "Help"},
         {Key: ebiten.KeyEscape, Press: PressJust, Action: inputmapper.ActionMenuCancel, Label: "Back"},
@@ -25447,7 +25469,7 @@ import (
 )
 
 // Selection は描画に要るカーソル位置。どのタブのどの行を強調するかを表す。
-// PageSize は解決済みの1ページ件数。ItemsPerPageAuto を使う画面の描画が、カーソルと同じ
+// PageSize は解決済みの1ページ件数。ItemsPerPageAuto か ItemsPerPageAutoHeader を使う画面の描画が、カーソルと同じ
 // ページ件数でページ送りできるよう渡す。0 はページ送りなし
 type Selection struct {
         TabIndex  int
@@ -25458,9 +25480,12 @@ type Selection struct {
 // ItemsPerPageAuto は ItemsPerPage に、タブ帯つきモーダルの1ページへ収まる実測行数を
 // 使う指定。実値は Update が UIResources から測って解決する。Menu は world を持たず
 // 自力で測れないため、番兵で指定して Screen に解決させる。
-// 測るのは見出し無し・タブ帯ありの構成に固定する。見出しを持つ画面はこの番兵を使わず、
-// 自分の構成で menuframe.ListCapacity を呼んで求めた値を直接渡すこと
+// 測るのは見出し無し・タブ帯ありの構成で、見出しを持つ画面は ItemsPerPageAutoHeader を使う
 const ItemsPerPageAuto = -1
+
+// ItemsPerPageAutoHeader は ItemsPerPageAuto の見出し・タブ帯つきモーダル版。
+// 測った値は Screen ごとに1つだけ覚えるので、1つの画面では2つの番兵のどちらか一方だけを使う
+const ItemsPerPageAutoHeader = -2
 
 // MenuConfig は Fetch 済みの props から決まるメニュー構成。state 固有差をここで吸収する。
 // TabCount が 0 のときは一覧を持たない画面として UseTabMenu を登録しない
@@ -25511,7 +25536,7 @@ type Screen[P any] struct {
         pendingOverlays []uicore.Drawable // ScreenRenderer な overlay の配置済みツリー。Draw で本体の上へ重ねる
         lastSelection   Selection         // 直近フレームで確定したカーソル位置。DoAction から参照する
         seeded          bool              // 初期タブへ寄せたか
-        pageSize        int               // ItemsPerPageAuto の解決値。Update が最初のフレームで測る
+        pageSize        int               // ItemsPerPageAuto と ItemsPerPageAutoHeader の解決値。Update が最初のフレームで測る
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
@@ -25639,21 +25664,22 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 // 構成は model から導出するので呼び出し側は tab 番号だけを渡す
 func (s *Screen[P]) SetTab(tab int) {
         <span class="cov8" title="1">cfg := s.model.Menu(s.Props())
-        if cfg.ItemsPerPage == ItemsPerPageAuto </span>{
+        if cfg.ItemsPerPage == ItemsPerPageAuto || cfg.ItemsPerPage == ItemsPerPageAutoHeader </span>{
                 // SetTab は Update 後に呼ぶ前提なので、Update が測定済みの値をそのまま使う
                 <span class="cov0" title="0">cfg.ItemsPerPage = s.pageSize
 </span>        }
         <span class="cov8" title="1">s.setTab(cfg, tab)</span>
 }
 
-// resolveConfig は MenuConfig の ItemsPerPageAuto を実測のページ行数へ解決する。
+// resolveConfig は MenuConfig の ItemsPerPageAuto と ItemsPerPageAutoHeader を実測のページ行数へ解決する。
 // 測定は Auto 指定の画面が最初に通ったときだけ行い、以後は測定済みの値を使う
 func (s *Screen[P]) resolveConfig(world w.World, cfg MenuConfig) MenuConfig {
-        <span class="cov8" title="1">if cfg.ItemsPerPage == ItemsPerPageAuto </span>{
-                <span class="cov0" title="0">if s.pageSize == 0 </span>{
-                        <span class="cov0" title="0">s.pageSize = menuframe.ListCapacity(world, false, true)
+        <span class="cov8" title="1">hasHeader := cfg.ItemsPerPage == ItemsPerPageAutoHeader
+        if cfg.ItemsPerPage == ItemsPerPageAuto || hasHeader </span>{
+                <span class="cov8" title="1">if s.pageSize == 0 </span>{
+                        <span class="cov8" title="1">s.pageSize = menuframe.ListCapacity(world, hasHeader, true)
 </span>                }
-                <span class="cov0" title="0">cfg.ItemsPerPage = s.pageSize</span>
+                <span class="cov8" title="1">cfg.ItemsPerPage = s.pageSize</span>
         }
         <span class="cov8" title="1">return cfg</span>
 }
@@ -38344,6 +38370,7 @@ import (
         "fmt"
 
         "github.com/kijimaD/ruins/internal/i18n"
+        "github.com/kijimaD/ruins/internal/menuloop"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/raw"
@@ -38734,7 +38761,7 @@ func sourceLabel(world w.World, s gc.ProficiencySource) string {
 }
 
 // buildInfoTableUI は情報タブの表とフッタ右端のページ表示を返す。
-func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {
+func buildInfoTableUI(world w.World, tab statusTabData, cursor menuloop.Selection, res resources.UIResources) ([]uicore.Drawable, string) {
         <span class="cov8" title="1">hasModifier := tab.ID == tabAbilities
 </span>        // 能力タブは 名前・値・修正値 の3列、他は 名前・値 の2列。値と修正値は右寄せ
         <span class="cov8" title="1">cols := styled.Cols(styled.Name(), styled.Num())
@@ -38753,7 +38780,7 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
                 }
                 <span class="cov8" title="1">rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader, Indent: it.Indent}</span>
         }
-        <span class="cov8" title="1">return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)</span>
+        <span class="cov8" title="1">return menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: cursor.PageSize}, res)</span>
 }
 </pre>
 		
@@ -39433,7 +39460,7 @@ func (st *CharacterState) Menu(props CharacterProps) menuloop.MenuConfig {
 </span>                }
                 <span class="cov8" title="1">skips = append(skips, s)</span>
         }
-        <span class="cov8" title="1">return menuloop.MenuConfig{Key: characterMenuKey, TabCount: len(itemCounts), ItemCounts: itemCounts, Skips: skips}</span>
+        <span class="cov8" title="1">return menuloop.MenuConfig{Key: characterMenuKey, TabCount: len(itemCounts), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAutoHeader, Skips: skips}</span>
 }
 
 // detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。
@@ -39682,15 +39709,15 @@ func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor men
         <span class="cov8" title="1">var content []uicore.Drawable
         var pager string
         if charTabAt(cursor.TabIndex) == charTabEquip </span>{
-                <span class="cov8" title="1">content, pager = buildEquipListUI(world, props.EquipSlots, cursor.ItemIndex, res)
+                <span class="cov8" title="1">content, pager = buildEquipListUI(world, props.EquipSlots, cursor, res)
 </span>        } else <span class="cov8" title="1">if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx &gt;= 0 &amp;&amp; infoIdx &lt; len(props.InfoTabs) </span>{
-                <span class="cov8" title="1">content, pager = buildInfoTableUI(world, props.InfoTabs[infoIdx], cursor.ItemIndex, res)
+                <span class="cov8" title="1">content, pager = buildInfoTableUI(world, props.InfoTabs[infoIdx], cursor, res)
 </span>        }
         <span class="cov8" title="1">return menuframe.TabScreen(world, res, props.TargetName, characterTabLabels(world), cursor.TabIndex, content, keybind.HelpHint(world), pager)</span>
 }
 
 // buildEquipListUI は装備4列とフッタ右端のページ表示を返す。
-func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {
+func buildEquipListUI(world w.World, slots []equipItemData, cursor menuloop.Selection, res resources.UIResources) ([]uicore.Drawable, string) {
         <span class="cov8" title="1">cols := styled.Cols(styled.Fit(), styled.Icon(), styled.Name(), styled.Num())
         rows := make([]menuframe.Row, len(slots))
         for i, slot := range slots </span>{
@@ -39702,7 +39729,7 @@ func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res r
 </span>                }
                 <span class="cov8" title="1">rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), icon, styled.TextCell(slot.ItemName), styled.TextCell(weight)}}</span>
         }
-        <span class="cov8" title="1">return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)</span>
+        <span class="cov8" title="1">return menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: cursor.PageSize}, res)</span>
 }
 </pre>
 		
@@ -40694,11 +40721,11 @@ func (st *CubeInfoState) Fetch(world w.World) (CubeInfoProps, error) {
 
 // Menu はタブ構成を返す。見出し行が無いのでスキップは不要
 func (st *CubeInfoState) Menu(props CubeInfoProps) menuloop.MenuConfig {
-        <span class="cov0" title="0">itemCounts := make([]int, len(props.Tabs))
+        <span class="cov8" title="1">itemCounts := make([]int, len(props.Tabs))
         for i, tab := range props.Tabs </span>{
                 <span class="cov0" title="0">itemCounts[i] = len(tab.Items)
 </span>        }
-        <span class="cov0" title="0">return menuloop.MenuConfig{Key: cubeInfoMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}</span>
+        <span class="cov8" title="1">return menuloop.MenuConfig{Key: cubeInfoMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAutoHeader}</span>
 }
 
 // ViewUI はタブ帯つきの情報表を組む
@@ -40711,7 +40738,7 @@ func (st *CubeInfoState) ViewUI(world w.World, props CubeInfoProps, cursor menul
         if tabIndex &gt;= len(props.Tabs) </span>{
                 <span class="cov0" title="0">tabIndex = 0
 </span>        }
-        <span class="cov0" title="0">content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
+        <span class="cov0" title="0">content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor, res)
         return menuframe.TabScreen(world, res, query.T(world, "Cube info"), labels, tabIndex, content, keybind.HelpHint(world), pager)</span>
 }
 
@@ -45797,7 +45824,7 @@ func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
         for i, tab := range props.Tabs </span>{
                 <span class="cov8" title="1">itemCounts[i] = len(tab.Items)
 </span>        }
-        <span class="cov8" title="1">return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}</span>
+        <span class="cov8" title="1">return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAutoHeader}</span>
 }
 
 // ViewUI はステータス表を組む。結果画面はタブ帯なしの枠、道中の統計画面はタブ帯つきの枠に載せる
@@ -45810,7 +45837,7 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
         if tabIndex &gt;= len(props.Tabs) </span>{
                 <span class="cov0" title="0">tabIndex = 0
 </span>        }
-        <span class="cov8" title="1">content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
+        <span class="cov8" title="1">content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor, res)
         if st.result </span>{
                 <span class="cov8" title="1">return menuframe.PanelScreen(world, res, query.T(world, st.headerMsgid), content, keybind.HelpHint(world), pager)
 </span>        }
@@ -45818,15 +45845,15 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
 }
 
 // buildStatsTableUI はラベル左・値右の2列表とフッタ右端のページ表示を返す。
-func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {
+func buildStatsTableUI(world w.World, items []statusItemData, cursor menuloop.Selection, res resources.UIResources) ([]uicore.Drawable, string) {
         <span class="cov8" title="1">cols := styled.Cols(styled.Name(), styled.Num())
         rows := make([]menuframe.Row, len(items))
         for i, it := range items </span>{
                 <span class="cov8" title="1">rows[i] = menuframe.Row{Cells: styled.TextCells(it.Label, it.Value)}
 </span>        }
-        <span class="cov8" title="1">return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{
+        <span class="cov8" title="1">return menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{
                 EmptyText:    query.T(world, "No entries"),
-                ItemsPerPage: menuframe.ListCapacity(world, true, true),
+                ItemsPerPage: cursor.PageSize,
         }, res)</span>
 }
 

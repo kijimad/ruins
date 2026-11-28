@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 08:52:45</td>
+            <td class="headerValue">2026-11-28 10:59:19</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,15 +79,15 @@
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         var content []uicore.Drawable</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         var pager string</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         if charTabAt(cursor.TabIndex) == charTabEquip {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 content, pager = buildEquipListUI(world, props.EquipSlots, cursor.ItemIndex, res)</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 content, pager = buildEquipListUI(world, props.EquipSlots, cursor, res)</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           2 :         } else if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx &gt;= 0 &amp;&amp; infoIdx &lt; len(props.InfoTabs) {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 content, pager = buildInfoTableUI(world, props.InfoTabs[infoIdx], cursor.ItemIndex, res)</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 content, pager = buildInfoTableUI(world, props.InfoTabs[infoIdx], cursor, res)</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         return menuframe.TabScreen(world, res, props.TargetName, characterTabLabels(world), cursor.TabIndex, content, keybind.HelpHint(world), pager)</span></span>
 <span id="L25"><span class="lineNum">      25</span>              : }</span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
 <span id="L27"><span class="lineNum">      27</span>              : // buildEquipListUI は装備4列とフッタ右端のページ表示を返す。</span>
-<span id="L28"><span class="lineNum">      28</span>              : func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {</span>
+<span id="L28"><span class="lineNum">      28</span>              : func buildEquipListUI(world w.World, slots []equipItemData, cursor menuloop.Selection, res resources.UIResources) ([]uicore.Drawable, string) {</span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         cols := styled.Cols(styled.Fit(), styled.Icon(), styled.Name(), styled.Num())</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         rows := make([]menuframe.Row, len(slots))</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         for i, slot := range slots {</span></span>
@@ -99,7 +99,7 @@
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), icon, styled.TextCell(slot.ItemName), styled.TextCell(weight)}}</span></span>
 <span id="L39"><span class="lineNum">      39</span>              :         }</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, &quot;No equipment slots&quot;), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, &quot;No equipment slots&quot;), ItemsPerPage: cursor.PageSize}, res)</span></span>
 <span id="L41"><span class="lineNum">      41</span>              : }</span>
         </pre>
               </td>

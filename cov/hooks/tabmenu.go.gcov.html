@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">95.0&nbsp;%</td>
-            <td class="headerCovTableEntry">100</td>
-            <td class="headerCovTableEntry">95</td>
+            <td class="headerCovTableEntryHi">95.6&nbsp;%</td>
+            <td class="headerCovTableEntry">114</td>
+            <td class="headerCovTableEntry">109</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 08:52:45</td>
+            <td class="headerValue">2026-11-28 10:59:19</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -173,18 +173,18 @@
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         return s</span></span>
 <span id="L112"><span class="lineNum">     112</span>              : }</span>
 <span id="L113"><span class="lineNum">     113</span>              : </span>
-<span id="L114"><span class="lineNum">     114</span>              : // tabPrev は前のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く</span>
+<span id="L114"><span class="lineNum">     114</span>              : // tabPrev は前のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く。タブが1つ以下なら何もしない</span>
 <span id="L115"><span class="lineNum">     115</span>              : func (n *tabMenuNav) tabPrev(s TabMenuState) TabMenuState {</span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         if n.config.TabCount == 0 {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         if n.config.TabCount &lt;= 1 {</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 return s</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         newTab := (s.TabIndex - 1 + n.config.TabCount) % n.config.TabCount</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         return TabMenuState{TabIndex: newTab, ItemIndex: n.firstSelectable(newTab)}</span></span>
 <span id="L121"><span class="lineNum">     121</span>              : }</span>
 <span id="L122"><span class="lineNum">     122</span>              : </span>
-<span id="L123"><span class="lineNum">     123</span>              : // tabNext は次のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く</span>
+<span id="L123"><span class="lineNum">     123</span>              : // tabNext は次のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く。タブが1つ以下なら何もしない</span>
 <span id="L124"><span class="lineNum">     124</span>              : func (n *tabMenuNav) tabNext(s TabMenuState) TabMenuState {</span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         if n.config.TabCount == 0 {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         if n.config.TabCount &lt;= 1 {</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 return s</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         newTab := (s.TabIndex + 1) % n.config.TabCount</span></span>
@@ -213,65 +213,87 @@
 <span id="L151"><span class="lineNum">     151</span>              : </span>
 <span id="L152"><span class="lineNum">     152</span>              : // left はページを1つ前へ繰る。ページ送りが無効か先頭ページなら何もしない</span>
 <span id="L153"><span class="lineNum">     153</span>              : func (n *tabMenuNav) left(s TabMenuState) TabMenuState {</span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         if n.config.ItemsPerPage &gt; 0 &amp;&amp; s.ItemIndex &gt;= n.config.ItemsPerPage {</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.skipNext(s.TabIndex, s.ItemIndex-n.config.ItemsPerPage, 1)}</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         return s</span></span>
-<span id="L158"><span class="lineNum">     158</span>              : }</span>
-<span id="L159"><span class="lineNum">     159</span>              : </span>
-<span id="L160"><span class="lineNum">     160</span>              : // right はページを1つ次へ繰る。ページ送りが無効か末尾ページなら何もしない</span>
-<span id="L161"><span class="lineNum">     161</span>              : func (n *tabMenuNav) right(s TabMenuState) TabMenuState {</span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         count := n.itemCountForTab(s.TabIndex)</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         if n.config.ItemsPerPage &gt; 0 &amp;&amp; s.ItemIndex+n.config.ItemsPerPage &lt; count {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.skipNext(s.TabIndex, s.ItemIndex+n.config.ItemsPerPage, 1)}</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         return s</span></span>
-<span id="L167"><span class="lineNum">     167</span>              : }</span>
-<span id="L168"><span class="lineNum">     168</span>              : </span>
-<span id="L169"><span class="lineNum">     169</span>              : // SetTab は指定タブへ直接カーソルを移す。新タブの先頭選択可能行へカーソルを置き、範囲外はクランプする。</span>
-<span id="L170"><span class="lineNum">     170</span>              : // キー再生を避けてタブを設定する用途に使う。UseTabMenu と同じ nav ロジックを通す</span>
-<span id="L171"><span class="lineNum">     171</span>              : func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) {</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         nav := &amp;tabMenuNav{config: config}</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         store.set(keyPrefix, nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)}))</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L175"><span class="lineNum">     175</span>              : </span>
-<span id="L176"><span class="lineNum">     176</span>              : // DispatchNav はカーソル移動系の Action なら Dispatch して真を返し、それ以外は何もせず偽を返す。</span>
-<span id="L177"><span class="lineNum">     177</span>              : // 呼び出し側は集合を知る必要がなく、消費されなかった Action をそのまま後続へ渡せばよい。</span>
-<span id="L178"><span class="lineNum">     178</span>              : // 消費の可否は navHandlers の所属と一致するので、reduce の実行を待たず同期的に答えられる</span>
-<span id="L179"><span class="lineNum">     179</span>              : func (m *Mount[Props]) DispatchNav(a inputmapper.ActionID) bool {</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         if _, ok := navHandlers[a]; !ok {</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         m.Dispatch(a)</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         return true</span></span>
-<span id="L185"><span class="lineNum">     185</span>              : }</span>
-<span id="L186"><span class="lineNum">     186</span>              : </span>
-<span id="L187"><span class="lineNum">     187</span>              : // UseTabMenu は再利用可能なタブメニュー状態管理を提供する</span>
-<span id="L188"><span class="lineNum">     188</span>              : // ReactのカスタムHooksに相当するパターンで、複数のUseStateを組み合わせる</span>
-<span id="L189"><span class="lineNum">     189</span>              : // keyPrefixは状態キーの接頭辞で、複数のタブメニューを区別するために使う</span>
-<span id="L190"><span class="lineNum">     190</span>              : // 端での循環は常に有効</span>
-<span id="L191"><span class="lineNum">     191</span>              : // ペジネーションが有効な場合、ページはitemIndexから自動計算される</span>
-<span id="L192"><span class="lineNum">     192</span>              : // タブ切り替え: Tab / Shift+Tab</span>
-<span id="L193"><span class="lineNum">     193</span>              : // ページ移動: 左右キー</span>
-<span id="L194"><span class="lineNum">     194</span>              : func UseTabMenu(store *Store, keyPrefix string, config TabMenuConfig) TabMenuState {</span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         nav := &amp;tabMenuNav{config: config}</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L197"><span class="lineNum">     197</span>              :         // tabIndexとitemIndexを複合状態として管理する。</span>
-<span id="L198"><span class="lineNum">     198</span>              :         // 単一のreducerでタブ切り替えとアイテム移動を原子的に処理するため、</span>
-<span id="L199"><span class="lineNum">     199</span>              :         // タブ切り替え時に新タブのitemsで正しくfirstSelectableを計算できる</span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         init := TabMenuState{ItemIndex: nav.firstSelectable(0)}</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         state := nav.clamp(UseState(store, keyPrefix, init, nav.reduce))</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         // クランプ後の値をstoreに反映して、UI側が参照する値と一致させる</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         store.set(keyPrefix, state)</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L205"><span class="lineNum">     205</span>              :         // ページはitemIndexから派生する値として計算</span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         itemCount := nav.itemCountForTab(state.TabIndex)</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         if nav.config.ItemsPerPage &gt; 0 &amp;&amp; itemCount &gt; 0 {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 state.Page = state.ItemIndex / nav.config.ItemsPerPage</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L210"><span class="lineNum">     210</span>              : </span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         return state</span></span>
-<span id="L212"><span class="lineNum">     212</span>              : }</span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         per := n.config.ItemsPerPage</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         if per &lt;= 0 || s.ItemIndex &lt; per {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 return s</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         return n.turnPage(s, s.ItemIndex-per)</span></span>
+<span id="L159"><span class="lineNum">     159</span>              : }</span>
+<span id="L160"><span class="lineNum">     160</span>              : </span>
+<span id="L161"><span class="lineNum">     161</span>              : // right はページを1つ次へ繰る。ページ送りが無効か末尾ページなら何もしない。</span>
+<span id="L162"><span class="lineNum">     162</span>              : // 次のページが短ければその末尾の行へ寄せる</span>
+<span id="L163"><span class="lineNum">     163</span>              : func (n *tabMenuNav) right(s TabMenuState) TabMenuState {</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         count := n.itemCountForTab(s.TabIndex)</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         per := n.config.ItemsPerPage</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         if per &lt;= 0 || (s.ItemIndex/per+1)*per &gt;= count {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 return s</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         return n.turnPage(s, min(s.ItemIndex+per, count-1))</span></span>
+<span id="L170"><span class="lineNum">     170</span>              : }</span>
+<span id="L171"><span class="lineNum">     171</span>              : </span>
+<span id="L172"><span class="lineNum">     172</span>              : // turnPage は target のページの中で target から下へ、無ければ上へ探した最初の選べる行へ移る。</span>
+<span id="L173"><span class="lineNum">     173</span>              : // ページの行がどれも選べなければ繰らずに s を返す</span>
+<span id="L174"><span class="lineNum">     174</span>              : func (n *tabMenuNav) turnPage(s TabMenuState, target int) TabMenuState {</span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         per := n.config.ItemsPerPage</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         start := target / per * per</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         end := min(start+per, n.itemCountForTab(s.TabIndex))</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         for i := target; i &lt; end; i++ {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 if !n.isSkip(s.TabIndex, i) {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                         return TabMenuState{TabIndex: s.TabIndex, ItemIndex: i}</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L182"><span class="lineNum">     182</span>              :         }</span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         for i := target - 1; i &gt;= start; i-- {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 if !n.isSkip(s.TabIndex, i) {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                         return TabMenuState{TabIndex: s.TabIndex, ItemIndex: i}</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L187"><span class="lineNum">     187</span>              :         }</span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         return s</span></span>
+<span id="L189"><span class="lineNum">     189</span>              : }</span>
+<span id="L190"><span class="lineNum">     190</span>              : </span>
+<span id="L191"><span class="lineNum">     191</span>              : // SetTab は指定タブへ直接カーソルを移す。新タブの先頭選択可能行へカーソルを置き、範囲外はクランプする。</span>
+<span id="L192"><span class="lineNum">     192</span>              : // キー再生を避けてタブを設定する用途に使う。UseTabMenu と同じ nav ロジックを通す</span>
+<span id="L193"><span class="lineNum">     193</span>              : func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) {</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         nav := &amp;tabMenuNav{config: config}</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         store.set(keyPrefix, nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)}))</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L197"><span class="lineNum">     197</span>              : </span>
+<span id="L198"><span class="lineNum">     198</span>              : // DispatchNav はカーソル移動系の Action なら Dispatch して真を返し、それ以外は何もせず偽を返す。</span>
+<span id="L199"><span class="lineNum">     199</span>              : // 呼び出し側は集合を知る必要がなく、消費されなかった Action をそのまま後続へ渡せばよい。</span>
+<span id="L200"><span class="lineNum">     200</span>              : // 消費の可否は navHandlers の所属と一致するので、reduce の実行を待たず同期的に答えられる</span>
+<span id="L201"><span class="lineNum">     201</span>              : func (m *Mount[Props]) DispatchNav(a inputmapper.ActionID) bool {</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         if _, ok := navHandlers[a]; !ok {</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         m.Dispatch(a)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         return true</span></span>
+<span id="L207"><span class="lineNum">     207</span>              : }</span>
+<span id="L208"><span class="lineNum">     208</span>              : </span>
+<span id="L209"><span class="lineNum">     209</span>              : // UseTabMenu は再利用可能なタブメニュー状態管理を提供する</span>
+<span id="L210"><span class="lineNum">     210</span>              : // ReactのカスタムHooksに相当するパターンで、複数のUseStateを組み合わせる</span>
+<span id="L211"><span class="lineNum">     211</span>              : // keyPrefixは状態キーの接頭辞で、複数のタブメニューを区別するために使う</span>
+<span id="L212"><span class="lineNum">     212</span>              : // 端での循環は常に有効</span>
+<span id="L213"><span class="lineNum">     213</span>              : // ペジネーションが有効な場合、ページはitemIndexから自動計算される</span>
+<span id="L214"><span class="lineNum">     214</span>              : // タブ切り替え: Tab / Shift+Tab</span>
+<span id="L215"><span class="lineNum">     215</span>              : // ページ移動: 左右キー</span>
+<span id="L216"><span class="lineNum">     216</span>              : func UseTabMenu(store *Store, keyPrefix string, config TabMenuConfig) TabMenuState {</span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         nav := &amp;tabMenuNav{config: config}</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L219"><span class="lineNum">     219</span>              :         // tabIndexとitemIndexを複合状態として管理する。</span>
+<span id="L220"><span class="lineNum">     220</span>              :         // 単一のreducerでタブ切り替えとアイテム移動を原子的に処理するため、</span>
+<span id="L221"><span class="lineNum">     221</span>              :         // タブ切り替え時に新タブのitemsで正しくfirstSelectableを計算できる</span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         init := TabMenuState{ItemIndex: nav.firstSelectable(0)}</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         state := nav.clamp(UseState(store, keyPrefix, init, nav.reduce))</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         // クランプ後の値をstoreに反映して、UI側が参照する値と一致させる</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         store.set(keyPrefix, state)</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L227"><span class="lineNum">     227</span>              :         // ページはitemIndexから派生する値として計算</span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         itemCount := nav.itemCountForTab(state.TabIndex)</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         if nav.config.ItemsPerPage &gt; 0 &amp;&amp; itemCount &gt; 0 {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 state.Page = state.ItemIndex / nav.config.ItemsPerPage</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L232"><span class="lineNum">     232</span>              : </span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         return state</span></span>
+<span id="L234"><span class="lineNum">     234</span>              : }</span>
         </pre>
               </td>
             </tr>

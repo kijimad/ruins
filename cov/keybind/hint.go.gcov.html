@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">96.8&nbsp;%</td>
+            <td class="headerCovTableEntryHi">98.4&nbsp;%</td>
             <td class="headerCovTableEntry">62</td>
-            <td class="headerCovTableEntry">60</td>
+            <td class="headerCovTableEntry">61</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 08:52:45</td>
+            <td class="headerValue">2026-11-28 10:59:19</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -94,7 +94,7 @@
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         var entries []HintEntry</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         for i := 0; i &lt; len(labeled); {</span></span>
 <span id="L34"><span class="lineNum">      34</span>              :                 // i から同じ Label が続く範囲が1項目。j が範囲の終端に進む。</span>
-<span id="L35"><span class="lineNum">      35</span>              :                 // 同ラベルのキーは区切りなしで連結する。左右キーの Tab なら Keys は &quot;←→&quot; になる</span>
+<span id="L35"><span class="lineNum">      35</span>              :                 // 同ラベルのキーは区切りなしで連結する。左右キーの Page なら Keys は &quot;←→&quot; になる</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 var keys strings.Builder</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 var tokens []string</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 j := i</span></span>
@@ -175,7 +175,7 @@
 <span id="L113"><span class="lineNum">     113</span>              :         case ebiten.KeySpace:</span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 return []string{consts.IconKeySpace}</span></span>
 <span id="L115"><span class="lineNum">     115</span>              :         case ebiten.KeyTab:</span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 return []string{consts.IconKeyTab}</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 return []string{consts.IconKeyTab}</span></span>
 <span id="L117"><span class="lineNum">     117</span>              :         case ebiten.KeyPeriod:</span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 return []string{consts.IconKeyDot}</span></span>
 <span id="L119"><span class="lineNum">     119</span>              :         default:</span>

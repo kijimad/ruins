@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 08:52:45</td>
+            <td class="headerValue">2026-11-28 10:59:19</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -112,17 +112,17 @@
 <span id="L50"><span class="lineNum">      50</span>              : }</span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span>              : // MenuCommon はメニュー共通のキー束縛。画面固有の断片と MustMerge で1枚に合成して使う。</span>
-<span id="L53"><span class="lineNum">      53</span>              : // 左右キーはタブ切替に固定する。全メニューで意味を揃え、ページ送りには使わない。</span>
-<span id="L54"><span class="lineNum">      54</span>              : // 長い一覧は上下でカーソルがページ境界を越えると自動でページが繰られる。</span>
+<span id="L53"><span class="lineNum">      53</span>              : // 左右キーはページ送り、Tab キーはタブ切替に固定し、全メニューで意味を揃える。</span>
+<span id="L54"><span class="lineNum">      54</span>              : // 長い一覧は上下でカーソルがページ境界を越えても自動でページが繰られる。</span>
 <span id="L55"><span class="lineNum">      55</span>              : // 全行の条件が互いに素なので、行の順序に意味は無い。</span>
-<span id="L56"><span class="lineNum">      56</span>              : // Tab キーは左右の別名なので Label を持たせずヒントに出さない</span>
+<span id="L56"><span class="lineNum">      56</span>              : // Shift+Tab は Tab の逆向きなので Label を持たせずヒントに出さない</span>
 <span id="L57"><span class="lineNum">      57</span>              : var MenuCommon = []Binding{</span>
-<span id="L58"><span class="lineNum">      58</span>              :         {Key: ebiten.KeyArrowLeft, Press: PressRepeat, Action: inputmapper.ActionMenuTabPrev, Label: &quot;Tab&quot;},</span>
-<span id="L59"><span class="lineNum">      59</span>              :         {Key: ebiten.KeyArrowRight, Press: PressRepeat, Action: inputmapper.ActionMenuTabNext, Label: &quot;Tab&quot;},</span>
+<span id="L58"><span class="lineNum">      58</span>              :         {Key: ebiten.KeyArrowLeft, Press: PressRepeat, Action: inputmapper.ActionMenuLeft, Label: &quot;Page&quot;},</span>
+<span id="L59"><span class="lineNum">      59</span>              :         {Key: ebiten.KeyArrowRight, Press: PressRepeat, Action: inputmapper.ActionMenuRight, Label: &quot;Page&quot;},</span>
 <span id="L60"><span class="lineNum">      60</span>              :         {Key: ebiten.KeyArrowUp, Press: PressRepeat, Action: inputmapper.ActionMenuUp, Label: &quot;Select&quot;},</span>
 <span id="L61"><span class="lineNum">      61</span>              :         {Key: ebiten.KeyArrowDown, Press: PressRepeat, Action: inputmapper.ActionMenuDown, Label: &quot;Select&quot;},</span>
 <span id="L62"><span class="lineNum">      62</span>              :         {Key: ebiten.KeyTab, Shift: ShiftRequired, Press: PressJust, Action: inputmapper.ActionMenuTabPrev},</span>
-<span id="L63"><span class="lineNum">      63</span>              :         {Key: ebiten.KeyTab, Shift: ShiftForbidden, Press: PressJust, Action: inputmapper.ActionMenuTabNext},</span>
+<span id="L63"><span class="lineNum">      63</span>              :         {Key: ebiten.KeyTab, Shift: ShiftForbidden, Press: PressJust, Action: inputmapper.ActionMenuTabNext, Label: &quot;Tab&quot;},</span>
 <span id="L64"><span class="lineNum">      64</span>              :         {Key: ebiten.KeyEnter, Press: PressJust, Action: inputmapper.ActionMenuSelect, Label: &quot;Confirm&quot;},</span>
 <span id="L65"><span class="lineNum">      65</span>              :         {Key: ebiten.KeySlash, Shift: ShiftRequired, Press: PressJust, Action: inputmapper.ActionOpenKeyHelp, Label: &quot;Help&quot;},</span>
 <span id="L66"><span class="lineNum">      66</span>              :         {Key: ebiten.KeyEscape, Press: PressJust, Action: inputmapper.ActionMenuCancel, Label: &quot;Back&quot;},</span>
