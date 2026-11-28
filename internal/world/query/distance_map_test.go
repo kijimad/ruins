@@ -38,23 +38,26 @@ func TestBuildDistanceMap(t *testing.T) {
 		assert.False(t, ok, "壁の向こうは届かない")
 	})
 
-	t.Run("味方のマスは軽く、ほかのキャラクターのマスは重い", func(t *testing.T) {
+	t.Run("襲撃の敵の規則では、狙うプレイヤー側のマスは軽く、敵同士と中立のマスは重い", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		ally := world.ECS.NewEntity()
 		world.Components.FactionAlly.Add(ally, &gc.FactionAlly{})
 		beast := world.ECS.NewEntity()
 		world.Components.FactionNeutral.Add(beast, &gc.FactionNeutral{})
+		enemy := world.ECS.NewEntity()
+		world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 		si := GetSpatialIndex(world)
 		si.Built, si.MapWidth, si.MapHeight = true, 3, 2
 		si.Blocked = map[gc.GridElement]bool{}
-		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: ally, {Coord: at(1, 1)}: beast}
+		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: ally, {Coord: at(1, 1)}: beast, {Coord: at(0, 1)}: enemy}
 
 		m := gc.NewDistanceMap()
 		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, cubeRule)
 		dAlly, _ := m.Dist(at(1, 0))
 		dBeast, _ := m.Dist(at(1, 1))
-		assert.Equal(t, []int32{1, gc.DistanceMapObstacleCost}, []int32{dAlly, dBeast})
+		dEnemy, _ := m.Dist(at(0, 1))
+		assert.Equal(t, []int32{1, gc.DistanceMapObstacleCost, gc.DistanceMapObstacleCost}, []int32{dAlly, dBeast, dEnemy})
 	})
 }
 
@@ -136,8 +139,8 @@ func TestGetPlayerDistanceMap(t *testing.T) {
 
 		InvalidateDistanceMaps(world)
 
-		follow := GetSingleton[gc.PlayerDistanceMap](world, world.Components.PlayerDistanceMap)
-		raid := GetSingleton[gc.CubeDistanceMap](world, world.Components.CubeDistanceMap)
-		assert.Equal(t, []bool{false, false}, []bool{follow.Built, raid.Built})
+		player := GetSingleton[gc.PlayerDistanceMap](world, world.Components.PlayerDistanceMap)
+		cube := GetSingleton[gc.CubeDistanceMap](world, world.Components.CubeDistanceMap)
+		assert.Equal(t, []bool{false, false}, []bool{player.Built, cube.Built})
 	})
 }

@@ -53,12 +53,13 @@ func GetPlayerDistanceMap(world w.World) *gc.DistanceMap {
 type distanceRule struct {
 	// breakProps なら HP を持つ通れない置物を壊して通るものとして重く数え、偽なら通れないマスとして数える
 	breakProps bool
-	// avoidAllies なら味方のマスも重く数えて回り込ませ、偽なら空いたマスと同じに数える
+	// avoidAllies なら FactionAlly のプレイヤー側のマスも重く数えて回り込ませ、偽なら空いたマスと同じに数える。プレイヤー側でない
+	// キャラクターのマスは規則に依らず重く数える
 	avoidAllies bool
 }
 
 var (
-	// cubeRule はキューブへ寄り集まる襲撃の敵の規則。置物を壊して進み、味方同士は通り抜ける
+	// cubeRule はキューブへ寄り集まる襲撃の敵の規則。置物を壊して進む。プレイヤー側のマスは殴る相手なので重く数えない
 	cubeRule = distanceRule{breakProps: true}
 	// playerRule はプレイヤーについて行く者の規則。置物を壊さず、仲間を回り込む
 	playerRule = distanceRule{avoidAllies: true}
