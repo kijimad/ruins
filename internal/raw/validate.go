@@ -184,7 +184,7 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateLakeFacilityFootprints は湖を描く区域の地区に建つ施設が1チャンクの大きさだけを持つことを検証する。
+// validateLakeFacilityFootprints は湖を描く区域が割り振る全ての地区に建つ施設が、1チャンクの大きさだけを持つことを検証する。
 // 施設の絵と桟橋はチャンクごとに接する湖へ向けるので、区画が複数のチャンクにまたがると向きと桟橋の数が区画と合わない
 func validateLakeFacilityFootprints(raws rawschema.Raws) error {
 	facilities := PtrSlice(raws.Facilities)

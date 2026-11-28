@@ -362,3 +362,31 @@ func TestRoadAt_道は湖の区域に入らず南の門の前まで来る(t *tes
 	require.True(t, ok)
 	assert.Contains(t, ports, roadPort{dir: RoadN, lane: laneGate})
 }
+
+func TestWaterSide_湖が2方向に接するなら北南西東の順に先のほうを返す(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+
+	got := map[consts.Coord[consts.Chunk]]consts.Coord[consts.Chunk]{}
+	for _, l := range []consts.Coord[consts.Chunk]{{X: 3, Y: 6}, {X: 3, Y: 0}, {X: 0, Y: 3}, {X: 6, Y: 3}} {
+		d, ok := r.waterSide(l)
+		require.True(t, ok)
+		got[l] = d
+	}
+	assert.Equal(t, map[consts.Coord[consts.Chunk]]consts.Coord[consts.Chunk]{
+		{X: 3, Y: 6}: {Y: -1},
+		{X: 3, Y: 0}: {Y: 1},
+		{X: 0, Y: 3}: {X: 1},
+		{X: 6, Y: 3}: {X: -1},
+	}, got)
+
+	// 湖の中のチャンクは北と西の両方が湖になる。北を先に見る
+	inner := consts.Coord[consts.Chunk]{X: 2, Y: 2}
+	require.NotNil(t, r.waterAt(inner.Add(consts.Coord[consts.Chunk]{Y: -1})))
+	require.NotNil(t, r.waterAt(inner.Add(consts.Coord[consts.Chunk]{X: -1})))
+	d, ok := r.waterSide(inner)
+	require.True(t, ok)
+	assert.Equal(t, consts.Coord[consts.Chunk]{Y: -1}, d)
+}
