@@ -157,11 +157,12 @@ func (n *tabMenuNav) left(s TabMenuState) TabMenuState {
 	return s
 }
 
-// right はページを1つ次へ繰る。ページ送りが無効か末尾ページなら何もしない
+// right はページを1つ次へ繰る。次のページが短ければその末尾の行へ寄せる。ページ送りが無効か末尾ページなら何もしない
 func (n *tabMenuNav) right(s TabMenuState) TabMenuState {
 	count := n.itemCountForTab(s.TabIndex)
-	if n.config.ItemsPerPage > 0 && s.ItemIndex+n.config.ItemsPerPage < count {
-		return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.skipNext(s.TabIndex, s.ItemIndex+n.config.ItemsPerPage, 1)}
+	per := n.config.ItemsPerPage
+	if per > 0 && (s.ItemIndex/per+1)*per < count {
+		return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.nearestSelectable(s.TabIndex, min(s.ItemIndex+per, count-1))}
 	}
 	return s
 }

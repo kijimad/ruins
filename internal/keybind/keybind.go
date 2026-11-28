@@ -50,17 +50,17 @@ type Binding struct {
 }
 
 // MenuCommon はメニュー共通のキー束縛。画面固有の断片と MustMerge で1枚に合成して使う。
-// 左右キーはタブ切替に固定する。全メニューで意味を揃え、ページ送りには使わない。
-// 長い一覧は上下でカーソルがページ境界を越えると自動でページが繰られる。
+// 左右キーはページ送り、Tab キーはタブ切替に固定し、全メニューで意味を揃える。
+// 長い一覧は上下でカーソルがページ境界を越えても自動でページが繰られる。
 // 全行の条件が互いに素なので、行の順序に意味は無い。
-// Tab キーは左右の別名なので Label を持たせずヒントに出さない
+// Shift+Tab は Tab の逆向きなので Label を持たせずヒントに出さない
 var MenuCommon = []Binding{
-	{Key: ebiten.KeyArrowLeft, Press: PressRepeat, Action: inputmapper.ActionMenuTabPrev, Label: "Tab"},
-	{Key: ebiten.KeyArrowRight, Press: PressRepeat, Action: inputmapper.ActionMenuTabNext, Label: "Tab"},
+	{Key: ebiten.KeyArrowLeft, Press: PressRepeat, Action: inputmapper.ActionMenuLeft, Label: "Page"},
+	{Key: ebiten.KeyArrowRight, Press: PressRepeat, Action: inputmapper.ActionMenuRight, Label: "Page"},
 	{Key: ebiten.KeyArrowUp, Press: PressRepeat, Action: inputmapper.ActionMenuUp, Label: "Select"},
 	{Key: ebiten.KeyArrowDown, Press: PressRepeat, Action: inputmapper.ActionMenuDown, Label: "Select"},
 	{Key: ebiten.KeyTab, Shift: ShiftRequired, Press: PressJust, Action: inputmapper.ActionMenuTabPrev},
-	{Key: ebiten.KeyTab, Shift: ShiftForbidden, Press: PressJust, Action: inputmapper.ActionMenuTabNext},
+	{Key: ebiten.KeyTab, Shift: ShiftForbidden, Press: PressJust, Action: inputmapper.ActionMenuTabNext, Label: "Tab"},
 	{Key: ebiten.KeyEnter, Press: PressJust, Action: inputmapper.ActionMenuSelect, Label: "Confirm"},
 	{Key: ebiten.KeySlash, Shift: ShiftRequired, Press: PressJust, Action: inputmapper.ActionOpenKeyHelp, Label: "Help"},
 	{Key: ebiten.KeyEscape, Press: PressJust, Action: inputmapper.ActionMenuCancel, Label: "Back"},

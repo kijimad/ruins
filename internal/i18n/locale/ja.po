@@ -608,6 +608,9 @@ msgstr "あなたは宇宙トラベラーだ。乗っていた宇宙船が\n極�
 msgid "Tab"
 msgstr "タブ"
 
+msgid "Page"
+msgstr "ページ"
+
 msgid "Jin"
 msgstr "ジン"
 

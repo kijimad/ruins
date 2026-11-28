@@ -929,3 +929,26 @@ func TestSetTab_範囲外タブはアイテムインデックスが0にクラン
 	require.True(t, ok)
 	assert.Equal(t, TabMenuState{TabIndex: 5, ItemIndex: 0}, got, "範囲外タブはアイテム数0扱いでItemIndexが0にクランプされる")
 }
+
+func TestUseTabMenu_Pagination_短い末尾のページへは下の行からも繰れて末尾の行に寄る(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d", "e"}},
+		},
+	}
+	mount.SetProps(props)
+	setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+
+	for range 2 {
+		mount.Dispatch(inputmapper.ActionMenuDown)
+		setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+		mount.Update()
+	}
+	mount.Dispatch(inputmapper.ActionMenuRight)
+	result := setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, TabMenuState{ItemIndex: 4, Page: 1}, result)
+}
