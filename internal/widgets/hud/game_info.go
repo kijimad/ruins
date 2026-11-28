@@ -180,6 +180,14 @@ func (info *GameInfo) drawBottomRightStack(cv uicore.Canvas, data GameInfoData) 
 
 	items := []uicore.FlexItem{{Grow: true}}
 
+	if data.RaidLabel != "" {
+		_, rh := uicore.MeasureText(data.RaidLabel, face)
+		items = append(items,
+			uicore.FlexItem{W: &uicore.Text{Value: data.RaidLabel, Face: face, Color: theme.TextPrimary, OutlineColor: outline, Align: uicore.AlignRight}, Height: rh},
+			uicore.FlexItem{Height: theme.Space2},
+		)
+	}
+
 	if data.AreaLabel != "" {
 		_, ah := uicore.MeasureText(data.AreaLabel, face)
 		items = append(items,

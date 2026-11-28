@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -113,6 +114,66 @@ func TestPlanRaidAction(t *testing.T) {
 		require.True(t, ok)
 		assert.Equal(t, at(19, 25), p.Destination.Coord)
 	})
+}
+
+func TestPlanRaidAction_道の上の扉を殴る(t *testing.T) {
+	t.Parallel()
+	at := func(x, y int) consts.Coord[consts.Tile] {
+		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+	}
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, at(2, 2), "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, at(20, 20))
+	require.NoError(t, err)
+	world.Components.Deployed.Add(cube, &gc.Deployed{})
+	door, err := lifecycle.SpawnDoor(world, at(20, 23), gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+	raider, err := lifecycle.SpawnEnemy(world, at(20, 24), "stray_dog")
+	require.NoError(t, err)
+	world.Components.Raider.Add(raider, &gc.Raider{})
+	si := query.GetSpatialIndex(world)
+	for y := 21; y <= 30; y++ {
+		si.Blocked[gc.GridElement{Coord: at(19, y)}] = true
+		si.Blocked[gc.GridElement{Coord: at(21, y)}] = true
+	}
+
+	rp := newSoloPlanner(newTestRNG())
+	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	act := rp.Plan(world, raider)
+
+	require.NotNil(t, act)
+	require.Equal(t, gc.BehaviorMelee, act.BehaviorName)
+	p, ok := act.Params.(*gc.MeleeParams)
+	require.True(t, ok)
+	assert.Equal(t, door, p.Target)
+}
+
+func TestPlanRaidAction_追跡の状態でも相手が見えなければキューブへ戻る(t *testing.T) {
+	t.Parallel()
+	at := func(x, y int) consts.Coord[consts.Tile] {
+		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+	}
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, at(2, 2), "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, at(20, 20))
+	require.NoError(t, err)
+	world.Components.Deployed.Add(cube, &gc.Deployed{})
+	raider, err := lifecycle.SpawnEnemy(world, at(20, 26), "stray_dog")
+	require.NoError(t, err)
+	world.Components.Raider.Add(raider, &gc.Raider{})
+	world.Components.SoloAI.Get(raider).SubState = gc.AIStateChasing
+
+	rp := newSoloPlanner(newTestRNG())
+	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	act := rp.Plan(world, raider)
+
+	require.NotNil(t, act)
+	require.Equal(t, gc.BehaviorMove, act.BehaviorName)
+	p, ok := act.Params.(*gc.MoveParams)
+	require.True(t, ok)
+	assert.Equal(t, at(20, 25), p.Destination.Coord)
 }
 
 func TestCullDistantSolo_印のある敵は圏外でも残す(t *testing.T) {

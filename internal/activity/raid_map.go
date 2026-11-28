@@ -21,6 +21,12 @@ type RaidMap struct {
 	width, height consts.Tile
 	// dist は各マスの距離。添字は y*width+x。届かないマスは負
 	dist []int32
+	// cost は各マスへ入る重み。0 は通れない。作るたびに空間の索引から一度だけ書き出す
+	cost []int32
+	// blocked は通れない地形か置物のマス。斜めの角の判定に使う
+	blocked []bool
+	// buckets は距離ごとのバケツの輪。作るたびに使い回す
+	buckets [raidObstacleCost + 1][]int32
 }
 
 // BuildRaidMap は的 targets から重み付きの距離の地図を作る。buf があればその配列を使い回す。
@@ -46,61 +52,63 @@ func BuildRaidMap(world w.World, targets []consts.Coord[consts.Tile], buf *RaidM
 	for i := range m.dist {
 		m.dist[i] = -1
 	}
-
-	breakable := breakableTiles(world, si)
-	cost := func(c consts.Coord[consts.Tile]) int32 {
-		key := gc.GridElement{Coord: c}
-		if si.Blocked[key] {
-			if breakable[c] {
-				return raidObstacleCost
-			}
-			return 0
-		}
-		if e, ok := si.Characters[key]; ok && !query.IsAlly(world, e) {
-			return raidObstacleCost
-		}
-		return 1
+	if cap(m.cost) < n {
+		m.cost = make([]int32, n)
+		m.blocked = make([]bool, n)
 	}
+	m.cost, m.blocked = m.cost[:n], m.blocked[:n]
+
+	m.fillCosts(world, si)
 
 	// 重みは1か raidObstacleCost なので、距離ごとのバケツを輪にして持てば足りる
-	buckets := make([][]consts.Coord[consts.Tile], raidObstacleCost+1)
+	for i := range m.buckets {
+		m.buckets[i] = m.buckets[i][:0]
+	}
+	pending := 0
 	for _, t := range targets {
 		if !m.inBounds(t) {
 			continue
 		}
-		m.dist[m.index(t)] = 0
-		buckets[0] = append(buckets[0], t)
+		i := m.index(t)
+		m.dist[i] = 0
+		m.buckets[0] = append(m.buckets[0], int32(i))
+		pending++
 	}
-	pending := len(buckets[0])
+	w := int(m.width)
 	for d := int32(0); pending > 0; d++ {
-		slot := int(d) % len(buckets)
-		cur := buckets[slot]
-		buckets[slot] = nil
+		slot := int(d) % len(m.buckets)
+		cur := m.buckets[slot]
 		pending -= len(cur)
-		for _, c := range cur {
-			if m.dist[m.index(c)] != d {
+		for _, ci := range cur {
+			if m.dist[ci] != d {
 				continue
 			}
+			cx, cy := int(ci)%w, int(ci)/w
 			for _, dir := range raidMapDirs {
-				next := c.Add(dir)
-				if !m.inBounds(next) || !m.canPassDiagonal(si, c, dir) {
+				nx, ny := cx+int(dir.X), cy+int(dir.Y)
+				if nx < 0 || ny < 0 || nx >= w || ny >= int(m.height) {
 					continue
 				}
-				step := cost(next)
+				ni := ny*w + nx
+				step := m.cost[ni]
 				if step == 0 {
 					continue
 				}
-				nd := d + step
-				i := m.index(next)
-				if m.dist[i] >= 0 && m.dist[i] <= nd {
+				if dir.X != 0 && dir.Y != 0 && m.blocked[cy*w+nx] && m.blocked[ny*w+cx] {
 					continue
 				}
-				m.dist[i] = nd
-				ns := int(nd) % len(buckets)
-				buckets[ns] = append(buckets[ns], next)
+				nd := d + step
+				if m.dist[ni] >= 0 && m.dist[ni] <= nd {
+					continue
+				}
+				m.dist[ni] = nd
+				ns := int(nd) % len(m.buckets)
+				m.buckets[ns] = append(m.buckets[ns], int32(ni))
 				pending++
 			}
 		}
+		// 広げる先は d+1 から d+raidObstacleCost で、同じ輪の位置へは積まれないので、空にして使い回す
+		m.buckets[slot] = cur[:0]
 	}
 	return m
 }
@@ -154,15 +162,37 @@ func (m *RaidMap) canPassDiagonal(si *gc.SpatialIndex, cur, d consts.Coord[const
 	return !si.IsBlocked(cur.Add(consts.Coord[consts.Tile]{X: d.X})) || !si.IsBlocked(cur.Add(consts.Coord[consts.Tile]{Y: d.Y}))
 }
 
-// breakableTiles は通れないマスにある、HP を持つ置物の位置を返す。扉が実例になる
-func breakableTiles(world w.World, si *gc.SpatialIndex) map[consts.Coord[consts.Tile]]bool {
-	out := map[consts.Coord[consts.Tile]]bool{}
+// fillCosts は各マスへ入る重みと、通れないマスを空間の索引から書き出す。通れるマスは1、HP を持たず通れない
+// 地形と置物は0、HP を持つ通れない置物は raidObstacleCost にする。キャラクターのマスは、プレイヤーと味方なら1、
+// それ以外なら raidObstacleCost にする
+func (m *RaidMap) fillCosts(world w.World, si *gc.SpatialIndex) {
+	for i := range m.cost {
+		m.cost[i] = 1
+		m.blocked[i] = false
+	}
+	for g, blocked := range si.Blocked {
+		if !blocked || !m.inBounds(g.Coord) {
+			continue
+		}
+		i := m.index(g.Coord)
+		m.cost[i] = 0
+		m.blocked[i] = true
+	}
 	q := query.ActiveFilter3[gc.Prop, gc.HP, gc.GridElement](world).Query()
 	for q.Next() {
 		_, _, g := q.Get()
-		if si.Blocked[*g] {
-			out[g.Coord] = true
+		if m.inBounds(g.Coord) && m.blocked[m.index(g.Coord)] {
+			m.cost[m.index(g.Coord)] = raidObstacleCost
 		}
 	}
-	return out
+	for g, e := range si.Characters {
+		if !m.inBounds(g.Coord) || m.blocked[m.index(g.Coord)] {
+			continue
+		}
+		if query.IsAlly(world, e) {
+			m.cost[m.index(g.Coord)] = 1
+		} else {
+			m.cost[m.index(g.Coord)] = raidObstacleCost
+		}
+	}
 }

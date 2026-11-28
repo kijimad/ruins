@@ -6820,3 +6820,21 @@ msgstr "%sは%sに耐えた"
 
 msgid "%s is weak to %s."
 msgstr "%sは%sに弱い"
+
+msgid "Something is gathering in the snow. They will come tonight."
+msgstr "雪の中で何かが集まっている。今夜、やって来る"
+
+msgid "They are coming out of the dark."
+msgstr "闇の中から群れがやって来る"
+
+msgid "Dawn breaks. The raid is over."
+msgstr "夜が明けた。襲撃は終わった"
+
+msgid "woke up to the raid"
+msgstr "襲撃で目が覚めた"
+
+msgid "Raid tonight"
+msgstr "今夜、襲撃"
+
+msgid "Raid in %d days"
+msgstr "襲撃まであと%d日"

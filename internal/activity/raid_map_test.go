@@ -88,6 +88,20 @@ func TestBuildRaidMap(t *testing.T) {
 		assert.False(t, ok)
 	})
 
+	t.Run("NextStep は角の向こうの的へ斜めに抜けない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		si := query.GetSpatialIndex(world)
+		si.Built, si.MapWidth, si.MapHeight = true, 3, 3
+		si.Blocked = map[gc.GridElement]bool{{Coord: at(1, 0)}: true, {Coord: at(0, 1)}: true}
+		si.Characters = map[gc.GridElement]ecs.Entity{}
+
+		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0), at(2, 2)}, nil)
+		next, ok := m.NextStep(world, at(1, 1))
+		require.True(t, ok)
+		assert.Equal(t, at(2, 2), next, "角の向こうの (0,0) でなく、斜めに抜けられる (2,2) へ進む")
+	})
+
 	t.Run("的が無ければどのマスにも届かない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -116,4 +130,25 @@ func TestBuildRaidMap(t *testing.T) {
 		_, ok = m.NextStep(world, at(0, 0))
 		assert.False(t, ok, "的の上では進む先が無い")
 	})
+}
+
+// BenchmarkBuildRaidMap は15×15チャンクの帯の全体へ、距離の地図を1回広げる時間を測る。襲撃の夜は敵の手番ごとに作る
+func BenchmarkBuildRaidMap(b *testing.B) {
+	world := testutil.InitTestWorld(b)
+	si := query.GetSpatialIndex(world)
+	const size = 15 * 24
+	si.Built, si.MapWidth, si.MapHeight = true, size, size
+	si.Blocked = map[gc.GridElement]bool{}
+	si.Characters = map[gc.GridElement]ecs.Entity{}
+	for y := 0; y < size; y += 6 {
+		for x := range size - 3 {
+			si.Blocked[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x + y%12/6*3), Y: consts.Tile(y)}}] = true
+		}
+	}
+	targets := []consts.Coord[consts.Tile]{{X: size / 2, Y: size / 2}}
+	m := BuildRaidMap(world, targets, nil)
+	b.ResetTimer()
+	for b.Loop() {
+		m = BuildRaidMap(world, targets, m)
+	}
 }
