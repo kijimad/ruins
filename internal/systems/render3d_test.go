@@ -47,7 +47,7 @@ func TestSampleOf(t *testing.T) {
 		assert.InDelta(t, 0.25, s.brightness, 1e-9)
 		assert.True(t, drawable)
 		assert.False(t, visible)
-		assert.Equal(t, rememberedColor, s.color, "記憶は光源色を持たず記憶の色味")
+		assert.Equal(t, [3]float64{1, 0.8, 0.55}, s.color, "記憶は光源色を持たず記憶の色味")
 	})
 
 	t.Run("未探索は描画しない", func(t *testing.T) {
