@@ -86,7 +86,7 @@ func (r districtRegion) waterSide(l consts.Coord[consts.Chunk]) (consts.Coord[co
 	return consts.Coord[consts.Chunk]{}, false
 }
 
-// quarterTurnsToward は北を向いた絵を向き d へ向けるのに要る左回りの90度の回数を返す
+// quarterTurnsToward は北を向いた絵を向き d へ向けるのに要る左回りの90度の回数を返す。d は上下左右の1マスで、北なら0
 func quarterTurnsToward(d consts.Coord[consts.Chunk]) int {
 	switch d {
 	case consts.Coord[consts.Chunk]{X: -1}:

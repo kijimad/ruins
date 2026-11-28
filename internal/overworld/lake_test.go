@@ -459,3 +459,24 @@ func TestPlanUrbanChunk_部屋の絵の施設は北でない側の湖へ向け�
 	_, _, err = planUrbanChunk(raws, loader, lot, lot.entrance(), 24, 24, 0, rand.New(rand.NewPCG(0, 0)), streetTiles{})
 	require.ErrorIs(t, err, errRoomFacilityNotNorthWater)
 }
+
+func TestFacilityTemplates_湖畔の1棟の絵の北の板は桟橋の2列にそろう(t *testing.T) {
+	t.Parallel()
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+
+	got := map[string][]consts.Tile{}
+	for _, fac := range []string{"lakeside_plaza", "campsite", "fishing_hut"} {
+		for _, name := range loader.FacilityChunkNames(fac) {
+			_, _, cells, err := loader.LoadTemplateByName(name, 0)
+			require.NoError(t, err)
+			for x, c := range cells[0] {
+				if c.Terrain == "pier_plank" {
+					got[name] = append(got[name], urbanStreetW+consts.Tile(x))
+				}
+			}
+		}
+	}
+	center := facilityArtCenter(24, 24).X
+	assert.Equal(t, map[string][]consts.Tile{"20x20_fishing_hut": {center - 1, center}}, got)
+}
