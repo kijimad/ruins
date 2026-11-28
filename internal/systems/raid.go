@@ -5,6 +5,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/raidmap"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -28,7 +29,7 @@ const (
 // RaidSystem は周期ごとの襲撃の夜を進める。襲撃の日の夜明けに予告し、波のターンに中心を囲んで敵を湧かせ、
 // 襲撃の夜の外では残った敵の印を外す。予告はどこでも出し、波は地上が現ステージのときだけ湧かせる
 type RaidSystem struct {
-	raidMap *activity.RaidMap
+	raidMap *raidmap.Map
 }
 
 // String はシステム名を返す
@@ -71,7 +72,7 @@ func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
 	if err != nil {
 		return err
 	}
-	sys.raidMap = activity.BuildRaidMap(world, targets, sys.raidMap)
+	sys.raidMap = raidmap.Build(world, targets, sys.raidMap)
 	tiles := raidSpawnTiles(world, sys.raidMap, center, count)
 	rng := world.Resources.Config.RNG
 	spawned := 0
@@ -153,7 +154,7 @@ func raidWaveSize(total, wave int) int {
 // raidSpawnTiles は中心を囲む輪の上から、湧かせるマスを count 個まで選ぶ。プレイヤーの視界の外で、距離の地図で
 // 中心まで道がつながり、通れて誰もいないマスに限る。足りなければ輪を外へ広げ、地図の端まで広げても足りなければ
 // 見つかった分だけ返す
-func raidSpawnTiles(world w.World, m *activity.RaidMap, center consts.Coord[consts.Tile], count int) []consts.Coord[consts.Tile] {
+func raidSpawnTiles(world w.World, m *raidmap.Map, center consts.Coord[consts.Tile], count int) []consts.Coord[consts.Tile] {
 	si := query.GetSpatialIndex(world)
 	if si == nil || count <= 0 {
 		return nil

@@ -5,11 +5,11 @@ import (
 	"math/rand/v2"
 	"slices"
 
-	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
+	"github.com/kijimaD/ruins/internal/raidmap"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -31,14 +31,14 @@ type Processor struct {
 	logger  *logger.Logger
 	planner *soloPlanner
 	// raidMap は襲撃の敵が下る距離の地図の配列。WithRaidMap で渡せば、手番をまたいで使い回す
-	raidMap *activity.RaidMap
+	raidMap *raidmap.Map
 }
 
 // ProcessorOption は Processor の作り方を変える
 type ProcessorOption func(*Processor)
 
 // WithRaidMap は距離の地図の配列 m を使い回させる。Processor は手番ごとに作るので、長く生きる側が持って渡す
-func WithRaidMap(m *activity.RaidMap) ProcessorOption {
+func WithRaidMap(m *raidmap.Map) ProcessorOption {
 	return func(p *Processor) { p.raidMap = m }
 }
 
@@ -84,11 +84,11 @@ func (p *Processor) ProcessAll(world w.World) error {
 }
 
 // buildRaidMap は targets に印のある敵がいれば、query.RaidTargets の的からの距離の地図を作って返す。いなければ nil を返す
-func (p *Processor) buildRaidMap(world w.World, targets []ecs.Entity) *activity.RaidMap {
+func (p *Processor) buildRaidMap(world w.World, targets []ecs.Entity) *raidmap.Map {
 	if !slices.ContainsFunc(targets, world.Components.Raider.Has) {
 		return nil
 	}
-	p.raidMap = activity.BuildRaidMap(world, query.RaidTargets(world), p.raidMap)
+	p.raidMap = raidmap.Build(world, query.RaidTargets(world), p.raidMap)
 	return p.raidMap
 }
 

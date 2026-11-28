@@ -1,4 +1,4 @@
-package activity
+package raidmap
 
 import (
 	"testing"
@@ -26,7 +26,7 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Blocked = map[gc.GridElement]bool{}
 		si.Characters = map[gc.GridElement]ecs.Entity{}
 
-		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
+		m := Build(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
 		got := make([]int32, 0, 4)
 		for x := range 4 {
 			d, ok := m.Dist(at(x, 0))
@@ -48,10 +48,10 @@ func TestBuildRaidMap(t *testing.T) {
 		world.Components.HP.Add(door, &gc.HP{})
 		world.Components.GridElement.Add(door, &gc.GridElement{Coord: at(2, 0)})
 
-		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
+		m := Build(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
 		d, ok := m.Dist(at(3, 0))
 		require.True(t, ok)
-		assert.Equal(t, int32(1+raidObstacleCost+1), d, "扉を壊して抜ける")
+		assert.Equal(t, int32(1+obstacleCost+1), d, "扉を壊して抜ける")
 		_, ok = m.Dist(at(5, 0))
 		assert.False(t, ok, "壁の向こうは届かない")
 	})
@@ -68,11 +68,11 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Blocked = map[gc.GridElement]bool{}
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: player, {Coord: at(1, 1)}: beast}
 
-		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
+		m := Build(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
 		dPlayer, _ := m.Dist(at(1, 0))
 		dBeast, _ := m.Dist(at(1, 1))
 		assert.Equal(t, int32(1), dPlayer)
-		assert.Equal(t, int32(raidObstacleCost), dBeast)
+		assert.Equal(t, int32(obstacleCost), dBeast)
 	})
 
 	t.Run("縦横の隣がどちらも塞がった角は斜めに抜けない", func(t *testing.T) {
@@ -83,7 +83,7 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Blocked = map[gc.GridElement]bool{{Coord: at(1, 0)}: true, {Coord: at(0, 1)}: true}
 		si.Characters = map[gc.GridElement]ecs.Entity{}
 
-		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
+		m := Build(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
 		_, ok := m.Dist(at(1, 1))
 		assert.False(t, ok)
 	})
@@ -96,7 +96,7 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Blocked = map[gc.GridElement]bool{{Coord: at(1, 0)}: true, {Coord: at(0, 1)}: true}
 		si.Characters = map[gc.GridElement]ecs.Entity{}
 
-		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0), at(2, 2)}, nil)
+		m := Build(world, []consts.Coord[consts.Tile]{at(0, 0), at(2, 2)}, nil)
 		assert.Equal(t, []consts.Coord[consts.Tile]{at(2, 2)}, m.Steps(at(1, 1), nil), "角の向こうの (0,0) でなく、斜めに抜けられる (2,2) へ進む")
 	})
 
@@ -108,7 +108,7 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Blocked = map[gc.GridElement]bool{}
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(2, 1)}: world.ECS.NewEntity()}
 
-		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 1)}, nil)
+		m := Build(world, []consts.Coord[consts.Tile]{at(0, 1)}, nil)
 		assert.Equal(t, []consts.Coord[consts.Tile]{at(1, 1), at(1, 0), at(1, 2)}, m.Steps(at(2, 1), nil), "横と後ろの列は、重さ5の自分のマスより近くても下る隣に入れない")
 	})
 
@@ -120,7 +120,7 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Blocked = map[gc.GridElement]bool{}
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: world.ECS.NewEntity()}
 
-		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
+		m := Build(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
 		assert.Equal(t, []consts.Coord[consts.Tile]{at(1, 0)}, m.Steps(at(2, 0), nil), "塞がれていても替わりの隣は無く、呼ぶ側は待つ")
 	})
 
@@ -132,7 +132,7 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Blocked = map[gc.GridElement]bool{}
 		si.Characters = map[gc.GridElement]ecs.Entity{}
 
-		m := BuildRaidMap(world, nil, nil)
+		m := Build(world, nil, nil)
 		_, ok := m.Dist(at(1, 0))
 		assert.False(t, ok)
 	})
@@ -145,14 +145,14 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Blocked = map[gc.GridElement]bool{}
 		si.Characters = map[gc.GridElement]ecs.Entity{}
 
-		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
+		m := Build(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
 		assert.Equal(t, []consts.Coord[consts.Tile]{at(2, 1), at(2, 0), at(2, 2)}, m.Steps(at(3, 1), nil))
 		assert.Empty(t, m.Steps(at(0, 0), nil), "的の上では進む先が無い")
 	})
 }
 
-// BenchmarkBuildRaidMap は15×15チャンクの帯の全体へ、距離の地図を1回広げる時間を測る。襲撃の夜は敵の手番ごとに作る
-func BenchmarkBuildRaidMap(b *testing.B) {
+// BenchmarkBuild は15×15チャンクの帯の全体へ、距離の地図を1回広げる時間を測る。襲撃の夜は敵の手番ごとに作る
+func BenchmarkBuild(b *testing.B) {
 	world := testutil.InitTestWorld(b)
 	si := query.GetSpatialIndex(world)
 	const size = 15 * 24
@@ -165,9 +165,9 @@ func BenchmarkBuildRaidMap(b *testing.B) {
 		}
 	}
 	targets := []consts.Coord[consts.Tile]{{X: size / 2, Y: size / 2}}
-	m := BuildRaidMap(world, targets, nil)
+	m := Build(world, targets, nil)
 	b.ResetTimer()
 	for b.Loop() {
-		m = BuildRaidMap(world, targets, m)
+		m = Build(world, targets, m)
 	}
 }

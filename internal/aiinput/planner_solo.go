@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
+	"github.com/kijimaD/ruins/internal/raidmap"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -30,7 +31,7 @@ type soloPlanner struct {
 	logger       *logger.Logger
 	rng          *rand.Rand
 	// raidMap はこの手番で襲撃の敵が下る距離の地図。Processor が手番の初めに渡す。印のある敵がいなければ nil
-	raidMap *activity.RaidMap
+	raidMap *raidmap.Map
 	// raidSteps は印のある敵ごとに下る隣を入れる配列。敵をまたいで使い回す
 	raidSteps []consts.Coord[consts.Tile]
 }

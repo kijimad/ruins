@@ -3,9 +3,9 @@ package aiinput
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raidmap"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -34,7 +34,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Raider.Add(raider, &gc.Raider{})
 
 		rp := newSoloPlanner(newTestRNG())
-		rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
+		rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
 		act := rp.Plan(world, raider)
 
 		require.NotNil(t, act)
@@ -57,7 +57,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Raider.Add(raider, &gc.Raider{})
 
 		rp := newSoloPlanner(newTestRNG())
-		rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
+		rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
 		act := rp.Plan(world, raider)
 
 		require.NotNil(t, act)
@@ -80,7 +80,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Raider.Add(raider, &gc.Raider{})
 
 		rp := newSoloPlanner(newTestRNG())
-		rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
+		rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
 		act := rp.Plan(world, raider)
 
 		require.NotNil(t, act)
@@ -105,7 +105,7 @@ func TestPlanRaidAction(t *testing.T) {
 		require.NoError(t, err)
 
 		rp := newSoloPlanner(newTestRNG())
-		rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
+		rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
 		act := rp.Plan(world, raider)
 
 		require.NotNil(t, act)
@@ -132,7 +132,7 @@ func TestPlanRaidAction_見えた相手よりキューブが近ければキュ�
 	world.Components.Raider.Add(raider, &gc.Raider{})
 
 	rp := newSoloPlanner(newTestRNG())
-	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
 	act := rp.Plan(world, raider)
 
 	require.NotNil(t, act)
@@ -165,7 +165,7 @@ func TestPlanRaidAction_道の上の扉を殴る(t *testing.T) {
 	}
 
 	rp := newSoloPlanner(newTestRNG())
-	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
 	act := rp.Plan(world, raider)
 
 	require.NotNil(t, act)
@@ -192,7 +192,7 @@ func TestPlanRaidAction_追跡の状態でも相手が見えなければキュ�
 	world.Components.SoloAI.Get(raider).SubState = gc.AIStateChasing
 
 	rp := newSoloPlanner(newTestRNG())
-	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
 	act := rp.Plan(world, raider)
 
 	require.NotNil(t, act)
@@ -225,7 +225,7 @@ func TestPlanRaidAction_細い通路で前に仲間がいれば待つ(t *testing
 	}
 
 	rp := newSoloPlanner(newTestRNG())
-	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
 	act := rp.Plan(world, raider)
 
 	require.NotNil(t, act)
@@ -254,7 +254,7 @@ func TestPlanRaidAction_開けた所では前の仲間の横へ回り込む(t *t
 	// 前の仲間が動く前に作った地図では、仲間のマスが一番近い隣になる
 	si := query.GetSpatialIndex(world)
 	delete(si.Characters, gc.GridElement{Coord: at(20, 23)})
-	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
 	si.Characters[gc.GridElement{Coord: at(20, 23)}] = front
 	act := rp.Plan(world, raider)
 

@@ -1,4 +1,4 @@
-package activity
+package raidmap
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -7,17 +7,17 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// raidObstacleCost は HP を持つ置物と、襲撃の敵が待つことになるキャラクターのマスを通る重み
-const raidObstacleCost = 5
+// obstacleCost は HP を持つ置物と、襲撃の敵が待つことになるキャラクターのマスを通る重み
+const obstacleCost = 5
 
-// raidMapDirs は距離の地図を広げ、下る8方向
-var raidMapDirs = [...]consts.Coord[consts.Tile]{
+// dirs は距離の地図を広げ、下る8方向
+var dirs = [...]consts.Coord[consts.Tile]{
 	{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0},
 	{X: -1, Y: -1}, {X: 1, Y: -1}, {X: -1, Y: 1}, {X: 1, Y: 1},
 }
 
-// RaidMap は狙う的から現ステージの各マスへの、重み付きの距離。襲撃の敵はこの値が小さくなる隣へ進む
-type RaidMap struct {
+// Map は狙う的から現ステージの各マスへの、重み付きの距離。襲撃の敵はこの値が小さくなる隣へ進む
+type Map struct {
 	width, height consts.Tile
 	// dist は各マスの距離。添字は y*width+x。届かないマスは負
 	dist []int32
@@ -26,17 +26,17 @@ type RaidMap struct {
 	// blocked は通れない地形か置物のマス。斜めの角の判定に使う
 	blocked []bool
 	// buckets は距離ごとのバケツの輪。作るたびに使い回す
-	buckets [raidObstacleCost + 1][]int32
+	buckets [obstacleCost + 1][]int32
 }
 
-// BuildRaidMap は的 targets から重み付きの距離の地図を作る。buf があればその配列を使い回す。
+// Build は的 targets から重み付きの距離の地図を作る。buf があればその配列を使い回す。
 // 通れるマスと、プレイヤーと味方のマスは重み1、HP を持つ通れない置物と、それ以外のキャラクターのマスは
-// 重み raidObstacleCost で通れるものとして数える。HP を持たず通れない壁や地形は数えない。
-// 斜めは CanMoveTo と同じく、縦横の隣がどちらも通れないマスなら抜けない
-func BuildRaidMap(world w.World, targets []consts.Coord[consts.Tile], buf *RaidMap) *RaidMap {
+// 重み obstacleCost で通れるものとして数える。HP を持たず通れない壁や地形は数えない。
+// 斜めは activity.CanMoveTo と同じく、縦横の隣がどちらも通れないマスなら抜けない
+func Build(world w.World, targets []consts.Coord[consts.Tile], buf *Map) *Map {
 	m := buf
 	if m == nil {
-		m = &RaidMap{}
+		m = &Map{}
 	}
 	si := query.GetSpatialIndex(world)
 	if si == nil {
@@ -60,7 +60,7 @@ func BuildRaidMap(world w.World, targets []consts.Coord[consts.Tile], buf *RaidM
 
 	m.fillCosts(world, si)
 
-	// 重みは1か raidObstacleCost なので、距離ごとのバケツを輪にして持てば足りる
+	// 重みは1か obstacleCost なので、距離ごとのバケツを輪にして持てば足りる
 	for i := range m.buckets {
 		m.buckets[i] = m.buckets[i][:0]
 	}
@@ -84,7 +84,7 @@ func BuildRaidMap(world w.World, targets []consts.Coord[consts.Tile], buf *RaidM
 				continue
 			}
 			cx, cy := int(ci)%w, int(ci)/w
-			for _, dir := range raidMapDirs {
+			for _, dir := range dirs {
 				nx, ny := cx+int(dir.X), cy+int(dir.Y)
 				if nx < 0 || ny < 0 || nx >= w || ny >= int(m.height) {
 					continue
@@ -107,14 +107,14 @@ func BuildRaidMap(world w.World, targets []consts.Coord[consts.Tile], buf *RaidM
 				pending++
 			}
 		}
-		// 広げる先は d+1 から d+raidObstacleCost で、同じ輪の位置へは積まれないので、空にして使い回す
+		// 広げる先は d+1 から d+obstacleCost で、同じ輪の位置へは積まれないので、空にして使い回す
 		m.buckets[slot] = cur[:0]
 	}
 	return m
 }
 
 // Dist は c の距離を返す。届かないマスと地図の外は false
-func (m *RaidMap) Dist(c consts.Coord[consts.Tile]) (int32, bool) {
+func (m *Map) Dist(c consts.Coord[consts.Tile]) (int32, bool) {
 	if !m.inBounds(c) {
 		return 0, false
 	}
@@ -122,10 +122,10 @@ func (m *RaidMap) Dist(c consts.Coord[consts.Tile]) (int32, bool) {
 	return d, d >= 0
 }
 
-// Steps は from の隣のうち、距離が一番小さいマスを全て、raidMapDirs の順に buf へ足して返す。from の距離は隣の
+// Steps は from の隣のうち、距離が一番小さいマスを全て、dirs の順に buf へ足して返す。from の距離は隣の
 // 一番小さい値に from へ入る重さを足したものなので、from に誰もいなかったときの距離と比べれば、一番小さい隣だけが
-// 残る。斜めは地図を広げるときと同じく、CanMoveTo の規則で選ぶ。下る隣が無ければ空を返す
-func (m *RaidMap) Steps(from consts.Coord[consts.Tile], buf []consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
+// 残る。斜めは地図を広げるときと同じく、activity.CanMoveTo の規則で選ぶ。下る隣が無ければ空を返す
+func (m *Map) Steps(from consts.Coord[consts.Tile], buf []consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
 	steps := buf[:0]
 	d, ok := m.Dist(from)
 	if !ok {
@@ -133,7 +133,7 @@ func (m *RaidMap) Steps(from consts.Coord[consts.Tile], buf []consts.Coord[const
 	}
 	// 立っている自分のマスは重く数えられているので、重さ1で入ったときの距離と比べる。比べないと後ろのマスまで下る隣に入る
 	here := d - m.cost[m.index(from)] + 1
-	for _, dir := range raidMapDirs {
+	for _, dir := range dirs {
 		next := from.Add(dir)
 		if d, ok := m.Dist(next); ok && d < here && m.canPassDiagonal(from, dir) {
 			steps = append(steps, next)
@@ -142,17 +142,17 @@ func (m *RaidMap) Steps(from consts.Coord[consts.Tile], buf []consts.Coord[const
 	return steps
 }
 
-func (m *RaidMap) inBounds(c consts.Coord[consts.Tile]) bool {
+func (m *Map) inBounds(c consts.Coord[consts.Tile]) bool {
 	return c.X >= 0 && c.Y >= 0 && c.X < m.width && c.Y < m.height
 }
 
-func (m *RaidMap) index(c consts.Coord[consts.Tile]) int {
+func (m *Map) index(c consts.Coord[consts.Tile]) int {
 	return int(c.Y)*int(m.width) + int(c.X)
 }
 
 // canPassDiagonal は地図を広げるときと同じく、縦横の隣がどちらも通れないマスなら斜めに抜けさせない。下る先の
 // next が地図の中にあるので、縦横の隣も地図の中にある
-func (m *RaidMap) canPassDiagonal(from, d consts.Coord[consts.Tile]) bool {
+func (m *Map) canPassDiagonal(from, d consts.Coord[consts.Tile]) bool {
 	if d.X == 0 || d.Y == 0 {
 		return true
 	}
@@ -160,9 +160,9 @@ func (m *RaidMap) canPassDiagonal(from, d consts.Coord[consts.Tile]) bool {
 }
 
 // fillCosts は各マスへ入る重みと、通れないマスを空間の索引から書き出す。通れるマスは1、HP を持たず通れない
-// 地形と置物は0、HP を持つ通れない置物は raidObstacleCost にする。キャラクターのマスは、プレイヤーと味方なら1、
-// それ以外なら raidObstacleCost にする
-func (m *RaidMap) fillCosts(world w.World, si *gc.SpatialIndex) {
+// 地形と置物は0、HP を持つ通れない置物は obstacleCost にする。キャラクターのマスは、プレイヤーと味方なら1、
+// それ以外なら obstacleCost にする
+func (m *Map) fillCosts(world w.World, si *gc.SpatialIndex) {
 	for i := range m.cost {
 		m.cost[i] = 1
 		m.blocked[i] = false
@@ -179,7 +179,7 @@ func (m *RaidMap) fillCosts(world w.World, si *gc.SpatialIndex) {
 	for q.Next() {
 		_, _, g := q.Get()
 		if m.inBounds(g.Coord) && m.blocked[m.index(g.Coord)] {
-			m.cost[m.index(g.Coord)] = raidObstacleCost
+			m.cost[m.index(g.Coord)] = obstacleCost
 		}
 	}
 	for g, e := range si.Characters {
@@ -189,7 +189,7 @@ func (m *RaidMap) fillCosts(world w.World, si *gc.SpatialIndex) {
 		if query.IsAlly(world, e) {
 			m.cost[m.index(g.Coord)] = 1
 		} else {
-			m.cost[m.index(g.Coord)] = raidObstacleCost
+			m.cost[m.index(g.Coord)] = obstacleCost
 		}
 	}
 }

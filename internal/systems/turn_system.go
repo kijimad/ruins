@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
+	"github.com/kijimaD/ruins/internal/raidmap"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -32,7 +33,7 @@ import (
 // HasActivity で塞ぐため、フェーズが Player のままでも操作は受け付けない。
 type TurnSystem struct {
 	// raidMap は襲撃の敵が下る距離の地図の配列。AI の手番ごとに作る Processor へ渡して使い回す
-	raidMap *activity.RaidMap
+	raidMap *raidmap.Map
 }
 
 // String はシステム名を返す
@@ -109,7 +110,7 @@ func (sys *TurnSystem) fastForwardActivity(world w.World, turnState *gc.TurnStat
 }
 
 // runAIPhase は全AI・NPCを一括処理し、視界の再計算を要求する。
-func runAIPhase(world w.World, raidMap *activity.RaidMap) error {
+func runAIPhase(world w.World, raidMap *raidmap.Map) error {
 	region := trace.StartRegion(context.Background(), "turn:AI")
 	defer region.End()
 
@@ -199,15 +200,15 @@ func shouldAutoEndTurn(world w.World) bool {
 }
 
 // raidBuffer は手番をまたいで使い回す距離の地図の配列を返す
-func (sys *TurnSystem) raidBuffer() *activity.RaidMap {
+func (sys *TurnSystem) raidBuffer() *raidmap.Map {
 	if sys.raidMap == nil {
-		sys.raidMap = &activity.RaidMap{}
+		sys.raidMap = &raidmap.Map{}
 	}
 	return sys.raidMap
 }
 
 // processAITurn はAIターンの処理を行う
-func processAITurn(world w.World, raidMap *activity.RaidMap) error {
+func processAITurn(world w.World, raidMap *raidmap.Map) error {
 	log := logger.New(logger.CategoryTurn)
 	log.Debug("AI turn processing start")
 
