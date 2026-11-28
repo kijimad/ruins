@@ -47,7 +47,7 @@ func TestRaidWaveSize(t *testing.T) {
 
 func TestRaidNightSize(t *testing.T) {
 	t.Parallel()
-	assert.Equal(t, 6, raidNightSize(1))
+	assert.Equal(t, 15, raidNightSize(1))
 	assert.Equal(t, raidMaxPerNight, raidNightSize(41), "北の奥でも上限を超えない")
 }
 

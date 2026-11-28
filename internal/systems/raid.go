@@ -19,10 +19,10 @@ const (
 	raidSpawnMin consts.Tile = 18
 	raidSpawnMax consts.Tile = 24
 	// raidBase と raidPerDanger は1晩の数を危険度から決める
-	raidBase      = 4
-	raidPerDanger = 2
+	raidBase      = 12
+	raidPerDanger = 3
 	// raidMaxPerNight は1晩の数の上限
-	raidMaxPerNight = 24
+	raidMaxPerNight = 60
 )
 
 // RaidSystem は周期ごとの襲撃の夜を進める。襲撃の日の夜明けに予告し、波のターンに中心を囲んで敵を湧かせ、
