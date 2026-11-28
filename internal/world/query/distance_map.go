@@ -32,7 +32,7 @@ func InvalidateDistanceMaps(world w.World) {
 
 // GetPlayerDistanceMap はシングルトンから、ついて行く者が下るプレイヤーからの距離の地図を取得する。未構築なら作る。
 // ついて行く者は置物を壊さないので HP を持つ置物も通れないマスとして数え、味方を含む他のキャラクターのマスは重く数えて
-// 回り込ませる
+// 回り込ませる。手番の外で引くと前の手番の地図が返る
 func GetPlayerDistanceMap(world w.World) *gc.DistanceMap {
 	m := GetSingleton[gc.PlayerDistanceMap](world, world.Components.PlayerDistanceMap)
 	if m == nil {

@@ -73,7 +73,7 @@ func TestGetCubeDistanceMap_引いたときに作り無効化で捨てる(t *tes
 	assert.False(t, m.Built, "無効化で捨てる")
 }
 
-// BenchmarkBuildDistanceMap は15×15チャンクの帯の全体へ、距離の地図を1回作る時間を測る。襲撃の敵がいる手番ごとに作る
+// BenchmarkBuildDistanceMap は15×15チャンクの帯の全体へ、距離の地図を1回作る時間を測る。距離の地図を下る者がいる手番ごとに作る
 func BenchmarkBuildDistanceMap(b *testing.B) {
 	world := testutil.InitTestWorld(b)
 	si := GetSpatialIndex(world)
@@ -131,7 +131,7 @@ func TestGetPlayerDistanceMap(t *testing.T) {
 		assert.Equal(t, []int32{0, gc.DistanceMapObstacleCost, gc.DistanceMapObstacleCost + 1, -1, -1}, dists, "味方のマスは重く、扉を壊さないので向こう側へは届かない")
 	})
 
-	t.Run("敵の手番の初めに無効化すると次に引いたときに作り直す", func(t *testing.T) {
+	t.Run("無効化で両方の地図を捨てる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		GetPlayerDistanceMap(world)
