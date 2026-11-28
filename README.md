@@ -114,6 +114,7 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 | status | Document | Progress | tags |
 |---|---|---|---|
 | in-progress | [拠点を置いて遠征を繰り返し、乗り切って北へ発つ](docs/design/261125003808.md) | 3/7 | gamedesign, combat, worldgen, movement |
+| accepted | [拠点に機銃を置き、置き物で入口を塞いで襲撃を受ける](docs/design/261128224351.md) | 0/8 (1 skipped) | combat, item, gamedesign |
 
 
 ## References
