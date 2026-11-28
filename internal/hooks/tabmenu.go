@@ -111,18 +111,18 @@ func (n *tabMenuNav) reduce(s TabMenuState, a inputmapper.ActionID) TabMenuState
 	return s
 }
 
-// tabPrev は前のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く
+// tabPrev は前のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く。タブが1つ以下なら何もしない
 func (n *tabMenuNav) tabPrev(s TabMenuState) TabMenuState {
-	if n.config.TabCount == 0 {
+	if n.config.TabCount <= 1 {
 		return s
 	}
 	newTab := (s.TabIndex - 1 + n.config.TabCount) % n.config.TabCount
 	return TabMenuState{TabIndex: newTab, ItemIndex: n.firstSelectable(newTab)}
 }
 
-// tabNext は次のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く
+// tabNext は次のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く。タブが1つ以下なら何もしない
 func (n *tabMenuNav) tabNext(s TabMenuState) TabMenuState {
-	if n.config.TabCount == 0 {
+	if n.config.TabCount <= 1 {
 		return s
 	}
 	newTab := (s.TabIndex + 1) % n.config.TabCount

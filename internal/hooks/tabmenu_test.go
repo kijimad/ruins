@@ -996,3 +996,11 @@ func TestTurnPage_ページ送りが無効なら左右で動かない(t *testing
 
 	assert.Equal(t, []TabMenuState{s, s}, []TabMenuState{nav.left(s), nav.right(s)})
 }
+
+func TestTabMenuNav_タブが1つならタブ切替で状態を変えない(t *testing.T) {
+	t.Parallel()
+	nav := &tabMenuNav{config: TabMenuConfig{TabCount: 1, ItemCounts: []int{5}, ItemsPerPage: 3}}
+	s := TabMenuState{ItemIndex: 4}
+
+	assert.Equal(t, []TabMenuState{s, s}, []TabMenuState{nav.tabPrev(s), nav.tabNext(s)})
+}
