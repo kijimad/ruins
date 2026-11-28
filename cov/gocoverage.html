@@ -371,7 +371,7 @@
 				
 				<option value="file157">github.com/kijimaD/ruins/internal/mapplanner/big_room.go (98.8%)</option>
 				
-				<option value="file158">github.com/kijimaD/ruins/internal/mapplanner/cave_planner.go (78.5%)</option>
+				<option value="file158">github.com/kijimaD/ruins/internal/mapplanner/cave_planner.go (99.3%)</option>
 				
 				<option value="file159">github.com/kijimaD/ruins/internal/mapplanner/convert_isolated_walls.go (100.0%)</option>
 				
@@ -20328,60 +20328,60 @@ func (c ConnectRooms) PlanMeta(planData *MetaPlan) error {
 </span>        }
 
         // 各部屋を最低1つの他の部屋と接続する
-        <span class="cov0" title="0">for i := range len(planData.Rooms) - 1 </span>{
-                <span class="cov0" title="0">room1 := planData.Rooms[i]
+        <span class="cov8" title="1">for i := range len(planData.Rooms) - 1 </span>{
+                <span class="cov8" title="1">room1 := planData.Rooms[i]
                 room2 := planData.Rooms[i+1]
 </span>
-                <span class="cov0" title="0">c.createCaveTunnel(planData, room1, room2)
+                <span class="cov8" title="1">c.createCaveTunnel(planData, room1, room2)
 </span>        }
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // createCaveTunnel は2つの洞窟領域間にトンネルを作成する
 func (c ConnectRooms) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect) {
-        <span class="cov0" title="0">width := int(planData.Level.TileWidth)
+        <span class="cov8" title="1">width := int(planData.Level.TileWidth)
         height := int(planData.Level.TileHeight)
 </span>
         // 各部屋の中心を計算
-        <span class="cov0" title="0">center1X := int(room1.Min.X+room1.Max.X) / 2
+        <span class="cov8" title="1">center1X := int(room1.Min.X+room1.Max.X) / 2
         center1Y := int(room1.Min.Y+room1.Max.Y) / 2
         center2X := int(room2.Min.X+room2.Max.X) / 2
         center2Y := int(room2.Min.Y+room2.Max.Y) / 2
 </span>
         // L字型のトンネルを作成（太さ2タイル）
-        <span class="cov0" title="0">currentX, currentY := center1X, center1Y
+        <span class="cov8" title="1">currentX, currentY := center1X, center1Y
 </span>
         // 水平方向に移動
-        <span class="cov0" title="0">for currentX != center2X </span>{
-                <span class="cov0" title="0">if currentX &lt; center2X </span>{
-                        <span class="cov0" title="0">currentX++
+        <span class="cov8" title="1">for currentX != center2X </span>{
+                <span class="cov8" title="1">if currentX &lt; center2X </span>{
+                        <span class="cov8" title="1">currentX++
 </span>                } else {
-                        <span class="cov0" title="0">currentX--
+                        <span class="cov8" title="1">currentX--
 </span>                }
 
                 // トンネルを太くする（上下1タイルずつ）
-                <span class="cov0" title="0">for dy := -1; dy &lt;= 1; dy++ </span>{
-                        <span class="cov0" title="0">y := currentY + dy
+                <span class="cov8" title="1">for dy := -1; dy &lt;= 1; dy++ </span>{
+                        <span class="cov8" title="1">y := currentY + dy
                         if y &gt;= 1 &amp;&amp; y &lt; height-1 &amp;&amp; currentX &gt;= 1 &amp;&amp; currentX &lt; width-1 </span>{
-                                <span class="cov0" title="0">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(currentX), Y: consts.Tile(y)})
+                                <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(currentX), Y: consts.Tile(y)})
                                 planData.Tiles[idx] = planData.GetTile(c.Tiles.Floor)
 </span>                        }
                 }
         }
 
         // 垂直方向に移動
-        <span class="cov0" title="0">for currentY != center2Y </span>{
-                <span class="cov0" title="0">if currentY &lt; center2Y </span>{
-                        <span class="cov0" title="0">currentY++
+        <span class="cov8" title="1">for currentY != center2Y </span>{
+                <span class="cov8" title="1">if currentY &lt; center2Y </span>{
+                        <span class="cov8" title="1">currentY++
 </span>                } else {
-                        <span class="cov0" title="0">currentY--
+                        <span class="cov8" title="1">currentY--
 </span>                }
 
                 // トンネルを太くする（左右1タイルずつ）
-                <span class="cov0" title="0">for dx := -1; dx &lt;= 1; dx++ </span>{
-                        <span class="cov0" title="0">x := currentX + dx
+                <span class="cov8" title="1">for dx := -1; dx &lt;= 1; dx++ </span>{
+                        <span class="cov8" title="1">x := currentX + dx
                         if x &gt;= 1 &amp;&amp; x &lt; width-1 &amp;&amp; currentY &gt;= 1 &amp;&amp; currentY &lt; height-1 </span>{
-                                <span class="cov0" title="0">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(currentY)})
+                                <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(currentY)})
                                 planData.Tiles[idx] = planData.GetTile(c.Tiles.Floor)
 </span>                        }
                 }
