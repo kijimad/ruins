@@ -43,7 +43,7 @@
 
 - **単一出典**。メトリクスは `formula`・`consts`・`query` の実式と実定数だけを参照する。戦闘式や燃費式を `balance` 内に再実装しない。式が変われば導出も自動追従する。
 - **パラメータはベクトルで持つ**。バランスに効くつまみは `balance/params.go` の `Params` に1つのベクトルとして集約し、導出は Params の純関数として書く。ゲーム定数との接点は `DefaultParams` の1箇所に限り、定数変更に自動追従させる。感度・交換レート・探索は `knobRegistry` の成分を摂動する汎用機械にし、つまみの追加は成分とレジストリの1行で済ませる。つまみごとの専用配管を書かない。
-- **公開窓は最小限**。world 抜きで導出するために純関数だけを公開する。既存の窓は `query.DangerLevelForDay`、`systems.CalcBodyTempRate`、`systems.BodyTempColdBand`、`components.TurnsPerDay`。窓を増やすときはこの一覧に足し、乱用しない。
+- **公開窓は最小限**。world 抜きで導出するために純関数だけを公開する。既存の窓は `query.DangerLevelForDay`、`systems.CalcBodyTempRate`、`systems.BodyTempColdBand`、`components.TurnsPerDay`、`components.TurnsPerTimeOfDay`。窓を増やすときはこの一覧に足し、乱用しない。
 - **置き場を固定**。A/B の導出は `internal/balance` に置く。ドメインごとにファイルを分ける。`metrics.go`（戦闘）、`survival.go`（生存・疲労・血液）、`logistics.go`（物流）、`economy.go`（経済の純部分）。1ドメイン1ファイル。基準値は共有定数、すなわち `BaselinePlayer` 等や `consts` の公開定数を使い各所へ直書きしない。
 - **凍結ゲート**。導出したメトリクスは `balance/targets_test.go` に現状値で pin し、`make check` で変化を検知する。目標帯そのものは assert しない。意図した調整で値が動いたら期待値を更新する。
 - **raw.toml の書き戻しは yq で行う**。導出で決めた値を書き戻すときは jq 風の式で該当フィールドだけを更新する。独自ツールは作らない。yq は書式を崩すので、編集後に `make fmt` で正規形へ戻す。正規形は `go run . fmtraw` がキーを並べ替えてインデントしたもの。

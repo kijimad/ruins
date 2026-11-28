@@ -35,6 +35,7 @@ func TestMeasureAreaSupply_全てのアイテムの栄養と熱を足す(t *test
 
 func TestFoodDays_1日に減る満腹度で割る(t *testing.T) {
 	t.Parallel()
+	// 実際の値と切り離した仮の値。1日に500減る
 	p := Params{TurnsPerDay: 1500, HungerDrainTurns: 3}
 	assert.InDelta(t, 2.0, FoodDays(p, 1000), 1e-9, "1日に500減るので1000で2日")
 }
@@ -46,6 +47,7 @@ func TestFuelNights_地面の火で夜の500ターンを何晩燃やせるか(t 
 
 func TestRenderAreaSupplyMarkdown_深さごとに中央値と幅を並べる(t *testing.T) {
 	t.Parallel()
+	// 実際の値と切り離した仮の値。1日に500減る
 	p := Params{TurnsPerDay: 1500, HungerDrainTurns: 3}
 	md := RenderAreaSupplyMarkdown(p, []AreaSupplySample{
 		{Seed: 1, Depth: 40, Supply: AreaSupply{Nutrition: 500}},

@@ -8,8 +8,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// nightTurns は夜と深夜の2つの時間帯を合わせた、1晩のターン数
-const nightTurns = float64(gc.TurnsPerDay) * 2 / 6
+// nightTurns は夜から深夜までの時間帯を合わせた、1晩のターン数
+const nightTurns = float64(gc.TimeMidnight-gc.TimeNight+1) * float64(gc.TurnsPerTimeOfDay)
 
 // AreaSupply は拠点を置いたエリアの収納と地面にある、食べ物の栄養と燃やせる物の熱の合計
 type AreaSupply struct {

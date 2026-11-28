@@ -148,7 +148,7 @@ func TestGameTime_Advance(t *testing.T) {
 }
 
 // TestGameTime_AdvanceToNextTimeOfDay は次の時間帯の開始ターンまで進むことを確認する。
-// start は経過ターン。区切りは turnsPerTimeOfDay ごとなので、次の区切りへ丸める
+// start は経過ターン。区切りは TurnsPerTimeOfDay ごとなので、次の区切りへ丸める
 func TestGameTime_AdvanceToNextTimeOfDay(t *testing.T) {
 	t.Parallel()
 
@@ -183,7 +183,7 @@ func TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む(t *testing.T) {
 		gt.AdvanceToNextTimeOfDay()
 		after := gt.GetTimeOfDay()
 		// 時間帯の総数は1日のターン数を時間帯あたりのターン数で割った値
-		timeOfDayCount := int(turnsPerDay / turnsPerTimeOfDay)
+		timeOfDayCount := int(turnsPerDay / TurnsPerTimeOfDay)
 		want := TimeOfDay((int(before) + 1) % timeOfDayCount)
 		assert.Equal(t, want, after, "start=%d では1つ次の時間帯になるべき", start)
 	}

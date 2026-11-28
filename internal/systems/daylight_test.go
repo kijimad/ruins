@@ -82,7 +82,7 @@ func TestOverworldDaylight_連続補間(t *testing.T) {
 	t.Parallel()
 	defs := calendarDefs(t)
 
-	// turnsPerTimeOfDay=250。夜明け始まりなので各時間帯の中心は 125 + 250*idx（昼=625, 夕=875）
+	// TurnsPerTimeOfDay=250。夜明け始まりなので各時間帯の中心は 125 + 250*idx（昼=625, 夕=875）
 	eveningCenter := &gc.GameTime{TotalTurns: 875} // 夕の中心
 	evening, day := defs.TimesOfDay[gc.TimeEvening].Daylight, defs.TimesOfDay[gc.TimeDay].Daylight
 	assert.InDelta(t, evening, overworldDaylight(defs, eveningCenter), 1e-9, "夕の中心は夕の代表値")

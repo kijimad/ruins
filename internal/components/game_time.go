@@ -25,8 +25,8 @@ const TurnsPerDay consts.Turn = 1500
 // turnsPerDay は当パッケージ内で使う別名。
 const turnsPerDay = TurnsPerDay
 
-// 時間帯ごとのターン数
-const turnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン
+// TurnsPerTimeOfDay は時間帯ごとのターン数。バランス導出が夜の長さを時間帯から出せるよう公開する
+const TurnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン
 
 // GameTime はゲーム内時間を管理する
 type GameTime struct {
@@ -35,23 +35,23 @@ type GameTime struct {
 
 // GetTimeOfDay は現在の時間帯を返す
 func (gt *GameTime) GetTimeOfDay() TimeOfDay {
-	return TimeOfDay(gt.TotalTurns % turnsPerDay / turnsPerTimeOfDay)
+	return TimeOfDay(gt.TotalTurns % turnsPerDay / TurnsPerTimeOfDay)
 }
 
 // NumTimeOfDay は時間帯の区分数。時間帯ごとの値の配列の長さに使う
-const NumTimeOfDay = int(turnsPerDay / turnsPerTimeOfDay)
+const NumTimeOfDay = int(turnsPerDay / TurnsPerTimeOfDay)
 
 // GetDaylightLerp は日照や色味を連続に補間するための、前後のアンカー時間帯とその間の位置 0..1 を返す。
 // 各時間帯を区間の中心にアンカーする。境界で段差にせず中心の代表値へなだらかに寄せるため。
 // 値表は CalendarDefs が持ち、時間の割り出しだけをここに置く。時間帯の区切りに要る turnsPerDay と
-// turnsPerTimeOfDay が components にあるため。補間そのものは呼び出し側が行う。
+// TurnsPerTimeOfDay が components にあるため。補間そのものは呼び出し側が行う。
 func (gt *GameTime) GetDaylightLerp() (from, to TimeOfDay, t float64) {
-	// 中心へアンカーするため半区間ずらす。turnsPerTimeOfDay=250 は偶数で端数は出ない
-	half := turnsPerTimeOfDay / 2
+	// 中心へアンカーするため半区間ずらす。TurnsPerTimeOfDay=250 は偶数で端数は出ない
+	half := TurnsPerTimeOfDay / 2
 	// 中心より前は1つ前の区間へ回り込むので turnsPerDay を足して正へ寄せる
 	rel := (gt.TotalTurns%turnsPerDay - half + turnsPerDay) % turnsPerDay
-	idx := int(rel / turnsPerTimeOfDay)
-	t = float64(rel%turnsPerTimeOfDay) / float64(turnsPerTimeOfDay)
+	idx := int(rel / TurnsPerTimeOfDay)
+	t = float64(rel%TurnsPerTimeOfDay) / float64(TurnsPerTimeOfDay)
 	return TimeOfDay(idx), TimeOfDay((idx + 1) % NumTimeOfDay), t
 }
 
@@ -112,7 +112,7 @@ func (gt *GameTime) Advance() {
 // 現在のフェーズの残りターンを飛ばし、常にちょうど1つ次の時間帯にする。
 // 深夜からは翌日の夜明けへ折り返す。
 func (gt *GameTime) AdvanceToNextTimeOfDay() {
-	gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay
+	gt.TotalTurns = (gt.TotalTurns/TurnsPerTimeOfDay + 1) * TurnsPerTimeOfDay
 }
 
 // turnsPerSeason は1季節ぶんのターン数

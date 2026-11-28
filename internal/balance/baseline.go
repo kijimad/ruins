@@ -625,7 +625,8 @@ func RenderAreaSupplyMarkdown(p Params, samples []AreaSupplySample) string {
 	b.WriteString("## 拠点のエリアが何日もつか\n\n")
 	fmt.Fprintf(&b, "**概要**: 北の深さごとに帯と同じ形のエリアを種 %d 個で生成し、収納と地面にある食べ物と燃やせる物を数える。", len(seeds))
 	b.WriteString("食べ物は1日に減る満腹度で何日もつか、燃料は地面に直に起こした火を夜の間絶やさずに何晩もつかで表す。")
-	b.WriteString("留まるほど赤字になるかを見る。遠征で持ち帰る量はこのエリアの中の物に含まれ、襲撃で減る物は数えていない。\n\n")
+	b.WriteString("留まるほど赤字になるかを見る。施設も地上のチャンクに建つので、遠征で漁る物もこの数に含まれる。")
+	b.WriteString("燃える物を全て燃料に数え、襲撃で減る物を数えないので、どちらの日数も長めに出る。\n\n")
 	rows := make([][]string, 0, len(depths))
 	for _, d := range depths {
 		food := make([]float64, 0, len(byDepth[d]))
@@ -644,11 +645,12 @@ func RenderAreaSupplyMarkdown(p Params, samples []AreaSupplySample) string {
 	return b.String()
 }
 
-// median は xs の中央値を返す。xs は並べ替える
+// median は xs の中央値を返す
 func median(xs []float64) float64 {
 	if len(xs) == 0 {
 		return 0
 	}
+	xs = slices.Clone(xs)
 	slices.Sort(xs)
 	n := len(xs)
 	if n%2 == 1 {
