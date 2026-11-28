@@ -1,0 +1,107 @@
+package query_test
+
+import (
+	"testing"
+
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/stretchr/testify/assert"
+)
+
+// dayTurn は1から数える日付 day のその日の中のターン offset を、経過ターンにする
+func dayTurn(day int, offset consts.Turn) consts.Turn {
+	return consts.Turn(day-1)*gc.TurnsPerDay + offset
+}
+
+func TestRaidWarnsAt(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		turn consts.Turn
+		want bool
+	}{
+		{"7日目の夜明け", dayTurn(7, 0), true},
+		{"14日目の夜明け", dayTurn(14, 0), true},
+		{"7日目の夜明けの次のターン", dayTurn(7, 1), false},
+		{"6日目の夜明け", dayTurn(6, 0), false},
+		{"1日目の夜明け", 0, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, query.RaidWarnsAt(tt.turn))
+		})
+	}
+}
+
+func TestRaidWaveAt(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		turn   consts.Turn
+		wave   int
+		isWave bool
+	}{
+		{"7日目の1000は1つ目", dayTurn(7, 1000), 0, true},
+		{"7日目の1150は2つ目", dayTurn(7, 1150), 1, true},
+		{"7日目の1300は3つ目", dayTurn(7, 1300), 2, true},
+		{"14日目の1000は1つ目", dayTurn(14, 1000), 0, true},
+		{"7日目の999は波でない", dayTurn(7, 999), 0, false},
+		{"7日目の1001は波でない", dayTurn(7, 1001), 0, false},
+		{"7日目の0は波でない", dayTurn(7, 0), 0, false},
+		{"6日目の1000は波でない", dayTurn(6, 1000), 0, false},
+		{"8日目の1000は波でない", dayTurn(8, 1000), 0, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			wave, ok := query.RaidWaveAt(tt.turn)
+			assert.Equal(t, tt.isWave, ok)
+			assert.Equal(t, tt.wave, wave)
+		})
+	}
+}
+
+func TestRaidEndsAt(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		turn consts.Turn
+		want bool
+	}{
+		{"8日目の夜明け", dayTurn(8, 0), true},
+		{"15日目の夜明け", dayTurn(15, 0), true},
+		{"7日目の夜明け", dayTurn(7, 0), false},
+		{"8日目の夜明けの次のターン", dayTurn(8, 1), false},
+		{"1日目の夜明け", 0, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, query.RaidEndsAt(tt.turn))
+		})
+	}
+}
+
+func TestDaysUntilRaid(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		turn consts.Turn
+		want int
+	}{
+		{"1日目は6", 0, 6},
+		{"6日目は1", dayTurn(6, 1499), 1},
+		{"7日目の夜明けは0", dayTurn(7, 0), 0},
+		{"7日目の深夜の終わりも0", dayTurn(7, 1499), 0},
+		{"8日目の夜明けは6", dayTurn(8, 0), 6},
+		{"14日目は0", dayTurn(14, 500), 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, query.DaysUntilRaid(tt.turn))
+		})
+	}
+}

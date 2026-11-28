@@ -37,6 +37,7 @@ type EntitySpec struct {
 	LocationInstalled  *LocationInstalled
 	Tile               *Tile
 	SoloAI             *SoloAI
+	Raider             *Raider
 	Camera             *Camera
 	Position           *Position
 	GridElement        *GridElement
@@ -137,6 +138,7 @@ type Components struct {
 	LocationInstalled  *ecs.Map[LocationInstalled]
 	Tile               *ecs.Map[Tile]
 	SoloAI             *ecs.Map[SoloAI]
+	Raider             *ecs.Map[Raider]
 	Camera             *ecs.Map[Camera]
 	Position           *ecs.Map[Position]
 	GridElement        *ecs.Map[GridElement]
@@ -237,6 +239,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.LocationInstalled = ecs.NewMap[LocationInstalled](world)
 	c.Tile = ecs.NewMap[Tile](world)
 	c.SoloAI = ecs.NewMap[SoloAI](world)
+	c.Raider = ecs.NewMap[Raider](world)
 	c.Camera = ecs.NewMap[Camera](world)
 	c.Position = ecs.NewMap[Position](world)
 	c.GridElement = ecs.NewMap[GridElement](world)
@@ -339,6 +342,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.LocationInstalled, entity, spec.LocationInstalled)
 	addComp(c.Tile, entity, spec.Tile)
 	addComp(c.SoloAI, entity, spec.SoloAI)
+	addComp(c.Raider, entity, spec.Raider)
 	addComp(c.Camera, entity, spec.Camera)
 	addComp(c.Position, entity, spec.Position)
 	addComp(c.GridElement, entity, spec.GridElement)

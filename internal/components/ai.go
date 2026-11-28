@@ -49,3 +49,6 @@ func (s *SoloAI) ReactToHostile() {
 func (s *SoloAI) ResetCombat() {
 	s.CombatCurrent = s.CombatDefault
 }
+
+// Raider は襲撃で湧いた敵に付く印。錨のキューブを狙い、プレイヤーから遠くても動く。襲撃の夜が明けると外れる
+type Raider struct{}
