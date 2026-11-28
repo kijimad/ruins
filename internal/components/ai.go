@@ -36,12 +36,12 @@ type SoloAI struct {
 }
 
 // ReactToHostile は被ダメージ時に戦闘方針を変化させる。
-// rawschema.Ignore は反撃のため rawschema.Attack に遷移する
+// rawschema.Ignore は反撃のため rawschema.Attack に遷移する。rawschema.Passive は殴られても変わらない
 func (s *SoloAI) ReactToHostile() {
 	switch s.CombatDefault {
 	case rawschema.Ignore:
 		s.CombatCurrent = rawschema.Attack
-	case rawschema.Attack, rawschema.Evade:
+	case rawschema.Attack, rawschema.Evade, rawschema.Passive:
 	}
 }
 

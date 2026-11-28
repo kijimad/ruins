@@ -56,6 +56,9 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {
 	if world.Components.Raider.Has(entity) {
 		return rp.planRaidAction(world, entity, solo, grid)
 	}
+	if solo.CombatCurrent == rawschema.Passive {
+		return rp.planDrivingAction(world, entity, solo, grid)
+	}
 
 	target := rp.findNearestHostile(world, entity)
 	if target == nil {
@@ -116,7 +119,7 @@ func (rp *soloPlanner) updateFromWaiting(solo *gc.SoloAI, canSeePlayer bool, ela
 			rp.transitionToFleeing(solo, currentTurn)
 		case rawschema.Attack:
 			rp.transitionToChasing(solo, currentTurn)
-		case rawschema.Ignore:
+		case rawschema.Ignore, rawschema.Passive:
 		}
 	} else if elapsedTurns >= solo.DurationSubStateTurns {
 		rp.transitionToDriving(solo, currentTurn)
@@ -130,7 +133,7 @@ func (rp *soloPlanner) updateFromDriving(solo *gc.SoloAI, canSeePlayer bool, ela
 			rp.transitionToFleeing(solo, currentTurn)
 		case rawschema.Attack:
 			rp.transitionToChasing(solo, currentTurn)
-		case rawschema.Ignore:
+		case rawschema.Ignore, rawschema.Passive:
 		}
 	} else if elapsedTurns >= solo.DurationSubStateTurns {
 		rp.transitionToWaiting(solo, currentTurn)
@@ -432,7 +435,7 @@ func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc
 	si := query.GetSpatialIndex(world)
 	for _, next := range steps {
 		if e, ok := si.CharacterAt(next); ok {
-			if world.Components.Cube.Has(e) || query.FactionRelation(world, entity, e) != query.RelationFriendly {
+			if query.FactionRelation(world, entity, e) != query.RelationFriendly {
 				return activity.NewMeleeActivity(e)
 			}
 			continue
@@ -452,11 +455,16 @@ func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc
 
 // closerThanRaidTarget は相手 target が、距離の地図の的より近いかを返す。的までの距離は一番近い下る隣 steps[0] の
 // 値に1を足して測る。自分の立つマスの値は、自分がいることで重く数えられているので使わない。地図で下れない、
-// すなわち地図の届かないマスにいるか的の上にいるなら、見えた相手を追う
+// すなわち地図の届かないマスにいるか的の上にいるなら、見えた相手を追う。相手が的の上にいるなら、地図が扉や置物を
+// 壊す道で導くので追わない
 func (rp *soloPlanner) closerThanRaidTarget(world w.World, grid *gc.GridElement, steps []consts.Coord[consts.Tile], target ecs.Entity) bool {
 	if len(steps) == 0 {
 		return true
 	}
+	at := world.Components.GridElement.Get(target).Coord
+	if d, ok := rp.raidMap.Dist(at); ok && d == 0 {
+		return false
+	}
 	toTarget, _ := rp.raidMap.Dist(steps[0])
-	return geometry.ChebyshevDistance(grid.Coord, world.Components.GridElement.Get(target).Coord) < int(toTarget)+1
+	return geometry.ChebyshevDistance(grid.Coord, at) < int(toTarget)+1
 }

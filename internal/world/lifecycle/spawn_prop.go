@@ -159,7 +159,8 @@ func doorSpriteKey(door rawschema.DoorRaw, orientation gc.DoorOrientation, isOpe
 }
 
 // SpawnCube は raw の cube prop からプレイヤーに随伴する移動拠点キューブをオーバーワールドに生成し、帯へ明示束縛する。
-// 陣営を持たないので、SoloAI の戦闘の状態遷移に入らず移動方針だけで動く。自分の拠点を殴れないよう、操作は随伴の操作だけにする
+// 味方の陣営に属し、敵から狙われる。戦闘の方針は rawschema.Passive なので、敵がいても殴られても移動方針だけで動く。
+// 自分の拠点を殴れないよう、操作は随伴の操作だけにする
 func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
 	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, "cube")
 	if err != nil {
@@ -167,10 +168,11 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 	}
 	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 	entitySpec.Cube = &gc.Cube{}
+	entitySpec.FactionAlly = &gc.FactionAlly{}
 	entitySpec.Charge = &gc.Charge{Max: int(consts.CubeFuelCapacityBase), Current: int(consts.CubeFuelCapacityBase)}
 	entitySpec.SoloAI = &gc.SoloAI{
-		CombatDefault: rawschema.Ignore,
-		CombatCurrent: rawschema.Ignore,
+		CombatDefault: rawschema.Passive,
+		CombatCurrent: rawschema.Passive,
 		Movement:      rawschema.Follow,
 		SubState:      gc.AIStateWaiting,
 	}

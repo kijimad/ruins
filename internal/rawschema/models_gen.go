@@ -318,14 +318,15 @@ type ClearingStart struct {
 // ColorChannel RGBA色チャネル値 (0-255)
 type ColorChannel = uint8
 
-// CombatPolicyType 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
+// CombatPolicyType 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する。ignore は殴られると attack へ移り、passive は殴られても戦わない
 type CombatPolicyType string
 
 // Defines values for CombatPolicyType.
 const (
-	Attack CombatPolicyType = "attack"
-	Evade  CombatPolicyType = "evade"
-	Ignore CombatPolicyType = "ignore"
+	Attack  CombatPolicyType = "attack"
+	Evade   CombatPolicyType = "evade"
+	Ignore  CombatPolicyType = "ignore"
+	Passive CombatPolicyType = "passive"
 )
 
 // Valid indicates whether the value is a known member of the CombatPolicyType enum.
@@ -337,6 +338,8 @@ func (e CombatPolicyType) Valid() bool {
 		return true
 	case Ignore:
 		return true
+	case Passive:
+		return true
 	default:
 		return false
 	}
@@ -344,7 +347,7 @@ func (e CombatPolicyType) Valid() bool {
 
 // CombatPolicyTypeValues は CombatPolicyType の値を、スキーマに書いた順に返す。
 func CombatPolicyTypeValues() []CombatPolicyType {
-	return []CombatPolicyType{Attack, Evade, Ignore}
+	return []CombatPolicyType{Attack, Evade, Ignore, Passive}
 }
 
 // CommandTable コマンドテーブル

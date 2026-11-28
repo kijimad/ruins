@@ -119,3 +119,26 @@ func TestPlanFollowAction_展開中は方針を保ったまま休む(t *testing.
 	assert.Equal(t, gc.AIStateWaiting, solo.SubState)
 	assert.Equal(t, consts.CubeFuelCapacityBase, query.CubeFuelTotal(world, cube))
 }
+
+func TestPlan_戦わない方針のキューブは隣の敵に殴られても付いてくる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 9, Y: 5})
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 5}, "stray_dog")
+	require.NoError(t, err)
+	solo := world.Components.SoloAI.Get(cube)
+	solo.ReactToHostile()
+
+	rp := newSoloPlanner(newTestRNG())
+	act := rp.Plan(world, cube)
+
+	require.NotNil(t, act)
+	require.Equal(t, gc.BehaviorMove, act.BehaviorName)
+	p, ok := act.Params.(*gc.MoveParams)
+	require.True(t, ok)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 8, Y: 5}, p.Destination.Coord)
+	assert.Equal(t, rawschema.Passive, solo.CombatCurrent)
+}

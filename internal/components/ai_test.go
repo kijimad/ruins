@@ -26,6 +26,7 @@ func TestSoloAI_ReactToHostile(t *testing.T) {
 		{"CombatIgnoreはCombatAttackになる", rawschema.Ignore, rawschema.Attack},
 		{"CombatAttackはそのまま", rawschema.Attack, rawschema.Attack},
 		{"CombatEvadeはそのまま", rawschema.Evade, rawschema.Evade},
+		{"CombatPassiveはそのまま", rawschema.Passive, rawschema.Passive},
 	}
 
 	for _, tt := range tests {

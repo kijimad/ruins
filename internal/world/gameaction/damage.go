@@ -82,10 +82,9 @@ func reactToHostileAction(world w.World, target ecs.Entity) {
 
 // logDeath は死亡・破壊ログを出力する。
 // Prop は「壊れた」、それ以外は「倒れた」と表示する。
-// プレイヤーが関与する場合のみログを出力する
+// 攻撃のログと同じく、味方が関与する場合のみログを出力する
 func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
-	isRelevant := isPlayerEntity(source, world) || isPlayerEntity(target, world)
-	if !isRelevant {
+	if !query.IsAlly(world, source) && !query.IsAlly(world, target) {
 		return
 	}
 
