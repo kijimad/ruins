@@ -20,6 +20,8 @@ const (
 	// raidSpawnMin と raidSpawnMax は中心から湧かせる輪のチェビシェフ距離
 	raidSpawnMin consts.Tile = 18
 	raidSpawnMax consts.Tile = 24
+	// raidPlayerMin はプレイヤーから離して湧かせるチェビシェフ距離
+	raidPlayerMin = 18
 	// raidBase と raidPerDanger は1晩の数を危険度から決める
 	raidBase      = 12
 	raidPerDanger = 3
@@ -153,7 +155,7 @@ func raidWaveSize(total, wave int) int {
 }
 
 // raidSpawnTiles は中心を囲む輪の上から、湧かせるマスを count 個まで選ぶ。プレイヤーの視界の外で、プレイヤーからも
-// raidSpawnMin 以上離れ、距離の地図で中心まで道がつながり、通れて誰もいないマスに限る。プレイヤーから離すのは、
+// raidPlayerMin 以上離れ、距離の地図で中心まで道がつながり、通れて誰もいないマスに限る。プレイヤーから離すのは、
 // 暗がりや壁の裏でプレイヤーの隣に湧かせず、群れが寄ってくるのを見せるため。足りなければ輪を外へ広げ、地図の端まで
 // 広げても足りなければ見つかった分だけ返す
 func raidSpawnTiles(world w.World, m *raidmap.Map, center consts.Coord[consts.Tile], count int) []consts.Coord[consts.Tile] {
@@ -163,7 +165,7 @@ func raidSpawnTiles(world w.World, m *raidmap.Map, center consts.Coord[consts.Ti
 	}
 	visible := query.GetVisionState(world).VisibleTiles
 	player, err := query.GetPlayerEntity(world)
-	hasPlayer := err == nil
+	hasPlayer := err == nil && world.Components.GridElement.Has(player)
 	var playerAt consts.Coord[consts.Tile]
 	if hasPlayer {
 		playerAt = world.Components.GridElement.Get(player).Coord
@@ -185,7 +187,7 @@ func raidSpawnTiles(world w.World, m *raidmap.Map, center consts.Coord[consts.Ti
 				if _, ok := m.Dist(c); !ok {
 					continue
 				}
-				if hasPlayer && geometry.ChebyshevDistance(c, playerAt) < int(raidSpawnMin) {
+				if hasPlayer && geometry.ChebyshevDistance(c, playerAt) < raidPlayerMin {
 					continue
 				}
 				if visible[gc.GridElement{Coord: c}] || !activity.CanMoveTo(world, c, c, ecs.Entity{}) {
