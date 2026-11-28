@@ -17,15 +17,15 @@ func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor men
 	var content []uicore.Drawable
 	var pager string
 	if charTabAt(cursor.TabIndex) == charTabEquip {
-		content, pager = buildEquipListUI(world, props.EquipSlots, cursor.ItemIndex, res)
+		content, pager = buildEquipListUI(world, props.EquipSlots, cursor, res)
 	} else if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
-		content, pager = buildInfoTableUI(world, props.InfoTabs[infoIdx], cursor.ItemIndex, res)
+		content, pager = buildInfoTableUI(world, props.InfoTabs[infoIdx], cursor, res)
 	}
 	return menuframe.TabScreen(world, res, props.TargetName, characterTabLabels(world), cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
 // buildEquipListUI は装備4列とフッタ右端のページ表示を返す。
-func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {
+func buildEquipListUI(world w.World, slots []equipItemData, cursor menuloop.Selection, res resources.UIResources) ([]uicore.Drawable, string) {
 	cols := styled.Cols(styled.Fit(), styled.Icon(), styled.Name(), styled.Num())
 	rows := make([]menuframe.Row, len(slots))
 	for i, slot := range slots {
@@ -37,5 +37,5 @@ func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res r
 		}
 		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), icon, styled.TextCell(slot.ItemName), styled.TextCell(weight)}}
 	}
-	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
+	return menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: cursor.PageSize}, res)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/i18n"
+	"github.com/kijimaD/ruins/internal/menuloop"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -394,7 +395,7 @@ func sourceLabel(world w.World, s gc.ProficiencySource) string {
 }
 
 // buildInfoTableUI は情報タブの表とフッタ右端のページ表示を返す。
-func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {
+func buildInfoTableUI(world w.World, tab statusTabData, cursor menuloop.Selection, res resources.UIResources) ([]uicore.Drawable, string) {
 	hasModifier := tab.ID == tabAbilities
 	// 能力タブは 名前・値・修正値 の3列、他は 名前・値 の2列。値と修正値は右寄せ
 	cols := styled.Cols(styled.Name(), styled.Num())
@@ -413,5 +414,5 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
 		}
 		rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader, Indent: it.Indent}
 	}
-	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
+	return menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: cursor.PageSize}, res)
 }
