@@ -29,11 +29,13 @@ func newFilledPlan(width, height int, tileName rawschema.EntityID) *MetaPlan {
 }
 
 // newPlanFromRows は '#' を壁、'.' を床として行の絵から MetaPlan を作る
-func newPlanFromRows(rows []string) *MetaPlan {
+func newPlanFromRows(t *testing.T, rows []string) *MetaPlan {
+	t.Helper()
 	width, height := len(rows[0]), len(rows)
 	mp := newFilledPlan(width, height, testLayoutTiles.Wall)
 	floor := mp.GetTile(testLayoutTiles.Floor)
 	for y, row := range rows {
+		require.Len(t, row, width, "y=%d の行の幅がそろっていない", y)
 		for x, c := range row {
 			if c == '.' {
 				mp.Tiles[y*width+x] = floor
@@ -84,7 +86,7 @@ func TestCaveCellularAutomata_PlanMeta_閾値以上の床領域だけを部屋�
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mp := newPlanFromRows([]string{
+			mp := newPlanFromRows(t, []string{
 				"######",
 				"#...##",
 				"#...##",
@@ -105,7 +107,7 @@ func TestCaveCellularAutomata_PlanMeta_長方形でない床領域は外接矩�
 	t.Parallel()
 
 	// 走査で最初に見つかる x=1,y=2 より上に x=2,y=1 がある L 字
-	mp := newPlanFromRows([]string{
+	mp := newPlanFromRows(t, []string{
 		"####",
 		"##.#",
 		"#..#",
@@ -123,7 +125,7 @@ func TestCaveCellularAutomata_PlanMeta_長方形でない床領域は外接矩�
 func TestCaveCellularAutomata_PlanMeta_斜めにだけ接する床は別の部屋になる(t *testing.T) {
 	t.Parallel()
 
-	mp := newPlanFromRows([]string{
+	mp := newPlanFromRows(t, []string{
 		"####",
 		"#.##",
 		"##.#",
@@ -418,7 +420,7 @@ func TestWiden_PlanMeta_床に2マス以上接する外周以外の壁を床に�
 	// x=3,y=3 は左右の2マスで床に接する。x=0,y=3 は上下の2マスで接するが外周なので対象外。
 	// x=3,y=4 は元の盤面では x=3,y=5 の1マスにしか接しない。x=3,y=3 が床になった後の盤面を
 	// 数える実装でだけ2マスになる
-	mp := newPlanFromRows([]string{
+	mp := newPlanFromRows(t, []string{
 		"#######",
 		"#######",
 		".######",
@@ -445,7 +447,7 @@ func TestWiden_PlanMeta_床に2マス以上接する外周以外の壁を床に�
 func TestWiden_PlanMeta_確率0なら壁を変化させない(t *testing.T) {
 	t.Parallel()
 
-	rows := []string{
+	mp := newPlanFromRows(t, []string{
 		"#######",
 		"#######",
 		"#######",
@@ -453,11 +455,11 @@ func TestWiden_PlanMeta_確率0なら壁を変化させない(t *testing.T) {
 		"#######",
 		"#######",
 		"#######",
-	}
-	mp := newPlanFromRows(rows)
+	})
+	before := append([]rawschema.Tile(nil), mp.Tiles...)
 
 	widen := Widen{Row: rawschema.WidenStep{Chance: 0.0}, Tiles: testLayoutTiles}
 	require.NoError(t, widen.PlanMeta(mp))
 
-	assert.Equal(t, rows, renderRows(mp))
+	assert.Equal(t, before, mp.Tiles, "確率0ならタイルは変化しない")
 }
