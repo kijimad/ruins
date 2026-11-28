@@ -3,6 +3,7 @@ package balance
 import (
 	"fmt"
 	"math"
+	"slices"
 	"sort"
 	"strings"
 
@@ -604,4 +605,62 @@ func writeRunIncome(b *strings.Builder, master rawschema.Raws) error {
 	}
 	writeMDTable(b, []string{"探索層数", "廃墟の期待収入"}, []tw.Align{alignR, alignR}, runIncomeRows)
 	return nil
+}
+
+// RenderAreaSupplyMarkdown は北の深さごとに、エリアの食べ物が何日、燃料が何晩もつかの中央値と幅を表にする
+func RenderAreaSupplyMarkdown(p Params, samples []AreaSupplySample) string {
+	var depths []consts.Chunk
+	byDepth := map[consts.Chunk][]AreaSupply{}
+	seeds := map[uint64]bool{}
+	for _, s := range samples {
+		if _, ok := byDepth[s.Depth]; !ok {
+			depths = append(depths, s.Depth)
+		}
+		byDepth[s.Depth] = append(byDepth[s.Depth], s.Supply)
+		seeds[s.Seed] = true
+	}
+	slices.Sort(depths)
+
+	var b strings.Builder
+	b.WriteString("## 拠点のエリアが何日もつか\n\n")
+	fmt.Fprintf(&b, "**概要**: 北の深さごとに帯と同じ形のエリアを種 %d 個で生成し、収納と地面にある食べ物と燃やせる物を数える。", len(seeds))
+	b.WriteString("食べ物は1日に減る満腹度で何日もつか、燃料は地面に直に起こした火を夜の間絶やさずに何晩もつかで表す。")
+	b.WriteString("留まるほど赤字になるかを見る。遠征で持ち帰る量はこのエリアの中の物に含まれ、襲撃で減る物は数えていない。\n\n")
+	rows := make([][]string, 0, len(depths))
+	for _, d := range depths {
+		food := make([]float64, 0, len(byDepth[d]))
+		fuel := make([]float64, 0, len(byDepth[d]))
+		for _, s := range byDepth[d] {
+			food = append(food, FoodDays(p, s.Nutrition))
+			fuel = append(fuel, FuelNights(s.Heat))
+		}
+		rows = append(rows, []string{
+			fmt.Sprintf("%d", d),
+			fmt.Sprintf("%.1f", median(food)), rangeText(food),
+			fmt.Sprintf("%.1f", median(fuel)), rangeText(fuel),
+		})
+	}
+	writeMDTable(&b, []string{"北の深さ(チャンク)", "食べ物 中央値(日)", "食べ物 幅(日)", "燃料 中央値(晩)", "燃料 幅(晩)"}, []tw.Align{alignR, alignR, alignR, alignR, alignR}, rows)
+	return b.String()
+}
+
+// median は xs の中央値を返す。xs は並べ替える
+func median(xs []float64) float64 {
+	if len(xs) == 0 {
+		return 0
+	}
+	slices.Sort(xs)
+	n := len(xs)
+	if n%2 == 1 {
+		return xs[n/2]
+	}
+	return (xs[n/2-1] + xs[n/2]) / 2
+}
+
+// rangeText は xs の最小と最大を「最小〜最大」で返す
+func rangeText(xs []float64) string {
+	if len(xs) == 0 {
+		return "-"
+	}
+	return fmt.Sprintf("%.1f〜%.1f", slices.Min(xs), slices.Max(xs))
 }

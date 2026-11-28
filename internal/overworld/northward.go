@@ -33,6 +33,14 @@ func RenderNorthward(world w.World, runSeed uint64, north, south consts.Chunk, t
 	return withChunkGrid(m, int(chunkW)*tilePx, int(chunkH)*tilePx, int(cols), int(rows), int(north)), nil
 }
 
+// GenerateBandAt は開始の行から北へ depth 行進んだ行を真ん中にして、帯と同じ形のチャンクを world に生成する。
+// その深さに拠点を置いたときのエリアになる
+func GenerateBandAt(world w.World, runSeed uint64, depth consts.Chunk) error {
+	_, _, _, rows := dungeon.DungeonOverworld.BandShape()
+	half := rows / 2
+	return generateNorthward(world, runSeed, depth+half, half-depth)
+}
+
 // generateNorthward は開始の行から北へ north 行、南へ south 行のチャンクを world に生成する。北端の行を帯ローカルの0行目に置き、
 // ゲームが北へ進んだときと同じく帯の NorthIndex で絶対の行と結ぶ。ゲームは帯の行を北へ1行ずつ足していくが、ここでは北端から
 // 一度に並べる。チャンクの生成が位置と seed だけで決まり、隣とのつながりをオートタイルの計算し直しで合わせる間は、順が違っても同じ地図になる
