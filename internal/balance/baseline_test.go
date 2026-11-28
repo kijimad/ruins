@@ -77,3 +77,18 @@ func TestBaseline_基準の表は基準のダンジョンの表と同じ(t *test
 	require.NoError(t, err)
 	assert.Equal(t, []string{BaselineAreaTable, BaselineAreaTable}, []string{d.EnemyTable, d.ItemTable})
 }
+
+func TestRangeText(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, "-", rangeText(nil), "空は-")
+	assert.Equal(t, "2.0〜2.0", rangeText([]float64{2}), "要素1つは最小最大とも同じ値")
+	assert.Equal(t, "1.0〜5.0", rangeText([]float64{3, 1, 5}), "最小と最大を並べる")
+}
+
+func TestMedian(t *testing.T) {
+	t.Parallel()
+	assert.Zero(t, median(nil), "空は0")
+	assert.InDelta(t, 2.0, median([]float64{2}), 1e-9, "要素1つはその値")
+	assert.InDelta(t, 3.0, median([]float64{5, 1, 3}), 1e-9, "奇数個は並べた中央")
+	assert.InDelta(t, 2.5, median([]float64{1, 2, 3, 4}), 1e-9, "偶数個は中央2つの平均")
+}

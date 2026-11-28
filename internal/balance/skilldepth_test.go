@@ -3,7 +3,9 @@ package balance
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -43,4 +45,52 @@ func TestSkillDepthProfileFor_弱い武器ほど死んだティアが多い(t *t
 	require.NoError(t, err)
 	assert.Greater(t, bare.DeadTiers, iron.DeadTiers, "弱い素手のほうが死んだティアが多い")
 	assert.Less(t, bare.EffectiveSteps, iron.EffectiveSteps, "弱い素手のほうが実効ティアが少ない")
+}
+
+func TestPoolPlayerTTK(t *testing.T) {
+	t.Parallel()
+	player := CombatantStats{HP: 80, Strength: 5, Sensation: 5, Dexterity: 5, Agility: 5, Defense: 3}
+	weapon := WeaponStats{Damage: 10, Accuracy: 90}
+
+	tests := []struct {
+		name   string
+		raws   rawschema.Raws
+		table  string
+		danger int
+	}{
+		{
+			name:   "敵テーブルが無いとfalse",
+			raws:   rawschema.Raws{},
+			table:  "nonexistent",
+			danger: 1,
+		},
+		{
+			name: "危険度に該当する行が無いとfalse",
+			raws: rawschema.Raws{
+				EnemyTables: &[]rawschema.EnemyTable{{Id: "table", Entries: []rawschema.EnemyTableEntry{
+					{Id: "slime", MinDanger: 5, MaxDanger: 10, Weight: 1},
+				}}},
+			},
+			table:  "table",
+			danger: 1,
+		},
+		{
+			name: "行が指すメンバーが存在しないとfalse",
+			raws: rawschema.Raws{
+				EnemyTables: &[]rawschema.EnemyTable{{Id: "table", Entries: []rawschema.EnemyTableEntry{
+					{Id: "ghost", MinDanger: 1, MaxDanger: 10, Weight: 1},
+				}}},
+			},
+			table:  "table",
+			danger: 1,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			ttk, ok := poolPlayerTTK(tt.raws, player, weapon, tt.table, tt.danger, consts.PercentBase)
+			assert.False(t, ok)
+			assert.Zero(t, ttk)
+		})
+	}
 }

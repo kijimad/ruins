@@ -3,6 +3,8 @@ package balance
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -34,6 +36,40 @@ func TestWeaponRestrictionValues_必須な武器ほど劣化量が大きい(t *t
 	for _, v := range values {
 		assert.InDelta(t, baseDeath-v.DeathProbWith, v.Degradation, 1e-9, v.Element+" の劣化量の定義")
 	}
+}
+
+func TestWeaponRestrictionValues_プレイヤーが見つからないとエラー(t *testing.T) {
+	t.Parallel()
+	_, _, err := WeaponRestrictionValues(rawschema.Raws{}, "table", 20)
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: BaselinePlayer, Collection: "Members"}, notFound)
+}
+
+func TestWeaponRestrictionValues_素手の攻撃が無いとエラー(t *testing.T) {
+	t.Parallel()
+	raws := rawschema.Raws{
+		Members: &[]rawschema.Member{{Id: BaselinePlayer, Name: "Ash"}},
+	}
+	_, _, err := WeaponRestrictionValues(raws, "table", 20)
+	var notFound raw.KeyNotFoundError
+	require.ErrorAs(t, err, &notFound)
+	assert.Equal(t, raw.KeyNotFoundError{Key: raw.BareHands, Collection: "BodyAttacks"}, notFound)
+}
+
+func TestWeaponRestrictionValues_危険度に該当する敵がいなければ値を返さない(t *testing.T) {
+	t.Parallel()
+	raws := rawschema.Raws{
+		Members:     &[]rawschema.Member{{Id: BaselinePlayer, Name: "Ash"}},
+		BodyAttacks: &[]rawschema.BodyAttack{{Id: raw.BareHands, Name: "Bare hands", Melee: rawschema.Melee{Accuracy: 100, Damage: 3}}},
+		EnemyTables: &[]rawschema.EnemyTable{{Id: "table", Entries: []rawschema.EnemyTableEntry{
+			{Id: "ghost", MinDanger: 100, MaxDanger: 200, Weight: 1},
+		}}},
+	}
+	values, baseDeath, err := WeaponRestrictionValues(raws, "table", 1)
+	require.NoError(t, err)
+	assert.Nil(t, values)
+	assert.Zero(t, baseDeath)
 }
 
 func TestWeaponRestrictionValues_trap武器を解消済み(t *testing.T) {
