@@ -30,7 +30,7 @@ func TestBuildDistanceMap(t *testing.T) {
 		world.Components.GridElement.Add(door, &gc.GridElement{Coord: at(2, 0)})
 
 		m := gc.NewDistanceMap()
-		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, raidRule)
+		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, convergeRule)
 		d, ok := m.Dist(at(3, 0))
 		require.True(t, ok)
 		assert.Equal(t, int32(1+gc.DistanceMapObstacleCost+1), d, "扉を壊して抜ける")
@@ -51,20 +51,20 @@ func TestBuildDistanceMap(t *testing.T) {
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: ally, {Coord: at(1, 1)}: beast}
 
 		m := gc.NewDistanceMap()
-		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, raidRule)
+		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, convergeRule)
 		dAlly, _ := m.Dist(at(1, 0))
 		dBeast, _ := m.Dist(at(1, 1))
 		assert.Equal(t, []int32{1, gc.DistanceMapObstacleCost}, []int32{dAlly, dBeast})
 	})
 }
 
-func TestGetRaidDistanceMap_引いたときに作り無効化で捨てる(t *testing.T) {
+func TestGetConvergeDistanceMap_引いたときに作り無効化で捨てる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	m := GetSingleton[gc.RaidDistanceMap](world, world.Components.RaidDistanceMap)
+	m := GetSingleton[gc.ConvergeDistanceMap](world, world.Components.ConvergeDistanceMap)
 	require.False(t, m.Built, "前提: 作られる前")
 
-	assert.Same(t, &m.DistanceMap, GetRaidDistanceMap(world))
+	assert.Same(t, &m.DistanceMap, GetConvergeDistanceMap(world))
 	assert.True(t, m.Built, "引いたときに作る")
 	InvalidateDistanceMaps(world)
 	assert.False(t, m.Built, "無効化で捨てる")
@@ -85,10 +85,10 @@ func BenchmarkBuildDistanceMap(b *testing.B) {
 	}
 	targets := []consts.Coord[consts.Tile]{{X: size / 2, Y: size / 2}}
 	m := gc.NewDistanceMap()
-	buildDistanceMap(world, m, targets, raidRule)
+	buildDistanceMap(world, m, targets, convergeRule)
 	b.ResetTimer()
 	for b.Loop() {
-		buildDistanceMap(world, m, targets, raidRule)
+		buildDistanceMap(world, m, targets, convergeRule)
 	}
 }
 
@@ -132,12 +132,12 @@ func TestGetFollowDistanceMap(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		GetFollowDistanceMap(world)
-		GetRaidDistanceMap(world)
+		GetConvergeDistanceMap(world)
 
 		InvalidateDistanceMaps(world)
 
 		follow := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap)
-		raid := GetSingleton[gc.RaidDistanceMap](world, world.Components.RaidDistanceMap)
+		raid := GetSingleton[gc.ConvergeDistanceMap](world, world.Components.ConvergeDistanceMap)
 		assert.Equal(t, []bool{false, false}, []bool{follow.Built, raid.Built})
 	})
 }

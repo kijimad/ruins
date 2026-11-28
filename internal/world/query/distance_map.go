@@ -6,23 +6,23 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// GetRaidDistanceMap はシングルトンから、襲撃の敵が下る RaidTargets の的からの距離の地図を取得する。未構築なら作る。手番の外で引くと
+// GetConvergeDistanceMap はシングルトンから、動き方が converge の敵が下る RaidTargets の的からの距離の地図を取得する。未構築なら作る。手番の外で引くと
 // 前の手番の地図が返る
-func GetRaidDistanceMap(world w.World) *gc.DistanceMap {
-	m := GetSingleton[gc.RaidDistanceMap](world, world.Components.RaidDistanceMap)
+func GetConvergeDistanceMap(world w.World) *gc.DistanceMap {
+	m := GetSingleton[gc.ConvergeDistanceMap](world, world.Components.ConvergeDistanceMap)
 	if m == nil {
 		return nil
 	}
 	if !m.Built {
-		buildDistanceMap(world, &m.DistanceMap, RaidTargets(world), raidRule)
+		buildDistanceMap(world, &m.DistanceMap, RaidTargets(world), convergeRule)
 	}
 	return &m.DistanceMap
 }
 
-// InvalidateDistanceMaps は襲撃の敵とついて行く者の距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
+// InvalidateDistanceMaps は寄り集まる敵とついて行く者の距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
 // 手番の初めと波を湧かせる前にだけ呼ぶ。手番の間は古い地図を全員で下る
 func InvalidateDistanceMaps(world w.World) {
-	if m := GetSingleton[gc.RaidDistanceMap](world, world.Components.RaidDistanceMap); m != nil {
+	if m := GetSingleton[gc.ConvergeDistanceMap](world, world.Components.ConvergeDistanceMap); m != nil {
 		m.Built = false
 	}
 	if m := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap); m != nil {
@@ -58,8 +58,8 @@ type distanceRule struct {
 }
 
 var (
-	// raidRule は襲撃の敵の規則。置物を壊して進み、味方同士は通り抜けて寄り集まる
-	raidRule = distanceRule{breakProps: true}
+	// convergeRule は動き方が converge の敵の規則。置物を壊して進み、味方同士は通り抜けて寄り集まる
+	convergeRule = distanceRule{breakProps: true}
 	// followRule はついて行く者の規則。置物を壊さず、仲間を回り込む
 	followRule = distanceRule{avoidAllies: true}
 )
