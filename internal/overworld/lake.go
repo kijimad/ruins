@@ -38,8 +38,8 @@ type lakeShape struct {
 // errLakeTooSmall は湖を描く層が、輪郭の揺れと浜の幅を引くと楕円が残らないほど小さいときに返す
 var errLakeTooSmall = errors.New("lake layer is too small for its shore wobble and beach width")
 
-// lakeShapeOf は区域 r の湖の輪郭と桟橋を返す。楕円は揺れの量と浜の幅だけ内側に取り、湖が隣の層へはみ出さず、湖の層の縁に岸の陸を残す。湖が無ければ ok=false
-func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool, error) {
+// lakeShapeOf は区域 r の湖の輪郭と、区画 lots から伸ばす桟橋を返す。楕円は揺れの量と浜の幅だけ内側に取り、湖が隣の層へはみ出さず、湖の層の縁に岸の陸を残す。湖が無ければ ok=false
+func (r districtRegion) lakeShapeOf(lots []buildingLot, chunkW, chunkH consts.Tile) (lakeShape, bool, error) {
 	var water *rawschema.DistrictWater
 	lo := consts.Coord[consts.Chunk]{X: r.w, Y: r.h}
 	var hi consts.Coord[consts.Chunk]
@@ -70,23 +70,44 @@ func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool
 	if s.rx <= 0 || s.ry <= 0 {
 		return lakeShape{}, false, fmt.Errorf("district %q: %w", r.kind.Id, errLakeTooSmall)
 	}
-	for l := range r.buildSet() {
-		s.addPier(r, l, chunkW, chunkH)
+	for _, b := range lots {
+		s.addPier(r, b.anchor.Add(b.entrance()), chunkW, chunkH)
 	}
 	return s, true, nil
 }
 
-// addPier は施設を建てたチャンク l の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める
-func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) {
+// waterSide は区域の中の座標 l に接する湖の向きを、北・南・西・東の順に最初に見つけたもので返す
+func (r districtRegion) waterSide(l consts.Coord[consts.Chunk]) (consts.Coord[consts.Chunk], bool) {
 	for _, d := range []consts.Coord[consts.Chunk]{{Y: -1}, {Y: 1}, {X: -1}, {X: 1}} {
-		if r.waterAt(l.Add(d)) == nil {
-			continue
+		if r.waterAt(l.Add(d)) != nil {
+			return d, true
 		}
-		c := r.anchor.Add(l)
-		center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW) + chunkW/2, Y: c.Y.Tiles(chunkH) + chunkH/2}
-		s.layPier(center, consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}, max(r.w.Tiles(chunkW), r.h.Tiles(chunkH)))
+	}
+	return consts.Coord[consts.Chunk]{}, false
+}
+
+// quarterTurnsToward は北を向いた絵を向き d へ向けるのに要る左回りの90度の回数を返す。d は上下左右の1マスで、北なら0
+func quarterTurnsToward(d consts.Coord[consts.Chunk]) int {
+	switch d {
+	case consts.Coord[consts.Chunk]{X: -1}:
+		return 1
+	case consts.Coord[consts.Chunk]{Y: 1}:
+		return 2
+	case consts.Coord[consts.Chunk]{X: 1}:
+		return 3
+	}
+	return 0
+}
+
+// addPier は区画の入口のチャンク l に置いた施設の絵の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める
+func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) {
+	d, ok := r.waterSide(l)
+	if !ok {
 		return
 	}
+	c := r.anchor.Add(l)
+	center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW), Y: c.Y.Tiles(chunkH)}.Add(facilityArtCenter(chunkW, chunkH))
+	s.layPier(center, consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}, max(r.w.Tiles(chunkW), r.h.Tiles(chunkH)))
 }
 
 // layPier は from から step の向きへ、輪郭の内側に幅2の板を張る。深い水へ pierLength だけ入るか、湖の中心を越えるか、
@@ -144,7 +165,8 @@ func (s lakeShape) tileAt(p consts.Coord[consts.Tile]) (string, bool) {
 
 // renderLakeChunk はチャンク c の湖の輪郭の内側に水面と桟橋を置く。輪郭の外は下地の土を残す
 func renderLakeChunk(world w.World, g chunkGeom, r districtRegion, c consts.Coord[consts.Chunk]) error {
-	shape, ok, err := r.lakeShapeOf(g.chunkW, g.chunkH)
+	raws := world.Resources.RawMaster
+	shape, ok, err := r.lakeShapeOf(lotsOf(raws, zoneCatalogFrom(raws), r, spawnRowOf(world)), g.chunkW, g.chunkH)
 	if err != nil || !ok {
 		return err
 	}

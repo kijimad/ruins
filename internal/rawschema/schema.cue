@@ -368,7 +368,7 @@ import (
 		verge_ref: _tileIDs[verge] @rawgen(-)
 	}
 
-	// 区域に1つだけ建てる目玉の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
+	// 区域に1つだけ建てる主の施設。区画を割り振る前に、その地区の真ん中か、だめなら真ん中に一番近い建てられる所へ一番大きく置き、残りの抽選からは外す
 	landmark?: #EntityID
 	if landmark != _|_ {
 		landmark_ref: _facilityIDs[landmark] @rawgen(-)

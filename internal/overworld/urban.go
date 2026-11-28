@@ -275,6 +275,9 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Di
 func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, streets streetTiles) ([][]maptemplate.MapCell, consts.Tile, error) {
 	isTall, blocks := tileIsTall(raws), tileBlocksPass(raws)
 	if loader.HasRooms(lot.facility) {
+		if lot.facesWater && lot.turns != 0 {
+			return nil, 0, fmt.Errorf("facility %q faces water with %d turns: %w", lot.facility, lot.turns, errRoomFacilityNotNorthWater)
+		}
 		cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, streets, isTall)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
@@ -286,13 +289,25 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
 		})
 		return cells, 0, nil
 	}
-	cells, err := planFacility(loader, lot.facility, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
+	artSeed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
+	var cells [][]maptemplate.MapCell
+	var err error
+	if lot.facesWater {
+		cells, err = planFacilityTurned(loader, lot.facility, artSeed, rng, lot.turns)
+	} else {
+		cells, err = planFacility(loader, lot.facility, artSeed, rng)
+	}
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to plan facility %q: %w", lot.facility, err)
 	}
 	// 1棟の絵は街路の帯に囲まれるので、絵の外は通れるものとして数える
 	voidEnclosedTall(cells, blocks, isTall, func(int, int) bool { return true })
 	return cells, urbanStreetW, nil
+}
+
+// facilityArtCenter は施設の絵の真ん中をチャンクの中の座標で返す。絵は北と西の街路の帯の内側に置くので、帯の分だけ南東にずれる
+func facilityArtCenter(chunkW, chunkH consts.Tile) consts.Coord[consts.Tile] {
+	return consts.Coord[consts.Tile]{X: urbanStreetW + (chunkW-urbanStreetW)/2, Y: urbanStreetW + (chunkH-urbanStreetW)/2}
 }
 
 // drawUrbanStreets はチャンクの北辺と西辺に街路を描く。建物区画のタイルは建物の生成が描くので触らない

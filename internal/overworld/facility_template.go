@@ -27,13 +27,14 @@ var (
 
 // planFacility は施設 fac の絵を1枚選んで展開する。絵は入口を北に向けて描いてあり、rng で半々に左へ90度回して入口を西の街路へ向ける。左右の反転も半々で選ぶ
 func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand) ([][]maptemplate.MapCell, error) {
+	return planFacilityTurned(loader, fac, seed, rng, 1-rng.IntN(2))
+}
+
+// planFacilityTurned は施設 fac の絵を1枚選び、左回りに turns 回だけ回して展開する。左右の反転は rng で半々に選ぶ
+func planFacilityTurned(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand, turns int) ([][]maptemplate.MapCell, error) {
 	_, cells, err := loader.FacilityChunk(fac, seed)
 	if err != nil {
 		return nil, err
-	}
-	turns := 0
-	if rng.IntN(2) == 0 {
-		turns = 1
 	}
 	return maptemplate.TransformCells(cells, turns, rng.IntN(2) == 0), nil
 }

@@ -123,7 +123,7 @@ func (r districtRegion) local(c consts.Coord[consts.Chunk]) consts.Coord[consts.
 	return c.Sub(r.anchor)
 }
 
-// landmark は区域に1つだけ建てる目玉の施設を返す。無ければ空
+// landmark は区域に1つだけ建てる主の施設を返す。無ければ空
 func (r districtRegion) landmark() string {
 	if r.kind.Landmark == nil {
 		return ""

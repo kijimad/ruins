@@ -19,6 +19,7 @@ var (
 	errDistrictWaterLayer            = errors.New("district water layer is not the core of rings")
 	errDistrictLayerEmpty            = errors.New("district layer has neither zones nor water")
 	errDistrictWaterNotSquare        = errors.New("district with a water layer is not square")
+	errLakeFacilityNotSingleChunk    = errors.New("facility in a lake district zone is larger than one chunk")
 	errDistrictFenceWithGaps         = errors.New("district with a fence has chunks without facilities")
 	errLandmarkMinDanger             = errors.New("landmark facility has minDanger")
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
@@ -50,6 +51,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateDisassemblies,
 		validateDistricts,
 		validateZoneBaseFacilities,
+		validateLakeFacilityFootprints,
 		validateLandmarkMinDanger,
 		validateMapGlyphReferences,
 		validateConditions,
@@ -166,7 +168,7 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 		}
 		for _, zone := range DistrictZones(*d) {
 			hasBase := slices.ContainsFunc(facilities, func(f rawschema.Facility) bool {
-				// 目玉の施設は区域に1つだけで、残りのチャンクの抽選からは外す
+				// 主の施設は区域に1つだけで、残りのチャンクの抽選からは外す
 				if d.Landmark != nil && f.Id == *d.Landmark {
 					return false
 				}
@@ -182,8 +184,37 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 	return nil
 }
 
-// validateLandmarkMinDanger は区域の目玉の施設が、その区域が割り振る地区の行に深さの下限を持たないことを検証する。
-// 目玉の施設は抽選を通らず区域に必ず1つ建つので、深さの下限を書いても効かない。区域の外の地区の行は抽選を通るので見ない
+// validateLakeFacilityFootprints は湖を描く区域が割り振る全ての地区に建つ施設が、主の施設のほかは1チャンクの大きさだけを持つことを検証する。
+// 1棟の絵は区画の入口のチャンクが接する湖へ向けて回すので、区画が複数のチャンクにまたがると向きが区画と合わない。主の施設は
+// 区画の割り振りとは別に置き、部屋の絵の向きは生成のときに確かめる
+func validateLakeFacilityFootprints(raws rawschema.Raws) error {
+	facilities := PtrSlice(raws.Facilities)
+	districts := PtrSlice(raws.Districts)
+	for i := range districts {
+		d := &districts[i]
+		if !slices.ContainsFunc(d.Layers, func(l rawschema.DistrictLayer) bool { return l.Water != nil }) {
+			continue
+		}
+		zones := DistrictZones(*d)
+		for _, f := range facilities {
+			if d.Landmark != nil && f.Id == *d.Landmark {
+				continue
+			}
+			if !slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool { return slices.Contains(zones, z.Zone) }) {
+				continue
+			}
+			for _, fp := range PtrSlice(f.Footprints) {
+				if fp.W != 1 || fp.H != 1 {
+					return fmt.Errorf("district %q facility %q footprint %dx%d: %w", d.Id, f.Id, fp.W, fp.H, errLakeFacilityNotSingleChunk)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// validateLandmarkMinDanger は区域の主の施設が、その区域が割り振る地区の行に深さの下限を持たないことを検証する。
+// 主の施設は抽選を通らず区域に必ず1つ建つので、深さの下限を書いても効かない。区域の外の地区の行は抽選を通るので見ない
 func validateLandmarkMinDanger(raws rawschema.Raws) error {
 	districts := PtrSlice(raws.Districts)
 	for i := range districts {

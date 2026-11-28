@@ -1619,6 +1619,7 @@
 
 [[districts]]
   id = "lakeside"
+  landmark = "water_intake"
   name = "Lakeside"
   pattern = "rings"
   separation = 4
@@ -1626,7 +1627,7 @@
   streetEnemies = "1d2"
 
   [[districts.layers]]
-    lots = 2
+    lots = 4
     scatter = "lakeshore"
     zones = ["lake_shore"]
 
@@ -1637,7 +1638,7 @@
       beachWidth = 2
       deep = "water_deep"
       glyph = "lakeside_water"
-      pier = "plank_brown"
+      pier = "pier_plank"
       pierLength = 6
       shallow = "water_shallow"
       shallowWidth = 3
@@ -4343,6 +4344,32 @@
   enemyTable = "ruins_area"
   id = "campsite"
   lootedChance = 30
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "lake_shore"
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "fishing_hut"
+  lootedChance = 30
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "lake_shore"
+
+[[facilities]]
+  enemyTable = "power_plant_enemies"
+  id = "water_intake"
+  interior = "hall"
+  lootedChance = 30
+
+  [[facilities.footprints]]
+    h = 1
+    w = 3
+    weight = 1
 
   [[facilities.zones]]
     minSpan = 1
@@ -18657,6 +18684,28 @@
     g = 140
     r = 200
 
+[[mapGlyphs]]
+  glyph = "F"
+  id = "fishing_hut"
+  name = "Fishing Hut"
+  order = 35
+  [mapGlyphs.color]
+    a = 255
+    b = 200
+    g = 160
+    r = 120
+
+[[mapGlyphs]]
+  glyph = "I"
+  id = "water_intake"
+  name = "Water Intake"
+  order = 36
+  [mapGlyphs.color]
+    a = 255
+    b = 230
+    g = 170
+    r = 90
+
 [[materials]]
   heatPerKg = 200
   id = "wood"
@@ -24733,6 +24782,19 @@
   name = "Planks"
   seeThrough = true
   shelter = "indoor"
+  [tiles.passable]
+  [tiles.spawn]
+    autotile = true
+  [tiles.spriteRender]
+    depth = "floor"
+    spriteKey = "plank_brown"
+    spriteSheetName = "tile"
+
+[[tiles]]
+  description = "屋根の無い屋外の板張り。湖の桟橋や小屋の前の通路"
+  id = "pier_plank"
+  name = "Pier"
+  seeThrough = true
   [tiles.passable]
   [tiles.spawn]
     autotile = true

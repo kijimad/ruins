@@ -6,6 +6,9 @@ description = "湖畔"
 "," = "grass_green"
 "=" = "pavement"
 "_" = "dirt"
+"#" = "wall_wood_1"
+"." = "floor_wood"
+"P" = "pier_plank"
 
 [palette.props."T"]
 tile = "grass_green"
@@ -48,4 +51,30 @@ id = "table"
 [palette.props."b"]
 tile = "dirt"
 id = "barrel"
+lootTable = "pantry"
+
+[palette.props."+"]
+tile = "floor_wood"
+id = "door"
+
+[palette.props."e"]
+tile = "floor_wood"
+id = "bed"
+
+[palette.props."o"]
+tile = "floor_wood"
+id = "closet"
+lootTable = "house_closet"
+
+[palette.props."a"]
+tile = "floor_wood"
+id = "table"
+
+[palette.props."h"]
+tile = "floor_wood"
+id = "chair"
+
+[palette.props."x"]
+tile = "floor_wood"
+id = "wooden_crate"
 lootTable = "pantry"

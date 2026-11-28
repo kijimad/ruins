@@ -17,6 +17,9 @@ import (
 // errRoomSizeMismatch は部屋の絵の大きさがチャンクから帯を引いた大きさと一致しないときに返す
 var errRoomSizeMismatch = errors.New("room template size does not match the chunk")
 
+// errRoomFacilityNotNorthWater は回せない部屋の絵の施設が、北でない側の湖に接する区画に建つときに返す
+var errRoomFacilityNotNorthWater = errors.New("room facility lot faces water on a side other than north")
+
 // buildingLot は区域の中の建物の区画。区域の中の座標 anchor から w×h チャンク広がり、施設を1つ建てる
 type buildingLot struct {
 	facility string
@@ -24,10 +27,13 @@ type buildingLot struct {
 	w, h     consts.Chunk
 	interior rawschema.FacilityInterior
 	seed     uint64
+	// facesWater なら1棟の絵を左回りに turns 回だけ回し、北の辺を接する湖へ向ける。部屋の絵は回さないので、turns が0でなければ生成で止める
+	facesWater bool
+	turns      int
 }
 
 // lotsOf は区域 r を建物の区画で埋める。左上のチャンクから順に、未割り当てのチャンクの地区で施設を引き、
-// 施設の大きさの候補を重みで引く。区画は同じ地区で未割り当てのチャンクだけに収まるまで小さくする。
+// 施設の大きさの候補を重みで引く。区画は同じ地区で未割り当てのチャンクだけに収まるまで小さくする。入口のチャンクが湖に接する区画は、その向きを持つ。
 // 施設の深さの足切りには、深さの起点の行 spawnRow から測った区域の北の端の危険度を使う。区域の中で足切りを揃えるため、チャンクごとには測らない
 func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow consts.Chunk) []buildingLot {
 	danger := query.DangerLevelForDepth(consts.NorthDepth(spawnRow, r.anchor.Y))
@@ -63,7 +69,11 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 				taken[anchor.Add(consts.Coord[consts.Chunk]{X: dx, Y: dy})] = true
 			}
 		}
-		lots = append(lots, buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: consts.Mix2D(r.seed, anchor.X, anchor.Y)})
+		lot := buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: consts.Mix2D(r.seed, anchor.X, anchor.Y)}
+		if d, ok := r.waterSide(anchor.Add(lot.entrance())); ok {
+			lot.facesWater, lot.turns = true, quarterTurnsToward(d)
+		}
+		lots = append(lots, lot)
 	}
 	if f, ok := facilities[r.landmark()]; ok {
 		if anchor, w, h, ok := landmarkLot(r, f, fits); ok {
@@ -97,8 +107,8 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 	return lots
 }
 
-// landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、
-// 地区に収まるものを選ぶ。区域の作りがその地区を割り振らなければ置かない
+// landmarkLot は区域の主の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、
+// 地区に収まるものを選ぶ。真ん中に建てられなければ、同じ順の大きさで真ん中に一番近い建てられる区画に置き、同じ近さなら北の、次に西の区画を選ぶ。区域の作りがその地区を割り振らないか、どの大きさの候補も入らなければ置かない
 func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
 	for _, fz := range f.Zones {
 		var cells []consts.Coord[consts.Chunk]
@@ -125,6 +135,19 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
 			y := minC.Y + (maxC.Y-minC.Y+1-h)/2
 			if x >= 0 && y >= 0 && fits(x, y, w, h, fz.Zone) {
 				return consts.Coord[consts.Chunk]{X: x, Y: y}, w, h, true
+			}
+		}
+		for _, fp := range fps {
+			w, h := consts.Chunk(fp.W), consts.Chunk(fp.H)
+			best, bestDist := consts.Coord[consts.Chunk]{}, -1
+			for _, c := range cells {
+				dx, dy := int(2*c.X+w-1-minC.X-maxC.X), int(2*c.Y+h-1-minC.Y-maxC.Y)
+				if d := dx*dx + dy*dy; fits(c.X, c.Y, w, h, fz.Zone) && (bestDist < 0 || d < bestDist) {
+					best, bestDist = c, d
+				}
+			}
+			if bestDist >= 0 {
+				return best, w, h, true
 			}
 		}
 	}
@@ -196,6 +219,11 @@ func lotAt(lots []buildingLot, l consts.Coord[consts.Chunk]) buildingLot {
 	panic(fmt.Sprintf("no lot covers %v", l))
 }
 
+// entrance は区画の中で入口の扉を開けるチャンクを返す。北の辺の真ん中の列
+func (b buildingLot) entrance() consts.Coord[consts.Chunk] {
+	return consts.Coord[consts.Chunk]{X: b.w / 2}
+}
+
 // roomEdges は区画の中の座標 l のチャンクの、北・東・南・西の辺の種類を返す。区画の外へ向く辺は壁で、
 // 北の辺の真ん中の列にだけ入口の扉を開ける。区画の内側の辺は、hall なら吹き抜け、rooms なら迷路の扉か壁
 func (b buildingLot) roomEdges(l consts.Coord[consts.Chunk]) [4]maptemplate.EdgeKind {
@@ -222,7 +250,7 @@ func (b buildingLot) roomEdges(l consts.Coord[consts.Chunk]) [4]maptemplate.Edge
 		edge(consts.Coord[consts.Chunk]{Y: 1}),
 		edge(consts.Coord[consts.Chunk]{X: -1}),
 	}
-	if l.Y == 0 && l.X == b.w/2 {
+	if l == b.entrance() {
 		edges[0] = maptemplate.EdgeDoor
 	}
 	return edges

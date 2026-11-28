@@ -282,7 +282,7 @@ func TestGolden_Building(t *testing.T) {
 	}
 }
 
-func TestLotsOf_目玉の施設は区域に1つだけ地区の真ん中へ一番大きく建つ(t *testing.T) {
+func TestLotsOf_主の施設は区域に1つだけ地区の真ん中へ一番大きく建つ(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
@@ -364,7 +364,7 @@ func possibleRoomEdges(b buildingLot, l consts.Coord[consts.Chunk]) [][4]maptemp
 	for i, d := range dirs {
 		n := l.Add(d)
 		switch {
-		case i == 0 && l.Y == 0 && l.X == b.w/2:
+		case i == 0 && l == b.entrance():
 			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeDoor}
 		case n.X < 0 || n.Y < 0 || n.X >= b.w || n.Y >= b.h:
 			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeWall}
