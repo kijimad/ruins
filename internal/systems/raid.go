@@ -23,8 +23,6 @@ const (
 	raidPerDanger = 3
 	// raidMaxPerNight は1晩の数の上限
 	raidMaxPerNight = 60
-	// raidCubeOnlyRatio は、見えた相手を追わずキューブだけを狙う敵の割合
-	raidCubeOnlyRatio = 1.0 / 3
 )
 
 // RaidSystem は周期ごとの襲撃の夜を進める。襲撃の日の夜明けに予告し、波のターンに中心を囲んで敵を湧かせ、
@@ -89,7 +87,7 @@ func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
 		if err != nil {
 			return err
 		}
-		world.Components.Raider.Add(enemy, &gc.Raider{CubeOnly: rng.Float64() < raidCubeOnlyRatio})
+		world.Components.Raider.Add(enemy, &gc.Raider{})
 		spawned++
 	}
 	if spawned == 0 {

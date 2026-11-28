@@ -20,7 +20,7 @@ func TestRaider_襲撃の敵の印を保存しロードで復元する(t *testin
 	world := testutil.InitTestWorld(t)
 	raider, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "stray_dog")
 	require.NoError(t, err)
-	world.Components.Raider.Add(raider, &gc.Raider{CubeOnly: true})
+	world.Components.Raider.Add(raider, &gc.Raider{})
 	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "stray_dog")
 	require.NoError(t, err)
 	require.NoError(t, sm.SaveWorld(world, "slot1"))
@@ -29,13 +29,10 @@ func TestRaider_襲撃の敵の印を保存しロードで復元する(t *testin
 	require.NoError(t, sm.LoadWorld(fresh, "slot1"))
 
 	var raiders []consts.Coord[consts.Tile]
-	var marks []gc.Raider
 	q := ecs.NewFilter2[gc.Raider, gc.GridElement](fresh.ECS).Query()
 	for q.Next() {
-		r, g := q.Get()
+		_, g := q.Get()
 		raiders = append(raiders, g.Coord)
-		marks = append(marks, *r)
 	}
 	assert.Equal(t, []consts.Coord[consts.Tile]{{X: 10, Y: 10}}, raiders, "印のある敵だけが印を持ったまま復元される")
-	assert.Equal(t, []gc.Raider{{CubeOnly: true}}, marks, "キューブだけを狙うかも復元される")
 }

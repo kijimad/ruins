@@ -416,19 +416,17 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 	return moveAction(next)
 }
 
-// planRaidAction は印のある敵の行動を決める。敵対する相手が見えていて、狙う的より近ければ追って殴る。キューブだけを
-// 狙う敵は相手を追わない。それ以外は距離の地図で一番小さい隣を順に試す。狙う的か仲間でないキャラクターなら殴り、
-// HP を持つ置物なら壊し、空いていれば進む。仲間に塞がれた隣は飛ばし、試す隣が残らなければ待つ
+// planRaidAction は印のある敵の行動を決める。敵対する相手が見えていて、狙う的より近ければ追って殴る。それ以外は
+// 距離の地図で一番小さい隣を順に試す。狙う的か仲間でないキャラクターなら殴り、HP を持つ置物なら壊し、空いていれば
+// 進む。仲間に塞がれた隣は飛ばし、試す隣が残らなければ待つ
 func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
 	var steps []consts.Coord[consts.Tile]
 	if rp.raidMap != nil {
 		rp.raidSteps = rp.raidMap.Steps(grid.Coord, rp.raidSteps)
 		steps = rp.raidSteps
 	}
-	if !world.Components.Raider.Get(entity).CubeOnly {
-		if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) && rp.closerThanRaidTarget(world, grid, steps, *target) {
-			return rp.planChaseAction(world, entity, *target, grid)
-		}
+	if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) && rp.closerThanRaidTarget(world, grid, steps, *target) {
+		return rp.planChaseAction(world, entity, *target, grid)
 	}
 	si := query.GetSpatialIndex(world)
 	for _, next := range steps {
@@ -452,7 +450,8 @@ func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc
 }
 
 // closerThanRaidTarget は相手 target が、距離の地図の的より近いかを返す。的までの距離は一番近い下る隣 steps[0] の
-// 値に1を足して測る。自分の立つマスの値は、自分がいることで重く数えられているので使わない。下る隣が無ければ近いとする
+// 値に1を足して測る。自分の立つマスの値は、自分がいることで重く数えられているので使わない。地図で下れない、
+// すなわち地図の届かないマスにいるか的の上にいるなら、見えた相手を追う
 func (rp *soloPlanner) closerThanRaidTarget(world w.World, grid *gc.GridElement, steps []consts.Coord[consts.Tile], target ecs.Entity) bool {
 	if len(steps) == 0 {
 		return true
