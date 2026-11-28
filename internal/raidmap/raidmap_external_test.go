@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// HP を持つ置物の無い盤面で、地図の斜めの角の規則が activity.CanMoveTo と食い違わないことを確かめる。HP を持つ置物の
+// マスは、地図では壊しに行く下る先になり、CanMoveTo では通れないので、この盤面には置かない
 func TestMapSteps_斜めの隣はCanMoveToでも通れる(t *testing.T) {
 	t.Parallel()
 	at := func(x, y int) consts.Coord[consts.Tile] {
