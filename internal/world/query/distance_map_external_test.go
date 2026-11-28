@@ -16,7 +16,7 @@ import (
 
 // HP を持つ置物の無い盤面で、地図の斜めの角の規則が activity.CanMoveTo と食い違わないことを確かめる。HP を持つ置物の
 // マスは、地図では壊しに行く下る先になり、CanMoveTo では通れないので、この盤面には置かない
-func TestGetRaidMap_斜めの隣はCanMoveToでも通れる(t *testing.T) {
+func TestGetDistanceMap_斜めの隣はCanMoveToでも通れる(t *testing.T) {
 	t.Parallel()
 	at := func(x, y int) consts.Coord[consts.Tile] {
 		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
@@ -34,7 +34,7 @@ func TestGetRaidMap_斜めの隣はCanMoveToでも通れる(t *testing.T) {
 		si.Blocked[gc.GridElement{Coord: c}] = true
 	}
 
-	m := query.GetRaidMap(world)
+	m := query.GetDistanceMap(world)
 	checked := 0
 	for y := range 8 {
 		for x := range 8 {

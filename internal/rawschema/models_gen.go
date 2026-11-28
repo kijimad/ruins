@@ -1725,14 +1725,14 @@ type Member struct {
 // MessageKey メッセージリソースのキー
 type MessageKey = string
 
-// MovementPatternType 非戦闘時の移動パターン。raid は襲撃で湧いた敵の動きで、戦闘の状態遷移より先に効き、錨のキューブを狙う
+// MovementPatternType 非戦闘時の移動パターン。converge は距離の地図を下って的へ寄り集まる動きで、戦闘の状態遷移より先に効く
 type MovementPatternType string
 
 // Defines values for MovementPatternType.
 const (
+	Converge    MovementPatternType = "converge"
 	Follow      MovementPatternType = "follow"
 	Patrol      MovementPatternType = "patrol"
-	Raid        MovementPatternType = "raid"
 	Random      MovementPatternType = "random"
 	Stationary  MovementPatternType = "stationary"
 	Swarm       MovementPatternType = "swarm"
@@ -1744,11 +1744,11 @@ const (
 // Valid indicates whether the value is a known member of the MovementPatternType enum.
 func (e MovementPatternType) Valid() bool {
 	switch e {
+	case Converge:
+		return true
 	case Follow:
 		return true
 	case Patrol:
-		return true
-	case Raid:
 		return true
 	case Random:
 		return true
@@ -1769,7 +1769,7 @@ func (e MovementPatternType) Valid() bool {
 
 // MovementPatternTypeValues は MovementPatternType の値を、スキーマに書いた順に返す。
 func MovementPatternTypeValues() []MovementPatternType {
-	return []MovementPatternType{Random, Patrol, WallHug, Stationary, Wander, Territorial, Swarm, Follow, Raid}
+	return []MovementPatternType{Random, Patrol, WallHug, Stationary, Wander, Territorial, Swarm, Follow, Converge}
 }
 
 // NeedRatio 最大値に対する割合

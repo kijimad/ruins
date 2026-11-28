@@ -95,7 +95,7 @@ type EntitySpec struct {
 	Dungeon            *Dungeon
 	TurnState          *TurnState
 	SpatialIndex       *SpatialIndex
-	RaidMap            *RaidMap
+	DistanceMap        *DistanceMap
 	HandSelection      *HandSelection
 	GameTime           *GameTime
 	Weather            *Weather
@@ -196,7 +196,7 @@ type Components struct {
 	Dungeon            *ecs.Map[Dungeon]
 	TurnState          *ecs.Map[TurnState]
 	SpatialIndex       *ecs.Map[SpatialIndex]
-	RaidMap            *ecs.Map[RaidMap]
+	DistanceMap        *ecs.Map[DistanceMap]
 	HandSelection      *ecs.Map[HandSelection]
 	GameTime           *ecs.Map[GameTime]
 	Weather            *ecs.Map[Weather]
@@ -297,7 +297,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Dungeon = ecs.NewMap[Dungeon](world)
 	c.TurnState = ecs.NewMap[TurnState](world)
 	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
-	c.RaidMap = ecs.NewMap[RaidMap](world)
+	c.DistanceMap = ecs.NewMap[DistanceMap](world)
 	c.HandSelection = ecs.NewMap[HandSelection](world)
 	c.GameTime = ecs.NewMap[GameTime](world)
 	c.Weather = ecs.NewMap[Weather](world)
@@ -400,7 +400,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Dungeon, entity, spec.Dungeon)
 	addComp(c.TurnState, entity, spec.TurnState)
 	addComp(c.SpatialIndex, entity, spec.SpatialIndex)
-	addComp(c.RaidMap, entity, spec.RaidMap)
+	addComp(c.DistanceMap, entity, spec.DistanceMap)
 	addComp(c.HandSelection, entity, spec.HandSelection)
 	addComp(c.GameTime, entity, spec.GameTime)
 	addComp(c.Weather, entity, spec.Weather)

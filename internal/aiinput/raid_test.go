@@ -31,7 +31,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Deployed.Add(cube, &gc.Deployed{})
 		raider, err := lifecycle.SpawnEnemy(world, at(20, 26), "stray_dog")
 		require.NoError(t, err)
-		world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+		world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 
 		rp := newSoloPlanner(newTestRNG())
 		act := rp.Plan(world, raider)
@@ -53,7 +53,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Deployed.Add(cube, &gc.Deployed{})
 		raider, err := lifecycle.SpawnEnemy(world, at(20, 21), "stray_dog")
 		require.NoError(t, err)
-		world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+		world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 
 		rp := newSoloPlanner(newTestRNG())
 		act := rp.Plan(world, raider)
@@ -75,7 +75,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Deployed.Add(cube, &gc.Deployed{})
 		raider, err := lifecycle.SpawnEnemy(world, at(20, 29), "stray_dog")
 		require.NoError(t, err)
-		world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+		world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 
 		rp := newSoloPlanner(newTestRNG())
 		act := rp.Plan(world, raider)
@@ -97,7 +97,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Deployed.Add(cube, &gc.Deployed{})
 		raider, err := lifecycle.SpawnEnemy(world, at(20, 26), "stray_dog")
 		require.NoError(t, err)
-		world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+		world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 		_, err = lifecycle.SpawnEnemy(world, at(20, 25), "stray_dog")
 		require.NoError(t, err)
 
@@ -125,7 +125,7 @@ func TestPlanRaidAction_見えた相手よりキューブが近ければキュ�
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 22), "stray_dog")
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 
 	rp := newSoloPlanner(newTestRNG())
 	act := rp.Plan(world, raider)
@@ -152,7 +152,7 @@ func TestPlanRaidAction_道の上の扉を殴る(t *testing.T) {
 	require.NoError(t, err)
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 24), "stray_dog")
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 	si := query.GetSpatialIndex(world)
 	for y := 21; y <= 30; y++ {
 		si.Blocked[gc.GridElement{Coord: at(19, y)}] = true
@@ -182,7 +182,7 @@ func TestPlanRaidAction_追跡の状態でも相手が見えなければキュ�
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 26), "stray_dog")
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 	world.Components.SoloAI.Get(raider).SubState = gc.AIStateChasing
 
 	rp := newSoloPlanner(newTestRNG())
@@ -210,7 +210,7 @@ func TestPlanRaidAction_細い通路で前に仲間がいれば待つ(t *testing
 	require.NoError(t, err)
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 24), "stray_dog")
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 	si := query.GetSpatialIndex(world)
 	for y := 21; y <= 40; y++ {
 		si.Blocked[gc.GridElement{Coord: at(19, y)}] = true
@@ -237,10 +237,10 @@ func TestPlanRaidAction_開けた所では前の仲間の横へ回り込む(t *t
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
 	front, err := lifecycle.SpawnEnemy(world, at(20, 23), "stray_dog")
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(front).Movement = rawschema.Raid
+	world.Components.SoloAI.Get(front).Movement = rawschema.Converge
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 24), "stray_dog")
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 
 	rp := newSoloPlanner(newTestRNG())
 	// 前の仲間が動く前に作った地図では、仲間のマスが一番近い隣になる
@@ -264,7 +264,7 @@ func TestCullDistantSolo_襲撃の敵は圏外でも残す(t *testing.T) {
 	far := consts.Coord[consts.Tile]{X: consts.Tile(activationRadius + 5), Y: 0}
 	raider, err := lifecycle.SpawnEnemy(world, far, "stray_dog")
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 	ordinary, err := lifecycle.SpawnEnemy(world, far.Add(consts.Coord[consts.Tile]{Y: 1}), "stray_dog")
 	require.NoError(t, err)
 
@@ -281,13 +281,13 @@ func TestProcessor_襲撃の敵がいる手番だけ距離の地図を作る(t *
 	require.NoError(t, err)
 	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "stray_dog")
 	require.NoError(t, err)
-	m := query.GetRaidMap(world)
+	m := query.GetDistanceMap(world)
 	require.True(t, m.Built, "前の手番の地図")
 
 	require.NoError(t, NewProcessor(newTestRNG()).ProcessAll(world))
 	assert.False(t, m.Built, "普段の手番は前の地図を捨て、作らない")
 
-	world.Components.SoloAI.Get(enemy).Movement = rawschema.Raid
+	world.Components.SoloAI.Get(enemy).Movement = rawschema.Converge
 	require.NoError(t, NewProcessor(newTestRNG()).ProcessAll(world))
 	require.True(t, m.Built, "襲撃の敵が引いて作る")
 	d, ok := m.Dist(playerAt)

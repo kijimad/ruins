@@ -54,7 +54,7 @@ func (p *Processor) ProcessAll(world w.World) error {
 	}
 	targets = culled
 	// 襲撃の敵は手番の初めの距離の地図を全員で下る。前の手番の地図を捨て、最初に引いた敵が作る
-	query.InvalidateRaidMap(world)
+	query.InvalidateDistanceMap(world)
 
 	for _, entity := range targets {
 		if world.Components.Dead.Has(entity) {
@@ -84,7 +84,7 @@ func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) 
 	kept := make([]ecs.Entity, 0, len(targets))
 	for _, entity := range targets {
 		solo := world.Components.SoloAI.Get(entity)
-		if solo != nil && !isActiveCombatState(solo.SubState) && solo.Movement != rawschema.Follow && solo.Movement != rawschema.Raid {
+		if solo != nil && !isActiveCombatState(solo.SubState) && solo.Movement != rawschema.Follow && solo.Movement != rawschema.Converge {
 			grid := world.Components.GridElement.Get(entity)
 			if geometry.ChebyshevDistance(playerGrid.Coord, grid.Coord) > activationRadius {
 				// 圏外の待機・徘徊敵はスキップ。画面外で観測不能なため凍結してよい

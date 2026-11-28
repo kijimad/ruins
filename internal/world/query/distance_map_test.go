@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestBuildRaidMap(t *testing.T) {
+func TestBuildDistanceMap(t *testing.T) {
 	t.Parallel()
 	at := func(x, y int) consts.Coord[consts.Tile] {
 		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
@@ -29,11 +29,11 @@ func TestBuildRaidMap(t *testing.T) {
 		world.Components.HP.Add(door, &gc.HP{})
 		world.Components.GridElement.Add(door, &gc.GridElement{Coord: at(2, 0)})
 
-		m := gc.NewRaidMap()
-		buildRaidMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)})
+		m := gc.NewDistanceMap()
+		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)})
 		d, ok := m.Dist(at(3, 0))
 		require.True(t, ok)
-		assert.Equal(t, int32(1+gc.RaidObstacleCost+1), d, "扉を壊して抜ける")
+		assert.Equal(t, int32(1+gc.DistanceMapObstacleCost+1), d, "扉を壊して抜ける")
 		_, ok = m.Dist(at(5, 0))
 		assert.False(t, ok, "壁の向こうは届かない")
 	})
@@ -50,28 +50,28 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Blocked = map[gc.GridElement]bool{}
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: ally, {Coord: at(1, 1)}: beast}
 
-		m := gc.NewRaidMap()
-		buildRaidMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)})
+		m := gc.NewDistanceMap()
+		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)})
 		dAlly, _ := m.Dist(at(1, 0))
 		dBeast, _ := m.Dist(at(1, 1))
-		assert.Equal(t, []int32{1, gc.RaidObstacleCost}, []int32{dAlly, dBeast})
+		assert.Equal(t, []int32{1, gc.DistanceMapObstacleCost}, []int32{dAlly, dBeast})
 	})
 }
 
-func TestGetRaidMap_引いたときに作り無効化で捨てる(t *testing.T) {
+func TestGetDistanceMap_引いたときに作り無効化で捨てる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	m := GetSingleton[gc.RaidMap](world, world.Components.RaidMap)
+	m := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap)
 	require.False(t, m.Built, "前提: 作られる前")
 
-	assert.Same(t, m, GetRaidMap(world))
+	assert.Same(t, m, GetDistanceMap(world))
 	assert.True(t, m.Built, "引いたときに作る")
-	InvalidateRaidMap(world)
+	InvalidateDistanceMap(world)
 	assert.False(t, m.Built, "無効化で捨てる")
 }
 
-// BenchmarkBuildRaidMap は15×15チャンクの帯の全体へ、距離の地図を1回作る時間を測る。襲撃の敵がいる手番ごとに作る
-func BenchmarkBuildRaidMap(b *testing.B) {
+// BenchmarkBuildDistanceMap は15×15チャンクの帯の全体へ、距離の地図を1回作る時間を測る。襲撃の敵がいる手番ごとに作る
+func BenchmarkBuildDistanceMap(b *testing.B) {
 	world := testutil.InitTestWorld(b)
 	si := GetSpatialIndex(world)
 	const size = 15 * 24
@@ -84,10 +84,10 @@ func BenchmarkBuildRaidMap(b *testing.B) {
 		}
 	}
 	targets := []consts.Coord[consts.Tile]{{X: size / 2, Y: size / 2}}
-	m := gc.NewRaidMap()
-	buildRaidMap(world, m, targets)
+	m := gc.NewDistanceMap()
+	buildDistanceMap(world, m, targets)
 	b.ResetTimer()
 	for b.Loop() {
-		buildRaidMap(world, m, targets)
+		buildDistanceMap(world, m, targets)
 	}
 }

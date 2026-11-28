@@ -151,7 +151,7 @@ func TestRaidSystem_地上にいなければ予告だけする(t *testing.T) {
 
 	raider, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "stray_dog")
 	require.NoError(t, err)
-	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 
 	query.GetGameTime(world).TotalTurns = firstWaveTurn
 	require.NoError(t, (&RaidSystem{}).Update(world))
@@ -259,7 +259,7 @@ func raiderTiles(world w.World) []consts.Coord[consts.Tile] {
 	q := ecs.NewFilter2[gc.SoloAI, gc.GridElement](world.ECS).Query()
 	for q.Next() {
 		solo, g := q.Get()
-		if solo.Movement == rawschema.Raid {
+		if solo.Movement == rawschema.Converge {
 			out = append(out, g.Coord)
 		}
 	}
