@@ -415,8 +415,8 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 	return moveAction(next)
 }
 
-// followStep はプレイヤーからの距離の地図で、from から下る隣のうち空いている最初のマスを返す。地図は手番の初めの配置で
-// 作るので、手番の中で湧いた置物やキャラクターを空きの判定で避ける
+// followStep はプレイヤーからの距離の地図で、from から下る隣のうち空いている最初のマスを返す。地図はその手番で最初に
+// 引いたときの配置で作るので、手番の中で湧いた置物やキャラクターを空きの判定で避ける
 func followStep(world w.World, from consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
 	m := query.GetPlayerDistanceMap(world)
 	si := query.GetSpatialIndex(world)
