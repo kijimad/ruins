@@ -2,7 +2,7 @@ package components
 
 import "github.com/kijimaD/ruins/internal/consts"
 
-// DistanceMapObstacleCost は HP を持つ置物と、寄り集まる敵が待つことになるキャラクターのマスを通る重み
+// DistanceMapObstacleCost は重く数えて、回り込ませるか待たせるマスの重み。壊せる置物やキャラクターのマスに使う
 const DistanceMapObstacleCost = 5
 
 // distanceMapDirs は距離の地図を広げ、下る8方向

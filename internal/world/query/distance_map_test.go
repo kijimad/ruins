@@ -30,7 +30,7 @@ func TestBuildDistanceMap(t *testing.T) {
 		world.Components.GridElement.Add(door, &gc.GridElement{Coord: at(2, 0)})
 
 		m := gc.NewDistanceMap()
-		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, gc.DistanceMapObstacleCost, 1)
+		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, raidRule)
 		d, ok := m.Dist(at(3, 0))
 		require.True(t, ok)
 		assert.Equal(t, int32(1+gc.DistanceMapObstacleCost+1), d, "扉を壊して抜ける")
@@ -51,7 +51,7 @@ func TestBuildDistanceMap(t *testing.T) {
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: ally, {Coord: at(1, 1)}: beast}
 
 		m := gc.NewDistanceMap()
-		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, gc.DistanceMapObstacleCost, 1)
+		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, raidRule)
 		dAlly, _ := m.Dist(at(1, 0))
 		dBeast, _ := m.Dist(at(1, 1))
 		assert.Equal(t, []int32{1, gc.DistanceMapObstacleCost}, []int32{dAlly, dBeast})
@@ -66,7 +66,7 @@ func TestGetDistanceMap_引いたときに作り無効化で捨てる(t *testing
 
 	assert.Same(t, m, GetDistanceMap(world))
 	assert.True(t, m.Built, "引いたときに作る")
-	InvalidateDistanceMap(world)
+	InvalidateDistanceMaps(world)
 	assert.False(t, m.Built, "無効化で捨てる")
 }
 
@@ -85,10 +85,10 @@ func BenchmarkBuildDistanceMap(b *testing.B) {
 	}
 	targets := []consts.Coord[consts.Tile]{{X: size / 2, Y: size / 2}}
 	m := gc.NewDistanceMap()
-	buildDistanceMap(world, m, targets, gc.DistanceMapObstacleCost, 1)
+	buildDistanceMap(world, m, targets, raidRule)
 	b.ResetTimer()
 	for b.Loop() {
-		buildDistanceMap(world, m, targets, gc.DistanceMapObstacleCost, 1)
+		buildDistanceMap(world, m, targets, raidRule)
 	}
 }
 
@@ -134,7 +134,7 @@ func TestGetFollowDistanceMap(t *testing.T) {
 		GetFollowDistanceMap(world)
 		GetDistanceMap(world)
 
-		InvalidateDistanceMap(world)
+		InvalidateDistanceMaps(world)
 
 		follow := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap)
 		raid := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap)

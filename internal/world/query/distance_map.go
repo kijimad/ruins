@@ -14,14 +14,14 @@ func GetDistanceMap(world w.World) *gc.DistanceMap {
 		return nil
 	}
 	if !m.Built {
-		buildDistanceMap(world, m, RaidTargets(world), gc.DistanceMapObstacleCost, 1)
+		buildDistanceMap(world, m, RaidTargets(world), raidRule)
 	}
 	return m
 }
 
-// InvalidateDistanceMap は敵とついて行く者の距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
+// InvalidateDistanceMaps は敵とついて行く者の距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
 // 手番の初めと波を湧かせる前にだけ呼ぶ。手番の間は古い地図を全員で下る
-func InvalidateDistanceMap(world w.World) {
+func InvalidateDistanceMaps(world w.World) {
 	if m := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap); m != nil {
 		m.Built = false
 	}
@@ -43,15 +43,31 @@ func GetFollowDistanceMap(world w.World) *gc.DistanceMap {
 		if player, err := GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
 			targets = append(targets, world.Components.GridElement.Get(player).Coord)
 		}
-		buildDistanceMap(world, &m.DistanceMap, targets, 0, gc.DistanceMapObstacleCost)
+		buildDistanceMap(world, &m.DistanceMap, targets, followRule)
 	}
 	return &m.DistanceMap
 }
 
-// buildDistanceMap は空間の索引と置物から各マスの重みを書き出し、的 targets から距離を広げる。通れるマスは重み1、味方の
-// マスは重み allyCost、それ以外のキャラクターのマスは重み gc.DistanceMapObstacleCost で通れるものとして数える。
-// HP を持つ通れない置物は重み propCost で、0 なら通れない。HP を持たず通れない壁や地形は数えない
-func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[consts.Tile], propCost, allyCost int32) {
+// distanceRule は距離の地図の重みの規則。重みを Spread の前提の 1 か gc.DistanceMapObstacleCost か通れないかに閉じるため、
+// 数でなく真偽で選ぶ
+type distanceRule struct {
+	// breakProps なら HP を持つ通れない置物を壊して通るものとして重く数え、偽なら通れないマスとして数える
+	breakProps bool
+	// avoidAllies なら味方のマスも重く数えて回り込ませ、偽なら空いたマスと同じに数える
+	avoidAllies bool
+}
+
+var (
+	// raidRule は襲撃の敵の規則。置物を壊して進み、味方同士は通り抜けて寄り集まる
+	raidRule = distanceRule{breakProps: true}
+	// followRule はついて行く者の規則。置物を壊さず、仲間を回り込む
+	followRule = distanceRule{avoidAllies: true}
+)
+
+// buildDistanceMap は空間の索引と置物から各マスの重みを書き出し、的 targets から距離を広げる。通れるマスは重み1、味方でない
+// キャラクターのマスは重み gc.DistanceMapObstacleCost で通れるものとして数える。HP を持つ通れない置物と味方のマスは
+// rule で決める。HP を持たず通れない壁や地形は数えない
+func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[consts.Tile], rule distanceRule) {
 	m.Built = true
 	si := GetSpatialIndex(world)
 	if si == nil {
@@ -67,19 +83,20 @@ func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[c
 		m.Cost[i] = 0
 		m.Blocked[i] = true
 	}
-	q := ActiveFilter3[gc.Prop, gc.HP, gc.GridElement](world).Query()
-	for q.Next() {
-		_, _, g := q.Get()
-		if m.InBounds(g.Coord) && m.Blocked[m.Index(g.Coord)] {
-			m.Cost[m.Index(g.Coord)] = propCost
+	if rule.breakProps {
+		q := ActiveFilter3[gc.Prop, gc.HP, gc.GridElement](world).Query()
+		for q.Next() {
+			_, _, g := q.Get()
+			if m.InBounds(g.Coord) && m.Blocked[m.Index(g.Coord)] {
+				m.Cost[m.Index(g.Coord)] = gc.DistanceMapObstacleCost
+			}
 		}
 	}
 	for g, e := range si.Characters {
 		if !m.InBounds(g.Coord) || m.Blocked[m.Index(g.Coord)] {
 			continue
 		}
-		if IsAlly(world, e) {
-			m.Cost[m.Index(g.Coord)] = allyCost
+		if IsAlly(world, e) && !rule.avoidAllies {
 			continue
 		}
 		m.Cost[m.Index(g.Coord)] = gc.DistanceMapObstacleCost

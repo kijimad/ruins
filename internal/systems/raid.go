@@ -70,7 +70,7 @@ func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
 	if err != nil {
 		return err
 	}
-	query.InvalidateDistanceMap(world)
+	query.InvalidateDistanceMaps(world)
 	tiles := raidSpawnTiles(world, query.GetDistanceMap(world), center, count)
 	rng := world.Resources.Config.RNG
 	spawned := 0
