@@ -80,7 +80,8 @@ func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chun
 		c := r.anchor.Add(l)
 		center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW) + chunkW/2, Y: c.Y.Tiles(chunkH) + chunkH/2}
 		step := consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}
-		side := consts.Coord[consts.Tile]{X: step.Y, Y: step.X}
+		// 幅2の板を中心の列と負の向きの隣の列に張り、どの向きへ伸ばしても中心にそろえる
+		side := consts.Coord[consts.Tile]{X: -abs(step.Y), Y: -abs(step.X)}
 		end := float64(s.water.BeachWidth + s.water.ShallowWidth + s.water.PierLength)
 		// 湖が細くて深さが足りないまま抜けても、区域の外へは伸ばさない
 		limit := max(r.w.Tiles(chunkW), r.h.Tiles(chunkH))
@@ -150,4 +151,8 @@ func renderLakeChunk(world w.World, g chunkGeom, r districtRegion, c consts.Coor
 		}
 	}
 	return nil
+}
+
+func abs(v consts.Tile) consts.Tile {
+	return max(v, -v)
 }

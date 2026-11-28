@@ -539,3 +539,13 @@ func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くと
 	require.ErrorIs(t, validateLandmarkMinDanger(raws("military_armory", new(3))), errLandmarkMinDanger)
 	require.NoError(t, validateLandmarkMinDanger(raws("downtown", new(3))), "区域が割り振らない地区の行は抽選を通るので深さの下限を書ける")
 }
+
+func TestValidateDistrictLayers_湖を描く区域は正方形だけ(t *testing.T) {
+	t.Parallel()
+	zone := []rawschema.ZoneId{"downtown"}
+	layers := []rawschema.DistrictLayer{{Zones: &zone}, {Water: &rawschema.DistrictWater{}}}
+
+	require.NoError(t, validateDistrictLayers(&rawschema.District{Id: "d", Pattern: rawschema.DistrictPatternRings, Layers: layers, Sizes: []rawschema.DistrictSize{{W: 7, H: 7, Weight: 1}}}))
+	err := validateDistrictLayers(&rawschema.District{Id: "d", Pattern: rawschema.DistrictPatternRings, Layers: layers, Sizes: []rawschema.DistrictSize{{W: 7, H: 7, Weight: 1}, {W: 7, H: 6, Weight: 1}}})
+	require.ErrorIs(t, err, errDistrictWaterNotSquare)
+}

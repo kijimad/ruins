@@ -79,7 +79,7 @@ func (r districtRegion) layerAt(l consts.Coord[consts.Chunk]) int {
 	switch r.kind.Pattern {
 	case rawschema.DistrictPatternRings:
 		if inCore(l.X, l.Y, r.w, r.h) {
-			return 1
+			return raw.RingsCoreLayer
 		}
 		return 0
 	case rawschema.DistrictPatternRows:
@@ -329,11 +329,14 @@ func streetTilesOf(d *rawschema.District) streetTiles {
 	return s
 }
 
-// streetTerrain は街路の帯のマス (x, y) に置くタイルを返す。植え込みがあれば帯の両端の1マスを植え込みにして、
+// streetTerrain は街路の帯のマス (x, y) に置くタイルを返す。街路を引かない区域は下地を残す予約語を返す。植え込みがあれば帯の両端の1マスを植え込みにして、
 // 建物と道の間を空ける。北と西の帯が交わる角は全て街路にする
 func streetTerrain(x, y consts.Tile, s streetTiles) string {
 	edge := func(v consts.Tile) bool { return v == 0 || v == urbanStreetW-1 }
 	switch {
+	case s.street == "":
+		// 街路を引かない区域は、部屋の絵の帯も下地の地面のまま残す
+		return maptemplate.GroundTerrain
 	case s.verge == "" || x < urbanStreetW && y < urbanStreetW:
 		return s.street
 	case y < urbanStreetW && edge(y), x < urbanStreetW && edge(x):

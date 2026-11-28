@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -325,4 +326,5 @@ func TestStreetTilesOf_植え込みを省くと植え込みを置かない(t *te
 	assert.Equal(t, streetTiles{street: "road"}, streetTilesOf(&rawschema.District{Street: new(rawschema.EntityID("road"))}))
 	assert.Equal(t, streetTiles{street: "road", verge: "grass_green"}, streetTilesOf(&rawschema.District{Street: new(rawschema.EntityID("road")), Verge: new(rawschema.EntityID("grass_green"))}))
 	assert.Equal(t, streetTiles{}, streetTilesOf(&rawschema.District{}), "街路を省くと街路を引かない")
+	assert.Equal(t, maptemplate.GroundTerrain, streetTerrain(0, 0, streetTiles{}), "街路を引かない区域は帯も下地を残す")
 }

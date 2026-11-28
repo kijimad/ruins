@@ -146,3 +146,20 @@ func TestGateColumns_門の位置が自然の地面なら真ん中の列を門�
 	north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, 0))
 	assert.Equal(t, [2]consts.Chunk{r.anchor.X + 3, r.anchor.X + 3}, [2]consts.Chunk{north, south})
 }
+
+func TestScatterCatalogForChunk_湖の区域は施設を建てないチャンクにだけ層の散布を撒く(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+
+	got := map[string]outdoorZone{}
+	for name, l := range map[string]consts.Coord[consts.Chunk]{"角の岸": {X: 0, Y: 0}, "湖": {X: 3, Y: 3}, "施設": {X: 3, Y: 6}} {
+		cat, ok, err := scatterCatalogForChunk(raws, lakeSeed, r.anchor.Add(l), 15, 0)
+		require.NoError(t, err)
+		if ok {
+			got[name] = cat.Zone
+		}
+	}
+	assert.Equal(t, map[string]outdoorZone{"角の岸": "lakeshore", "湖": "lakeshore"}, got)
+}

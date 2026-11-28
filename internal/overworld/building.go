@@ -131,17 +131,13 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
 	return consts.Coord[consts.Chunk]{}, 0, 0, false
 }
 
-// builds は区域の中の座標 l に施設を建てるかを返す。湖と、施設の数を絞った層で選ばれなかったチャンクは自然の地面にする
+// builds は区域の中の座標 l に施設を建てるかを返す
 func (r districtRegion) builds(l consts.Coord[consts.Chunk]) bool {
-	if r.waterAt(l) != nil {
-		return false
-	}
-	i := r.layerAt(l)
-	lots := r.kind.Layers[i].Lots
-	return lots == nil || slices.Contains(r.lotChunks(i, *lots), l)
+	return r.buildSet()[l]
 }
 
-// buildSet は区域の中で施設を建てる座標の集合を返す。層ごとに lotChunks を1度だけ作る
+// buildSet は区域の中で施設を建てる座標の集合を返す。湖と、施設の数を絞った層で選ばれなかったチャンクは自然の地面にする。
+// 層ごとに lotChunks を1度だけ作る
 func (r districtRegion) buildSet() map[consts.Coord[consts.Chunk]]bool {
 	set := map[consts.Coord[consts.Chunk]]bool{}
 	chosen := map[int][]consts.Coord[consts.Chunk]{}
