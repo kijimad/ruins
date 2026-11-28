@@ -33,9 +33,11 @@ type Selection struct {
 // ItemsPerPageAuto は ItemsPerPage に、タブ帯つきモーダルの1ページへ収まる実測行数を
 // 使う指定。実値は Update が UIResources から測って解決する。Menu は world を持たず
 // 自力で測れないため、番兵で指定して Screen に解決させる。
-// 測るのは見出し無し・タブ帯ありの構成に固定する。見出しを持つ画面はこの番兵を使わず、
-// 自分の構成で menuframe.ListCapacity を呼んで求めた値を直接渡すこと
+// 測るのは見出し無し・タブ帯ありの構成で、見出しを持つ画面は ItemsPerPageAutoHeader を使う
 const ItemsPerPageAuto = -1
+
+// ItemsPerPageAutoHeader は ItemsPerPageAuto の見出し・タブ帯つきモーダル版
+const ItemsPerPageAutoHeader = -2
 
 // MenuConfig は Fetch 済みの props から決まるメニュー構成。state 固有差をここで吸収する。
 // TabCount が 0 のときは一覧を持たない画面として UseTabMenu を登録しない
@@ -86,7 +88,7 @@ type Screen[P any] struct {
 	pendingOverlays []uicore.Drawable // ScreenRenderer な overlay の配置済みツリー。Draw で本体の上へ重ねる
 	lastSelection   Selection         // 直近フレームで確定したカーソル位置。DoAction から参照する
 	seeded          bool              // 初期タブへ寄せたか
-	pageSize        int               // ItemsPerPageAuto の解決値。Update が最初のフレームで測る
+	pageSize        int               // ItemsPerPageAuto と ItemsPerPageAutoHeader の解決値。Update が最初のフレームで測る
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
@@ -214,19 +216,20 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 // 構成は model から導出するので呼び出し側は tab 番号だけを渡す
 func (s *Screen[P]) SetTab(tab int) {
 	cfg := s.model.Menu(s.Props())
-	if cfg.ItemsPerPage == ItemsPerPageAuto {
+	if cfg.ItemsPerPage == ItemsPerPageAuto || cfg.ItemsPerPage == ItemsPerPageAutoHeader {
 		// SetTab は Update 後に呼ぶ前提なので、Update が測定済みの値をそのまま使う
 		cfg.ItemsPerPage = s.pageSize
 	}
 	s.setTab(cfg, tab)
 }
 
-// resolveConfig は MenuConfig の ItemsPerPageAuto を実測のページ行数へ解決する。
+// resolveConfig は MenuConfig の ItemsPerPageAuto と ItemsPerPageAutoHeader を実測のページ行数へ解決する。
 // 測定は Auto 指定の画面が最初に通ったときだけ行い、以後は測定済みの値を使う
 func (s *Screen[P]) resolveConfig(world w.World, cfg MenuConfig) MenuConfig {
-	if cfg.ItemsPerPage == ItemsPerPageAuto {
+	hasHeader := cfg.ItemsPerPage == ItemsPerPageAutoHeader
+	if cfg.ItemsPerPage == ItemsPerPageAuto || hasHeader {
 		if s.pageSize == 0 {
-			s.pageSize = menuframe.ListCapacity(world, false, true)
+			s.pageSize = menuframe.ListCapacity(world, hasHeader, true)
 		}
 		cfg.ItemsPerPage = s.pageSize
 	}

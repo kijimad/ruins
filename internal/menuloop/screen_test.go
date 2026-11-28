@@ -8,6 +8,8 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -326,4 +328,21 @@ func TestScreen_Update_移動系はDispatchだけでDoActionを呼ばない(t *t
 	require.NoError(t, err)
 	assert.Equal(t, 0, model.doActionCalls, "移動系は DoAction に届かない")
 	assert.Equal(t, 1, screen.Selection().ItemIndex, "Dispatch でカーソルが1つ下がる")
+}
+
+func TestScreen_Update_見出しつきの自動のページ行数で右キーが1ページ繰る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t, testutil.WithUI())
+	perPage := menuframe.ListCapacity(world, true, true)
+	model := &flexModel{menu: MenuConfig{Key: "nav", TabCount: 2, ItemCounts: []int{perPage * 2, 1}, ItemsPerPage: ItemsPerPageAutoHeader}}
+	screen := NewScreen[int](model)
+	world.Resources.InputSource = func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuRight, true }
+
+	var err error
+	_, err = screen.Update(world)
+	require.NoError(t, err)
+	_, err = screen.Update(world)
+
+	require.NoError(t, err)
+	assert.Equal(t, Selection{ItemIndex: perPage, PageSize: perPage}, screen.Selection())
 }

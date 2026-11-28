@@ -206,7 +206,7 @@ func (st *CharacterState) Menu(props CharacterProps) menuloop.MenuConfig {
 		}
 		skips = append(skips, s)
 	}
-	return menuloop.MenuConfig{Key: characterMenuKey, TabCount: len(itemCounts), ItemCounts: itemCounts, Skips: skips}
+	return menuloop.MenuConfig{Key: characterMenuKey, TabCount: len(itemCounts), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAutoHeader, Skips: skips}
 }
 
 // detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。

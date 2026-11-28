@@ -609,7 +609,7 @@ msgid "Tab"
 msgstr "タブ"
 
 msgid "Page"
-msgstr "ページ"
+msgstr "ページ送り"
 
 msgid "Jin"
 msgstr "ジン"

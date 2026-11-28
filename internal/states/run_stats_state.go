@@ -121,7 +121,7 @@ func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}
+	return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAutoHeader}
 }
 
 // ViewUI はステータス表を組む。結果画面はタブ帯なしの枠、道中の統計画面はタブ帯つきの枠に載せる
