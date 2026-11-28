@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/raidmap"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -29,8 +30,9 @@ const (
 	raidMaxPerNight = 60
 )
 
-// RaidSystem は周期ごとの襲撃の夜を進める。襲撃の日の夜明けに予告し、波のターンに中心を囲んで敵を湧かせ、
-// 襲撃の夜の外では残った敵の印を外す。予告はどこでも出し、波は地上が現ステージのときだけ湧かせる
+// RaidSystem は周期ごとの襲撃の夜を進める。襲撃の日の夜明けに予告し、波のターンに中心を囲んで敵を湧かせる。
+// 湧いた敵の動き方は rawschema.Raid のまま変えず、夜が明けても錨を狙い続ける。予告はどこでも出し、波は地上が
+// 現ステージのときだけ湧かせる
 type RaidSystem struct {
 	raidMap *raidmap.Map
 }
@@ -40,13 +42,9 @@ func (sys *RaidSystem) String() string {
 	return "RaidSystem"
 }
 
-// Update は終わろうとしているターンの経過ターンで、予告・波・終わりのどれに当たるかを見る
+// Update は終わろうとしているターンの経過ターンで、予告と波のどちらに当たるかを見る
 func (sys *RaidSystem) Update(world w.World) error {
 	turn := query.GetGameTime(world).TotalTurns
-	// 夜明けちょうどでなく、夜の外で残った印を外す。時間を飛ばしても、読み込んでも、印が残らない
-	if !query.InRaidNight(turn) {
-		endRaid(world)
-	}
 	// 予告はどのステージにいても出す。地上へ戻った夜に前触れなく波が来ないように
 	if query.RaidWarnsAt(turn) {
 		gamelog.New(query.GetGameLog(world)).
@@ -91,7 +89,9 @@ func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
 		if err != nil {
 			return err
 		}
-		world.Components.Raider.Add(enemy, &gc.Raider{})
+		if world.Components.SoloAI.Has(enemy) {
+			world.Components.SoloAI.Get(enemy).Movement = rawschema.Raid
+		}
 		spawned++
 	}
 	if spawned == 0 {
@@ -105,30 +105,6 @@ func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
 		activity.CancelActivity(player, "woke up to the raid", world)
 	}
 	return nil
-}
-
-// endRaid は全ての印のある敵から印を外し、待機に戻す。敵は普段の敵として残る
-func endRaid(world w.World) {
-	var raiders []ecs.Entity
-	q := ecs.NewFilter1[gc.Raider](world.ECS).Query()
-	for q.Next() {
-		raiders = append(raiders, q.Entity())
-	}
-	if len(raiders) == 0 {
-		return
-	}
-	turnNumber := query.GetTurnState(world).TurnNumber
-	for _, e := range raiders {
-		world.Components.Raider.Remove(e)
-		if world.Components.SoloAI.Has(e) {
-			solo := world.Components.SoloAI.Get(e)
-			solo.SubState = gc.AIStateWaiting
-			solo.StartSubStateTurn = turnNumber
-		}
-	}
-	gamelog.New(query.GetGameLog(world)).
-		Markup(gamelog.Tag("system", query.T(world, "Dawn breaks. The raid is over."))).
-		Log()
 }
 
 // raidDanger は中心の北の深さから危険度を返す

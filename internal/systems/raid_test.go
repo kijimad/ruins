@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -51,7 +52,7 @@ func TestRaidNightSize(t *testing.T) {
 	assert.Equal(t, raidMaxPerNight, raidNightSize(41), "北の奥でも上限を超えない")
 }
 
-func TestRaidSystem_波のターンに展開中のキューブを囲んで印のある敵を湧かせ寝ているプレイヤーを起こす(t *testing.T) {
+func TestRaidSystem_波のターンに展開中のキューブを囲んで襲撃の敵を湧かせ寝ているプレイヤーを起こす(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("o", 0, 24, 24, 5, 5), &overworld.NewGameParams{RunSeed: 42})
@@ -138,7 +139,7 @@ func TestRaidSystem_畳んだキューブも囲んで湧かせる(t *testing.T) 
 	}
 }
 
-func TestRaidSystem_地上にいなければ予告と夜明けの片付けだけする(t *testing.T) {
+func TestRaidSystem_地上にいなければ予告だけする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, "ash")
@@ -150,15 +151,11 @@ func TestRaidSystem_地上にいなければ予告と夜明けの片付けだけ
 
 	raider, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "stray_dog")
 	require.NoError(t, err)
-	world.Components.Raider.Add(raider, &gc.Raider{})
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 
 	query.GetGameTime(world).TotalTurns = firstWaveTurn
 	require.NoError(t, (&RaidSystem{}).Update(world))
 	assert.Equal(t, []consts.Coord[consts.Tile]{{X: 30, Y: 30}}, raiderTiles(world), "地上の外では波を湧かせない")
-
-	query.GetGameTime(world).TotalTurns = 7 * gc.TurnsPerDay
-	require.NoError(t, (&RaidSystem{}).Update(world))
-	assert.False(t, world.Components.Raider.Has(raider), "夜明けの印外しは地上の外でも走る")
 }
 
 func TestRaidSystem_視界の中には湧かせず輪を外へ広げる(t *testing.T) {
@@ -222,7 +219,7 @@ func TestRaidSystem_キューブから離れたプレイヤーのそばには湧
 	}
 }
 
-func TestRaidSystem_夜明けに印を外して待機に戻し敵は残す(t *testing.T) {
+func TestRaidSystem_夜が明けても湧いた敵は襲撃の動きのまま残る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("o", 0, 24, 24, 5, 5), &overworld.NewGameParams{RunSeed: 42})
@@ -232,40 +229,13 @@ func TestRaidSystem_夜明けに印を外して待機に戻し敵は残す(t *te
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
 	query.GetGameTime(world).TotalTurns = firstWaveTurn
 	require.NoError(t, (&RaidSystem{}).Update(world))
-	var spawned []ecs.Entity
-	q := ecs.NewFilter1[gc.Raider](world.ECS).Query()
-	for q.Next() {
-		spawned = append(spawned, q.Entity())
-	}
+	spawned := raiderTiles(world)
 	require.NotEmpty(t, spawned)
-	for _, e := range spawned {
-		world.Components.SoloAI.Get(e).SubState = gc.AIStateChasing
-	}
 
 	query.GetGameTime(world).TotalTurns = 7 * gc.TurnsPerDay
 	require.NoError(t, (&RaidSystem{}).Update(world))
 
-	for _, e := range spawned {
-		assert.True(t, world.ECS.Alive(e), "引き上げずに残る")
-		assert.False(t, world.Components.Raider.Has(e), "印が外れる")
-		assert.Equal(t, gc.AIStateWaiting, world.Components.SoloAI.Get(e).SubState, "待機に戻る")
-	}
-	assert.Contains(t, logTexts(world), "Dawn breaks. The raid is over.", "夜明けに終わりをログで知らせる")
-}
-
-func TestRaidSystem_夜明けを飛び越しても印を外す(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, "ash")
-	require.NoError(t, err)
-	raider, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "stray_dog")
-	require.NoError(t, err)
-	world.Components.Raider.Add(raider, &gc.Raider{})
-
-	query.GetGameTime(world).TotalTurns = 7*gc.TurnsPerDay + 250
-	require.NoError(t, (&RaidSystem{}).Update(world))
-
-	assert.False(t, world.Components.Raider.Has(raider))
+	assert.Equal(t, spawned, raiderTiles(world))
 }
 
 func TestRunTurnEndSystems_登録したRaidSystemが波を湧かせる(t *testing.T) {
@@ -286,10 +256,12 @@ func TestRunTurnEndSystems_登録したRaidSystemが波を湧かせる(t *testin
 
 func raiderTiles(world w.World) []consts.Coord[consts.Tile] {
 	var out []consts.Coord[consts.Tile]
-	q := ecs.NewFilter2[gc.Raider, gc.GridElement](world.ECS).Query()
+	q := ecs.NewFilter2[gc.SoloAI, gc.GridElement](world.ECS).Query()
 	for q.Next() {
-		_, g := q.Get()
-		out = append(out, g.Coord)
+		solo, g := q.Get()
+		if solo.Movement == rawschema.Raid {
+			out = append(out, g.Coord)
+		}
 	}
 	return out
 }

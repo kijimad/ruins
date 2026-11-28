@@ -35,12 +35,6 @@ func RaidWaveAt(turn consts.Turn) (int, bool) {
 	return 0, false
 }
 
-// InRaidNight は経過ターン turn が襲撃の夜の中、すなわち襲撃の日の最初の波から翌日の夜明けの前までかを返す
-func InRaidNight(turn consts.Turn) bool {
-	day, offset := dayAndOffset(turn)
-	return isRaidDay(day) && offset >= raidWaveTurns[0]
-}
-
 // daysUntilRaid は今日を含めず、次の襲撃の夜まであと何日かを返す。今日が襲撃の日なら0
 func daysUntilRaid(turn consts.Turn) int {
 	day, _ := dayAndOffset(turn)

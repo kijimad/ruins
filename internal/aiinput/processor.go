@@ -83,9 +83,10 @@ func (p *Processor) ProcessAll(world w.World) error {
 	return nil
 }
 
-// buildRaidMap は targets に印のある敵がいれば、query.RaidTargets の的からの距離の地図を作って返す。いなければ nil を返す
+// buildRaidMap は targets に動き方が rawschema.Raid の敵がいれば、query.RaidTargets の的からの距離の地図を作って返す。
+// いなければ nil を返す
 func (p *Processor) buildRaidMap(world w.World, targets []ecs.Entity) *raidmap.Map {
-	if !slices.ContainsFunc(targets, world.Components.Raider.Has) {
+	if !slices.ContainsFunc(targets, func(e ecs.Entity) bool { return isRaider(world, e) }) {
 		return nil
 	}
 	p.raidMap = raidmap.Build(world, query.RaidTargets(world), p.raidMap)
@@ -94,7 +95,7 @@ func (p *Processor) buildRaidMap(world w.World, targets []ecs.Entity) *raidmap.M
 
 // cullDistantSolo は遠方の非交戦 SoloAI を処理対象から除外する。
 // 交戦中は視界外でも対象を追い続ける設計のため、距離に関わらず残す。随伴中のキューブも、遅れて
-// 圏外へ出ても追い続けるので残す。
+// 圏外へ出ても追い続けるので残す。襲撃の敵も、遠くから錨へ向かうので残す。
 func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
@@ -108,7 +109,7 @@ func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) 
 	kept := make([]ecs.Entity, 0, len(targets))
 	for _, entity := range targets {
 		solo := world.Components.SoloAI.Get(entity)
-		if solo != nil && !isActiveCombatState(solo.SubState) && solo.Movement != rawschema.Follow && !world.Components.Raider.Has(entity) {
+		if solo != nil && !isActiveCombatState(solo.SubState) && solo.Movement != rawschema.Follow && solo.Movement != rawschema.Raid {
 			grid := world.Components.GridElement.Get(entity)
 			if geometry.ChebyshevDistance(playerGrid.Coord, grid.Coord) > activationRadius {
 				// 圏外の待機・徘徊敵はスキップ。画面外で観測不能なため凍結してよい
@@ -124,4 +125,9 @@ func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) 
 // 交戦中の敵は視界外でも追い続ける設計のため距離カリングの対象外とする
 func isActiveCombatState(s gc.AIStateSubState) bool {
 	return s == gc.AIStateChasing || s == gc.AIStateFleeing
+}
+
+// isRaider は e の動き方が rawschema.Raid かを返す
+func isRaider(world w.World, e ecs.Entity) bool {
+	return world.Components.SoloAI.Has(e) && world.Components.SoloAI.Get(e).Movement == rawschema.Raid
 }

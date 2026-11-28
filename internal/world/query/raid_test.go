@@ -66,27 +66,6 @@ func TestRaidWaveAt(t *testing.T) {
 	}
 }
 
-func TestInRaidNight(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name string
-		turn consts.Turn
-		want bool
-	}{
-		{"7日目の最初の波から", dayTurn(7, 1000), true},
-		{"7日目の深夜の終わりまで", dayTurn(7, 1499), true},
-		{"7日目の最初の波の前は外", dayTurn(7, 999), false},
-		{"8日目の夜明けは外", dayTurn(8, 0), false},
-		{"6日目の夜は外", dayTurn(6, 1200), false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, query.InRaidNight(tt.turn))
-		})
-	}
-}
-
 func TestNextRaidWaveTurn(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

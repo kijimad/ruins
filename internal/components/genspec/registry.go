@@ -43,7 +43,6 @@ var Registry = []Def{
 	// field ================
 	{Field: "Tile"},            // タイルエンティティであることを示す
 	{Field: "SoloAI"},          // 単独行動AIの設定を保持する
-	{Field: "Raider"},          // 襲撃で湧いた敵であることを示す。保存する
 	{Field: "Camera"},          // カメラの位置とズームを保持する
 	{Field: "Position"},        // フィールド上のピクセル座標を保持する
 	{Field: "GridElement"},     // フィールド上のグリッド座標を保持する

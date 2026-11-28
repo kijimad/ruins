@@ -30,9 +30,9 @@ type soloPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
 	rng          *rand.Rand
-	// raidMap はこの手番で襲撃の敵が下る距離の地図。Processor が手番の初めに渡す。印のある敵がいなければ nil
+	// raidMap はこの手番で襲撃の敵が下る距離の地図。Processor が手番の初めに渡す。襲撃の敵がいなければ nil
 	raidMap *raidmap.Map
-	// raidSteps は印のある敵ごとに下る隣を入れる配列。敵をまたいで使い回す
+	// raidSteps は襲撃の敵ごとに下る隣を入れる配列。敵をまたいで使い回す
 	raidSteps []consts.Coord[consts.Tile]
 }
 
@@ -53,7 +53,7 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {
 		return nil
 	}
 	grid := world.Components.GridElement.Get(entity)
-	if world.Components.Raider.Has(entity) {
+	if solo.Movement == rawschema.Raid {
 		return rp.planRaidAction(world, entity, solo, grid)
 	}
 	if solo.CombatCurrent == rawschema.Passive {
@@ -255,6 +255,8 @@ func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, sol
 		return rp.planTerritorialAction(world, aiEntity, solo, grid)
 	case rawschema.Follow:
 		return rp.planFollowAction(world, aiEntity, solo, grid)
+	case rawschema.Raid:
+		return rp.planRaidAction(world, aiEntity, solo, grid)
 	default:
 		return rp.planRandomMoveAction(world, aiEntity, grid)
 	}
@@ -420,7 +422,7 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 	return moveAction(next)
 }
 
-// planRaidAction は印のある敵の行動を決める。敵対する相手が見えていて、狙う的より近ければ追って殴る。それ以外は
+// planRaidAction は動き方が rawschema.Raid の敵の行動を決める。敵対する相手が見えていて、狙う的より近ければ追って殴る。それ以外は
 // 距離の地図で一番小さい隣を順に試す。狙う的か仲間でないキャラクターなら殴り、HP を持つ置物なら壊し、空いていれば
 // 進む。仲間に塞がれた隣は飛ばし、試す隣が残らなければ待つ
 func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {

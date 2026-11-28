@@ -8,7 +8,7 @@
 // # 使い分け
 //
 // 波を湧かせる internal/systems は、的まで道のつながるマスを選ぶのに使う。敵の手番を決める internal/aiinput は、
-// 印のある敵の次の1歩を選ぶのに使う。1体の敵が1つの的へ向かう道探しは activity.FindNextStep を使う。
+// 襲撃の敵の次の1歩を選ぶのに使う。1体の敵が1つの的へ向かう道探しは activity.FindNextStep を使う。
 //
 // # 仕様
 //

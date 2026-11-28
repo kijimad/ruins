@@ -1308,8 +1308,8 @@ import (
 		1) & strings.MaxRunes(
 		100) & =~"^[a-z][a-z0-9_]*$"
 
-// 非戦闘時の移動パターン
-#MovementPatternType: "random" | "patrol" | "wallHug" | "stationary" | "wander" | "territorial" | "swarm" | "follow"
+// 非戦闘時の移動パターン。raid は襲撃で湧いた敵の動きで、戦闘の状態遷移より先に効き、錨のキューブを狙う
+#MovementPatternType: "random" | "patrol" | "wallHug" | "stationary" | "wander" | "territorial" | "swarm" | "follow" | "raid"
 
 // 最大値に対する割合
 #NeedRatio: number & >=0 & <=1

@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raidmap"
+	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -31,7 +32,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Deployed.Add(cube, &gc.Deployed{})
 		raider, err := lifecycle.SpawnEnemy(world, at(20, 26), "stray_dog")
 		require.NoError(t, err)
-		world.Components.Raider.Add(raider, &gc.Raider{})
+		world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 
 		rp := newSoloPlanner(newTestRNG())
 		rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
@@ -54,7 +55,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Deployed.Add(cube, &gc.Deployed{})
 		raider, err := lifecycle.SpawnEnemy(world, at(20, 21), "stray_dog")
 		require.NoError(t, err)
-		world.Components.Raider.Add(raider, &gc.Raider{})
+		world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 
 		rp := newSoloPlanner(newTestRNG())
 		rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
@@ -77,7 +78,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Deployed.Add(cube, &gc.Deployed{})
 		raider, err := lifecycle.SpawnEnemy(world, at(20, 29), "stray_dog")
 		require.NoError(t, err)
-		world.Components.Raider.Add(raider, &gc.Raider{})
+		world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 
 		rp := newSoloPlanner(newTestRNG())
 		rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{cubeAt}, nil)
@@ -100,7 +101,7 @@ func TestPlanRaidAction(t *testing.T) {
 		world.Components.Deployed.Add(cube, &gc.Deployed{})
 		raider, err := lifecycle.SpawnEnemy(world, at(20, 26), "stray_dog")
 		require.NoError(t, err)
-		world.Components.Raider.Add(raider, &gc.Raider{})
+		world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 		_, err = lifecycle.SpawnEnemy(world, at(20, 25), "stray_dog")
 		require.NoError(t, err)
 
@@ -129,7 +130,7 @@ func TestPlanRaidAction_見えた相手よりキューブが近ければキュ�
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 22), "stray_dog")
 	require.NoError(t, err)
-	world.Components.Raider.Add(raider, &gc.Raider{})
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 
 	rp := newSoloPlanner(newTestRNG())
 	rp.raidMap = raidmap.Build(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
@@ -157,7 +158,7 @@ func TestPlanRaidAction_道の上の扉を殴る(t *testing.T) {
 	require.NoError(t, err)
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 24), "stray_dog")
 	require.NoError(t, err)
-	world.Components.Raider.Add(raider, &gc.Raider{})
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 	si := query.GetSpatialIndex(world)
 	for y := 21; y <= 30; y++ {
 		si.Blocked[gc.GridElement{Coord: at(19, y)}] = true
@@ -188,7 +189,7 @@ func TestPlanRaidAction_追跡の状態でも相手が見えなければキュ�
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 26), "stray_dog")
 	require.NoError(t, err)
-	world.Components.Raider.Add(raider, &gc.Raider{})
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 	world.Components.SoloAI.Get(raider).SubState = gc.AIStateChasing
 
 	rp := newSoloPlanner(newTestRNG())
@@ -217,7 +218,7 @@ func TestPlanRaidAction_細い通路で前に仲間がいれば待つ(t *testing
 	require.NoError(t, err)
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 24), "stray_dog")
 	require.NoError(t, err)
-	world.Components.Raider.Add(raider, &gc.Raider{})
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 	si := query.GetSpatialIndex(world)
 	for y := 21; y <= 40; y++ {
 		si.Blocked[gc.GridElement{Coord: at(19, y)}] = true
@@ -245,10 +246,10 @@ func TestPlanRaidAction_開けた所では前の仲間の横へ回り込む(t *t
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
 	front, err := lifecycle.SpawnEnemy(world, at(20, 23), "stray_dog")
 	require.NoError(t, err)
-	world.Components.Raider.Add(front, &gc.Raider{})
+	world.Components.SoloAI.Get(front).Movement = rawschema.Raid
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 24), "stray_dog")
 	require.NoError(t, err)
-	world.Components.Raider.Add(raider, &gc.Raider{})
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 
 	rp := newSoloPlanner(newTestRNG())
 	// 前の仲間が動く前に作った地図では、仲間のマスが一番近い隣になる
@@ -265,7 +266,7 @@ func TestPlanRaidAction_開けた所では前の仲間の横へ回り込む(t *t
 	assert.Equal(t, at(19, 23), p.Destination.Coord)
 }
 
-func TestCullDistantSolo_印のある敵は圏外でも残す(t *testing.T) {
+func TestCullDistantSolo_襲撃の敵は圏外でも残す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
@@ -273,7 +274,7 @@ func TestCullDistantSolo_印のある敵は圏外でも残す(t *testing.T) {
 	far := consts.Coord[consts.Tile]{X: consts.Tile(activationRadius + 5), Y: 0}
 	raider, err := lifecycle.SpawnEnemy(world, far, "stray_dog")
 	require.NoError(t, err)
-	world.Components.Raider.Add(raider, &gc.Raider{})
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Raid
 	ordinary, err := lifecycle.SpawnEnemy(world, far.Add(consts.Coord[consts.Tile]{Y: 1}), "stray_dog")
 	require.NoError(t, err)
 
@@ -282,7 +283,7 @@ func TestCullDistantSolo_印のある敵は圏外でも残す(t *testing.T) {
 	assert.Equal(t, []ecs.Entity{raider}, kept)
 }
 
-func TestProcessor_印のある敵がいる手番だけ距離の地図を作る(t *testing.T) {
+func TestProcessor_襲撃の敵がいる手番だけ距離の地図を作る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 2, Y: 2}, "ash")
@@ -292,7 +293,7 @@ func TestProcessor_印のある敵がいる手番だけ距離の地図を作る(
 	p := NewProcessor(newTestRNG())
 
 	assert.Nil(t, p.buildRaidMap(world, []ecs.Entity{enemy}), "普段の手番は作らない")
-	world.Components.Raider.Add(enemy, &gc.Raider{})
+	world.Components.SoloAI.Get(enemy).Movement = rawschema.Raid
 	m := p.buildRaidMap(world, []ecs.Entity{enemy})
 	require.NotNil(t, m)
 	d, ok := m.Dist(consts.Coord[consts.Tile]{X: 2, Y: 2})
