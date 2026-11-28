@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 11:47:35</td>
+            <td class="headerValue">2026-11-28 11:50:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -241,8 +241,8 @@
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         return cube, true</span></span>
 <span id="L180"><span class="lineNum">     180</span>              : }</span>
 <span id="L181"><span class="lineNum">     181</span>              : </span>
-<span id="L182"><span class="lineNum">     182</span>              : // IsCubeDeployed は現ステージに展開中のキューブがあるかを返す</span>
-<span id="L183"><span class="lineNum">     183</span>              : func IsCubeDeployed(world w.World) bool {</span>
+<span id="L182"><span class="lineNum">     182</span>              : // IsAnchored は現ステージに展開中のキューブがあるかを返す</span>
+<span id="L183"><span class="lineNum">     183</span>              : func IsAnchored(world w.World) bool {</span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         q := ActiveFilter2[gc.Cube, gc.Deployed](world).Query()</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         if !q.Next() {</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 return false</span></span>

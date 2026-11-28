@@ -4,7 +4,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>LCOV - coverage.lcov - systems/deployed_fuel.go</title>
+  <title>LCOV - coverage.lcov - systems/anchor_fuel.go</title>
   <link rel="stylesheet" type="text/css" href="../gcov.css">
 </head>
 
@@ -19,7 +19,7 @@
                 <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory systems">systems</a> - deployed_fuel.go</td>
+            <td width="10%" class="headerValue"><a href="../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory systems">systems</a> - anchor_fuel.go</td>
             <td width="5%"></td>
             <td width="5%"></td>
             <td width="5%" class="headerCovTableHead">Coverage</td>
@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 11:47:35</td>
+            <td class="headerValue">2026-11-28 11:50:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,21 +69,21 @@
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span>              : // deployedFuelTurns は展開中のキューブの燃料を1戻す間隔のターン数</span>
-<span id="L11"><span class="lineNum">      11</span>              : const deployedFuelTurns consts.Turn = 10</span>
+<span id="L10"><span class="lineNum">      10</span>              : // anchorFuelTurns は展開中のキューブの燃料を1戻す間隔のターン数</span>
+<span id="L11"><span class="lineNum">      11</span>              : const anchorFuelTurns consts.Turn = 10</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
-<span id="L13"><span class="lineNum">      13</span>              : // DeployedFuelSystem は展開中のキューブの燃料を、deployedFuelTurns ターンごとに1ずつ容量まで戻す。</span>
-<span id="L14"><span class="lineNum">      14</span>              : // 拠点を置いている間に燃料が尽きて詰むのを防ぐ</span>
-<span id="L15"><span class="lineNum">      15</span>              : type DeployedFuelSystem struct{}</span>
+<span id="L13"><span class="lineNum">      13</span>              : // AnchorFuelSystem は展開中のキューブの燃料を、anchorFuelTurns ターンごとに1ずつ容量まで戻す。</span>
+<span id="L14"><span class="lineNum">      14</span>              : // 錨の間に燃料が尽きて詰むのを防ぐ</span>
+<span id="L15"><span class="lineNum">      15</span>              : type AnchorFuelSystem struct{}</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
 <span id="L17"><span class="lineNum">      17</span>              : // String はシステム名を返す</span>
-<span id="L18"><span class="lineNum">      18</span>              : func (sys *DeployedFuelSystem) String() string {</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         return &quot;DeployedFuelSystem&quot;</span></span>
+<span id="L18"><span class="lineNum">      18</span>              : func (sys *AnchorFuelSystem) String() string {</span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         return &quot;AnchorFuelSystem&quot;</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // Update は間隔のターンにだけ燃料を戻す</span>
-<span id="L23"><span class="lineNum">      23</span>              : func (sys *DeployedFuelSystem) Update(world w.World) error {</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if query.GetGameTime(world).TotalTurns%deployedFuelTurns != 0 {</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : func (sys *AnchorFuelSystem) Update(world w.World) error {</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if query.GetGameTime(world).TotalTurns%anchorFuelTurns != 0 {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter3[gc.Cube, gc.Deployed, gc.Charge](world).Query()</span></span>
