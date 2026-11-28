@@ -126,7 +126,8 @@ func (m *DistanceMap) Dist(c consts.Coord[consts.Tile]) (int32, bool) {
 
 // Steps は from の隣のうち、距離が一番小さいマスを全て、向きの順に buf へ足して返す。from の距離は隣の
 // 一番小さい値に from へ入る重さを足したものなので、from に誰もいなかったときの距離と比べれば、一番小さい隣だけが
-// 残る。斜めは広げるときと同じ規則で選ぶ。下る隣が無ければ空を返す
+// 残る。斜めは広げるときと同じ規則で選ぶ。下る隣が無ければ空を返す。from は通れるマスである前提で、通れないマスに
+// 立つと距離の同じ隣まで返す
 func (m *DistanceMap) Steps(from consts.Coord[consts.Tile], buf []consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
 	steps := buf[:0]
 	d, ok := m.Dist(from)
