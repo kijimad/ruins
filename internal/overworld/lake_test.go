@@ -265,3 +265,15 @@ func TestLayPier_輪郭の揺れで水から陸へ出たらその先の水へ板
 	require.NotEmpty(t, ys)
 	assert.Equal(t, ys[len(ys)-1]-ys[0]+1, consts.Tile(len(ys)), "板が途切れず1本につながる")
 }
+
+func TestChunkPlace_湖の区域は施設を建てない角を荒れ地に湖を湖の記号にする(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	cat := zoneCatalogFrom(raws)
+	anchor := consts.Coord[consts.Chunk]{X: 5, Y: -12}
+	got := map[string]rune{}
+	for name, l := range map[string]consts.Coord[consts.Chunk]{"角": {}, "湖": {X: 3, Y: 3}, "施設": {X: 3, Y: 6}} {
+		got[name] = chunkPlace(raws, cat, lakeSeed, anchor.Add(l), 15, 0)
+	}
+	assert.Equal(t, map[string]rune{"角": '.', "湖": 'w', "施設": 'c'}, got)
+}
