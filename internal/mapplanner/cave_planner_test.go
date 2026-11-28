@@ -12,7 +12,7 @@ import (
 )
 
 // newFilledPlan は width×height をすべて tileName のタイルで満たした MetaPlan を返す
-func newFilledPlan(width, height int, tileName string) *MetaPlan {
+func newFilledPlan(width, height int, tileName rawschema.EntityID) *MetaPlan {
 	mp := &MetaPlan{
 		Level:     gc.Level{TileWidth: consts.Tile(width), TileHeight: consts.Tile(height)},
 		RawMaster: CreateTestRawMaster(),
@@ -48,8 +48,8 @@ func TestCaveCellularAutomata_PlanMeta_閾値以上の床領域だけを部屋�
 			t.Parallel()
 
 			const width, height = 6, 5
-			mp := newFilledPlan(width, height, "wall")
-			floor := mp.GetTile("floor")
+			mp := newFilledPlan(width, height, testLayoutTiles.Wall)
+			floor := mp.GetTile(testLayoutTiles.Floor)
 			// x=1..3、y=1..2 の3x2=6マスの床領域を作る
 			for x := 1; x <= 3; x++ {
 				for y := 1; y <= 2; y++ {
@@ -70,8 +70,8 @@ func TestCaveCellularAutomata_PlanMeta_長方形でない床領域は外接矩�
 	t.Parallel()
 
 	const width, height = 4, 4
-	mp := newFilledPlan(width, height, "wall")
-	floor := mp.GetTile("floor")
+	mp := newFilledPlan(width, height, testLayoutTiles.Wall)
+	floor := mp.GetTile(testLayoutTiles.Floor)
 	// 走査で最初に見つかる x=1,y=2 より上に x=2,y=1 がある L 字
 	for _, c := range [][2]int{{1, 2}, {2, 2}, {2, 1}} {
 		mp.Tiles[c[1]*width+c[0]] = floor
@@ -89,8 +89,8 @@ func TestCaveCellularAutomata_PlanMeta_斜めにだけ接する床は別の部�
 	t.Parallel()
 
 	const width, height = 4, 4
-	mp := newFilledPlan(width, height, "wall")
-	floor := mp.GetTile("floor")
+	mp := newFilledPlan(width, height, testLayoutTiles.Wall)
+	floor := mp.GetTile(testLayoutTiles.Floor)
 	mp.Tiles[1*width+1] = floor
 	mp.Tiles[2*width+2] = floor
 
@@ -108,26 +108,28 @@ func TestCaveCellularAutomata_PlanMeta_左右端はオートマトンの結果�
 	t.Parallel()
 
 	const width, height = 5, 4
-	mp := newFilledPlan(width, height, "floor")
+	mp := newFilledPlan(width, height, testLayoutTiles.Floor)
 
 	// WallNeighborsを到達不可能な大きさにして、内側のマスは常に床判定になるようにする
 	automata := CaveCellularAutomata{Row: rawschema.AutomataStep{Iterations: 1, WallNeighbors: 100}, Tiles: testLayoutTiles}
 	require.NoError(t, automata.PlanMeta(mp))
 
+	want := make([]bool, width*height)
+	got := make([]bool, width*height)
 	for y := range height {
-		assert.Nil(t, mp.Tiles[y*width+0].Passable, "x=0 の左端は壁になる")
-		assert.Nil(t, mp.Tiles[y*width+width-1].Passable, "x=width-1 の右端は壁になる")
-		for x := 1; x < width-1; x++ {
-			assert.NotNil(t, mp.Tiles[y*width+x].Passable, "x=%d の内側は床のままになる", x)
+		for x := range width {
+			want[y*width+x] = x != 0 && x != width-1
+			got[y*width+x] = mp.Tiles[y*width+x].Passable != nil
 		}
 	}
+	assert.Equal(t, want, got, "左右端だけが壁になり、内側は床のまま")
 }
 
 func TestCaveCellularAutomata_PlanMeta_境界外は壁として数えられ上下端が壁になる(t *testing.T) {
 	t.Parallel()
 
 	const width, height = 5, 4
-	mp := newFilledPlan(width, height, "floor")
+	mp := newFilledPlan(width, height, testLayoutTiles.Floor)
 
 	// 自マスを含む3x3を数え、境界外は壁とみなす。全面床なので、上端と下端は
 	// 境界外の3マスだけで WallNeighbors=3 に達して壁になり、y=1 は境界外を含まず床のまま残る
@@ -145,7 +147,7 @@ func TestCaveCellularAutomata_PlanMeta_2回目は1回目の結果を数える(t 
 	t.Parallel()
 
 	const width, height = 5, 4
-	mp := newFilledPlan(width, height, "floor")
+	mp := newFilledPlan(width, height, testLayoutTiles.Floor)
 
 	// 1回目で外周がすべて壁になり、2回目は内側のどのマスも外周の壁を3マス以上数える
 	automata := CaveCellularAutomata{Row: rawschema.AutomataStep{Iterations: 2, WallNeighbors: 3}, Tiles: testLayoutTiles}
@@ -165,7 +167,7 @@ func TestConnectRooms_PlanMeta_部屋が1つ以下なら何もしない(t *testi
 
 	t.Run("部屋が0個", func(t *testing.T) {
 		t.Parallel()
-		mp := newFilledPlan(10, 10, "wall")
+		mp := newFilledPlan(10, 10, testLayoutTiles.Wall)
 		before := append([]rawschema.Tile(nil), mp.Tiles...)
 
 		require.NoError(t, connect.PlanMeta(mp))
@@ -175,7 +177,7 @@ func TestConnectRooms_PlanMeta_部屋が1つ以下なら何もしない(t *testi
 
 	t.Run("部屋が1個", func(t *testing.T) {
 		t.Parallel()
-		mp := newFilledPlan(10, 10, "wall")
+		mp := newFilledPlan(10, 10, testLayoutTiles.Wall)
 		mp.Rooms = []gc.Rect{{Min: consts.Coord[consts.Tile]{X: 2, Y: 2}, Max: consts.Coord[consts.Tile]{X: 4, Y: 4}}}
 		before := append([]rawschema.Tile(nil), mp.Tiles...)
 
@@ -188,56 +190,57 @@ func TestConnectRooms_PlanMeta_部屋が1つ以下なら何もしない(t *testi
 func TestConnectRooms_PlanMeta_2つの部屋をL字トンネルで繋ぐ(t *testing.T) {
 	t.Parallel()
 
-	// 左上の向きでは中心が y=7 になる。下2マスの y=9 が外周にならない高さにする
 	const width, height = 20, 11
 	roomA := gc.Rect{Min: consts.Coord[consts.Tile]{X: 2, Y: 2}, Max: consts.Coord[consts.Tile]{X: 4, Y: 4}}
 	roomB := gc.Rect{Min: consts.Coord[consts.Tile]{X: 14, Y: 6}, Max: consts.Coord[consts.Tile]{X: 16, Y: 8}}
+	band := func(minX, minY, maxX, maxY int) gc.Rect {
+		return gc.Rect{
+			Min: consts.Coord[consts.Tile]{X: consts.Tile(minX), Y: consts.Tile(minY)},
+			Max: consts.Coord[consts.Tile]{X: consts.Tile(maxX), Y: consts.Tile(maxY)},
+		}
+	}
 
+	// 1歩進んでから掘るので始点の中心は掘られない。水平の帯は終点の x まで、垂直の帯は終点の y まで伸びる
 	tests := []struct {
 		name  string
 		rooms []gc.Rect
+		bands []gc.Rect
 	}{
-		// 中心 3,3 から中心 15,7 へ。currentXは++、currentYは++の方向に動く
-		{name: "右下方向に繋ぐ", rooms: []gc.Rect{roomA, roomB}},
-		// 中心 15,7 から中心 3,3 へ。currentXは--、currentYは--の方向に動く
-		{name: "左上方向に繋ぐ", rooms: []gc.Rect{roomB, roomA}},
+		{
+			name:  "中心3,3から中心15,7へ右下に繋ぐ",
+			rooms: []gc.Rect{roomA, roomB},
+			bands: []gc.Rect{band(4, 2, 15, 4), band(14, 4, 16, 7)},
+		},
+		{
+			name:  "中心15,7から中心3,3へ左上に繋ぐ",
+			rooms: []gc.Rect{roomB, roomA},
+			bands: []gc.Rect{band(3, 6, 14, 8), band(2, 3, 4, 6)},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mp := newFilledPlan(width, height, "wall")
+			mp := newFilledPlan(width, height, testLayoutTiles.Wall)
 			mp.Rooms = tt.rooms
 
 			connect := ConnectRooms{Tiles: testLayoutTiles}
 			require.NoError(t, connect.PlanMeta(mp))
 
-			isFloor := func(x, y int) bool {
-				return mp.Tiles[y*width+x].Passable != nil
+			want := make([]bool, width*height)
+			got := make([]bool, width*height)
+			for y := range height {
+				for x := range width {
+					for _, b := range tt.bands {
+						if x >= int(b.Min.X) && x <= int(b.Max.X) && y >= int(b.Min.Y) && y <= int(b.Max.Y) {
+							want[y*width+x] = true
+						}
+					}
+					got[y*width+x] = mp.Tiles[y*width+x].Passable != nil
+				}
 			}
-
-			center1 := tt.rooms[0]
-			center2 := tt.rooms[1]
-			c1x, c1y := int(center1.Min.X+center1.Max.X)/2, int(center1.Min.Y+center1.Max.Y)/2
-			c2x, c2y := int(center2.Min.X+center2.Max.X)/2, int(center2.Min.Y+center2.Max.Y)/2
-
-			// 水平方向の中間地点。y=center1Y±1の3マス幅が掘られ、その外は壁のまま
-			midX := (c1x + c2x) / 2
-			assert.True(t, isFloor(midX, c1y-1), "水平方向の中間地点、中心から上1マスが掘られている")
-			assert.True(t, isFloor(midX, c1y), "水平方向の中間地点、中心が掘られている")
-			assert.True(t, isFloor(midX, c1y+1), "水平方向の中間地点、中心から下1マスが掘られている")
-			assert.False(t, isFloor(midX, c1y-2), "水平方向の中間地点、中心から上2マスは壁のまま")
-			assert.False(t, isFloor(midX, c1y+2), "水平方向の中間地点、中心から下2マスは壁のまま")
-
-			// 水平から垂直へ折れる角、垂直方向の終点付近
-			assert.True(t, isFloor(c2x, c1y), "水平から垂直へ折れる角が掘られている")
-			assert.True(t, isFloor(c2x, (c1y+c2y)/2), "垂直方向の中間地点が掘られている")
-			assert.True(t, isFloor(c2x, c2y), "垂直方向の終点付近が掘られている")
-
-			// L字の折れる側と反対の内側のマスは、どちらの向きでも掘られない
-			assert.False(t, isFloor(17, 2), "L字から外れた右上の内側は壁のまま")
-			assert.False(t, isFloor(2, 8), "L字から外れた左下の内側は壁のまま")
+			assert.Equal(t, want, got, "太さ3の水平と垂直の帯だけが掘られる")
 		})
 	}
 }
@@ -246,7 +249,7 @@ func TestConnectRooms_PlanMeta_3つの部屋は隣り合う組だけ繋ぐ(t *te
 	t.Parallel()
 
 	const width, height = 30, 10
-	mp := newFilledPlan(width, height, "wall")
+	mp := newFilledPlan(width, height, testLayoutTiles.Wall)
 	// room2の中心yをroom1・room3とずらし、room1→room3を直接繋ぐ誤った実装だと
 	// 掘られてしまうがroom1→room2→room3の経路では掘られないマスを作る
 	room1 := gc.Rect{Min: consts.Coord[consts.Tile]{X: 2, Y: 2}, Max: consts.Coord[consts.Tile]{X: 4, Y: 4}}
@@ -304,7 +307,7 @@ func TestConnectRooms_PlanMeta_トンネルは外周の壁を侵さない(t *tes
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mp := newFilledPlan(width, height, "wall")
+			mp := newFilledPlan(width, height, testLayoutTiles.Wall)
 			mp.Rooms = tt.rooms
 
 			connect := ConnectRooms{Tiles: testLayoutTiles}
@@ -328,7 +331,7 @@ func TestScatterWalls_PlanMeta_確率1なら境界以外の床を壁にする(t 
 	t.Parallel()
 
 	const width, height = 10, 10
-	mp := newFilledPlan(width, height, "floor")
+	mp := newFilledPlan(width, height, testLayoutTiles.Floor)
 
 	scatter := ScatterWalls{Row: rawschema.ScatterWallStep{Chance: 1.0}, Tiles: testLayoutTiles}
 	require.NoError(t, scatter.PlanMeta(mp))
@@ -349,7 +352,7 @@ func TestScatterWalls_PlanMeta_確率0なら床を変化させない(t *testing.
 	t.Parallel()
 
 	const width, height = 10, 10
-	mp := newFilledPlan(width, height, "floor")
+	mp := newFilledPlan(width, height, testLayoutTiles.Floor)
 	before := append([]rawschema.Tile(nil), mp.Tiles...)
 
 	scatter := ScatterWalls{Row: rawschema.ScatterWallStep{Chance: 0.0}, Tiles: testLayoutTiles}
@@ -362,8 +365,8 @@ func TestWiden_PlanMeta_床に2マス以上接する外周以外の壁を床に�
 	t.Parallel()
 
 	const width, height = 7, 7
-	mp := newFilledPlan(width, height, "wall")
-	floor := mp.GetTile("floor")
+	mp := newFilledPlan(width, height, testLayoutTiles.Wall)
+	floor := mp.GetTile(testLayoutTiles.Floor)
 	// x=3,y=3 は左右の2マスで床に接する。x=0,y=3 は上下の2マスで接するが外周なので対象外。
 	// x=3,y=4 は元の盤面では x=3,y=5 の1マスにしか接しない。x=3,y=3 が床になった後の盤面を
 	// 数える実装でだけ2マスになる
@@ -389,8 +392,8 @@ func TestWiden_PlanMeta_確率0なら壁を変化させない(t *testing.T) {
 	t.Parallel()
 
 	const width, height = 7, 7
-	mp := newFilledPlan(width, height, "wall")
-	floor := mp.GetTile("floor")
+	mp := newFilledPlan(width, height, testLayoutTiles.Wall)
+	floor := mp.GetTile(testLayoutTiles.Floor)
 	mp.Tiles[3*width+2] = floor
 	mp.Tiles[3*width+4] = floor
 	before := append([]rawschema.Tile(nil), mp.Tiles...)
