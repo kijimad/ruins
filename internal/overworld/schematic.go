@@ -128,6 +128,9 @@ func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.C
 		return placeUnknownGlyph
 	case chunkUrban:
 		r, _ := districtAt(raws, runSeed, c, cols, spawnRow)
+		if l := r.local(c); r.waterAt(l) == nil && !r.builds(l) {
+			return chunkGlyph(raws, rawschema.Wasteland)
+		}
 		if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c, spawnRow)); ok {
 			return g.Label
 		}

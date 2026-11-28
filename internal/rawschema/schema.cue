@@ -354,11 +354,14 @@ import (
 		fence_ref: _propIDs[fence] @rawgen(-)
 	}
 
-	// チャンクごとに街路へ湧かせる敵の数
+	// 施設を建てるチャンクごとに湧かせる敵の数
 	streetEnemies!: #Dice
-	// 街路のタイル
-	street!:    #EntityID
-	street_ref: _tileIDs[street] @rawgen(-)
+	// 街路のタイル。省くと街路の格子を引かない
+	street?: #EntityID
+	if street != _|_ {
+		street_ref: _tileIDs[street] @rawgen(-)
+	}
+
 	// 街路の両端に置く植え込みのタイル。省くと植え込みを置かず、建物と道の間を空けない
 	verge?: #EntityID
 	if verge != _|_ {
@@ -416,11 +419,63 @@ import (
 
 // 地区の層。候補の地区から区域の seed で1つ選ぶ
 #DistrictLayer: {
-	// 候補の地区
-	zones!: [...#ZoneId] & [_, ...]
-	zones_ref: [for x in zones {_zoneIDs[x]}] @rawgen(-)
+	// 候補の地区。湖を描く層では省く
+	zones?: [...#ZoneId] & [_, ...]
+	if zones != _|_ {
+		zones_ref: [for x in zones {_zoneIDs[x]}] @rawgen(-)
+	}
+
 	// rows の並べ方で、この層が占める行の数
 	rows?: int & >=1
+	// この層のチャンクに湖を描く
+	water?: #DistrictWater
+	// 施設を建てるチャンクの数。省くと全てに建てる
+	lots?: int & >=1
+	// 施設を建てないチャンクと湖の外の地面に撒く散布の種類
+	scatter?: #EntityID
+	if scatter != _|_ {
+		scatter_ref: _scatterZoneIDs[scatter] @rawgen(-)
+	}
+
+	// 湖を描く層は地区も施設の数も持たない
+	if water != _|_ {
+		zonesAbsent: true & zones == _|_ @rawgen(-)
+		lotsAbsent:  true & lots == _|_  @rawgen(-)
+	}
+
+	// 全てのチャンクに施設を建てる層は散布を撒く所が無い
+	if water == _|_ && lots == _|_ {
+		scatterAbsent: true & scatter == _|_ @rawgen(-)
+	}
+}
+
+// 湖の水面。楕円の輪郭を値ノイズで出入りさせ、輪郭から内へ浜、浅瀬、深い水と並べる
+#DistrictWater: {
+	// 深い水のタイル
+	deep!:    #EntityID
+	deep_ref: _tileIDs[deep] @rawgen(-)
+	// 浅瀬のタイル
+	shallow!:    #EntityID
+	shallow_ref: _tileIDs[shallow] @rawgen(-)
+	// 浜のタイル
+	beach!:    #EntityID
+	beach_ref: _tileIDs[beach] @rawgen(-)
+	// 桟橋の板のタイル
+	pier!:    #EntityID
+	pier_ref: _tileIDs[pier] @rawgen(-)
+	// 桟橋が浅瀬を越えて深い水へ伸びる長さ。タイル数
+	pierLength!: int & >=1
+	// 俯瞰図に出す記号の行
+	glyph!:    #EntityID
+	glyph_ref: _mapGlyphIDs[glyph] @rawgen(-)
+	// 浜の幅。タイル数
+	beachWidth!: int & >=1
+	// 浅瀬の幅。タイル数
+	shallowWidth!: int & >=1
+	// 輪郭を楕円から出入りさせる量。タイル数
+	shoreWobble!: int & >=0
+	// 輪郭の出入りの格子の間隔。タイル数
+	shoreCell!: int & >=1
 }
 
 // フロアを生成して潜るダンジョン。id はステージの識別名で、遺跡の入口が指す

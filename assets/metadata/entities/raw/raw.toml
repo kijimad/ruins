@@ -1618,6 +1618,38 @@
     weight = 1
 
 [[districts]]
+  id = "lakeside"
+  name = "Lakeside"
+  pattern = "rings"
+  separation = 4
+  spacing = 45
+  streetEnemies = "1d2"
+
+  [[districts.layers]]
+    lots = 2
+    scatter = "lakeshore"
+    zones = ["lake_shore"]
+
+  [[districts.layers]]
+    scatter = "lakeshore"
+    [districts.layers.water]
+      beach = "sand_slate"
+      beachWidth = 2
+      deep = "water_deep"
+      glyph = "lakeside_water"
+      pier = "plank_brown"
+      pierLength = 6
+      shallow = "water_shallow"
+      shallowWidth = 3
+      shoreCell = 32
+      shoreWobble = 6
+
+  [[districts.sizes]]
+    h = 7
+    w = 7
+    weight = 1
+
+[[districts]]
   id = "town"
   name = "Town"
   pattern = "rings"
@@ -4296,6 +4328,26 @@
   enemyTable = "ruins_area"
   id = "crash_site"
   zones = []
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "lakeside_plaza"
+  lootedChance = 30
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "lake_shore"
+
+[[facilities]]
+  enemyTable = "ruins_area"
+  id = "campsite"
+  lootedChance = 30
+
+  [[facilities.zones]]
+    minSpan = 1
+    weight = 1
+    zone = "lake_shore"
 
 [[fatigueStages]]
   canSleep = false
@@ -18572,6 +18624,39 @@
     g = 120
     r = 255
 
+[[mapGlyphs]]
+  glyph = "w"
+  id = "lakeside_water"
+  name = "Lake"
+  order = 32
+  [mapGlyphs.color]
+    a = 255
+    b = 200
+    g = 120
+    r = 60
+
+[[mapGlyphs]]
+  glyph = "l"
+  id = "lakeside_plaza"
+  name = "Lakeside Plaza"
+  order = 33
+  [mapGlyphs.color]
+    a = 255
+    b = 170
+    g = 170
+    r = 170
+
+[[mapGlyphs]]
+  glyph = "c"
+  id = "campsite"
+  name = "Campsite"
+  order = 34
+  [mapGlyphs.color]
+    a = 255
+    b = 60
+    g = 140
+    r = 200
+
 [[materials]]
   heatPerKg = 200
   id = "wood"
@@ -23468,6 +23553,120 @@
     ref = "soil_ice"
     weight = 1
 
+[[scatterZones]]
+  grassDensity = 0.3
+  ground = "dirt_tundra"
+  id = "lakeshore"
+  lootDensity = 0.002
+  lootGroup = "junk"
+  propDensity = 0.06
+  soilDensity = 0.03
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "bush"
+    weight = 22
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "bush_dry"
+    weight = 6
+
+  [[scatterZones.entries]]
+    big = false
+    ref = ""
+    weight = 65
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "tree_a"
+    weight = 16
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "tree_b"
+    weight = 16
+
+  [[scatterZones.entries]]
+    big = false
+    ref = "rock"
+    weight = 8
+
+  [[scatterZones.entries]]
+    big = true
+    ref = "big_tree"
+    weight = 3
+
+    [[scatterZones.entries.satellites]]
+      dx = 1
+      dy = 0
+      name = "tree_a"
+
+    [[scatterZones.entries.satellites]]
+      dx = -1
+      dy = 1
+      name = "tree_b"
+
+  [[scatterZones.grass]]
+    ref = "grass"
+    weight = 30
+
+  [[scatterZones.grass]]
+    ref = "grass_lush"
+    weight = 15
+
+  [[scatterZones.grass]]
+    ref = "grass_sprig"
+    weight = 15
+
+  [[scatterZones.grass]]
+    ref = "weeds"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dry"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dark"
+    weight = 10
+
+  [[scatterZones.grass]]
+    ref = "grass_dry_sprig"
+    weight = 10
+
+  [[scatterZones.soil]]
+    ref = "soil_pebbles"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_dark"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_dry"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_crack"
+    weight = 2
+
+  [[scatterZones.soil]]
+    ref = "soil_gravel"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_frost"
+    weight = 3
+
+  [[scatterZones.soil]]
+    ref = "soil_stones"
+    weight = 2
+
+  [[scatterZones.soil]]
+    ref = "soil_ice"
+    weight = 1
+
 [[seasons]]
   id = "spring"
   name = "Spring"
@@ -25470,3 +25669,6 @@
 
 [[zones]]
   id = "farm_field"
+
+[[zones]]
+  id = "lake_shore"

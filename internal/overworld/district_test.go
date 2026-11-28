@@ -16,13 +16,13 @@ import (
 // ringsLayers と rowsLayers は、今の町と研究所の敷地と同じ層
 var (
 	ringsLayers = []rawschema.DistrictLayer{
-		{Zones: []rawschema.ZoneId{"residential", "industrial"}},
-		{Zones: []rawschema.ZoneId{"downtown"}},
+		{Zones: &[]rawschema.ZoneId{"residential", "industrial"}},
+		{Zones: &[]rawschema.ZoneId{"downtown"}},
 	}
 	rowsLayers = []rawschema.DistrictLayer{
-		{Zones: []rawschema.ZoneId{"campus_gate"}, Rows: new(1)},
-		{Zones: []rawschema.ZoneId{"campus_inner"}},
-		{Zones: []rawschema.ZoneId{"campus_quarantine"}, Rows: new(1)},
+		{Zones: &[]rawschema.ZoneId{"campus_gate"}, Rows: new(1)},
+		{Zones: &[]rawschema.ZoneId{"campus_inner"}},
+		{Zones: &[]rawschema.ZoneId{"campus_quarantine"}, Rows: new(1)},
 	}
 )
 

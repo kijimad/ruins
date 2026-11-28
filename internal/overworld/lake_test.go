@@ -1,0 +1,279 @@
+package overworld
+
+import (
+	"bytes"
+	"image/png"
+	"math"
+	"slices"
+	"testing"
+
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/rawschema"
+	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/sebdah/goldie/v2"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+// lakeSeed は開始の行の近くに湖の区域が出る seed。区域の左上は (5, -12)
+const lakeSeed = 12
+
+func TestDistrictRegion_waterAt_湖の区域は中心の層だけに湖を描く(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+	require.Equal(t, "lakeside", r.kind.Id)
+
+	got := make([]string, 0, r.h)
+	for y := range r.h {
+		line := ""
+		for x := range r.w {
+			if r.waterAt(consts.Coord[consts.Chunk]{X: x, Y: y}) != nil {
+				line += "~"
+			} else {
+				line += "#"
+			}
+		}
+		got = append(got, line)
+	}
+	assert.Equal(t, []string{"#######", "#~~~~~#", "#~~~~~#", "#~~~~~#", "#~~~~~#", "#~~~~~#", "#######"}, got)
+	assert.Equal(t, "lakeside_water", urbanFacilityAt(raws, zoneCatalogFrom(raws), r, consts.Coord[consts.Chunk]{X: 8, Y: -9}, 0))
+}
+
+func TestRenderLakeChunk_楕円の輪郭の内に水面を置き外は陸に残す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	gen := NewChunkGen(world, lakeSeed, 24, 24, 15, mapplanner.PlannerTypeOverworldField)
+	center := consts.Coord[consts.Chunk]{X: 8, Y: -9}
+	corner := consts.Coord[consts.Chunk]{X: 6, Y: -11}
+	require.NoError(t, gen(center, 0, 0))
+	require.NoError(t, gen(corner, 24, 0))
+	tiles := tileEntitiesInRange(world, 0, 48)
+	at := func(x, y consts.Tile) string {
+		return tileIDAt(world, tiles, consts.Coord[consts.Tile]{X: x, Y: y})
+	}
+
+	got := map[string]string{
+		"真ん中":      at(12, 12),
+		"角のチャンクの隅": at(24, 0),
+	}
+	assert.Equal(t, map[string]string{
+		"真ん中":      "water_deep",
+		"角のチャンクの隅": "dirt_tundra",
+	}, got)
+}
+
+func TestGolden_Lakeside(t *testing.T) {
+	t.Parallel()
+
+	img, err := RenderNorthward(testutil.InitTestWorld(t), lakeSeed, 20, 0, 4)
+	require.NoError(t, err)
+	var buf bytes.Buffer
+	require.NoError(t, png.Encode(&buf, img))
+	goldie.New(t, goldie.WithNameSuffix(".png")).Assert(t, t.Name(), buf.Bytes())
+}
+
+func TestDistrictRegion_builds_外の層は道の来る南の辺の中央に近いチャンクだけに施設を建てる(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+
+	var got []consts.Coord[consts.Chunk]
+	for y := range r.h {
+		for x := range r.w {
+			if l := (consts.Coord[consts.Chunk]{X: x, Y: y}); r.builds(l) {
+				got = append(got, l)
+			}
+		}
+	}
+	require.Len(t, got, 2)
+	assert.Contains(t, got, consts.Coord[consts.Chunk]{X: 3, Y: 6})
+	assert.Equal(t, consts.Chunk(6), got[0].Y)
+	assert.Equal(t, consts.Chunk(6), got[1].Y)
+	assert.Empty(t, urbanFacilityAt(raws, zoneCatalogFrom(raws), r, consts.Coord[consts.Chunk]{X: 5, Y: -12}, 0), "施設を建てない角は施設を持たない")
+}
+
+func TestLakeShape_施設を建てたチャンクの正面から浜を越えて深い水まで桟橋を伸ばす(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+	shape, ok, err := r.lakeShapeOf(24, 24)
+	require.NoError(t, err)
+	require.True(t, ok)
+
+	c := r.anchor.Add(consts.Coord[consts.Chunk]{X: 3, Y: 6})
+	x := c.X.Tiles(24) + 12
+	var line []string
+	for y := c.Y.Tiles(24); y > c.Y.Tiles(24)-r.h.Tiles(24); y-- {
+		p := consts.Coord[consts.Tile]{X: x, Y: y}
+		if shape.depth(p) >= float64(shape.water.BeachWidth+shape.water.ShallowWidth+shape.water.PierLength)+1 {
+			break
+		}
+		if tile, ok := shape.tileAt(p); ok {
+			line = append(line, tile)
+		}
+	}
+	planks := slices.Index(line, "water_deep")
+	require.Positive(t, planks)
+	want := append(slices.Repeat([]string{"plank_brown"}, planks), slices.Repeat([]string{"water_deep"}, len(line)-planks)...)
+	assert.Equal(t, want, line)
+}
+
+func TestLakeShapeOf_揺れと浜を引くと楕円が残らない層はエラーにする(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+	kind := *r.kind
+	kind.Layers = slices.Clone(kind.Layers)
+	water := *kind.Layers[1].Water
+	water.ShoreWobble = 5 * 24
+	kind.Layers[1].Water = &water
+	r.kind = &kind
+
+	_, _, err := r.lakeShapeOf(24, 24)
+	require.ErrorIs(t, err, errLakeTooSmall)
+}
+
+func TestGateColumns_門の位置が自然の地面なら真ん中の列を門にする(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+
+	north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, 0))
+	assert.Equal(t, [2]consts.Chunk{r.anchor.X + 3, r.anchor.X + 3}, [2]consts.Chunk{north, south})
+}
+
+func TestScatterCatalogForChunk_湖の区域は施設を建てないチャンクにだけ層の散布を撒く(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+
+	got := map[string]outdoorZone{}
+	for name, l := range map[string]consts.Coord[consts.Chunk]{"角の岸": {X: 0, Y: 0}, "湖": {X: 3, Y: 3}, "施設": {X: 3, Y: 6}} {
+		cat, ok, err := scatterCatalogForChunk(raws, lakeSeed, r.anchor.Add(l), 15, 0)
+		require.NoError(t, err)
+		if ok {
+			got[name] = cat.Zone
+		}
+	}
+	assert.Equal(t, map[string]outdoorZone{"角の岸": "lakeshore", "湖": "lakeshore"}, got)
+}
+
+func TestLakeShape_桟橋の板は全て湖の輪郭の内側に張る(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+	shape, ok, err := r.lakeShapeOf(24, 24)
+	require.NoError(t, err)
+	require.True(t, ok)
+
+	require.NotEmpty(t, shape.piers)
+	var onLand []consts.Coord[consts.Tile]
+	for p := range shape.piers {
+		if shape.depth(p) < 0 {
+			onLand = append(onLand, p)
+		}
+	}
+	assert.Equal(t, []consts.Coord[consts.Tile](nil), onLand)
+}
+
+func TestLayPier_湖の細い所で深さが浅くなり始めたら対岸まで張らずに止める(t *testing.T) {
+	t.Parallel()
+	// 中心を挟んで深さの等しい2マスまで張る
+	s := lakeShape{
+		water: &rawschema.DistrictWater{BeachWidth: 1, ShallowWidth: 1, PierLength: 100, ShoreCell: 8},
+		cx:    10, cy: 10, rx: 5, ry: 5,
+		piers: map[consts.Coord[consts.Tile]]bool{},
+	}
+	s.layPier(consts.Coord[consts.Tile]{X: 10, Y: 20}, consts.Coord[consts.Tile]{Y: -1}, 40)
+
+	var ys []consts.Tile
+	for p := range s.piers {
+		if p.X == 10 {
+			ys = append(ys, p.Y)
+		}
+	}
+	slices.Sort(ys)
+	assert.Equal(t, []consts.Tile{9, 10, 11, 12, 13, 14}, ys)
+}
+
+func TestLayPier_輪郭の揺れで深さが浅瀬より手前で減っても深い水まで張る(t *testing.T) {
+	t.Parallel()
+	s := lakeShape{
+		water: &rawschema.DistrictWater{BeachWidth: 2, ShallowWidth: 3, PierLength: 6, ShoreWobble: 10, ShoreCell: 24},
+		cx:    0, cy: 0, rx: 40, ry: 40, seed: 5,
+		piers: map[consts.Coord[consts.Tile]]bool{},
+	}
+	dips := 0
+	prev := math.Inf(-1)
+	for y := consts.Tile(60); y > 0; y-- {
+		d := s.depth(consts.Coord[consts.Tile]{Y: y})
+		if d >= 0 && d < float64(s.water.BeachWidth+s.water.ShallowWidth) && d < prev {
+			dips++
+		}
+		prev = d
+	}
+	require.Positive(t, dips, "前提: 浅瀬より手前で揺れを含む深さが減る")
+
+	s.layPier(consts.Coord[consts.Tile]{Y: 60}, consts.Coord[consts.Tile]{Y: -1}, 120)
+
+	deepest := math.Inf(-1)
+	for p := range s.piers {
+		if p.X == 0 {
+			deepest = max(deepest, s.depth(p))
+		}
+	}
+	assert.GreaterOrEqual(t, deepest, float64(s.water.BeachWidth+s.water.ShallowWidth))
+}
+
+func TestLayPier_輪郭の揺れで水から陸へ出たらその先の水へ板を飛ばさない(t *testing.T) {
+	t.Parallel()
+	s := lakeShape{
+		water: &rawschema.DistrictWater{BeachWidth: 2, ShallowWidth: 3, PierLength: 6, ShoreWobble: 10, ShoreCell: 8},
+		cx:    0, cy: 0, rx: 40, ry: 40, seed: 4,
+		piers: map[consts.Coord[consts.Tile]]bool{},
+	}
+	var crossings []bool
+	for y := consts.Tile(60); y > 0; y-- {
+		d := s.depth(consts.Coord[consts.Tile]{Y: y})
+		if d >= float64(s.water.BeachWidth+s.water.ShallowWidth+s.water.PierLength) {
+			break
+		}
+		if wet := d >= 0; len(crossings) == 0 || crossings[len(crossings)-1] != wet {
+			crossings = append(crossings, wet)
+		}
+	}
+	require.Equal(t, []bool{false, true, false, true}, crossings, "前提: 水に入った後に一度陸へ出て、また水に入る")
+
+	s.layPier(consts.Coord[consts.Tile]{Y: 60}, consts.Coord[consts.Tile]{Y: -1}, 120)
+
+	var ys []consts.Tile
+	for p := range s.piers {
+		if p.X == 0 {
+			ys = append(ys, p.Y)
+		}
+	}
+	slices.Sort(ys)
+	require.NotEmpty(t, ys)
+	assert.Equal(t, ys[len(ys)-1]-ys[0]+1, consts.Tile(len(ys)), "板が途切れず1本につながる")
+}
+
+func TestChunkPlace_湖の区域は施設を建てない角を荒れ地に湖を湖の記号にする(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	cat := zoneCatalogFrom(raws)
+	anchor := consts.Coord[consts.Chunk]{X: 5, Y: -12}
+	got := map[string]rune{}
+	for name, l := range map[string]consts.Coord[consts.Chunk]{"角": {}, "湖": {X: 3, Y: 3}, "施設": {X: 3, Y: 6}} {
+		got[name] = chunkPlace(raws, cat, lakeSeed, anchor.Add(l), 15, 0)
+	}
+	assert.Equal(t, map[string]rune{"角": '.', "湖": 'w', "施設": 'c'}, got)
+}

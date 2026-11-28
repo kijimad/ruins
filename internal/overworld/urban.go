@@ -65,9 +65,12 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 // zoneChoiceShift は層の候補から地区を選ぶ、区域の seed のビットの位置
 const zoneChoiceShift = 32
 
-// zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ
+// zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ。湖を描く層は地区を持たないので空を返し、施設を建てるチャンクだけで呼ぶ
 func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.ZoneId {
-	zones := r.kind.Layers[r.layerAt(l)].Zones
+	zones := raw.PtrSlice(r.kind.Layers[r.layerAt(l)].Zones)
+	if len(zones) == 0 {
+		return ""
+	}
 	return zones[(r.seed>>zoneChoiceShift)%uint64(len(zones))]
 }
 
@@ -76,7 +79,7 @@ func (r districtRegion) layerAt(l consts.Coord[consts.Chunk]) int {
 	switch r.kind.Pattern {
 	case rawschema.DistrictPatternRings:
 		if inCore(l.X, l.Y, r.w, r.h) {
-			return 1
+			return raw.RingsCoreLayer
 		}
 		return 0
 	case rawschema.DistrictPatternRows:
@@ -135,8 +138,15 @@ func rollFacilityInZone(rng *rand.Rand, cat zoneCatalog, z rawschema.ZoneId, spa
 	return zc[i].kind
 }
 
-// urbanFacilityAt は区域 r の中のチャンク c に建つ施設 id を返す。地図表示と生成の両方が使う。
+// urbanFacilityAt は区域 r の中のチャンク c の記号の id を返す。施設を建てるチャンクは施設 id で、地図表示と生成の両方が使う。
+// 湖を描くチャンクは水面の行が指す記号の id を、施設を建てない自然の地面のチャンクは空を返す
 func urbanFacilityAt(raws rawschema.Raws, cat zoneCatalog, r districtRegion, c consts.Coord[consts.Chunk], spawnRow consts.Chunk) string {
+	if water := r.waterAt(r.local(c)); water != nil {
+		return water.Glyph
+	}
+	if !r.builds(r.local(c)) {
+		return ""
+	}
 	return lotAt(lotsOf(raws, cat, r, spawnRow), r.local(c)).facility
 }
 
@@ -149,6 +159,12 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 		return nil
 	}
 	l := r.local(c)
+	if r.waterAt(l) != nil {
+		return renderLakeChunk(world, g, r, c)
+	}
+	if !r.builds(l) {
+		return nil
+	}
 	lots := lotsOf(raws, zoneCatalogFrom(raws), r, spawnRowOf(world))
 	lot := lotAt(lots, l)
 	var fence []consts.Coord[consts.Tile]
@@ -165,12 +181,18 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	return renderUrbanChunk(world, g, consts.Mix2D(r.seed, l.X, l.Y), enemies, lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, fenceProp, streetTilesOf(r.kind))
 }
 
-// gateColumns は塀を巡らせる区域 r の、北と南の門を開ける絶対チャンク列を、区域を埋めた区画 lots から返す。
+// gateColumns は区域 r の北と南の門の絶対チャンク列を、区域を埋めた区画 lots から返す。塀の門と、道の計画が道をつなぐ所に使う。
 // 真ん中の列を覆う区画の西の端の列で、区画の西の帯は街路なので、門から区域の中の街路へ入れる
 func gateColumns(r districtRegion, lots []buildingLot) (north, south consts.Chunk) {
-	north = lotAt(lots, consts.Coord[consts.Chunk]{X: r.w / 2, Y: 0}).anchor.X
-	south = lotAt(lots, consts.Coord[consts.Chunk]{X: r.w / 2, Y: r.h - 1}).anchor.X
-	return r.anchor.X + north, r.anchor.X + south
+	column := func(y consts.Chunk) consts.Chunk {
+		l := consts.Coord[consts.Chunk]{X: r.w / 2, Y: y}
+		// 自然の地面は区画を持たないので真ん中の列を門にする
+		if !r.builds(l) {
+			return r.anchor.X + l.X
+		}
+		return r.anchor.X + lotAt(lots, l).anchor.X
+	}
+	return column(0), column(r.h - 1)
 }
 
 // districtFence は区域の中のチャンク l に置く塀のマスを、チャンク内の座標で返す。塀は区域の外周を巡り、
@@ -224,7 +246,7 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Di
 	if err != nil {
 		return err
 	}
-	if origin != 0 {
+	if origin != 0 && streets.street != "" {
 		if err := drawUrbanStreets(world, g, streets); err != nil {
 			return err
 		}
@@ -289,7 +311,7 @@ func drawUrbanStreets(world w.World, g chunkGeom, streets streetTiles) error {
 	return nil
 }
 
-// streetTiles は区域の街路に置くタイル。verge が空なら植え込みを置かない
+// streetTiles は区域の街路に置くタイル。street が空なら街路を引かず、verge が空なら植え込みを置かない
 type streetTiles struct {
 	street string
 	verge  string
@@ -297,18 +319,24 @@ type streetTiles struct {
 
 // streetTilesOf は区域の行から街路に置くタイルを組む
 func streetTilesOf(d *rawschema.District) streetTiles {
-	s := streetTiles{street: d.Street}
+	var s streetTiles
+	if d.Street != nil {
+		s.street = *d.Street
+	}
 	if d.Verge != nil {
 		s.verge = *d.Verge
 	}
 	return s
 }
 
-// streetTerrain は街路の帯のマス (x, y) に置くタイルを返す。植え込みがあれば帯の両端の1マスを植え込みにして、
+// streetTerrain は街路の帯のマス (x, y) に置くタイルを返す。街路を引かない区域は下地を残す予約語を返す。植え込みがあれば帯の両端の1マスを植え込みにして、
 // 建物と道の間を空ける。北と西の帯が交わる角は全て街路にする
 func streetTerrain(x, y consts.Tile, s streetTiles) string {
 	edge := func(v consts.Tile) bool { return v == 0 || v == urbanStreetW-1 }
 	switch {
+	case s.street == "":
+		// 街路を引かない区域は、部屋の絵の帯も下地の地面のまま残す
+		return maptemplate.GroundTerrain
 	case s.verge == "" || x < urbanStreetW && y < urbanStreetW:
 		return s.street
 	case y < urbanStreetW && edge(y), x < urbanStreetW && edge(x):

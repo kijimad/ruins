@@ -648,10 +648,10 @@ type District struct {
 	// Spacing 当選の間隔。チャンク数
 	Spacing int `json:"spacing"`
 
-	// Street 街路のタイル
-	Street EntityID `json:"street"`
+	// Street 街路のタイル。省くと街路の格子を引かない
+	Street *EntityID `json:"street,omitempty"`
 
-	// StreetEnemies チャンクごとに街路へ湧かせる敵の数
+	// StreetEnemies 施設を建てるチャンクごとに湧かせる敵の数
 	StreetEnemies Dice `json:"streetEnemies"`
 
 	// Verge 街路の両端に置く植え込みのタイル。省くと植え込みを置かず、建物と道の間を空けない
@@ -660,11 +660,20 @@ type District struct {
 
 // DistrictLayer 地区の層。候補の地区から区域の seed で1つ選ぶ
 type DistrictLayer struct {
+	// Lots 施設を建てるチャンクの数。省くと全てに建てる
+	Lots *int `json:"lots,omitempty"`
+
 	// Rows rows の並べ方で、この層が占める行の数
 	Rows *int `json:"rows,omitempty"`
 
-	// Zones 候補の地区
-	Zones []ZoneId `json:"zones"`
+	// Scatter 施設を建てないチャンクと湖の外の地面に撒く散布の種類
+	Scatter *EntityID `json:"scatter,omitempty"`
+
+	// Water この層のチャンクに湖を描く
+	Water *DistrictWater `json:"water,omitempty"`
+
+	// Zones 候補の地区。湖を描く層では省く
+	Zones *[]ZoneId `json:"zones,omitempty"`
 }
 
 // DistrictPattern 地区の並べ方。rings は層を2つ持ち、1つ目を外側、2つ目を中心にする。
@@ -704,6 +713,39 @@ type DistrictSize struct {
 
 	// Weight 抽選の重み
 	Weight int `json:"weight"`
+}
+
+// DistrictWater 湖の水面。楕円の輪郭を値ノイズで出入りさせ、輪郭から内へ浜、浅瀬、深い水と並べる
+type DistrictWater struct {
+	// Beach 浜のタイル
+	Beach EntityID `json:"beach"`
+
+	// BeachWidth 浜の幅。タイル数
+	BeachWidth int `json:"beachWidth"`
+
+	// Deep 深い水のタイル
+	Deep EntityID `json:"deep"`
+
+	// Glyph 俯瞰図に出す記号の行
+	Glyph EntityID `json:"glyph"`
+
+	// Pier 桟橋の板のタイル
+	Pier EntityID `json:"pier"`
+
+	// PierLength 桟橋が浅瀬を越えて深い水へ伸びる長さ。タイル数
+	PierLength int `json:"pierLength"`
+
+	// Shallow 浅瀬のタイル
+	Shallow EntityID `json:"shallow"`
+
+	// ShallowWidth 浅瀬の幅。タイル数
+	ShallowWidth int `json:"shallowWidth"`
+
+	// ShoreCell 輪郭の出入りの格子の間隔。タイル数
+	ShoreCell int `json:"shoreCell"`
+
+	// ShoreWobble 輪郭を楕円から出入りさせる量。タイル数
+	ShoreWobble int `json:"shoreWobble"`
 }
 
 // DoorRaw 扉ローデータ

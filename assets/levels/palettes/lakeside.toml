@@ -1,0 +1,51 @@
+[palette]
+id = "lakeside"
+description = "湖畔"
+
+[palette.terrain]
+"," = "grass_green"
+"=" = "pavement"
+"_" = "dirt"
+
+[palette.props."T"]
+tile = "grass_green"
+candidates = [{ id = "tree_a", weight = 1 }, { id = "tree_b", weight = 1 }]
+
+[palette.props."s"]
+tile = "grass_green"
+candidates = [{ id = "bush", weight = 3 }, { id = "bush_dry", weight = 1 }]
+
+[palette.props."L"]
+tile = "pavement"
+id = "old_lamp"
+
+[palette.props."n"]
+tile = "pavement"
+id = "bench"
+
+[palette.props."B"]
+tile = "pavement"
+id = "barrel"
+lootTable = "pantry"
+
+[palette.props."m"]
+tile = "dirt"
+id = "bench"
+
+[palette.props."R"]
+tile = "dirt"
+id = "rock"
+
+[palette.props."k"]
+tile = "dirt"
+id = "wooden_crate"
+lootTable = "farm_barn"
+
+[palette.props."t"]
+tile = "dirt"
+id = "table"
+
+[palette.props."b"]
+tile = "dirt"
+id = "barrel"
+lootTable = "pantry"
