@@ -58,13 +58,13 @@ func TestBuildDistanceMap(t *testing.T) {
 	})
 }
 
-func TestGetDistanceMap_引いたときに作り無効化で捨てる(t *testing.T) {
+func TestGetRaidDistanceMap_引いたときに作り無効化で捨てる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	m := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap)
+	m := GetSingleton[gc.RaidDistanceMap](world, world.Components.RaidDistanceMap)
 	require.False(t, m.Built, "前提: 作られる前")
 
-	assert.Same(t, m, GetDistanceMap(world))
+	assert.Same(t, &m.DistanceMap, GetRaidDistanceMap(world))
 	assert.True(t, m.Built, "引いたときに作る")
 	InvalidateDistanceMaps(world)
 	assert.False(t, m.Built, "無効化で捨てる")
@@ -132,12 +132,12 @@ func TestGetFollowDistanceMap(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		GetFollowDistanceMap(world)
-		GetDistanceMap(world)
+		GetRaidDistanceMap(world)
 
 		InvalidateDistanceMaps(world)
 
 		follow := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap)
-		raid := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap)
+		raid := GetSingleton[gc.RaidDistanceMap](world, world.Components.RaidDistanceMap)
 		assert.Equal(t, []bool{false, false}, []bool{follow.Built, raid.Built})
 	})
 }

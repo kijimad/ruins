@@ -70,7 +70,7 @@ func (world World) InitSingleton() {
 	world.Components.Dungeon.Add(singleton, gc.NewDungeon())
 	world.Components.TurnState.Add(singleton, gc.NewTurnState())
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
-	world.Components.DistanceMap.Add(singleton, gc.NewDistanceMap())
+	world.Components.RaidDistanceMap.Add(singleton, gc.NewRaidDistanceMap())
 	world.Components.FollowDistanceMap.Add(singleton, gc.NewFollowDistanceMap())
 	world.Components.HandSelection.Add(singleton, &gc.HandSelection{Slot: gc.SlotHand1})
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})

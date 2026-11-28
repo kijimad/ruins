@@ -6,23 +6,23 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// GetDistanceMap はシングルトンから、RaidTargets の的からの距離の地図を取得する。未構築なら作る。手番の外で引くと
+// GetRaidDistanceMap はシングルトンから、襲撃の敵が下る RaidTargets の的からの距離の地図を取得する。未構築なら作る。手番の外で引くと
 // 前の手番の地図が返る
-func GetDistanceMap(world w.World) *gc.DistanceMap {
-	m := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap)
+func GetRaidDistanceMap(world w.World) *gc.DistanceMap {
+	m := GetSingleton[gc.RaidDistanceMap](world, world.Components.RaidDistanceMap)
 	if m == nil {
 		return nil
 	}
 	if !m.Built {
-		buildDistanceMap(world, m, RaidTargets(world), raidRule)
+		buildDistanceMap(world, &m.DistanceMap, RaidTargets(world), raidRule)
 	}
-	return m
+	return &m.DistanceMap
 }
 
-// InvalidateDistanceMaps は敵とついて行く者の距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
+// InvalidateDistanceMaps は襲撃の敵とついて行く者の距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
 // 手番の初めと波を湧かせる前にだけ呼ぶ。手番の間は古い地図を全員で下る
 func InvalidateDistanceMaps(world w.World) {
-	if m := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap); m != nil {
+	if m := GetSingleton[gc.RaidDistanceMap](world, world.Components.RaidDistanceMap); m != nil {
 		m.Built = false
 	}
 	if m := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap); m != nil {
