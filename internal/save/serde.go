@@ -33,6 +33,7 @@ type saveEnvelope struct {
 func skipComponents() []ecs.Comp {
 	return []ecs.Comp{
 		ecs.C[gc.SpatialIndex](),       // struct-keyed map。ロード時に再構築
+		ecs.C[gc.DistanceMap](),        // 敵の手番の初めに作り直す。ロード時に未構築で付け直す
 		ecs.C[gc.VisionState](),        // struct-keyed map。視界更新で再構築
 		ecs.C[gc.PlayTime](),           // セッション状態。永続は envelope。ロードで seed
 		ecs.C[gc.GameLog](),            // sync.Mutex を含むため不可。毎ロード初期化
@@ -96,6 +97,7 @@ func reestablishSingleton(world w.World, playTime time.Duration) error {
 		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
 	})
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
+	world.Components.DistanceMap.Add(singleton, gc.NewDistanceMap())
 	// 視界計算の一時状態は serde 除外なのでロード後に再構築する
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 	// プレイ実時間も serde 除外なので付け直し、envelope の値で計測を始める

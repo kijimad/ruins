@@ -51,10 +51,11 @@ type MacroMapData struct {
 	Cube         CubeStatusData      // 地図の下に出すキューブの欄
 }
 
-// CubeStatusData は地図の下に出すキューブの欄の描画データ。名前と燃料ゲージを並べる。
+// CubeStatusData は地図の下に出すキューブの欄の描画データ。名前と HP ゲージと燃料ゲージを並べる。
 type CubeStatusData struct {
 	Visible   bool    // キューブが同じステージにいるか。偽なら欄ごと出さない
 	Name      string  // 訳済みの名前
+	HPRatio   float64 // HP ゲージの充填率。0..1
 	FuelRatio float64 // 燃料ゲージの充填率。0..1
 }
 

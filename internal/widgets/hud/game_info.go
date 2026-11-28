@@ -106,7 +106,7 @@ func (info *GameInfo) drawGauges(cv uicore.Canvas, data GameInfoData) {
 		info.arrowWidget(data.TempArrow),
 	)
 	hpRow := uicore.Row([]int{gaugeWidth, tempArrowSlotW},
-		info.healthGauge(data),
+		healthGauge(info.gaugeFill, playerHPRatio(data)),
 		uicore.NewGroup(),
 	)
 	items := []uicore.FlexItem{
@@ -145,13 +145,17 @@ func (info *GameInfo) bodyTempGauge(data GameInfoData) uicore.Widget {
 	return &uicore.Gauge{Fill: info.gaugeFill, Ratio: data.BodyTempRatio, FillColor: bodyTempFillColor(data.BodyTempRatio), Border: theme.HUDGaugeBorder, Radius: gaugeCornerRadius}
 }
 
-// healthGauge は HP ゲージを返す。半分を境に緑から黄、黄から赤へ寄る。
-func (info *GameInfo) healthGauge(data GameInfoData) uicore.Widget {
-	ratio := 0.0
-	if data.PlayerMaxHP > 0 {
-		ratio = max(0, min(1, float64(data.PlayerHP)/float64(data.PlayerMaxHP)))
+// playerHPRatio はプレイヤーの HP の充填率を 0..1 で返す
+func playerHPRatio(data GameInfoData) float64 {
+	if data.PlayerMaxHP <= 0 {
+		return 0
 	}
-	return &uicore.Gauge{Fill: info.gaugeFill, Ratio: ratio, FillColor: theme.HealthGaugeColor(ratio), Border: theme.HUDGaugeBorder, Radius: gaugeCornerRadius}
+	return max(0, min(1, float64(data.PlayerHP)/float64(data.PlayerMaxHP)))
+}
+
+// healthGauge は HP ゲージを返す。半分を境に緑から黄、黄から赤へ寄る。
+func healthGauge(gaugeFill *ebiten.Image, ratio float64) uicore.Widget {
+	return &uicore.Gauge{Fill: gaugeFill, Ratio: ratio, FillColor: theme.HealthGaugeColor(ratio), Border: theme.HUDGaugeBorder, Radius: gaugeCornerRadius}
 }
 
 // fuelGauge はキューブの燃料ゲージを返す。満で琥珀、空へ近づくと赤へ寄る。

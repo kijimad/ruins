@@ -220,7 +220,7 @@ func TestDrawMapGrid_キューブは縁取り付きの記号で描く(t *testing
 	assert.Equal(t, 5, cubes, "キューブは縁取り4つと本体1つで計5回描く")
 }
 
-func TestMacroMap_Draw_キューブがいれば地図の下に名前と燃料ゲージを描く(t *testing.T) {
+func TestMacroMap_Draw_キューブがいれば地図の下に名前とHPと燃料のゲージを描く(t *testing.T) {
 	t.Parallel()
 	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
@@ -232,7 +232,7 @@ func TestMacroMap_Draw_キューブがいれば地図の下に名前と燃料ゲ
 		View:    overworld.MacroView{Cells: [][]overworld.MacroCell{{{Glyph: '.', Discovered: false}}}},
 		Config:  MacroMapConfig{Width: 150, Height: 150, MinGlyphPx: 999},
 		Screen:  ScreenDimensions{Width: 1024, Height: 768},
-		Cube:    CubeStatusData{Visible: true, Name: "Cube", FuelRatio: 0.5},
+		Cube:    CubeStatusData{Visible: true, Name: "Cube", HPRatio: 0.75, FuelRatio: 0.5},
 	})
 
 	names := make([]string, 0, len(cv.texts))
@@ -240,9 +240,11 @@ func TestMacroMap_Draw_キューブがいれば地図の下に名前と燃料ゲ
 		names = append(names, c.str)
 	}
 	assert.Contains(t, names, "Cube", "名前を描く")
-	require.Len(t, cv.tintedRects, 1, "燃料ゲージの塗りを描く")
-	assert.Equal(t, 74, cv.tintedRects[0].Dx(), "地図と同じ幅のゲージの枠の内側を充填率ぶん塗る")
-	assert.Greater(t, cv.tintedRects[0].Min.Y, 150, "地図の下に置く")
+	require.Len(t, cv.tintedRects, 2, "HP ゲージと燃料ゲージの塗りを描く")
+	hp, fuel := cv.tintedRects[0], cv.tintedRects[1]
+	assert.Equal(t, []int{111, 74}, []int{hp.Dx(), fuel.Dx()}, "地図と同じ幅のゲージの枠の内側を充填率ぶん塗る")
+	assert.Greater(t, hp.Min.Y, 150, "地図の下に置く")
+	assert.Less(t, hp.Max.Y, fuel.Min.Y, "HP を燃料の上に置く")
 }
 
 func TestMacroMap_Draw_キューブがいなければ欄を出さない(t *testing.T) {

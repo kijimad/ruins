@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -175,4 +176,18 @@ func TestApplyDamage_Prop(t *testing.T) {
 		assert.Equal(t, 0, hp.Current)
 		assert.True(t, world.Components.Dead.Has(prop))
 	})
+}
+
+func TestApplyDamage_敵がキューブを壊すと壊れたログが出る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "stray_dog")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 2, Y: 1})
+	require.NoError(t, err)
+	world.Components.HP.Get(cube).Current = 1
+
+	ApplyDamage(world, cube, 1, enemy)
+
+	assert.Equal(t, []string{query.GetEntityName(cube, world) + query.T(world, " was destroyed.")}, query.GetGameLog(world).GetRecent(1))
 }

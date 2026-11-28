@@ -55,19 +55,23 @@ func (m *MacroMap) Draw(cv uicore.Canvas, data MacroMapData) {
 	drawFlexItems(cv, items)
 }
 
-// cubeStatusItems は地図の下へ積む、キューブの名前と地図と同じ幅の燃料ゲージを返す。
+// cubeStatusItems は地図の下へ積む、キューブの名前と、地図と同じ幅の HP ゲージと燃料ゲージを返す。
+// 左上のプレイヤーの欄と同じく HP を上に置く
 func (m *MacroMap) cubeStatusItems(cube CubeStatusData, width int) []uicore.FlexItem {
 	_, labelH := uicore.MeasureText(cube.Name, m.labelFace)
 	label := uicore.Row([]int{0, width},
 		uicore.NewGroup(),
 		&uicore.Text{Value: cube.Name, Face: m.labelFace, Color: theme.TextPrimary, OutlineColor: theme.HUDTextOutline},
 	)
-	gauge := uicore.Row([]int{0, width}, uicore.NewGroup(), fuelGauge(m.gaugeFill, cube.FuelRatio))
+	hp := uicore.Row([]int{0, width}, uicore.NewGroup(), healthGauge(m.gaugeFill, cube.HPRatio))
+	fuel := uicore.Row([]int{0, width}, uicore.NewGroup(), fuelGauge(m.gaugeFill, cube.FuelRatio))
 	return []uicore.FlexItem{
 		{Height: theme.Space2},
 		{W: label, Height: labelH},
 		{Height: gaugeSpacing},
-		{W: gauge, Height: gaugeHeight},
+		{W: hp, Height: gaugeHeight},
+		{Height: gaugeSpacing},
+		{W: fuel, Height: gaugeHeight},
 	}
 }
 

@@ -559,3 +559,16 @@ func TestExtractCubeStatus_燃料ゲージは燃料ポイントの割合(t *test
 		})
 	}
 }
+
+func TestExtractCubeStatus_HPゲージはHPの割合(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
+	require.NoError(t, err)
+	hp := world.Components.HP.Get(cube)
+	hp.Current = hp.Max / 4
+
+	got := extractCubeStatus(world)
+
+	assert.InDelta(t, 0.25, got.HPRatio, 1e-9)
+}

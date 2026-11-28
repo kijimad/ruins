@@ -57,7 +57,7 @@ func TestGameInfo_healthGauge(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			cv := &fakeCanvas{}
-			wgt := info.healthGauge(GameInfoData{PlayerHP: tt.hp, PlayerMaxHP: tt.maxHP})
+			wgt := healthGauge(info.gaugeFill, playerHPRatio(GameInfoData{PlayerHP: tt.hp, PlayerMaxHP: tt.maxHP}))
 			wgt.Layout(rect)
 			wgt.Draw(cv)
 			require.Equal(t, 1, cv.roundedStrokes, "枠は常に描く")

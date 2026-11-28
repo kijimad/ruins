@@ -126,8 +126,8 @@ import (
 // RGBA色チャネル値 (0-255)
 #ColorChannel: int @rawgen(type=uint8)
 
-// 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
-#CombatPolicyType: "attack" | "evade" | "ignore"
+// 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する。ignore は殴られると attack へ移り、passive は殴られても戦わない
+#CombatPolicyType: "attack" | "evade" | "ignore" | "passive"
 
 // 体の攻撃。体に備わり、拾えない攻撃
 #BodyAttack: {
@@ -1308,8 +1308,8 @@ import (
 		1) & strings.MaxRunes(
 		100) & =~"^[a-z][a-z0-9_]*$"
 
-// 非戦闘時の移動パターン
-#MovementPatternType: "random" | "patrol" | "wallHug" | "stationary" | "wander" | "territorial" | "swarm" | "follow"
+// 非戦闘時の移動パターン。converge は距離の地図を下って的へ寄り集まる動きで、戦闘の状態遷移より先に効く
+#MovementPatternType: "random" | "patrol" | "wallHug" | "stationary" | "wander" | "territorial" | "swarm" | "follow" | "converge"
 
 // 最大値に対する割合
 #NeedRatio: number & >=0 & <=1

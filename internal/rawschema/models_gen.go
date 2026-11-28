@@ -318,14 +318,15 @@ type ClearingStart struct {
 // ColorChannel RGBA色チャネル値 (0-255)
 type ColorChannel = uint8
 
-// CombatPolicyType 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
+// CombatPolicyType 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する。ignore は殴られると attack へ移り、passive は殴られても戦わない
 type CombatPolicyType string
 
 // Defines values for CombatPolicyType.
 const (
-	Attack CombatPolicyType = "attack"
-	Evade  CombatPolicyType = "evade"
-	Ignore CombatPolicyType = "ignore"
+	Attack  CombatPolicyType = "attack"
+	Evade   CombatPolicyType = "evade"
+	Ignore  CombatPolicyType = "ignore"
+	Passive CombatPolicyType = "passive"
 )
 
 // Valid indicates whether the value is a known member of the CombatPolicyType enum.
@@ -337,6 +338,8 @@ func (e CombatPolicyType) Valid() bool {
 		return true
 	case Ignore:
 		return true
+	case Passive:
+		return true
 	default:
 		return false
 	}
@@ -344,7 +347,7 @@ func (e CombatPolicyType) Valid() bool {
 
 // CombatPolicyTypeValues は CombatPolicyType の値を、スキーマに書いた順に返す。
 func CombatPolicyTypeValues() []CombatPolicyType {
-	return []CombatPolicyType{Attack, Evade, Ignore}
+	return []CombatPolicyType{Attack, Evade, Ignore, Passive}
 }
 
 // CommandTable コマンドテーブル
@@ -1722,11 +1725,12 @@ type Member struct {
 // MessageKey メッセージリソースのキー
 type MessageKey = string
 
-// MovementPatternType 非戦闘時の移動パターン
+// MovementPatternType 非戦闘時の移動パターン。converge は距離の地図を下って的へ寄り集まる動きで、戦闘の状態遷移より先に効く
 type MovementPatternType string
 
 // Defines values for MovementPatternType.
 const (
+	Converge    MovementPatternType = "converge"
 	Follow      MovementPatternType = "follow"
 	Patrol      MovementPatternType = "patrol"
 	Random      MovementPatternType = "random"
@@ -1740,6 +1744,8 @@ const (
 // Valid indicates whether the value is a known member of the MovementPatternType enum.
 func (e MovementPatternType) Valid() bool {
 	switch e {
+	case Converge:
+		return true
 	case Follow:
 		return true
 	case Patrol:
@@ -1763,7 +1769,7 @@ func (e MovementPatternType) Valid() bool {
 
 // MovementPatternTypeValues は MovementPatternType の値を、スキーマに書いた順に返す。
 func MovementPatternTypeValues() []MovementPatternType {
-	return []MovementPatternType{Random, Patrol, WallHug, Stationary, Wander, Territorial, Swarm, Follow}
+	return []MovementPatternType{Random, Patrol, WallHug, Stationary, Wander, Territorial, Swarm, Follow, Converge}
 }
 
 // NeedRatio 最大値に対する割合

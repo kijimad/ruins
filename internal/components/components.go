@@ -370,7 +370,8 @@ type SheetImage struct {
 // archetypeクエリ（「全敵」「全味方」）が効くため archetype ECS に適している。
 // 派閥は排他（1エンティティは高々1つ）で、生成時に EntitySpec で1つだけ指定する。
 
-// FactionAlly は味方派閥(プレイヤー側)のマーカー
+// FactionAlly は味方派閥(プレイヤー側)のマーカー。プレイヤーのほか、戦わない味方としてキューブも持つ。
+// 味方を対象にする処理を足すときは、キューブが含まれてよいかを確かめる
 type FactionAlly struct{}
 
 // FactionEnemy は敵性派閥(プレイヤーと敵対)のマーカー

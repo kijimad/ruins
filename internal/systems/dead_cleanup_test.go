@@ -281,6 +281,32 @@ func TestDeadCleanupSystem_壊れた収納propは中身を足元へ出す(t *tes
 	assert.False(t, world.Components.LocationInStorage.Has(item), "収納内位置は解除される")
 }
 
+func TestDeadCleanupSystem_壊れたキューブは畳んだ貨物とモジュールも足元へ出す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	at := consts.Coord[consts.Tile]{X: 10, Y: 10}
+	cube, err := lifecycle.SpawnCube(world, at)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.StowDefaultCubeCargo(world, cube))
+	cargo := query.StowedCargo(world, cube)
+	require.Len(t, cargo, 1)
+	module, err := lifecycle.SpawnFieldItem(world, "cube_range_module", at.X, at.Y, 1)
+	require.NoError(t, err)
+	lifecycle.MoveToInstalled(world, module, cube, 0)
+
+	world.Components.Dead.Add(cube, &gc.Dead{})
+	require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+
+	assert.False(t, world.ECS.Alive(cube))
+	for _, e := range []ecs.Entity{cargo[0], module} {
+		require.True(t, world.ECS.Alive(e), "消えずに残る")
+		assert.True(t, world.Components.LocationOnField.Has(e), "足元のフィールドへ出る")
+	}
+	assert.Equal(t, at, world.Components.GridElement.Get(cargo[0]).Coord, "畳んだアイテムはキューブの足元へ出る")
+	assert.Equal(t, at, world.Components.GridElement.Get(module).Coord, "モジュールはキューブの足元へ出る")
+}
+
 // remainsByCoord は置かれた跡を座標から名前への対応で集める
 func remainsByCoord(world w.World) map[consts.Coord[consts.Tile]]i18n.Msgid {
 	got := map[consts.Coord[consts.Tile]]i18n.Msgid{}
