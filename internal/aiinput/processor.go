@@ -30,17 +30,29 @@ const activationRadius = int(consts.VisionRadiusTiles) + activationMargin
 type Processor struct {
 	logger  *logger.Logger
 	planner *soloPlanner
-	// raidMap は襲撃の敵が下る距離の地図の配列。手番のたびに作り直して使い回す
+	// raidMap は襲撃の敵が下る距離の地図の配列。WithRaidMap で渡せば、手番をまたいで使い回す
 	raidMap *activity.RaidMap
+}
+
+// ProcessorOption は Processor の作り方を変える
+type ProcessorOption func(*Processor)
+
+// WithRaidMap は距離の地図の配列 m を使い回させる。Processor は手番ごとに作るので、長く生きる側が持って渡す
+func WithRaidMap(m *activity.RaidMap) ProcessorOption {
+	return func(p *Processor) { p.raidMap = m }
 }
 
 // NewProcessor は新しいProcessorを作成する。
 // rngはゲーム全体のseedから派生した乱数生成器を渡す
-func NewProcessor(rng *rand.Rand) *Processor {
-	return &Processor{
+func NewProcessor(rng *rand.Rand, opts ...ProcessorOption) *Processor {
+	p := &Processor{
 		logger:  logger.New(logger.CategoryTurn),
 		planner: newSoloPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
 	}
+	for _, opt := range opts {
+		opt(p)
+	}
+	return p
 }
 
 // ProcessAll は全 SoloAI エンティティを soloPlanner で処理する。

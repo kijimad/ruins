@@ -190,6 +190,21 @@ func TestRaidSystem_夜明けに印を外して待機に戻し敵は残す(t *te
 	assert.Contains(t, logTexts(world), "Dawn breaks. The raid is over.", "夜明けに終わりをログで知らせる")
 }
 
+func TestRaidSystem_夜明けを飛び越しても印を外す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, "ash")
+	require.NoError(t, err)
+	raider, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "stray_dog")
+	require.NoError(t, err)
+	world.Components.Raider.Add(raider, &gc.Raider{})
+
+	query.GetGameTime(world).TotalTurns = 7*gc.TurnsPerDay + 250
+	require.NoError(t, (&RaidSystem{}).Update(world))
+
+	assert.False(t, world.Components.Raider.Has(raider))
+}
+
 func TestRunTurnEndSystems_登録したRaidSystemが波を湧かせる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t, testutil.WithUI())

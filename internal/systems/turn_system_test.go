@@ -723,7 +723,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 		turnState.Phase = gc.TurnPhaseAI
 		turnState.TurnNumber = consts.Turn(turn + 1)
 
-		err := processAITurn(world)
+		err := processAITurn(world, nil)
 		require.NoError(t, err)
 
 		grid := world.Components.GridElement.Get(enemy)
@@ -777,7 +777,7 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 		turnState.Phase = gc.TurnPhaseAI
 		turnState.TurnNumber = consts.Turn(turn + 1)
 
-		err := processAITurn(world)
+		err := processAITurn(world, nil)
 		require.NoError(t, err)
 
 		grid := world.Components.GridElement.Get(enemy)
@@ -896,7 +896,7 @@ func TestPatrolMovement(t *testing.T) {
 		turnState.Phase = gc.TurnPhaseAI
 		turnState.TurnNumber = consts.Turn(turn + 1)
 
-		err := processAITurn(world)
+		err := processAITurn(world, nil)
 		require.NoError(t, err)
 
 		grid := world.Components.GridElement.Get(enemy)
@@ -952,7 +952,7 @@ func TestTerritorialMovement(t *testing.T) {
 		turnState.Phase = gc.TurnPhaseAI
 		turnState.TurnNumber = consts.Turn(turn + 1)
 
-		err := processAITurn(world)
+		err := processAITurn(world, nil)
 		require.NoError(t, err)
 
 		grid := world.Components.GridElement.Get(enemy)

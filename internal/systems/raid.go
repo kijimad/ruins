@@ -23,10 +23,12 @@ const (
 	raidPerDanger = 3
 	// raidMaxPerNight は1晩の数の上限
 	raidMaxPerNight = 60
+	// raidCubeOnlyRatio は、見えた相手を追わずキューブだけを狙う敵の割合
+	raidCubeOnlyRatio = 1.0 / 3
 )
 
 // RaidSystem は周期ごとの襲撃の夜を進める。襲撃の日の夜明けに予告し、波のターンに中心を囲んで敵を湧かせ、
-// 翌日の夜明けに敵の印を外す。襲撃は地上が現ステージのときだけ起こす
+// 襲撃の夜の外では残った敵の印を外す。襲撃は地上が現ステージのときだけ起こす
 type RaidSystem struct {
 	raidMap *activity.RaidMap
 }
@@ -39,7 +41,8 @@ func (sys *RaidSystem) String() string {
 // Update は終わろうとしているターンの経過ターンで、予告・波・終わりのどれに当たるかを見る
 func (sys *RaidSystem) Update(world w.World) error {
 	turn := query.GetGameTime(world).TotalTurns
-	if query.RaidEndsAt(turn) {
+	// 夜明けちょうどでなく、夜の外で残った印を外す。時間を飛ばしても、読み込んでも、印が残らない
+	if !query.InRaidNight(turn) {
 		endRaid(world)
 	}
 	if !query.IsOnOverworld(world) {
@@ -85,7 +88,7 @@ func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
 		if err != nil {
 			return err
 		}
-		world.Components.Raider.Add(enemy, &gc.Raider{})
+		world.Components.Raider.Add(enemy, &gc.Raider{CubeOnly: rng.Float64() < raidCubeOnlyRatio})
 		spawned++
 	}
 	if spawned == 0 {

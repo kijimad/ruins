@@ -63,45 +63,23 @@ func TestRaidWaveAt(t *testing.T) {
 	}
 }
 
-func TestRaidEndsAt(t *testing.T) {
+func TestInRaidNight(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name string
 		turn consts.Turn
 		want bool
 	}{
-		{"8日目の夜明け", dayTurn(8, 0), true},
-		{"15日目の夜明け", dayTurn(15, 0), true},
-		{"7日目の夜明け", dayTurn(7, 0), false},
-		{"8日目の夜明けの次のターン", dayTurn(8, 1), false},
-		{"1日目の夜明け", 0, false},
+		{"7日目の最初の波から", dayTurn(7, 1000), true},
+		{"7日目の深夜の終わりまで", dayTurn(7, 1499), true},
+		{"7日目の最初の波の前は外", dayTurn(7, 999), false},
+		{"8日目の夜明けは外", dayTurn(8, 0), false},
+		{"6日目の夜は外", dayTurn(6, 1200), false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, query.RaidEndsAt(tt.turn))
-		})
-	}
-}
-
-func TestDaysUntilRaid(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name string
-		turn consts.Turn
-		want int
-	}{
-		{"1日目は6", 0, 6},
-		{"6日目は1", dayTurn(6, 1499), 1},
-		{"7日目の夜明けは0", dayTurn(7, 0), 0},
-		{"7日目の深夜の終わりも0", dayTurn(7, 1499), 0},
-		{"8日目の夜明けは6", dayTurn(8, 0), 6},
-		{"14日目は0", dayTurn(14, 500), 0},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, query.DaysUntilRaid(tt.turn))
+			assert.Equal(t, tt.want, query.InRaidNight(tt.turn))
 		})
 	}
 }

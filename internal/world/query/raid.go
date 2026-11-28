@@ -35,14 +35,14 @@ func RaidWaveAt(turn consts.Turn) (int, bool) {
 	return 0, false
 }
 
-// RaidEndsAt は経過ターン turn がちょうど襲撃の夜が明けるターン、すなわち襲撃の日の翌日の夜明けかを返す
-func RaidEndsAt(turn consts.Turn) bool {
+// InRaidNight は経過ターン turn が襲撃の夜の中、すなわち襲撃の日の最初の波から翌日の夜明けの前までかを返す
+func InRaidNight(turn consts.Turn) bool {
 	day, offset := dayAndOffset(turn)
-	return offset == 0 && day > 1 && isRaidDay(day-1)
+	return isRaidDay(day) && offset >= raidWaveTurns[0]
 }
 
-// DaysUntilRaid は今日を含めず、次の襲撃の夜まであと何日かを返す。今日が襲撃の日なら0
-func DaysUntilRaid(turn consts.Turn) int {
+// daysUntilRaid は今日を含めず、次の襲撃の夜まであと何日かを返す。今日が襲撃の日なら0
+func daysUntilRaid(turn consts.Turn) int {
 	day, _ := dayAndOffset(turn)
 	return (raidEveryDays - day%raidEveryDays) % raidEveryDays
 }
@@ -70,7 +70,7 @@ func RaidTargets(world w.World) []consts.Coord[consts.Tile] {
 // 今日が襲撃の日で最初の波がまだなら、今日の最初の波を返す
 func NextRaidWaveTurn(turn consts.Turn) consts.Turn {
 	day, offset := dayAndOffset(turn)
-	raidDay := day + DaysUntilRaid(turn)
+	raidDay := day + daysUntilRaid(turn)
 	if raidDay == day && offset > raidWaveTurns[0] {
 		raidDay += raidEveryDays
 	}

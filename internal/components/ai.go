@@ -51,4 +51,7 @@ func (s *SoloAI) ResetCombat() {
 }
 
 // Raider は襲撃で湧いた敵に付く印。錨のキューブを狙い、プレイヤーから遠くても動く。襲撃の夜が明けると外れる
-type Raider struct{}
+type Raider struct {
+	// CubeOnly は見えた相手を追わず、距離の地図の的だけを狙うか
+	CubeOnly bool
+}

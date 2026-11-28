@@ -116,6 +116,58 @@ func TestPlanRaidAction(t *testing.T) {
 	})
 }
 
+func TestPlanRaidAction_見えた相手よりキューブが近ければキューブへ向かう(t *testing.T) {
+	t.Parallel()
+	at := func(x, y int) consts.Coord[consts.Tile] {
+		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+	}
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, at(20, 26), "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, at(20, 20))
+	require.NoError(t, err)
+	world.Components.Deployed.Add(cube, &gc.Deployed{})
+	raider, err := lifecycle.SpawnEnemy(world, at(20, 22), "stray_dog")
+	require.NoError(t, err)
+	world.Components.Raider.Add(raider, &gc.Raider{})
+
+	rp := newSoloPlanner(newTestRNG())
+	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	act := rp.Plan(world, raider)
+
+	require.NotNil(t, act)
+	require.Equal(t, gc.BehaviorMove, act.BehaviorName)
+	p, ok := act.Params.(*gc.MoveParams)
+	require.True(t, ok)
+	assert.Equal(t, at(20, 21), p.Destination.Coord)
+}
+
+func TestPlanRaidAction_キューブしか狙わない敵は隣のプレイヤーを追わない(t *testing.T) {
+	t.Parallel()
+	at := func(x, y int) consts.Coord[consts.Tile] {
+		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+	}
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, at(20, 30), "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, at(20, 20))
+	require.NoError(t, err)
+	world.Components.Deployed.Add(cube, &gc.Deployed{})
+	raider, err := lifecycle.SpawnEnemy(world, at(20, 29), "stray_dog")
+	require.NoError(t, err)
+	world.Components.Raider.Add(raider, &gc.Raider{CubeOnly: true})
+
+	rp := newSoloPlanner(newTestRNG())
+	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	act := rp.Plan(world, raider)
+
+	require.NotNil(t, act)
+	require.Equal(t, gc.BehaviorMove, act.BehaviorName)
+	p, ok := act.Params.(*gc.MoveParams)
+	require.True(t, ok)
+	assert.Equal(t, at(20, 28), p.Destination.Coord)
+}
+
 func TestPlanRaidAction_道の上の扉を殴る(t *testing.T) {
 	t.Parallel()
 	at := func(x, y int) consts.Coord[consts.Tile] {
@@ -174,6 +226,36 @@ func TestPlanRaidAction_追跡の状態でも相手が見えなければキュ�
 	p, ok := act.Params.(*gc.MoveParams)
 	require.True(t, ok)
 	assert.Equal(t, at(20, 25), p.Destination.Coord)
+}
+
+func TestPlanRaidAction_細い通路で前に仲間がいれば待つ(t *testing.T) {
+	t.Parallel()
+	at := func(x, y int) consts.Coord[consts.Tile] {
+		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+	}
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, at(2, 2), "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, at(20, 20))
+	require.NoError(t, err)
+	world.Components.Deployed.Add(cube, &gc.Deployed{})
+	_, err = lifecycle.SpawnEnemy(world, at(20, 23), "stray_dog")
+	require.NoError(t, err)
+	raider, err := lifecycle.SpawnEnemy(world, at(20, 24), "stray_dog")
+	require.NoError(t, err)
+	world.Components.Raider.Add(raider, &gc.Raider{})
+	si := query.GetSpatialIndex(world)
+	for y := 21; y <= 40; y++ {
+		si.Blocked[gc.GridElement{Coord: at(19, y)}] = true
+		si.Blocked[gc.GridElement{Coord: at(21, y)}] = true
+	}
+
+	rp := newSoloPlanner(newTestRNG())
+	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	act := rp.Plan(world, raider)
+
+	require.NotNil(t, act)
+	assert.Equal(t, gc.BehaviorWait, act.BehaviorName, "回り道が長ければ、前の仲間を待つ")
 }
 
 func TestCullDistantSolo_印のある敵は圏外でも残す(t *testing.T) {
