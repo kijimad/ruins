@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/maptemplate"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/sebdah/goldie/v2"
@@ -390,4 +391,25 @@ func TestWaterSide_湖が2方向に接するなら北南西東の順に先のほ
 	d, ok := r.waterSide(inner)
 	require.True(t, ok)
 	assert.Equal(t, consts.Coord[consts.Chunk]{Y: -1}, d)
+}
+
+func TestFacilityTemplates_湖の区域の地区に建つ施設は1棟の絵で湖へ回せる(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+
+	got := map[string]bool{}
+	for _, d := range raw.PtrSlice(raws.Districts) {
+		if !slices.ContainsFunc(d.Layers, func(l rawschema.DistrictLayer) bool { return l.Water != nil }) {
+			continue
+		}
+		zones := raw.DistrictZones(d)
+		for _, f := range raw.PtrSlice(raws.Facilities) {
+			if slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool { return slices.Contains(zones, z.Zone) }) {
+				got[f.Id] = loader.HasRooms(f.Id)
+			}
+		}
+	}
+	assert.Equal(t, map[string]bool{"lakeside_plaza": false, "campsite": false, "fishing_hut": false, "hydro_plant": false}, got)
 }
