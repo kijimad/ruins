@@ -12,7 +12,7 @@ var distanceMapDirs = [...]consts.Coord[consts.Tile]{
 }
 
 // DistanceMap は狙う的から現ステージの各マスへの、重み付きの距離。下る者はこの値が小さくなる隣へ進む。全員が同じ1枚を
-// 下るので、1体ごとに道を探さずに済む。的ごとに BaseDistanceMap と PlayerDistanceMap が埋め込む
+// 下るので、1体ごとに道を探さずに済む。的ごとに CubeDistanceMap と PlayerDistanceMap が埋め込む
 type DistanceMap struct {
 	Width, Height consts.Tile
 	// Cost は各マスへ入る重み。添字は y*Width+x。0 は通れない。Reset と Spread の間でだけ書く
@@ -27,17 +27,17 @@ type DistanceMap struct {
 	buckets [DistanceMapObstacleCost + 1][]int32
 }
 
-// BaseDistanceMap は拠点のキューブからの距離の地図を保持するシングルトン。襲撃の敵が拠点へ寄り集まるのに下る
-type BaseDistanceMap struct {
+// CubeDistanceMap はキューブからの距離の地図を保持するシングルトン。襲撃の敵が拠点のキューブへ寄り集まるのに下る。キューブが無ければプレイヤーを的にする
+type CubeDistanceMap struct {
 	DistanceMap
 }
 
-// NewBaseDistanceMap は未構築の空の地図を作る
-func NewBaseDistanceMap() *BaseDistanceMap {
-	return &BaseDistanceMap{}
+// NewCubeDistanceMap は未構築の空の地図を作る
+func NewCubeDistanceMap() *CubeDistanceMap {
+	return &CubeDistanceMap{}
 }
 
-// PlayerDistanceMap はプレイヤーからの距離の地図を保持するシングルトン。ついて行くキューブが下る。拠点の地図と的も重みも違うので別に持つ
+// PlayerDistanceMap はプレイヤーからの距離の地図を保持するシングルトン。ついて行くキューブが下る。キューブの地図と的も重みも違うので別に持つ
 type PlayerDistanceMap struct {
 	DistanceMap
 }

@@ -115,7 +115,7 @@ var Registry = []Def{
 	{Field: "Dungeon"},           // ダンジョン状態を保持するシングルトン
 	{Field: "TurnState"},         // ターン状態を保持するシングルトン
 	{Field: "SpatialIndex"},      // 空間インデックスを保持するシングルトン
-	{Field: "BaseDistanceMap"},   // 拠点のキューブからの距離の地図を保持するシングルトン
+	{Field: "CubeDistanceMap"},   // キューブからの距離の地図を保持するシングルトン
 	{Field: "PlayerDistanceMap"}, // プレイヤーからの距離の地図を保持するシングルトン
 	{Field: "HandSelection"},     // 選択中の手持ち欄を保持するシングルトン
 	{Field: "GameTime"},          // ゲーム内時間を保持するシングルトン

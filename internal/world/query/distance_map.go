@@ -6,23 +6,23 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// GetBaseDistanceMap はシングルトンから、拠点の RaidTargets の的からの距離の地図を取得する。未構築なら作る。手番の外で引くと
+// GetCubeDistanceMap はシングルトンから、RaidTargets の的のキューブからの距離の地図を取得する。未構築なら作る。手番の外で引くと
 // 前の手番の地図が返る
-func GetBaseDistanceMap(world w.World) *gc.DistanceMap {
-	m := GetSingleton[gc.BaseDistanceMap](world, world.Components.BaseDistanceMap)
+func GetCubeDistanceMap(world w.World) *gc.DistanceMap {
+	m := GetSingleton[gc.CubeDistanceMap](world, world.Components.CubeDistanceMap)
 	if m == nil {
 		return nil
 	}
 	if !m.Built {
-		buildDistanceMap(world, &m.DistanceMap, RaidTargets(world), baseRule)
+		buildDistanceMap(world, &m.DistanceMap, RaidTargets(world), cubeRule)
 	}
 	return &m.DistanceMap
 }
 
-// InvalidateDistanceMaps は拠点とプレイヤーからの距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
+// InvalidateDistanceMaps はキューブとプレイヤーからの距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
 // 手番の初めと波を湧かせる前にだけ呼ぶ。手番の間は古い地図を全員で下る
 func InvalidateDistanceMaps(world w.World) {
-	if m := GetSingleton[gc.BaseDistanceMap](world, world.Components.BaseDistanceMap); m != nil {
+	if m := GetSingleton[gc.CubeDistanceMap](world, world.Components.CubeDistanceMap); m != nil {
 		m.Built = false
 	}
 	if m := GetSingleton[gc.PlayerDistanceMap](world, world.Components.PlayerDistanceMap); m != nil {
@@ -58,8 +58,8 @@ type distanceRule struct {
 }
 
 var (
-	// baseRule は拠点へ寄り集まる襲撃の敵の規則。置物を壊して進み、味方同士は通り抜ける
-	baseRule = distanceRule{breakProps: true}
+	// cubeRule はキューブへ寄り集まる襲撃の敵の規則。置物を壊して進み、味方同士は通り抜ける
+	cubeRule = distanceRule{breakProps: true}
 	// playerRule はプレイヤーについて行く者の規則。置物を壊さず、仲間を回り込む
 	playerRule = distanceRule{avoidAllies: true}
 )
