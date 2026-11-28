@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 12:32:09</td>
+            <td class="headerValue">2026-11-28 13:47:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -87,8 +87,8 @@
 <span id="L25"><span class="lineNum">      25</span>              : // turnsPerDay は当パッケージ内で使う別名。</span>
 <span id="L26"><span class="lineNum">      26</span>              : const turnsPerDay = TurnsPerDay</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              : // 時間帯ごとのターン数</span>
-<span id="L29"><span class="lineNum">      29</span>              : const turnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン</span>
+<span id="L28"><span class="lineNum">      28</span>              : // TurnsPerTimeOfDay は時間帯ごとのターン数。バランス導出が夜の長さを時間帯から出せるよう公開する</span>
+<span id="L29"><span class="lineNum">      29</span>              : const TurnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // GameTime はゲーム内時間を管理する</span>
 <span id="L32"><span class="lineNum">      32</span>              : type GameTime struct {</span>
@@ -97,23 +97,23 @@
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // GetTimeOfDay は現在の時間帯を返す</span>
 <span id="L37"><span class="lineNum">      37</span>              : func (gt *GameTime) GetTimeOfDay() TimeOfDay {</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return TimeOfDay(gt.TotalTurns % turnsPerDay / turnsPerTimeOfDay)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return TimeOfDay(gt.TotalTurns % turnsPerDay / TurnsPerTimeOfDay)</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span>              : // NumTimeOfDay は時間帯の区分数。時間帯ごとの値の配列の長さに使う</span>
-<span id="L42"><span class="lineNum">      42</span>              : const NumTimeOfDay = int(turnsPerDay / turnsPerTimeOfDay)</span>
+<span id="L42"><span class="lineNum">      42</span>              : const NumTimeOfDay = int(turnsPerDay / TurnsPerTimeOfDay)</span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span>              : // GetDaylightLerp は日照や色味を連続に補間するための、前後のアンカー時間帯とその間の位置 0..1 を返す。</span>
 <span id="L45"><span class="lineNum">      45</span>              : // 各時間帯を区間の中心にアンカーする。境界で段差にせず中心の代表値へなだらかに寄せるため。</span>
 <span id="L46"><span class="lineNum">      46</span>              : // 値表は CalendarDefs が持ち、時間の割り出しだけをここに置く。時間帯の区切りに要る turnsPerDay と</span>
-<span id="L47"><span class="lineNum">      47</span>              : // turnsPerTimeOfDay が components にあるため。補間そのものは呼び出し側が行う。</span>
+<span id="L47"><span class="lineNum">      47</span>              : // TurnsPerTimeOfDay が components にあるため。補間そのものは呼び出し側が行う。</span>
 <span id="L48"><span class="lineNum">      48</span>              : func (gt *GameTime) GetDaylightLerp() (from, to TimeOfDay, t float64) {</span>
-<span id="L49"><span class="lineNum">      49</span>              :         // 中心へアンカーするため半区間ずらす。turnsPerTimeOfDay=250 は偶数で端数は出ない</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         half := turnsPerTimeOfDay / 2</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :         // 中心へアンカーするため半区間ずらす。TurnsPerTimeOfDay=250 は偶数で端数は出ない</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         half := TurnsPerTimeOfDay / 2</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         // 中心より前は1つ前の区間へ回り込むので turnsPerDay を足して正へ寄せる</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         rel := (gt.TotalTurns%turnsPerDay - half + turnsPerDay) % turnsPerDay</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         idx := int(rel / turnsPerTimeOfDay)</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         t = float64(rel%turnsPerTimeOfDay) / float64(turnsPerTimeOfDay)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         idx := int(rel / TurnsPerTimeOfDay)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         t = float64(rel%TurnsPerTimeOfDay) / float64(TurnsPerTimeOfDay)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         return TimeOfDay(idx), TimeOfDay((idx + 1) % NumTimeOfDay), t</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L57"><span class="lineNum">      57</span>              : </span>
@@ -174,7 +174,7 @@
 <span id="L112"><span class="lineNum">     112</span>              : // 現在のフェーズの残りターンを飛ばし、常にちょうど1つ次の時間帯にする。</span>
 <span id="L113"><span class="lineNum">     113</span>              : // 深夜からは翌日の夜明けへ折り返す。</span>
 <span id="L114"><span class="lineNum">     114</span>              : func (gt *GameTime) AdvanceToNextTimeOfDay() {</span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         gt.TotalTurns = (gt.TotalTurns/TurnsPerTimeOfDay + 1) * TurnsPerTimeOfDay</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L117"><span class="lineNum">     117</span>              : </span>
 <span id="L118"><span class="lineNum">     118</span>              : // turnsPerSeason は1季節ぶんのターン数</span>

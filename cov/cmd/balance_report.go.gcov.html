@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">30</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 12:32:09</td>
+            <td class="headerValue">2026-11-28 13:47:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,40 +68,71 @@
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;os&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/balance&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/urfave/cli/v3&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              : )</span>
-<span id="L12"><span class="lineNum">      12</span>              : </span>
-<span id="L13"><span class="lineNum">      13</span>              : // CmdBalanceReport は序盤戦闘のベースラインを計算し docs/balance/baseline.md へ出力する。</span>
-<span id="L14"><span class="lineNum">      14</span>              : // 実コードの戦闘式と raw.toml から決定論的に難易度カーブを導出し、目標回廊と突き合わせる。</span>
-<span id="L15"><span class="lineNum">      15</span>              : var CmdBalanceReport = &amp;cli.Command{</span>
-<span id="L16"><span class="lineNum">      16</span>              :         Name:        &quot;balance-report&quot;,</span>
-<span id="L17"><span class="lineNum">      17</span>              :         Usage:       &quot;balance-report&quot;,</span>
-<span id="L18"><span class="lineNum">      18</span>              :         Description: &quot;Derive the early-combat difficulty curve and write docs/balance/baseline.md. Run from the repository root; paths are relative to it&quot;,</span>
-<span id="L19"><span class="lineNum">      19</span>              :         Action:      runBalanceReport,</span>
-<span id="L20"><span class="lineNum">      20</span>              : }</span>
-<span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span>              : // reportPath は生成先。基準の player/weapon/days は balance の共有定数を使い二重化を避ける。</span>
-<span id="L23"><span class="lineNum">      23</span>              : const reportPath = &quot;docs/balance/baseline.md&quot;</span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              : // runBalanceReport は I/O 副作用を持つ CLI 層で、意図的に単体テストを持たない。導出ロジックは</span>
-<span id="L26"><span class="lineNum">      26</span>              : // balance パッケージ側でテストする。</span>
-<span id="L27"><span class="lineNum">      27</span>              : func runBalanceReport(_ context.Context, _ *cli.Command) error {</span>
-<span id="L28"><span class="lineNum">      28</span>              :         // パスは埋め込み assets FS 基準。ルートが assets/ を剥がした位置なので assets/ 接頭辞は付けない</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         master, err := raw.LoadFromFile(&quot;metadata/entities/raw/raw.toml&quot;)</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to load raw.toml: %w&quot;, err)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         md, err := balance.RenderBaselineMarkdown(master, balance.BaselinePlayer, raw.BareHands, balance.BaselineDays)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to render baseline: %w&quot;, err)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         if err := os.WriteFile(reportPath, []byte(md), 0o644); err != nil {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to write %s: %w&quot;, reportPath, err)</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         fmt.Printf(&quot;wrote %s\n&quot;, reportPath)</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L42"><span class="lineNum">      42</span>              : }</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/overworld&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/urfave/cli/v3&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              : )</span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span>              : // CmdBalanceReport は序盤戦闘のベースラインを計算し docs/balance/baseline.md へ出力する。</span>
+<span id="L16"><span class="lineNum">      16</span>              : // 実コードの戦闘式と raw.toml から決定論的に難易度カーブを導出し、目標回廊と突き合わせる。</span>
+<span id="L17"><span class="lineNum">      17</span>              : var CmdBalanceReport = &amp;cli.Command{</span>
+<span id="L18"><span class="lineNum">      18</span>              :         Name:        &quot;balance-report&quot;,</span>
+<span id="L19"><span class="lineNum">      19</span>              :         Usage:       &quot;balance-report&quot;,</span>
+<span id="L20"><span class="lineNum">      20</span>              :         Description: &quot;Derive the early-combat difficulty curve and write docs/balance/baseline.md. Run from the repository root; paths are relative to it&quot;,</span>
+<span id="L21"><span class="lineNum">      21</span>              :         Action:      runBalanceReport,</span>
+<span id="L22"><span class="lineNum">      22</span>              : }</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // reportPath は生成先。基準の player/weapon/days は balance の共有定数を使い二重化を避ける。</span>
+<span id="L25"><span class="lineNum">      25</span>              : const reportPath = &quot;docs/balance/baseline.md&quot;</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : // areaSeeds と areaDepths は、拠点のエリアが何日もつかを測る種と北の深さ。種を固定して、同じ報告を作り直せるようにする</span>
+<span id="L28"><span class="lineNum">      28</span>              : var (</span>
+<span id="L29"><span class="lineNum">      29</span>              :         areaSeeds  = []uint64{1, 2, 3, 4, 5}</span>
+<span id="L30"><span class="lineNum">      30</span>              :         areaDepths = []consts.Chunk{0, 40, 80, 120}</span>
+<span id="L31"><span class="lineNum">      31</span>              : )</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : // measureAreaSupply は種と北の深さごとに、拠点のエリアだけを持つ world を作って食べ物と燃料を数える</span>
+<span id="L34"><span class="lineNum">      34</span>              : func measureAreaSupply() ([]balance.AreaSupplySample, error) {</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         var samples []balance.AreaSupplySample</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         for _, depth := range areaDepths {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 for _, seed := range areaSeeds {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                         world, err := newOverworldWorld()</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                         if err != nil {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                                 return nil, err</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                         if err := overworld.GenerateBandAt(world, seed, depth); err != nil {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                                 return nil, err</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                         samples = append(samples, balance.AreaSupplySample{Seed: seed, Depth: depth, Supply: balance.MeasureAreaSupply(world)})</span></span>
+<span id="L46"><span class="lineNum">      46</span>              :                 }</span>
+<span id="L47"><span class="lineNum">      47</span>              :         }</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         return samples, nil</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : }</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : // runBalanceReport は I/O 副作用を持つ CLI 層で、意図的に単体テストを持たない。導出ロジックは</span>
+<span id="L52"><span class="lineNum">      52</span>              : // balance パッケージ側でテストする。</span>
+<span id="L53"><span class="lineNum">      53</span>              : func runBalanceReport(_ context.Context, _ *cli.Command) error {</span>
+<span id="L54"><span class="lineNum">      54</span>              :         // パスは埋め込み assets FS 基準。ルートが assets/ を剥がした位置なので assets/ 接頭辞は付けない</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         master, err := raw.LoadFromFile(&quot;metadata/entities/raw/raw.toml&quot;)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to load raw.toml: %w&quot;, err)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         md, err := balance.RenderBaselineMarkdown(master, balance.BaselinePlayer, raw.BareHands, balance.BaselineDays)</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to render baseline: %w&quot;, err)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         samples, err := measureAreaSupply()</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to measure area supply: %w&quot;, err)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         md += balance.RenderAreaSupplyMarkdown(balance.DefaultParams(master), samples)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         if err := os.WriteFile(reportPath, []byte(md), 0o644); err != nil {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to write %s: %w&quot;, reportPath, err)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         fmt.Printf(&quot;wrote %s\n&quot;, reportPath)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L73"><span class="lineNum">      73</span>              : }</span>
         </pre>
               </td>
             </tr>
