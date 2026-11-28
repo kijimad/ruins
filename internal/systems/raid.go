@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	// raidEnemyTable は襲撃の敵の種類を引く raw の敵の表
+	// raidEnemyTable は襲撃の敵の種類を引く raw の敵の表。1マスに1体ずつ湧かせるので、表の pack は見ない
 	raidEnemyTable = "raid"
 	// raidSpawnMin と raidSpawnMax は中心から湧かせる輪のチェビシェフ距離
 	raidSpawnMin consts.Tile = 18
