@@ -419,9 +419,6 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 // 作り、ついて行く全員で使い回す
 func followStep(world w.World, from consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
 	m := query.GetPlayerDistanceMap(world)
-	if m == nil {
-		return consts.Coord[consts.Tile]{}, false
-	}
 	si := query.GetSpatialIndex(world)
 	var buf [8]consts.Coord[consts.Tile]
 	for _, next := range m.Steps(from, buf[:0]) {

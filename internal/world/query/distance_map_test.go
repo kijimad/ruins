@@ -29,7 +29,7 @@ func TestBuildDistanceMap(t *testing.T) {
 		world.Components.HP.Add(door, &gc.HP{})
 		world.Components.GridElement.Add(door, &gc.GridElement{Coord: at(2, 0)})
 
-		m := gc.NewDistanceMap()
+		m := &gc.DistanceMap{}
 		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, cubeRule)
 		d, ok := m.Dist(at(3, 0))
 		require.True(t, ok)
@@ -52,7 +52,7 @@ func TestBuildDistanceMap(t *testing.T) {
 		si.Blocked = map[gc.GridElement]bool{}
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: ally, {Coord: at(1, 1)}: beast, {Coord: at(0, 1)}: enemy}
 
-		m := gc.NewDistanceMap()
+		m := &gc.DistanceMap{}
 		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, cubeRule)
 		dAlly, _ := m.Dist(at(1, 0))
 		dBeast, _ := m.Dist(at(1, 1))
@@ -87,7 +87,7 @@ func BenchmarkBuildDistanceMap(b *testing.B) {
 		}
 	}
 	targets := []consts.Coord[consts.Tile]{{X: size / 2, Y: size / 2}}
-	m := gc.NewDistanceMap()
+	m := &gc.DistanceMap{}
 	buildDistanceMap(world, m, targets, cubeRule)
 	b.ResetTimer()
 	for b.Loop() {

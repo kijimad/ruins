@@ -47,11 +47,6 @@ func NewPlayerDistanceMap() *PlayerDistanceMap {
 	return &PlayerDistanceMap{}
 }
 
-// NewDistanceMap は未構築の空の地図を作る
-func NewDistanceMap() *DistanceMap {
-	return &DistanceMap{}
-}
-
 // Reset は寸法を width と height にし、全てのマスを重み1の通れるマスに戻す。配列は使い回す
 func (m *DistanceMap) Reset(width, height consts.Tile) {
 	m.Width, m.Height = width, height
