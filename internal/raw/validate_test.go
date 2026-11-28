@@ -558,3 +558,21 @@ func TestValidateDistrictLayers_塀を巡らせる区域は施設を建てない
 	err := validateDistrictLayers(&rawschema.District{Id: "d", Pattern: rawschema.DistrictPatternRings, Fence: fence, Layers: []rawschema.DistrictLayer{{Zones: &zone, Lots: new(2)}, {Zones: &zone}}})
 	require.ErrorIs(t, err, errDistrictFenceWithGaps)
 }
+
+func TestValidateLakeFacilityFootprints_湖の区域の地区の施設は1チャンクだけ(t *testing.T) {
+	t.Parallel()
+	zone := []rawschema.ZoneId{"lake_shore"}
+	districts := []rawschema.District{{Id: "lake", Layers: []rawschema.DistrictLayer{{Zones: &zone}, {Water: &rawschema.DistrictWater{}}}}}
+	single := []rawschema.FacilityFootprint{{W: 1, H: 1, Weight: 1}}
+	wide := []rawschema.FacilityFootprint{{W: 1, H: 1, Weight: 1}, {W: 2, H: 1, Weight: 1}}
+
+	require.NoError(t, validateLakeFacilityFootprints(rawschema.Raws{Districts: &districts, Facilities: &[]rawschema.Facility{
+		{Id: "hut", Zones: []rawschema.FacilityZone{{Zone: "lake_shore"}}, Footprints: &single},
+		{Id: "plaza", Zones: []rawschema.FacilityZone{{Zone: "lake_shore"}}},
+		{Id: "mall", Zones: []rawschema.FacilityZone{{Zone: "downtown"}}, Footprints: &wide},
+	}}))
+	err := validateLakeFacilityFootprints(rawschema.Raws{Districts: &districts, Facilities: &[]rawschema.Facility{
+		{Id: "hall", Zones: []rawschema.FacilityZone{{Zone: "lake_shore"}}, Footprints: &wide},
+	}})
+	require.ErrorIs(t, err, errLakeFacilityNotSingleChunk)
+}

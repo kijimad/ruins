@@ -105,7 +105,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 }
 
 // landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、
-// 地区に収まるものを選ぶ。真ん中に建てられなければ真ん中に一番近い建てられるチャンクに置く。区域の作りがその地区を割り振らなければ置かない
+// 地区に収まるものを選ぶ。真ん中に建てられなければ、同じ順の大きさで真ん中に一番近い建てられる区画に置く。区域の作りがその地区を割り振らなければ置かない
 func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
 	for _, fz := range f.Zones {
 		var cells []consts.Coord[consts.Chunk]
@@ -134,16 +134,19 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
 				return consts.Coord[consts.Chunk]{X: x, Y: y}, w, h, true
 			}
 		}
-		// 真ん中に建てられない区域は、真ん中に一番近い建てられるチャンクに 1×1 で置く。湖の区域では南の門の側の岸になる
-		best, bestDist := consts.Coord[consts.Chunk]{}, consts.Chunk(-1)
-		for _, c := range cells {
-			dx, dy := 2*c.X-minC.X-maxC.X, 2*c.Y-minC.Y-maxC.Y
-			if d := dx*dx + dy*dy; fits(c.X, c.Y, 1, 1, fz.Zone) && (bestDist < 0 || d < bestDist) {
-				best, bestDist = c, d
+		// 真ん中に建てられない区域は、真ん中に一番近い建てられる区画に置く。湖の区域では南の門の側の岸になる
+		for _, fp := range fps {
+			w, h := consts.Chunk(fp.W), consts.Chunk(fp.H)
+			best, bestDist := consts.Coord[consts.Chunk]{}, consts.Chunk(-1)
+			for _, c := range cells {
+				dx, dy := 2*c.X+w-1-minC.X-maxC.X, 2*c.Y+h-1-minC.Y-maxC.Y
+				if d := dx*dx + dy*dy; fits(c.X, c.Y, w, h, fz.Zone) && (bestDist < 0 || d < bestDist) {
+					best, bestDist = c, d
+				}
 			}
-		}
-		if bestDist >= 0 {
-			return best, 1, 1, true
+			if bestDist >= 0 {
+				return best, w, h, true
+			}
 		}
 	}
 	return consts.Coord[consts.Chunk]{}, 0, 0, false

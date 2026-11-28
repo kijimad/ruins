@@ -19,6 +19,7 @@ var (
 	errDistrictWaterLayer            = errors.New("district water layer is not the core of rings")
 	errDistrictLayerEmpty            = errors.New("district layer has neither zones nor water")
 	errDistrictWaterNotSquare        = errors.New("district with a water layer is not square")
+	errLakeFacilityNotSingleChunk    = errors.New("facility in a lake district zone is larger than one chunk")
 	errDistrictFenceWithGaps         = errors.New("district with a fence has chunks without facilities")
 	errLandmarkMinDanger             = errors.New("landmark facility has minDanger")
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
@@ -50,6 +51,7 @@ func validateRules(raws rawschema.Raws) error {
 		validateDisassemblies,
 		validateDistricts,
 		validateZoneBaseFacilities,
+		validateLakeFacilityFootprints,
 		validateLandmarkMinDanger,
 		validateMapGlyphReferences,
 		validateConditions,
@@ -176,6 +178,31 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 			})
 			if !hasBase {
 				return fmt.Errorf("district %q zone %q has no facility with minSpan<=%d and minDanger<=1: %w", d.Id, zone, baseSpan, errZoneNoBaseFacility)
+			}
+		}
+	}
+	return nil
+}
+
+// validateLakeFacilityFootprints は湖を描く区域の地区に建つ施設が1チャンクの大きさだけを持つことを検証する。
+// 施設の絵と桟橋はチャンクごとに接する湖へ向けるので、区画が複数のチャンクにまたがると向きと桟橋の数が区画と合わない
+func validateLakeFacilityFootprints(raws rawschema.Raws) error {
+	facilities := PtrSlice(raws.Facilities)
+	districts := PtrSlice(raws.Districts)
+	for i := range districts {
+		d := &districts[i]
+		if !slices.ContainsFunc(d.Layers, func(l rawschema.DistrictLayer) bool { return l.Water != nil }) {
+			continue
+		}
+		zones := DistrictZones(*d)
+		for _, f := range facilities {
+			if !slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool { return slices.Contains(zones, z.Zone) }) {
+				continue
+			}
+			for _, fp := range PtrSlice(f.Footprints) {
+				if fp.W != 1 || fp.H != 1 {
+					return fmt.Errorf("district %q facility %q footprint %dx%d: %w", d.Id, f.Id, fp.W, fp.H, errLakeFacilityNotSingleChunk)
+				}
 			}
 		}
 	}

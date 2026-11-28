@@ -279,25 +279,42 @@ func TestChunkPlace_湖の区域は施設を建てない角を荒れ地に湖を
 	assert.Equal(t, map[string]rune{"角": '.', "湖": 'w', "施設": 'H'}, got)
 }
 
-func TestQuarterTurnsToward_北の辺を向きの側へ回す(t *testing.T) {
+func TestQuarterTurnsToward_反転の有無によらず北の辺を向きの側へ回す(t *testing.T) {
 	t.Parallel()
-	cells := [][]maptemplate.MapCell{{{}, {Terrain: "n"}, {}}, {{}, {}, {}}, {{}, {}, {}}}
-	got := map[consts.Coord[consts.Chunk]][2]int{}
-	for _, d := range []consts.Coord[consts.Chunk]{{Y: -1}, {X: -1}, {Y: 1}, {X: 1}} {
-		for y, row := range maptemplate.TransformCells(cells, quarterTurnsToward(d), false) {
-			for x, c := range row {
-				if c.Terrain == "n" {
-					got[d] = [2]int{x, y}
+	cells := [][]maptemplate.MapCell{{{Terrain: "n"}, {Terrain: "n"}, {Terrain: "n"}}, {{}, {}, {}}, {{}, {}, {}}}
+	for _, mirror := range []bool{false, true} {
+		got := map[consts.Coord[consts.Chunk]][][2]int{}
+		for _, d := range []consts.Coord[consts.Chunk]{{Y: -1}, {X: -1}, {Y: 1}, {X: 1}} {
+			for y, row := range maptemplate.TransformCells(cells, quarterTurnsToward(d), mirror) {
+				for x, c := range row {
+					if c.Terrain == "n" {
+						got[d] = append(got[d], [2]int{x, y})
+					}
 				}
 			}
 		}
+		assert.Equal(t, map[consts.Coord[consts.Chunk]][][2]int{
+			{Y: -1}: {{0, 0}, {1, 0}, {2, 0}},
+			{X: -1}: {{0, 0}, {0, 1}, {0, 2}},
+			{Y: 1}:  {{0, 2}, {1, 2}, {2, 2}},
+			{X: 1}:  {{2, 0}, {2, 1}, {2, 2}},
+		}, got, "mirror=%v", mirror)
 	}
-	assert.Equal(t, map[consts.Coord[consts.Chunk]][2]int{
-		{Y: -1}: {1, 0},
-		{X: -1}: {0, 1},
-		{Y: 1}:  {1, 2},
-		{X: 1}:  {2, 1},
-	}, got)
+}
+
+func TestLandmarkLot_真ん中に建てられなければ同じ大きさで真ん中に一番近い区画に置く(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+	f := rawschema.Facility{Id: "wide", Zones: []rawschema.FacilityZone{{Zone: "lake_shore"}}, Footprints: &[]rawschema.FacilityFootprint{{W: 2, H: 1, Weight: 1}}}
+	southRow := func(x, y, w, h consts.Chunk, _ rawschema.ZoneId) bool {
+		return y == 6 && h == 1 && x >= 0 && x+w <= r.w
+	}
+
+	anchor, w, h, ok := landmarkLot(r, f, southRow)
+	require.True(t, ok)
+	assert.Equal(t, []consts.Chunk{2, 6, 2, 1}, []consts.Chunk{anchor.X, anchor.Y, w, h})
 }
 
 func TestLotsOf_湖の区域は南の辺の中央に水力発電所を置き施設を全て湖へ向ける(t *testing.T) {

@@ -76,7 +76,7 @@ func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool
 	return s, true, nil
 }
 
-// waterSide は区域の中の座標 l に接する湖の向きを返す。湖が2方向に接するなら南北を東西より先にする
+// waterSide は区域の中の座標 l に接する湖の向きを、北・南・西・東の順に最初に見つけたもので返す
 func (r districtRegion) waterSide(l consts.Coord[consts.Chunk]) (consts.Coord[consts.Chunk], bool) {
 	for _, d := range []consts.Coord[consts.Chunk]{{Y: -1}, {Y: 1}, {X: -1}, {X: 1}} {
 		if r.waterAt(l.Add(d)) != nil {
