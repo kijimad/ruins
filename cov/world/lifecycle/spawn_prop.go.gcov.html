@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">82.5&nbsp;%</td>
-            <td class="headerCovTableEntry">114</td>
-            <td class="headerCovTableEntry">94</td>
+            <td class="headerCovTableEntryMed">82.6&nbsp;%</td>
+            <td class="headerCovTableEntry">115</td>
+            <td class="headerCovTableEntry">95</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 10:59:19</td>
+            <td class="headerValue">2026-11-28 11:23:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -221,32 +221,34 @@
 <span id="L159"><span class="lineNum">     159</span>              : }</span>
 <span id="L160"><span class="lineNum">     160</span>              : </span>
 <span id="L161"><span class="lineNum">     161</span>              : // SpawnCube は raw の cube prop からプレイヤーに随伴する移動拠点キューブをオーバーワールドに生成し、帯へ明示束縛する。</span>
-<span id="L162"><span class="lineNum">     162</span>              : // 陣営を持たないので、SoloAI の戦闘の状態遷移に入らず移動方針だけで動く。自分の拠点を殴れないよう、操作は随伴の操作だけにする</span>
-<span id="L163"><span class="lineNum">     163</span>              : func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {</span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, &quot;cube&quot;)</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :                 return gc.InvalidEntity, err</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         entitySpec.GridElement = &amp;gc.GridElement{Coord: pos}</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         entitySpec.Cube = &amp;gc.Cube{}</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         entitySpec.Charge = &amp;gc.Charge{Max: int(consts.CubeFuelCapacityBase), Current: int(consts.CubeFuelCapacityBase)}</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         entitySpec.SoloAI = &amp;gc.SoloAI{</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 CombatDefault: rawschema.Ignore,</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 CombatCurrent: rawschema.Ignore,</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 Movement:      rawschema.Follow,</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 SubState:      gc.AIStateWaiting,</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         entitySpec.TurnBased = &amp;gc.TurnBased{}</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         entitySpec.LocationOnField = &amp;gc.LocationOnField{}</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         entitySpec.StageBound = &amp;gc.StageBound{Key: gc.NewOverworldStage()}</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)}</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu, gc.InteractionSwap}}</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         cube := world.Components.AddEntity(world.ECS, &amp;entitySpec)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         maxAP := query.CalculateMaxActionPoints(world, cube)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         world.Components.TurnBased.Get(cube).AP = gc.IntPool{Current: maxAP, Max: maxAP}</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         return cube, nil</span></span>
-<span id="L187"><span class="lineNum">     187</span>              : }</span>
+<span id="L162"><span class="lineNum">     162</span>              : // 味方の陣営に属し、敵から狙われる。戦闘の方針は rawschema.Passive なので、敵がいても殴られても移動方針だけで動く。</span>
+<span id="L163"><span class="lineNum">     163</span>              : // 自分の拠点を殴れないよう、操作は随伴の操作だけにする</span>
+<span id="L164"><span class="lineNum">     164</span>              : func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, &quot;cube&quot;)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 return gc.InvalidEntity, err</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         entitySpec.GridElement = &amp;gc.GridElement{Coord: pos}</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         entitySpec.Cube = &amp;gc.Cube{}</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         entitySpec.FactionAlly = &amp;gc.FactionAlly{}</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         entitySpec.Charge = &amp;gc.Charge{Max: int(consts.CubeFuelCapacityBase), Current: int(consts.CubeFuelCapacityBase)}</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         entitySpec.SoloAI = &amp;gc.SoloAI{</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 CombatDefault: rawschema.Passive,</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 CombatCurrent: rawschema.Passive,</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 Movement:      rawschema.Follow,</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 SubState:      gc.AIStateWaiting,</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         entitySpec.TurnBased = &amp;gc.TurnBased{}</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         entitySpec.LocationOnField = &amp;gc.LocationOnField{}</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         entitySpec.StageBound = &amp;gc.StageBound{Key: gc.NewOverworldStage()}</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: consts.Milligram(consts.CubeWeightCapacityKg * consts.MilligramPerKg)}</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionOpenCubeMenu, gc.InteractionSwap}}</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         cube := world.Components.AddEntity(world.ECS, &amp;entitySpec)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         maxAP := query.CalculateMaxActionPoints(world, cube)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         world.Components.TurnBased.Get(cube).AP = gc.IntPool{Current: maxAP, Max: maxAP}</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         return cube, nil</span></span>
+<span id="L189"><span class="lineNum">     189</span>              : }</span>
         </pre>
               </td>
             </tr>

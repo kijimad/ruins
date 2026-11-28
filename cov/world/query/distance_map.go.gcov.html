@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - world/query/distance_map.go</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html" title="Click to go to top-level">top level</a> - <a href="index.html" title="Click to go to directory world/query">world/query</a> - distance_map.go</td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryMed">82.9&nbsp;%</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntry">29</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-11-28 11:23:43</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package query</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // GetDistanceMap はシングルトンから、RaidTargets の的からの距離の地図を取得する。未構築なら作る。手番の外で引くと</span>
+<span id="L10"><span class="lineNum">      10</span>              : // 前の手番の地図が返る</span>
+<span id="L11"><span class="lineNum">      11</span>              : func GetDistanceMap(world w.World) *gc.DistanceMap {</span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           1 :         m := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap)</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         if m == nil {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         if !m.Built {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 buildDistanceMap(world, m, RaidTargets(world))</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         return m</span></span>
+<span id="L20"><span class="lineNum">      20</span>              : }</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // InvalidateDistanceMap は距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の手番の初めと波を</span>
+<span id="L23"><span class="lineNum">      23</span>              : // 湧かせる前にだけ呼ぶ。手番の間は古い地図を全員で下る</span>
+<span id="L24"><span class="lineNum">      24</span>              : func InvalidateDistanceMap(world w.World) {</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         if m := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap); m != nil {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 m.Built = false</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              : }</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // buildDistanceMap は空間の索引と置物から各マスの重みを書き出し、的 targets から距離を広げる。通れるマスと、プレイヤーと</span>
+<span id="L31"><span class="lineNum">      31</span>              : // 味方のマスは重み1、HP を持つ通れない置物と、それ以外のキャラクターのマスは重み gc.DistanceMapObstacleCost で</span>
+<span id="L32"><span class="lineNum">      32</span>              : // 通れるものとして数える。HP を持たず通れない壁や地形は数えない</span>
+<span id="L33"><span class="lineNum">      33</span>              : func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[consts.Tile]) {</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         m.Built = true</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         si := GetSpatialIndex(world)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         if si == nil {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 m.Reset(0, 0)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         m.Reset(si.MapWidth, si.MapHeight)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         for g, blocked := range si.Blocked {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 if !blocked || !m.InBounds(g.Coord) {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L44"><span class="lineNum">      44</span>              :                 }</span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 i := m.Index(g.Coord)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 m.Cost[i] = 0</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 m.Blocked[i] = true</span></span>
+<span id="L48"><span class="lineNum">      48</span>              :         }</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         q := ActiveFilter3[gc.Prop, gc.HP, gc.GridElement](world).Query()</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 _, _, g := q.Get()</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 if m.InBounds(g.Coord) &amp;&amp; m.Blocked[m.Index(g.Coord)] {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                         m.Cost[m.Index(g.Coord)] = gc.DistanceMapObstacleCost</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L55"><span class="lineNum">      55</span>              :         }</span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         for g, e := range si.Characters {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 if !m.InBounds(g.Coord) || m.Blocked[m.Index(g.Coord)] || IsAlly(world, e) {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L59"><span class="lineNum">      59</span>              :                 }</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 m.Cost[m.Index(g.Coord)] = gc.DistanceMapObstacleCost</span></span>
+<span id="L61"><span class="lineNum">      61</span>              :         }</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         m.Spread(targets)</span></span>
+<span id="L63"><span class="lineNum">      63</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">88.5&nbsp;%</td>
-            <td class="headerCovTableEntry">78</td>
-            <td class="headerCovTableEntry">69</td>
+            <td class="headerCovTableEntryHi">90.5&nbsp;%</td>
+            <td class="headerCovTableEntry">95</td>
+            <td class="headerCovTableEntry">86</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 10:59:19</td>
+            <td class="headerValue">2026-11-28 11:23:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -196,6 +196,30 @@
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 MoveMembersToField(world, single, coord, cube)</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L136"><span class="lineNum">     136</span>              : }</span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              : // SpillCubeContents は壊れるキューブの畳んだアイテムと装着したモジュールを、キューブの足元へ出す。畳んだ置き物は</span>
+<span id="L139"><span class="lineNum">     139</span>              : // キューブと一緒に壊れて消え、置き物の収納の中身だけを足元へ出す。展開と同じ並びへは戻さない。キューブは囲まれて</span>
+<span id="L140"><span class="lineNum">     140</span>              : // 壊れるので、元の並びのマスは敵や壁で塞がれていることがある。キューブ自身の収納の中身は SpillStorageItems が出す</span>
+<span id="L141"><span class="lineNum">     141</span>              : func SpillCubeContents(world w.World, cube ecs.Entity) {</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         base := world.Components.GridElement.Get(cube).Coord</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         var items, props []ecs.Entity</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         for _, e := range query.StowedCargo(world, cube) {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 if world.Components.Prop.Has(e) {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                         props = append(props, e)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 } else {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                         items = append(items, e)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :         }</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         MoveMembersToField(world, items, base, cube)</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         MoveMembersToField(world, query.GetCubeModules(world, cube), base, cube)</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         for _, p := range props {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 SpillStorageItems(world, p, base.X, base.Y)</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         RemoveOwnedEntities(world, props)</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         for _, p := range props {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 world.ECS.RemoveEntity(p)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L160"><span class="lineNum">     160</span>              : }</span>
         </pre>
               </td>
             </tr>
