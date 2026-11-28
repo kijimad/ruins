@@ -243,7 +243,6 @@ func TestDistrictRegion_zoneAt_区域が割り振る地区はrawの地区の一�
 				r := districtRegion{kind: d.row, w: consts.Chunk(size.W), h: consts.Chunk(size.H), seed: seed << zoneChoiceShift}
 				for ly := range r.h {
 					for lx := range r.w {
-						// 湖を描くチャンクは地区を持たない
 						if l := (consts.Coord[consts.Chunk]{X: lx, Y: ly}); r.waterAt(l) == nil {
 							got[r.zoneAt(l)] = true
 						}

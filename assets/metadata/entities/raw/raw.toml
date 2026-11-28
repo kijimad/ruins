@@ -1637,6 +1637,8 @@
       beachWidth = 2
       deep = "water_deep"
       glyph = "lakeside_water"
+      pier = "plank_brown"
+      pierLength = 6
       shallow = "water_shallow"
       shallowWidth = 3
       shoreCell = 32

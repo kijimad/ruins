@@ -30,7 +30,6 @@ func TestAreaAt_区域だけが区域ごとのキーを持つ(t *testing.T) {
 				r, _ := districtAt(raws, runSeed, c, cols, 0)
 				assert.Equal(t, AreaKey{District: r.kind.Id, Anchor: r.anchor}, area.Key, "区域の種類と原点で区域を区別する")
 				assert.Equal(t, i18n.Msgid(r.kind.Name), area.Name)
-				// 施設を建てるチャンクと湖のチャンクだけが建物の名前を持ち、自然の地面のチャンクは持たない
 				l := r.local(c)
 				assert.Equal(t, r.builds(l) || r.waterAt(l) != nil, area.Building != "", "%v の建物の名前", c)
 			case chunkWasteland, chunkRoad:

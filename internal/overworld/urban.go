@@ -65,7 +65,7 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 // zoneChoiceShift は層の候補から地区を選ぶ、区域の seed のビットの位置
 const zoneChoiceShift = 32
 
-// zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ。水で満たす層は地区を持たないので空
+// zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ。湖を描く層は空を返す
 func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.ZoneId {
 	zones := raw.PtrSlice(r.kind.Layers[r.layerAt(l)].Zones)
 	if len(zones) == 0 {
@@ -159,7 +159,6 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 		return nil
 	}
 	l := r.local(c)
-	// 湖を描くチャンクと自然の地面のチャンクは街路も施設も置かず、敵も湧かせない。輪郭の外の地面は散布が撒く
 	if r.waterAt(l) != nil {
 		return renderLakeChunk(world, g, r, c)
 	}
@@ -187,7 +186,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 func gateColumns(r districtRegion, lots []buildingLot) (north, south consts.Chunk) {
 	column := func(y consts.Chunk) consts.Chunk {
 		l := consts.Coord[consts.Chunk]{X: r.w / 2, Y: y}
-		// 施設を建てない自然の地面なら、真ん中の列をそのまま門にする
+		// 自然の地面は区画を持たないので真ん中の列を門にする
 		if !r.builds(l) {
 			return r.anchor.X + l.X
 		}

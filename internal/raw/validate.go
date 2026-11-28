@@ -93,7 +93,7 @@ func validateDistricts(raws rawschema.Raws) error {
 
 // validateDistrictLayers は区域 d の層の数と行の数の書き方が、並べ方に合うことを検証する。
 // rings は外側と中心の2層で行の数を書かず、rows は2層以上で行の数を省いた層がちょうど1つある。
-// 水で満たす層は rings の中心だけにする。外側の層が水を囲み、岸の街路で区域を一周できるようにするため
+// 湖を描く層は rings の中心だけにする
 func validateDistrictLayers(d *rawschema.District) error {
 	for i, l := range d.Layers {
 		if l.Water == nil && l.Zones == nil {

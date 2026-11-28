@@ -21,15 +21,15 @@ func (r districtRegion) waterAt(l consts.Coord[consts.Chunk]) *rawschema.Distric
 	return r.kind.Layers[r.layerAt(l)].Water
 }
 
-// lakeShape は区域の湖の輪郭。湖を描く層のチャンクを合わせた長方形に収まる楕円を、絶対タイル座標で持つ
+// lakeShape は区域の湖の輪郭と桟橋。湖を描く層のチャンクを合わせた長方形に収まる楕円を、絶対タイル座標で持つ
 type lakeShape struct {
 	water          *rawschema.DistrictWater
 	cx, cy, rx, ry float64
 	seed           uint64
+	piers          map[consts.Coord[consts.Tile]]bool
 }
 
-// lakeShapeOf は区域 r の湖の輪郭を返す。楕円は湖を描く層の長方形から、揺れの量と浜の幅だけ内側に取り、
-// 湖が隣の層のチャンクへはみ出さないようにする。湖を描く層が無ければ ok=false
+// lakeShapeOf は区域 r の湖の輪郭と桟橋を返す。楕円は湖が隣の層へはみ出さないよう内側に取る。湖が無ければ ok=false
 func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool) {
 	var water *rawschema.DistrictWater
 	lo := consts.Coord[consts.Chunk]{X: r.w, Y: r.h}
@@ -49,18 +49,50 @@ func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool
 	x0, y0 := float64((r.anchor.X + lo.X).Tiles(chunkW)), float64((r.anchor.Y + lo.Y).Tiles(chunkH))
 	x1, y1 := float64((r.anchor.X + hi.X).Tiles(chunkW)), float64((r.anchor.Y + hi.Y).Tiles(chunkH))
 	margin := float64(water.ShoreWobble + water.BeachWidth)
-	return lakeShape{
+	s := lakeShape{
 		water: water,
 		cx:    (x0 + x1) / 2,
 		cy:    (y0 + y1) / 2,
 		rx:    (x1-x0)/2 - margin,
 		ry:    (y1-y0)/2 - margin,
 		seed:  r.seed ^ lakeNoiseChannel,
-	}, true
+		piers: map[consts.Coord[consts.Tile]]bool{},
+	}
+	for y := range r.h {
+		for x := range r.w {
+			if l := (consts.Coord[consts.Chunk]{X: x, Y: y}); r.builds(l) {
+				s.addPier(r, l, chunkW, chunkH)
+			}
+		}
+	}
+	return s, true
 }
 
-// depth は絶対タイル座標 p が湖の輪郭からどれだけ内側にあるかをマス数で返す。負なら輪郭の外の陸。
-// 楕円の内側への深さを短い半径でマス数に直し、値ノイズで揺れの量だけ増減させる
+// addPier は施設を建てたチャンク l の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める
+func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) {
+	for _, d := range []consts.Coord[consts.Chunk]{{Y: -1}, {Y: 1}, {X: -1}, {X: 1}} {
+		if r.waterAt(l.Add(d)) == nil {
+			continue
+		}
+		c := r.anchor.Add(l)
+		center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW) + chunkW/2, Y: c.Y.Tiles(chunkH) + chunkH/2}
+		step := consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}
+		side := consts.Coord[consts.Tile]{X: step.Y, Y: step.X}
+		end := float64(s.water.BeachWidth + s.water.ShallowWidth + s.water.PierLength)
+		for p := center; ; p = p.Add(step) {
+			depth := s.depth(p)
+			if depth >= end {
+				return
+			}
+			if depth >= 0 {
+				s.piers[p] = true
+				s.piers[p.Add(side)] = true
+			}
+		}
+	}
+}
+
+// depth は絶対タイル座標 p が湖の輪郭からどれだけ内側にあるかをマス数で返す。負なら輪郭の外の陸
 func (s lakeShape) depth(p consts.Coord[consts.Tile]) float64 {
 	dx := (float64(p.X) + 0.5 - s.cx) / s.rx
 	dy := (float64(p.Y) + 0.5 - s.cy) / s.ry
@@ -68,10 +100,12 @@ func (s lakeShape) depth(p consts.Coord[consts.Tile]) float64 {
 	return inside + float64(s.water.ShoreWobble)*(2*valueNoise(s.seed, p, consts.Tile(s.water.ShoreCell))-1)
 }
 
-// tileAt は絶対タイル座標 p に置く水面のタイルを返す。輪郭の外の陸なら ok=false
+// tileAt は絶対タイル座標 p に置く水面か桟橋のタイルを返す。輪郭の外の陸なら ok=false
 func (s lakeShape) tileAt(p consts.Coord[consts.Tile]) (string, bool) {
 	d := s.depth(p)
 	switch {
+	case s.piers[p]:
+		return s.water.Pier, true
 	case d < 0:
 		return "", false
 	case d < float64(s.water.BeachWidth):
@@ -82,14 +116,14 @@ func (s lakeShape) tileAt(p consts.Coord[consts.Tile]) (string, bool) {
 	return s.water.Deep, true
 }
 
-// renderLakeChunk は区域 r の湖を描く層のチャンク c に、湖の輪郭の内側のマスだけ水面を置く。輪郭の外は下地の土を残す
+// renderLakeChunk はチャンク c の湖の輪郭の内側に水面と桟橋を置く。輪郭の外は下地の土を残す
 func renderLakeChunk(world w.World, g chunkGeom, r districtRegion, c consts.Coord[consts.Chunk]) error {
 	shape, ok := r.lakeShapeOf(g.chunkW, g.chunkH)
 	if !ok {
 		return nil
 	}
 	rows := map[string]rawschema.Tile{}
-	for _, id := range []string{shape.water.Deep, shape.water.Shallow, shape.water.Beach} {
+	for _, id := range []string{shape.water.Deep, shape.water.Shallow, shape.water.Beach, shape.water.Pier} {
 		t, err := raw.GetTile(world.Resources.RawMaster, id)
 		if err != nil {
 			return fmt.Errorf("lake tile %q: %w", id, err)

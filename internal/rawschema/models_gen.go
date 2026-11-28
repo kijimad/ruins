@@ -658,21 +658,21 @@ type District struct {
 	Verge *EntityID `json:"verge,omitempty"`
 }
 
-// DistrictLayer 地区の層。候補の地区から区域の seed で1つ選ぶ。水で満たす層は地区を持たない
+// DistrictLayer 地区の層。候補の地区から区域の seed で1つ選ぶ
 type DistrictLayer struct {
-	// Lots この層で施設を建てるチャンクの数。省くと全てのチャンクに建てる。建てないチャンクは自然の地面にする
+	// Lots 施設を建てるチャンクの数。省くと全てに建てる
 	Lots *int `json:"lots,omitempty"`
 
 	// Rows rows の並べ方で、この層が占める行の数
 	Rows *int `json:"rows,omitempty"`
 
-	// Scatter 施設を建てないチャンクと、湖の輪郭の外の地面に撒く散布の種類。省くと撒かない
+	// Scatter 施設を建てないチャンクと湖の外の地面に撒く散布の種類
 	Scatter *EntityID `json:"scatter,omitempty"`
 
-	// Water この層のチャンクに湖を描く。街路も施設も置かない
+	// Water この層のチャンクに湖を描く
 	Water *DistrictWater `json:"water,omitempty"`
 
-	// Zones 候補の地区。水で満たす層では省く
+	// Zones 候補の地区。湖を描く層では省く
 	Zones *[]ZoneId `json:"zones,omitempty"`
 }
 
@@ -715,7 +715,7 @@ type DistrictSize struct {
 	Weight int `json:"weight"`
 }
 
-// DistrictWater 湖の水面。層のチャンクを合わせた長方形に収まる楕円を基に、輪郭を値ノイズで出入りさせる。輪郭から内へ浜、浅瀬、深い水と並べる
+// DistrictWater 湖の水面。楕円の輪郭を値ノイズで出入りさせ、輪郭から内へ浜、浅瀬、深い水と並べる
 type DistrictWater struct {
 	// Beach 浜のタイル
 	Beach EntityID `json:"beach"`
@@ -729,13 +729,19 @@ type DistrictWater struct {
 	// Glyph 俯瞰図に出す記号の行
 	Glyph EntityID `json:"glyph"`
 
+	// Pier 桟橋の板のタイル
+	Pier EntityID `json:"pier"`
+
+	// PierLength 桟橋が浅瀬を越えて深い水へ伸びる長さ。タイル数
+	PierLength int `json:"pierLength"`
+
 	// Shallow 浅瀬のタイル
 	Shallow EntityID `json:"shallow"`
 
 	// ShallowWidth 浅瀬の幅。タイル数
 	ShallowWidth int `json:"shallowWidth"`
 
-	// ShoreCell 輪郭の出入りの格子の間隔。大きいほどゆるい入り江になる。タイル数
+	// ShoreCell 輪郭の出入りの格子の間隔。タイル数
 	ShoreCell int `json:"shoreCell"`
 
 	// ShoreWobble 輪郭を楕円から出入りさせる量。タイル数

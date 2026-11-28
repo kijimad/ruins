@@ -129,7 +129,6 @@ func chunkPlace(raws rawschema.Raws, cat zoneCatalog, runSeed uint64, c consts.C
 	case chunkUrban:
 		r, _ := districtAt(raws, runSeed, c, cols, spawnRow)
 		id := urbanFacilityAt(raws, cat, r, c, spawnRow)
-		// 施設を建てない自然の地面は荒れ地と同じ記号にする
 		if id == "" {
 			return chunkGlyph(raws, rawschema.Wasteland)
 		}

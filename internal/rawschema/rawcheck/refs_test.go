@@ -304,5 +304,5 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 
 // validWater は makeRefRaws の行だけを引く、検証を通る水面
 func validWater() rawschema.DistrictWater {
-	return rawschema.DistrictWater{Deep: "floor", Shallow: "floor", Beach: "floor", Glyph: "house", BeachWidth: 1, ShallowWidth: 2, ShoreWobble: 1, ShoreCell: 8}
+	return rawschema.DistrictWater{Deep: "floor", Shallow: "floor", Beach: "floor", Pier: "floor", PierLength: 1, Glyph: "house", BeachWidth: 1, ShallowWidth: 2, ShoreWobble: 1, ShoreCell: 8}
 }

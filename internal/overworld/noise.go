@@ -2,8 +2,7 @@ package overworld
 
 import "github.com/kijimaD/ruins/internal/consts"
 
-// valueNoise は絶対タイル座標 p の値ノイズを [0, 1) で返す。間隔 cell の格子点に乱数を置き、間を滑らかに補間する。
-// 座標の純関数なので、チャンクの境目をまたいでも値が途切れない
+// valueNoise は絶対タイル座標 p の値ノイズを [0, 1) で返す。間隔 cell の格子点の乱数を滑らかに補間する
 func valueNoise(seed uint64, p consts.Coord[consts.Tile], cell consts.Tile) float64 {
 	cx, cy := consts.FloorDiv(p.X, cell), consts.FloorDiv(p.Y, cell)
 	fx := smoothstep(float64(p.X-cx*cell) / float64(cell))

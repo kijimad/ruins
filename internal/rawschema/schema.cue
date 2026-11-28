@@ -417,9 +417,9 @@ import (
 // rows は層を行で分け、rows を省いた層がちょうど1つあって残りの行を占める
 #DistrictPattern: "rings" | "rows" @rawgen(prefix)
 
-// 地区の層。候補の地区から区域の seed で1つ選ぶ。水で満たす層は地区を持たない
+// 地区の層。候補の地区から区域の seed で1つ選ぶ
 #DistrictLayer: {
-	// 候補の地区。水で満たす層では省く
+	// 候補の地区。湖を描く層では省く
 	zones?: [...#ZoneId] & [_, ...]
 	if zones != _|_ {
 		zones_ref: [for x in zones {_zoneIDs[x]}] @rawgen(-)
@@ -427,23 +427,23 @@ import (
 
 	// rows の並べ方で、この層が占める行の数
 	rows?: int & >=1
-	// この層のチャンクに湖を描く。街路も施設も置かない
+	// この層のチャンクに湖を描く
 	water?: #DistrictWater
-	// この層で施設を建てるチャンクの数。省くと全てのチャンクに建てる。建てないチャンクは自然の地面にする
+	// 施設を建てるチャンクの数。省くと全てに建てる
 	lots?: int & >=1
-	// 施設を建てないチャンクと、湖の輪郭の外の地面に撒く散布の種類。省くと撒かない
+	// 施設を建てないチャンクと湖の外の地面に撒く散布の種類
 	scatter?: #EntityID
 	if scatter != _|_ {
 		scatter_ref: _scatterZoneIDs[scatter] @rawgen(-)
 	}
 
-	// 地区と水を両方持たない。どちらも持たない層は raw の Go の検証が落とす
+	// 地区と湖を両方は持たない
 	if water != _|_ {
 		zonesAbsent: true & zones == _|_ @rawgen(-)
 	}
 }
 
-// 湖の水面。層のチャンクを合わせた長方形に収まる楕円を基に、輪郭を値ノイズで出入りさせる。輪郭から内へ浜、浅瀬、深い水と並べる
+// 湖の水面。楕円の輪郭を値ノイズで出入りさせ、輪郭から内へ浜、浅瀬、深い水と並べる
 #DistrictWater: {
 	// 深い水のタイル
 	deep!:    #EntityID
@@ -454,6 +454,11 @@ import (
 	// 浜のタイル
 	beach!:    #EntityID
 	beach_ref: _tileIDs[beach] @rawgen(-)
+	// 桟橋の板のタイル
+	pier!:    #EntityID
+	pier_ref: _tileIDs[pier] @rawgen(-)
+	// 桟橋が浅瀬を越えて深い水へ伸びる長さ。タイル数
+	pierLength!: int & >=1
 	// 俯瞰図に出す記号の行
 	glyph!:    #EntityID
 	glyph_ref: _mapGlyphIDs[glyph] @rawgen(-)
@@ -463,7 +468,7 @@ import (
 	shallowWidth!: int & >=1
 	// 輪郭を楕円から出入りさせる量。タイル数
 	shoreWobble!: int & >=0
-	// 輪郭の出入りの格子の間隔。大きいほどゆるい入り江になる。タイル数
+	// 輪郭の出入りの格子の間隔。タイル数
 	shoreCell!: int & >=1
 }
 

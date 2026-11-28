@@ -3,6 +3,7 @@ package overworld
 import (
 	"bytes"
 	"image/png"
+	"slices"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -13,10 +14,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// lakeSeed は開始の行の近くに湖の区域が出る seed。地上の15列で、区域の左上は (5, -12)、水で満たすのは (6, -11) から 5x5
+// lakeSeed は開始の行の近くに湖の区域が出る seed。区域の左上は (5, -12)
 const lakeSeed = 12
 
-func TestDistrictRegion_waterAt_湖の区域は中心だけを水で満たす(t *testing.T) {
+func TestDistrictRegion_waterAt_湖の区域は中心の層だけに湖を描く(t *testing.T) {
 	t.Parallel()
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
@@ -43,7 +44,6 @@ func TestRenderLakeChunk_楕円の輪郭の内に水面を置き外は陸に残�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	gen := NewChunkGen(world, lakeSeed, 24, 24, 15, mapplanner.PlannerTypeOverworldField)
-	// 湖の真ん中のチャンクと、北西の角のチャンク
 	center := consts.Coord[consts.Chunk]{X: 8, Y: -9}
 	corner := consts.Coord[consts.Chunk]{X: 6, Y: -11}
 	require.NoError(t, gen(center, 0, 0))
@@ -87,10 +87,35 @@ func TestDistrictRegion_builds_外の層は道の来る南の辺の中央に近�
 			}
 		}
 	}
-	// 南の辺の中央 (3, 6) と、同じ近さの隣のどちらか
 	require.Len(t, got, 2)
 	assert.Contains(t, got, consts.Coord[consts.Chunk]{X: 3, Y: 6})
 	assert.Equal(t, consts.Chunk(6), got[0].Y)
 	assert.Equal(t, consts.Chunk(6), got[1].Y)
 	assert.Empty(t, urbanFacilityAt(raws, zoneCatalogFrom(raws), r, consts.Coord[consts.Chunk]{X: 5, Y: -12}, 0), "施設を建てない角は施設を持たない")
+}
+
+func TestLakeShape_施設を建てたチャンクの正面から浜を越えて深い水まで桟橋を伸ばす(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+	shape, ok := r.lakeShapeOf(24, 24)
+	require.True(t, ok)
+
+	c := r.anchor.Add(consts.Coord[consts.Chunk]{X: 3, Y: 6})
+	x := c.X.Tiles(24) + 12
+	var line []string
+	for y := c.Y.Tiles(24); ; y-- {
+		p := consts.Coord[consts.Tile]{X: x, Y: y}
+		if shape.depth(p) >= float64(shape.water.BeachWidth+shape.water.ShallowWidth+shape.water.PierLength)+1 {
+			break
+		}
+		if tile, ok := shape.tileAt(p); ok {
+			line = append(line, tile)
+		}
+	}
+	planks := slices.Index(line, "water_deep")
+	require.Positive(t, planks)
+	want := append(slices.Repeat([]string{"plank_brown"}, planks), slices.Repeat([]string{"water_deep"}, len(line)-planks)...)
+	assert.Equal(t, want, line)
 }

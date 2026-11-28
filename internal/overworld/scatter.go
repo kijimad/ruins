@@ -151,7 +151,6 @@ func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[
 		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(raws, runSeed, c, cols, spawnRow))
 		return cat, err == nil, err
 	case chunkUrban:
-		// 区域のうち施設を建てない自然の地面と湖の輪郭の外の地面には、層が指す散布を撒く
 		l := r.local(c)
 		zone := r.kind.Layers[r.layerAt(l)].Scatter
 		if r.builds(l) || zone == nil {
