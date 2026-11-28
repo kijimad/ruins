@@ -305,6 +305,11 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
 	return cells, urbanStreetW, nil
 }
 
+// facilityArtCenter は施設の絵の真ん中をチャンクの中の座標で返す。絵は北と西の街路の帯の内側に置くので、帯の分だけ南東にずれる
+func facilityArtCenter(chunkW, chunkH consts.Tile) consts.Coord[consts.Tile] {
+	return consts.Coord[consts.Tile]{X: urbanStreetW + (chunkW-urbanStreetW)/2, Y: urbanStreetW + (chunkH-urbanStreetW)/2}
+}
+
 // drawUrbanStreets はチャンクの北辺と西辺に街路を描く。建物区画のタイルは建物の生成が描くので触らない
 func drawUrbanStreets(world w.World, g chunkGeom, streets streetTiles) error {
 	tiles := g.tiles.get()

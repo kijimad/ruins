@@ -70,7 +70,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 			}
 		}
 		lot := buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: consts.Mix2D(r.seed, anchor.X, anchor.Y)}
-		if d, ok := r.waterSide(anchor); ok {
+		if d, ok := r.waterSide(anchor.Add(lot.entrance())); ok {
 			lot.facesWater, lot.turns = true, quarterTurnsToward(d)
 		}
 		lots = append(lots, lot)

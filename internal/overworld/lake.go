@@ -106,8 +106,7 @@ func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chun
 		return
 	}
 	c := r.anchor.Add(l)
-	// 施設の絵はチャンクの北と西の帯の内側に置くので、絵の真ん中は帯の分だけ南東にずれる
-	center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW) + urbanStreetW + (chunkW-urbanStreetW)/2, Y: c.Y.Tiles(chunkH) + urbanStreetW + (chunkH-urbanStreetW)/2}
+	center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW), Y: c.Y.Tiles(chunkH)}.Add(facilityArtCenter(chunkW, chunkH))
 	s.layPier(center, consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}, max(r.w.Tiles(chunkW), r.h.Tiles(chunkH)))
 }
 
