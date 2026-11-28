@@ -194,8 +194,9 @@ func TestConnectRooms_PlanMeta_2つの部屋をL字トンネルで繋ぐ(t *test
 			assert.True(t, isFloor(c2x, (c1y+c2y)/2), "垂直方向の中間地点が掘られている")
 			assert.True(t, isFloor(c2x, c2y), "垂直方向の終点付近が掘られている")
 
-			assert.False(t, isFloor(0, 0), "トンネルから離れた角は壁のまま")
-			assert.False(t, isFloor(width-1, height-1), "トンネルから離れた角は壁のまま")
+			// L字の折れる側と反対の内側のマスは、どちらの向きでも掘られない
+			assert.False(t, isFloor(17, 2), "L字から外れた右上の内側は壁のまま")
+			assert.False(t, isFloor(2, 8), "L字から外れた左下の内側は壁のまま")
 		})
 	}
 }
@@ -236,25 +237,26 @@ func TestConnectRooms_PlanMeta_トンネルは外周の壁を侵さない(t *tes
 
 	const width, height = 10, 10
 	mp := newWallFilledPlan(width, height)
-	// room1の中心を左端(x=0)、room2の中心を上端(y=0)に置き、トンネルが外周に
-	// 到達しようとしても壁のまま残ることを確認する
-	room1 := gc.Rect{Min: consts.Coord[consts.Tile]{X: 0, Y: 5}, Max: consts.Coord[consts.Tile]{X: 0, Y: 5}}
-	room2 := gc.Rect{Min: consts.Coord[consts.Tile]{X: 5, Y: 0}, Max: consts.Coord[consts.Tile]{X: 5, Y: 0}}
-	mp.Rooms = []gc.Rect{room1, room2}
+	// 中心が外周の1マス内側を一周する部屋の並び。各辺でトンネルの太さが外周へはみ出そうとする
+	at := func(x, y consts.Tile) gc.Rect {
+		return gc.Rect{Min: consts.Coord[consts.Tile]{X: x, Y: y}, Max: consts.Coord[consts.Tile]{X: x, Y: y}}
+	}
+	mp.Rooms = []gc.Rect{at(1, 1), at(8, 1), at(8, 8), at(1, 8), at(1, 1)}
 
 	connect := ConnectRooms{Tiles: testLayoutTiles}
 	require.NoError(t, connect.PlanMeta(mp))
 
-	isFloor := func(x, y int) bool {
-		return mp.Tiles[y*width+x].Passable != nil
-	}
-
-	for x := range width {
-		assert.False(t, isFloor(x, 0), "上端(%d,0)は壁のまま", x)
-	}
+	want := make([]bool, width*height)
+	got := make([]bool, width*height)
 	for y := range height {
-		assert.False(t, isFloor(0, y), "左端(0,%d)は壁のまま", y)
+		for x := range width {
+			inside := x >= 1 && x <= 8 && y >= 1 && y <= 8
+			band := x <= 2 || x >= 7 || y <= 2 || y >= 7
+			want[y*width+x] = inside && band
+			got[y*width+x] = mp.Tiles[y*width+x].Passable != nil
+		}
 	}
+	assert.Equal(t, want, got, "外周の内側に幅2の輪が掘られ、外周4辺は壁のまま")
 }
 
 func TestScatterWalls_PlanMeta_確率1なら境界以外の床を壁にする(t *testing.T) {
@@ -270,13 +272,16 @@ func TestScatterWalls_PlanMeta_確率1なら境界以外の床を壁にする(t 
 	scatter := ScatterWalls{Row: rawschema.ScatterWallStep{Chance: 1.0}, Tiles: testLayoutTiles}
 	require.NoError(t, scatter.PlanMeta(mp))
 
-	for x := 2; x < width-2; x++ {
-		for y := 2; y < height-2; y++ {
-			assert.Nil(t, mp.Tiles[y*width+x].Passable, "確率1なら対象範囲(%d,%d)は壁になる", x, y)
+	want := make([]bool, width*height)
+	got := make([]bool, width*height)
+	for y := range height {
+		for x := range width {
+			target := x >= 2 && x < width-2 && y >= 2 && y < height-2
+			want[y*width+x] = !target
+			got[y*width+x] = mp.Tiles[y*width+x].Passable != nil
 		}
 	}
-	// 境界から2マス未満は対象外なので床のまま
-	assert.NotNil(t, mp.Tiles[0*width+0].Passable, "境界に近いマスは対象外で床のまま")
+	assert.Equal(t, want, got, "外周から2マス以上内側だけが壁になり、その外の2マス幅は床のまま")
 }
 
 func TestScatterWalls_PlanMeta_確率0なら床を変化させない(t *testing.T) {
