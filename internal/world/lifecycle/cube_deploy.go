@@ -135,9 +135,26 @@ func releaseStowedItems(world w.World, cube ecs.Entity) {
 	}
 }
 
-// SpillCubeContents は壊れるキューブの畳んだ貨物を展開と同じ並びで、装着したモジュールをキューブの足元へ出す。
-// 収納の中身は SpillStorageItems が出す。出さないと、持ち主の無い実体として見えないまま残る
+// SpillCubeContents は壊れるキューブの畳んだアイテムと装着したモジュールを、キューブの足元へ出す。畳んだ置き物は
+// キューブと一緒に壊れて消え、置き物の収納の中身だけを足元へ出す。展開と同じ並びへは戻さない。キューブは囲まれて
+// 壊れるので、元の並びのマスは敵や壁で塞がれていることがある。キューブ自身の収納の中身は SpillStorageItems が出す
 func SpillCubeContents(world w.World, cube ecs.Entity) {
-	releaseStowedItems(world, cube)
-	MoveMembersToField(world, query.GetCubeModules(world, cube), world.Components.GridElement.Get(cube).Coord, cube)
+	base := world.Components.GridElement.Get(cube).Coord
+	var items, props []ecs.Entity
+	for _, e := range query.StowedCargo(world, cube) {
+		if world.Components.Prop.Has(e) {
+			props = append(props, e)
+		} else {
+			items = append(items, e)
+		}
+	}
+	MoveMembersToField(world, items, base, cube)
+	MoveMembersToField(world, query.GetCubeModules(world, cube), base, cube)
+	for _, p := range props {
+		SpillStorageItems(world, p, base.X, base.Y)
+	}
+	RemoveOwnedEntities(world, props)
+	for _, p := range props {
+		world.ECS.RemoveEntity(p)
+	}
 }

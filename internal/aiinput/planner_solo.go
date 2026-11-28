@@ -422,7 +422,7 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
 	var steps []consts.Coord[consts.Tile]
 	if rp.raidMap != nil {
-		rp.raidSteps = rp.raidMap.Steps(world, grid.Coord, rp.raidSteps)
+		rp.raidSteps = rp.raidMap.Steps(grid.Coord, rp.raidSteps)
 		steps = rp.raidSteps
 	}
 	if !world.Components.Raider.Get(entity).CubeOnly {

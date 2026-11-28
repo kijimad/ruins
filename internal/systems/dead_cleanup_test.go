@@ -303,7 +303,7 @@ func TestDeadCleanupSystem_壊れたキューブは畳んだ貨物とモジュ�
 		require.True(t, world.ECS.Alive(e), "消えずに残る")
 		assert.True(t, world.Components.LocationOnField.Has(e), "足元のフィールドへ出る")
 	}
-	assert.Equal(t, consts.Coord[consts.Tile]{X: 9, Y: 9}, world.Components.GridElement.Get(cargo[0]).Coord, "畳んだ貨物は展開と同じ並びへ戻る")
+	assert.Equal(t, at, world.Components.GridElement.Get(cargo[0]).Coord, "畳んだアイテムはキューブの足元へ出る")
 	assert.Equal(t, at, world.Components.GridElement.Get(module).Coord, "モジュールはキューブの足元へ出る")
 }
 

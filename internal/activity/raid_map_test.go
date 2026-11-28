@@ -97,7 +97,7 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Characters = map[gc.GridElement]ecs.Entity{}
 
 		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0), at(2, 2)}, nil)
-		assert.Equal(t, []consts.Coord[consts.Tile]{at(2, 2)}, m.Steps(world, at(1, 1), nil), "角の向こうの (0,0) でなく、斜めに抜けられる (2,2) へ進む")
+		assert.Equal(t, []consts.Coord[consts.Tile]{at(2, 2)}, m.Steps(at(1, 1), nil), "角の向こうの (0,0) でなく、斜めに抜けられる (2,2) へ進む")
 	})
 
 	t.Run("Steps は自分のマスの重さを数えずに比べ、遠ざかる隣を入れない", func(t *testing.T) {
@@ -109,7 +109,7 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(2, 1)}: world.ECS.NewEntity()}
 
 		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 1)}, nil)
-		assert.Equal(t, []consts.Coord[consts.Tile]{at(1, 1), at(1, 0), at(1, 2)}, m.Steps(world, at(2, 1), nil), "横と後ろの列は、重さ5の自分のマスより近くても下る隣に入れない")
+		assert.Equal(t, []consts.Coord[consts.Tile]{at(1, 1), at(1, 0), at(1, 2)}, m.Steps(at(2, 1), nil), "横と後ろの列は、重さ5の自分のマスより近くても下る隣に入れない")
 	})
 
 	t.Run("Steps は細い通路では一番小さい隣の1つだけを返す", func(t *testing.T) {
@@ -121,7 +121,7 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: world.ECS.NewEntity()}
 
 		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
-		assert.Equal(t, []consts.Coord[consts.Tile]{at(1, 0)}, m.Steps(world, at(2, 0), nil), "塞がれていても替わりの隣は無く、呼ぶ側は待つ")
+		assert.Equal(t, []consts.Coord[consts.Tile]{at(1, 0)}, m.Steps(at(2, 0), nil), "塞がれていても替わりの隣は無く、呼ぶ側は待つ")
 	})
 
 	t.Run("的が無ければどのマスにも届かない", func(t *testing.T) {
@@ -146,8 +146,8 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Characters = map[gc.GridElement]ecs.Entity{}
 
 		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
-		assert.Equal(t, []consts.Coord[consts.Tile]{at(2, 1), at(2, 0), at(2, 2)}, m.Steps(world, at(3, 1), nil))
-		assert.Empty(t, m.Steps(world, at(0, 0), nil), "的の上では進む先が無い")
+		assert.Equal(t, []consts.Coord[consts.Tile]{at(2, 1), at(2, 0), at(2, 2)}, m.Steps(at(3, 1), nil))
+		assert.Empty(t, m.Steps(at(0, 0), nil), "的の上では進む先が無い")
 	})
 }
 

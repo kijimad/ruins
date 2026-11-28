@@ -124,8 +124,8 @@ func (m *RaidMap) Dist(c consts.Coord[consts.Tile]) (int32, bool) {
 
 // Steps は from の隣のうち、距離が一番小さいマスを全て、raidMapDirs の順に buf へ足して返す。from の距離は隣の
 // 一番小さい値に from へ入る重さを足したものなので、from に誰もいなかったときの距離と比べれば、一番小さい隣だけが
-// 残る。斜めは CanMoveTo と同じ規則で選ぶ。下る隣が無ければ空を返す
-func (m *RaidMap) Steps(world w.World, from consts.Coord[consts.Tile], buf []consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
+// 残る。斜めは地図を広げるときと同じく、CanMoveTo の規則で選ぶ。下る隣が無ければ空を返す
+func (m *RaidMap) Steps(from consts.Coord[consts.Tile], buf []consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
 	steps := buf[:0]
 	d, ok := m.Dist(from)
 	if !ok {
@@ -133,13 +133,9 @@ func (m *RaidMap) Steps(world w.World, from consts.Coord[consts.Tile], buf []con
 	}
 	// 立っている自分のマスは重く数えられているので、重さ1で入ったときの距離と比べる。比べないと後ろのマスまで下る隣に入る
 	here := d - m.cost[m.index(from)] + 1
-	si := query.GetSpatialIndex(world)
-	if si == nil {
-		return steps
-	}
 	for _, dir := range raidMapDirs {
 		next := from.Add(dir)
-		if d, ok := m.Dist(next); ok && d < here && m.canPassDiagonal(si, from, dir) {
+		if d, ok := m.Dist(next); ok && d < here && m.canPassDiagonal(from, dir) {
 			steps = append(steps, next)
 		}
 	}
@@ -154,12 +150,13 @@ func (m *RaidMap) index(c consts.Coord[consts.Tile]) int {
 	return int(c.Y)*int(m.width) + int(c.X)
 }
 
-// canPassDiagonal は CanMoveTo と同じく、縦横の隣がどちらも通れないマスなら斜めに抜けさせない
-func (m *RaidMap) canPassDiagonal(si *gc.SpatialIndex, cur, d consts.Coord[consts.Tile]) bool {
+// canPassDiagonal は地図を広げるときと同じく、縦横の隣がどちらも通れないマスなら斜めに抜けさせない。下る先の
+// next が地図の中にあるので、縦横の隣も地図の中にある
+func (m *RaidMap) canPassDiagonal(from, d consts.Coord[consts.Tile]) bool {
 	if d.X == 0 || d.Y == 0 {
 		return true
 	}
-	return !si.IsBlocked(cur.Add(consts.Coord[consts.Tile]{X: d.X})) || !si.IsBlocked(cur.Add(consts.Coord[consts.Tile]{Y: d.Y}))
+	return !m.blocked[m.index(from.Add(consts.Coord[consts.Tile]{X: d.X}))] || !m.blocked[m.index(from.Add(consts.Coord[consts.Tile]{Y: d.Y}))]
 }
 
 // fillCosts は各マスへ入る重みと、通れないマスを空間の索引から書き出す。通れるマスは1、HP を持たず通れない
