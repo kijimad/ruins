@@ -27,49 +27,62 @@ func newFilledPlan(width, height int, tileName string) *MetaPlan {
 	return mp
 }
 
-func TestCaveCellularAutomata_PlanMeta_閾値未満の床領域は部屋として登録しない(t *testing.T) {
+func TestCaveCellularAutomata_PlanMeta_閾値以上の床領域だけを部屋として抽出する(t *testing.T) {
 	t.Parallel()
 
-	const width, height = 6, 5
-	mp := newFilledPlan(width, height, "wall")
-	floor := mp.GetTile("floor")
-
-	// x=1..3、y=1..2 の3x2=6マスの床領域を作る
-	for x := 1; x <= 3; x++ {
-		for y := 1; y <= 2; y++ {
-			mp.Tiles[y*width+x] = floor
-		}
+	tests := []struct {
+		name         string
+		minRoomTiles int
+		want         []gc.Rect
+	}{
+		{name: "6マスは閾値7に届かない", minRoomTiles: 7, want: nil},
+		{
+			name:         "6マスは閾値6に届く",
+			minRoomTiles: 6,
+			want:         []gc.Rect{{Min: consts.Coord[consts.Tile]{X: 1, Y: 1}, Max: consts.Coord[consts.Tile]{X: 3, Y: 2}}},
+		},
 	}
 
-	automata := CaveCellularAutomata{Row: rawschema.AutomataStep{Iterations: 0, MinRoomTiles: 7}, Tiles: testLayoutTiles}
-	require.NoError(t, automata.PlanMeta(mp))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	assert.Empty(t, mp.Rooms, "6マスの領域はMinRoomTiles=7未満なので部屋として登録されない")
+			const width, height = 6, 5
+			mp := newFilledPlan(width, height, "wall")
+			floor := mp.GetTile("floor")
+			// x=1..3、y=1..2 の3x2=6マスの床領域を作る
+			for x := 1; x <= 3; x++ {
+				for y := 1; y <= 2; y++ {
+					mp.Tiles[y*width+x] = floor
+				}
+			}
+
+			// Iterations: 0 でセルラーオートマトンを走らせずに部屋抽出だけ検証する
+			automata := CaveCellularAutomata{Row: rawschema.AutomataStep{Iterations: 0, MinRoomTiles: tt.minRoomTiles}, Tiles: testLayoutTiles}
+			require.NoError(t, automata.PlanMeta(mp))
+
+			assert.Equal(t, tt.want, mp.Rooms)
+		})
+	}
 }
 
-func TestCaveCellularAutomata_PlanMeta_閾値以上の床領域を部屋として抽出する(t *testing.T) {
+func TestCaveCellularAutomata_PlanMeta_長方形でない床領域は外接矩形を部屋にする(t *testing.T) {
 	t.Parallel()
 
-	const width, height = 6, 5
+	const width, height = 4, 4
 	mp := newFilledPlan(width, height, "wall")
 	floor := mp.GetTile("floor")
-
-	// x=1..3、y=1..2 の3x2=6マスの床領域を作る
-	for x := 1; x <= 3; x++ {
-		for y := 1; y <= 2; y++ {
-			mp.Tiles[y*width+x] = floor
-		}
+	// 走査で最初に見つかる x=1,y=2 より上に x=2,y=1 がある L 字
+	for _, c := range [][2]int{{1, 2}, {2, 2}, {2, 1}} {
+		mp.Tiles[c[1]*width+c[0]] = floor
 	}
 
-	// Iterations: 0 でセルラーオートマトンを走らせずに部屋抽出だけ検証する
-	automata := CaveCellularAutomata{Row: rawschema.AutomataStep{Iterations: 0, MinRoomTiles: 6}, Tiles: testLayoutTiles}
+	automata := CaveCellularAutomata{Row: rawschema.AutomataStep{Iterations: 0, MinRoomTiles: 1}, Tiles: testLayoutTiles}
 	require.NoError(t, automata.PlanMeta(mp))
 
-	require.Len(t, mp.Rooms, 1)
-	assert.Equal(t, gc.Rect{
-		Min: consts.Coord[consts.Tile]{X: 1, Y: 1},
-		Max: consts.Coord[consts.Tile]{X: 3, Y: 2},
-	}, mp.Rooms[0])
+	assert.Equal(t, []gc.Rect{
+		{Min: consts.Coord[consts.Tile]{X: 1, Y: 1}, Max: consts.Coord[consts.Tile]{X: 2, Y: 2}},
+	}, mp.Rooms)
 }
 
 func TestCaveCellularAutomata_PlanMeta_斜めにだけ接する床は別の部屋になる(t *testing.T) {
@@ -126,6 +139,23 @@ func TestCaveCellularAutomata_PlanMeta_境界外は壁として数えられ上�
 		assert.Nil(t, mp.Tiles[(height-1)*width+x].Passable, "下端の x=%d は境界外を3マス数えて壁になる", x)
 		assert.NotNil(t, mp.Tiles[1*width+x].Passable, "y=1 の x=%d は境界外を含まず床のまま", x)
 	}
+}
+
+func TestCaveCellularAutomata_PlanMeta_2回目は1回目の結果を数える(t *testing.T) {
+	t.Parallel()
+
+	const width, height = 5, 4
+	mp := newFilledPlan(width, height, "floor")
+
+	// 1回目で外周がすべて壁になり、2回目は内側のどのマスも外周の壁を3マス以上数える
+	automata := CaveCellularAutomata{Row: rawschema.AutomataStep{Iterations: 2, WallNeighbors: 3}, Tiles: testLayoutTiles}
+	require.NoError(t, automata.PlanMeta(mp))
+
+	got := make([]bool, width*height)
+	for i := range mp.Tiles {
+		got[i] = mp.Tiles[i].Passable != nil
+	}
+	assert.Equal(t, make([]bool, width*height), got, "2回目で内側の床もすべて壁になる")
 }
 
 func TestConnectRooms_PlanMeta_部屋が1つ以下なら何もしない(t *testing.T) {
