@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (89.1%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (91.6%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (89.2%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (81.4%)</option>
 				
@@ -113,7 +113,7 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.6%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/aiinput/planner.go (91.0%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (93.9%)</option>
 				
@@ -631,23 +631,23 @@
 				
 				<option value="file287">github.com/kijimaD/ruins/internal/steam/steam_disabled.go (50.0%)</option>
 				
-				<option value="file288">github.com/kijimaD/ruins/internal/systems/anchor_fuel.go (100.0%)</option>
+				<option value="file288">github.com/kijimaD/ruins/internal/systems/animation_system.go (12.5%)</option>
 				
-				<option value="file289">github.com/kijimaD/ruins/internal/systems/animation_system.go (12.5%)</option>
+				<option value="file289">github.com/kijimaD/ruins/internal/systems/area_entry.go (93.8%)</option>
 				
-				<option value="file290">github.com/kijimaD/ruins/internal/systems/area_entry.go (93.8%)</option>
+				<option value="file290">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (76.5%)</option>
 				
-				<option value="file291">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (76.5%)</option>
+				<option value="file291">github.com/kijimaD/ruins/internal/systems/camera_system.go (80.0%)</option>
 				
-				<option value="file292">github.com/kijimaD/ruins/internal/systems/camera_system.go (80.0%)</option>
+				<option value="file292">github.com/kijimaD/ruins/internal/systems/condition.go (97.9%)</option>
 				
-				<option value="file293">github.com/kijimaD/ruins/internal/systems/condition.go (97.9%)</option>
+				<option value="file293">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (91.2%)</option>
 				
-				<option value="file294">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (91.2%)</option>
+				<option value="file294">github.com/kijimaD/ruins/internal/systems/debug_invincible.go (100.0%)</option>
 				
-				<option value="file295">github.com/kijimaD/ruins/internal/systems/debug_invincible.go (100.0%)</option>
+				<option value="file295">github.com/kijimaD/ruins/internal/systems/decoration.go (48.6%)</option>
 				
-				<option value="file296">github.com/kijimaD/ruins/internal/systems/decoration.go (48.6%)</option>
+				<option value="file296">github.com/kijimaD/ruins/internal/systems/deployed_fuel.go (100.0%)</option>
 				
 				<option value="file297">github.com/kijimaD/ruins/internal/systems/fatigue.go (100.0%)</option>
 				
@@ -665,7 +665,7 @@
 				
 				<option value="file304">github.com/kijimaD/ruins/internal/systems/raid.go (88.9%)</option>
 				
-				<option value="file305">github.com/kijimaD/ruins/internal/systems/render3d.go (77.4%)</option>
+				<option value="file305">github.com/kijimaD/ruins/internal/systems/render3d.go (77.9%)</option>
 				
 				<option value="file306">github.com/kijimaD/ruins/internal/systems/render_sprite.go (9.5%)</option>
 				
@@ -1754,7 +1754,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, weapon ecs.Entit
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1964,8 +1964,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
         case hit &amp;&amp; attacker == target &amp;&amp; withMethod:
                 <span class="cov8" title="1">logger.Markup(query.T(world, "%s was caught in %s and took %s damage.", targetMarkup, methodName, damageStr))</span>
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -6185,7 +6185,7 @@ func calculateMoveCandidates(delta consts.Coord[consts.Tile]) []consts.Coord[con
         case dy != 0:
                 <span class="cov8" title="1">moveY := consts.Tile(1)
                 if dy &lt; 0 </span>{
-                        <span class="cov0" title="0">moveY = -1
+                        <span class="cov8" title="1">moveY = -1
 </span>                }
                 <span class="cov8" title="1">candidates = append(candidates, consts.Coord[consts.Tile]{X: 0, Y: moveY})
                 candidates = append(candidates, consts.Coord[consts.Tile]{X: 1, Y: 0})
@@ -27276,7 +27276,7 @@ func (dr *Driver) NorthIndex() consts.Chunk {
 </span>}
 
 // MaybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトし、シフトしたかを返す。
-// 展開中のキューブが錨になっている間はシフトしない。
+// 展開中のキューブが拠点になっている間はシフトしない。
 // シフトするとリベースでプレイヤーが中央へ動くため、呼び出し側はカメラを再センタリングする。
 //
 // 座標を平行移動する破壊的操作なので、ターンが完全に解決した安定点でのみ行う。すなわち
@@ -27285,7 +27285,7 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
         <span class="cov8" title="1">if query.GetTurnState(world).Phase != gc.TurnPhasePlayer </span>{
                 <span class="cov0" title="0">return false, nil
 </span>        }
-        <span class="cov8" title="1">if query.IsAnchored(world) </span>{
+        <span class="cov8" title="1">if query.IsCubeDeployed(world) </span>{
                 <span class="cov8" title="1">return false, nil
 </span>        }
         <span class="cov8" title="1">playerEntity, err := query.GetPlayerEntity(world)
@@ -47332,43 +47332,6 @@ func GameLanguage() (code string, ok bool) {
 
 import (
         gc "github.com/kijimaD/ruins/internal/components"
-        "github.com/kijimaD/ruins/internal/consts"
-        w "github.com/kijimaD/ruins/internal/world"
-        "github.com/kijimaD/ruins/internal/world/query"
-)
-
-// anchorFuelTurns は展開中のキューブの燃料を1戻す間隔のターン数
-const anchorFuelTurns consts.Turn = 10
-
-// AnchorFuelSystem は展開中のキューブの燃料を、anchorFuelTurns ターンごとに1ずつ容量まで戻す。
-// 錨の間に燃料が尽きて詰むのを防ぐ
-type AnchorFuelSystem struct{}
-
-// String はシステム名を返す
-func (sys *AnchorFuelSystem) String() string {
-        <span class="cov8" title="1">return "AnchorFuelSystem"
-</span>}
-
-// Update は間隔のターンにだけ燃料を戻す
-func (sys *AnchorFuelSystem) Update(world w.World) error {
-        <span class="cov8" title="1">if query.GetGameTime(world).TotalTurns%anchorFuelTurns != 0 </span>{
-                <span class="cov8" title="1">return nil
-</span>        }
-        <span class="cov8" title="1">q := query.ActiveFilter3[gc.Cube, gc.Deployed, gc.Charge](world).Query()
-        for q.Next() </span>{
-                <span class="cov8" title="1">_, _, tank := q.Get()
-                if tank.Current &lt; tank.Max </span>{
-                        <span class="cov8" title="1">tank.Current++
-</span>                }
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-</pre>
-		
-		<pre class="file" id="file289" style="display: none">package systems
-
-import (
-        gc "github.com/kijimaD/ruins/internal/components"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/query"
 )
@@ -47428,7 +47391,7 @@ func (sys *AnimationSystem) Update(world w.World) error {
 }
 </pre>
 		
-		<pre class="file" id="file290" style="display: none">package systems
+		<pre class="file" id="file289" style="display: none">package systems
 
 import (
         "github.com/kijimaD/ruins/internal/consts"
@@ -47483,7 +47446,7 @@ func (sys *AreaEntrySystem) observe(area overworld.Area, turn consts.Turn) bool 
 }
 </pre>
 		
-		<pre class="file" id="file291" style="display: none">package systems
+		<pre class="file" id="file290" style="display: none">package systems
 
 import (
         "github.com/kijimaD/ruins/internal/activity"
@@ -47579,7 +47542,7 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 }
 </pre>
 		
-		<pre class="file" id="file292" style="display: none">package systems
+		<pre class="file" id="file291" style="display: none">package systems
 
 import (
         "github.com/hajimehoshi/ebiten/v2"
@@ -47652,7 +47615,7 @@ func (sys *CameraSystem) Update(world w.World) error {
 }
 </pre>
 		
-		<pre class="file" id="file293" style="display: none">package systems
+		<pre class="file" id="file292" style="display: none">package systems
 
 import (
         "slices"
@@ -47784,7 +47747,7 @@ func conditionTimerDelta(def gc.ConditionDef, cond *gc.HealthCondition, metab co
 }
 </pre>
 		
-		<pre class="file" id="file294" style="display: none">package systems
+		<pre class="file" id="file293" style="display: none">package systems
 
 import (
         "fmt"
@@ -47958,7 +47921,7 @@ func placeRemains(world w.World, e ecs.Entity) error {
 }
 </pre>
 		
-		<pre class="file" id="file295" style="display: none">package systems
+		<pre class="file" id="file294" style="display: none">package systems
 
 import (
         gc "github.com/kijimaD/ruins/internal/components"
@@ -48023,7 +47986,7 @@ func (sys *DebugInvincibleSystem) Update(world w.World) error {
 }
 </pre>
 		
-		<pre class="file" id="file296" style="display: none">package systems
+		<pre class="file" id="file295" style="display: none">package systems
 
 import (
         "image"
@@ -48190,6 +48153,43 @@ func (sys *Render3DSystem) appendTileBillboard(quads []r3quad, projector render3
         sys.addQuad(&amp;quads, tl, tr, br, bl, img, 0, 0, float64(iw), float64(ih), col)
         return quads
 </span>}
+</pre>
+		
+		<pre class="file" id="file296" style="display: none">package systems
+
+import (
+        gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
+        w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/world/query"
+)
+
+// deployedFuelTurns は展開中のキューブの燃料を1戻す間隔のターン数
+const deployedFuelTurns consts.Turn = 10
+
+// DeployedFuelSystem は展開中のキューブの燃料を、deployedFuelTurns ターンごとに1ずつ容量まで戻す。
+// 拠点を置いている間に燃料が尽きて詰むのを防ぐ
+type DeployedFuelSystem struct{}
+
+// String はシステム名を返す
+func (sys *DeployedFuelSystem) String() string {
+        <span class="cov8" title="1">return "DeployedFuelSystem"
+</span>}
+
+// Update は間隔のターンにだけ燃料を戻す
+func (sys *DeployedFuelSystem) Update(world w.World) error {
+        <span class="cov8" title="1">if query.GetGameTime(world).TotalTurns%deployedFuelTurns != 0 </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+        <span class="cov8" title="1">q := query.ActiveFilter3[gc.Cube, gc.Deployed, gc.Charge](world).Query()
+        for q.Next() </span>{
+                <span class="cov8" title="1">_, _, tank := q.Get()
+                if tank.Current &lt; tank.Max </span>{
+                        <span class="cov8" title="1">tank.Current++
+</span>                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
 </pre>
 		
 		<pre class="file" id="file297" style="display: none">package systems
@@ -48423,8 +48423,8 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
         <span class="cov8" title="1">whileOnChargeSystem := &amp;WhileOnChargeSystem{}
         updaters[whileOnChargeSystem.String()] = whileOnChargeSystem
 </span>
-        <span class="cov8" title="1">anchorFuelSystem := &amp;AnchorFuelSystem{}
-        updaters[anchorFuelSystem.String()] = anchorFuelSystem
+        <span class="cov8" title="1">deployedFuelSystem := &amp;DeployedFuelSystem{}
+        updaters[deployedFuelSystem.String()] = deployedFuelSystem
 </span>
         <span class="cov8" title="1">raidSystem := &amp;RaidSystem{}
         updaters[raidSystem.String()] = raidSystem
@@ -49580,6 +49580,24 @@ func (sys *Render3DSystem) addFieldWall(out *[]r3quad, p0, p1, p2, p3 render3d.V
         })
 </span>}
 
+// rememberedColor は記憶タイルの乗算色。暗いだけの見えているタイルと明るさが同じでも、色味で記憶だと分ける
+var rememberedColor = [3]float64{1, 0.8, 0.55}
+
+// selfMinBrightness は自分の姿の明るさの下限。真っ暗でも自分の居場所を見失わない
+const selfMinBrightness = 0.6
+
+// withSelfMinBrightness は乗算色の最も明るい成分が自分の姿の下限に届かなければ、色味を保って下限まで持ち上げる
+func withSelfMinBrightness(c [3]float64) [3]float64 {
+        <span class="cov8" title="1">m := max(c[0], c[1], c[2])
+        if m &gt;= selfMinBrightness </span>{
+                <span class="cov8" title="1">return c
+</span>        }
+        <span class="cov8" title="1">if m == 0 </span>{
+                <span class="cov8" title="1">return [3]float64{selfMinBrightness, selfMinBrightness, selfMinBrightness}
+</span>        }
+        <span class="cov8" title="1">return scaleCol(c, selfMinBrightness/m)</span>
+}
+
 // lightSample は解決済みの明るさと色。フィルタ列で乗算色まで変換する。
 type lightSample struct {
         brightness float64    // 0..1 の明るさ。overbright で 1.0 を超えうる
@@ -49593,7 +49611,7 @@ func sampleOf(info TileRenderInfo) (s lightSample, drawable, visible bool) {
         case TileRenderVisible:
                 <span class="cov8" title="1">return lightSample{1 - float64(v.Darkness), normalizeLight(v.LightColor)}, true, true</span>
         case TileRenderRemembered:
-                <span class="cov8" title="1">return lightSample{1 - float64(v.Darkness), [3]float64{1, 1, 1}}, true, false</span>
+                <span class="cov8" title="1">return lightSample{1 - float64(v.Darkness), rememberedColor}, true, false</span>
         default:
                 <span class="cov8" title="1">return lightSample{}, false, false</span>
         }
@@ -49801,6 +49819,9 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
                 <span class="cov8" title="1">if !vis </span>{
                         <span class="cov0" title="0">continue</span>
                 }
+                <span class="cov8" title="1">if world.Components.Player.Has(e) </span>{
+                        <span class="cov8" title="1">tint = withSelfMinBrightness(tint)
+</span>                }
                 <span class="cov8" title="1">if f, ok := poses[g.Coord]; ok &amp;&amp; sr.Shape == rawschema.Facing </span>{
                         <span class="cov8" title="1">drawn := func(n consts.Coord[consts.Tile]) bool </span>{
                                 <span class="cov0" title="0">_, _, v := visTint(&amp;gc.GridElement{Coord: n})
@@ -51290,7 +51311,7 @@ func runTurnEndSystems(world w.World) error {
                 &amp;ConditionSystem{},
                 &amp;FireSystem{},
                 &amp;WhileOnChargeSystem{},
-                &amp;AnchorFuelSystem{},
+                &amp;DeployedFuelSystem{},
                 &amp;RaidSystem{},
                 &amp;DeadCleanupSystem{},
                 &amp;DebugInvincibleSystem{},
@@ -51463,8 +51484,9 @@ func (sys *VisionSystem) Update(world w.World) error {
 </span>                }
                 <span class="cov0" title="0">info := calculateLightSourceDarkness(lights, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, tileAmbient, ambientColor)
 </span>                // 明るさが閾値未満なら見えない。視界を光の届く範囲へ寄せる。
-                // 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる
-                <span class="cov0" title="0">if 1.0-info.Darkness &lt; visibilityThreshold </span>{
+                // 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる。
+                // 足元の1マスは手探りで分かるので暗くても見える
+                <span class="cov0" title="0">if 1.0-info.Darkness &lt; visibilityThreshold &amp;&amp; gridElement != *playerGridElement </span>{
                         <span class="cov0" title="0">continue</span>
                 }
                 <span class="cov0" title="0">vs.LightSourceCache[gridElement] = info
@@ -51507,7 +51529,7 @@ type TileRenderVisible struct {
 
 func (TileRenderVisible) tileRenderInfo() {<span class="cov0" title="0"></span>}
 
-// TileRenderRemembered は視界外だが記憶済みの状態。床のみうっすら描画する
+// TileRenderRemembered は視界外だが記憶済みの状態。動かない物だけを記憶の色味で暗く描く
 type TileRenderRemembered struct {
         Darkness RememberedDarkness
 }
@@ -60801,8 +60823,8 @@ func ActiveCube(world w.World) (ecs.Entity, bool) {
         return cube, true</span>
 }
 
-// IsAnchored は現ステージに展開中のキューブがあるかを返す
-func IsAnchored(world w.World) bool {
+// IsCubeDeployed は現ステージに展開中のキューブがあるかを返す
+func IsCubeDeployed(world w.World) bool {
         <span class="cov8" title="1">q := ActiveFilter2[gc.Cube, gc.Deployed](world).Query()
         if !q.Next() </span>{
                 <span class="cov8" title="1">return false
