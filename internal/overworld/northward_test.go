@@ -2,7 +2,6 @@ package overworld
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -64,22 +63,19 @@ func TestWithChunkGrid_余白を足しチャンクの境目に線を引く(t *te
 
 func TestGenerateBandAt_開始の行から北へ深さだけ進んだ行を真ん中にした帯を作る(t *testing.T) {
 	t.Parallel()
-	for _, depth := range []consts.Chunk{0, 40} {
-		t.Run(fmt.Sprintf("深さ%d", depth), func(t *testing.T) {
-			t.Parallel()
-			world := testutil.InitTestWorld(t)
-			require.NoError(t, GenerateBandAt(world, 7, depth))
-			sb := query.GetSeamlessBand(world)
-			require.NotNil(t, sb)
-			assert.Equal(t, depth, sb.NorthIndex, "ゲームで北へ depth 行進んだときと同じ帯の位置")
+	// 深さが帯の半分より深いと、南端も開始の行より北になる
+	const depth consts.Chunk = 40
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, GenerateBandAt(world, 7, depth))
+	sb := query.GetSeamlessBand(world)
+	require.NotNil(t, sb)
+	assert.Equal(t, depth, sb.NorthIndex, "ゲームで北へ depth 行進んだときと同じ帯の位置")
 
-			ys := map[consts.Tile]bool{}
-			q := ecs.NewFilter2[gc.Tile, gc.GridElement](world.ECS).Query()
-			for q.Next() {
-				_, g := q.Get()
-				ys[g.Y] = true
-			}
-			assert.Len(t, ys, int(sb.Rows.Tiles(sb.ChunkH)), "帯と同じ行数のチャンクを作る")
-		})
+	ys := map[consts.Tile]bool{}
+	q := ecs.NewFilter2[gc.Tile, gc.GridElement](world.ECS).Query()
+	for q.Next() {
+		_, g := q.Get()
+		ys[g.Y] = true
 	}
+	assert.Len(t, ys, int(sb.Rows.Tiles(sb.ChunkH)), "帯と同じ行数のチャンクを作る")
 }

@@ -624,7 +624,7 @@ func RenderAreaSupplyMarkdown(p Params, samples []AreaSupplySample) string {
 	var b strings.Builder
 	b.WriteString("## 拠点のエリアが何日もつか\n\n")
 	fmt.Fprintf(&b, "**概要**: 北の深さごとに帯と同じ形のエリアを種 %d 個で生成し、収納と地面にある食べ物と燃やせる物を数える。", len(seeds))
-	fmt.Fprintf(&b, "食べ物は1日に減る満腹度で何日もつか、燃料は地面に直に起こした火を夜の間絶やさずに何晩もつかで表す。うち腐らない物は、鮮度の1段階が%d日以上あり、留まる間は新鮮なまま食べられる物だけで数える。", stayDays)
+	fmt.Fprintf(&b, "食べ物は1日に減る満腹度で何日もつか、燃料は地面に直に起こした火を夜の間絶やさずに何晩もつかで表す。うち%[1]d日傷まない物は、鮮度の1段階が%[1]d日以上あり、留まる間は新鮮なまま食べられる物だけで数える。傷んでも食べられる段階は数えないので短めに出る。燃料は夜だけ焚く前提で数える。", stayDays)
 	b.WriteString("留まるほど赤字になるかを見る。施設も地上のチャンクに建つので、遠征で漁る物もこの数に含まれる。")
 	b.WriteString("食べ物は燃料に数えない。襲撃で減る物を数えないので、どちらの日数も長めに出る。\n\n")
 	rows := make([][]string, 0, len(depths))
@@ -644,7 +644,7 @@ func RenderAreaSupplyMarkdown(p Params, samples []AreaSupplySample) string {
 			fmt.Sprintf("%.1f", median(fuel)), rangeText(fuel),
 		})
 	}
-	writeMDTable(&b, []string{"北の深さ(チャンク)", "食べ物 中央値(日)", "食べ物 幅(日)", "うち腐らない物 中央値(日)", "うち腐らない物 幅(日)", "燃料 中央値(晩)", "燃料 幅(晩)"}, []tw.Align{alignR, alignR, alignR, alignR, alignR, alignR, alignR}, rows)
+	writeMDTable(&b, []string{"北の深さ(チャンク)", "食べ物 中央値(日)", "食べ物 幅(日)", fmt.Sprintf("うち%d日傷まない物 中央値(日)", stayDays), fmt.Sprintf("うち%d日傷まない物 幅(日)", stayDays), "燃料 中央値(晩)", "燃料 幅(晩)"}, []tw.Align{alignR, alignR, alignR, alignR, alignR, alignR, alignR}, rows)
 	return b.String()
 }
 
