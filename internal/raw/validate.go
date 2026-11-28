@@ -185,8 +185,8 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
 }
 
 // validateLakeFacilityFootprints は湖を描く区域が割り振る全ての地区に建つ施設が、主の施設のほかは1チャンクの大きさだけを持つことを検証する。
-// 1棟の絵は区画の入口のチャンクが接する湖へ向けて回すので、区画が複数のチャンクにまたがると向きが区画と合わない。主の施設は区域に1つだけで、
-// 部屋の絵で組み、南の辺の中央に置く
+// 1棟の絵は区画の入口のチャンクが接する湖へ向けて回すので、区画が複数のチャンクにまたがると向きが区画と合わない。主の施設は
+// 区画の割り振りとは別に置き、部屋の絵の向きは生成のときに確かめる
 func validateLakeFacilityFootprints(raws rawschema.Raws) error {
 	facilities := PtrSlice(raws.Facilities)
 	districts := PtrSlice(raws.Districts)
@@ -197,7 +197,10 @@ func validateLakeFacilityFootprints(raws rawschema.Raws) error {
 		}
 		zones := DistrictZones(*d)
 		for _, f := range facilities {
-			if d.Landmark != nil && f.Id == *d.Landmark || !slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool { return slices.Contains(zones, z.Zone) }) {
+			if d.Landmark != nil && f.Id == *d.Landmark {
+				continue
+			}
+			if !slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool { return slices.Contains(zones, z.Zone) }) {
 				continue
 			}
 			for _, fp := range PtrSlice(f.Footprints) {
