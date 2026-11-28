@@ -134,3 +134,10 @@ func releaseStowedItems(world w.World, cube ecs.Entity) {
 		MoveMembersToField(world, single, coord, cube)
 	}
 }
+
+// SpillCubeContents は壊れるキューブの畳んだ貨物を展開と同じ並びで、装着したモジュールをキューブの足元へ出す。
+// 収納の中身は SpillStorageItems が出す。出さないと、持ち主の無い実体として見えないまま残る
+func SpillCubeContents(world w.World, cube ecs.Entity) {
+	releaseStowedItems(world, cube)
+	MoveMembersToField(world, query.GetCubeModules(world, cube), world.Components.GridElement.Get(cube).Coord, cube)
+}

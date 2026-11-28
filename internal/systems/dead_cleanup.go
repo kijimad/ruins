@@ -102,6 +102,9 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		if world.Components.WeightCapacity.Has(entity) {
 			lifecycle.SpillStorageItems(world, entity, coord.X, coord.Y)
 		}
+		if world.Components.Cube.Has(entity) {
+			lifecycle.SpillCubeContents(world, entity)
+		}
 		owner := entity
 		var items []ecs.Entity
 		backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
