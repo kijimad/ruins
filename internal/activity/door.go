@@ -1,7 +1,6 @@
 package activity
 
 import (
-	"fmt"
 	"slices"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -52,12 +51,12 @@ func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.W
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(targetEntity) {
-		return fmt.Errorf("target is not alive")
+		return errDoorTargetNotAlive
 	}
 
 	// Doorコンポーネントを持っているか確認
 	if !world.Components.Door.Has(targetEntity) {
-		return fmt.Errorf("target is not a door")
+		return errDoorTargetNotDoor
 	}
 
 	return nil
@@ -78,7 +77,7 @@ func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 	targetEntity := p.Target
 
 	if !world.Components.Door.Has(targetEntity) {
-		return fmt.Errorf("cannot get door component")
+		return errDoorTargetNotDoor
 	}
 	raw := world.Components.Door.Get(targetEntity)
 	doorComp := raw
@@ -157,12 +156,12 @@ func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(targetEntity) {
-		return fmt.Errorf("target is not alive")
+		return errDoorTargetNotAlive
 	}
 
 	// Doorコンポーネントを持っているか確認
 	if !world.Components.Door.Has(targetEntity) {
-		return fmt.Errorf("target is not a door")
+		return errDoorTargetNotDoor
 	}
 
 	// 扉のマスにキャラクターか拾えるアイテムがいれば閉じられない。人や物の上に扉を閉じない。
@@ -204,7 +203,7 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 	targetEntity := p.Target
 
 	if !world.Components.Door.Has(targetEntity) {
-		return fmt.Errorf("cannot get door component")
+		return errDoorTargetNotDoor
 	}
 	raw := world.Components.Door.Get(targetEntity)
 	doorComp := raw
