@@ -83,7 +83,7 @@ func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chun
 		// 幅2の板を中心の列と負の向きの隣の列に張り、どの向きへ伸ばしても中心にそろえる
 		side := consts.Coord[consts.Tile]{X: -abs(step.Y), Y: -abs(step.X)}
 		end := float64(s.water.BeachWidth + s.water.ShallowWidth + s.water.PierLength)
-		// 湖が細くて深さが足りないまま抜けても、区域の外へは伸ばさない
+		// 湖の細い所を深さが足りないまま抜けても止める上限
 		limit := max(r.w.Tiles(chunkW), r.h.Tiles(chunkH))
 		for p, n := center, consts.Tile(0); n < limit; p, n = p.Add(step), n+1 {
 			depth := s.depth(p)

@@ -65,7 +65,7 @@ func zoneCatalogFrom(raws rawschema.Raws) zoneCatalog {
 // zoneChoiceShift は層の候補から地区を選ぶ、区域の seed のビットの位置
 const zoneChoiceShift = 32
 
-// zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ。湖を描く層は空を返す
+// zoneAt は区域の中の座標 l の地区を返す。並べ方で層を決め、層の候補から区域の seed で1つ選ぶ。湖を描く層は地区を持たないので空を返し、施設を建てるチャンクだけで呼ぶ
 func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.ZoneId {
 	zones := raw.PtrSlice(r.kind.Layers[r.layerAt(l)].Zones)
 	if len(zones) == 0 {

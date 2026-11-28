@@ -19,6 +19,7 @@ var (
 	errDistrictWaterLayer            = errors.New("district water layer is not the core of rings")
 	errDistrictLayerEmpty            = errors.New("district layer has neither zones nor water")
 	errDistrictWaterNotSquare        = errors.New("district with a water layer is not square")
+	errDistrictFenceWithGaps         = errors.New("district with a fence has chunks without facilities")
 	errLandmarkMinDanger             = errors.New("landmark facility has minDanger")
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
 	errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
@@ -100,6 +101,10 @@ const RingsCoreLayer = 1
 // 湖を描く層は rings の中心だけにし、区域は正方形だけにする。湖の楕円は短い半径で深さを測るので、正方形でないと長い辺の側で外の層へはみ出す
 func validateDistrictLayers(d *rawschema.District) error {
 	for i, l := range d.Layers {
+		// 施設を建てないチャンクは塀を描かないので、塀を巡らせる区域には置かない
+		if d.Fence != nil && (l.Water != nil || l.Lots != nil) {
+			return fmt.Errorf("district %q layer %d: %w", d.Id, i, errDistrictFenceWithGaps)
+		}
 		if l.Water == nil && l.Zones == nil {
 			return fmt.Errorf("district %q layer %d: %w", d.Id, i, errDistrictLayerEmpty)
 		}

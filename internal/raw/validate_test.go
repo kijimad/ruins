@@ -549,3 +549,12 @@ func TestValidateDistrictLayers_湖を描く区域は正方形だけ(t *testing.
 	err := validateDistrictLayers(&rawschema.District{Id: "d", Pattern: rawschema.DistrictPatternRings, Layers: layers, Sizes: []rawschema.DistrictSize{{W: 7, H: 7, Weight: 1}, {W: 7, H: 6, Weight: 1}}})
 	require.ErrorIs(t, err, errDistrictWaterNotSquare)
 }
+
+func TestValidateDistrictLayers_塀を巡らせる区域は施設を建てないチャンクを持たない(t *testing.T) {
+	t.Parallel()
+	zone := []rawschema.ZoneId{"downtown"}
+	fence := new(rawschema.EntityID("fence"))
+
+	err := validateDistrictLayers(&rawschema.District{Id: "d", Pattern: rawschema.DistrictPatternRings, Fence: fence, Layers: []rawschema.DistrictLayer{{Zones: &zone, Lots: new(2)}, {Zones: &zone}}})
+	require.ErrorIs(t, err, errDistrictFenceWithGaps)
+}

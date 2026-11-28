@@ -163,3 +163,22 @@ func TestScatterCatalogForChunk_湖の区域は施設を建てないチャンク
 	}
 	assert.Equal(t, map[string]outdoorZone{"角の岸": "lakeshore", "湖": "lakeshore"}, got)
 }
+
+func TestLakeShape_桟橋の板は全て湖の輪郭の内側に張る(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+	shape, ok, err := r.lakeShapeOf(24, 24)
+	require.NoError(t, err)
+	require.True(t, ok)
+
+	require.NotEmpty(t, shape.piers)
+	var onLand []consts.Coord[consts.Tile]
+	for p := range shape.piers {
+		if shape.depth(p) < 0 {
+			onLand = append(onLand, p)
+		}
+	}
+	assert.Equal(t, []consts.Coord[consts.Tile](nil), onLand)
+}
