@@ -188,6 +188,40 @@ func TestRaidSystem_視界の中には湧かせず輪を外へ広げる(t *testi
 	}
 }
 
+func TestRaidSystem_キューブから離れたプレイヤーのそばには湧かせない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("o", 0, 24, 24, 5, 5), &overworld.NewGameParams{RunSeed: 42})
+	require.NoError(t, drv.Start(world))
+	cube, ok := query.ActiveCube(world)
+	require.True(t, ok)
+	center := world.Components.GridElement.Get(cube).Coord
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	playerAt := center.Add(consts.Coord[consts.Tile]{X: 20})
+	world.Components.GridElement.Get(player).Coord = playerAt
+	query.InvalidateSpatialIndex(world)
+	// 最初の輪のうちプレイヤーから離れたマスを全て見えている扱いにし、残りをプレイヤーの近くのマスだけにする
+	visible := query.GetVisionState(world).VisibleTiles
+	for y := center.Y - raidSpawnMax; y <= center.Y+raidSpawnMax; y++ {
+		for x := center.X - raidSpawnMax; x <= center.X+raidSpawnMax; x++ {
+			c := consts.Coord[consts.Tile]{X: x, Y: y}
+			if geometry.ChebyshevDistance(c, playerAt) >= int(raidSpawnMin) {
+				visible[gc.GridElement{Coord: c}] = true
+			}
+		}
+	}
+	query.GetGameTime(world).TotalTurns = firstWaveTurn
+
+	require.NoError(t, (&RaidSystem{}).Update(world))
+
+	raiders := raiderTiles(world)
+	require.NotEmpty(t, raiders)
+	for _, c := range raiders {
+		assert.GreaterOrEqual(t, geometry.ChebyshevDistance(playerAt, c), int(raidSpawnMin), "プレイヤーの近くには湧かない: %v", c)
+	}
+}
+
 func TestRaidSystem_夜明けに印を外して待機に戻し敵は残す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

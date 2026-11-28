@@ -5,6 +5,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/raidmap"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -151,15 +152,22 @@ func raidWaveSize(total, wave int) int {
 	return n
 }
 
-// raidSpawnTiles は中心を囲む輪の上から、湧かせるマスを count 個まで選ぶ。プレイヤーの視界の外で、距離の地図で
-// 中心まで道がつながり、通れて誰もいないマスに限る。足りなければ輪を外へ広げ、地図の端まで広げても足りなければ
-// 見つかった分だけ返す
+// raidSpawnTiles は中心を囲む輪の上から、湧かせるマスを count 個まで選ぶ。プレイヤーの視界の外で、プレイヤーからも
+// raidSpawnMin 以上離れ、距離の地図で中心まで道がつながり、通れて誰もいないマスに限る。プレイヤーから離すのは、
+// 暗がりや壁の裏でプレイヤーの隣に湧かせず、群れが寄ってくるのを見せるため。足りなければ輪を外へ広げ、地図の端まで
+// 広げても足りなければ見つかった分だけ返す
 func raidSpawnTiles(world w.World, m *raidmap.Map, center consts.Coord[consts.Tile], count int) []consts.Coord[consts.Tile] {
 	si := query.GetSpatialIndex(world)
 	if si == nil || count <= 0 {
 		return nil
 	}
 	visible := query.GetVisionState(world).VisibleTiles
+	player, err := query.GetPlayerEntity(world)
+	hasPlayer := err == nil
+	var playerAt consts.Coord[consts.Tile]
+	if hasPlayer {
+		playerAt = world.Components.GridElement.Get(player).Coord
+	}
 	rng := world.Resources.Config.RNG
 	var picked []consts.Coord[consts.Tile]
 	limit := max(si.MapWidth, si.MapHeight)
@@ -175,6 +183,9 @@ func raidSpawnTiles(world w.World, m *raidmap.Map, center consts.Coord[consts.Ti
 				}
 				c := consts.Coord[consts.Tile]{X: x, Y: y}
 				if _, ok := m.Dist(c); !ok {
+					continue
+				}
+				if hasPlayer && geometry.ChebyshevDistance(c, playerAt) < int(raidSpawnMin) {
 					continue
 				}
 				if visible[gc.GridElement{Coord: c}] || !activity.CanMoveTo(world, c, c, ecs.Entity{}) {
