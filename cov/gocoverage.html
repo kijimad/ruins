@@ -63,13 +63,13 @@
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (81.4%)</option>
 				
-				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (87.8%)</option>
+				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (97.6%)</option>
 				
 				<option value="file5">github.com/kijimaD/ruins/internal/activity/drop.go (91.7%)</option>
 				
 				<option value="file6">github.com/kijimaD/ruins/internal/activity/errors.go (100.0%)</option>
 				
-				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (79.3%)</option>
+				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (86.6%)</option>
 				
 				<option value="file8">github.com/kijimaD/ruins/internal/activity/injury.go (93.5%)</option>
 				
@@ -2122,7 +2122,6 @@ func (b *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, worl
 		<pre class="file" id="file4" style="display: none">package activity
 
 import (
-        "fmt"
         "slices"
 
         gc "github.com/kijimaD/ruins/internal/components"
@@ -2166,19 +2165,19 @@ func NewOpenDoorActivity(target ecs.Entity) *gc.Activity {
 func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.OpenDoorParams)
         if !ok </span>{
-                <span class="cov0" title="0">return ErrParamsTypeMismatch
+                <span class="cov8" title="1">return ErrParamsTypeMismatch
 </span>        }
 
         <span class="cov8" title="1">targetEntity := p.Target
 </span>
         // ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
         <span class="cov8" title="1">if !world.ECS.Alive(targetEntity) </span>{
-                <span class="cov8" title="1">return fmt.Errorf("target is not alive")
+                <span class="cov8" title="1">return errDoorTargetNotAlive
 </span>        }
 
         // Doorコンポーネントを持っているか確認
         <span class="cov8" title="1">if !world.Components.Door.Has(targetEntity) </span>{
-                <span class="cov8" title="1">return fmt.Errorf("target is not a door")
+                <span class="cov8" title="1">return errDoorTargetNotDoor
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -2194,12 +2193,12 @@ func (odb *OpenDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) 
 func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.OpenDoorParams)
         if !ok </span>{
-                <span class="cov0" title="0">return ErrParamsTypeMismatch
+                <span class="cov8" title="1">return ErrParamsTypeMismatch
 </span>        }
         <span class="cov8" title="1">targetEntity := p.Target
 </span>
         <span class="cov8" title="1">if !world.Components.Door.Has(targetEntity) </span>{
-                <span class="cov0" title="0">return fmt.Errorf("cannot get door component")
+                <span class="cov8" title="1">return errDoorTargetNotDoor
 </span>        }
         <span class="cov8" title="1">raw := world.Components.Door.Get(targetEntity)
         doorComp := raw
@@ -2271,19 +2270,19 @@ func NewCloseDoorActivity(target ecs.Entity) *gc.Activity {
 func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.CloseDoorParams)
         if !ok </span>{
-                <span class="cov0" title="0">return ErrParamsTypeMismatch
+                <span class="cov8" title="1">return ErrParamsTypeMismatch
 </span>        }
 
         <span class="cov8" title="1">targetEntity := p.Target
 </span>
         // ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
         <span class="cov8" title="1">if !world.ECS.Alive(targetEntity) </span>{
-                <span class="cov0" title="0">return fmt.Errorf("target is not alive")
+                <span class="cov8" title="1">return errDoorTargetNotAlive
 </span>        }
 
         // Doorコンポーネントを持っているか確認
         <span class="cov8" title="1">if !world.Components.Door.Has(targetEntity) </span>{
-                <span class="cov0" title="0">return fmt.Errorf("target is not a door")
+                <span class="cov8" title="1">return errDoorTargetNotDoor
 </span>        }
 
         // 扉のマスにキャラクターか拾えるアイテムがいれば閉じられない。人や物の上に扉を閉じない。
@@ -2320,12 +2319,12 @@ func (cdb *CloseDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World)
 func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
         <span class="cov8" title="1">p, ok := comp.Params.(*gc.CloseDoorParams)
         if !ok </span>{
-                <span class="cov0" title="0">return ErrParamsTypeMismatch
+                <span class="cov8" title="1">return ErrParamsTypeMismatch
 </span>        }
         <span class="cov8" title="1">targetEntity := p.Target
 </span>
         <span class="cov8" title="1">if !world.Components.Door.Has(targetEntity) </span>{
-                <span class="cov0" title="0">return fmt.Errorf("cannot get door component")
+                <span class="cov8" title="1">return errDoorTargetNotDoor
 </span>        }
         <span class="cov8" title="1">raw := world.Components.Door.Get(targetEntity)
         doorComp := raw
@@ -2531,6 +2530,10 @@ var (
         errThrowOutOfRange        = errors.New("throw target is out of range")
         errThrowLineBlocked       = errors.New("throw line is blocked")
 
+        // 扉の開け閉め関連エラー。対象の選択は生きた扉だけを選ぶので、起きれば呼び出し側の不変条件違反
+        errDoorTargetNotAlive = errors.New("target is not alive")
+        errDoorTargetNotDoor  = errors.New("target is not a door")
+
         // 移動関連エラー
         ErrMoveTargetInvalid   = errors.New("move destination is invalid")
         ErrGridElementNotFound = errors.New("GridElement component not found")
@@ -2594,6 +2597,12 @@ var (
         errDoorInteractionNoDoor = errors.New("DoorInteraction but no Door component")
         // errTalkInteractionNoDialog は会話の相互作用の対象がDialogを持たないときに返す
         errTalkInteractionNoDialog = errors.New("TalkInteraction but no Dialog component")
+        // errNoDungeonDestination は遺跡の入口が行き先の遺跡を持たないときに返す
+        errNoDungeonDestination = errors.New("dungeon entrance has no destination dungeon definition")
+        // errIgniteNoPosition は着火の対象が位置を持たないときに返す
+        errIgniteNoPosition = errors.New("ignite target has no position")
+        // errNoFuelToIgnite は着火の対象のマスに燃える物が無いときに返す
+        errNoFuelToIgnite = errors.New("no fuel to ignite at tile")
 )
 
 // ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する。
@@ -2653,7 +2662,7 @@ func executePortal(world w.World, event gc.StateChangeRequest, failMsg, successM
 // 入口ごとに進入先が違うため、イベントに定義名を載せて運ぶ。
 func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error) {
         <span class="cov8" title="1">if !world.Components.DungeonEntrance.Has(target) </span>{
-                <span class="cov0" title="0">return nil, fmt.Errorf("dungeon entrance has no destination dungeon definition")
+                <span class="cov8" title="1">return nil, errNoDungeonDestination
 </span>        }
         <span class="cov8" title="1">defName := world.Components.DungeonEntrance.Get(target).DefinitionName
         if err := lifecycle.RequestStateChange(world, gc.WarpDungeonEnterEvent(defName)); err != nil </span>{
@@ -2698,7 +2707,7 @@ func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRes
 // 足元でなく隣接タイルに火が立つのは、足元だと自分が燃えるため。使った火種が残量を持てば減らす。
 func executeIgnite(actor, target ecs.Entity, world w.World) (*ActionResult, error) {
         <span class="cov8" title="1">if !world.Components.GridElement.Has(target) </span>{
-                <span class="cov0" title="0">return nil, fmt.Errorf("ignite target has no position")
+                <span class="cov8" title="1">return nil, errIgniteNoPosition
 </span>        }
         <span class="cov8" title="1">starter, ok := query.FireStarterOf(world, actor)
         if !ok </span>{
@@ -2721,10 +2730,10 @@ func executeIgnite(actor, target ecs.Entity, world w.World) (*ActionResult, erro
         <span class="cov8" title="1">if burned == 0 </span>{
                 // くべる燃料が無かった。火にならないので後始末する。
                 // 呼び出し側が燃料のあるタイルだけを対象にするので通常は起きない
-                <span class="cov0" title="0">world.Components.Burning.Remove(fire)
+                <span class="cov8" title="1">world.Components.Burning.Remove(fire)
                 world.ECS.RemoveEntity(fire)
                 query.InvalidateSpatialIndex(world)
-                return nil, fmt.Errorf("no fuel to ignite at tile")
+                return nil, errNoFuelToIgnite
 </span>        }
 
         // 火は光源を持つ。灯りを即反映するため視界の再計算を要求する
