@@ -22,7 +22,7 @@ import (
 )
 
 // Selection は描画に要るカーソル位置。どのタブのどの行を強調するかを表す。
-// PageSize は解決済みの1ページ件数。ItemsPerPageAuto を使う画面の描画が、カーソルと同じ
+// PageSize は解決済みの1ページ件数。ItemsPerPageAuto か ItemsPerPageAutoHeader を使う画面の描画が、カーソルと同じ
 // ページ件数でページ送りできるよう渡す。0 はページ送りなし
 type Selection struct {
 	TabIndex  int

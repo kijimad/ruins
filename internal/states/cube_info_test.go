@@ -3,6 +3,8 @@ package states
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/menuloop"
+
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -46,4 +48,11 @@ func TestCubeInfoItems_展開サイズと総重量と燃料を出す(t *testing.
 	}
 	assert.Equal(t, []string{"Deploy size", "Total weight", "Fuel"}, labels, "展開サイズ・総重量・燃料の3行")
 	assert.Equal(t, "5x5", got["Deploy size"], "未装着は基準 5x5")
+}
+
+func TestCubeInfoState_Menu_見出しつきの自動のページ行数を渡す(t *testing.T) {
+	t.Parallel()
+	st := &CubeInfoState{}
+
+	assert.Equal(t, menuloop.ItemsPerPageAutoHeader, st.Menu(CubeInfoProps{}).ItemsPerPage)
 }

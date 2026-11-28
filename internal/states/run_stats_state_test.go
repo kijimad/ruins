@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kijimaD/ruins/internal/menuloop"
+
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -109,4 +111,11 @@ func TestRunStatsState_Fetch_結果画面は統計だけを出す(t *testing.T) 
 			assert.Equal(t, want, labels)
 		})
 	}
+}
+
+func TestRunStatsState_Menu_見出しつきの自動のページ行数を渡す(t *testing.T) {
+	t.Parallel()
+	st := &RunStatsState{}
+
+	assert.Equal(t, menuloop.ItemsPerPageAutoHeader, st.Menu(RunStatsProps{}).ItemsPerPage)
 }

@@ -3,6 +3,8 @@ package states
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/menuloop"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/i18n"
@@ -305,4 +307,11 @@ func TestRemedyItemNameFor(t *testing.T) {
 			assert.Equal(t, i18n.Msgid(tt.wantName), name)
 		})
 	}
+}
+
+func TestCharacterState_Menu_見出しつきの自動のページ行数を渡す(t *testing.T) {
+	t.Parallel()
+	st := &CharacterState{}
+
+	assert.Equal(t, menuloop.ItemsPerPageAutoHeader, st.Menu(CharacterProps{}).ItemsPerPage)
 }
