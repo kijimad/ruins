@@ -1,6 +1,6 @@
 [[chunk]]
-name = "20x20_hydro_plant_end"
-facility = "hydro_plant"
+name = "20x20_water_intake_end"
+facility = "water_intake"
 edges = { north = "open", east = "wall", south = "wall", west = "wall" }
 weight = 100
 palettes = ["power"]
@@ -28,8 +28,8 @@ map = """
 """
 
 [[chunk]]
-name = "20x20_hydro_plant_intake"
-facility = "hydro_plant"
+name = "20x20_water_intake_intake"
+facility = "water_intake"
 edges = { north = "door", east = "open", south = "wall", west = "open" }
 weight = 100
 palettes = ["power"]
@@ -57,8 +57,8 @@ map = """
 """
 
 [[chunk]]
-name = "20x20_hydro_plant_closed"
-facility = "hydro_plant"
+name = "20x20_water_intake_closed"
+facility = "water_intake"
 edges = { north = "door", east = "wall", south = "wall", west = "wall" }
 weight = 100
 palettes = ["power"]
@@ -86,8 +86,8 @@ map = """
 """
 
 [[chunk]]
-name = "20x20_hydro_plant_side"
-facility = "hydro_plant"
+name = "20x20_water_intake_side"
+facility = "water_intake"
 edges = { north = "door", east = "open", south = "wall", west = "wall" }
 weight = 100
 palettes = ["power"]

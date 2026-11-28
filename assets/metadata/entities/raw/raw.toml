@@ -1619,7 +1619,7 @@
 
 [[districts]]
   id = "lakeside"
-  landmark = "hydro_plant"
+  landmark = "water_intake"
   name = "Lakeside"
   pattern = "rings"
   separation = 4
@@ -4362,7 +4362,7 @@
 
 [[facilities]]
   enemyTable = "power_plant_enemies"
-  id = "hydro_plant"
+  id = "water_intake"
   interior = "hall"
   lootedChance = 30
 
@@ -18696,9 +18696,9 @@
     r = 120
 
 [[mapGlyphs]]
-  glyph = "H"
-  id = "hydro_plant"
-  name = "Hydro Plant"
+  glyph = "I"
+  id = "water_intake"
+  name = "Water Intake"
   order = 36
   [mapGlyphs.color]
     a = 255

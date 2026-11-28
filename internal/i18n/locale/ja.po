@@ -6626,8 +6626,8 @@ msgstr "キャンプ場"
 msgid "Fishing Hut"
 msgstr "釣り小屋"
 
-msgid "Hydro Plant"
-msgstr "水力発電所"
+msgid "Water Intake"
+msgstr "取水場"
 
 msgid "Pier"
 msgstr "桟橋"
