@@ -356,21 +356,21 @@ func TestStowedCargo_このキューブの貨物だけ返す(t *testing.T) {
 	assert.Equal(t, []ecs.Entity{item}, got, "別キューブの貨物は除外する")
 }
 
-func TestIsAnchored_展開中のキューブがあるときだけ真(t *testing.T) {
+func TestIsCubeDeployed_展開中のキューブがあるときだけ真(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	assert.False(t, query.IsAnchored(world), "キューブがいなければ偽")
+	assert.False(t, query.IsCubeDeployed(world), "キューブがいなければ偽")
 
 	stowed, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
 	require.NoError(t, err)
-	assert.False(t, query.IsAnchored(world), "畳んだキューブだけなら偽")
+	assert.False(t, query.IsCubeDeployed(world), "畳んだキューブだけなら偽")
 
 	deployed, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 8, Y: 8})
 	require.NoError(t, err)
 	world.Components.Deployed.Add(deployed, &gc.Deployed{})
-	assert.True(t, query.IsAnchored(world), "どれか1台が展開していれば真")
+	assert.True(t, query.IsCubeDeployed(world), "どれか1台が展開していれば真")
 	assert.False(t, world.Components.Deployed.Has(stowed))
 
 	world.Components.Suspended.Add(deployed, &gc.Suspended{})
-	assert.False(t, query.IsAnchored(world), "退避中のステージの展開中のキューブは数えない")
+	assert.False(t, query.IsCubeDeployed(world), "退避中のステージの展開中のキューブは数えない")
 }
