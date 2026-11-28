@@ -33,7 +33,7 @@ type lakeShape struct {
 // errLakeTooSmall は湖を描く層が、輪郭の揺れと浜の幅を引くと楕円が残らないほど小さいときに返す
 var errLakeTooSmall = errors.New("lake layer is too small for its shore wobble and beach width")
 
-// lakeShapeOf は区域 r の湖の輪郭と桟橋を返す。楕円は湖が隣の層へはみ出さないよう内側に取る。湖が無ければ ok=false
+// lakeShapeOf は区域 r の湖の輪郭と桟橋を返す。楕円は揺れの量と浜の幅だけ内側に取り、湖が隣の層へはみ出さず、湖の層の縁に岸の陸を残す。湖が無ければ ok=false
 func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool, error) {
 	var water *rawschema.DistrictWater
 	lo := consts.Coord[consts.Chunk]{X: r.w, Y: r.h}
@@ -79,25 +79,30 @@ func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chun
 		}
 		c := r.anchor.Add(l)
 		center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW) + chunkW/2, Y: c.Y.Tiles(chunkH) + chunkH/2}
-		step := consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}
-		// 幅2の板を中心の列と負の向きの隣の列に張り、どの向きへ伸ばしても中心にそろえる
-		side := consts.Coord[consts.Tile]{X: -abs(step.Y), Y: -abs(step.X)}
-		end := float64(s.water.BeachWidth + s.water.ShallowWidth + s.water.PierLength)
-		// 湖の細い所を深さが足りないまま抜けても止める上限
-		limit := max(r.w.Tiles(chunkW), r.h.Tiles(chunkH))
-		for p, n := center, consts.Tile(0); n < limit; p, n = p.Add(step), n+1 {
-			depth := s.depth(p)
-			if depth >= end {
-				return
-			}
-			if depth >= 0 {
-				s.piers[p] = true
-				if s.depth(p.Add(side)) >= 0 {
-					s.piers[p.Add(side)] = true
-				}
+		s.layPier(center, consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}, max(r.w.Tiles(chunkW), r.h.Tiles(chunkH)))
+		return
+	}
+}
+
+// layPier は from から step の向きへ、輪郭の内側に幅2の板を張る。浅瀬を越えて pierLength だけ深い水へ入ったか、
+// 湖の細い所で深さが浅くなり始めたら止める。limit マス歩いても止まらなければそこで止める
+func (s *lakeShape) layPier(from, step consts.Coord[consts.Tile], limit consts.Tile) {
+	// 幅2の板を中心の列と負の向きの隣の列に張り、どの向きへ伸ばしても中心にそろえる
+	side := consts.Coord[consts.Tile]{X: -abs(step.Y), Y: -abs(step.X)}
+	end := float64(s.water.BeachWidth + s.water.ShallowWidth + s.water.PierLength)
+	prev := math.Inf(-1)
+	for p, n := from, consts.Tile(0); n < limit; p, n = p.Add(step), n+1 {
+		depth := s.depth(p)
+		if depth >= end || depth >= 0 && depth < prev {
+			return
+		}
+		prev = depth
+		if depth >= 0 {
+			s.piers[p] = true
+			if s.depth(p.Add(side)) >= 0 {
+				s.piers[p.Add(side)] = true
 			}
 		}
-		return
 	}
 }
 

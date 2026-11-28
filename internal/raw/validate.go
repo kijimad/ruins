@@ -111,11 +111,11 @@ func validateDistrictLayers(d *rawschema.District) error {
 		if l.Water != nil && (d.Pattern != rawschema.DistrictPatternRings || i != RingsCoreLayer) {
 			return fmt.Errorf("district %q layer %d: %w", d.Id, i, errDistrictWaterLayer)
 		}
-		if l.Water != nil {
-			for _, size := range d.Sizes {
-				if size.W != size.H {
-					return fmt.Errorf("district %q size %dx%d: %w", d.Id, size.W, size.H, errDistrictWaterNotSquare)
-				}
+	}
+	if slices.ContainsFunc(d.Layers, func(l rawschema.DistrictLayer) bool { return l.Water != nil }) {
+		for _, size := range d.Sizes {
+			if size.W != size.H {
+				return fmt.Errorf("district %q size %dx%d: %w", d.Id, size.W, size.H, errDistrictWaterNotSquare)
 			}
 		}
 	}

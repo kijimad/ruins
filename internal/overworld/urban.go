@@ -181,7 +181,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	return renderUrbanChunk(world, g, consts.Mix2D(r.seed, l.X, l.Y), enemies, lot, l.Sub(lot.anchor), urbanDangerAt(world, c), fence, fenceProp, streetTilesOf(r.kind))
 }
 
-// gateColumns は塀を巡らせる区域 r の、北と南の門を開ける絶対チャンク列を、区域を埋めた区画 lots から返す。
+// gateColumns は区域 r の北と南の門の絶対チャンク列を、区域を埋めた区画 lots から返す。塀の門と、道の計画が道をつなぐ所に使う。
 // 真ん中の列を覆う区画の西の端の列で、区画の西の帯は街路なので、門から区域の中の街路へ入れる
 func gateColumns(r districtRegion, lots []buildingLot) (north, south consts.Chunk) {
 	column := func(y consts.Chunk) consts.Chunk {
