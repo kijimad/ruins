@@ -55,6 +55,7 @@ func TestLoadWorld_地上に置いた置き物は読み込んで地上へ戻っ�
 	fresh := testutil.InitTestWorld(t)
 	require.NoError(t, sm.LoadWorld(fresh, "slot1"))
 	require.NoError(t, overworld.NewDriver(mapplanner.PlannerTypeOverworldField, definition, nil).Start(fresh))
+	require.True(t, query.IsCubeDeployed(fresh), "前提: 読み込んだ後も拠点が置かれ、帯が止まる")
 
 	assert.Equal(t, before, fieldProps(fresh), "地上へ戻っても作り直さず、置き物が増えも減りもしない")
 	var deployable []bool
