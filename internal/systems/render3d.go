@@ -266,6 +266,24 @@ func (sys *Render3DSystem) addFieldWall(out *[]r3quad, p0, p1, p2, p3 render3d.V
 	})
 }
 
+// rememberedColor は記憶タイルの乗算色。暗いだけの見えているタイルと明るさが同じでも、色味で記憶だと分ける
+var rememberedColor = [3]float64{1, 0.8, 0.55}
+
+// selfMinBrightness は自分の姿の明るさの下限。真っ暗でも自分の居場所を見失わない
+const selfMinBrightness = 0.6
+
+// withSelfMinBrightness は乗算色の最も明るい成分が自分の姿の下限に届かなければ、色味を保って下限まで持ち上げる
+func withSelfMinBrightness(c [3]float64) [3]float64 {
+	m := max(c[0], c[1], c[2])
+	if m >= selfMinBrightness {
+		return c
+	}
+	if m == 0 {
+		return [3]float64{selfMinBrightness, selfMinBrightness, selfMinBrightness}
+	}
+	return scaleCol(c, selfMinBrightness/m)
+}
+
 // lightSample は解決済みの明るさと色。フィルタ列で乗算色まで変換する。
 type lightSample struct {
 	brightness float64    // 0..1 の明るさ。overbright で 1.0 を超えうる
@@ -279,7 +297,7 @@ func sampleOf(info TileRenderInfo) (s lightSample, drawable, visible bool) {
 	case TileRenderVisible:
 		return lightSample{1 - float64(v.Darkness), normalizeLight(v.LightColor)}, true, true
 	case TileRenderRemembered:
-		return lightSample{1 - float64(v.Darkness), [3]float64{1, 1, 1}}, true, false
+		return lightSample{1 - float64(v.Darkness), rememberedColor}, true, false
 	default:
 		return lightSample{}, false, false
 	}
@@ -486,6 +504,9 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, proj
 		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない
 		if !vis {
 			continue
+		}
+		if world.Components.Player.Has(e) {
+			tint = withSelfMinBrightness(tint)
 		}
 		if f, ok := poses[g.Coord]; ok && sr.Shape == rawschema.Facing {
 			drawn := func(n consts.Coord[consts.Tile]) bool {

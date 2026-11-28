@@ -122,8 +122,9 @@ func (sys *VisionSystem) Update(world w.World) error {
 		}
 		info := calculateLightSourceDarkness(lights, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, tileAmbient, ambientColor)
 		// 明るさが閾値未満なら見えない。視界を光の届く範囲へ寄せる。
-		// 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる
-		if 1.0-info.Darkness < visibilityThreshold {
+		// 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる。
+		// 足元の1マスは手探りで分かるので暗くても見える
+		if 1.0-info.Darkness < visibilityThreshold && gridElement != *playerGridElement {
 			continue
 		}
 		vs.LightSourceCache[gridElement] = info
@@ -166,7 +167,7 @@ type TileRenderVisible struct {
 
 func (TileRenderVisible) tileRenderInfo() {}
 
-// TileRenderRemembered は視界外だが記憶済みの状態。床のみうっすら描画する
+// TileRenderRemembered は視界外だが記憶済みの状態。動かない物だけを記憶の色味で暗く描く
 type TileRenderRemembered struct {
 	Darkness RememberedDarkness
 }
