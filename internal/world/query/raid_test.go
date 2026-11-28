@@ -105,3 +105,24 @@ func TestDaysUntilRaid(t *testing.T) {
 		})
 	}
 }
+
+func TestNextRaidWaveTurn(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		turn consts.Turn
+		want consts.Turn
+	}{
+		{"1日目からは7日目の夜", 0, dayTurn(7, 1000)},
+		{"7日目の昼からは今夜", dayTurn(7, 500), dayTurn(7, 1000)},
+		{"7日目の最初の波のちょうどは今夜", dayTurn(7, 1000), dayTurn(7, 1000)},
+		{"7日目の最初の波を過ぎたら14日目の夜", dayTurn(7, 1001), dayTurn(14, 1000)},
+		{"8日目からは14日目の夜", dayTurn(8, 0), dayTurn(14, 1000)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, query.NextRaidWaveTurn(tt.turn))
+		})
+	}
+}

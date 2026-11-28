@@ -46,6 +46,17 @@ func DaysUntilRaid(turn consts.Turn) int {
 	return (raidEveryDays - day%raidEveryDays) % raidEveryDays
 }
 
+// NextRaidWaveTurn は経過ターン turn から数えて、次の襲撃の最初の波が来る経過ターンを返す。
+// 今日が襲撃の日で最初の波がまだなら、今日の最初の波を返す
+func NextRaidWaveTurn(turn consts.Turn) consts.Turn {
+	day, offset := dayAndOffset(turn)
+	raidDay := day + DaysUntilRaid(turn)
+	if raidDay == day && offset > raidWaveTurns[0] {
+		raidDay += raidEveryDays
+	}
+	return consts.Turn(raidDay-1)*gc.TurnsPerDay + raidWaveTurns[0]
+}
+
 // dayAndOffset は経過ターンを、1から数える日付とその日の中のターンに分ける
 func dayAndOffset(turn consts.Turn) (int, consts.Turn) {
 	return int(turn/gc.TurnsPerDay) + 1, turn % gc.TurnsPerDay

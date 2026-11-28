@@ -132,6 +132,13 @@ func debugMenuChoices(world w.World) (string, []Choice) {
 			query.GetVisionState(world).RequestUpdate()
 			return nil
 		})},
+		Choice{Label: "Advance to raid night", Run: popAfter(func(world w.World) error {
+			// 次の襲撃の最初の波のターンへ置く。1手動いたターンの終わりで波が湧く。明るさのため視界も求める
+			gt := query.GetGameTime(world)
+			gt.TotalTurns = query.NextRaidWaveTurn(gt.TotalTurns)
+			query.GetVisionState(world).RequestUpdate()
+			return nil
+		})},
 		Choice{Label: "Advance season", Run: popAfter(func(world w.World) error {
 			query.GetGameTime(world).AdvanceToNextSeason()
 			return nil
