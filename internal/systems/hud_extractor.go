@@ -96,7 +96,6 @@ func extractGameInfo(world w.World, messageAreaHeight int) hud.GameInfoData {
 		AmbientShelterLabel: ambientShelterLabel,
 		WeatherName:         query.WeatherName(world, query.GetWeather(world).Current),
 		AreaLabel:           areaLabel(world),
-		RaidLabel:           raidLabel(world),
 		MessageAreaHeight:   messageAreaHeight,
 		Currency:            currency,
 		ScreenDimensions: hud.ScreenDimensions{
@@ -516,16 +515,4 @@ func formatAreaLabel(world w.World, area overworld.Area) string {
 		label += " / " + query.T(world, area.Building)
 	}
 	return label
-}
-
-// raidLabel は次の襲撃までの日数を訳して返す。地上でなければ空を返す
-func raidLabel(world w.World) string {
-	if !query.IsOnOverworld(world) {
-		return ""
-	}
-	days := query.DaysUntilRaid(query.GetGameTime(world).TotalTurns)
-	if days == 0 {
-		return query.T(world, "Raid tonight")
-	}
-	return query.T(world, "Raid in %d days", days)
 }

@@ -3,6 +3,7 @@ package query
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	w "github.com/kijimaD/ruins/internal/world"
 )
 
 // raidEveryDays は襲撃の間隔の日数。この倍数の日の夜に襲撃が来る
@@ -44,6 +45,25 @@ func RaidEndsAt(turn consts.Turn) bool {
 func DaysUntilRaid(turn consts.Turn) int {
 	day, _ := dayAndOffset(turn)
 	return (raidEveryDays - day%raidEveryDays) % raidEveryDays
+}
+
+// RaidTargets は襲撃の敵が狙う的の位置を返す。現ステージの展開中のキューブで、無ければプレイヤーの位置にする。
+// どちらも無ければ空を返す
+func RaidTargets(world w.World) []consts.Coord[consts.Tile] {
+	var out []consts.Coord[consts.Tile]
+	q := ActiveFilter3[gc.Cube, gc.Deployed, gc.GridElement](world).Query()
+	for q.Next() {
+		_, _, g := q.Get()
+		out = append(out, g.Coord)
+	}
+	if len(out) > 0 {
+		return out
+	}
+	player, err := GetPlayerEntity(world)
+	if err != nil || !world.Components.GridElement.Has(player) {
+		return nil
+	}
+	return []consts.Coord[consts.Tile]{world.Components.GridElement.Get(player).Coord}
 }
 
 // NextRaidWaveTurn は経過ターン turn から数えて、次の襲撃の最初の波が来る経過ターンを返す。

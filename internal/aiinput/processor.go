@@ -71,24 +71,12 @@ func (p *Processor) ProcessAll(world w.World) error {
 	return nil
 }
 
-// buildRaidMap は targets に印のある敵がいれば、狙う的からの距離の地図を作って返す。いなければ nil を返す。
-// 的は現ステージの展開中のキューブで、無ければプレイヤーにする
+// buildRaidMap は targets に印のある敵がいれば、query.RaidTargets の的からの距離の地図を作って返す。いなければ nil を返す
 func (p *Processor) buildRaidMap(world w.World, targets []ecs.Entity) *activity.RaidMap {
 	if !slices.ContainsFunc(targets, world.Components.Raider.Has) {
 		return nil
 	}
-	var goals []consts.Coord[consts.Tile]
-	q := query.ActiveFilter3[gc.Cube, gc.Deployed, gc.GridElement](world).Query()
-	for q.Next() {
-		_, _, g := q.Get()
-		goals = append(goals, g.Coord)
-	}
-	if len(goals) == 0 {
-		if player, err := query.GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
-			goals = append(goals, world.Components.GridElement.Get(player).Coord)
-		}
-	}
-	p.raidMap = activity.BuildRaidMap(world, goals, p.raidMap)
+	p.raidMap = activity.BuildRaidMap(world, query.RaidTargets(world), p.raidMap)
 	return p.raidMap
 }
 

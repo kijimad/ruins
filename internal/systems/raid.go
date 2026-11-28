@@ -5,7 +5,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -26,7 +25,7 @@ const (
 	raidMaxPerNight = 24
 )
 
-// RaidSystem は7日ごとの襲撃の夜を進める。襲撃の日の夜明けに予告し、波のターンに中心を囲んで敵を湧かせ、
+// RaidSystem は周期ごとの襲撃の夜を進める。襲撃の日の夜明けに予告し、波のターンに中心を囲んで敵を湧かせ、
 // 翌日の夜明けに敵の印を外す。襲撃は地上が現ステージのときだけ起こす
 type RaidSystem struct {
 	raidMap *activity.RaidMap
@@ -57,23 +56,20 @@ func (sys *RaidSystem) Update(world w.World) error {
 	return nil
 }
 
-// spawnWave は wave 番目の波を湧かせ、寝ているプレイヤーを起こす
+// spawnWave は wave 番目の波を、query.RaidTargets の最初の的を中心に湧かせ、寝ているプレイヤーを起こす
 func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
-	player, err := query.GetPlayerEntity(world)
-	if err != nil {
-		return err
-	}
-	center, ok := raidCenter(world, player)
-	if !ok {
+	targets := query.RaidTargets(world)
+	if len(targets) == 0 {
 		return nil
 	}
+	center := targets[0]
 	danger := raidDanger(world, center)
 	count := raidWaveSize(raidNightSize(danger), wave)
 	table, err := raw.GetEnemyTable(world.Resources.RawMaster, raidEnemyTable)
 	if err != nil {
 		return err
 	}
-	sys.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{center}, sys.raidMap)
+	sys.raidMap = activity.BuildRaidMap(world, targets, sys.raidMap)
 	tiles := raidSpawnTiles(world, sys.raidMap, center, count)
 	rng := world.Resources.Config.RNG
 	spawned := 0
@@ -95,11 +91,16 @@ func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
 	if spawned == 0 {
 		return nil
 	}
+	if wave == 0 {
+		lifecycle.SpawnSplashText(world, query.T(world, "Raid"))
+	}
 	gamelog.New(query.GetGameLog(world)).
 		Markup(gamelog.Tag("system", query.T(world, "They are coming out of the dark."))).
 		Log()
-	// 眠りは近くに敵が見えると覚めるが、波は視界の外に湧くので、寄ってからでは支度の時間が無い
-	activity.CancelActivity(player, "woke up to the raid", world)
+	// 眠りは近くに敵が見えると覚めるが、波は視界の外に湧くので、寄ってからでは支度の時間が無い。眠り以外の作業は止めない
+	if player, err := query.GetPlayerEntity(world); err == nil && world.Components.Sleeping.Has(player) {
+		activity.CancelActivity(player, "woke up to the raid", world)
+	}
 	return nil
 }
 
@@ -122,24 +123,10 @@ func endRaid(world w.World) {
 			solo.StartSubStateTurn = turnNumber
 		}
 	}
+	lifecycle.SpawnSplashText(world, query.T(world, "You made it through the raid"))
 	gamelog.New(query.GetGameLog(world)).
 		Markup(gamelog.Tag("system", query.T(world, "Dawn breaks. The raid is over."))).
 		Log()
-}
-
-// raidCenter は現ステージの展開中のキューブの位置を返す。無ければプレイヤーの位置を返す
-func raidCenter(world w.World, player ecs.Entity) (consts.Coord[consts.Tile], bool) {
-	q := query.ActiveFilter3[gc.Cube, gc.Deployed, gc.GridElement](world).Query()
-	if q.Next() {
-		_, _, g := q.Get()
-		c := g.Coord
-		q.Close()
-		return c, true
-	}
-	if !world.Components.GridElement.Has(player) {
-		return consts.Coord[consts.Tile]{}, false
-	}
-	return world.Components.GridElement.Get(player).Coord, true
 }
 
 // raidDanger は中心の北の深さから危険度を返す
@@ -180,12 +167,14 @@ func raidSpawnTiles(world w.World, m *activity.RaidMap, center consts.Coord[cons
 	for inner, outer := raidSpawnMin, raidSpawnMax; inner <= limit && len(picked) < count; inner, outer = outer+1, outer+raidSpawnMax-raidSpawnMin+1 {
 		var ring []consts.Coord[consts.Tile]
 		for y := center.Y - outer; y <= center.Y+outer; y++ {
+			// 内側の四角に掛かる行は、左右の帯だけを回して内側を調べ直さない
+			innerRow := y > center.Y-inner && y < center.Y+inner
 			for x := center.X - outer; x <= center.X+outer; x++ {
-				c := consts.Coord[consts.Tile]{X: x, Y: y}
-				d := geometry.ChebyshevDistance(center, c)
-				if d < int(inner) || d > int(outer) {
+				if innerRow && x > center.X-inner && x < center.X+inner {
+					x = center.X + inner - 1
 					continue
 				}
+				c := consts.Coord[consts.Tile]{X: x, Y: y}
 				if _, ok := m.Dist(c); !ok {
 					continue
 				}

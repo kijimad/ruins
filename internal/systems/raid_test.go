@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -74,6 +75,61 @@ func TestRaidSystem_波のターンに展開中のキューブを囲んで印の
 		assert.True(t, d >= int(raidSpawnMin) && d <= int(raidSpawnMax), "輪の上に湧く: %v は %d 離れている", c, d)
 	}
 	assert.False(t, world.Components.Sleeping.Has(player), "波で目を覚ます")
+	assert.Equal(t, []string{"Raid"}, splashTexts(world), "最初の波で始まりを大書きする")
+}
+
+func TestRaidSystem_寝ていなければ行動を止めない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("o", 0, 24, 24, 5, 5), &overworld.NewGameParams{RunSeed: 42})
+	require.NoError(t, drv.Start(world))
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	world.Components.Activity.Add(player, activity.NewActivity(gc.BehaviorRest, 10))
+	query.GetGameTime(world).TotalTurns = firstWaveTurn
+
+	require.NoError(t, (&RaidSystem{}).Update(world))
+
+	require.NotEmpty(t, raiderTiles(world))
+	assert.True(t, world.Components.Activity.Has(player), "眠り以外の行動は続く")
+}
+
+func TestRaidSystem_キューブが無ければプレイヤーを囲んで湧かせる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("o", 0, 24, 24, 5, 5), &overworld.NewGameParams{RunSeed: 42})
+	require.NoError(t, drv.Start(world))
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+	center := world.Components.GridElement.Get(player).Coord
+	query.GetGameTime(world).TotalTurns = firstWaveTurn
+
+	require.NoError(t, (&RaidSystem{}).Update(world))
+
+	raiders := raiderTiles(world)
+	require.NotEmpty(t, raiders)
+	for _, c := range raiders {
+		d := geometry.ChebyshevDistance(center, c)
+		assert.True(t, d >= int(raidSpawnMin) && d <= int(raidSpawnMax), "プレイヤーを囲む輪に湧く: %v は %d 離れている", c, d)
+	}
+}
+
+func TestRaidSystem_地上にいなければ波を起こさず夜明けの片付けだけする(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, "ash")
+	require.NoError(t, err)
+	raider, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "stray_dog")
+	require.NoError(t, err)
+	world.Components.Raider.Add(raider, &gc.Raider{})
+
+	query.GetGameTime(world).TotalTurns = firstWaveTurn
+	require.NoError(t, (&RaidSystem{}).Update(world))
+	assert.Equal(t, []consts.Coord[consts.Tile]{{X: 30, Y: 30}}, raiderTiles(world), "地上の外では波を湧かせない")
+
+	query.GetGameTime(world).TotalTurns = 7 * gc.TurnsPerDay
+	require.NoError(t, (&RaidSystem{}).Update(world))
+	assert.False(t, world.Components.Raider.Has(raider), "夜明けの印外しは地上の外でも走る")
 }
 
 func TestRaidSystem_視界の中には湧かせず輪を外へ広げる(t *testing.T) {
@@ -131,6 +187,7 @@ func TestRaidSystem_夜明けに印を外して待機に戻し敵は残す(t *te
 		assert.False(t, world.Components.Raider.Has(e), "印が外れる")
 		assert.Equal(t, gc.AIStateWaiting, world.Components.SoloAI.Get(e).SubState, "待機に戻る")
 	}
+	assert.Equal(t, []string{"Raid", "You made it through the raid"}, splashTexts(world), "夜明けに終わりを大書きする")
 }
 
 func TestRunTurnEndSystems_登録したRaidSystemが波を湧かせる(t *testing.T) {
@@ -155,6 +212,19 @@ func raiderTiles(world w.World) []consts.Coord[consts.Tile] {
 	for q.Next() {
 		_, g := q.Get()
 		out = append(out, g.Coord)
+	}
+	return out
+}
+
+func splashTexts(world w.World) []string {
+	var out []string
+	q := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
+	for q.Next() {
+		for _, e := range q.Get().Effects {
+			if splash, ok := e.(*gc.SplashTextEffect); ok {
+				out = append(out, splash.Text)
+			}
+		}
 	}
 	return out
 }
