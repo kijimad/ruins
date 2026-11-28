@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">89.0&nbsp;%</td>
-            <td class="headerCovTableEntry">73</td>
-            <td class="headerCovTableEntry">65</td>
+            <td class="headerCovTableEntryMed">89.5&nbsp;%</td>
+            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntry">68</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 03:32:09</td>
+            <td class="headerValue">2026-11-28 04:20:06</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -190,43 +190,46 @@
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                 return placeUnknownGlyph</span></span>
 <span id="L129"><span class="lineNum">     129</span>              :         case chunkUrban:</span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 r, _ := districtAt(raws, runSeed, c, cols, spawnRow)</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c, spawnRow)); ok {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 if l := r.local(c); r.waterAt(l) == nil &amp;&amp; !r.builds(l) {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                         return chunkGlyph(raws, rawschema.Wasteland)</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 return placeUnknownGlyph</span></span>
-<span id="L135"><span class="lineNum">     135</span>              :         case chunkSettlement:</span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, settlementAt(raws, runSeed, c).Id); ok {</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 return placeUnknownGlyph</span></span>
-<span id="L140"><span class="lineNum">     140</span>              :         case chunkLandmark:</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, landmarkKindAt(raws, runSeed, c)); ok {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 return placeUnknownGlyph</span></span>
-<span id="L145"><span class="lineNum">     145</span>              :         case chunkWasteland, chunkRoad:</span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 return chunkGlyph(raws, rawschema.Wasteland)</span></span>
-<span id="L147"><span class="lineNum">     147</span>              :         }</span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         return placeUnknownGlyph</span></span>
-<span id="L149"><span class="lineNum">     149</span>              : }</span>
-<span id="L150"><span class="lineNum">     150</span>              : </span>
-<span id="L151"><span class="lineNum">     151</span>              : // chunkGlyph は持ち主の行を持たないチャンクの種類の記号を引く。未登録は保険の記号。</span>
-<span id="L152"><span class="lineNum">     152</span>              : func chunkGlyph(raws rawschema.Raws, chunk rawschema.GlyphChunk) rune {</span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         if mg, ok := raw.GetChunkGlyph(raws, chunk); ok {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 return toGlyphInfo(mg).Label</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         return placeUnknownGlyph</span></span>
-<span id="L157"><span class="lineNum">     157</span>              : }</span>
-<span id="L158"><span class="lineNum">     158</span>              : </span>
-<span id="L159"><span class="lineNum">     159</span>              : // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。</span>
-<span id="L160"><span class="lineNum">     160</span>              : func SchematicLegend(raws rawschema.Raws) string {</span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         glyphs := LegendGlyphs(raws)</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, len(glyphs))</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         for _, g := range glyphs {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 parts = append(parts, fmt.Sprintf(&quot;%c %s&quot;, g.Label, g.Name))</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         return strings.Join(parts, &quot;  &quot;)</span></span>
-<span id="L167"><span class="lineNum">     167</span>              : }</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, urbanFacilityAt(raws, cat, r, c, spawnRow)); ok {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 return placeUnknownGlyph</span></span>
+<span id="L138"><span class="lineNum">     138</span>              :         case chunkSettlement:</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, settlementAt(raws, runSeed, c).Id); ok {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                 return placeUnknownGlyph</span></span>
+<span id="L143"><span class="lineNum">     143</span>              :         case chunkLandmark:</span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 if g, ok := glyphByID(raws, landmarkKindAt(raws, runSeed, c)); ok {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 return placeUnknownGlyph</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :         case chunkWasteland, chunkRoad:</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 return chunkGlyph(raws, rawschema.Wasteland)</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :         }</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         return placeUnknownGlyph</span></span>
+<span id="L152"><span class="lineNum">     152</span>              : }</span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span>              : // chunkGlyph は持ち主の行を持たないチャンクの種類の記号を引く。未登録は保険の記号。</span>
+<span id="L155"><span class="lineNum">     155</span>              : func chunkGlyph(raws rawschema.Raws, chunk rawschema.GlyphChunk) rune {</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         if mg, ok := raw.GetChunkGlyph(raws, chunk); ok {</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 return toGlyphInfo(mg).Label</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         return placeUnknownGlyph</span></span>
+<span id="L160"><span class="lineNum">     160</span>              : }</span>
+<span id="L161"><span class="lineNum">     161</span>              : </span>
+<span id="L162"><span class="lineNum">     162</span>              : // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。</span>
+<span id="L163"><span class="lineNum">     163</span>              : func SchematicLegend(raws rawschema.Raws) string {</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         glyphs := LegendGlyphs(raws)</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, len(glyphs))</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         for _, g := range glyphs {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 parts = append(parts, fmt.Sprintf(&quot;%c %s&quot;, g.Label, g.Name))</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         return strings.Join(parts, &quot;  &quot;)</span></span>
+<span id="L170"><span class="lineNum">     170</span>              : }</span>
         </pre>
               </td>
             </tr>
