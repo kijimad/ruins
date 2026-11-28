@@ -627,7 +627,7 @@ type District struct {
 	// Id 区域の種類の id。行の順が優先で、重なった後の種類の区域は出さない
 	Id EntityID `json:"id"`
 
-	// Landmark 区域に1つだけ建てる主の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
+	// Landmark 区域に1つだけ建てる主の施設。区画を割り振る前に、その地区の真ん中か、だめなら真ん中に一番近い建てられる所へ一番大きく置き、残りの抽選からは外す
 	Landmark *EntityID `json:"landmark,omitempty"`
 
 	// Layers 地区の層。プレイヤーが入ってくる側から順に並べる。rings は外から内へ、rows は南から北へ
