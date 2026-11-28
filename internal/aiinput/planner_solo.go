@@ -31,6 +31,8 @@ type soloPlanner struct {
 	rng          *rand.Rand
 	// raidMap はこの手番で襲撃の敵が下る距離の地図。Processor が手番の初めに渡す。印のある敵がいなければ nil
 	raidMap *activity.RaidMap
+	// raidSteps は印のある敵ごとに下る隣を入れる配列。敵をまたいで使い回す
+	raidSteps []consts.Coord[consts.Tile]
 }
 
 func newSoloPlanner(rng *rand.Rand) *soloPlanner {
@@ -415,49 +417,46 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 }
 
 // planRaidAction は印のある敵の行動を決める。敵対する相手が見えていて、狙う的より近ければ追って殴る。キューブだけを
-// 狙う敵は相手を追わない。それ以外は距離の地図を下り、次の1歩が狙う的か敵対する相手なら殴り、HP を持つ置物なら
-// 壊し、ほかのキャラクターなら待ち、空いていれば進む
+// 狙う敵は相手を追わない。それ以外は距離の地図の下る隣を近い順に試す。狙う的か仲間でないキャラクターなら殴り、
+// HP を持つ置物なら壊し、空いていれば進む。仲間に塞がれた隣は飛ばし、試す隣が残らなければ待つ
 func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
+	var steps []consts.Coord[consts.Tile]
+	if rp.raidMap != nil {
+		rp.raidSteps = rp.raidMap.Steps(world, grid.Coord, rp.raidSteps)
+		steps = rp.raidSteps
+	}
 	if !world.Components.Raider.Get(entity).CubeOnly {
-		if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) && rp.closerThanRaidTarget(world, grid, *target) {
+		if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) && rp.closerThanRaidTarget(world, grid, steps, *target) {
 			return rp.planChaseAction(world, entity, *target, grid)
 		}
 	}
-	if rp.raidMap == nil {
-		return waitAction()
-	}
-	next, ok := rp.raidMap.NextStep(world, grid.Coord)
-	if !ok {
-		return waitAction()
-	}
 	si := query.GetSpatialIndex(world)
-	if e, ok := si.CharacterAt(next); ok {
-		if world.Components.Cube.Has(e) || query.FactionRelation(world, entity, e) == query.RelationHostile {
-			return activity.NewMeleeActivity(e)
-		}
-		return waitAction()
-	}
-	if si.IsBlocked(next) {
-		for _, e := range query.GetEntitiesAt(world, next.X, next.Y) {
-			if world.Components.Prop.Has(e) && world.Components.HP.Has(e) {
+	for _, next := range steps {
+		if e, ok := si.CharacterAt(next); ok {
+			if world.Components.Cube.Has(e) || query.FactionRelation(world, entity, e) != query.RelationFriendly {
 				return activity.NewMeleeActivity(e)
 			}
+			continue
 		}
-		return waitAction()
+		if si.IsBlocked(next) {
+			for _, e := range query.GetEntitiesAt(world, next.X, next.Y) {
+				if world.Components.Prop.Has(e) && world.Components.HP.Has(e) {
+					return activity.NewMeleeActivity(e)
+				}
+			}
+			continue
+		}
+		return moveAction(next)
 	}
-	return moveAction(next)
+	return waitAction()
 }
 
-// closerThanRaidTarget は相手 target が、距離の地図の的より近いかを返す。的までの距離は次の1歩のマスの値に1を足して
-// 測る。自分の立つマスの値は、自分がいることで重く数えられているので使わない。地図が無いか、進む先が無ければ近いとする
-func (rp *soloPlanner) closerThanRaidTarget(world w.World, grid *gc.GridElement, target ecs.Entity) bool {
-	if rp.raidMap == nil {
+// closerThanRaidTarget は相手 target が、距離の地図の的より近いかを返す。的までの距離は一番近い下る隣 steps[0] の
+// 値に1を足して測る。自分の立つマスの値は、自分がいることで重く数えられているので使わない。下る隣が無ければ近いとする
+func (rp *soloPlanner) closerThanRaidTarget(world w.World, grid *gc.GridElement, steps []consts.Coord[consts.Tile], target ecs.Entity) bool {
+	if len(steps) == 0 {
 		return true
 	}
-	next, ok := rp.raidMap.NextStep(world, grid.Coord)
-	if !ok {
-		return true
-	}
-	toTarget, _ := rp.raidMap.Dist(next)
+	toTarget, _ := rp.raidMap.Dist(steps[0])
 	return geometry.ChebyshevDistance(grid.Coord, world.Components.GridElement.Get(target).Coord) < int(toTarget)+1
 }

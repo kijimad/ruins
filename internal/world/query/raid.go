@@ -47,13 +47,13 @@ func daysUntilRaid(turn consts.Turn) int {
 	return (raidEveryDays - day%raidEveryDays) % raidEveryDays
 }
 
-// RaidTargets は襲撃の敵が狙う的の位置を返す。現ステージの展開中のキューブで、無ければプレイヤーの位置にする。
-// どちらも無ければ空を返す
+// RaidTargets は襲撃の敵が狙う的の位置を返す。現ステージのキューブで、展開しているかに関わらない。畳んだまま夜を
+// 越せばキューブを守らずに済む、という抜け道を作らない。キューブが無ければプレイヤーの位置にし、どちらも無ければ空を返す
 func RaidTargets(world w.World) []consts.Coord[consts.Tile] {
 	var out []consts.Coord[consts.Tile]
-	q := ActiveFilter3[gc.Cube, gc.Deployed, gc.GridElement](world).Query()
+	q := ActiveFilter2[gc.Cube, gc.GridElement](world).Query()
 	for q.Next() {
-		_, _, g := q.Get()
+		_, g := q.Get()
 		out = append(out, g.Coord)
 	}
 	if len(out) > 0 {

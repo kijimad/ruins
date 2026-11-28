@@ -99,6 +99,9 @@ func TestRaidSystem_キューブが無ければプレイヤーを囲んで湧か
 	world := testutil.InitTestWorld(t)
 	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("o", 0, 24, 24, 5, 5), &overworld.NewGameParams{RunSeed: 42})
 	require.NoError(t, drv.Start(world))
+	cube, ok := query.ActiveCube(world)
+	require.True(t, ok)
+	world.ECS.RemoveEntity(cube)
 	player, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	center := world.Components.GridElement.Get(player).Coord
@@ -114,11 +117,37 @@ func TestRaidSystem_キューブが無ければプレイヤーを囲んで湧か
 	}
 }
 
-func TestRaidSystem_地上にいなければ波を起こさず夜明けの片付けだけする(t *testing.T) {
+func TestRaidSystem_畳んだキューブも囲んで湧かせる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("o", 0, 24, 24, 5, 5), &overworld.NewGameParams{RunSeed: 42})
+	require.NoError(t, drv.Start(world))
+	cube, ok := query.ActiveCube(world)
+	require.True(t, ok)
+	require.False(t, world.Components.Deployed.Has(cube), "前提: 開始時のキューブは畳んである")
+	center := world.Components.GridElement.Get(cube).Coord
+	query.GetGameTime(world).TotalTurns = firstWaveTurn
+
+	require.NoError(t, (&RaidSystem{}).Update(world))
+
+	raiders := raiderTiles(world)
+	require.NotEmpty(t, raiders)
+	for _, c := range raiders {
+		d := geometry.ChebyshevDistance(center, c)
+		assert.True(t, d >= int(raidSpawnMin) && d <= int(raidSpawnMax), "畳んだキューブを囲む輪に湧く: %v は %d 離れている", c, d)
+	}
+}
+
+func TestRaidSystem_地上にいなければ予告と夜明けの片付けだけする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, "ash")
 	require.NoError(t, err)
+
+	query.GetGameTime(world).TotalTurns = 6 * gc.TurnsPerDay
+	require.NoError(t, (&RaidSystem{}).Update(world))
+	assert.Equal(t, []string{"Something is gathering in the snow. They will come tonight."}, logTexts(world), "予告は地上の外でも出す")
+
 	raider, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "stray_dog")
 	require.NoError(t, err)
 	world.Components.Raider.Add(raider, &gc.Raider{})

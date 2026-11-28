@@ -258,6 +258,39 @@ func TestPlanRaidAction_細い通路で前に仲間がいれば待つ(t *testing
 	assert.Equal(t, gc.BehaviorWait, act.BehaviorName, "回り道が長ければ、前の仲間を待つ")
 }
 
+func TestPlanRaidAction_開けた所では前の仲間の横へ回り込む(t *testing.T) {
+	t.Parallel()
+	at := func(x, y int) consts.Coord[consts.Tile] {
+		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+	}
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, at(2, 2), "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, at(20, 20))
+	require.NoError(t, err)
+	world.Components.Deployed.Add(cube, &gc.Deployed{})
+	front, err := lifecycle.SpawnEnemy(world, at(20, 23), "stray_dog")
+	require.NoError(t, err)
+	world.Components.Raider.Add(front, &gc.Raider{})
+	raider, err := lifecycle.SpawnEnemy(world, at(20, 24), "stray_dog")
+	require.NoError(t, err)
+	world.Components.Raider.Add(raider, &gc.Raider{})
+
+	rp := newSoloPlanner(newTestRNG())
+	// 前の仲間が動く前に作った地図では、仲間のマスが一番近い隣になる
+	si := query.GetSpatialIndex(world)
+	delete(si.Characters, gc.GridElement{Coord: at(20, 23)})
+	rp.raidMap = activity.BuildRaidMap(world, []consts.Coord[consts.Tile]{at(20, 20)}, nil)
+	si.Characters[gc.GridElement{Coord: at(20, 23)}] = front
+	act := rp.Plan(world, raider)
+
+	require.NotNil(t, act)
+	require.Equal(t, gc.BehaviorMove, act.BehaviorName)
+	p, ok := act.Params.(*gc.MoveParams)
+	require.True(t, ok)
+	assert.Equal(t, at(19, 23), p.Destination.Coord)
+}
+
 func TestCullDistantSolo_印のある敵は圏外でも残す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

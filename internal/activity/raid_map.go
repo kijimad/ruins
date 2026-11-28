@@ -1,6 +1,9 @@
 package activity
 
 import (
+	"cmp"
+	"slices"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -122,28 +125,28 @@ func (m *RaidMap) Dist(c consts.Coord[consts.Tile]) (int32, bool) {
 	return d, d >= 0
 }
 
-// NextStep は from の隣のうち、距離が from より小さく一番小さいマスを返す。斜めは CanMoveTo と同じ規則で選ぶ。
-// 無ければ false を返す
-func (m *RaidMap) NextStep(world w.World, from consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
-	best, ok := m.Dist(from)
+// Steps は from の隣のうち、距離が from より小さいマスを、距離の小さい順に buf へ足して返す。同じ距離なら
+// raidMapDirs の順にする。斜めは CanMoveTo と同じ規則で選ぶ。下る隣が無ければ空を返す
+func (m *RaidMap) Steps(world w.World, from consts.Coord[consts.Tile], buf []consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
+	steps := buf[:0]
+	here, ok := m.Dist(from)
 	if !ok {
-		return consts.Coord[consts.Tile]{}, false
+		return steps
 	}
 	si := query.GetSpatialIndex(world)
 	if si == nil {
-		return consts.Coord[consts.Tile]{}, false
+		return steps
 	}
-	var step consts.Coord[consts.Tile]
-	found := false
 	for _, dir := range raidMapDirs {
 		next := from.Add(dir)
-		d, ok := m.Dist(next)
-		if !ok || d >= best || !m.canPassDiagonal(si, from, dir) {
-			continue
+		if d, ok := m.Dist(next); ok && d < here && m.canPassDiagonal(si, from, dir) {
+			steps = append(steps, next)
 		}
-		best, step, found = d, next, true
 	}
-	return step, found
+	slices.SortStableFunc(steps, func(a, b consts.Coord[consts.Tile]) int {
+		return cmp.Compare(m.dist[m.index(a)], m.dist[m.index(b)])
+	})
+	return steps
 }
 
 func (m *RaidMap) inBounds(c consts.Coord[consts.Tile]) bool {

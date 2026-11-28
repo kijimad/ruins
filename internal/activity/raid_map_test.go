@@ -88,7 +88,7 @@ func TestBuildRaidMap(t *testing.T) {
 		assert.False(t, ok)
 	})
 
-	t.Run("NextStep は角の向こうの的へ斜めに抜けない", func(t *testing.T) {
+	t.Run("Steps は角の向こうの的へ斜めに抜けない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		si := query.GetSpatialIndex(world)
@@ -97,9 +97,7 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Characters = map[gc.GridElement]ecs.Entity{}
 
 		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0), at(2, 2)}, nil)
-		next, ok := m.NextStep(world, at(1, 1))
-		require.True(t, ok)
-		assert.Equal(t, at(2, 2), next, "角の向こうの (0,0) でなく、斜めに抜けられる (2,2) へ進む")
+		assert.Equal(t, []consts.Coord[consts.Tile]{at(2, 2)}, m.Steps(world, at(1, 1), nil), "角の向こうの (0,0) でなく、斜めに抜けられる (2,2) へ進む")
 	})
 
 	t.Run("的が無ければどのマスにも届かない", func(t *testing.T) {
@@ -115,7 +113,7 @@ func TestBuildRaidMap(t *testing.T) {
 		assert.False(t, ok)
 	})
 
-	t.Run("NextStep は距離が一番小さい隣を返す", func(t *testing.T) {
+	t.Run("Steps は下る隣を距離の小さい順に返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		si := query.GetSpatialIndex(world)
@@ -124,11 +122,8 @@ func TestBuildRaidMap(t *testing.T) {
 		si.Characters = map[gc.GridElement]ecs.Entity{}
 
 		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 0)}, nil)
-		next, ok := m.NextStep(world, at(3, 3))
-		require.True(t, ok)
-		assert.Equal(t, at(2, 2), next)
-		_, ok = m.NextStep(world, at(0, 0))
-		assert.False(t, ok, "的の上では進む先が無い")
+		assert.Equal(t, []consts.Coord[consts.Tile]{at(2, 1), at(2, 0), at(2, 2)}, m.Steps(world, at(3, 1), nil))
+		assert.Empty(t, m.Steps(world, at(0, 0), nil), "的の上では進む先が無い")
 	})
 }
 

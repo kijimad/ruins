@@ -28,7 +28,7 @@ const (
 )
 
 // RaidSystem は周期ごとの襲撃の夜を進める。襲撃の日の夜明けに予告し、波のターンに中心を囲んで敵を湧かせ、
-// 襲撃の夜の外では残った敵の印を外す。襲撃は地上が現ステージのときだけ起こす
+// 襲撃の夜の外では残った敵の印を外す。予告はどこでも出し、波は地上が現ステージのときだけ湧かせる
 type RaidSystem struct {
 	raidMap *activity.RaidMap
 }
@@ -45,13 +45,14 @@ func (sys *RaidSystem) Update(world w.World) error {
 	if !query.InRaidNight(turn) {
 		endRaid(world)
 	}
-	if !query.IsOnOverworld(world) {
-		return nil
-	}
+	// 予告はどのステージにいても出す。地上へ戻った夜に前触れなく波が来ないように
 	if query.RaidWarnsAt(turn) {
 		gamelog.New(query.GetGameLog(world)).
 			Markup(gamelog.Tag("system", query.T(world, "Something is gathering in the snow. They will come tonight."))).
 			Log()
+	}
+	if !query.IsOnOverworld(world) {
+		return nil
 	}
 	if wave, ok := query.RaidWaveAt(turn); ok {
 		return sys.spawnWave(world, wave)
