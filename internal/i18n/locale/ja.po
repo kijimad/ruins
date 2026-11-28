@@ -6832,9 +6832,3 @@ msgstr "夜が明けた。襲撃は終わった"
 
 msgid "woke up to the raid"
 msgstr "襲撃で目が覚めた"
-
-msgid "Raid"
-msgstr "襲撃"
-
-msgid "You made it through the raid"
-msgstr "襲撃を乗り切った"

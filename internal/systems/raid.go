@@ -91,9 +91,6 @@ func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
 	if spawned == 0 {
 		return nil
 	}
-	if wave == 0 {
-		lifecycle.SpawnSplashText(world, query.T(world, "Raid"))
-	}
 	gamelog.New(query.GetGameLog(world)).
 		Markup(gamelog.Tag("system", query.T(world, "They are coming out of the dark."))).
 		Log()
@@ -123,7 +120,6 @@ func endRaid(world w.World) {
 			solo.StartSubStateTurn = turnNumber
 		}
 	}
-	lifecycle.SpawnSplashText(world, query.T(world, "You made it through the raid"))
 	gamelog.New(query.GetGameLog(world)).
 		Markup(gamelog.Tag("system", query.T(world, "Dawn breaks. The raid is over."))).
 		Log()

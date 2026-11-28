@@ -75,7 +75,7 @@ func TestRaidSystem_波のターンに展開中のキューブを囲んで印の
 		assert.True(t, d >= int(raidSpawnMin) && d <= int(raidSpawnMax), "輪の上に湧く: %v は %d 離れている", c, d)
 	}
 	assert.False(t, world.Components.Sleeping.Has(player), "波で目を覚ます")
-	assert.Equal(t, []string{"Raid"}, splashTexts(world), "最初の波で始まりを大書きする")
+	assert.Contains(t, logTexts(world), "They are coming out of the dark.", "波が来たことをログで知らせる")
 }
 
 func TestRaidSystem_寝ていなければ行動を止めない(t *testing.T) {
@@ -187,7 +187,7 @@ func TestRaidSystem_夜明けに印を外して待機に戻し敵は残す(t *te
 		assert.False(t, world.Components.Raider.Has(e), "印が外れる")
 		assert.Equal(t, gc.AIStateWaiting, world.Components.SoloAI.Get(e).SubState, "待機に戻る")
 	}
-	assert.Equal(t, []string{"Raid", "You made it through the raid"}, splashTexts(world), "夜明けに終わりを大書きする")
+	assert.Contains(t, logTexts(world), "Dawn breaks. The raid is over.", "夜明けに終わりをログで知らせる")
 }
 
 func TestRunTurnEndSystems_登録したRaidSystemが波を湧かせる(t *testing.T) {
@@ -216,15 +216,11 @@ func raiderTiles(world w.World) []consts.Coord[consts.Tile] {
 	return out
 }
 
-func splashTexts(world w.World) []string {
-	var out []string
-	q := ecs.NewFilter1[gc.VisualEffects](world.ECS).Query()
-	for q.Next() {
-		for _, e := range q.Get().Effects {
-			if splash, ok := e.(*gc.SplashTextEffect); ok {
-				out = append(out, splash.Text)
-			}
-		}
+func logTexts(world w.World) []string {
+	entries := query.GetGameLog(world).GetRecentEntries(20)
+	out := make([]string, 0, len(entries))
+	for _, e := range entries {
+		out = append(out, e.Text())
 	}
 	return out
 }
