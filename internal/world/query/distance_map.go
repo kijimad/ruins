@@ -67,7 +67,7 @@ var (
 )
 
 // buildDistanceMap は各マスの重みを書き出し、的 targets から距離を広げる。空いたマスは重み1、プレイヤー側でないキャラクターの
-// マスは重み gc.DistanceMapObstacleCost、壁や地形は通れない。置物とプレイヤー側のマスは rule で決める
+// マスは重み gc.DistanceMapObstacleCost、壁や地形は通れない。置物、プレイヤー側、展開したキューブのマスは rule で決める
 func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[consts.Tile], rule distanceRule) {
 	m.Built = true
 	si := GetSpatialIndex(world)
