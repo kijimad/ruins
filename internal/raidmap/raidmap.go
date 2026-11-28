@@ -74,7 +74,7 @@ func Build(world w.World, targets []consts.Coord[consts.Tile], buf *Map) *Map {
 		m.buckets[0] = append(m.buckets[0], int32(i))
 		pending++
 	}
-	w := int(m.width)
+	width := int(m.width)
 	for d := int32(0); pending > 0; d++ {
 		slot := int(d) % len(m.buckets)
 		cur := m.buckets[slot]
@@ -83,18 +83,18 @@ func Build(world w.World, targets []consts.Coord[consts.Tile], buf *Map) *Map {
 			if m.dist[ci] != d {
 				continue
 			}
-			cx, cy := int(ci)%w, int(ci)/w
+			cx, cy := int(ci)%width, int(ci)/width
 			for _, dir := range dirs {
 				nx, ny := cx+int(dir.X), cy+int(dir.Y)
-				if nx < 0 || ny < 0 || nx >= w || ny >= int(m.height) {
+				if nx < 0 || ny < 0 || nx >= width || ny >= int(m.height) {
 					continue
 				}
-				ni := ny*w + nx
+				ni := ny*width + nx
 				step := m.cost[ni]
 				if step == 0 {
 					continue
 				}
-				if dir.X != 0 && dir.Y != 0 && m.blocked[cy*w+nx] && m.blocked[ny*w+cx] {
+				if dir.X != 0 && dir.Y != 0 && m.blocked[cy*width+nx] && m.blocked[ny*width+cx] {
 					continue
 				}
 				nd := d + step

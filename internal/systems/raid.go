@@ -165,10 +165,10 @@ func raidSpawnTiles(world w.World, m *raidmap.Map, center consts.Coord[consts.Ti
 	limit := max(si.MapWidth, si.MapHeight)
 	for inner, outer := raidSpawnMin, raidSpawnMax; inner <= limit && len(picked) < count; inner, outer = outer+1, outer+raidSpawnMax-raidSpawnMin+1 {
 		var ring []consts.Coord[consts.Tile]
-		for y := center.Y - outer; y <= center.Y+outer; y++ {
+		for y := max(center.Y-outer, 0); y <= min(center.Y+outer, si.MapHeight-1); y++ {
 			// 内側の四角に掛かる行は、左右の帯だけを回して内側を調べ直さない
 			innerRow := y > center.Y-inner && y < center.Y+inner
-			for x := center.X - outer; x <= center.X+outer; x++ {
+			for x := max(center.X-outer, 0); x <= min(center.X+outer, si.MapWidth-1); x++ {
 				if innerRow && x > center.X-inner && x < center.X+inner {
 					x = center.X + inner - 1
 					continue
