@@ -96,6 +96,7 @@ type EntitySpec struct {
 	TurnState          *TurnState
 	SpatialIndex       *SpatialIndex
 	DistanceMap        *DistanceMap
+	FollowDistanceMap  *FollowDistanceMap
 	HandSelection      *HandSelection
 	GameTime           *GameTime
 	Weather            *Weather
@@ -197,6 +198,7 @@ type Components struct {
 	TurnState          *ecs.Map[TurnState]
 	SpatialIndex       *ecs.Map[SpatialIndex]
 	DistanceMap        *ecs.Map[DistanceMap]
+	FollowDistanceMap  *ecs.Map[FollowDistanceMap]
 	HandSelection      *ecs.Map[HandSelection]
 	GameTime           *ecs.Map[GameTime]
 	Weather            *ecs.Map[Weather]
@@ -298,6 +300,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.TurnState = ecs.NewMap[TurnState](world)
 	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
 	c.DistanceMap = ecs.NewMap[DistanceMap](world)
+	c.FollowDistanceMap = ecs.NewMap[FollowDistanceMap](world)
 	c.HandSelection = ecs.NewMap[HandSelection](world)
 	c.GameTime = ecs.NewMap[GameTime](world)
 	c.Weather = ecs.NewMap[Weather](world)
@@ -401,6 +404,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.TurnState, entity, spec.TurnState)
 	addComp(c.SpatialIndex, entity, spec.SpatialIndex)
 	addComp(c.DistanceMap, entity, spec.DistanceMap)
+	addComp(c.FollowDistanceMap, entity, spec.FollowDistanceMap)
 	addComp(c.HandSelection, entity, spec.HandSelection)
 	addComp(c.GameTime, entity, spec.GameTime)
 	addComp(c.Weather, entity, spec.Weather)

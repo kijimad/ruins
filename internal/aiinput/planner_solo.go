@@ -29,16 +29,6 @@ type soloPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
 	rng          *rand.Rand
-	// followMap はついて行く者が下るプレイヤーからの距離の地図。followKey と同じターンと位置の間は使い回す
-	followMap gc.DistanceMap
-	followKey followMapKey
-}
-
-// followMapKey は followMap を作ったときのターンとプレイヤーの位置
-type followMapKey struct {
-	turn   consts.Turn
-	player consts.Coord[consts.Tile]
-	built  bool
 }
 
 func newSoloPlanner(rng *rand.Rand) *soloPlanner {
@@ -405,7 +395,7 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 		solo.SubState = gc.AIStateDriving
 	}
 
-	next, ok := rp.followStep(world, grid.Coord, playerGrid.Coord)
+	next, ok := followStep(world, grid.Coord)
 	if !ok {
 		return waitAction()
 	}
@@ -425,17 +415,16 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 	return moveAction(next)
 }
 
-// followStep はプレイヤーからの距離の地図で、from から下る隣のうち空いている最初のマスを返す。地図はターンごとに1枚だけ作り、
-// ついて行く全員と同じターンの続く歩みで使い回す
-func (rp *soloPlanner) followStep(world w.World, from, player consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
-	key := followMapKey{turn: query.GetTurnState(world).TurnNumber, player: player, built: true}
-	if rp.followKey != key {
-		query.BuildFollowDistanceMap(world, &rp.followMap)
-		rp.followKey = key
+// followStep はプレイヤーからの距離の地図で、from から下る隣のうち空いている最初のマスを返す。地図は敵の手番ごとに1枚だけ
+// 作り、ついて行く全員で使い回す
+func followStep(world w.World, from consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
+	m := query.GetFollowDistanceMap(world)
+	if m == nil {
+		return consts.Coord[consts.Tile]{}, false
 	}
 	si := query.GetSpatialIndex(world)
 	var buf [8]consts.Coord[consts.Tile]
-	for _, next := range rp.followMap.Steps(from, buf[:0]) {
+	for _, next := range m.Steps(from, buf[:0]) {
 		if _, occupied := si.CharacterAt(next); occupied || si.IsBlocked(next) {
 			continue
 		}

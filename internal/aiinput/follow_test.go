@@ -142,3 +142,29 @@ func TestPlan_戦わない方針のキューブは隣の敵に殴られても付
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 8, Y: 5}, p.Destination.Coord)
 	assert.Equal(t, rawschema.Passive, solo.CombatCurrent)
 }
+
+func TestPlanFollowAction_最短の隣に仲間がいれば回り込む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	// 仲間の上下を塞ぎ、仲間のマスだけが最短になるようにする。上を回れば1歩多いだけで済む
+	for _, y := range []consts.Tile{4, 6} {
+		_, err = lifecycle.SpawnProp(world, "barrel", 7, y)
+		require.NoError(t, err)
+	}
+	_, err = lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 7, Y: 5})
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 8, Y: 5})
+	require.NoError(t, err)
+	solo := world.Components.SoloAI.Get(cube)
+	solo.SubState = gc.AIStateDriving
+
+	rp := newSoloPlanner(newTestRNG())
+	act := rp.planFollowAction(world, cube, solo, world.Components.GridElement.Get(cube))
+
+	require.NotNil(t, act)
+	p, ok := act.Params.(*gc.MoveParams)
+	require.True(t, ok)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 8, Y: 4}, p.Destination.Coord)
+}

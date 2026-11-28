@@ -14,33 +14,44 @@ func GetDistanceMap(world w.World) *gc.DistanceMap {
 		return nil
 	}
 	if !m.Built {
-		buildDistanceMap(world, m, RaidTargets(world), gc.DistanceMapObstacleCost)
+		buildDistanceMap(world, m, RaidTargets(world), gc.DistanceMapObstacleCost, 1)
 	}
 	return m
 }
 
-// InvalidateDistanceMap は距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の手番の初めと波を
-// 湧かせる前にだけ呼ぶ。手番の間は古い地図を全員で下る
+// InvalidateDistanceMap は敵とついて行く者の距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
+// 手番の初めと波を湧かせる前にだけ呼ぶ。手番の間は古い地図を全員で下る
 func InvalidateDistanceMap(world w.World) {
 	if m := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap); m != nil {
 		m.Built = false
 	}
-}
-
-// BuildFollowDistanceMap は m を、プレイヤーからの距離の地図として作る。ついて行く者は置物を壊さないので、HP を持つ
-// 置物も通れないマスとして数える
-func BuildFollowDistanceMap(world w.World, m *gc.DistanceMap) {
-	var targets []consts.Coord[consts.Tile]
-	if player, err := GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
-		targets = append(targets, world.Components.GridElement.Get(player).Coord)
+	if m := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap); m != nil {
+		m.Built = false
 	}
-	buildDistanceMap(world, m, targets, 0)
 }
 
-// buildDistanceMap は空間の索引と置物から各マスの重みを書き出し、的 targets から距離を広げる。通れるマスと、プレイヤーと
-// 味方のマスは重み1、それ以外のキャラクターのマスは重み gc.DistanceMapObstacleCost で通れるものとして数える。
+// GetFollowDistanceMap はシングルトンから、ついて行く者が下るプレイヤーからの距離の地図を取得する。未構築なら作る。
+// ついて行く者は置物を壊さないので HP を持つ置物も通れないマスとして数え、味方を含む他のキャラクターのマスは重く数えて
+// 回り込ませる
+func GetFollowDistanceMap(world w.World) *gc.DistanceMap {
+	m := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap)
+	if m == nil {
+		return nil
+	}
+	if !m.Built {
+		var targets []consts.Coord[consts.Tile]
+		if player, err := GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
+			targets = append(targets, world.Components.GridElement.Get(player).Coord)
+		}
+		buildDistanceMap(world, &m.DistanceMap, targets, 0, gc.DistanceMapObstacleCost)
+	}
+	return &m.DistanceMap
+}
+
+// buildDistanceMap は空間の索引と置物から各マスの重みを書き出し、的 targets から距離を広げる。通れるマスは重み1、味方の
+// マスは重み allyCost、それ以外のキャラクターのマスは重み gc.DistanceMapObstacleCost で通れるものとして数える。
 // HP を持つ通れない置物は重み propCost で、0 なら通れない。HP を持たず通れない壁や地形は数えない
-func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[consts.Tile], propCost int32) {
+func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[consts.Tile], propCost, allyCost int32) {
 	m.Built = true
 	si := GetSpatialIndex(world)
 	if si == nil {
@@ -64,7 +75,11 @@ func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[c
 		}
 	}
 	for g, e := range si.Characters {
-		if !m.InBounds(g.Coord) || m.Blocked[m.Index(g.Coord)] || IsAlly(world, e) {
+		if !m.InBounds(g.Coord) || m.Blocked[m.Index(g.Coord)] {
+			continue
+		}
+		if IsAlly(world, e) {
+			m.Cost[m.Index(g.Coord)] = allyCost
 			continue
 		}
 		m.Cost[m.Index(g.Coord)] = gc.DistanceMapObstacleCost

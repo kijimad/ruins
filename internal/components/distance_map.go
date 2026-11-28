@@ -27,6 +27,16 @@ type DistanceMap struct {
 	buckets [DistanceMapObstacleCost + 1][]int32
 }
 
+// FollowDistanceMap はついて行く者が下る、プレイヤーからの距離の地図を保持するシングルトン。敵の地図と的も重みも違うので別に持つ
+type FollowDistanceMap struct {
+	DistanceMap
+}
+
+// NewFollowDistanceMap は未構築の空の地図を作る
+func NewFollowDistanceMap() *FollowDistanceMap {
+	return &FollowDistanceMap{}
+}
+
 // NewDistanceMap は未構築の空の地図を作る
 func NewDistanceMap() *DistanceMap {
 	return &DistanceMap{}

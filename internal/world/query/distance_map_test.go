@@ -30,7 +30,7 @@ func TestBuildDistanceMap(t *testing.T) {
 		world.Components.GridElement.Add(door, &gc.GridElement{Coord: at(2, 0)})
 
 		m := gc.NewDistanceMap()
-		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, gc.DistanceMapObstacleCost)
+		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, gc.DistanceMapObstacleCost, 1)
 		d, ok := m.Dist(at(3, 0))
 		require.True(t, ok)
 		assert.Equal(t, int32(1+gc.DistanceMapObstacleCost+1), d, "扉を壊して抜ける")
@@ -51,7 +51,7 @@ func TestBuildDistanceMap(t *testing.T) {
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: ally, {Coord: at(1, 1)}: beast}
 
 		m := gc.NewDistanceMap()
-		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, gc.DistanceMapObstacleCost)
+		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, gc.DistanceMapObstacleCost, 1)
 		dAlly, _ := m.Dist(at(1, 0))
 		dBeast, _ := m.Dist(at(1, 1))
 		assert.Equal(t, []int32{1, gc.DistanceMapObstacleCost}, []int32{dAlly, dBeast})
@@ -85,37 +85,59 @@ func BenchmarkBuildDistanceMap(b *testing.B) {
 	}
 	targets := []consts.Coord[consts.Tile]{{X: size / 2, Y: size / 2}}
 	m := gc.NewDistanceMap()
-	buildDistanceMap(world, m, targets, gc.DistanceMapObstacleCost)
+	buildDistanceMap(world, m, targets, gc.DistanceMapObstacleCost, 1)
 	b.ResetTimer()
 	for b.Loop() {
-		buildDistanceMap(world, m, targets, gc.DistanceMapObstacleCost)
+		buildDistanceMap(world, m, targets, gc.DistanceMapObstacleCost, 1)
 	}
 }
 
-func TestBuildFollowDistanceMap_プレイヤーを的にしHPを持つ置物を通れないものとして数える(t *testing.T) {
+func TestGetFollowDistanceMap(t *testing.T) {
 	t.Parallel()
 	at := func(x, y int) consts.Coord[consts.Tile] {
 		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
 	}
-	world := testutil.InitTestWorld(t)
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.GridElement.Add(player, &gc.GridElement{Coord: at(0, 0)})
-	si := GetSpatialIndex(world)
-	si.Built, si.MapWidth, si.MapHeight = true, 5, 1
-	si.Blocked = map[gc.GridElement]bool{{Coord: at(2, 0)}: true}
-	si.Characters = map[gc.GridElement]ecs.Entity{}
-	door := world.ECS.NewEntity()
-	world.Components.Prop.Add(door, &gc.Prop{})
-	world.Components.HP.Add(door, &gc.HP{})
-	world.Components.GridElement.Add(door, &gc.GridElement{Coord: at(2, 0)})
 
-	m := gc.NewDistanceMap()
-	BuildFollowDistanceMap(world, m)
+	t.Run("プレイヤーを的にし、HPを持つ置物は通れず、味方のマスは重い", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: at(0, 0)})
+		ally := world.ECS.NewEntity()
+		world.Components.FactionAlly.Add(ally, &gc.FactionAlly{})
+		si := GetSpatialIndex(world)
+		si.Built, si.MapWidth, si.MapHeight = true, 5, 1
+		si.Blocked = map[gc.GridElement]bool{{Coord: at(3, 0)}: true}
+		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: ally}
+		door := world.ECS.NewEntity()
+		world.Components.Prop.Add(door, &gc.Prop{})
+		world.Components.HP.Add(door, &gc.HP{})
+		world.Components.GridElement.Add(door, &gc.GridElement{Coord: at(3, 0)})
 
-	reached := make([]bool, 5)
-	for x := range reached {
-		_, reached[x] = m.Dist(at(x, 0))
-	}
-	assert.Equal(t, []bool{true, true, false, false, false}, reached, "扉を壊さないので向こう側へは届かない")
+		m := GetFollowDistanceMap(world)
+
+		dists := make([]int32, 5)
+		for x := range dists {
+			d, ok := m.Dist(at(x, 0))
+			if !ok {
+				d = -1
+			}
+			dists[x] = d
+		}
+		assert.Equal(t, []int32{0, gc.DistanceMapObstacleCost, gc.DistanceMapObstacleCost + 1, -1, -1}, dists, "味方のマスは重く、扉を壊さないので向こう側へは届かない")
+	})
+
+	t.Run("敵の手番の初めに無効化すると次に引いたときに作り直す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		GetFollowDistanceMap(world)
+		GetDistanceMap(world)
+
+		InvalidateDistanceMap(world)
+
+		follow := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap)
+		raid := GetSingleton[gc.DistanceMap](world, world.Components.DistanceMap)
+		assert.Equal(t, []bool{false, false}, []bool{follow.Built, raid.Built})
+	})
 }
