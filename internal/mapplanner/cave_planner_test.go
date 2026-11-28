@@ -2,6 +2,7 @@ package mapplanner
 
 import (
 	"math/rand/v2"
+	"slices"
 	"strings"
 	"testing"
 
@@ -31,6 +32,7 @@ func newFilledPlan(width, height int, tileName rawschema.EntityID) *MetaPlan {
 // newPlanFromRows は '#' を壁、'.' を床として行の絵から MetaPlan を作る
 func newPlanFromRows(t *testing.T, rows []string) *MetaPlan {
 	t.Helper()
+	require.NotEmpty(t, rows)
 	width, height := len(rows[0]), len(rows)
 	mp := newFilledPlan(width, height, testLayoutTiles.Wall)
 	floor := mp.GetTile(testLayoutTiles.Floor)
@@ -205,7 +207,7 @@ func TestConnectRooms_PlanMeta_部屋が1つ以下なら何もしない(t *testi
 	t.Run("部屋が0個", func(t *testing.T) {
 		t.Parallel()
 		mp := newFilledPlan(10, 10, testLayoutTiles.Wall)
-		before := append([]rawschema.Tile(nil), mp.Tiles...)
+		before := slices.Clone(mp.Tiles)
 
 		require.NoError(t, connect.PlanMeta(mp))
 
@@ -216,7 +218,7 @@ func TestConnectRooms_PlanMeta_部屋が1つ以下なら何もしない(t *testi
 		t.Parallel()
 		mp := newFilledPlan(10, 10, testLayoutTiles.Wall)
 		mp.Rooms = []gc.Rect{{Min: consts.Coord[consts.Tile]{X: 2, Y: 2}, Max: consts.Coord[consts.Tile]{X: 4, Y: 4}}}
-		before := append([]rawschema.Tile(nil), mp.Tiles...)
+		before := slices.Clone(mp.Tiles)
 
 		require.NoError(t, connect.PlanMeta(mp))
 
@@ -406,7 +408,7 @@ func TestScatterWalls_PlanMeta_確率0なら床を変化させない(t *testing.
 
 	const width, height = 10, 10
 	mp := newFilledPlan(width, height, testLayoutTiles.Floor)
-	before := append([]rawschema.Tile(nil), mp.Tiles...)
+	before := slices.Clone(mp.Tiles)
 
 	scatter := ScatterWalls{Row: rawschema.ScatterWallStep{Chance: 0.0}, Tiles: testLayoutTiles}
 	require.NoError(t, scatter.PlanMeta(mp))
@@ -456,7 +458,7 @@ func TestWiden_PlanMeta_確率0なら壁を変化させない(t *testing.T) {
 		"#######",
 		"#######",
 	})
-	before := append([]rawschema.Tile(nil), mp.Tiles...)
+	before := slices.Clone(mp.Tiles)
 
 	widen := Widen{Row: rawschema.WidenStep{Chance: 0.0}, Tiles: testLayoutTiles}
 	require.NoError(t, widen.PlanMeta(mp))
