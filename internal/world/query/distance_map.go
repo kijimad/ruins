@@ -61,13 +61,13 @@ type distanceRule struct {
 var (
 	// cubeRule はキューブへ寄り集まる襲撃の敵の規則。置物を壊して進む。プレイヤー側のマスは殴る相手なので重く数えない
 	cubeRule = distanceRule{breakProps: true}
-	// playerRule はプレイヤーについて行く者の規則。置物を壊さず、仲間を回り込む
+	// playerRule はプレイヤーについて行く者の規則。置物を壊さず、プレイヤー側のマスも回り込む
 	playerRule = distanceRule{avoidAllies: true}
 )
 
-// buildDistanceMap は空間の索引と置物から各マスの重みを書き出し、的 targets から距離を広げる。通れるマスは重み1、味方でない
-// キャラクターのマスは重み gc.DistanceMapObstacleCost で通れるものとして数える。HP を持つ通れない置物と味方のマスは
-// rule で決める。HP を持たず通れない壁や地形は数えない
+// buildDistanceMap は空間の索引と置物から各マスの重みを書き出し、的 targets から距離を広げる。通れるマスは重み1、プレイヤー側で
+// ないキャラクターのマスは重み gc.DistanceMapObstacleCost で通れるものとして数える。HP を持つ通れない置物とプレイヤー側の
+// マスは rule で決める。HP を持たず通れない壁や地形は数えない
 func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[consts.Tile], rule distanceRule) {
 	m.Built = true
 	si := GetSpatialIndex(world)
