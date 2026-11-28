@@ -32,8 +32,6 @@ type soloPlanner struct {
 	rng          *rand.Rand
 	// raidMap はこの手番で襲撃の敵が下る距離の地図。Processor が手番の初めに渡す。襲撃の敵がいなければ nil
 	raidMap *raidmap.Map
-	// raidSteps は襲撃の敵ごとに下る隣を入れる配列。敵をまたいで使い回す
-	raidSteps []consts.Coord[consts.Tile]
 }
 
 func newSoloPlanner(rng *rand.Rand) *soloPlanner {
@@ -426,10 +424,10 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 // 距離の地図で一番小さい隣を順に試す。狙う的か仲間でないキャラクターなら殴り、HP を持つ置物なら壊し、空いていれば
 // 進む。仲間に塞がれた隣は飛ばし、試す隣が残らなければ待つ
 func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
+	var buf [8]consts.Coord[consts.Tile]
 	var steps []consts.Coord[consts.Tile]
 	if rp.raidMap != nil {
-		rp.raidSteps = rp.raidMap.Steps(grid.Coord, rp.raidSteps)
-		steps = rp.raidSteps
+		steps = rp.raidMap.Steps(grid.Coord, buf[:0])
 	}
 	if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) && rp.closerThanRaidTarget(world, grid, steps, *target) {
 		return rp.planChaseAction(world, entity, *target, grid)
