@@ -27,7 +27,7 @@ type buildingLot struct {
 	w, h     consts.Chunk
 	interior rawschema.FacilityInterior
 	seed     uint64
-	// facesWater なら1棟の絵を左回りに turns 回だけ回し、北の辺を接する湖へ向ける。部屋の絵は回さないので turns は0に限る
+	// facesWater なら1棟の絵を左回りに turns 回だけ回し、北の辺を接する湖へ向ける。部屋の絵は回さないので、turns が0でなければ生成で止める
 	facesWater bool
 	turns      int
 }
