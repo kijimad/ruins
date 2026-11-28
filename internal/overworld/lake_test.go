@@ -91,10 +91,7 @@ func TestDistrictRegion_builds_外の層は道の来る南の辺の中央に近�
 			}
 		}
 	}
-	require.Len(t, got, 2)
-	assert.Contains(t, got, consts.Coord[consts.Chunk]{X: 3, Y: 6})
-	assert.Equal(t, consts.Chunk(6), got[0].Y)
-	assert.Equal(t, consts.Chunk(6), got[1].Y)
+	assert.Equal(t, []consts.Coord[consts.Chunk]{{X: 1, Y: 6}, {X: 2, Y: 6}, {X: 3, Y: 6}, {X: 4, Y: 6}}, got)
 	assert.Empty(t, urbanFacilityAt(raws, zoneCatalogFrom(raws), r, consts.Coord[consts.Chunk]{X: 5, Y: -12}, 0), "施設を建てない角は施設を持たない")
 }
 
@@ -103,12 +100,12 @@ func TestLakeShape_施設を建てたチャンクの正面から浜を越えて�
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
 	require.True(t, ok)
-	shape, ok, err := r.lakeShapeOf(24, 24)
+	shape, ok, err := r.lakeShapeOf(lotsOf(raws, zoneCatalogFrom(raws), r, 0), 24, 24)
 	require.NoError(t, err)
 	require.True(t, ok)
 
 	c := r.anchor.Add(consts.Coord[consts.Chunk]{X: 3, Y: 6})
-	x := c.X.Tiles(24) + 12
+	x := c.X.Tiles(24) + urbanStreetW + 10
 	var line []string
 	for y := c.Y.Tiles(24); y > c.Y.Tiles(24)-r.h.Tiles(24); y-- {
 		p := consts.Coord[consts.Tile]{X: x, Y: y}
@@ -137,18 +134,18 @@ func TestLakeShapeOf_揺れと浜を引くと楕円が残らない層はエラ�
 	kind.Layers[1].Water = &water
 	r.kind = &kind
 
-	_, _, err := r.lakeShapeOf(24, 24)
+	_, _, err := r.lakeShapeOf(nil, 24, 24)
 	require.ErrorIs(t, err, errLakeTooSmall)
 }
 
-func TestGateColumns_門の位置が自然の地面なら真ん中の列を門にする(t *testing.T) {
+func TestGateColumns_北の門は自然の地面なので真ん中の列で南の門は区画の西の端の列(t *testing.T) {
 	t.Parallel()
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
 	require.True(t, ok)
 
 	north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, 0))
-	assert.Equal(t, [2]consts.Chunk{r.anchor.X + 3, r.anchor.X + 3}, [2]consts.Chunk{north, south})
+	assert.Equal(t, [2]consts.Chunk{r.anchor.X + 3, r.anchor.X + 2}, [2]consts.Chunk{north, south})
 }
 
 func TestScatterCatalogForChunk_湖の区域は施設を建てないチャンクにだけ層の散布を撒く(t *testing.T) {
@@ -173,7 +170,7 @@ func TestLakeShape_桟橋の板は全て湖の輪郭の内側に張る(t *testin
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
 	require.True(t, ok)
-	shape, ok, err := r.lakeShapeOf(24, 24)
+	shape, ok, err := r.lakeShapeOf(lotsOf(raws, zoneCatalogFrom(raws), r, 0), 24, 24)
 	require.NoError(t, err)
 	require.True(t, ok)
 
@@ -319,7 +316,7 @@ func TestLandmarkLot_真ん中に建てられなければ同じ大きさで真�
 	assert.Equal(t, []consts.Chunk{2, 6, 2, 1}, []consts.Chunk{anchor.X, anchor.Y, w, h})
 }
 
-func TestLotsOf_湖の区域は南の辺の中央に水力発電所を置き施設を全て湖へ向ける(t *testing.T) {
+func TestLotsOf_湖の区域は南の辺の中央に水力発電所を3チャンクで置き施設を全て湖へ向ける(t *testing.T) {
 	t.Parallel()
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
@@ -328,17 +325,18 @@ func TestLotsOf_湖の区域は南の辺の中央に水力発電所を置き施�
 	type lotView struct {
 		facility   string
 		anchor     consts.Coord[consts.Chunk]
+		w, h       consts.Chunk
 		facesWater bool
 		turns      int
 	}
 	lots := lotsOf(raws, zoneCatalogFrom(raws), r, 0)
 	got := make([]lotView, 0, len(lots))
 	for _, l := range lots {
-		got = append(got, lotView{l.facility, l.anchor, l.facesWater, l.turns})
+		got = append(got, lotView{l.facility, l.anchor, l.w, l.h, l.facesWater, l.turns})
 	}
 	assert.Equal(t, []lotView{
-		{"hydro_plant", consts.Coord[consts.Chunk]{X: 3, Y: 6}, true, 0},
-		{"fishing_hut", consts.Coord[consts.Chunk]{X: 4, Y: 6}, true, 0},
+		{"hydro_plant", consts.Coord[consts.Chunk]{X: 2, Y: 6}, 3, 1, true, 0},
+		{"campsite", consts.Coord[consts.Chunk]{X: 1, Y: 6}, 1, 1, true, 0},
 	}, got)
 }
 
@@ -393,7 +391,7 @@ func TestWaterSide_湖が2方向に接するなら北南西東の順に先のほ
 	assert.Equal(t, consts.Coord[consts.Chunk]{Y: -1}, d)
 }
 
-func TestFacilityTemplates_湖の区域の地区に建つ施設は1棟の絵で湖へ回せる(t *testing.T) {
+func TestFacilityTemplates_湖の区域の地区に建つ施設は主の施設のほかは1棟の絵で湖へ回せる(t *testing.T) {
 	t.Parallel()
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	loader, err := maptemplate.FacilityTemplates()
@@ -411,5 +409,5 @@ func TestFacilityTemplates_湖の区域の地区に建つ施設は1棟の絵で�
 			}
 		}
 	}
-	assert.Equal(t, map[string]bool{"lakeside_plaza": false, "campsite": false, "fishing_hut": false, "hydro_plant": false}, got)
+	assert.Equal(t, map[string]bool{"lakeside_plaza": false, "campsite": false, "fishing_hut": false, "hydro_plant": true}, got)
 }

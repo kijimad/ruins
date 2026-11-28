@@ -282,7 +282,7 @@ func TestGolden_Building(t *testing.T) {
 	}
 }
 
-func TestLotsOf_目玉の施設は区域に1つだけ地区の真ん中へ一番大きく建つ(t *testing.T) {
+func TestLotsOf_主の施設は区域に1つだけ地区の真ん中へ一番大きく建つ(t *testing.T) {
 	t.Parallel()
 
 	raws := testutil.InitTestWorld(t).Resources.RawMaster

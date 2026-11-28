@@ -187,7 +187,7 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"計画区間の行数が集落のリージョンの行数で割り切れない", func(r *rawschema.Raws) { r.Road.SpanRows = 4 }, "roadSpanRows_divisible.settlement"},
 		{"散布ゾーンの下地のタイル", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Ground = "none" }, "scatterZones.0.ground_ref"},
 		{"散布ゾーンの戦利品グループ", func(r *rawschema.Raws) { (*r.ScatterZones)[0].LootGroup = "none" }, "scatterZones.0.lootGroup_ref"},
-		{"区域の目玉の施設", func(r *rawschema.Raws) { (*r.Districts)[0].Landmark = new(rawschema.EntityID("none")) }, "districts.0.landmark_ref"},
+		{"区域の主の施設", func(r *rawschema.Raws) { (*r.Districts)[0].Landmark = new(rawschema.EntityID("none")) }, "districts.0.landmark_ref"},
 		{"区域の街路のタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Street = new(rawschema.EntityID("none")) }, "districts.0.street_ref"},
 		{"区域の植え込みのタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Verge = new(rawschema.EntityID("none")) }, "districts.0.verge_ref"},
 		{"散布の prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Entries[1].Ref = "none" }, "scatterZones.0.entries.1.ref_ref"},

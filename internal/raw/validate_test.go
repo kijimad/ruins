@@ -396,7 +396,7 @@ func TestValidateZoneBaseFacilities_研究所の敷地は門と中ほどと奥�
 	require.NoError(t, validateZoneBaseFacilities(raws))
 	landmark := rawschema.EntityID("lab_quarantine")
 	(*raws.Districts)[0].Landmark = &landmark
-	require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility, "目玉の施設は地区の基本施設に数えない")
+	require.ErrorIs(t, validateZoneBaseFacilities(raws), errZoneNoBaseFacility, "主の施設は地区の基本施設に数えない")
 }
 
 func TestValidateDistricts(t *testing.T) {
@@ -524,7 +524,7 @@ func TestValidateRules_空のRawsは通る(t *testing.T) {
 	require.NoError(t, validateRules(rawschema.Raws{}))
 }
 
-func TestValidateLandmarkMinDanger_目玉の施設に深さの下限を書くとエラー(t *testing.T) {
+func TestValidateLandmarkMinDanger_主の施設に深さの下限を書くとエラー(t *testing.T) {
 	t.Parallel()
 
 	landmark := rawschema.EntityID("armory")
@@ -559,10 +559,10 @@ func TestValidateDistrictLayers_塀を巡らせる区域は施設を建てない
 	require.ErrorIs(t, err, errDistrictFenceWithGaps)
 }
 
-func TestValidateLakeFacilityFootprints_湖の区域の地区の施設は1チャンクだけ(t *testing.T) {
+func TestValidateLakeFacilityFootprints_湖の区域の地区の施設は主の施設のほかは1チャンクだけ(t *testing.T) {
 	t.Parallel()
 	zone := []rawschema.ZoneId{"lake_shore"}
-	districts := []rawschema.District{{Id: "lake", Layers: []rawschema.DistrictLayer{{Zones: &zone}, {Water: &rawschema.DistrictWater{}}}}}
+	districts := []rawschema.District{{Id: "lake", Landmark: new(rawschema.EntityID("dam")), Layers: []rawschema.DistrictLayer{{Zones: &zone}, {Water: &rawschema.DistrictWater{}}}}}
 	single := []rawschema.FacilityFootprint{{W: 1, H: 1, Weight: 1}}
 	wide := []rawschema.FacilityFootprint{{W: 1, H: 1, Weight: 1}, {W: 2, H: 1, Weight: 1}}
 
@@ -570,6 +570,7 @@ func TestValidateLakeFacilityFootprints_湖の区域の地区の施設は1チャ
 		{Id: "hut", Zones: []rawschema.FacilityZone{{Zone: "lake_shore"}}, Footprints: &single},
 		{Id: "plaza", Zones: []rawschema.FacilityZone{{Zone: "lake_shore"}}},
 		{Id: "mall", Zones: []rawschema.FacilityZone{{Zone: "downtown"}}, Footprints: &wide},
+		{Id: "dam", Zones: []rawschema.FacilityZone{{Zone: "lake_shore"}}, Footprints: &wide},
 	}}))
 	err := validateLakeFacilityFootprints(rawschema.Raws{Districts: &districts, Facilities: &[]rawschema.Facility{
 		{Id: "hall", Zones: []rawschema.FacilityZone{{Zone: "lake_shore"}}, Footprints: &wide},

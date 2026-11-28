@@ -1627,7 +1627,7 @@
   streetEnemies = "1d2"
 
   [[districts.layers]]
-    lots = 2
+    lots = 4
     scatter = "lakeshore"
     zones = ["lake_shore"]
 
@@ -4363,7 +4363,13 @@
 [[facilities]]
   enemyTable = "power_plant_enemies"
   id = "hydro_plant"
+  interior = "hall"
   lootedChance = 30
+
+  [[facilities.footprints]]
+    h = 1
+    w = 3
+    weight = 1
 
   [[facilities.zones]]
     minSpan = 1
