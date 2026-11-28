@@ -307,6 +307,7 @@ func TestLandmarkLot_真ん中に建てられなければ同じ大きさで真�
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
 	require.True(t, ok)
+	// 湖の区域の実データは 1×1 だけなので、架空の 2×1 の施設と南の辺だけを空ける fits で大きさを順に試す規則を確かめる
 	f := rawschema.Facility{Id: "wide", Zones: []rawschema.FacilityZone{{Zone: "lake_shore"}}, Footprints: &[]rawschema.FacilityFootprint{{W: 2, H: 1, Weight: 1}}}
 	southRow := func(x, y, w, h consts.Chunk, _ rawschema.ZoneId) bool {
 		return y == 6 && h == 1 && x >= 0 && x+w <= r.w
