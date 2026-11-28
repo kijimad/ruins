@@ -3860,6 +3860,59 @@
   id = "none"
   name = "None"
 
+[[enemyTables]]
+  id = "raid"
+  name = "襲撃"
+
+  [[enemyTables.entries]]
+    id = "stray_dog"
+    maxDanger = 22
+    minDanger = 1
+    pack = "1d1"
+    weight = 1.5
+
+  [[enemyTables.entries]]
+    id = "decayed_soldier"
+    maxDanger = 12
+    minDanger = 1
+    pack = "1d1"
+    weight = 1.2
+
+  [[enemyTables.entries]]
+    id = "rusted_doll"
+    maxDanger = 12
+    minDanger = 2
+    pack = "1d1"
+    weight = 0.8
+
+  [[enemyTables.entries]]
+    id = "poison_spider"
+    maxDanger = 25
+    minDanger = 4
+    pack = "1d1"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "veteran_husk"
+    maxDanger = 30
+    minDanger = 6
+    pack = "1d1"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "skeleton_soldier"
+    maxDanger = 100
+    minDanger = 9
+    pack = "1d1"
+    weight = 1
+
+  [[enemyTables.entries]]
+    id = "guard_soldier"
+    maxDanger = 100
+    minDanger = 12
+    pack = "1d1"
+    weight = 0.8
+
 [[facilities]]
   enemyTable = "house_enemies"
   id = "house"

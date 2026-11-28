@@ -58,6 +58,9 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	anchorFuelSystem := &AnchorFuelSystem{}
 	updaters[anchorFuelSystem.String()] = anchorFuelSystem
 
+	raidSystem := &RaidSystem{}
+	updaters[raidSystem.String()] = raidSystem
+
 	visionSystem := NewVisionSystem()
 	updaters[visionSystem.String()] = visionSystem
 
