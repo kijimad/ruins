@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"image/png"
 	"math"
+	"math/rand/v2"
 	"slices"
 	"testing"
 
@@ -410,4 +411,50 @@ func TestFacilityTemplates_湖の区域の地区に建つ施設は主の施設�
 		}
 	}
 	assert.Equal(t, map[string]bool{"lakeside_plaza": false, "campsite": false, "fishing_hut": false, "hydro_plant": true}, got)
+}
+
+func TestLakeShape_水力発電所の桟橋は入口の扉の2列から伸びる(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+	lots := lotsOf(raws, zoneCatalogFrom(raws), r, 0)
+	i := slices.IndexFunc(lots, func(b buildingLot) bool { return b.facility == "hydro_plant" })
+	require.GreaterOrEqual(t, i, 0)
+	lot := lots[i]
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	_, room, err := loader.FacilityRoom(lot.facility, lot.roomEdges(lot.entrance()), 0)
+	require.NoError(t, err)
+
+	var doors []consts.Tile
+	for x, c := range room[0] {
+		if c.Prop == "door" {
+			doors = append(doors, urbanStreetW+consts.Tile(x))
+		}
+	}
+	shape, ok, err := r.lakeShapeOf(lots, 24, 24)
+	require.NoError(t, err)
+	require.True(t, ok)
+	origin := r.anchor.Add(lot.anchor).Add(lot.entrance()).X.Tiles(24)
+	var piers []consts.Tile
+	for p := range shape.piers {
+		if x := p.X - origin; x >= 0 && x < 24 && !slices.Contains(piers, x) {
+			piers = append(piers, x)
+		}
+	}
+	slices.Sort(piers)
+	assert.Equal(t, []consts.Tile{13, 14}, doors)
+	assert.Equal(t, doors, piers)
+}
+
+func TestPlanUrbanChunk_部屋の絵の施設は北でない側の湖へ向けられない(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	loader, err := maptemplate.FacilityTemplates()
+	require.NoError(t, err)
+	lot := buildingLot{facility: "hydro_plant", w: 3, h: 1, interior: rawschema.FacilityInteriorHall, facesWater: true, turns: 2}
+
+	_, _, err = planUrbanChunk(raws, loader, lot, lot.entrance(), 24, 24, 0, rand.New(rand.NewPCG(0, 0)), streetTiles{})
+	require.ErrorIs(t, err, errRoomFacilityNotNorthWater)
 }

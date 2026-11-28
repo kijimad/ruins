@@ -275,6 +275,9 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Di
 func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, streets streetTiles) ([][]maptemplate.MapCell, consts.Tile, error) {
 	isTall, blocks := tileIsTall(raws), tileBlocksPass(raws)
 	if loader.HasRooms(lot.facility) {
+		if lot.facesWater && lot.turns != 0 {
+			return nil, 0, fmt.Errorf("facility %q faces water with %d turns: %w", lot.facility, lot.turns, errRoomFacilityNotNorthWater)
+		}
 		cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, streets, isTall)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)

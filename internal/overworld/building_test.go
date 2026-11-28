@@ -364,7 +364,7 @@ func possibleRoomEdges(b buildingLot, l consts.Coord[consts.Chunk]) [][4]maptemp
 	for i, d := range dirs {
 		n := l.Add(d)
 		switch {
-		case i == 0 && l.Y == 0 && l.X == b.w/2:
+		case i == 0 && l == b.entrance():
 			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeDoor}
 		case n.X < 0 || n.Y < 0 || n.X >= b.w || n.Y >= b.h:
 			choices[i] = []maptemplate.EdgeKind{maptemplate.EdgeWall}

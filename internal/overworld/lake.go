@@ -71,7 +71,7 @@ func (r districtRegion) lakeShapeOf(lots []buildingLot, chunkW, chunkH consts.Ti
 		return lakeShape{}, false, fmt.Errorf("district %q: %w", r.kind.Id, errLakeTooSmall)
 	}
 	for _, b := range lots {
-		s.addPier(r, b.anchor.Add(consts.Coord[consts.Chunk]{X: b.w / 2, Y: b.h / 2}), chunkW, chunkH)
+		s.addPier(r, b.anchor.Add(b.entrance()), chunkW, chunkH)
 	}
 	return s, true, nil
 }
@@ -99,7 +99,7 @@ func quarterTurnsToward(d consts.Coord[consts.Chunk]) int {
 	return 0
 }
 
-// addPier は区画の真ん中のチャンク l に置いた施設の絵の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める
+// addPier は区画の入口のチャンク l に置いた施設の絵の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める
 func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) {
 	d, ok := r.waterSide(l)
 	if !ok {
