@@ -24791,7 +24791,7 @@
     spriteSheetName = "tile"
 
 [[tiles]]
-  description = "湖へ張り出した桟橋の板。屋根の無い屋外"
+  description = "屋根の無い屋外の板張り。湖の桟橋や小屋の前の通路"
   id = "pier_plank"
   name = "Pier"
   seeThrough = true
