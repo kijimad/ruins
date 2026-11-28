@@ -179,8 +179,8 @@ func ActiveCube(world w.World) (ecs.Entity, bool) {
 	return cube, true
 }
 
-// IsAnchored は現ステージに展開中のキューブがあるかを返す
-func IsAnchored(world w.World) bool {
+// IsCubeDeployed は現ステージに展開中のキューブがあるかを返す
+func IsCubeDeployed(world w.World) bool {
 	q := ActiveFilter2[gc.Cube, gc.Deployed](world).Query()
 	if !q.Next() {
 		return false

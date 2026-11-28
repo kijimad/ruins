@@ -206,7 +206,7 @@ func (dr *Driver) NorthIndex() consts.Chunk {
 }
 
 // MaybeShift はプレイヤーが中央チャンクを出ていれば帯をシフトし、シフトしたかを返す。
-// 展開中のキューブが錨になっている間はシフトしない。
+// 展開中のキューブが拠点になっている間はシフトしない。
 // シフトするとリベースでプレイヤーが中央へ動くため、呼び出し側はカメラを再センタリングする。
 //
 // 座標を平行移動する破壊的操作なので、ターンが完全に解決した安定点でのみ行う。すなわち
@@ -215,7 +215,7 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 	if query.GetTurnState(world).Phase != gc.TurnPhasePlayer {
 		return false, nil
 	}
-	if query.IsAnchored(world) {
+	if query.IsCubeDeployed(world) {
 		return false, nil
 	}
 	playerEntity, err := query.GetPlayerEntity(world)

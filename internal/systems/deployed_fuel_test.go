@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAnchorFuelSystem(t *testing.T) {
+func TestDeployedFuelSystem(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name      string
@@ -48,13 +48,13 @@ func TestAnchorFuelSystem(t *testing.T) {
 			before := tank.Current
 			query.GetGameTime(world).TotalTurns = tt.turn
 
-			require.NoError(t, (&AnchorFuelSystem{}).Update(world))
+			require.NoError(t, (&DeployedFuelSystem{}).Update(world))
 			assert.Equal(t, before+tt.want, world.Components.Charge.Get(cube).Current)
 		})
 	}
 }
 
-func TestRunTurnEndSystems_登録したAnchorFuelSystemが展開中のキューブの燃料を戻す(t *testing.T) {
+func TestRunTurnEndSystems_登録したDeployedFuelSystemが展開中のキューブの燃料を戻す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t, testutil.WithUI())
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 3, Y: 3})
@@ -63,11 +63,11 @@ func TestRunTurnEndSystems_登録したAnchorFuelSystemが展開中のキュー�
 	tank := world.Components.Charge.Get(cube)
 	tank.Current = tank.Max - 5
 	before := tank.Current
-	query.GetGameTime(world).TotalTurns = anchorFuelTurns
+	query.GetGameTime(world).TotalTurns = deployedFuelTurns
 
 	updaters, _ := InitializeSystems(world)
-	name := (&AnchorFuelSystem{}).String()
-	sys, ok := updaters[name].(*AnchorFuelSystem)
+	name := (&DeployedFuelSystem{}).String()
+	sys, ok := updaters[name].(*DeployedFuelSystem)
 	require.True(t, ok, "InitializeSystems に登録する")
 	world.Updaters = map[string]w.Updater{name: sys}
 
