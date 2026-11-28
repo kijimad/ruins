@@ -335,6 +335,7 @@ func TestLotsOf_湖の区域は南の辺の中央に取水場を3チャンクで
 	for _, l := range lots {
 		got = append(got, lotView{l.facility, l.anchor, l.w, l.h, l.facesWater, l.turns})
 	}
+	// 施設を建てる4チャンクを、3x1 の取水場と 1x1 の施設の2つの区画で埋める
 	assert.Equal(t, []lotView{
 		{"water_intake", consts.Coord[consts.Chunk]{X: 2, Y: 6}, 3, 1, true, 0},
 		{"campsite", consts.Coord[consts.Chunk]{X: 1, Y: 6}, 1, 1, true, 0},
