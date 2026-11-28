@@ -201,8 +201,8 @@ func TestPlanFollowAction_展開したキューブが塞ぐと遠くても回り
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 6, Y: 7}, "ash")
 	require.NoError(t, err)
-	// x=7 の縦の壁に開いた穴を展開したキューブが塞ぐ。回り道は壁の端を回るので6歩より長い
-	for y := consts.Tile(2); y <= 12; y++ {
+	// x=7 の縦の壁に開いた穴を展開したキューブが塞ぐ。壁は上の端が近いので、上を回る道が最短になる
+	for y := consts.Tile(4); y <= 12; y++ {
 		if y == 7 {
 			continue
 		}
