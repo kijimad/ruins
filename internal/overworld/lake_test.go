@@ -108,7 +108,7 @@ func TestLakeShape_施設を建てたチャンクの正面から浜を越えて�
 	c := r.anchor.Add(consts.Coord[consts.Chunk]{X: 3, Y: 6})
 	x := c.X.Tiles(24) + 12
 	var line []string
-	for y := c.Y.Tiles(24); ; y-- {
+	for y := c.Y.Tiles(24); y > c.Y.Tiles(24)-r.h.Tiles(24); y-- {
 		p := consts.Coord[consts.Tile]{X: x, Y: y}
 		if shape.depth(p) >= float64(shape.water.BeachWidth+shape.water.ShallowWidth+shape.water.PierLength)+1 {
 			break
@@ -232,4 +232,36 @@ func TestLayPier_輪郭の揺れで深さが浅瀬より手前で減っても深
 		}
 	}
 	assert.GreaterOrEqual(t, deepest, float64(s.water.BeachWidth+s.water.ShallowWidth))
+}
+
+func TestLayPier_輪郭の揺れで水から陸へ出たらその先の水へ板を飛ばさない(t *testing.T) {
+	t.Parallel()
+	s := lakeShape{
+		water: &rawschema.DistrictWater{BeachWidth: 2, ShallowWidth: 3, PierLength: 6, ShoreWobble: 10, ShoreCell: 8},
+		cx:    0, cy: 0, rx: 40, ry: 40, seed: 4,
+		piers: map[consts.Coord[consts.Tile]]bool{},
+	}
+	var crossings []bool
+	for y := consts.Tile(60); y > 0; y-- {
+		d := s.depth(consts.Coord[consts.Tile]{Y: y})
+		if d >= float64(s.water.BeachWidth+s.water.ShallowWidth+s.water.PierLength) {
+			break
+		}
+		if wet := d >= 0; len(crossings) == 0 || crossings[len(crossings)-1] != wet {
+			crossings = append(crossings, wet)
+		}
+	}
+	require.Equal(t, []bool{false, true, false, true}, crossings, "前提: 水に入った後に一度陸へ出て、また水に入る")
+
+	s.layPier(consts.Coord[consts.Tile]{Y: 60}, consts.Coord[consts.Tile]{Y: -1}, 120)
+
+	var ys []consts.Tile
+	for p := range s.piers {
+		if p.X == 0 {
+			ys = append(ys, p.Y)
+		}
+	}
+	slices.Sort(ys)
+	require.NotEmpty(t, ys)
+	assert.Equal(t, ys[len(ys)-1]-ys[0]+1, consts.Tile(len(ys)), "板が途切れず1本につながる")
 }

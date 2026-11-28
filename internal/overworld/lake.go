@@ -93,7 +93,7 @@ func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chun
 // 板を張った後に陸へ出たら止める。中心を越えたかは揺れの無い楕円で見る
 func (s *lakeShape) layPier(from, step consts.Coord[consts.Tile], limit consts.Tile) {
 	// 2列目を負の向きに張り、どの向きでも中心の列にそろえる
-	side := consts.Coord[consts.Tile]{X: -abs(step.Y), Y: -abs(step.X)}
+	side := consts.Coord[consts.Tile]{X: -tileAbs(step.Y), Y: -tileAbs(step.X)}
 	end := float64(s.water.BeachWidth + s.water.ShallowWidth + s.water.PierLength)
 	prev := math.Inf(-1)
 	laid := false
@@ -172,6 +172,6 @@ func renderLakeChunk(world w.World, g chunkGeom, r districtRegion, c consts.Coor
 	return nil
 }
 
-func abs(v consts.Tile) consts.Tile {
+func tileAbs(v consts.Tile) consts.Tile {
 	return max(v, -v)
 }
