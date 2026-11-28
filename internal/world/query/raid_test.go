@@ -5,8 +5,11 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // dayTurn は1から数える日付 day のその日の中のターン offset を、経過ターンにする
@@ -103,4 +106,35 @@ func TestNextRaidWaveTurn(t *testing.T) {
 			assert.Equal(t, tt.want, query.NextRaidWaveTurn(tt.turn))
 		})
 	}
+}
+
+func TestRaidTargets(t *testing.T) {
+	t.Parallel()
+	at := func(x, y int) consts.Coord[consts.Tile] {
+		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+	}
+
+	t.Run("キューブは畳んでいても的にする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, at(5, 5), "ash")
+		require.NoError(t, err)
+		_, err = lifecycle.SpawnCube(world, at(10, 10))
+		require.NoError(t, err)
+		assert.Equal(t, []consts.Coord[consts.Tile]{at(10, 10)}, query.RaidTargets(world))
+	})
+
+	t.Run("キューブが無ければプレイヤーを的にする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := lifecycle.SpawnPlayer(world, at(5, 5), "ash")
+		require.NoError(t, err)
+		assert.Equal(t, []consts.Coord[consts.Tile]{at(5, 5)}, query.RaidTargets(world))
+	})
+
+	t.Run("どちらも無ければ空", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		assert.Empty(t, query.RaidTargets(world))
+	})
 }

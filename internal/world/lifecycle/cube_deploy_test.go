@@ -12,6 +12,28 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestSpillCubeContents(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	at := consts.Coord[consts.Tile]{X: 10, Y: 10}
+	cube, err := SpawnCube(world, at)
+	require.NoError(t, err)
+	require.NoError(t, StowDefaultCubeCargo(world, cube))
+	cargo := query.StowedCargo(world, cube)
+	require.Len(t, cargo, 1)
+	module, err := SpawnFieldItem(world, "cube_range_module", at.X, at.Y, 1)
+	require.NoError(t, err)
+	MoveToInstalled(world, module, cube, 0)
+
+	SpillCubeContents(world, cube)
+
+	for _, e := range []ecs.Entity{cargo[0], module} {
+		assert.True(t, world.Components.LocationOnField.Has(e), "フィールドへ出る")
+	}
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 9, Y: 9}, world.Components.GridElement.Get(cargo[0]).Coord, "畳んだ貨物は展開と同じ並びへ出る")
+	assert.Equal(t, at, world.Components.GridElement.Get(module).Coord, "モジュールはキューブの足元へ出る")
+}
+
 func TestDeployCube(t *testing.T) {
 	t.Parallel()
 

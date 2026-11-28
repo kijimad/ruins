@@ -125,14 +125,16 @@ func (m *RaidMap) Dist(c consts.Coord[consts.Tile]) (int32, bool) {
 	return d, d >= 0
 }
 
-// Steps は from の隣のうち、距離が from より小さいマスを、距離の小さい順に buf へ足して返す。同じ距離なら
-// raidMapDirs の順にする。斜めは CanMoveTo と同じ規則で選ぶ。下る隣が無ければ空を返す
+// Steps は from の隣のうち、from に誰もいなかったときの距離より小さいマスを、距離の小さい順に buf へ足して返す。
+// 同じ距離なら raidMapDirs の順にする。斜めは CanMoveTo と同じ規則で選ぶ。下る隣が無ければ空を返す
 func (m *RaidMap) Steps(world w.World, from consts.Coord[consts.Tile], buf []consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
 	steps := buf[:0]
-	here, ok := m.Dist(from)
+	d, ok := m.Dist(from)
 	if !ok {
 		return steps
 	}
+	// 立っている自分のマスは重く数えられているので、重さ1で入ったときの距離と比べる。比べないと後ろのマスまで下る隣に入る
+	here := d - m.cost[m.index(from)] + 1
 	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return steps

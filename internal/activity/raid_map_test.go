@@ -100,6 +100,18 @@ func TestBuildRaidMap(t *testing.T) {
 		assert.Equal(t, []consts.Coord[consts.Tile]{at(2, 2)}, m.Steps(world, at(1, 1), nil), "角の向こうの (0,0) でなく、斜めに抜けられる (2,2) へ進む")
 	})
 
+	t.Run("Steps は自分のマスの重さを数えずに比べ、遠ざかる隣を入れない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		si := query.GetSpatialIndex(world)
+		si.Built, si.MapWidth, si.MapHeight = true, 5, 3
+		si.Blocked = map[gc.GridElement]bool{}
+		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(2, 1)}: world.ECS.NewEntity()}
+
+		m := BuildRaidMap(world, []consts.Coord[consts.Tile]{at(0, 1)}, nil)
+		assert.Equal(t, []consts.Coord[consts.Tile]{at(1, 1), at(1, 0), at(1, 2)}, m.Steps(world, at(2, 1), nil), "横と後ろの列は、重さ5の自分のマスより近くても下る隣に入れない")
+	})
+
 	t.Run("的が無ければどのマスにも届かない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
