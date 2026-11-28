@@ -6,7 +6,8 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// GetRaidMap はシングルトンから、RaidTargets の的からの距離の地図を取得する。未構築なら作る
+// GetRaidMap はシングルトンから、RaidTargets の的からの距離の地図を取得する。未構築なら作る。InvalidateRaidMap の
+// 後に引く前提で、作り直すのは敵の手番の初めと波を湧かせる前だけなので、手番の外で引くと前の手番の地図が返る
 func GetRaidMap(world w.World) *gc.RaidMap {
 	m := GetSingleton[gc.RaidMap](world, world.Components.RaidMap)
 	if m == nil {

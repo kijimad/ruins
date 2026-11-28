@@ -17,9 +17,9 @@ var raidMapDirs = [...]consts.Coord[consts.Tile]{
 type RaidMap struct {
 	// Width と Height は地図の寸法
 	Width, Height consts.Tile
-	// Cost は各マスへ入る重み。添字は y*Width+x。0 は通れない
+	// Cost は各マスへ入る重み。添字は y*Width+x。0 は通れない。Reset と Spread の間でだけ書く
 	Cost []int32
-	// Blocked は通れない地形か置物のマス。斜めの角の判定に使う
+	// Blocked は通れない地形か置物のマス。斜めの角の判定に使う。Reset と Spread の間でだけ書く
 	Blocked []bool
 	// Built は構築済みか。偽なら次に引いたときに作る
 	Built bool

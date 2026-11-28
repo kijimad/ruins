@@ -250,8 +250,6 @@ func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, sol
 		return rp.planTerritorialAction(world, aiEntity, solo, grid)
 	case rawschema.Follow:
 		return rp.planFollowAction(world, aiEntity, solo, grid)
-	case rawschema.Raid:
-		return rp.planRaidAction(world, aiEntity, solo, grid)
 	default:
 		return rp.planRandomMoveAction(world, aiEntity, grid)
 	}
@@ -423,10 +421,7 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
 	m := query.GetRaidMap(world)
 	var buf [8]consts.Coord[consts.Tile]
-	var steps []consts.Coord[consts.Tile]
-	if m != nil {
-		steps = m.Steps(grid.Coord, buf[:0])
-	}
+	steps := m.Steps(grid.Coord, buf[:0])
 	if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) && closerThanRaidTarget(world, m, grid, steps, *target) {
 		return rp.planChaseAction(world, entity, *target, grid)
 	}
