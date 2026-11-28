@@ -136,6 +136,27 @@ func TestGetPlayerDistanceMap(t *testing.T) {
 		assert.Equal(t, map[int32]bool{0: true, 1: true, gc.DistanceMapObstacleCost: true}, costs, "重みは Spread の輪の前提の3つに閉じる")
 	})
 
+	t.Run("展開したキューブのマスはついて行く地図では通れず、襲撃の地図では重み1", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		cube := world.ECS.NewEntity()
+		world.Components.FactionAlly.Add(cube, &gc.FactionAlly{})
+		world.Components.Deployed.Add(cube, &gc.Deployed{})
+		si := GetSpatialIndex(world)
+		si.Built, si.MapWidth, si.MapHeight = true, 2, 1
+		si.Blocked = map[gc.GridElement]bool{}
+		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: cube}
+
+		rules := []distanceRule{playerRule, cubeRule}
+		costs := make([]int32, 0, len(rules))
+		for _, rule := range rules {
+			m := &gc.DistanceMap{}
+			buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, rule)
+			costs = append(costs, m.Cost[m.Index(at(1, 0))])
+		}
+		assert.Equal(t, []int32{0, 1}, costs)
+	})
+
 	t.Run("無効化で両方の地図を捨てる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

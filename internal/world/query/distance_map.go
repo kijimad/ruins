@@ -54,7 +54,8 @@ type distanceRule struct {
 	breakProps bool
 	// avoidAllies なら FactionAlly のプレイヤー側のマスも重み gc.DistanceMapObstacleCost にし、偽なら重み1にする
 	avoidAllies bool
-	// blockDeployed なら展開して動かないキューブのマスを通れないものにする。重みにすると、回り道が長いときに後ろで待ち続ける
+	// blockDeployed なら展開して動かないキューブのマスを通れないものにする。重みにすると、回り道が長いときに後ろで待ち続ける。
+	// Blocked には書かないので、斜めの角は塞がない
 	blockDeployed bool
 }
 
