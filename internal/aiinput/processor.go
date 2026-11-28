@@ -3,7 +3,9 @@ package aiinput
 import (
 	"fmt"
 	"math/rand/v2"
+	"slices"
 
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
@@ -27,7 +29,9 @@ const activationRadius = int(consts.VisionRadiusTiles) + activationMargin
 // SoloAI エンティティを soloPlanner で処理する
 type Processor struct {
 	logger  *logger.Logger
-	planner Planner
+	planner *soloPlanner
+	// raidMap は襲撃の敵が下る距離の地図の配列。手番のたびに作り直して使い回す
+	raidMap *activity.RaidMap
 }
 
 // NewProcessor は新しいProcessorを作成する。
@@ -53,6 +57,7 @@ func (p *Processor) ProcessAll(world w.World) error {
 		return err
 	}
 	targets = culled
+	p.planner.raidMap = p.buildRaidMap(world, targets)
 
 	for _, entity := range targets {
 		if world.Components.Dead.Has(entity) {
@@ -64,6 +69,27 @@ func (p *Processor) ProcessAll(world w.World) error {
 	}
 
 	return nil
+}
+
+// buildRaidMap は targets に印のある敵がいれば、狙う的からの距離の地図を作って返す。いなければ nil を返す。
+// 的は現ステージの展開中のキューブで、無ければプレイヤーにする
+func (p *Processor) buildRaidMap(world w.World, targets []ecs.Entity) *activity.RaidMap {
+	if !slices.ContainsFunc(targets, world.Components.Raider.Has) {
+		return nil
+	}
+	var goals []consts.Coord[consts.Tile]
+	q := query.ActiveFilter3[gc.Cube, gc.Deployed, gc.GridElement](world).Query()
+	for q.Next() {
+		_, _, g := q.Get()
+		goals = append(goals, g.Coord)
+	}
+	if len(goals) == 0 {
+		if player, err := query.GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
+			goals = append(goals, world.Components.GridElement.Get(player).Coord)
+		}
+	}
+	p.raidMap = activity.BuildRaidMap(world, goals, p.raidMap)
+	return p.raidMap
 }
 
 // cullDistantSolo は遠方の非交戦 SoloAI を処理対象から除外する。
@@ -82,7 +108,7 @@ func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) 
 	kept := make([]ecs.Entity, 0, len(targets))
 	for _, entity := range targets {
 		solo := world.Components.SoloAI.Get(entity)
-		if solo != nil && !isActiveCombatState(solo.SubState) && solo.Movement != rawschema.Follow {
+		if solo != nil && !isActiveCombatState(solo.SubState) && solo.Movement != rawschema.Follow && !world.Components.Raider.Has(entity) {
 			grid := world.Components.GridElement.Get(entity)
 			if geometry.ChebyshevDistance(playerGrid.Coord, grid.Coord) > activationRadius {
 				// 圏外の待機・徘徊敵はスキップ。画面外で観測不能なため凍結してよい

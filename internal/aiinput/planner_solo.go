@@ -29,6 +29,8 @@ type soloPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
 	rng          *rand.Rand
+	// raidMap はこの手番で襲撃の敵が下る距離の地図。Processor が手番の初めに渡す。印のある敵がいなければ nil
+	raidMap *activity.RaidMap
 }
 
 func newSoloPlanner(rng *rand.Rand) *soloPlanner {
@@ -48,6 +50,9 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {
 		return nil
 	}
 	grid := world.Components.GridElement.Get(entity)
+	if world.Components.Raider.Has(entity) {
+		return rp.planRaidAction(world, entity, solo, grid)
+	}
 
 	target := rp.findNearestHostile(world, entity)
 	if target == nil {
@@ -404,6 +409,37 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 		gamelog.New(query.GetGameLog(world)).
 			Markup(query.T(world, "The cube is out of fuel and stops.")).
 			Log()
+		return waitAction()
+	}
+	return moveAction(next)
+}
+
+// planRaidAction は印のある敵の行動を決める。敵対する相手が見えていれば追って殴る。見えていなければ距離の地図を
+// 下り、次の1歩が狙う的か敵対する相手なら殴り、HP を持つ置物なら壊し、ほかのキャラクターなら待ち、空いていれば進む
+func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
+	if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) {
+		return rp.planChaseAction(world, entity, *target, grid)
+	}
+	if rp.raidMap == nil {
+		return waitAction()
+	}
+	next, ok := rp.raidMap.NextStep(world, grid.Coord)
+	if !ok {
+		return waitAction()
+	}
+	si := query.GetSpatialIndex(world)
+	if e, ok := si.CharacterAt(next); ok {
+		if world.Components.Cube.Has(e) || query.FactionRelation(world, entity, e) == query.RelationHostile {
+			return activity.NewMeleeActivity(e)
+		}
+		return waitAction()
+	}
+	if si.IsBlocked(next) {
+		for _, e := range query.GetEntitiesAt(world, next.X, next.Y) {
+			if world.Components.Prop.Has(e) && world.Components.HP.Has(e) {
+				return activity.NewMeleeActivity(e)
+			}
+		}
 		return waitAction()
 	}
 	return moveAction(next)
