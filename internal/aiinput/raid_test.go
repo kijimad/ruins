@@ -235,18 +235,16 @@ func TestPlanRaidAction_開けた所では前の仲間の横へ回り込む(t *t
 	cube, err := lifecycle.SpawnCube(world, at(20, 20))
 	require.NoError(t, err)
 	world.Components.Deployed.Add(cube, &gc.Deployed{})
-	front, err := lifecycle.SpawnEnemy(world, at(20, 23), "stray_dog")
-	require.NoError(t, err)
-	world.Components.SoloAI.Get(front).Movement = rawschema.Converge
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 24), "stray_dog")
 	require.NoError(t, err)
 	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
+	// 手番の初めに作った地図のあとで、先に動いた仲間が真ん前へ入った
+	query.GetDistanceMap(world)
+	front, err := lifecycle.SpawnEnemy(world, at(20, 23), "stray_dog")
+	require.NoError(t, err)
+	world.Components.SoloAI.Get(front).Movement = rawschema.Converge
 
 	rp := newSoloPlanner(newTestRNG())
-	// 前の仲間が動く前に作った地図では、仲間のマスが一番近い隣になる
-	si := query.GetSpatialIndex(world)
-	delete(si.Characters, gc.GridElement{Coord: at(20, 23)})
-	si.Characters[gc.GridElement{Coord: at(20, 23)}] = front
 	act := rp.Plan(world, raider)
 
 	require.NotNil(t, act)
@@ -293,4 +291,30 @@ func TestProcessor_襲撃の敵がいる手番だけ距離の地図を作る(t *
 	d, ok := m.Dist(playerAt)
 	require.True(t, ok)
 	assert.Equal(t, int32(0), d, "キューブが無ければプレイヤーを的にする")
+}
+
+func TestPlanConvergeAction_地図のあとで塞がれたマスは飛ばす(t *testing.T) {
+	t.Parallel()
+	at := func(x, y int) consts.Coord[consts.Tile] {
+		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
+	}
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, at(2, 2), "ash")
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, at(20, 20))
+	require.NoError(t, err)
+	world.Components.Deployed.Add(cube, &gc.Deployed{})
+	raider, err := lifecycle.SpawnEnemy(world, at(20, 26), "stray_dog")
+	require.NoError(t, err)
+	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
+	query.GetDistanceMap(world)
+	query.GetSpatialIndex(world).Blocked[gc.GridElement{Coord: at(20, 25)}] = true
+
+	act := newSoloPlanner(newTestRNG()).Plan(world, raider)
+
+	require.NotNil(t, act)
+	require.Equal(t, gc.BehaviorMove, act.BehaviorName)
+	p, ok := act.Params.(*gc.MoveParams)
+	require.True(t, ok)
+	assert.Equal(t, at(19, 25), p.Destination.Coord, "殴れる物の無い塞がれたマスは飛ばし、次の隣へ進む")
 }
