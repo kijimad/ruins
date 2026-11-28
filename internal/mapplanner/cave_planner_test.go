@@ -20,12 +20,7 @@ func newFilledPlan(width, height int, tileName rawschema.EntityID) *MetaPlan {
 		RawMaster: CreateTestRawMaster(),
 		RNG:       rand.New(rand.NewPCG(1, 2)),
 	}
-	tiles := make([]rawschema.Tile, width*height)
-	tile := mp.GetTile(tileName)
-	for i := range tiles {
-		tiles[i] = tile
-	}
-	mp.Tiles = tiles
+	mp.Tiles = slices.Repeat([]rawschema.Tile{mp.GetTile(tileName)}, width*height)
 	return mp
 }
 
@@ -39,8 +34,12 @@ func newPlanFromRows(t *testing.T, rows []string) *MetaPlan {
 	for y, row := range rows {
 		require.Len(t, row, width, "y=%d の行の幅がそろっていない", y)
 		for x, c := range row {
-			if c == '.' {
+			switch c {
+			case '.':
 				mp.Tiles[y*width+x] = floor
+			case '#':
+			default:
+				require.Failf(t, "未知の文字", "x=%d,y=%d の %q", x, y, c)
 			}
 		}
 	}
