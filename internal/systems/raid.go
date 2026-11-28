@@ -21,7 +21,7 @@ const (
 	raidSpawnMin consts.Tile = 18
 	raidSpawnMax consts.Tile = 24
 	// raidPlayerMin はプレイヤーから離して湧かせるチェビシェフ距離
-	raidPlayerMin = 18
+	raidPlayerMin consts.Tile = 18
 	// raidBase と raidPerDanger は1晩の数を危険度から決める
 	raidBase      = 12
 	raidPerDanger = 3
@@ -70,7 +70,6 @@ func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
 	if err != nil {
 		return err
 	}
-	// 湧かせる前の世界で、的まで道がつながるマスを選ぶ。手番の地図は敵の手番の初めに作り直される
 	query.InvalidateDistanceMap(world)
 	tiles := raidSpawnTiles(world, query.GetDistanceMap(world), center, count)
 	rng := world.Resources.Config.RNG
@@ -161,7 +160,7 @@ func raidSpawnTiles(world w.World, m *gc.DistanceMap, center consts.Coord[consts
 				if _, ok := m.Dist(c); !ok {
 					continue
 				}
-				if hasPlayer && geometry.ChebyshevDistance(c, playerAt) < raidPlayerMin {
+				if hasPlayer && geometry.ChebyshevDistance(c, playerAt) < int(raidPlayerMin) {
 					continue
 				}
 				if visible[gc.GridElement{Coord: c}] || !activity.CanMoveTo(world, c, c, ecs.Entity{}) {

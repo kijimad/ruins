@@ -203,7 +203,7 @@ func TestRaidSystem_キューブから離れたプレイヤーのそばには湧
 	for y := center.Y - raidSpawnMax; y <= center.Y+raidSpawnMax; y++ {
 		for x := center.X - raidSpawnMax; x <= center.X+raidSpawnMax; x++ {
 			c := consts.Coord[consts.Tile]{X: x, Y: y}
-			if geometry.ChebyshevDistance(c, playerAt) >= raidPlayerMin {
+			if geometry.ChebyshevDistance(c, playerAt) >= int(raidPlayerMin) {
 				visible[gc.GridElement{Coord: c}] = true
 			}
 		}
@@ -215,7 +215,7 @@ func TestRaidSystem_キューブから離れたプレイヤーのそばには湧
 	raiders := raiderTiles(world)
 	require.NotEmpty(t, raiders)
 	for _, c := range raiders {
-		assert.GreaterOrEqual(t, geometry.ChebyshevDistance(playerAt, c), raidPlayerMin, "プレイヤーの近くには湧かない: %v", c)
+		assert.GreaterOrEqual(t, geometry.ChebyshevDistance(playerAt, c), int(raidPlayerMin), "プレイヤーの近くには湧かない: %v", c)
 	}
 }
 

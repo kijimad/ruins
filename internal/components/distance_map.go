@@ -12,10 +12,8 @@ var distanceMapDirs = [...]consts.Coord[consts.Tile]{
 }
 
 // DistanceMap は狙う的から現ステージの各マスへの、重み付きの距離を保持するシングルトン。動き方が converge の敵はこの値が小さくなる
-// 隣へ進む。群れの全員が同じ1枚を下るので、敵ごとに道を探さずに済む。空間の索引と違い、敵の手番の初めにだけ
-// 作り直し、その手番の間は古いまま読む。query.GetDistanceMap が未構築なら作る
+// 隣へ進む。群れの全員が同じ1枚を下るので、敵ごとに道を探さずに済む
 type DistanceMap struct {
-	// Width と Height は地図の寸法
 	Width, Height consts.Tile
 	// Cost は各マスへ入る重み。添字は y*Width+x。0 は通れない。Reset と Spread の間でだけ書く
 	Cost []int32
@@ -134,7 +132,6 @@ func (m *DistanceMap) Steps(from consts.Coord[consts.Tile], buf []consts.Coord[c
 	if !ok {
 		return steps
 	}
-	// 立っている自分のマスは重く数えられているので、重さ1で入ったときの距離と比べる。比べないと後ろのマスまで下る隣に入る
 	here := d - m.Cost[m.Index(from)] + 1
 	for _, dir := range distanceMapDirs {
 		next := from.Add(dir)

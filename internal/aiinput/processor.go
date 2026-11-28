@@ -53,7 +53,6 @@ func (p *Processor) ProcessAll(world w.World) error {
 		return err
 	}
 	targets = culled
-	// 襲撃の敵は手番の初めの距離の地図を全員で下る。前の手番の地図を捨て、最初に引いた敵が作る
 	query.InvalidateDistanceMap(world)
 
 	for _, entity := range targets {
