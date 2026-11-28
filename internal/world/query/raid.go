@@ -67,7 +67,8 @@ func RaidTargets(world w.World) []consts.Coord[consts.Tile] {
 }
 
 // NextRaidWaveTurn は経過ターン turn から数えて、次の襲撃の最初の波が来る経過ターンを返す。
-// 今日が襲撃の日で最初の波がまだなら、今日の最初の波を返す
+// 今日が襲撃の日で、turn が最初の波のターンちょうどかそれより前なら、今日の最初の波を返す。波はターンの終わりに
+// 湧くので、ちょうどのターンはまだ湧いていない
 func NextRaidWaveTurn(turn consts.Turn) consts.Turn {
 	day, offset := dayAndOffset(turn)
 	raidDay := day + daysUntilRaid(turn)
