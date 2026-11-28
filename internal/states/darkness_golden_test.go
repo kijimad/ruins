@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestGolden_PitchDark は光源の無い真っ暗な場所の見え方を固定する。足元も見えないが自分の姿は無彩色で描き、
+// TestGolden_PitchDark は光源の無い真っ暗な場所の見え方を固定する。足元の1マスと自分の姿は無彩色で描き、
 // 周りは記憶の色味で描く
 func TestGolden_PitchDark(t *testing.T) {
 	t.Parallel()
