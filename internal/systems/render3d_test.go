@@ -47,7 +47,7 @@ func TestSampleOf(t *testing.T) {
 		assert.InDelta(t, 0.25, s.brightness, 1e-9)
 		assert.True(t, drawable)
 		assert.False(t, visible)
-		assert.Equal(t, [3]float64{1, 1, 1}, s.color, "記憶は光源色を持たず白")
+		assert.Equal(t, rememberedColor, s.color, "記憶は光源色を持たず記憶の色味")
 	})
 
 	t.Run("未探索は描画しない", func(t *testing.T) {
@@ -814,5 +814,24 @@ func TestSlabFaces_絵の面はどの向きでもカメラに1枚だけ表を向
 				assert.Equal(t, 1, front, "カメラの向き %d", orient)
 			}
 		})
+	}
+}
+
+func TestWithSelfMinBrightness(t *testing.T) {
+	t.Parallel()
+	got := [][3]float64{
+		withSelfMinBrightness([3]float64{0.8, 0.4, 0.2}),
+		withSelfMinBrightness([3]float64{0.3, 0.15, 0.6}),
+		withSelfMinBrightness([3]float64{0.2, 0.1, 0.05}),
+		withSelfMinBrightness([3]float64{0, 0, 0}),
+	}
+	want := [][3]float64{
+		{0.8, 0.4, 0.2},
+		{0.3, 0.15, 0.6},
+		{0.6, 0.3, 0.15},
+		{0.6, 0.6, 0.6},
+	}
+	for i := range want {
+		assert.InDeltaSlice(t, want[i][:], got[i][:], 1e-9)
 	}
 }
