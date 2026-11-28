@@ -66,12 +66,12 @@ func TestConvertKeys(t *testing.T) {
 			{"Escapeでキャンセル", func(ki *input.MockKeyboardInput) {
 				ki.SetKeyJustPressed(ebiten.KeyEscape, true)
 			}, inputmapper.ActionMenuCancel},
-			{"左でタブ前へ", func(ki *input.MockKeyboardInput) {
+			{"左でページ前へ", func(ki *input.MockKeyboardInput) {
 				ki.SetKeyPressedWithRepeat(ebiten.KeyArrowLeft, true)
-			}, inputmapper.ActionMenuTabPrev},
-			{"右でタブ次へ", func(ki *input.MockKeyboardInput) {
+			}, inputmapper.ActionMenuLeft},
+			{"右でページ次へ", func(ki *input.MockKeyboardInput) {
 				ki.SetKeyPressedWithRepeat(ebiten.KeyArrowRight, true)
-			}, inputmapper.ActionMenuTabNext},
+			}, inputmapper.ActionMenuRight},
 			{"上でカーソル上", func(ki *input.MockKeyboardInput) {
 				ki.SetKeyPressedWithRepeat(ebiten.KeyArrowUp, true)
 			}, inputmapper.ActionMenuUp},

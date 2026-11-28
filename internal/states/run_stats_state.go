@@ -121,7 +121,7 @@ func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}
+	return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAutoHeader}
 }
 
 // ViewUI はステータス表を組む。結果画面はタブ帯なしの枠、道中の統計画面はタブ帯つきの枠に載せる
@@ -134,7 +134,7 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
 	if tabIndex >= len(props.Tabs) {
 		tabIndex = 0
 	}
-	content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
+	content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor, res)
 	if st.result {
 		return menuframe.PanelScreen(world, res, query.T(world, st.headerMsgid), content, keybind.HelpHint(world), pager)
 	}
@@ -142,15 +142,15 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
 }
 
 // buildStatsTableUI はラベル左・値右の2列表とフッタ右端のページ表示を返す。
-func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {
+func buildStatsTableUI(world w.World, items []statusItemData, cursor menuloop.Selection, res resources.UIResources) ([]uicore.Drawable, string) {
 	cols := styled.Cols(styled.Name(), styled.Num())
 	rows := make([]menuframe.Row, len(items))
 	for i, it := range items {
 		rows[i] = menuframe.Row{Cells: styled.TextCells(it.Label, it.Value)}
 	}
-	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{
+	return menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{
 		EmptyText:    query.T(world, "No entries"),
-		ItemsPerPage: menuframe.ListCapacity(world, true, true),
+		ItemsPerPage: cursor.PageSize,
 	}, res)
 }
 

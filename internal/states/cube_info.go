@@ -83,7 +83,7 @@ func (st *CubeInfoState) Menu(props CubeInfoProps) menuloop.MenuConfig {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menuloop.MenuConfig{Key: cubeInfoMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}
+	return menuloop.MenuConfig{Key: cubeInfoMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAutoHeader}
 }
 
 // ViewUI はタブ帯つきの情報表を組む
@@ -96,7 +96,7 @@ func (st *CubeInfoState) ViewUI(world w.World, props CubeInfoProps, cursor menul
 	if tabIndex >= len(props.Tabs) {
 		tabIndex = 0
 	}
-	content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
+	content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor, res)
 	return menuframe.TabScreen(world, res, query.T(world, "Cube info"), labels, tabIndex, content, keybind.HelpHint(world), pager)
 }
 
