@@ -395,7 +395,7 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 		solo.SubState = gc.AIStateDriving
 	}
 
-	next, ok := followStep(world, grid.Coord)
+	next, ok := followStep(world, aiEntity, grid.Coord)
 	if !ok {
 		return waitAction()
 	}
@@ -415,17 +415,15 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 	return moveAction(next)
 }
 
-// followStep はプレイヤーからの距離の地図で、from から下る隣のうち空いている最初のマスを返す。地図はその手番で最初に
-// 引いたときの配置で作るので、手番の中で湧いた置物やキャラクターを空きの判定で避ける
-func followStep(world w.World, from consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
+// followStep はプレイヤーからの距離の地図で、from から下る一番近い隣のうち移れる最初のマスを返す。地図はその手番で最初に
+// 引いたときの配置で作るので、手番の中で湧いた置物やキャラクターを実際の移動と同じ判定で避ける
+func followStep(world w.World, entity ecs.Entity, from consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
 	m := query.GetPlayerDistanceMap(world)
-	si := query.GetSpatialIndex(world)
 	var buf [8]consts.Coord[consts.Tile]
 	for _, next := range m.Steps(from, buf[:0]) {
-		if _, occupied := si.CharacterAt(next); occupied || si.IsBlocked(next) {
-			continue
+		if activity.CanMoveTo(world, next, from, entity) {
+			return next, true
 		}
-		return next, true
 	}
 	return consts.Coord[consts.Tile]{}, false
 }
