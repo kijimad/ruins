@@ -53,6 +53,7 @@
 //   - restriction.go: 武器を素手へ制限したときの死亡確率の劣化量。要素の必須度を測る Restricted Play 系
 //   - skilldepth.go: スキル進行の手応え。丸めで死んだティアと実効ティアを分ける NTBEA 系のティア識別性
 //   - viability.go: 武器ロスターの viability 要約。使える武器の割合と symmetry 判定。Pfau のプレイヤー選好系
+//   - area.go: 拠点のエリアの食べ物と燃料が何日もつか。C 層の測定で、生成した world を受け取って数える。生成は呼ぶ側が種を固定して行い、表は baseline.go が書く
 //   - targets.go: ドメイン横断のスカラー指標と目標帯の照合
 //   - baseline.go: 目標帯との照合とベースライン markdown 生成
 //   - combat.go: 戦闘の能力値と武器の型、raw からのデータロード

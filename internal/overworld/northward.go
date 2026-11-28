@@ -21,7 +21,7 @@ import (
 // 1タイル tilePx 四方で描いてチャンクの座標を書き込んだ画像にする。生成の自然さや面白さを人が目で確かめるのに使う。
 // world は生成するチャンクを持たない、raw と定義を読んだだけのものを渡す
 func RenderNorthward(world w.World, runSeed uint64, north, south consts.Chunk, tilePx int) (*image.RGBA, error) {
-	if err := generateNorthward(world, runSeed, north, south); err != nil {
+	if err := generateRows(world, runSeed, north, north+south+1); err != nil {
 		return nil, err
 	}
 	chunkW, chunkH, cols, _ := dungeon.DungeonOverworld.BandShape()
@@ -33,19 +33,25 @@ func RenderNorthward(world w.World, runSeed uint64, north, south consts.Chunk, t
 	return withChunkGrid(m, int(chunkW)*tilePx, int(chunkH)*tilePx, int(cols), int(rows), int(north)), nil
 }
 
-// generateNorthward は開始の行から北へ north 行、南へ south 行のチャンクを world に生成する。北端の行を帯ローカルの0行目に置き、
+// GenerateBandAt は開始の行から北へ depth 行進んだ所に拠点を置いたときのエリアを、帯と同じ形のチャンクで world に生成する。
+// 帯の真ん中の行が、開始の行から北へ depth 行目になる
+func GenerateBandAt(world w.World, runSeed uint64, depth consts.Chunk) error {
+	_, _, _, rows := dungeon.DungeonOverworld.BandShape()
+	return generateRows(world, runSeed, depth+rows/2, rows)
+}
+
+// generateRows は北端の行が開始の行から北へ north 行目にある、count 行のチャンクを world に生成する。北端の行を帯ローカルの0行目に置き、
 // ゲームが北へ進んだときと同じく帯の NorthIndex で絶対の行と結ぶ。ゲームは帯の行を北へ1行ずつ足していくが、ここでは北端から
 // 一度に並べる。チャンクの生成が位置と seed だけで決まり、隣とのつながりをオートタイルの計算し直しで合わせる間は、順が違っても同じ地図になる
-func generateNorthward(world w.World, runSeed uint64, north, south consts.Chunk) error {
+func generateRows(world w.World, runSeed uint64, north, count consts.Chunk) error {
 	chunkW, chunkH, cols, rows := dungeon.DungeonOverworld.BandShape()
 	sb := query.EnsureSeamlessBand(world)
 	*sb = gc.SeamlessBand{Active: true, RunSeed: runSeed, ChunkW: chunkW, ChunkH: chunkH, Cols: cols, Rows: rows}
-	spawnRow := sb.SpawnChunkY()
-	top := spawnRow - north
+	top := sb.SpawnChunkY() - north
 	sb.NorthIndex = -top
 
 	gen := NewChunkGen(world, runSeed, chunkW, chunkH, cols, mapplanner.PlannerTypeOverworldField)
-	for cy := top; cy <= spawnRow+south; cy++ {
+	for cy := top; cy < top+count; cy++ {
 		for cx := range cols {
 			if err := gen(consts.Coord[consts.Chunk]{X: cx, Y: cy}, cx.Tiles(chunkW), (cy - top).Tiles(chunkH)); err != nil {
 				return err
