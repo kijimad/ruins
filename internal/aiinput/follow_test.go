@@ -195,3 +195,33 @@ func TestPlanFollowAction_プレイヤーへ届かなければ燃料を払わず
 	require.NotNil(t, act)
 	assert.Equal(t, []any{gc.BehaviorWait, consts.Heat(100)}, []any{act.BehaviorName, query.CubeFuelTotal(world, cube)})
 }
+
+func TestPlanFollowAction_展開したキューブが塞ぐと遠くても回り込む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 6, Y: 7}, "ash")
+	require.NoError(t, err)
+	// x=7 の縦の壁に開いた穴を展開したキューブが塞ぐ。回り道は壁の端を回るので6歩より長い
+	for y := consts.Tile(2); y <= 12; y++ {
+		if y == 7 {
+			continue
+		}
+		_, err = lifecycle.SpawnProp(world, "barrel", 7, y)
+		require.NoError(t, err)
+	}
+	deployed, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 7, Y: 7})
+	require.NoError(t, err)
+	world.Components.Deployed.Add(deployed, &gc.Deployed{})
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 8, Y: 7})
+	require.NoError(t, err)
+	solo := world.Components.SoloAI.Get(cube)
+	solo.SubState = gc.AIStateDriving
+
+	rp := newSoloPlanner(newTestRNG())
+	act := rp.planFollowAction(world, cube, solo, world.Components.GridElement.Get(cube))
+
+	require.NotNil(t, act)
+	p, ok := act.Params.(*gc.MoveParams)
+	require.True(t, ok, "待たずに動く")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 8, Y: 6}, p.Destination.Coord)
+}

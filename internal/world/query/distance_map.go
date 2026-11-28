@@ -54,13 +54,15 @@ type distanceRule struct {
 	breakProps bool
 	// avoidAllies なら FactionAlly のプレイヤー側のマスも重み gc.DistanceMapObstacleCost にし、偽なら重み1にする
 	avoidAllies bool
+	// blockDeployed なら展開して動かないキューブのマスを通れないものにする。重みにすると、回り道が長いときに後ろで待ち続ける
+	blockDeployed bool
 }
 
 var (
 	// cubeRule は襲撃の敵の規則。置物を壊して進み、殴る相手のプレイヤー側のマスは避けない
 	cubeRule = distanceRule{breakProps: true}
-	// playerRule はついて行く者の規則。置物を壊さず、プレイヤー側のマスも回り込む
-	playerRule = distanceRule{avoidAllies: true}
+	// playerRule はついて行く者の規則。置物を壊さず、プレイヤー側のマスも回り込み、展開したキューブは通れない
+	playerRule = distanceRule{avoidAllies: true, blockDeployed: true}
 )
 
 // buildDistanceMap は各マスの重みを書き出し、的 targets から距離を広げる。空いたマスは重み1、プレイヤー側でないキャラクターの
@@ -92,6 +94,10 @@ func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[c
 	}
 	for g, e := range si.Characters {
 		if !m.InBounds(g.Coord) || m.Blocked[m.Index(g.Coord)] {
+			continue
+		}
+		if rule.blockDeployed && world.Components.Deployed.Has(e) {
+			m.Cost[m.Index(g.Coord)] = 0
 			continue
 		}
 		if IsAlly(world, e) && !rule.avoidAllies {

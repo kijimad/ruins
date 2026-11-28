@@ -129,6 +129,11 @@ func TestGetPlayerDistanceMap(t *testing.T) {
 			dists[x] = d
 		}
 		assert.Equal(t, []int32{0, gc.DistanceMapObstacleCost, gc.DistanceMapObstacleCost + 1, -1, -1}, dists, "味方のマスは重く、扉を壊さないので向こう側へは届かない")
+		costs := map[int32]bool{}
+		for _, c := range m.Cost {
+			costs[c] = true
+		}
+		assert.Equal(t, map[int32]bool{0: true, 1: true, gc.DistanceMapObstacleCost: true}, costs, "重みは Spread の輪の前提の3つに閉じる")
 	})
 
 	t.Run("無効化で両方の地図を捨てる", func(t *testing.T) {
