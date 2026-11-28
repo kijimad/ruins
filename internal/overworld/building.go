@@ -137,7 +137,6 @@ func (r districtRegion) builds(l consts.Coord[consts.Chunk]) bool {
 }
 
 // buildSet は区域の中で施設を建てる座標の集合を返す。湖と、施設の数を絞った層で選ばれなかったチャンクは自然の地面にする。
-// 層ごとに lotChunks を1度だけ作る
 func (r districtRegion) buildSet() map[consts.Coord[consts.Chunk]]bool {
 	set := map[consts.Coord[consts.Chunk]]bool{}
 	chosen := map[int][]consts.Coord[consts.Chunk]{}

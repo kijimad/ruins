@@ -22,7 +22,7 @@ func (r districtRegion) waterAt(l consts.Coord[consts.Chunk]) *rawschema.Distric
 	return r.kind.Layers[r.layerAt(l)].Water
 }
 
-// scatterAt は区域の中の座標 l の層が撒く散布の種類を返す。撒かない層は nil
+// scatterAt は区域の中の座標 l の層が撒く散布の種類を返す。区域の中の座標だけで呼ぶ
 func (r districtRegion) scatterAt(l consts.Coord[consts.Chunk]) *rawschema.EntityID {
 	return r.kind.Layers[r.layerAt(l)].Scatter
 }
@@ -89,21 +89,23 @@ func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chun
 	}
 }
 
-// layPier は from から step の向きへ、輪郭の内側に幅2の板を張る。浅瀬を越えて pierLength だけ深い水へ入ったか、
-// 湖の中心を越えて楕円の内側への深さが浅くなり始めたら止める。ノイズの揺れでは止めない。limit マス歩いても止まらなければそこで止める
+// layPier は from から step の向きへ、輪郭の内側に幅2の板を張る。深い水へ pierLength だけ入るか、湖の中心を越えるか、
+// 板を張った後に陸へ出たら止める。中心を越えたかは揺れの無い楕円で見る
 func (s *lakeShape) layPier(from, step consts.Coord[consts.Tile], limit consts.Tile) {
-	// 幅2の板を中心の列と負の向きの隣の列に張り、どの向きへ伸ばしても中心にそろえる
+	// 2列目を負の向きに張り、どの向きでも中心の列にそろえる
 	side := consts.Coord[consts.Tile]{X: -abs(step.Y), Y: -abs(step.X)}
 	end := float64(s.water.BeachWidth + s.water.ShallowWidth + s.water.PierLength)
 	prev := math.Inf(-1)
+	laid := false
 	for p, n := from, consts.Tile(0); n < limit; p, n = p.Add(step), n+1 {
 		depth := s.depth(p)
 		inside := s.ellipseInside(p)
-		if depth >= end || depth >= 0 && inside < prev {
+		if depth >= end || depth >= 0 && inside < prev || laid && depth < 0 {
 			return
 		}
 		prev = inside
 		if depth >= 0 {
+			laid = true
 			s.piers[p] = true
 			if s.depth(p.Add(side)) >= 0 {
 				s.piers[p.Add(side)] = true

@@ -187,7 +187,7 @@ func TestLakeShape_桟橋の板は全て湖の輪郭の内側に張る(t *testin
 
 func TestLayPier_湖の細い所で深さが浅くなり始めたら対岸まで張らずに止める(t *testing.T) {
 	t.Parallel()
-	// 揺れの無い円の湖。南の岸から伸ばすと、中心を挟んで深さの等しい2マスを張り、浅くなり始めた所で止まる
+	// 中心を挟んで深さの等しい2マスまで張る
 	s := lakeShape{
 		water: &rawschema.DistrictWater{BeachWidth: 1, ShallowWidth: 1, PierLength: 100, ShoreCell: 8},
 		cx:    10, cy: 10, rx: 5, ry: 5,
@@ -205,14 +205,24 @@ func TestLayPier_湖の細い所で深さが浅くなり始めたら対岸まで
 	assert.Equal(t, []consts.Tile{9, 10, 11, 12, 13, 14}, ys)
 }
 
-func TestLayPier_輪郭の揺れで深さが浜の上で減っても浅瀬を越えて深い水まで張る(t *testing.T) {
+func TestLayPier_輪郭の揺れで深さが浅瀬より手前で減っても深い水まで張る(t *testing.T) {
 	t.Parallel()
-	// seed 5 は、南の岸から北へ歩くと浜の上で値ノイズの下り坂に当たり、揺れを含む深さが一度減る
 	s := lakeShape{
 		water: &rawschema.DistrictWater{BeachWidth: 2, ShallowWidth: 3, PierLength: 6, ShoreWobble: 10, ShoreCell: 24},
 		cx:    0, cy: 0, rx: 40, ry: 40, seed: 5,
 		piers: map[consts.Coord[consts.Tile]]bool{},
 	}
+	dips := 0
+	prev := math.Inf(-1)
+	for y := consts.Tile(60); y > 0; y-- {
+		d := s.depth(consts.Coord[consts.Tile]{Y: y})
+		if d >= 0 && d < float64(s.water.BeachWidth+s.water.ShallowWidth) && d < prev {
+			dips++
+		}
+		prev = d
+	}
+	require.Positive(t, dips, "前提: 浅瀬より手前で揺れを含む深さが減る")
+
 	s.layPier(consts.Coord[consts.Tile]{Y: 60}, consts.Coord[consts.Tile]{Y: -1}, 120)
 
 	deepest := math.Inf(-1)
