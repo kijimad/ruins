@@ -418,7 +418,7 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 // followStep はプレイヤーからの距離の地図で、from から下る隣のうち空いている最初のマスを返す。地図は敵の手番ごとに1枚だけ
 // 作り、ついて行く全員で使い回す
 func followStep(world w.World, from consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
-	m := query.GetFollowDistanceMap(world)
+	m := query.GetPlayerDistanceMap(world)
 	if m == nil {
 		return consts.Coord[consts.Tile]{}, false
 	}
@@ -437,7 +437,7 @@ func followStep(world w.World, from consts.Coord[consts.Tile]) (consts.Coord[con
 // 距離の地図で一番小さい隣を順に試す。狙う的か仲間でないキャラクターなら殴り、HP を持つ置物なら壊し、空いていれば
 // 進む。仲間に塞がれた隣は飛ばし、試す隣が残らなければ待つ
 func (rp *soloPlanner) planConvergeAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
-	m := query.GetConvergeDistanceMap(world)
+	m := query.GetBaseDistanceMap(world)
 	var buf [8]consts.Coord[consts.Tile]
 	steps := m.Steps(grid.Coord, buf[:0])
 	if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) && closerThanMapTarget(world, m, grid, steps, *target) {

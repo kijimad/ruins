@@ -11,8 +11,8 @@ var distanceMapDirs = [...]consts.Coord[consts.Tile]{
 	{X: -1, Y: -1}, {X: 1, Y: -1}, {X: -1, Y: 1}, {X: 1, Y: 1},
 }
 
-// DistanceMap は狙う的から現ステージの各マスへの、重み付きの距離。動き方が converge の敵や、ついて行く者はこの値が
-// 小さくなる隣へ進む。全員が同じ1枚を下るので、1体ごとに道を探さずに済む。ConvergeDistanceMap と FollowDistanceMap が埋め込む
+// DistanceMap は狙う的から現ステージの各マスへの、重み付きの距離。下る者はこの値が小さくなる隣へ進む。全員が同じ1枚を
+// 下るので、1体ごとに道を探さずに済む。的ごとに BaseDistanceMap と PlayerDistanceMap が埋め込む
 type DistanceMap struct {
 	Width, Height consts.Tile
 	// Cost は各マスへ入る重み。添字は y*Width+x。0 は通れない。Reset と Spread の間でだけ書く
@@ -27,24 +27,24 @@ type DistanceMap struct {
 	buckets [DistanceMapObstacleCost + 1][]int32
 }
 
-// ConvergeDistanceMap は動き方が converge の敵が下る、拠点のキューブからの距離の地図を保持するシングルトン
-type ConvergeDistanceMap struct {
+// BaseDistanceMap は拠点のキューブからの距離の地図を保持するシングルトン。襲撃の敵が拠点へ寄り集まるのに下る
+type BaseDistanceMap struct {
 	DistanceMap
 }
 
-// NewConvergeDistanceMap は未構築の空の地図を作る
-func NewConvergeDistanceMap() *ConvergeDistanceMap {
-	return &ConvergeDistanceMap{}
+// NewBaseDistanceMap は未構築の空の地図を作る
+func NewBaseDistanceMap() *BaseDistanceMap {
+	return &BaseDistanceMap{}
 }
 
-// FollowDistanceMap はついて行く者が下る、プレイヤーからの距離の地図を保持するシングルトン。converge の地図と的も重みも違うので別に持つ
-type FollowDistanceMap struct {
+// PlayerDistanceMap はプレイヤーからの距離の地図を保持するシングルトン。ついて行くキューブが下る。拠点の地図と的も重みも違うので別に持つ
+type PlayerDistanceMap struct {
 	DistanceMap
 }
 
-// NewFollowDistanceMap は未構築の空の地図を作る
-func NewFollowDistanceMap() *FollowDistanceMap {
-	return &FollowDistanceMap{}
+// NewPlayerDistanceMap は未構築の空の地図を作る
+func NewPlayerDistanceMap() *PlayerDistanceMap {
+	return &PlayerDistanceMap{}
 }
 
 // NewDistanceMap は未構築の空の地図を作る

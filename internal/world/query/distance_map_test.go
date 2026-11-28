@@ -30,7 +30,7 @@ func TestBuildDistanceMap(t *testing.T) {
 		world.Components.GridElement.Add(door, &gc.GridElement{Coord: at(2, 0)})
 
 		m := gc.NewDistanceMap()
-		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, convergeRule)
+		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, baseRule)
 		d, ok := m.Dist(at(3, 0))
 		require.True(t, ok)
 		assert.Equal(t, int32(1+gc.DistanceMapObstacleCost+1), d, "扉を壊して抜ける")
@@ -51,20 +51,20 @@ func TestBuildDistanceMap(t *testing.T) {
 		si.Characters = map[gc.GridElement]ecs.Entity{{Coord: at(1, 0)}: ally, {Coord: at(1, 1)}: beast}
 
 		m := gc.NewDistanceMap()
-		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, convergeRule)
+		buildDistanceMap(world, m, []consts.Coord[consts.Tile]{at(0, 0)}, baseRule)
 		dAlly, _ := m.Dist(at(1, 0))
 		dBeast, _ := m.Dist(at(1, 1))
 		assert.Equal(t, []int32{1, gc.DistanceMapObstacleCost}, []int32{dAlly, dBeast})
 	})
 }
 
-func TestGetConvergeDistanceMap_引いたときに作り無効化で捨てる(t *testing.T) {
+func TestGetBaseDistanceMap_引いたときに作り無効化で捨てる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	m := GetSingleton[gc.ConvergeDistanceMap](world, world.Components.ConvergeDistanceMap)
+	m := GetSingleton[gc.BaseDistanceMap](world, world.Components.BaseDistanceMap)
 	require.False(t, m.Built, "前提: 作られる前")
 
-	assert.Same(t, &m.DistanceMap, GetConvergeDistanceMap(world))
+	assert.Same(t, &m.DistanceMap, GetBaseDistanceMap(world))
 	assert.True(t, m.Built, "引いたときに作る")
 	InvalidateDistanceMaps(world)
 	assert.False(t, m.Built, "無効化で捨てる")
@@ -85,14 +85,14 @@ func BenchmarkBuildDistanceMap(b *testing.B) {
 	}
 	targets := []consts.Coord[consts.Tile]{{X: size / 2, Y: size / 2}}
 	m := gc.NewDistanceMap()
-	buildDistanceMap(world, m, targets, convergeRule)
+	buildDistanceMap(world, m, targets, baseRule)
 	b.ResetTimer()
 	for b.Loop() {
-		buildDistanceMap(world, m, targets, convergeRule)
+		buildDistanceMap(world, m, targets, baseRule)
 	}
 }
 
-func TestGetFollowDistanceMap(t *testing.T) {
+func TestGetPlayerDistanceMap(t *testing.T) {
 	t.Parallel()
 	at := func(x, y int) consts.Coord[consts.Tile] {
 		return consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}
@@ -115,7 +115,7 @@ func TestGetFollowDistanceMap(t *testing.T) {
 		world.Components.HP.Add(door, &gc.HP{})
 		world.Components.GridElement.Add(door, &gc.GridElement{Coord: at(3, 0)})
 
-		m := GetFollowDistanceMap(world)
+		m := GetPlayerDistanceMap(world)
 
 		dists := make([]int32, 5)
 		for x := range dists {
@@ -131,13 +131,13 @@ func TestGetFollowDistanceMap(t *testing.T) {
 	t.Run("敵の手番の初めに無効化すると次に引いたときに作り直す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		GetFollowDistanceMap(world)
-		GetConvergeDistanceMap(world)
+		GetPlayerDistanceMap(world)
+		GetBaseDistanceMap(world)
 
 		InvalidateDistanceMaps(world)
 
-		follow := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap)
-		raid := GetSingleton[gc.ConvergeDistanceMap](world, world.Components.ConvergeDistanceMap)
+		follow := GetSingleton[gc.PlayerDistanceMap](world, world.Components.PlayerDistanceMap)
+		raid := GetSingleton[gc.BaseDistanceMap](world, world.Components.BaseDistanceMap)
 		assert.Equal(t, []bool{false, false}, []bool{follow.Built, raid.Built})
 	})
 }

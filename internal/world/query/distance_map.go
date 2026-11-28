@@ -6,35 +6,35 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// GetConvergeDistanceMap はシングルトンから、動き方が converge の敵が下る RaidTargets の的からの距離の地図を取得する。未構築なら作る。手番の外で引くと
+// GetBaseDistanceMap はシングルトンから、拠点の RaidTargets の的からの距離の地図を取得する。未構築なら作る。手番の外で引くと
 // 前の手番の地図が返る
-func GetConvergeDistanceMap(world w.World) *gc.DistanceMap {
-	m := GetSingleton[gc.ConvergeDistanceMap](world, world.Components.ConvergeDistanceMap)
+func GetBaseDistanceMap(world w.World) *gc.DistanceMap {
+	m := GetSingleton[gc.BaseDistanceMap](world, world.Components.BaseDistanceMap)
 	if m == nil {
 		return nil
 	}
 	if !m.Built {
-		buildDistanceMap(world, &m.DistanceMap, RaidTargets(world), convergeRule)
+		buildDistanceMap(world, &m.DistanceMap, RaidTargets(world), baseRule)
 	}
 	return &m.DistanceMap
 }
 
-// InvalidateDistanceMaps は寄り集まる敵とついて行く者の距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
+// InvalidateDistanceMaps は拠点とプレイヤーからの距離の地図を無効化する。空間の索引と違い、物が動くたびには呼ばず、敵の
 // 手番の初めと波を湧かせる前にだけ呼ぶ。手番の間は古い地図を全員で下る
 func InvalidateDistanceMaps(world w.World) {
-	if m := GetSingleton[gc.ConvergeDistanceMap](world, world.Components.ConvergeDistanceMap); m != nil {
+	if m := GetSingleton[gc.BaseDistanceMap](world, world.Components.BaseDistanceMap); m != nil {
 		m.Built = false
 	}
-	if m := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap); m != nil {
+	if m := GetSingleton[gc.PlayerDistanceMap](world, world.Components.PlayerDistanceMap); m != nil {
 		m.Built = false
 	}
 }
 
-// GetFollowDistanceMap はシングルトンから、ついて行く者が下るプレイヤーからの距離の地図を取得する。未構築なら作る。
+// GetPlayerDistanceMap はシングルトンから、ついて行く者が下るプレイヤーからの距離の地図を取得する。未構築なら作る。
 // ついて行く者は置物を壊さないので HP を持つ置物も通れないマスとして数え、味方を含む他のキャラクターのマスは重く数えて
 // 回り込ませる
-func GetFollowDistanceMap(world w.World) *gc.DistanceMap {
-	m := GetSingleton[gc.FollowDistanceMap](world, world.Components.FollowDistanceMap)
+func GetPlayerDistanceMap(world w.World) *gc.DistanceMap {
+	m := GetSingleton[gc.PlayerDistanceMap](world, world.Components.PlayerDistanceMap)
 	if m == nil {
 		return nil
 	}
@@ -43,7 +43,7 @@ func GetFollowDistanceMap(world w.World) *gc.DistanceMap {
 		if player, err := GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
 			targets = append(targets, world.Components.GridElement.Get(player).Coord)
 		}
-		buildDistanceMap(world, &m.DistanceMap, targets, followRule)
+		buildDistanceMap(world, &m.DistanceMap, targets, playerRule)
 	}
 	return &m.DistanceMap
 }
@@ -58,10 +58,10 @@ type distanceRule struct {
 }
 
 var (
-	// convergeRule は動き方が converge の敵の規則。置物を壊して進み、味方同士は通り抜けて寄り集まる
-	convergeRule = distanceRule{breakProps: true}
-	// followRule はついて行く者の規則。置物を壊さず、仲間を回り込む
-	followRule = distanceRule{avoidAllies: true}
+	// baseRule は拠点へ寄り集まる襲撃の敵の規則。置物を壊して進み、味方同士は通り抜ける
+	baseRule = distanceRule{breakProps: true}
+	// playerRule はプレイヤーについて行く者の規則。置物を壊さず、仲間を回り込む
+	playerRule = distanceRule{avoidAllies: true}
 )
 
 // buildDistanceMap は空間の索引と置物から各マスの重みを書き出し、的 targets から距離を広げる。通れるマスは重み1、味方でない
