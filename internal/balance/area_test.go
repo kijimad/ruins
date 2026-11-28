@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -12,25 +13,30 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMeasureAreaSupply_全てのアイテムの栄養と熱を足す(t *testing.T) {
+func TestMeasureAreaSupply_食べ物の栄養と食べ物でない物の熱を足す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	bread, err := lifecycle.SpawnFieldItem(world, "garlic_bread", 1, 1, 1)
 	require.NoError(t, err)
 	_, err = lifecycle.SpawnFieldItem(world, "garlic_bread", 2, 1, 1)
 	require.NoError(t, err)
-	sword, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 3, 1, 1)
+	biscuit, err := lifecycle.SpawnFieldItem(world, "biscuit", 3, 1, 1)
 	require.NoError(t, err)
-	nutrition := world.Components.ProvidesNutrition.Get(bread).Amount
-	require.Positive(t, nutrition, "前提: パンは栄養を持つ")
-	require.Positive(t, query.HeatContent(world, sword), "前提: 木の剣は燃える")
+	sword, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 4, 1, 1)
+	require.NoError(t, err)
+	breadAmount := world.Components.ProvidesNutrition.Get(bread).Amount
+	biscuitAmount := world.Components.ProvidesNutrition.Get(biscuit).Amount
+	require.Less(t, world.Components.Perishable.Get(bread).StageLength, consts.Turn(stayDays)*gc.TurnsPerDay, "前提: パンは留まる間に傷む")
+	require.GreaterOrEqual(t, world.Components.Perishable.Get(biscuit).StageLength, consts.Turn(stayDays)*gc.TurnsPerDay, "前提: ビスケットは留まる間は新鮮なまま")
+	require.Positive(t, query.HeatContent(world, bread), "前提: パンも燃える")
 
 	got := MeasureAreaSupply(world)
 
 	assert.Equal(t, AreaSupply{
-		Nutrition: 2 * nutrition,
-		Heat:      2*query.HeatContent(world, bread) + query.HeatContent(world, sword),
-	}, got)
+		Nutrition:        2*breadAmount + biscuitAmount,
+		KeepingNutrition: biscuitAmount,
+		Heat:             query.HeatContent(world, sword),
+	}, got, "食べ物は燃料に数えない")
 }
 
 func TestFoodDays_1日に減る満腹度で割る(t *testing.T) {
@@ -51,8 +57,8 @@ func TestRenderAreaSupplyMarkdown_深さごとに中央値と幅を並べる(t *
 	p := Params{TurnsPerDay: 1500, HungerDrainTurns: 3}
 	md := RenderAreaSupplyMarkdown(p, []AreaSupplySample{
 		{Seed: 1, Depth: 40, Supply: AreaSupply{Nutrition: 500}},
-		{Seed: 1, Depth: 0, Supply: AreaSupply{Nutrition: 1000, Heat: 1000}},
-		{Seed: 2, Depth: 0, Supply: AreaSupply{Nutrition: 3000, Heat: 1000}},
+		{Seed: 1, Depth: 0, Supply: AreaSupply{Nutrition: 1000, KeepingNutrition: 500, Heat: 1000}},
+		{Seed: 2, Depth: 0, Supply: AreaSupply{Nutrition: 3000, KeepingNutrition: 1500, Heat: 1000}},
 	})
 
 	var rows [][]string
@@ -67,7 +73,7 @@ func TestRenderAreaSupplyMarkdown_深さごとに中央値と幅を並べる(t *
 		rows = append(rows, cells)
 	}
 	assert.Equal(t, [][]string{
-		{"0", "4.0", "2.0〜6.0", "1.0", "1.0〜1.0"},
-		{"40", "1.0", "1.0〜1.0", "0.0", "0.0〜0.0"},
+		{"0", "4.0", "2.0〜6.0", "2.0", "1.0〜3.0", "1.0", "1.0〜1.0"},
+		{"40", "1.0", "1.0〜1.0", "0.0", "0.0〜0.0", "0.0", "0.0〜0.0"},
 	}, rows)
 }

@@ -11,10 +11,17 @@ import (
 // nightTurns は夜から深夜までの時間帯を合わせた、1晩のターン数
 const nightTurns = float64(gc.TimeMidnight-gc.TimeNight+1) * float64(gc.TurnsPerTimeOfDay)
 
+// stayDays は1つのエリアに留まる日数の目安。鮮度の1段階がこれより長い食べ物は、留まる間は新鮮なまま食べられる
+const stayDays = 7
+
 // AreaSupply は拠点を置いたエリアの収納と地面にある、食べ物の栄養と燃やせる物の熱の合計
 type AreaSupply struct {
+	// Nutrition は全ての食べ物の栄養
 	Nutrition int
-	Heat      consts.Heat
+	// KeepingNutrition は鮮度の1段階が stayDays 日以上ある食べ物の栄養
+	KeepingNutrition int
+	// Heat は食べ物でない燃やせる物の熱。食べた物は燃やせないので、食べ物は数えない
+	Heat consts.Heat
 }
 
 // MeasureAreaSupply は world にある全てのアイテムの栄養と熱を足す。world には測るエリアだけを生成しておく
@@ -23,10 +30,15 @@ func MeasureAreaSupply(world w.World) AreaSupply {
 	q := ecs.NewFilter1[gc.Item](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.ProvidesNutrition.Has(e) {
-			s.Nutrition += world.Components.ProvidesNutrition.Get(e).Amount
+		if !world.Components.ProvidesNutrition.Has(e) {
+			s.Heat += query.HeatContent(world, e)
+			continue
 		}
-		s.Heat += query.HeatContent(world, e)
+		amount := world.Components.ProvidesNutrition.Get(e).Amount
+		s.Nutrition += amount
+		if !world.Components.Perishable.Has(e) || world.Components.Perishable.Get(e).StageLength >= stayDays*gc.TurnsPerDay {
+			s.KeepingNutrition += amount
+		}
 	}
 	return s
 }

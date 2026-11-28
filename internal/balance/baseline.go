@@ -624,24 +624,27 @@ func RenderAreaSupplyMarkdown(p Params, samples []AreaSupplySample) string {
 	var b strings.Builder
 	b.WriteString("## 拠点のエリアが何日もつか\n\n")
 	fmt.Fprintf(&b, "**概要**: 北の深さごとに帯と同じ形のエリアを種 %d 個で生成し、収納と地面にある食べ物と燃やせる物を数える。", len(seeds))
-	b.WriteString("食べ物は1日に減る満腹度で何日もつか、燃料は地面に直に起こした火を夜の間絶やさずに何晩もつかで表す。")
+	fmt.Fprintf(&b, "食べ物は1日に減る満腹度で何日もつか、燃料は地面に直に起こした火を夜の間絶やさずに何晩もつかで表す。うち腐らない物は、鮮度の1段階が%d日以上あり、留まる間は新鮮なまま食べられる物だけで数える。", stayDays)
 	b.WriteString("留まるほど赤字になるかを見る。施設も地上のチャンクに建つので、遠征で漁る物もこの数に含まれる。")
-	b.WriteString("燃える物を全て燃料に数え、襲撃で減る物を数えないので、どちらの日数も長めに出る。\n\n")
+	b.WriteString("食べ物は燃料に数えない。襲撃で減る物を数えないので、どちらの日数も長めに出る。\n\n")
 	rows := make([][]string, 0, len(depths))
 	for _, d := range depths {
 		food := make([]float64, 0, len(byDepth[d]))
+		keeping := make([]float64, 0, len(byDepth[d]))
 		fuel := make([]float64, 0, len(byDepth[d]))
 		for _, s := range byDepth[d] {
 			food = append(food, FoodDays(p, s.Nutrition))
+			keeping = append(keeping, FoodDays(p, s.KeepingNutrition))
 			fuel = append(fuel, FuelNights(s.Heat))
 		}
 		rows = append(rows, []string{
 			fmt.Sprintf("%d", d),
 			fmt.Sprintf("%.1f", median(food)), rangeText(food),
+			fmt.Sprintf("%.1f", median(keeping)), rangeText(keeping),
 			fmt.Sprintf("%.1f", median(fuel)), rangeText(fuel),
 		})
 	}
-	writeMDTable(&b, []string{"北の深さ(チャンク)", "食べ物 中央値(日)", "食べ物 幅(日)", "燃料 中央値(晩)", "燃料 幅(晩)"}, []tw.Align{alignR, alignR, alignR, alignR, alignR}, rows)
+	writeMDTable(&b, []string{"北の深さ(チャンク)", "食べ物 中央値(日)", "食べ物 幅(日)", "うち腐らない物 中央値(日)", "うち腐らない物 幅(日)", "燃料 中央値(晩)", "燃料 幅(晩)"}, []tw.Align{alignR, alignR, alignR, alignR, alignR, alignR, alignR}, rows)
 	return b.String()
 }
 
