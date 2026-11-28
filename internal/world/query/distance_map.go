@@ -14,7 +14,7 @@ func GetDistanceMap(world w.World) *gc.DistanceMap {
 		return nil
 	}
 	if !m.Built {
-		buildDistanceMap(world, m, RaidTargets(world))
+		buildDistanceMap(world, m, RaidTargets(world), gc.DistanceMapObstacleCost)
 	}
 	return m
 }
@@ -27,10 +27,20 @@ func InvalidateDistanceMap(world w.World) {
 	}
 }
 
+// BuildFollowDistanceMap は m を、プレイヤーからの距離の地図として作る。ついて行く者は置物を壊さないので、HP を持つ
+// 置物も通れないマスとして数える
+func BuildFollowDistanceMap(world w.World, m *gc.DistanceMap) {
+	var targets []consts.Coord[consts.Tile]
+	if player, err := GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(player) {
+		targets = append(targets, world.Components.GridElement.Get(player).Coord)
+	}
+	buildDistanceMap(world, m, targets, 0)
+}
+
 // buildDistanceMap は空間の索引と置物から各マスの重みを書き出し、的 targets から距離を広げる。通れるマスと、プレイヤーと
-// 味方のマスは重み1、HP を持つ通れない置物と、それ以外のキャラクターのマスは重み gc.DistanceMapObstacleCost で
-// 通れるものとして数える。HP を持たず通れない壁や地形は数えない
-func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[consts.Tile]) {
+// 味方のマスは重み1、それ以外のキャラクターのマスは重み gc.DistanceMapObstacleCost で通れるものとして数える。
+// HP を持つ通れない置物は重み propCost で、0 なら通れない。HP を持たず通れない壁や地形は数えない
+func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[consts.Tile], propCost int32) {
 	m.Built = true
 	si := GetSpatialIndex(world)
 	if si == nil {
@@ -50,7 +60,7 @@ func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[c
 	for q.Next() {
 		_, _, g := q.Get()
 		if m.InBounds(g.Coord) && m.Blocked[m.Index(g.Coord)] {
-			m.Cost[m.Index(g.Coord)] = gc.DistanceMapObstacleCost
+			m.Cost[m.Index(g.Coord)] = propCost
 		}
 	}
 	for g, e := range si.Characters {

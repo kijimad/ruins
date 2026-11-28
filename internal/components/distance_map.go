@@ -11,8 +11,8 @@ var distanceMapDirs = [...]consts.Coord[consts.Tile]{
 	{X: -1, Y: -1}, {X: 1, Y: -1}, {X: -1, Y: 1}, {X: 1, Y: 1},
 }
 
-// DistanceMap は狙う的から現ステージの各マスへの、重み付きの距離を保持するシングルトン。動き方が converge の敵はこの値が小さくなる
-// 隣へ進む。群れの全員が同じ1枚を下るので、敵ごとに道を探さずに済む
+// DistanceMap は狙う的から現ステージの各マスへの、重み付きの距離を保持する。動き方が converge の敵や、ついて行く者はこの値が
+// 小さくなる隣へ進む。全員が同じ1枚を下るので、1体ごとに道を探さずに済む
 type DistanceMap struct {
 	Width, Height consts.Tile
 	// Cost は各マスへ入る重み。添字は y*Width+x。0 は通れない。Reset と Spread の間でだけ書く
