@@ -952,3 +952,47 @@ func TestUseTabMenu_Pagination_短い末尾のページへは下の行からも�
 	mount.Update()
 	assert.Equal(t, TabMenuState{ItemIndex: 4, Page: 1}, result)
 }
+
+func TestTurnPage_左右キーは繰った先のページの中で選べる行を探す(t *testing.T) {
+	t.Parallel()
+	// 1ページ3行。2ページ目は見出し・選べる・見出し、3ページ目は全て見出し
+	nav := &tabMenuNav{config: TabMenuConfig{
+		TabCount:     1,
+		ItemCounts:   []int{9},
+		ItemsPerPage: 3,
+		Skips:        [][]bool{{false, false, false, true, false, true, true, true, true}},
+	}}
+
+	tests := []struct {
+		name string
+		move func(TabMenuState) TabMenuState
+		from int
+		want int
+	}{
+		{"右で先頭が見出しなら下の選べる行へ", nav.right, 0, 4},
+		{"右で下が見出しなら上の選べる行へ", nav.right, 2, 4},
+		{"右で次のページが全て見出しなら繰らない", nav.right, 4, 4},
+		{"左で先頭が見出しなら下の選べる行へ", nav.left, 6, 4},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, TabMenuState{ItemIndex: tt.want}, tt.move(TabMenuState{ItemIndex: tt.from}))
+		})
+	}
+}
+
+func TestTurnPage_短い末尾のページから左で同じ位置の行へ戻る(t *testing.T) {
+	t.Parallel()
+	nav := &tabMenuNav{config: TabMenuConfig{TabCount: 1, ItemCounts: []int{5}, ItemsPerPage: 3}}
+
+	assert.Equal(t, TabMenuState{ItemIndex: 1}, nav.left(TabMenuState{ItemIndex: 4}))
+}
+
+func TestTurnPage_ページ送りが無効なら左右で動かない(t *testing.T) {
+	t.Parallel()
+	nav := &tabMenuNav{config: TabMenuConfig{TabCount: 1, ItemCounts: []int{5}}}
+	s := TabMenuState{ItemIndex: 2}
+
+	assert.Equal(t, []TabMenuState{s, s}, []TabMenuState{nav.left(s), nav.right(s)})
+}

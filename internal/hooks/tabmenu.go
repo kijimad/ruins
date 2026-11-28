@@ -151,18 +151,39 @@ func (n *tabMenuNav) down(s TabMenuState) TabMenuState {
 
 // left はページを1つ前へ繰る。ページ送りが無効か先頭ページなら何もしない
 func (n *tabMenuNav) left(s TabMenuState) TabMenuState {
-	if n.config.ItemsPerPage > 0 && s.ItemIndex >= n.config.ItemsPerPage {
-		return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.skipNext(s.TabIndex, s.ItemIndex-n.config.ItemsPerPage, 1)}
+	per := n.config.ItemsPerPage
+	if per <= 0 || s.ItemIndex < per {
+		return s
 	}
-	return s
+	return n.turnPage(s, s.ItemIndex-per)
 }
 
-// right はページを1つ次へ繰る。次のページが短ければその末尾の行へ寄せる。ページ送りが無効か末尾ページなら何もしない
+// right はページを1つ次へ繰る。ページ送りが無効か末尾ページなら何もしない。
+// 次のページが短ければその末尾の行へ寄せる
 func (n *tabMenuNav) right(s TabMenuState) TabMenuState {
 	count := n.itemCountForTab(s.TabIndex)
 	per := n.config.ItemsPerPage
-	if per > 0 && (s.ItemIndex/per+1)*per < count {
-		return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.nearestSelectable(s.TabIndex, min(s.ItemIndex+per, count-1))}
+	if per <= 0 || (s.ItemIndex/per+1)*per >= count {
+		return s
+	}
+	return n.turnPage(s, min(s.ItemIndex+per, count-1))
+}
+
+// turnPage は target のページの中で target から下へ、無ければ上へ探した最初の選べる行へ移る。
+// ページの行がどれも選べなければ繰らずに s を返す
+func (n *tabMenuNav) turnPage(s TabMenuState, target int) TabMenuState {
+	per := n.config.ItemsPerPage
+	start := target / per * per
+	end := min(start+per, n.itemCountForTab(s.TabIndex))
+	for i := target; i < end; i++ {
+		if !n.isSkip(s.TabIndex, i) {
+			return TabMenuState{TabIndex: s.TabIndex, ItemIndex: i}
+		}
+	}
+	for i := target - 1; i >= start; i-- {
+		if !n.isSkip(s.TabIndex, i) {
+			return TabMenuState{TabIndex: s.TabIndex, ItemIndex: i}
+		}
 	}
 	return s
 }
