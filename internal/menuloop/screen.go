@@ -36,7 +36,8 @@ type Selection struct {
 // 測るのは見出し無し・タブ帯ありの構成で、見出しを持つ画面は ItemsPerPageAutoHeader を使う
 const ItemsPerPageAuto = -1
 
-// ItemsPerPageAutoHeader は ItemsPerPageAuto の見出し・タブ帯つきモーダル版
+// ItemsPerPageAutoHeader は ItemsPerPageAuto の見出し・タブ帯つきモーダル版。
+// 測った値は Screen ごとに1つだけ覚えるので、1つの画面では2つの番兵のどちらか一方だけを使う
 const ItemsPerPageAutoHeader = -2
 
 // MenuConfig は Fetch 済みの props から決まるメニュー構成。state 固有差をここで吸収する。
