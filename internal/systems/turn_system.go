@@ -11,7 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/raidmap"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -31,10 +30,7 @@ import (
 // 敵・時間の進行も毎ターンの中断判定も保たれ、ゲーム上の結果は1フレーム1ターンと変わらない。
 // 縮むのは実時間で、省かれるのは途中ターンの描画だけ。継続中の入力は DungeonState が
 // HasActivity で塞ぐため、フェーズが Player のままでも操作は受け付けない。
-type TurnSystem struct {
-	// raidMap は襲撃の敵が下る距離の地図の配列。AI の手番ごとに作る Processor へ渡して使い回す
-	raidMap *raidmap.Map
-}
+type TurnSystem struct{}
 
 // String はシステム名を返す
 // w.Updater interfaceを実装
@@ -71,7 +67,7 @@ func (sys *TurnSystem) Update(world w.World) error {
 		}
 		// プレイヤー入力処理はDungeonStateで実行される
 	case gc.TurnPhaseAI:
-		if err := runAIPhase(world, sys.raidBuffer()); err != nil {
+		if err := runAIPhase(world); err != nil {
 			return err
 		}
 		turnState.Phase = gc.TurnPhaseEnd
@@ -96,7 +92,7 @@ func (sys *TurnSystem) fastForwardActivity(world w.World, turnState *gc.TurnStat
 		if _, err := processPlayerContinuousActivity(world); err != nil {
 			return err
 		}
-		if err := runAIPhase(world, sys.raidBuffer()); err != nil {
+		if err := runAIPhase(world); err != nil {
 			return err
 		}
 		if err := runEndPhase(world, turnState); err != nil {
@@ -110,12 +106,12 @@ func (sys *TurnSystem) fastForwardActivity(world w.World, turnState *gc.TurnStat
 }
 
 // runAIPhase は全AI・NPCを一括処理し、視界の再計算を要求する。
-func runAIPhase(world w.World, raidMap *raidmap.Map) error {
+func runAIPhase(world w.World) error {
 	region := trace.StartRegion(context.Background(), "turn:AI")
 	defer region.End()
 
 	// AIターン: 全AI・NPCを一括処理
-	if err := processAITurn(world, raidMap); err != nil {
+	if err := processAITurn(world); err != nil {
 		return err
 	}
 	// AIターン完了後に視界を再計算させる
@@ -199,20 +195,12 @@ func shouldAutoEndTurn(world w.World) bool {
 	return turnBased.AP.Current < consts.MinActionThreshold
 }
 
-// raidBuffer は手番をまたいで使い回す距離の地図の配列を返す
-func (sys *TurnSystem) raidBuffer() *raidmap.Map {
-	if sys.raidMap == nil {
-		sys.raidMap = &raidmap.Map{}
-	}
-	return sys.raidMap
-}
-
 // processAITurn はAIターンの処理を行う
-func processAITurn(world w.World, raidMap *raidmap.Map) error {
+func processAITurn(world w.World) error {
 	log := logger.New(logger.CategoryTurn)
 	log.Debug("AI turn processing start")
 
-	processor := aiinput.NewProcessor(world.Resources.Config.RNG, aiinput.WithRaidMap(raidMap))
+	processor := aiinput.NewProcessor(world.Resources.Config.RNG)
 	if err := processor.ProcessAll(world); err != nil {
 		return err
 	}

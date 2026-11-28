@@ -6,7 +6,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
-	"github.com/kijimaD/ruins/internal/raidmap"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -33,9 +32,7 @@ const (
 // RaidSystem は周期ごとの襲撃の夜を進める。襲撃の日の夜明けに予告し、波のターンに中心を囲んで敵を湧かせる。
 // 湧いた敵の動き方は rawschema.Raid のまま変えず、夜が明けても錨を狙い続ける。予告はどこでも出し、波は地上が
 // 現ステージのときだけ湧かせる
-type RaidSystem struct {
-	raidMap *raidmap.Map
-}
+type RaidSystem struct{}
 
 // String はシステム名を返す
 func (sys *RaidSystem) String() string {
@@ -73,8 +70,9 @@ func (sys *RaidSystem) spawnWave(world w.World, wave int) error {
 	if err != nil {
 		return err
 	}
-	sys.raidMap = raidmap.Build(world, targets, sys.raidMap)
-	tiles := raidSpawnTiles(world, sys.raidMap, center, count)
+	// 湧かせる前の世界で、的まで道がつながるマスを選ぶ。手番の地図は敵の手番の初めに作り直される
+	query.InvalidateRaidMap(world)
+	tiles := raidSpawnTiles(world, query.GetRaidMap(world), center, count)
 	rng := world.Resources.Config.RNG
 	spawned := 0
 	for _, tile := range tiles {
@@ -134,7 +132,7 @@ func raidWaveSize(total, wave int) int {
 // raidPlayerMin 以上離れ、距離の地図で中心まで道がつながり、通れて誰もいないマスに限る。プレイヤーから離すのは、
 // 暗がりや壁の裏でプレイヤーの隣に湧かせず、群れが寄ってくるのを見せるため。足りなければ輪を外へ広げ、地図の端まで
 // 広げても足りなければ見つかった分だけ返す
-func raidSpawnTiles(world w.World, m *raidmap.Map, center consts.Coord[consts.Tile], count int) []consts.Coord[consts.Tile] {
+func raidSpawnTiles(world w.World, m *gc.RaidMap, center consts.Coord[consts.Tile], count int) []consts.Coord[consts.Tile] {
 	si := query.GetSpatialIndex(world)
 	if si == nil || count <= 0 {
 		return nil

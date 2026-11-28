@@ -115,6 +115,7 @@ var Registry = []Def{
 	{Field: "Dungeon"},       // ダンジョン状態を保持するシングルトン
 	{Field: "TurnState"},     // ターン状態を保持するシングルトン
 	{Field: "SpatialIndex"},  // 空間インデックスを保持するシングルトン
+	{Field: "RaidMap"},       // 襲撃の敵が下る距離の地図を保持するシングルトン
 	{Field: "HandSelection"}, // 選択中の手持ち欄を保持するシングルトン
 	{Field: "GameTime"},      // ゲーム内時間を保持するシングルトン
 	{Field: "Weather"},       // 世界全体の天候を保持するシングルトン。serde 保存

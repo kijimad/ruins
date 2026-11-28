@@ -3,13 +3,11 @@ package aiinput
 import (
 	"fmt"
 	"math/rand/v2"
-	"slices"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/raidmap"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -29,30 +27,16 @@ const activationRadius = int(consts.VisionRadiusTiles) + activationMargin
 // SoloAI エンティティを soloPlanner で処理する
 type Processor struct {
 	logger  *logger.Logger
-	planner *soloPlanner
-	// raidMap は襲撃の敵が下る距離の地図の配列。WithRaidMap で渡せば、手番をまたいで使い回す
-	raidMap *raidmap.Map
-}
-
-// ProcessorOption は Processor の作り方を変える
-type ProcessorOption func(*Processor)
-
-// WithRaidMap は距離の地図の配列 m を使い回させる。Processor は手番ごとに作るので、長く生きる側が持って渡す
-func WithRaidMap(m *raidmap.Map) ProcessorOption {
-	return func(p *Processor) { p.raidMap = m }
+	planner Planner
 }
 
 // NewProcessor は新しいProcessorを作成する。
 // rngはゲーム全体のseedから派生した乱数生成器を渡す
-func NewProcessor(rng *rand.Rand, opts ...ProcessorOption) *Processor {
-	p := &Processor{
+func NewProcessor(rng *rand.Rand) *Processor {
+	return &Processor{
 		logger:  logger.New(logger.CategoryTurn),
 		planner: newSoloPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
 	}
-	for _, opt := range opts {
-		opt(p)
-	}
-	return p
 }
 
 // ProcessAll は全 SoloAI エンティティを soloPlanner で処理する。
@@ -69,7 +53,8 @@ func (p *Processor) ProcessAll(world w.World) error {
 		return err
 	}
 	targets = culled
-	p.planner.raidMap = p.buildRaidMap(world, targets)
+	// 襲撃の敵は手番の初めの距離の地図を全員で下る。前の手番の地図を捨て、最初に引いた敵が作る
+	query.InvalidateRaidMap(world)
 
 	for _, entity := range targets {
 		if world.Components.Dead.Has(entity) {
@@ -81,16 +66,6 @@ func (p *Processor) ProcessAll(world w.World) error {
 	}
 
 	return nil
-}
-
-// buildRaidMap は targets に動き方が rawschema.Raid の敵がいれば、query.RaidTargets の的からの距離の地図を作って返す。
-// いなければ nil を返す
-func (p *Processor) buildRaidMap(world w.World, targets []ecs.Entity) *raidmap.Map {
-	if !slices.ContainsFunc(targets, func(e ecs.Entity) bool { return isRaider(world, e) }) {
-		return nil
-	}
-	p.raidMap = raidmap.Build(world, query.RaidTargets(world), p.raidMap)
-	return p.raidMap
 }
 
 // cullDistantSolo は遠方の非交戦 SoloAI を処理対象から除外する。
@@ -125,9 +100,4 @@ func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) 
 // 交戦中の敵は視界外でも追い続ける設計のため距離カリングの対象外とする
 func isActiveCombatState(s gc.AIStateSubState) bool {
 	return s == gc.AIStateChasing || s == gc.AIStateFleeing
-}
-
-// isRaider は e の動き方が rawschema.Raid かを返す
-func isRaider(world w.World, e ecs.Entity) bool {
-	return world.Components.SoloAI.Has(e) && world.Components.SoloAI.Get(e).Movement == rawschema.Raid
 }

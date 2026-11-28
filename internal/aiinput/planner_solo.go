@@ -9,7 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/raidmap"
 	"github.com/kijimaD/ruins/internal/rawschema"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -30,8 +29,6 @@ type soloPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
 	rng          *rand.Rand
-	// raidMap はこの手番で襲撃の敵が下る距離の地図。Processor が手番の初めに渡す。襲撃の敵がいなければ nil
-	raidMap *raidmap.Map
 }
 
 func newSoloPlanner(rng *rand.Rand) *soloPlanner {
@@ -424,12 +421,13 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 // 距離の地図で一番小さい隣を順に試す。狙う的か仲間でないキャラクターなら殴り、HP を持つ置物なら壊し、空いていれば
 // 進む。仲間に塞がれた隣は飛ばし、試す隣が残らなければ待つ
 func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
+	m := query.GetRaidMap(world)
 	var buf [8]consts.Coord[consts.Tile]
 	var steps []consts.Coord[consts.Tile]
-	if rp.raidMap != nil {
-		steps = rp.raidMap.Steps(grid.Coord, buf[:0])
+	if m != nil {
+		steps = m.Steps(grid.Coord, buf[:0])
 	}
-	if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) && rp.closerThanRaidTarget(world, grid, steps, *target) {
+	if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) && closerThanRaidTarget(world, m, grid, steps, *target) {
 		return rp.planChaseAction(world, entity, *target, grid)
 	}
 	si := query.GetSpatialIndex(world)
@@ -453,18 +451,18 @@ func (rp *soloPlanner) planRaidAction(world w.World, entity ecs.Entity, solo *gc
 	return waitAction()
 }
 
-// closerThanRaidTarget は相手 target が、距離の地図の的より近いかを返す。的までの距離は一番近い下る隣 steps[0] の
+// closerThanRaidTarget は相手 target が、距離の地図 m の的より近いかを返す。的までの距離は一番近い下る隣 steps[0] の
 // 値に1を足して測る。自分の立つマスの値は、自分がいることで重く数えられているので使わない。地図で下れない、
 // すなわち地図の届かないマスにいるか的の上にいるなら、見えた相手を追う。相手が的の上にいるなら、地図が扉や置物を
 // 壊す道で導くので追わない
-func (rp *soloPlanner) closerThanRaidTarget(world w.World, grid *gc.GridElement, steps []consts.Coord[consts.Tile], target ecs.Entity) bool {
+func closerThanRaidTarget(world w.World, m *gc.RaidMap, grid *gc.GridElement, steps []consts.Coord[consts.Tile], target ecs.Entity) bool {
 	if len(steps) == 0 {
 		return true
 	}
 	at := world.Components.GridElement.Get(target).Coord
-	if d, ok := rp.raidMap.Dist(at); ok && d == 0 {
+	if d, ok := m.Dist(at); ok && d == 0 {
 		return false
 	}
-	toTarget, _ := rp.raidMap.Dist(steps[0])
+	toTarget, _ := m.Dist(steps[0])
 	return geometry.ChebyshevDistance(grid.Coord, at) < int(toTarget)+1
 }
