@@ -439,7 +439,7 @@
 				
 				<option value="file191">github.com/kijimaD/ruins/internal/overworld/area.go (58.3%)</option>
 				
-				<option value="file192">github.com/kijimaD/ruins/internal/overworld/building.go (98.0%)</option>
+				<option value="file192">github.com/kijimaD/ruins/internal/overworld/building.go (98.1%)</option>
 				
 				<option value="file193">github.com/kijimaD/ruins/internal/overworld/chunkgen.go (76.5%)</option>
 				
@@ -453,13 +453,13 @@
 				
 				<option value="file198">github.com/kijimaD/ruins/internal/overworld/facility_loot.go (83.3%)</option>
 				
-				<option value="file199">github.com/kijimaD/ruins/internal/overworld/facility_template.go (90.3%)</option>
+				<option value="file199">github.com/kijimaD/ruins/internal/overworld/facility_template.go (90.2%)</option>
 				
 				<option value="file200">github.com/kijimaD/ruins/internal/overworld/feature.go (88.9%)</option>
 				
 				<option value="file201">github.com/kijimaD/ruins/internal/overworld/grass_density.go (100.0%)</option>
 				
-				<option value="file202">github.com/kijimaD/ruins/internal/overworld/lake.go (92.2%)</option>
+				<option value="file202">github.com/kijimaD/ruins/internal/overworld/lake.go (94.2%)</option>
 				
 				<option value="file203">github.com/kijimaD/ruins/internal/overworld/landmark.go (83.3%)</option>
 				
@@ -493,7 +493,7 @@
 				
 				<option value="file218">github.com/kijimaD/ruins/internal/overworld/settlement.go (91.5%)</option>
 				
-				<option value="file219">github.com/kijimaD/ruins/internal/overworld/urban.go (91.2%)</option>
+				<option value="file219">github.com/kijimaD/ruins/internal/overworld/urban.go (92.0%)</option>
 				
 				<option value="file220">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
@@ -501,7 +501,7 @@
 				
 				<option value="file222">github.com/kijimaD/ruins/internal/raw/raw.go (97.1%)</option>
 				
-				<option value="file223">github.com/kijimaD/ruins/internal/raw/validate.go (98.0%)</option>
+				<option value="file223">github.com/kijimaD/ruins/internal/raw/validate.go (98.1%)</option>
 				
 				<option value="file224">github.com/kijimaD/ruins/internal/rawschema/models_gen.go (0.4%)</option>
 				
@@ -26078,6 +26078,9 @@ import (
 // errRoomSizeMismatch は部屋の絵の大きさがチャンクから帯を引いた大きさと一致しないときに返す
 var errRoomSizeMismatch = errors.New("room template size does not match the chunk")
 
+// errRoomFacilityNotNorthWater は回せない部屋の絵の施設が、北でない側の湖に接する区画に建つときに返す
+var errRoomFacilityNotNorthWater = errors.New("room facility lot faces water on a side other than north")
+
 // buildingLot は区域の中の建物の区画。区域の中の座標 anchor から w×h チャンク広がり、施設を1つ建てる
 type buildingLot struct {
         facility string
@@ -26085,10 +26088,13 @@ type buildingLot struct {
         w, h     consts.Chunk
         interior rawschema.FacilityInterior
         seed     uint64
+        // facesWater なら1棟の絵を左回りに turns 回だけ回し、北の辺を接する湖へ向ける。部屋の絵は回さないので、turns が0でなければ生成で止める
+        facesWater bool
+        turns      int
 }
 
 // lotsOf は区域 r を建物の区画で埋める。左上のチャンクから順に、未割り当てのチャンクの地区で施設を引き、
-// 施設の大きさの候補を重みで引く。区画は同じ地区で未割り当てのチャンクだけに収まるまで小さくする。
+// 施設の大きさの候補を重みで引く。区画は同じ地区で未割り当てのチャンクだけに収まるまで小さくする。入口のチャンクが湖に接する区画は、その向きを持つ。
 // 施設の深さの足切りには、深さの起点の行 spawnRow から測った区域の北の端の危険度を使う。区域の中で足切りを揃えるため、チャンクごとには測らない
 func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow consts.Chunk) []buildingLot {
         <span class="cov8" title="1">danger := query.DangerLevelForDepth(consts.NorthDepth(spawnRow, r.anchor.Y))
@@ -26124,7 +26130,11 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
                                 <span class="cov8" title="1">taken[anchor.Add(consts.Coord[consts.Chunk]{X: dx, Y: dy})] = true
 </span>                        }
                 }
-                <span class="cov8" title="1">lots = append(lots, buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: consts.Mix2D(r.seed, anchor.X, anchor.Y)})</span>
+                <span class="cov8" title="1">lot := buildingLot{facility: f.Id, anchor: anchor, w: w, h: h, interior: interior, seed: consts.Mix2D(r.seed, anchor.X, anchor.Y)}
+                if d, ok := r.waterSide(anchor.Add(lot.entrance())); ok </span>{
+                        <span class="cov8" title="1">lot.facesWater, lot.turns = true, quarterTurnsToward(d)
+</span>                }
+                <span class="cov8" title="1">lots = append(lots, lot)</span>
         }
         <span class="cov8" title="1">if f, ok := facilities[r.landmark()]; ok </span>{
                 <span class="cov8" title="1">if anchor, w, h, ok := landmarkLot(r, f, fits); ok </span>{
@@ -26158,8 +26168,8 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
         <span class="cov8" title="1">return lots</span>
 }
 
-// landmarkLot は区域の目玉の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、
-// 地区に収まるものを選ぶ。区域の作りがその地区を割り振らなければ置かない
+// landmarkLot は区域の主の施設 f を、施設が建つ地区の真ん中へ置く区画を返す。大きさは候補のうち一番大きい面積から順に、候補が無ければ 1×1 で、
+// 地区に収まるものを選ぶ。真ん中に建てられなければ、同じ順の大きさで真ん中に一番近い建てられる区画に置き、同じ近さなら北の、次に西の区画を選ぶ。区域の作りがその地区を割り振らないか、どの大きさの候補も入らなければ置かない
 func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool) (consts.Coord[consts.Chunk], consts.Chunk, consts.Chunk, bool) {
         <span class="cov8" title="1">for _, fz := range f.Zones </span>{
                 <span class="cov8" title="1">var cells []consts.Coord[consts.Chunk]
@@ -26186,6 +26196,19 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
                         y := minC.Y + (maxC.Y-minC.Y+1-h)/2
                         if x &gt;= 0 &amp;&amp; y &gt;= 0 &amp;&amp; fits(x, y, w, h, fz.Zone) </span>{
                                 <span class="cov8" title="1">return consts.Coord[consts.Chunk]{X: x, Y: y}, w, h, true
+</span>                        }
+                }
+                <span class="cov8" title="1">for _, fp := range fps </span>{
+                        <span class="cov8" title="1">w, h := consts.Chunk(fp.W), consts.Chunk(fp.H)
+                        best, bestDist := consts.Coord[consts.Chunk]{}, -1
+                        for _, c := range cells </span>{
+                                <span class="cov8" title="1">dx, dy := int(2*c.X+w-1-minC.X-maxC.X), int(2*c.Y+h-1-minC.Y-maxC.Y)
+                                if d := dx*dx + dy*dy; fits(c.X, c.Y, w, h, fz.Zone) &amp;&amp; (bestDist &lt; 0 || d &lt; bestDist) </span>{
+                                        <span class="cov8" title="1">best, bestDist = c, d
+</span>                                }
+                        }
+                        <span class="cov8" title="1">if bestDist &gt;= 0 </span>{
+                                <span class="cov8" title="1">return best, w, h, true
 </span>                        }
                 }
         }
@@ -26257,6 +26280,11 @@ func lotAt(lots []buildingLot, l consts.Coord[consts.Chunk]) buildingLot {
         <span class="cov0" title="0">panic(fmt.Sprintf("no lot covers %v", l))</span>
 }
 
+// entrance は区画の中で入口の扉を開けるチャンクを返す。北の辺の真ん中の列
+func (b buildingLot) entrance() consts.Coord[consts.Chunk] {
+        <span class="cov8" title="1">return consts.Coord[consts.Chunk]{X: b.w / 2}
+</span>}
+
 // roomEdges は区画の中の座標 l のチャンクの、北・東・南・西の辺の種類を返す。区画の外へ向く辺は壁で、
 // 北の辺の真ん中の列にだけ入口の扉を開ける。区画の内側の辺は、hall なら吹き抜け、rooms なら迷路の扉か壁
 func (b buildingLot) roomEdges(l consts.Coord[consts.Chunk]) [4]maptemplate.EdgeKind {
@@ -26283,7 +26311,7 @@ func (b buildingLot) roomEdges(l consts.Coord[consts.Chunk]) [4]maptemplate.Edge
                 edge(consts.Coord[consts.Chunk]{Y: 1}),
                 edge(consts.Coord[consts.Chunk]{X: -1}),
 </span>        }
-        <span class="cov8" title="1">if l.Y == 0 &amp;&amp; l.X == b.w/2 </span>{
+        <span class="cov8" title="1">if l == b.entrance() </span>{
                 <span class="cov8" title="1">edges[0] = maptemplate.EdgeDoor
 </span>        }
         <span class="cov8" title="1">return edges</span>
@@ -26665,7 +26693,7 @@ func (r districtRegion) local(c consts.Coord[consts.Chunk]) consts.Coord[consts.
         <span class="cov8" title="1">return c.Sub(r.anchor)
 </span>}
 
-// landmark は区域に1つだけ建てる目玉の施設を返す。無ければ空
+// landmark は区域に1つだけ建てる主の施設を返す。無ければ空
 func (r districtRegion) landmark() string {
         <span class="cov8" title="1">if r.kind.Landmark == nil </span>{
                 <span class="cov8" title="1">return ""
@@ -27190,13 +27218,14 @@ var (
 
 // planFacility は施設 fac の絵を1枚選んで展開する。絵は入口を北に向けて描いてあり、rng で半々に左へ90度回して入口を西の街路へ向ける。左右の反転も半々で選ぶ
 func planFacility(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand) ([][]maptemplate.MapCell, error) {
+        <span class="cov8" title="1">return planFacilityTurned(loader, fac, seed, rng, 1-rng.IntN(2))
+</span>}
+
+// planFacilityTurned は施設 fac の絵を1枚選び、左回りに turns 回だけ回して展開する。左右の反転は rng で半々に選ぶ
+func planFacilityTurned(loader *maptemplate.TemplateLoader, fac string, seed uint64, rng *rand.Rand, turns int) ([][]maptemplate.MapCell, error) {
         <span class="cov8" title="1">_, cells, err := loader.FacilityChunk(fac, seed)
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, err
-</span>        }
-        <span class="cov8" title="1">turns := 0
-        if rng.IntN(2) == 0 </span>{
-                <span class="cov8" title="1">turns = 1
 </span>        }
         <span class="cov8" title="1">return maptemplate.TransformCells(cells, turns, rng.IntN(2) == 0), nil</span>
 }
@@ -27648,7 +27677,7 @@ const lakeNoiseChannel uint64 = 0x6c616b655f6e7a // "lake_nz"
 // waterAt は区域の中の座標 l の層が湖を描く層なら、その水面を返す。区域の外と、湖を描かない層は nil
 func (r districtRegion) waterAt(l consts.Coord[consts.Chunk]) *rawschema.DistrictWater {
         <span class="cov8" title="1">if !r.contains(r.anchor.Add(l)) </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">return r.kind.Layers[r.layerAt(l)].Water</span>
 }
@@ -27669,8 +27698,8 @@ type lakeShape struct {
 // errLakeTooSmall は湖を描く層が、輪郭の揺れと浜の幅を引くと楕円が残らないほど小さいときに返す
 var errLakeTooSmall = errors.New("lake layer is too small for its shore wobble and beach width")
 
-// lakeShapeOf は区域 r の湖の輪郭と桟橋を返す。楕円は揺れの量と浜の幅だけ内側に取り、湖が隣の層へはみ出さず、湖の層の縁に岸の陸を残す。湖が無ければ ok=false
-func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool, error) {
+// lakeShapeOf は区域 r の湖の輪郭と、区画 lots から伸ばす桟橋を返す。楕円は揺れの量と浜の幅だけ内側に取り、湖が隣の層へはみ出さず、湖の層の縁に岸の陸を残す。湖が無ければ ok=false
+func (r districtRegion) lakeShapeOf(lots []buildingLot, chunkW, chunkH consts.Tile) (lakeShape, bool, error) {
         <span class="cov8" title="1">var water *rawschema.DistrictWater
         lo := consts.Coord[consts.Chunk]{X: r.w, Y: r.h}
         var hi consts.Coord[consts.Chunk]
@@ -27701,23 +27730,44 @@ func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool
         <span class="cov8" title="1">if s.rx &lt;= 0 || s.ry &lt;= 0 </span>{
                 <span class="cov8" title="1">return lakeShape{}, false, fmt.Errorf("district %q: %w", r.kind.Id, errLakeTooSmall)
 </span>        }
-        <span class="cov8" title="1">for l := range r.buildSet() </span>{
-                <span class="cov8" title="1">s.addPier(r, l, chunkW, chunkH)
+        <span class="cov8" title="1">for _, b := range lots </span>{
+                <span class="cov8" title="1">s.addPier(r, b.anchor.Add(b.entrance()), chunkW, chunkH)
 </span>        }
         <span class="cov8" title="1">return s, true, nil</span>
 }
 
-// addPier は施設を建てたチャンク l の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める
-func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) {
+// waterSide は区域の中の座標 l に接する湖の向きを、北・南・西・東の順に最初に見つけたもので返す
+func (r districtRegion) waterSide(l consts.Coord[consts.Chunk]) (consts.Coord[consts.Chunk], bool) {
         <span class="cov8" title="1">for _, d := range []consts.Coord[consts.Chunk]{{Y: -1}, {Y: 1}, {X: -1}, {X: 1}} </span>{
-                <span class="cov8" title="1">if r.waterAt(l.Add(d)) == nil </span>{
-                        <span class="cov0" title="0">continue</span>
-                }
-                <span class="cov8" title="1">c := r.anchor.Add(l)
-                center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW) + chunkW/2, Y: c.Y.Tiles(chunkH) + chunkH/2}
-                s.layPier(center, consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}, max(r.w.Tiles(chunkW), r.h.Tiles(chunkH)))
-                return</span>
+                <span class="cov8" title="1">if r.waterAt(l.Add(d)) != nil </span>{
+                        <span class="cov8" title="1">return d, true
+</span>                }
         }
+        <span class="cov8" title="1">return consts.Coord[consts.Chunk]{}, false</span>
+}
+
+// quarterTurnsToward は北を向いた絵を向き d へ向けるのに要る左回りの90度の回数を返す。d は上下左右の1マスで、北なら0
+func quarterTurnsToward(d consts.Coord[consts.Chunk]) int {
+        <span class="cov8" title="1">switch d </span>{
+        case consts.Coord[consts.Chunk]{X: -1}:
+                <span class="cov8" title="1">return 1</span>
+        case consts.Coord[consts.Chunk]{Y: 1}:
+                <span class="cov8" title="1">return 2</span>
+        case consts.Coord[consts.Chunk]{X: 1}:
+                <span class="cov8" title="1">return 3</span>
+        }
+        <span class="cov8" title="1">return 0</span>
+}
+
+// addPier は区画の入口のチャンク l に置いた施設の絵の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める
+func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) {
+        <span class="cov8" title="1">d, ok := r.waterSide(l)
+        if !ok </span>{
+                <span class="cov0" title="0">return
+</span>        }
+        <span class="cov8" title="1">c := r.anchor.Add(l)
+        center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW), Y: c.Y.Tiles(chunkH)}.Add(facilityArtCenter(chunkW, chunkH))
+        s.layPier(center, consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}, max(r.w.Tiles(chunkW), r.h.Tiles(chunkH)))</span>
 }
 
 // layPier は from から step の向きへ、輪郭の内側に幅2の板を張る。深い水へ pierLength だけ入るか、湖の中心を越えるか、
@@ -27775,7 +27825,8 @@ func (s lakeShape) tileAt(p consts.Coord[consts.Tile]) (string, bool) {
 
 // renderLakeChunk はチャンク c の湖の輪郭の内側に水面と桟橋を置く。輪郭の外は下地の土を残す
 func renderLakeChunk(world w.World, g chunkGeom, r districtRegion, c consts.Coord[consts.Chunk]) error {
-        <span class="cov8" title="1">shape, ok, err := r.lakeShapeOf(g.chunkW, g.chunkH)
+        <span class="cov8" title="1">raws := world.Resources.RawMaster
+        shape, ok, err := r.lakeShapeOf(lotsOf(raws, zoneCatalogFrom(raws), r, spawnRowOf(world)), g.chunkW, g.chunkH)
         if err != nil || !ok </span>{
                 <span class="cov0" title="0">return err
 </span>        }
@@ -30372,7 +30423,7 @@ const zoneChoiceShift = 32
 func (r districtRegion) zoneAt(l consts.Coord[consts.Chunk]) rawschema.ZoneId {
         <span class="cov8" title="1">zones := raw.PtrSlice(r.kind.Layers[r.layerAt(l)].Zones)
         if len(zones) == 0 </span>{
-                <span class="cov0" title="0">return ""
+                <span class="cov8" title="1">return ""
 </span>        }
         <span class="cov8" title="1">return zones[(r.seed&gt;&gt;zoneChoiceShift)%uint64(len(zones))]</span>
 }
@@ -30578,6 +30629,9 @@ func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, enemies consts.Di
 func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot buildingLot, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile, seed uint64, rng *rand.Rand, streets streetTiles) ([][]maptemplate.MapCell, consts.Tile, error) {
         <span class="cov8" title="1">isTall, blocks := tileIsTall(raws), tileBlocksPass(raws)
         if loader.HasRooms(lot.facility) </span>{
+                <span class="cov8" title="1">if lot.facesWater &amp;&amp; lot.turns != 0 </span>{
+                        <span class="cov8" title="1">return nil, 0, fmt.Errorf("facility %q faces water with %d turns: %w", lot.facility, lot.turns, errRoomFacilityNotNorthWater)
+</span>                }
                 <span class="cov8" title="1">cells, err := roomChunkCells(loader, lot, l, chunkW, chunkH, streets, isTall)
                 if err != nil </span>{
                         <span class="cov0" title="0">return nil, 0, fmt.Errorf("failed to plan facility %q room: %w", lot.facility, err)
@@ -30589,14 +30643,26 @@ func planUrbanChunk(raws rawschema.Raws, loader *maptemplate.TemplateLoader, lot
 </span>                })
                 <span class="cov8" title="1">return cells, 0, nil</span>
         }
-        <span class="cov8" title="1">cells, err := planFacility(loader, lot.facility, rand.New(rand.NewPCG(seed, 0x3)).Uint64(), rng)
-        if err != nil </span>{
+        <span class="cov8" title="1">artSeed := rand.New(rand.NewPCG(seed, 0x3)).Uint64()
+        var cells [][]maptemplate.MapCell
+        var err error
+        if lot.facesWater </span>{
+                <span class="cov8" title="1">cells, err = planFacilityTurned(loader, lot.facility, artSeed, rng, lot.turns)
+</span>        } else {
+                <span class="cov8" title="1">cells, err = planFacility(loader, lot.facility, artSeed, rng)
+</span>        }
+        <span class="cov8" title="1">if err != nil </span>{
                 <span class="cov0" title="0">return nil, 0, fmt.Errorf("failed to plan facility %q: %w", lot.facility, err)
 </span>        }
         // 1棟の絵は街路の帯に囲まれるので、絵の外は通れるものとして数える
         <span class="cov8" title="1">voidEnclosedTall(cells, blocks, isTall, func(int, int) bool </span>{ <span class="cov0" title="0">return true }</span>)
         <span class="cov8" title="1">return cells, urbanStreetW, nil</span>
 }
+
+// facilityArtCenter は施設の絵の真ん中をチャンクの中の座標で返す。絵は北と西の街路の帯の内側に置くので、帯の分だけ南東にずれる
+func facilityArtCenter(chunkW, chunkH consts.Tile) consts.Coord[consts.Tile] {
+        <span class="cov8" title="1">return consts.Coord[consts.Tile]{X: urbanStreetW + (chunkW-urbanStreetW)/2, Y: urbanStreetW + (chunkH-urbanStreetW)/2}
+</span>}
 
 // drawUrbanStreets はチャンクの北辺と西辺に街路を描く。建物区画のタイルは建物の生成が描くので触らない
 func drawUrbanStreets(world w.World, g chunkGeom, streets streetTiles) error {
@@ -32238,6 +32304,7 @@ var (
         errDistrictWaterLayer            = errors.New("district water layer is not the core of rings")
         errDistrictLayerEmpty            = errors.New("district layer has neither zones nor water")
         errDistrictWaterNotSquare        = errors.New("district with a water layer is not square")
+        errLakeFacilityNotSingleChunk    = errors.New("facility in a lake district zone is larger than one chunk")
         errDistrictFenceWithGaps         = errors.New("district with a fence has chunks without facilities")
         errLandmarkMinDanger             = errors.New("landmark facility has minDanger")
         errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
@@ -32269,6 +32336,7 @@ func validateRules(raws rawschema.Raws) error {
                 validateDisassemblies,
                 validateDistricts,
                 validateZoneBaseFacilities,
+                validateLakeFacilityFootprints,
                 validateLandmarkMinDanger,
                 validateMapGlyphReferences,
                 validateConditions,
@@ -32385,7 +32453,7 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
                 }
                 <span class="cov8" title="1">for _, zone := range DistrictZones(*d) </span>{
                         <span class="cov8" title="1">hasBase := slices.ContainsFunc(facilities, func(f rawschema.Facility) bool </span>{
-                                // 目玉の施設は区域に1つだけで、残りのチャンクの抽選からは外す
+                                // 主の施設は区域に1つだけで、残りのチャンクの抽選からは外す
                                 <span class="cov8" title="1">if d.Landmark != nil &amp;&amp; f.Id == *d.Landmark </span>{
                                         <span class="cov8" title="1">return false
 </span>                                }
@@ -32401,8 +32469,37 @@ func validateZoneBaseFacilities(raws rawschema.Raws) error {
         <span class="cov8" title="1">return nil</span>
 }
 
-// validateLandmarkMinDanger は区域の目玉の施設が、その区域が割り振る地区の行に深さの下限を持たないことを検証する。
-// 目玉の施設は抽選を通らず区域に必ず1つ建つので、深さの下限を書いても効かない。区域の外の地区の行は抽選を通るので見ない
+// validateLakeFacilityFootprints は湖を描く区域が割り振る全ての地区に建つ施設が、主の施設のほかは1チャンクの大きさだけを持つことを検証する。
+// 1棟の絵は区画の入口のチャンクが接する湖へ向けて回すので、区画が複数のチャンクにまたがると向きが区画と合わない。主の施設は
+// 区画の割り振りとは別に置き、部屋の絵の向きは生成のときに確かめる
+func validateLakeFacilityFootprints(raws rawschema.Raws) error {
+        <span class="cov8" title="1">facilities := PtrSlice(raws.Facilities)
+        districts := PtrSlice(raws.Districts)
+        for i := range districts </span>{
+                <span class="cov8" title="1">d := &amp;districts[i]
+                if !slices.ContainsFunc(d.Layers, func(l rawschema.DistrictLayer) bool </span>{ <span class="cov8" title="1">return l.Water != nil }</span>) {
+                        <span class="cov8" title="1">continue</span>
+                }
+                <span class="cov8" title="1">zones := DistrictZones(*d)
+                for _, f := range facilities </span>{
+                        <span class="cov8" title="1">if d.Landmark != nil &amp;&amp; f.Id == *d.Landmark </span>{
+                                <span class="cov8" title="1">continue</span>
+                        }
+                        <span class="cov8" title="1">if !slices.ContainsFunc(f.Zones, func(z rawschema.FacilityZone) bool </span>{ <span class="cov8" title="1">return slices.Contains(zones, z.Zone) }</span>) {
+                                <span class="cov8" title="1">continue</span>
+                        }
+                        <span class="cov8" title="1">for _, fp := range PtrSlice(f.Footprints) </span>{
+                                <span class="cov8" title="1">if fp.W != 1 || fp.H != 1 </span>{
+                                        <span class="cov8" title="1">return fmt.Errorf("district %q facility %q footprint %dx%d: %w", d.Id, f.Id, fp.W, fp.H, errLakeFacilityNotSingleChunk)
+</span>                                }
+                        }
+                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validateLandmarkMinDanger は区域の主の施設が、その区域が割り振る地区の行に深さの下限を持たないことを検証する。
+// 主の施設は抽選を通らず区域に必ず1つ建つので、深さの下限を書いても効かない。区域の外の地区の行は抽選を通るので見ない
 func validateLandmarkMinDanger(raws rawschema.Raws) error {
         <span class="cov8" title="1">districts := PtrSlice(raws.Districts)
         for i := range districts </span>{
@@ -33358,7 +33455,7 @@ type District struct {
         // Id 区域の種類の id。行の順が優先で、重なった後の種類の区域は出さない
         Id EntityID `json:"id"`
 
-        // Landmark 区域に1つだけ建てる目玉の施設。区画を割り振る前に、その地区の真ん中へ一番大きく置き、残りの抽選からは外す
+        // Landmark 区域に1つだけ建てる主の施設。区画を割り振る前に、その地区の真ん中か、だめなら真ん中に一番近い建てられる所へ一番大きく置き、残りの抽選からは外す
         Landmark *EntityID `json:"landmark,omitempty"`
 
         // Layers 地区の層。プレイヤーが入ってくる側から順に並べる。rings は外から内へ、rows は南から北へ

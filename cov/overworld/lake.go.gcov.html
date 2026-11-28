@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">88.9&nbsp;%</td>
-            <td class="headerCovTableEntry">99</td>
-            <td class="headerCovTableEntry">88</td>
+            <td class="headerCovTableEntryHi">90.9&nbsp;%</td>
+            <td class="headerCovTableEntry">110</td>
+            <td class="headerCovTableEntry">100</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-11-28 04:20:06</td>
+            <td class="headerValue">2026-11-28 08:52:45</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,8 +79,8 @@
 <span id="L17"><span class="lineNum">      17</span>              : // waterAt は区域の中の座標 l の層が湖を描く層なら、その水面を返す。区域の外と、湖を描かない層は nil</span>
 <span id="L18"><span class="lineNum">      18</span>              : func (r districtRegion) waterAt(l consts.Coord[consts.Chunk]) *rawschema.DistrictWater {</span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         if !r.contains(r.anchor.Add(l)) {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return r.kind.Layers[r.layerAt(l)].Water</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : }</span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
@@ -100,8 +100,8 @@
 <span id="L38"><span class="lineNum">      38</span>              : // errLakeTooSmall は湖を描く層が、輪郭の揺れと浜の幅を引くと楕円が残らないほど小さいときに返す</span>
 <span id="L39"><span class="lineNum">      39</span>              : var errLakeTooSmall = errors.New(&quot;lake layer is too small for its shore wobble and beach width&quot;)</span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
-<span id="L41"><span class="lineNum">      41</span>              : // lakeShapeOf は区域 r の湖の輪郭と桟橋を返す。楕円は揺れの量と浜の幅だけ内側に取り、湖が隣の層へはみ出さず、湖の層の縁に岸の陸を残す。湖が無ければ ok=false</span>
-<span id="L42"><span class="lineNum">      42</span>              : func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool, error) {</span>
+<span id="L41"><span class="lineNum">      41</span>              : // lakeShapeOf は区域 r の湖の輪郭と、区画 lots から伸ばす桟橋を返す。楕円は揺れの量と浜の幅だけ内側に取り、湖が隣の層へはみ出さず、湖の層の縁に岸の陸を残す。湖が無ければ ok=false</span>
+<span id="L42"><span class="lineNum">      42</span>              : func (r districtRegion) lakeShapeOf(lots []buildingLot, chunkW, chunkH consts.Tile) (lakeShape, bool, error) {</span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         var water *rawschema.DistrictWater</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         lo := consts.Coord[consts.Chunk]{X: r.w, Y: r.h}</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         var hi consts.Coord[consts.Chunk]</span></span>
@@ -132,111 +132,133 @@
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         if s.rx &lt;= 0 || s.ry &lt;= 0 {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 return lakeShape{}, false, fmt.Errorf(&quot;district %q: %w&quot;, r.kind.Id, errLakeTooSmall)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         for l := range r.buildSet() {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 s.addPier(r, l, chunkW, chunkH)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         for _, b := range lots {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 s.addPier(r, b.anchor.Add(b.entrance()), chunkW, chunkH)</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         return s, true, nil</span></span>
 <span id="L77"><span class="lineNum">      77</span>              : }</span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
-<span id="L79"><span class="lineNum">      79</span>              : // addPier は施設を建てたチャンク l の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める</span>
-<span id="L80"><span class="lineNum">      80</span>              : func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) {</span>
+<span id="L79"><span class="lineNum">      79</span>              : // waterSide は区域の中の座標 l に接する湖の向きを、北・南・西・東の順に最初に見つけたもので返す</span>
+<span id="L80"><span class="lineNum">      80</span>              : func (r districtRegion) waterSide(l consts.Coord[consts.Chunk]) (consts.Coord[consts.Chunk], bool) {</span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         for _, d := range []consts.Coord[consts.Chunk]{{Y: -1}, {Y: 1}, {X: -1}, {X: 1}} {</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 if r.waterAt(l.Add(d)) == nil {</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L84"><span class="lineNum">      84</span>              :                 }</span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 c := r.anchor.Add(l)</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW) + chunkW/2, Y: c.Y.Tiles(chunkH) + chunkH/2}</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                 s.layPier(center, consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}, max(r.w.Tiles(chunkW), r.h.Tiles(chunkH)))</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L89"><span class="lineNum">      89</span>              :         }</span>
-<span id="L90"><span class="lineNum">      90</span>              : }</span>
-<span id="L91"><span class="lineNum">      91</span>              : </span>
-<span id="L92"><span class="lineNum">      92</span>              : // layPier は from から step の向きへ、輪郭の内側に幅2の板を張る。深い水へ pierLength だけ入るか、湖の中心を越えるか、</span>
-<span id="L93"><span class="lineNum">      93</span>              : // 板を張った後に陸へ出たら止める。中心を越えたかは揺れの無い楕円で見る</span>
-<span id="L94"><span class="lineNum">      94</span>              : func (s *lakeShape) layPier(from, step consts.Coord[consts.Tile], limit consts.Tile) {</span>
-<span id="L95"><span class="lineNum">      95</span>              :         // 2列目を負の向きに張り、どの向きでも中心の列にそろえる</span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         side := consts.Coord[consts.Tile]{X: -tileAbs(step.Y), Y: -tileAbs(step.X)}</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         end := float64(s.water.BeachWidth + s.water.ShallowWidth + s.water.PierLength)</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         prev := math.Inf(-1)</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         laid := false</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         for p, n := from, consts.Tile(0); n &lt; limit; p, n = p.Add(step), n+1 {</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 depth := s.depth(p)</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 inside := s.ellipseInside(p)</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 if depth &gt;= end || depth &gt;= 0 &amp;&amp; inside &lt; prev || laid &amp;&amp; depth &lt; 0 {</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                         return</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 prev = inside</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 if depth &gt;= 0 {</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                         laid = true</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                         s.piers[p] = true</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :                         if s.depth(p.Add(side)) &gt;= 0 {</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                                 s.piers[p.Add(side)] = true</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L113"><span class="lineNum">     113</span>              :                 }</span>
-<span id="L114"><span class="lineNum">     114</span>              :         }</span>
-<span id="L115"><span class="lineNum">     115</span>              : }</span>
-<span id="L116"><span class="lineNum">     116</span>              : </span>
-<span id="L117"><span class="lineNum">     117</span>              : // depth は絶対タイル座標 p が湖の輪郭からどれだけ内側にあるかをマス数で返す。負なら輪郭の外の陸</span>
-<span id="L118"><span class="lineNum">     118</span>              : func (s lakeShape) depth(p consts.Coord[consts.Tile]) float64 {</span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         return s.ellipseInside(p) + float64(s.water.ShoreWobble)*(2*valueNoise(s.seed, p, consts.Tile(s.water.ShoreCell))-1)</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L121"><span class="lineNum">     121</span>              : </span>
-<span id="L122"><span class="lineNum">     122</span>              : // ellipseInside は p が揺れの無い楕円の輪郭からどれだけ内側にあるかをマス数で返す</span>
-<span id="L123"><span class="lineNum">     123</span>              : func (s lakeShape) ellipseInside(p consts.Coord[consts.Tile]) float64 {</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         dx := (float64(p.X) + 0.5 - s.cx) / s.rx</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         dy := (float64(p.Y) + 0.5 - s.cy) / s.ry</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         return (1 - math.Hypot(dx, dy)) * min(s.rx, s.ry)</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L128"><span class="lineNum">     128</span>              : </span>
-<span id="L129"><span class="lineNum">     129</span>              : // tileAt は絶対タイル座標 p に置く水面か桟橋のタイルを返す。輪郭の外の陸なら ok=false</span>
-<span id="L130"><span class="lineNum">     130</span>              : func (s lakeShape) tileAt(p consts.Coord[consts.Tile]) (string, bool) {</span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         d := s.depth(p)</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L133"><span class="lineNum">     133</span>              :         case s.piers[p]:</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 return s.water.Pier, true</span></span>
-<span id="L135"><span class="lineNum">     135</span>              :         case d &lt; 0:</span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false</span></span>
-<span id="L137"><span class="lineNum">     137</span>              :         case d &lt; float64(s.water.BeachWidth):</span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 return s.water.Beach, true</span></span>
-<span id="L139"><span class="lineNum">     139</span>              :         case d &lt; float64(s.water.BeachWidth+s.water.ShallowWidth):</span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 return s.water.Shallow, true</span></span>
-<span id="L141"><span class="lineNum">     141</span>              :         }</span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         return s.water.Deep, true</span></span>
-<span id="L143"><span class="lineNum">     143</span>              : }</span>
-<span id="L144"><span class="lineNum">     144</span>              : </span>
-<span id="L145"><span class="lineNum">     145</span>              : // renderLakeChunk はチャンク c の湖の輪郭の内側に水面と桟橋を置く。輪郭の外は下地の土を残す</span>
-<span id="L146"><span class="lineNum">     146</span>              : func renderLakeChunk(world w.World, g chunkGeom, r districtRegion, c consts.Coord[consts.Chunk]) error {</span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         shape, ok, err := r.lakeShapeOf(g.chunkW, g.chunkH)</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         if err != nil || !ok {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         rows := map[string]rawschema.Tile{}</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         for _, id := range []string{shape.water.Deep, shape.water.Shallow, shape.water.Beach, shape.water.Pier} {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 t, err := raw.GetTile(world.Resources.RawMaster, id)</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;lake tile %q: %w&quot;, id, err)</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 rows[id] = t</span></span>
-<span id="L158"><span class="lineNum">     158</span>              :         }</span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         origin := consts.Coord[consts.Tile]{X: c.X.Tiles(g.chunkW), Y: c.Y.Tiles(g.chunkH)}</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         tiles := g.tiles.get()</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         for y := range g.chunkH {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 for x := range g.chunkW {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                         tile, ok := shape.tileAt(origin.Add(consts.Coord[consts.Tile]{X: x, Y: y}))</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                         if !ok {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L166"><span class="lineNum">     166</span>              :                         }</span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                         if err := spawnFacilityTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + x, Y: g.offsetY + y}, rows[tile]); err != nil {</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                                 return err</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L170"><span class="lineNum">     170</span>              :                 }</span>
-<span id="L171"><span class="lineNum">     171</span>              :         }</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L173"><span class="lineNum">     173</span>              : }</span>
-<span id="L174"><span class="lineNum">     174</span>              : </span>
-<span id="L175"><span class="lineNum">     175</span>              : func tileAbs(v consts.Tile) consts.Tile {</span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         return max(v, -v)</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 if r.waterAt(l.Add(d)) != nil {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                         return d, true</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L85"><span class="lineNum">      85</span>              :         }</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         return consts.Coord[consts.Chunk]{}, false</span></span>
+<span id="L87"><span class="lineNum">      87</span>              : }</span>
+<span id="L88"><span class="lineNum">      88</span>              : </span>
+<span id="L89"><span class="lineNum">      89</span>              : // quarterTurnsToward は北を向いた絵を向き d へ向けるのに要る左回りの90度の回数を返す。d は上下左右の1マスで、北なら0</span>
+<span id="L90"><span class="lineNum">      90</span>              : func quarterTurnsToward(d consts.Coord[consts.Chunk]) int {</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         switch d {</span></span>
+<span id="L92"><span class="lineNum">      92</span>              :         case consts.Coord[consts.Chunk]{X: -1}:</span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 return 1</span></span>
+<span id="L94"><span class="lineNum">      94</span>              :         case consts.Coord[consts.Chunk]{Y: 1}:</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                 return 2</span></span>
+<span id="L96"><span class="lineNum">      96</span>              :         case consts.Coord[consts.Chunk]{X: 1}:</span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 return 3</span></span>
+<span id="L98"><span class="lineNum">      98</span>              :         }</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         return 0</span></span>
+<span id="L100"><span class="lineNum">     100</span>              : }</span>
+<span id="L101"><span class="lineNum">     101</span>              : </span>
+<span id="L102"><span class="lineNum">     102</span>              : // addPier は区画の入口のチャンク l に置いた施設の絵の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める</span>
+<span id="L103"><span class="lineNum">     103</span>              : func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chunkW, chunkH consts.Tile) {</span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         d, ok := r.waterSide(l)</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :         c := r.anchor.Add(l)</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :         center := consts.Coord[consts.Tile]{X: c.X.Tiles(chunkW), Y: c.Y.Tiles(chunkH)}.Add(facilityArtCenter(chunkW, chunkH))</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         s.layPier(center, consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}, max(r.w.Tiles(chunkW), r.h.Tiles(chunkH)))</span></span>
+<span id="L111"><span class="lineNum">     111</span>              : }</span>
+<span id="L112"><span class="lineNum">     112</span>              : </span>
+<span id="L113"><span class="lineNum">     113</span>              : // layPier は from から step の向きへ、輪郭の内側に幅2の板を張る。深い水へ pierLength だけ入るか、湖の中心を越えるか、</span>
+<span id="L114"><span class="lineNum">     114</span>              : // 板を張った後に陸へ出たら止める。中心を越えたかは揺れの無い楕円で見る</span>
+<span id="L115"><span class="lineNum">     115</span>              : func (s *lakeShape) layPier(from, step consts.Coord[consts.Tile], limit consts.Tile) {</span>
+<span id="L116"><span class="lineNum">     116</span>              :         // 2列目を負の向きに張り、どの向きでも中心の列にそろえる</span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         side := consts.Coord[consts.Tile]{X: -tileAbs(step.Y), Y: -tileAbs(step.X)}</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         end := float64(s.water.BeachWidth + s.water.ShallowWidth + s.water.PierLength)</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         prev := math.Inf(-1)</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         laid := false</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         for p, n := from, consts.Tile(0); n &lt; limit; p, n = p.Add(step), n+1 {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 depth := s.depth(p)</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 inside := s.ellipseInside(p)</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 if depth &gt;= end || depth &gt;= 0 &amp;&amp; inside &lt; prev || laid &amp;&amp; depth &lt; 0 {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                         return</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 prev = inside</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 if depth &gt;= 0 {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                         laid = true</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                         s.piers[p] = true</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                         if s.depth(p.Add(side)) &gt;= 0 {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                                 s.piers[p.Add(side)] = true</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L134"><span class="lineNum">     134</span>              :                 }</span>
+<span id="L135"><span class="lineNum">     135</span>              :         }</span>
+<span id="L136"><span class="lineNum">     136</span>              : }</span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              : // depth は絶対タイル座標 p が湖の輪郭からどれだけ内側にあるかをマス数で返す。負なら輪郭の外の陸</span>
+<span id="L139"><span class="lineNum">     139</span>              : func (s lakeShape) depth(p consts.Coord[consts.Tile]) float64 {</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         return s.ellipseInside(p) + float64(s.water.ShoreWobble)*(2*valueNoise(s.seed, p, consts.Tile(s.water.ShoreCell))-1)</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L142"><span class="lineNum">     142</span>              : </span>
+<span id="L143"><span class="lineNum">     143</span>              : // ellipseInside は p が揺れの無い楕円の輪郭からどれだけ内側にあるかをマス数で返す</span>
+<span id="L144"><span class="lineNum">     144</span>              : func (s lakeShape) ellipseInside(p consts.Coord[consts.Tile]) float64 {</span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         dx := (float64(p.X) + 0.5 - s.cx) / s.rx</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         dy := (float64(p.Y) + 0.5 - s.cy) / s.ry</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         return (1 - math.Hypot(dx, dy)) * min(s.rx, s.ry)</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L149"><span class="lineNum">     149</span>              : </span>
+<span id="L150"><span class="lineNum">     150</span>              : // tileAt は絶対タイル座標 p に置く水面か桟橋のタイルを返す。輪郭の外の陸なら ok=false</span>
+<span id="L151"><span class="lineNum">     151</span>              : func (s lakeShape) tileAt(p consts.Coord[consts.Tile]) (string, bool) {</span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         d := s.depth(p)</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L154"><span class="lineNum">     154</span>              :         case s.piers[p]:</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 return s.water.Pier, true</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :         case d &lt; 0:</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false</span></span>
+<span id="L158"><span class="lineNum">     158</span>              :         case d &lt; float64(s.water.BeachWidth):</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 return s.water.Beach, true</span></span>
+<span id="L160"><span class="lineNum">     160</span>              :         case d &lt; float64(s.water.BeachWidth+s.water.ShallowWidth):</span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 return s.water.Shallow, true</span></span>
+<span id="L162"><span class="lineNum">     162</span>              :         }</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         return s.water.Deep, true</span></span>
+<span id="L164"><span class="lineNum">     164</span>              : }</span>
+<span id="L165"><span class="lineNum">     165</span>              : </span>
+<span id="L166"><span class="lineNum">     166</span>              : // renderLakeChunk はチャンク c の湖の輪郭の内側に水面と桟橋を置く。輪郭の外は下地の土を残す</span>
+<span id="L167"><span class="lineNum">     167</span>              : func renderLakeChunk(world w.World, g chunkGeom, r districtRegion, c consts.Coord[consts.Chunk]) error {</span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         raws := world.Resources.RawMaster</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         shape, ok, err := r.lakeShapeOf(lotsOf(raws, zoneCatalogFrom(raws), r, spawnRowOf(world)), g.chunkW, g.chunkH)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         if err != nil || !ok {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         rows := map[string]rawschema.Tile{}</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         for _, id := range []string{shape.water.Deep, shape.water.Shallow, shape.water.Beach, shape.water.Pier} {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 t, err := raw.GetTile(world.Resources.RawMaster, id)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;lake tile %q: %w&quot;, id, err)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 rows[id] = t</span></span>
+<span id="L180"><span class="lineNum">     180</span>              :         }</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         origin := consts.Coord[consts.Tile]{X: c.X.Tiles(g.chunkW), Y: c.Y.Tiles(g.chunkH)}</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         tiles := g.tiles.get()</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         for y := range g.chunkH {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 for x := range g.chunkW {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                         tile, ok := shape.tileAt(origin.Add(consts.Coord[consts.Tile]{X: x, Y: y}))</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                         if !ok {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L188"><span class="lineNum">     188</span>              :                         }</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                         if err := spawnFacilityTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + x, Y: g.offsetY + y}, rows[tile]); err != nil {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                                 return err</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L192"><span class="lineNum">     192</span>              :                 }</span>
+<span id="L193"><span class="lineNum">     193</span>              :         }</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L195"><span class="lineNum">     195</span>              : }</span>
+<span id="L196"><span class="lineNum">     196</span>              : </span>
+<span id="L197"><span class="lineNum">     197</span>              : func tileAbs(v consts.Tile) consts.Tile {</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         return max(v, -v)</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
