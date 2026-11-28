@@ -70,7 +70,7 @@ func (p *Processor) ProcessAll(world w.World) error {
 
 // cullDistantSolo は遠方の非交戦 SoloAI を処理対象から除外する。
 // 交戦中は視界外でも対象を追い続ける設計のため、距離に関わらず残す。随伴中のキューブも、遅れて
-// 圏外へ出ても追い続けるので残す。襲撃の敵も、遠くから錨へ向かうので残す。
+// 圏外へ出ても追い続けるので残す。襲撃の敵も、遠くから拠点へ向かうので残す。
 func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
