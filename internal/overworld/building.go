@@ -36,9 +36,10 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 		facilities[f.Id] = f
 	}
 	taken := map[consts.Coord[consts.Chunk]]bool{}
+	builds := r.buildSet()
 	free := func(x, y consts.Chunk, z rawschema.ZoneId) bool {
 		c := consts.Coord[consts.Chunk]{X: x, Y: y}
-		return x < r.w && y < r.h && !taken[c] && r.builds(c) && r.zoneAt(c) == z
+		return x < r.w && y < r.h && !taken[c] && builds[c] && r.zoneAt(c) == z
 	}
 	fits := func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool {
 		for dy := range h {
@@ -72,7 +73,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 	for y := range r.h {
 		for x := range r.w {
 			l := consts.Coord[consts.Chunk]{X: x, Y: y}
-			if taken[l] || !r.builds(l) {
+			if taken[l] || !builds[l] {
 				continue
 			}
 			z := r.zoneAt(l)
@@ -138,6 +139,33 @@ func (r districtRegion) builds(l consts.Coord[consts.Chunk]) bool {
 	i := r.layerAt(l)
 	lots := r.kind.Layers[i].Lots
 	return lots == nil || slices.Contains(r.lotChunks(i, *lots), l)
+}
+
+// buildSet は区域の中で施設を建てる座標の集合を返す。層ごとに lotChunks を1度だけ作る
+func (r districtRegion) buildSet() map[consts.Coord[consts.Chunk]]bool {
+	set := map[consts.Coord[consts.Chunk]]bool{}
+	chosen := map[int][]consts.Coord[consts.Chunk]{}
+	for y := range r.h {
+		for x := range r.w {
+			l := consts.Coord[consts.Chunk]{X: x, Y: y}
+			if r.waterAt(l) != nil {
+				continue
+			}
+			i := r.layerAt(l)
+			lots := r.kind.Layers[i].Lots
+			if lots == nil {
+				set[l] = true
+				continue
+			}
+			if _, ok := chosen[i]; !ok {
+				chosen[i] = r.lotChunks(i, *lots)
+			}
+			if slices.Contains(chosen[i], l) {
+				set[l] = true
+			}
+		}
+	}
+	return set
 }
 
 // lotChunks は層 i のチャンクのうち、施設を建てる n チャンクを返す。道の来る南の辺の中央に近い順に選び、同じ近さなら区域の seed で並べる

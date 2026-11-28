@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"errors"
 	"fmt"
 	"math"
 
@@ -29,8 +30,11 @@ type lakeShape struct {
 	piers          map[consts.Coord[consts.Tile]]bool
 }
 
+// errLakeTooSmall は湖を描く層が、輪郭の揺れと浜の幅を引くと楕円が残らないほど小さいときに返す
+var errLakeTooSmall = errors.New("lake layer is too small for its shore wobble and beach width")
+
 // lakeShapeOf は区域 r の湖の輪郭と桟橋を返す。楕円は湖が隣の層へはみ出さないよう内側に取る。湖が無ければ ok=false
-func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool) {
+func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool, error) {
 	var water *rawschema.DistrictWater
 	lo := consts.Coord[consts.Chunk]{X: r.w, Y: r.h}
 	var hi consts.Coord[consts.Chunk]
@@ -44,7 +48,7 @@ func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool
 		}
 	}
 	if water == nil {
-		return lakeShape{}, false
+		return lakeShape{}, false, nil
 	}
 	x0, y0 := float64((r.anchor.X + lo.X).Tiles(chunkW)), float64((r.anchor.Y + lo.Y).Tiles(chunkH))
 	x1, y1 := float64((r.anchor.X + hi.X).Tiles(chunkW)), float64((r.anchor.Y + hi.Y).Tiles(chunkH))
@@ -58,14 +62,13 @@ func (r districtRegion) lakeShapeOf(chunkW, chunkH consts.Tile) (lakeShape, bool
 		seed:  r.seed ^ lakeNoiseChannel,
 		piers: map[consts.Coord[consts.Tile]]bool{},
 	}
-	for y := range r.h {
-		for x := range r.w {
-			if l := (consts.Coord[consts.Chunk]{X: x, Y: y}); r.builds(l) {
-				s.addPier(r, l, chunkW, chunkH)
-			}
-		}
+	if s.rx <= 0 || s.ry <= 0 {
+		return lakeShape{}, false, fmt.Errorf("district %q: %w", r.kind.Id, errLakeTooSmall)
 	}
-	return s, true
+	for l := range r.buildSet() {
+		s.addPier(r, l, chunkW, chunkH)
+	}
+	return s, true, nil
 }
 
 // addPier は施設を建てたチャンク l の真ん中から、接する湖の側へ幅2の桟橋を伸ばす。浅瀬を越えて pierLength だけ深い水へ入った所で止める
@@ -79,7 +82,9 @@ func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chun
 		step := consts.Coord[consts.Tile]{X: consts.Tile(d.X), Y: consts.Tile(d.Y)}
 		side := consts.Coord[consts.Tile]{X: step.Y, Y: step.X}
 		end := float64(s.water.BeachWidth + s.water.ShallowWidth + s.water.PierLength)
-		for p := center; ; p = p.Add(step) {
+		// 湖が細くて深さが足りないまま抜けても、区域の外へは伸ばさない
+		limit := max(r.w.Tiles(chunkW), r.h.Tiles(chunkH))
+		for p, n := center, consts.Tile(0); n < limit; p, n = p.Add(step), n+1 {
 			depth := s.depth(p)
 			if depth >= end {
 				return
@@ -89,6 +94,7 @@ func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chun
 				s.piers[p.Add(side)] = true
 			}
 		}
+		return
 	}
 }
 
@@ -118,9 +124,9 @@ func (s lakeShape) tileAt(p consts.Coord[consts.Tile]) (string, bool) {
 
 // renderLakeChunk はチャンク c の湖の輪郭の内側に水面と桟橋を置く。輪郭の外は下地の土を残す
 func renderLakeChunk(world w.World, g chunkGeom, r districtRegion, c consts.Coord[consts.Chunk]) error {
-	shape, ok := r.lakeShapeOf(g.chunkW, g.chunkH)
-	if !ok {
-		return nil
+	shape, ok, err := r.lakeShapeOf(g.chunkW, g.chunkH)
+	if err != nil || !ok {
+		return err
 	}
 	rows := map[string]rawschema.Tile{}
 	for _, id := range []string{shape.water.Deep, shape.water.Shallow, shape.water.Beach, shape.water.Pier} {

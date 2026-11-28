@@ -99,7 +99,8 @@ func TestLakeShape_施設を建てたチャンクの正面から浜を越えて�
 	raws := testutil.InitTestWorld(t).Resources.RawMaster
 	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
 	require.True(t, ok)
-	shape, ok := r.lakeShapeOf(24, 24)
+	shape, ok, err := r.lakeShapeOf(24, 24)
+	require.NoError(t, err)
 	require.True(t, ok)
 
 	c := r.anchor.Add(consts.Coord[consts.Chunk]{X: 3, Y: 6})
@@ -118,4 +119,30 @@ func TestLakeShape_施設を建てたチャンクの正面から浜を越えて�
 	require.Positive(t, planks)
 	want := append(slices.Repeat([]string{"plank_brown"}, planks), slices.Repeat([]string{"water_deep"}, len(line)-planks)...)
 	assert.Equal(t, want, line)
+}
+
+func TestLakeShapeOf_揺れと浜を引くと楕円が残らない層はエラーにする(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+	kind := *r.kind
+	kind.Layers = slices.Clone(kind.Layers)
+	water := *kind.Layers[1].Water
+	water.ShoreWobble = 5 * 24
+	kind.Layers[1].Water = &water
+	r.kind = &kind
+
+	_, _, err := r.lakeShapeOf(24, 24)
+	require.ErrorIs(t, err, errLakeTooSmall)
+}
+
+func TestGateColumns_門の位置が自然の地面なら真ん中の列を門にする(t *testing.T) {
+	t.Parallel()
+	raws := testutil.InitTestWorld(t).Resources.RawMaster
+	r, ok := districtAt(raws, lakeSeed, consts.Coord[consts.Chunk]{X: 6, Y: -11}, 15, 0)
+	require.True(t, ok)
+
+	north, south := gateColumns(r, lotsOf(raws, zoneCatalogFrom(raws), r, 0))
+	assert.Equal(t, [2]consts.Chunk{r.anchor.X + 3, r.anchor.X + 3}, [2]consts.Chunk{north, south})
 }
