@@ -395,7 +395,7 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 		solo.SubState = gc.AIStateDriving
 	}
 
-	next, ok := activity.FindNextStep(world, aiEntity, grid.Coord, playerGrid.Coord)
+	next, ok := followStep(world, aiEntity, grid.Coord)
 	if !ok {
 		return waitAction()
 	}
@@ -415,11 +415,24 @@ func (rp *soloPlanner) planFollowAction(world w.World, aiEntity ecs.Entity, solo
 	return moveAction(next)
 }
 
+// followStep はプレイヤーからの距離の地図で、from から下る一番近い隣のうち移れる最初のマスを返す。地図はその手番で最初に
+// 引いたときの配置で作るので、手番の中で湧いた置物やキャラクターを実際の移動と同じ判定で避ける
+func followStep(world w.World, entity ecs.Entity, from consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
+	m := query.GetPlayerDistanceMap(world)
+	var buf [8]consts.Coord[consts.Tile]
+	for _, next := range m.Steps(from, buf[:0]) {
+		if activity.CanMoveTo(world, next, from, entity) {
+			return next, true
+		}
+	}
+	return consts.Coord[consts.Tile]{}, false
+}
+
 // planConvergeAction は動き方が rawschema.Converge の敵の行動を決める。敵対する相手が見えていて、狙う的より近ければ追って殴る。それ以外は
 // 距離の地図で一番小さい隣を順に試す。狙う的か仲間でないキャラクターなら殴り、HP を持つ置物なら壊し、空いていれば
 // 進む。仲間に塞がれた隣は飛ばし、試す隣が残らなければ待つ
 func (rp *soloPlanner) planConvergeAction(world w.World, entity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) *gc.Activity {
-	m := query.GetDistanceMap(world)
+	m := query.GetCubeDistanceMap(world)
 	var buf [8]consts.Coord[consts.Tile]
 	steps := m.Steps(grid.Coord, buf[:0])
 	if target := rp.findNearestHostile(world, entity); target != nil && rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance) && closerThanMapTarget(world, m, grid, steps, *target) {

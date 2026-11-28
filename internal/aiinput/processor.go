@@ -53,7 +53,7 @@ func (p *Processor) ProcessAll(world w.World) error {
 		return err
 	}
 	targets = culled
-	query.InvalidateDistanceMap(world)
+	query.InvalidateDistanceMaps(world)
 
 	for _, entity := range targets {
 		if world.Components.Dead.Has(entity) {

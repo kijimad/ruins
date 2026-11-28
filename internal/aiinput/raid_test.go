@@ -239,7 +239,7 @@ func TestPlanRaidAction_開けた所では前の仲間の横へ回り込む(t *t
 	require.NoError(t, err)
 	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
 	// 手番の初めに作った地図のあとで、先に動いた仲間が真ん前へ入った
-	query.GetDistanceMap(world)
+	query.GetCubeDistanceMap(world)
 	front, err := lifecycle.SpawnEnemy(world, at(20, 23), "stray_dog")
 	require.NoError(t, err)
 	world.Components.SoloAI.Get(front).Movement = rawschema.Converge
@@ -279,7 +279,7 @@ func TestProcessor_襲撃の敵がいる手番だけ距離の地図を作る(t *
 	require.NoError(t, err)
 	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "stray_dog")
 	require.NoError(t, err)
-	m := query.GetDistanceMap(world)
+	m := query.GetCubeDistanceMap(world)
 	require.True(t, m.Built, "前の手番の地図")
 
 	require.NoError(t, NewProcessor(newTestRNG()).ProcessAll(world))
@@ -307,7 +307,7 @@ func TestPlanConvergeAction_地図のあとで塞がれたマスは飛ばす(t *
 	raider, err := lifecycle.SpawnEnemy(world, at(20, 26), "stray_dog")
 	require.NoError(t, err)
 	world.Components.SoloAI.Get(raider).Movement = rawschema.Converge
-	query.GetDistanceMap(world)
+	query.GetCubeDistanceMap(world)
 	query.GetSpatialIndex(world).Blocked[gc.GridElement{Coord: at(20, 25)}] = true
 
 	act := newSoloPlanner(newTestRNG()).Plan(world, raider)

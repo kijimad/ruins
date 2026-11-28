@@ -142,3 +142,86 @@ func TestPlan_戦わない方針のキューブは隣の敵に殴られても付
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 8, Y: 5}, p.Destination.Coord)
 	assert.Equal(t, rawschema.Passive, solo.CombatCurrent)
 }
+
+func TestPlanFollowAction_最短の隣に仲間がいれば回り込む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	// 仲間のマスだけが最短になるよう上下を塞ぐ
+	for _, y := range []consts.Tile{4, 6} {
+		_, err = lifecycle.SpawnProp(world, "barrel", 7, y)
+		require.NoError(t, err)
+	}
+	_, err = lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 7, Y: 5})
+	require.NoError(t, err)
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 8, Y: 5})
+	require.NoError(t, err)
+	solo := world.Components.SoloAI.Get(cube)
+	solo.SubState = gc.AIStateDriving
+
+	rp := newSoloPlanner(newTestRNG())
+	act := rp.planFollowAction(world, cube, solo, world.Components.GridElement.Get(cube))
+
+	require.NotNil(t, act)
+	p, ok := act.Params.(*gc.MoveParams)
+	require.True(t, ok)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 8, Y: 4}, p.Destination.Coord)
+}
+
+func TestPlanFollowAction_プレイヤーへ届かなければ燃料を払わず待つ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	for dy := consts.Tile(-1); dy <= 1; dy++ {
+		for dx := consts.Tile(-1); dx <= 1; dx++ {
+			if dx == 0 && dy == 0 {
+				continue
+			}
+			_, err = lifecycle.SpawnProp(world, "barrel", 5+dx, 5+dy)
+			require.NoError(t, err)
+		}
+	}
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 9, Y: 5})
+	require.NoError(t, err)
+	solo := world.Components.SoloAI.Get(cube)
+	solo.SubState = gc.AIStateDriving
+	world.Components.Charge.Get(cube).Current = 100
+
+	rp := newSoloPlanner(newTestRNG())
+	act := rp.planFollowAction(world, cube, solo, world.Components.GridElement.Get(cube))
+
+	require.NotNil(t, act)
+	assert.Equal(t, []any{gc.BehaviorWait, consts.Heat(100)}, []any{act.BehaviorName, query.CubeFuelTotal(world, cube)})
+}
+
+func TestPlanFollowAction_展開したキューブが塞ぐと遠くても回り込む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 6, Y: 7}, "ash")
+	require.NoError(t, err)
+	// x=7 の縦の壁に開いた穴を展開したキューブが塞ぐ。壁は上の端が近いので、上を回る道が最短になる
+	for y := consts.Tile(4); y <= 12; y++ {
+		if y == 7 {
+			continue
+		}
+		_, err = lifecycle.SpawnProp(world, "barrel", 7, y)
+		require.NoError(t, err)
+	}
+	deployed, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 7, Y: 7})
+	require.NoError(t, err)
+	world.Components.Deployed.Add(deployed, &gc.Deployed{})
+	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 8, Y: 7})
+	require.NoError(t, err)
+	solo := world.Components.SoloAI.Get(cube)
+	solo.SubState = gc.AIStateDriving
+
+	rp := newSoloPlanner(newTestRNG())
+	act := rp.planFollowAction(world, cube, solo, world.Components.GridElement.Get(cube))
+
+	require.NotNil(t, act)
+	p, ok := act.Params.(*gc.MoveParams)
+	require.True(t, ok, "待たずに動く")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 8, Y: 6}, p.Destination.Coord)
+}
