@@ -442,6 +442,11 @@ import (
 		zonesAbsent: true & zones == _|_ @rawgen(-)
 		lotsAbsent:  true & lots == _|_  @rawgen(-)
 	}
+
+	// 全てのチャンクに施設を建てる層は散布を撒く所が無い
+	if water == _|_ && lots == _|_ {
+		scatterAbsent: true & scatter == _|_ @rawgen(-)
+	}
 }
 
 // 湖の水面。楕円の輪郭を値ノイズで出入りさせ、輪郭から内へ浜、浅瀬、深い水と並べる

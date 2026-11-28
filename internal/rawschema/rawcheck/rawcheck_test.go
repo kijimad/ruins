@@ -293,6 +293,9 @@ func TestValidate_水面の制約の違反を位置で返す(t *testing.T) {
 			w := validWater()
 			(*r.Districts)[0].Layers[1].Water = &w
 		}, want: "districts.0.layers.1.zonesAbsent"},
+		{name: "全てのチャンクに施設を建てる層に散布を書く", mutate: func(r *rawschema.Raws) {
+			(*r.Districts)[0].Layers[0].Scatter = new(rawschema.EntityID("wild"))
+		}, want: "districts.0.layers.0.scatterAbsent"},
 		{name: "湖を描く層に施設の数を書く", mutate: func(r *rawschema.Raws) {
 			w := validWater()
 			(*r.Districts)[0].Layers[1] = rawschema.DistrictLayer{Water: &w, Lots: new(1)}

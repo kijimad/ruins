@@ -167,6 +167,7 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		}, "districts.0.layers.1.water.deep_ref"},
 		{"層の散布", func(r *rawschema.Raws) {
 			(*r.Districts)[0].Layers[0].Scatter = new(rawschema.EntityID("none"))
+			(*r.Districts)[0].Layers[0].Lots = new(1)
 		}, "districts.0.layers.0.scatter_ref"},
 		{"水面の記号", func(r *rawschema.Raws) {
 			w := validWater()
