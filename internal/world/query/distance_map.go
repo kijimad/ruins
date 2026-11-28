@@ -30,9 +30,8 @@ func InvalidateDistanceMaps(world w.World) {
 	}
 }
 
-// GetPlayerDistanceMap はシングルトンから、ついて行く者が下るプレイヤーからの距離の地図を取得する。未構築なら作る。
-// ついて行く者は置物を壊さないので HP を持つ置物も通れないマスとして数え、味方を含む他のキャラクターのマスは重く数えて
-// 回り込ませる。手番の外で引くと前の手番の地図が返る
+// GetPlayerDistanceMap はシングルトンから、プレイヤーからの距離の地図を取得する。未構築なら作る。手番の外で引くと前の
+// 手番の地図が返る
 func GetPlayerDistanceMap(world w.World) *gc.DistanceMap {
 	m := GetSingleton[gc.PlayerDistanceMap](world, world.Components.PlayerDistanceMap)
 	if m == nil {
@@ -51,23 +50,21 @@ func GetPlayerDistanceMap(world w.World) *gc.DistanceMap {
 // distanceRule は距離の地図の重みの規則。重みを Spread の前提の 1 か gc.DistanceMapObstacleCost か通れないかに閉じるため、
 // 数でなく真偽で選ぶ
 type distanceRule struct {
-	// breakProps なら HP を持つ通れない置物を壊して通るものとして重く数え、偽なら通れないマスとして数える
+	// breakProps なら HP を持つ通れない置物のマスを重み gc.DistanceMapObstacleCost で通れるものにする
 	breakProps bool
-	// avoidAllies なら FactionAlly のプレイヤー側のマスも重く数えて回り込ませ、偽なら空いたマスと同じに数える。プレイヤー側でない
-	// キャラクターのマスは規則に依らず重く数える
+	// avoidAllies なら FactionAlly のプレイヤー側のマスも重み gc.DistanceMapObstacleCost にし、偽なら重み1にする
 	avoidAllies bool
 }
 
 var (
-	// cubeRule はキューブへ寄り集まる襲撃の敵の規則。置物を壊して進む。プレイヤー側のマスは殴る相手なので重く数えない
+	// cubeRule は襲撃の敵の規則。置物を壊して進み、殴る相手のプレイヤー側のマスは避けない
 	cubeRule = distanceRule{breakProps: true}
-	// playerRule はプレイヤーについて行く者の規則。置物を壊さず、プレイヤー側のマスも回り込む
+	// playerRule はついて行く者の規則。置物を壊さず、プレイヤー側のマスも回り込む
 	playerRule = distanceRule{avoidAllies: true}
 )
 
-// buildDistanceMap は空間の索引と置物から各マスの重みを書き出し、的 targets から距離を広げる。通れるマスは重み1、プレイヤー側で
-// ないキャラクターのマスは重み gc.DistanceMapObstacleCost で通れるものとして数える。HP を持つ通れない置物とプレイヤー側の
-// マスは rule で決める。HP を持たず通れない壁や地形は数えない
+// buildDistanceMap は各マスの重みを書き出し、的 targets から距離を広げる。空いたマスは重み1、プレイヤー側でないキャラクターの
+// マスは重み gc.DistanceMapObstacleCost、壁や地形は通れない。置物とプレイヤー側のマスは rule で決める
 func buildDistanceMap(world w.World, m *gc.DistanceMap, targets []consts.Coord[consts.Tile], rule distanceRule) {
 	m.Built = true
 	si := GetSpatialIndex(world)

@@ -2,7 +2,8 @@ package components
 
 import "github.com/kijimaD/ruins/internal/consts"
 
-// DistanceMapObstacleCost は重く数えて、回り込ませるか待たせるマスの重み。壊せる置物やキャラクターのマスに使う
+// DistanceMapObstacleCost は、壊せる置物やキャラクターのいるマスへ入る重み。空いたマスの重み1より大きいので、下る者は
+// 近い回り道があればそちらを通り、無ければそのマスの手前で待つ
 const DistanceMapObstacleCost = 5
 
 // distanceMapDirs は距離の地図を広げ、下る8方向
@@ -12,7 +13,7 @@ var distanceMapDirs = [...]consts.Coord[consts.Tile]{
 }
 
 // DistanceMap は狙う的から現ステージの各マスへの、重み付きの距離。下る者はこの値が小さくなる隣へ進む。全員が同じ1枚を
-// 下るので、1体ごとに道を探さずに済む。的ごとに CubeDistanceMap と PlayerDistanceMap が埋め込む
+// 下るので、1体ごとに道を探さずに済む
 type DistanceMap struct {
 	Width, Height consts.Tile
 	// Cost は各マスへ入る重み。添字は y*Width+x。0 は通れない。Reset と Spread の間でだけ書く
@@ -27,7 +28,7 @@ type DistanceMap struct {
 	buckets [DistanceMapObstacleCost + 1][]int32
 }
 
-// CubeDistanceMap はキューブからの距離の地図を保持するシングルトン。襲撃の敵が拠点のキューブへ寄り集まるのに下る。キューブが無ければプレイヤーを的にする
+// CubeDistanceMap はキューブからの距離の地図を保持するシングルトン。キューブが無ければプレイヤーを的にする
 type CubeDistanceMap struct {
 	DistanceMap
 }
@@ -37,7 +38,7 @@ func NewCubeDistanceMap() *CubeDistanceMap {
 	return &CubeDistanceMap{}
 }
 
-// PlayerDistanceMap はプレイヤーからの距離の地図を保持するシングルトン。ついて行くキューブが下る。キューブの地図と的も重みも違うので別に持つ
+// PlayerDistanceMap はプレイヤーからの距離の地図を保持するシングルトン
 type PlayerDistanceMap struct {
 	DistanceMap
 }

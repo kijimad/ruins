@@ -73,7 +73,7 @@ func TestGetCubeDistanceMap_引いたときに作り無効化で捨てる(t *tes
 	assert.False(t, m.Built, "無効化で捨てる")
 }
 
-// BenchmarkBuildDistanceMap は15×15チャンクの帯の全体へ、距離の地図を1回作る時間を測る。距離の地図を下る者がいる手番ごとに作る
+// BenchmarkBuildDistanceMap は15×15チャンクの帯の全体へ、距離の地図を1回作る時間を測る
 func BenchmarkBuildDistanceMap(b *testing.B) {
 	world := testutil.InitTestWorld(b)
 	si := GetSpatialIndex(world)

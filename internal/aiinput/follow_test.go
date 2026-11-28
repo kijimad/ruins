@@ -148,7 +148,7 @@ func TestPlanFollowAction_最短の隣に仲間がいれば回り込む(t *testi
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	// 仲間の上下を塞ぎ、仲間のマスだけが最短になるようにする。上を回れば1歩多いだけで済む
+	// 仲間のマスだけが最短になるよう上下を塞ぐ
 	for _, y := range []consts.Tile{4, 6} {
 		_, err = lifecycle.SpawnProp(world, "barrel", 7, y)
 		require.NoError(t, err)
@@ -174,7 +174,6 @@ func TestPlanFollowAction_プレイヤーへ届かなければ燃料を払わず
 	world := testutil.InitTestWorld(t)
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	// プレイヤーの周りを樽で囲う
 	for dy := consts.Tile(-1); dy <= 1; dy++ {
 		for dx := consts.Tile(-1); dx <= 1; dx++ {
 			if dx == 0 && dy == 0 {
