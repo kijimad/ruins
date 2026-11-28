@@ -92,7 +92,9 @@ func (s *lakeShape) addPier(r districtRegion, l consts.Coord[consts.Chunk], chun
 			}
 			if depth >= 0 {
 				s.piers[p] = true
-				s.piers[p.Add(side)] = true
+				if s.depth(p.Add(side)) >= 0 {
+					s.piers[p.Add(side)] = true
+				}
 			}
 		}
 		return

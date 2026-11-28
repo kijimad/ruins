@@ -354,7 +354,7 @@ import (
 		fence_ref: _propIDs[fence] @rawgen(-)
 	}
 
-	// チャンクごとに街路へ湧かせる敵の数
+	// 施設を建てるチャンクごとに湧かせる敵の数
 	streetEnemies!: #Dice
 	// 街路のタイル。省くと街路の格子を引かない
 	street?: #EntityID
@@ -437,9 +437,10 @@ import (
 		scatter_ref: _scatterZoneIDs[scatter] @rawgen(-)
 	}
 
-	// 地区と湖を両方は持たない
+	// 湖を描く層は地区も施設の数も持たない
 	if water != _|_ {
 		zonesAbsent: true & zones == _|_ @rawgen(-)
+		lotsAbsent:  true & lots == _|_  @rawgen(-)
 	}
 }
 

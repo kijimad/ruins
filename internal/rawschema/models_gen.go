@@ -651,7 +651,7 @@ type District struct {
 	// Street 街路のタイル。省くと街路の格子を引かない
 	Street *EntityID `json:"street,omitempty"`
 
-	// StreetEnemies チャンクごとに街路へ湧かせる敵の数
+	// StreetEnemies 施設を建てるチャンクごとに湧かせる敵の数
 	StreetEnemies Dice `json:"streetEnemies"`
 
 	// Verge 街路の両端に置く植え込みのタイル。省くと植え込みを置かず、建物と道の間を空けない
