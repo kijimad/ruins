@@ -113,8 +113,9 @@ Generated from the frontmatter in `docs/design`. Filter them with `go run . desi
 
 | status | Document | Progress | tags |
 |---|---|---|---|
+| in-progress | [錨を下ろして遠征を繰り返し、乗り切って北へ発つ](docs/design/261125003808.md) | 1/7 | gamedesign, combat, worldgen, movement |
 | draft | [湖の区域](docs/design/261124195212.md) | 0/11 | worldgen, gamedesign |
-| draft | [錨を下ろして遠征を繰り返し、乗り切って北へ発つ](docs/design/261125003808.md) | 0/7 | gamedesign, combat, worldgen, movement |
+| draft | [7日ごとの夜に襲撃が波で来て、錨のキューブを狙う](docs/design/261128105246.md) | 0/10 | combat, gamedesign |
 
 
 ## References
