@@ -16,6 +16,10 @@ var (
 	errDistrictSizeOutOfRegion       = errors.New("district size does not fit in its region")
 	errDistrictTooShort              = errors.New("district is shorter than its layers")
 	errDistrictLayers                = errors.New("district layers do not fit its pattern")
+	errDistrictWaterLayer            = errors.New("district water layer is not the core of rings")
+	errDistrictLayerEmpty            = errors.New("district layer has neither zones nor water")
+	errDistrictWaterNotSquare        = errors.New("district with a water layer is not square")
+	errDistrictFenceWithGaps         = errors.New("district with a fence has chunks without facilities")
 	errLandmarkMinDanger             = errors.New("landmark facility has minDanger")
 	errMapGlyphNotSingleRune         = errors.New("map glyph is not a single rune")
 	errMapGlyphDuplicate             = errors.New("map glyph is duplicated")
@@ -89,9 +93,32 @@ func validateDistricts(raws rawschema.Raws) error {
 	return nil
 }
 
+// RingsCoreLayer は rings の並べ方で中心の層の添字。1つ目の層が外側を、2つ目の層が中心を占める
+const RingsCoreLayer = 1
+
 // validateDistrictLayers は区域 d の層の数と行の数の書き方が、並べ方に合うことを検証する。
-// rings は外側と中心の2層で行の数を書かず、rows は2層以上で行の数を省いた層がちょうど1つある
+// rings は外側と中心の2層で行の数を書かず、rows は2層以上で行の数を省いた層がちょうど1つある。
+// 湖を描く層は rings の中心だけにし、区域は正方形だけにする。湖の楕円は短い半径で深さを測るので、正方形でないと長い辺の側で外の層へはみ出す
 func validateDistrictLayers(d *rawschema.District) error {
+	for i, l := range d.Layers {
+		// 施設を建てないチャンクは塀を描かないので、塀を巡らせる区域には置かない
+		if d.Fence != nil && (l.Water != nil || l.Lots != nil) {
+			return fmt.Errorf("district %q layer %d: %w", d.Id, i, errDistrictFenceWithGaps)
+		}
+		if l.Water == nil && l.Zones == nil {
+			return fmt.Errorf("district %q layer %d: %w", d.Id, i, errDistrictLayerEmpty)
+		}
+		if l.Water != nil && (d.Pattern != rawschema.DistrictPatternRings || i != RingsCoreLayer) {
+			return fmt.Errorf("district %q layer %d: %w", d.Id, i, errDistrictWaterLayer)
+		}
+	}
+	if slices.ContainsFunc(d.Layers, func(l rawschema.DistrictLayer) bool { return l.Water != nil }) {
+		for _, size := range d.Sizes {
+			if size.W != size.H {
+				return fmt.Errorf("district %q size %dx%d: %w", d.Id, size.W, size.H, errDistrictWaterNotSquare)
+			}
+		}
+	}
 	rest := 0
 	for _, l := range d.Layers {
 		if l.Rows == nil {
@@ -115,7 +142,7 @@ func validateDistrictLayers(d *rawschema.District) error {
 func DistrictZones(d rawschema.District) []rawschema.ZoneId {
 	var out []rawschema.ZoneId
 	for _, l := range d.Layers {
-		for _, z := range l.Zones {
+		for _, z := range PtrSlice(l.Zones) {
 			if !slices.Contains(out, z) {
 				out = append(out, z)
 			}

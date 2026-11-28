@@ -1,6 +1,7 @@
 package overworld
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"math/rand/v2"
@@ -35,9 +36,10 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 		facilities[f.Id] = f
 	}
 	taken := map[consts.Coord[consts.Chunk]]bool{}
+	builds := r.buildSet()
 	free := func(x, y consts.Chunk, z rawschema.ZoneId) bool {
 		c := consts.Coord[consts.Chunk]{X: x, Y: y}
-		return x < r.w && y < r.h && !taken[c] && r.zoneAt(c) == z
+		return x < r.w && y < r.h && !taken[c] && builds[c] && r.zoneAt(c) == z
 	}
 	fits := func(x, y, w, h consts.Chunk, z rawschema.ZoneId) bool {
 		for dy := range h {
@@ -71,7 +73,7 @@ func lotsOf(raws rawschema.Raws, cat zoneCatalog, r districtRegion, spawnRow con
 	for y := range r.h {
 		for x := range r.w {
 			l := consts.Coord[consts.Chunk]{X: x, Y: y}
-			if taken[l] {
+			if taken[l] || !builds[l] {
 				continue
 			}
 			z := r.zoneAt(l)
@@ -129,7 +131,62 @@ func landmarkLot(r districtRegion, f rawschema.Facility, fits func(x, y, w, h co
 	return consts.Coord[consts.Chunk]{}, 0, 0, false
 }
 
-// lotAt は区域の中の座標 l を含む区画を返す。lotsOf が区域を隙間なく埋めるので必ず見つかる
+// builds は区域の中の座標 l に施設を建てるかを返す
+func (r districtRegion) builds(l consts.Coord[consts.Chunk]) bool {
+	return r.buildSet()[l]
+}
+
+// buildSet は区域の中で施設を建てる座標の集合を返す。湖と、施設の数を絞った層で選ばれなかったチャンクは自然の地面にする。
+func (r districtRegion) buildSet() map[consts.Coord[consts.Chunk]]bool {
+	set := map[consts.Coord[consts.Chunk]]bool{}
+	chosen := map[int][]consts.Coord[consts.Chunk]{}
+	for y := range r.h {
+		for x := range r.w {
+			l := consts.Coord[consts.Chunk]{X: x, Y: y}
+			if r.waterAt(l) != nil {
+				continue
+			}
+			i := r.layerAt(l)
+			lots := r.kind.Layers[i].Lots
+			if lots == nil {
+				set[l] = true
+				continue
+			}
+			if _, ok := chosen[i]; !ok {
+				chosen[i] = r.lotChunks(i, *lots)
+			}
+			if slices.Contains(chosen[i], l) {
+				set[l] = true
+			}
+		}
+	}
+	return set
+}
+
+// lotChunks は層 i のチャンクのうち、施設を建てる n チャンクを返す。道の来る南の辺の中央に近い順に選び、同じ近さなら区域の seed で並べる
+func (r districtRegion) lotChunks(i, n int) []consts.Coord[consts.Chunk] {
+	var cs []consts.Coord[consts.Chunk]
+	for y := range r.h {
+		for x := range r.w {
+			if l := (consts.Coord[consts.Chunk]{X: x, Y: y}); r.layerAt(l) == i {
+				cs = append(cs, l)
+			}
+		}
+	}
+	gate := consts.Coord[consts.Chunk]{X: r.w / 2, Y: r.h - 1}
+	dist := func(l consts.Coord[consts.Chunk]) consts.Chunk {
+		return max(l.X-gate.X, gate.X-l.X) + gate.Y - l.Y
+	}
+	slices.SortFunc(cs, func(a, b consts.Coord[consts.Chunk]) int {
+		if d := dist(a) - dist(b); d != 0 {
+			return int(d)
+		}
+		return cmp.Compare(consts.Mix2D(r.seed, a.X, a.Y), consts.Mix2D(r.seed, b.X, b.Y))
+	})
+	return cs[:min(n, len(cs))]
+}
+
+// lotAt は builds が真の座標 l を含む区画を返す
 func lotAt(lots []buildingLot, l consts.Coord[consts.Chunk]) buildingLot {
 	for _, b := range lots {
 		if l.X >= b.anchor.X && l.X < b.anchor.X+b.w && l.Y >= b.anchor.Y && l.Y < b.anchor.Y+b.h {

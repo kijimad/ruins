@@ -55,8 +55,8 @@ func makeRefRaws(mutate func(*rawschema.Raws)) rawschema.Raws {
 			Zones: []rawschema.FacilityZone{{Zone: "residential", Weight: 1}},
 		}},
 		Districts: &[]rawschema.District{{
-			Id: "town", Name: "Town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{{Zones: []rawschema.ZoneId{"residential"}}, {Zones: []rawschema.ZoneId{"downtown"}}}, Landmark: new(rawschema.EntityID("house")),
-			Street: "floor", Verge: new(rawschema.EntityID("floor")), StreetEnemies: "1d2",
+			Id: "town", Name: "Town", Spacing: 7, Separation: 2, Pattern: rawschema.DistrictPatternRings, Layers: []rawschema.DistrictLayer{{Zones: &[]rawschema.ZoneId{"residential"}}, {Zones: &[]rawschema.ZoneId{"downtown"}}}, Landmark: new(rawschema.EntityID("house")),
+			Street: new(rawschema.EntityID("floor")), Verge: new(rawschema.EntityID("floor")), StreetEnemies: "1d2",
 			Sizes: []rawschema.DistrictSize{{W: 2, H: 2, Weight: 1}},
 		}},
 		Landmarks: &[]rawschema.Landmark{
@@ -159,7 +159,21 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 			(*r.Items)[0].Tool = &rawschema.Tool{Categories: []rawschema.ToolCategoryId{"none"}, Grade: 1}
 		}, "items.0.tool.categories_ref.0"},
 		{"施設の地区", func(r *rawschema.Raws) { (*r.Facilities)[0].Zones[0].Zone = "none" }, "facilities.0.zones.0.zone_ref"},
-		{"区域の層の地区", func(r *rawschema.Raws) { (*r.Districts)[0].Layers[1].Zones[0] = "none" }, "districts.0.layers.1.zones_ref.0"},
+		{"区域の層の地区", func(r *rawschema.Raws) { (*(*r.Districts)[0].Layers[1].Zones)[0] = "none" }, "districts.0.layers.1.zones_ref.0"},
+		{"水面の深い水のタイル", func(r *rawschema.Raws) {
+			w := validWater()
+			w.Deep = "none"
+			(*r.Districts)[0].Layers[1] = rawschema.DistrictLayer{Water: &w}
+		}, "districts.0.layers.1.water.deep_ref"},
+		{"層の散布", func(r *rawschema.Raws) {
+			(*r.Districts)[0].Layers[0].Scatter = new(rawschema.EntityID("none"))
+			(*r.Districts)[0].Layers[0].Lots = new(1)
+		}, "districts.0.layers.0.scatter_ref"},
+		{"水面の記号", func(r *rawschema.Raws) {
+			w := validWater()
+			w.Glyph = "none"
+			(*r.Districts)[0].Layers[1] = rawschema.DistrictLayer{Water: &w}
+		}, "districts.0.layers.1.water.glyph_ref"},
 		{"アイテムの材質", func(r *rawschema.Raws) { (*r.Items)[0].Material = new("none") }, "itemMaterials_ref.iron"},
 		{"タイルの植生", func(r *rawschema.Raws) { (*r.Tiles)[1].Foliage = new("none") }, "tiles.1.foliage_ref"},
 		{"分解の道具の分類", func(r *rawschema.Raws) { (*r.Props)[0].Disassembly.ToolCategory = new("none") }, "props.0.disassembly.toolCategory_ref"},
@@ -174,7 +188,7 @@ func TestValidate_参照先が無いと参照の位置で返す(t *testing.T) {
 		{"散布ゾーンの下地のタイル", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Ground = "none" }, "scatterZones.0.ground_ref"},
 		{"散布ゾーンの戦利品グループ", func(r *rawschema.Raws) { (*r.ScatterZones)[0].LootGroup = "none" }, "scatterZones.0.lootGroup_ref"},
 		{"区域の目玉の施設", func(r *rawschema.Raws) { (*r.Districts)[0].Landmark = new(rawschema.EntityID("none")) }, "districts.0.landmark_ref"},
-		{"区域の街路のタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Street = "none" }, "districts.0.street_ref"},
+		{"区域の街路のタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Street = new(rawschema.EntityID("none")) }, "districts.0.street_ref"},
 		{"区域の植え込みのタイル", func(r *rawschema.Raws) { (*r.Districts)[0].Verge = new(rawschema.EntityID("none")) }, "districts.0.verge_ref"},
 		{"散布の prop", func(r *rawschema.Raws) { (*r.ScatterZones)[0].Entries[1].Ref = "none" }, "scatterZones.0.entries.1.ref_ref"},
 		{"散布の衛星の prop", func(r *rawschema.Raws) { (*(*r.ScatterZones)[0].Entries[1].Satellites)[0].Name = "none" }, "scatterZones.0.entries.1.satellites_ref.0"},
@@ -287,4 +301,9 @@ func TestValidate_idが重複すると重複のidの位置で返す(t *testing.T
 			assert.Equal(t, []string{tt.wantPath}, ce.Paths())
 		})
 	}
+}
+
+// validWater は makeRefRaws の行だけを引く、検証を通る水面
+func validWater() rawschema.DistrictWater {
+	return rawschema.DistrictWater{Deep: "floor", Shallow: "floor", Beach: "floor", Pier: "floor", PierLength: 1, Glyph: "house", BeachWidth: 1, ShallowWidth: 2, ShoreWobble: 1, ShoreCell: 8}
 }

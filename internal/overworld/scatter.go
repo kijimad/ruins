@@ -145,9 +145,18 @@ func groundCoverEntries(rows []rawschema.GroundCoverEntry) []scatterEntry {
 // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
 func scatterCatalogForChunk(raws rawschema.Raws, runSeed uint64, c consts.Coord[consts.Chunk], cols, spawnRow consts.Chunk) (scatterCatalog, bool, error) {
-	switch chunkTypeAt(raws, runSeed, c, cols, spawnRow) {
+	kind, r := classifyChunk(raws, runSeed, c, cols, spawnRow)
+	switch kind {
 	case chunkWasteland, chunkCrashSite, chunkRoad:
 		cat, err := scatterCatalogFrom(raws, outdoorZoneAt(raws, runSeed, c, cols, spawnRow))
+		return cat, err == nil, err
+	case chunkUrban:
+		l := r.local(c)
+		zone := r.scatterAt(l)
+		if zone == nil || r.builds(l) {
+			return scatterCatalog{}, false, nil
+		}
+		cat, err := scatterCatalogFrom(raws, outdoorZone(*zone))
 		return cat, err == nil, err
 	default:
 		return scatterCatalog{}, false, nil
